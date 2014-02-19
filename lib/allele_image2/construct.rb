@@ -74,12 +74,20 @@ module AlleleImage2
     # Not 100% sure if these should be empty if the Construct is circular
     def five_flank_features
       return if @circular
-      @features.select { |feature| feature.start() < @rcmb_primers.first.start() }
+      five_flank_features = @features.select do |f|
+        f.stop < @rcmb_primers.first.start()
+      end
+
+      return five_flank_features
     end
 
     def three_flank_features
       return if @circular
-      @features.select { |feature| feature.start() > @rcmb_primers.last.stop() }
+      three_flank_features = @features.select do |f|
+        f.start() > @rcmb_primers.last.stop()
+      end
+
+      return three_flank_features
     end
 
     private
@@ -101,7 +109,9 @@ module AlleleImage2
         three_arm       = select_feature features, '3 arm'
         five_arm        = select_feature features, '5 arm'
 
-        #Knock Out Design
+        # create an array of Bio::Feature primer objects, with start and end co-ordinates
+        # in relation to genbank features for five and three arms, critical region and cassette
+        # For Knock Out Design
         if critical_region
           g5 = virtual_primer 'G5', five_arm.start, five_arm.start + 50
           u5 = virtual_primer 'U5', cassette.start - 50, cassette.start
@@ -110,7 +120,7 @@ module AlleleImage2
           d3 = virtual_primer 'D3', three_arm.start - 50, three_arm.start
           g3 = virtual_primer 'G3', three_arm.stop - 50, three_arm.stop
           return [g5, u5, u3, d5, d3, g3]
-        # Deletion/ Insertion Design
+        # For Deletion/ Insertion Design where no critical region
         else
           g5 = virtual_primer 'G5', five_arm.start, five_arm.start + 50
           u5 = virtual_primer 'U5', cassette.start - 50, cassette.start
@@ -141,8 +151,10 @@ module AlleleImage2
       # and stop rcbm primers - e.g. 5-arm start oligo is G5, end oligo is U5, which is index 0 and 1 in rcmb array
       def initialize_boundries
         if @rcmb_primers.count == 4
+          # Deletion/Insertion
           @boundries = { :five_arm_features => [0,1], :cassette_features => [1,2], :three_arm_features => [2,3] }
         else
+          # Knock out
           @boundries = { :five_arm_features => [0,1], :cassette_features => [1,2], :three_arm_features => [2,5] }
           if cassette_features.empty?
             @cassette_features  = nil
@@ -152,12 +164,15 @@ module AlleleImage2
       end
 
       def initialize_section(section)
+
         # ap :section => section, :start => @rcmb_primers[@boundries[section][0]].start, :boundries => @boundries
-        @features.select do |f|
-          f.start >= @rcmb_primers[@boundries[section][0]].start and \
-          f.stop  <= @rcmb_primers[@boundries[section][1]].stop  and \
+        filtered_features = @features.select do |f|
+          f.stop >= @rcmb_primers[@boundries[section][0]].stop and \
+          f.start <= @rcmb_primers[@boundries[section][1]].start and \
           not @rcmb_primers.map(&:feature_name).include?(f.feature_name)
         end
+
+        return filtered_features
       end
 
       def init_backbone_features

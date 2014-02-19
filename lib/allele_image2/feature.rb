@@ -2,7 +2,7 @@ module AlleleImage2
   class Feature
     class NotRenderableError < RuntimeError; end
 
-    attr_accessor :feature_name, :feature_type, :start, :stop, :orientation, :exon_rank, :render_options, :simple
+    attr_accessor :feature_name, :feature_type, :start, :stop, :orientation, :exon_rank, :render_options, :simple, :do_not_display
 
     def initialize(bio_feature, options = {})
       @simple = false
@@ -19,7 +19,6 @@ module AlleleImage2
 
       # optionally set exon rank if available
       rank = bio_feature.to_hash['rank']
-
       if rank
         self.exon_rank = rank.first
       end
@@ -29,6 +28,7 @@ module AlleleImage2
       if not AlleleImage2::RenderableFeatures.renderable?(feature_type, feature_name)
         raise NotRenderableError, self.inspect
       end
+
     end
 
     def position=(position)
@@ -57,6 +57,13 @@ module AlleleImage2
       if (render_options[:simple])
         @render_options = render_options.merge(render_options[:simple])
       end
+    end
+
+    # this attribute is a yml flag that can be used to allow a feature to be included in the feature list but prevent 
+    # it being displayed in the image; it is checked when determining widths and rendering features
+    # e.g. 3 arm, 5 arm, and critical region misc features
+    def do_not_display
+      render_options[:do_not_display] || false
     end
 
   end

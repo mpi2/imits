@@ -5,430 +5,30 @@ features:
     gene:
       - cds
 
-  intron:
-    defaults:
-      colour: white
-      font_colour: black
-      simple:
-        stroke: black
-        colour: white
-        font_colour: black
-
-    en2 intron:
-    mouse en2 intron:
-
-    5' Ifitm2 intron:
-      label: "Ifitm2 Intron SD"
-      class_name: Ifitm2Intron
-      simple:
-        label: "Ifitm2 SD"
-        width: 10
-        colour: white
-        font_colour: black
-        font_size: 20
-
-    3' Ifitm2 intron:
-      label: "Ifitm2 Intron SA"
-      class_name: Ifitm2Intron
-      simple:
-        label: "Ifitm2 SA"
-        width: 10
-        colour: white
-        font_colour: black
-        font_size: 20
-
-  primer_bind:
-    defaults:
-      colour: white
-      font_colour: black
-      simple:
-        stroke: "transparent"
-        colour: white
-        font_colour: black
-
-    d5:
-    d3:
-    g5:
-    g3:
-    hd:
-    hu:
-    u5:
-    u3:
-    d5 - recombineering primer:
-    d3 - recombineering primer:
-    g5 - recombineering primer:
-    g3 - recombineering primer:
-    u5 - recombineering primer:
-    u3 - recombineering primer:
-
-  polya_site:
-    defaults:
-      colour: white
-      font_colour: black
-      simple:
-        stroke: "transparent"
-        colour: white
-        font_colour: black
-
-    poly a [split]:
-        label: pA
-
-  misc_feature:
-    defaults:
-      colour: white
-      font_colour: black
-      simple:
-        stroke: "transparent"
-        colour: white
-        font_colour: black
-
-    pa:
-      label: pA
-      width: 33
-      class_name: PolyA
-      simple:
-        label: pA
-        width: 10
-        colour: white
-        font_colour: black
-        font_size: 20
-        class_name: PolyA
-
-    sv40 pa:
-      alias: pa
-    sv40 polyadenylation site:
-      alias: pa
-    pgk pa:
-      alias: pa
-    bgh pa:
-      alias: pa
-
-    en2 sa:
-      width: 80
-      label: "En2 SA"
-      class_name: En2SA
-      simple:
-        label: SA
-        width: 10
-        colour: white
-        font_colour: black
-        font_size: 20
-        class_name: En2SA
-
-    en2 sa (atg):
-      alias: en2 sa
-
-    adenovirus splice acceptor:
-      label: SA
-
-    lacz:
-      label: lacZ
-      width: 140
-      colour: blue
-      font_colour: white
-      font_size: 20
-      simple:
-        label: lacZ
-        width: 140
-        stroke: "transparent"
-        colour: blue
-        font_colour: white
-        font_size: 28
-
-    b-galactosidase:
-      alias: lacz
-
-    cd4 tm:
-      width: 80
-      colour: black
-      font_colour: white
-    pgk_dta_pa:
-      width: 300
-    pa_dta_pgk:
-      width: 300
-
-
-    deltk1:
-    rat cd4:
-    frame k insert:
-    flag:
-    fsei:
-    puc ori:
-      label: ori
-      class_name: Ori
-    prescission:
-    gap:
-    ecmv ires:
-      label: IRES
-      colour: '#f7931e'
-      font_colour: white
-    tm domain:
-    rat cd4 transmembrane region:
-    beta-geo:
-      label: lacZ
-      width: 140
-      colour: blue
-      font_colour: white
-    asci-eagi adpater:
-    3 arm:
-
-    attp:
-      label: AttP
-      width: 40
-      colour: red
-      font_colour: red
-      class_name: Attp
-      simple:
-        label: AttP
-        width: 40
-        stroke: "transparent"
-        colour: red
-        font_colour: red
-        class_name: Attp
-
-    target region:
-    critical region:
-
-    f3:
-      label: F3
-      width: 40
-      colour: orange
-      font_colour: orange
-      class_name: F3
-      simple:
-        label: F3
-        width: 40
-        stroke: "transparent"
-        colour: orange
-        font_colour: orange
-        class_name: F3
-
-    loxp:
-      label: loxP
-      width: 40
-      colour: "#800000"
-      font_colour: "#800000"
-      class_name: Loxp
-      simple:
-        label: loxP
-        width: 40
-        stroke: "transparent"
-        colour: "#800000"
-        font_colour: "#800000"
-        class_name: Loxp
-
-    downstream loxp:
-      alias: loxp
-
-    biotin:
-    tev:
-    uipcr cassette:
-      label: UiPCR
-
-    ty1:
-    chlr_ccdb:
-    ipcrtar1 (gh1111):
-
-    egfp:
-      label: EGFP
-      width: 100
-      colour: green
-      font_colour: white
-      simple:
-        label: EGFP
-        width: 100
-        stroke: "transparent"
-        colour: green
-        font_colour: white
-
-    asisi:
-      label: AsiSI
-      colour: black
-      class_name: Asisi
-
-    sa:
-    splice acceptor:
-    sgra1:
-    rat cd4 fragment:
-    t2a:
-      label: T2A
-    "'self-cleaving' 2a peptide":
-      label: T2A
-    uipcr:
-    5 arm:
-
-    frt:
-      label: FRT
-      width: 35
-      colour: "#008040"
-      font_colour: "#008040"
-      class_name: Frt
-      simple:
-        label: FRT
-        width: 35
-        stroke: "transparent"
-        colour: "#008040"
-        font_colour: "#008040"
-        class_name: Frt
-
-    rox:
-      label: Rox
-      width: 35
-      colour: "#E94E77"
-      font_colour: "#E94E77"
-      class_name: Rox
-      simple:
-        label: Rox
-        width: 35
-        stroke: "transparent"
-        colour: "#E94E77"
-        font_colour: "#E94E77"
-        class_name: Rox
-
-    cre:
-      label: Cre
-      width: 55
-      colour: blue
-      font_colour: white
-      simple:
-        label: Cre
-        width: 55
-        stroke: "transparent"
-        colour: blue
-        font_colour: white
-
-    ert2:
-    f2a:
-    puromycin n-acetyl transferase label:
-      label: puro trans
-    pzero:
-    cd4 tm domain:
-    critical region:
-    synthetic loxp region:
-      alias: loxp
-    synthetic cassette:
-
-  promoter:
+# ---- dna ----
+  dna:
     defaults:
       colour: black
       font_colour: white
-      class_name: Promoter
       simple:
         stroke: "transparent"
         colour: black
         font_colour: white
-        class_name: Promoter
-
-    pgk promoter:
-      label: PGK
-    mouse phosphoglycerate kinase 1 promoter:
-      label: PGK
-    human ubiquitin promoter:
-      colour: DarkSlateBlue
-      label: hubiP
-    human beta actin promoter:
-      colour: DarkSlateBlue
-      label: hbactP
-    hubp (human ubiquitin promoter):
-      colour: DarkSlateBlue
-      label: hubiP
-    hubc promoter:
-      colour: DarkSlateBlue
-      label: hubiP
-
-  gene:
-    defaults:
-      colour: white
-      font_colour: black
-      simple:
-        stroke: "transparent"
-        colour: white
-        font_colour: black
-
-    puro:
-      label: Puro
-      width: 80
-      colour: purple
-      font_colour: white
-      simple:
-        label: Puro
-        width: 80
-        stroke: "transparent"
-        colour: purple
-        font_colour: white
-        font_size: 26
-
-    pu-delta-tk:
-      alias: puro
-
-    puromycin n-acetyl transferase:
-      alias: puro
-
-    phes:
 
     lacz:
       label: lacZ
       width: 140
       colour: blue
       font_colour: white
-      font_size: 20
-      simple:
-        label: lacZ
-        width: 140
-        stroke: "transparent"
-        colour: blue
-        font_colour: white
-        font_size: 28
 
-    rat cd4 b-gal fusion:
-    ampr:
-    kanr:
-    ccdb/chlr:
-    clonnatr:
-    chlr:
-    ccdb:
-    bsdr:
+    "lacz(for recom.)":
+      alias: lacz
 
-    neo:
-      label: neo
-      width: 80
-      colour: '#00a99d'
-      font_colour: white
-      simple:
-        label: neo
-        width: 80
-        stroke: "transparent"
-        colour: '#00a99d'
-        font_colour: white
-        font_size: 28
+    "lacz(for recom.) ":
+      alias: lacz
 
-    neor:
-      alias: neo
-    neor*:
-      alias: neo
 
-    zeor:
-    specr:
-    dta:
-      colour: '#ff00ff'
-      label: DTA
-      font_colour: white
-
-    tm-lacz:
-      label: TM-lacZ
-      width: 140
-      colour: blue
-      font_colour: white
-      simple:
-        width: 140
-        stroke: "transparent"
-        font_colour: white
-        font_size: 28
-
-  intervening sequence:
-    intervening sequence:
-      class_name: Sequence
-
+# ---- exon ----
   exon:
     defaults:
       width: 20
@@ -472,21 +72,527 @@ features:
     "ensmuse00000412002 3' fragment":
       alias: fragment
 
-  dna:
+# ---- frag ----
+  frag:
     defaults:
-      colour: black
-      font_colour: white
+      colour: white
+      font_colour: black
       simple:
         stroke: "transparent"
-        colour: black
-        font_colour: white
+        colour: white
+        font_colour: black
 
-    lacz(for recom.):
+    poly a signal:
+      label: pA
+
+# ---- gene ----
+  gene:
+    defaults:
+      colour: white
+      font_colour: black
+      simple:
+        stroke: "transparent"
+        colour: white
+        font_colour: black
+
+    ampr:
+
+    bsdr:
+
+    ccdb:
+
+    ccdb/chlr:
+
+    chlr:
+
+    clonnatr:
+
+    dta:
+      colour: '#ff00ff'
+      label: DTA
+      font_colour: white
+
+    kanr:
+
+    phes:
+
+    pu-delta-tk:
+      alias: puro
+
+    puro:
+      label: Puro
+      width: 80
+      colour: purple
+      font_colour: white
+      simple:
+        label: Puro
+        width: 80
+        stroke: "transparent"
+        colour: purple
+        font_colour: white
+        font_size: 26
+
+    puromycin n-acetyl transferase:
+      alias: puro
+
+    lacz:
+      label: lacZ
+      width: 140
+      colour: blue
+      font_colour: white
+      font_size: 20
+      simple:
+        label: lacZ
+        width: 140
+        stroke: "transparent"
+        colour: blue
+        font_colour: white
+        font_size: 28
+
+    neo:
+      label: neo
+      width: 80
+      colour: '#00a99d'
+      font_colour: white
+      simple:
+        label: neo
+        width: 80
+        stroke: "transparent"
+        colour: '#00a99d'
+        font_colour: white
+        font_size: 28
+
+    neor:
+      alias: neo
+
+    neor*:
+      label: neo*
+      width: 80
+      colour: '#00a99d'
+      font_colour: white
+      simple:
+        label: neo*
+        width: 80
+        stroke: "transparent"
+        colour: '#00a99d'
+        font_colour: white
+        font_size: 28
+
+    rat cd4 b-gal fusion:
+
+    specr:
+
+    tm-lacz:
+      label: TM-lacZ
+      width: 140
+      colour: blue
+      font_colour: white
+      simple:
+        label: TM-lacZ
+        width: 140
+        stroke: "transparent"
+        font_colour: white
+        font_size: 28
+
+    zeor:
+
+# ---- insert ----
+
+# ---- intervening sequence ----
+  intervening sequence:
+    intervening sequence:
+      class_name: Sequence
+
+# ---- intron ----
+  intron:
+    defaults:
+      colour: white
+      font_colour: black
+      simple:
+        stroke: black
+        colour: white
+        font_colour: black
+
+    3' Ifitm2 intron:
+      label: "Ifitm2 Intron SA"
+      class_name: Ifitm2Intron
+      simple:
+        label: "Ifitm2 SA"
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+
+    5' Ifitm2 intron:
+      label: "Ifitm2 Intron SD"
+      class_name: Ifitm2Intron
+      simple:
+        label: "Ifitm2 SD"
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+
+    en2 intron:
+      width: 80
+      label: "En2 SA"
+      class_name: SpliceAcceptor
+      simple:
+        label: SA
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+        class_name: SpliceAcceptor
+
+    mouse En2 intron:
+      alias: en2 intron
+
+# ---- misc_feature ----
+  misc_feature:
+    defaults:
+      colour: white
+      font_colour: black
+      simple:
+        stroke: "transparent"
+        colour: white
+        font_colour: black
+
+    5 arm:
+      do_not_display: yes
+    3 arm:
+      do_not_display: yes
+    target region:
+      do_not_display: yes
+    critical region:
+      do_not_display: yes
+
+    adenovirus splice acceptor:
+      width: 80
+      label: "AdV SA"
+      class_name: SpliceAcceptor
+      simple:
+        label: SA
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+        class_name: SpliceAcceptor
+
+    asci-eagi adpater:
+
+    asisi:
+      label: AsiSI
+      colour: black
+      class_name: Asisi
+
+    attp:
+      label: AttP
+      width: 40
+      colour: red
+      font_colour: red
+      class_name: Attp
+      simple:
+        label: AttP
+        width: 40
+        stroke: "transparent"
+        colour: red
+        font_colour: red
+        class_name: Attp
+
+    b-galactosidase:
+      alias: lacz
+
+    beta-geo:
       label: lacZ
       width: 140
       colour: blue
       font_colour: white
 
+    bgh pa:
+      alias: pa
+
+    biotin:
+
+    blast R:
+      label: blast
+      width: 75
+      colour: darkblue
+      font_colour: white
+      simple:
+        label: blast
+        width: 80
+        stroke: "transparent"
+        colour: darkblue
+        font_colour: white
+        font_size: 28
+
+    cd4 tm:
+      width: 80
+      colour: black
+      font_colour: white
+
+    cd4 tm domain:
+      alias: "cd4 tm"
+
+    chlr_ccdb:
+
+    cre:
+      label: Cre
+      width: 55
+      colour: blue
+      font_colour: white
+      simple:
+        label: Cre
+        width: 55
+        stroke: "transparent"
+        colour: blue
+        font_colour: white
+        font_size: 28
+
+    deltk1:
+
+    downstream loxp:
+      alias: loxp
+
+    ecmv ires:
+      label: IRES
+      colour: '#f7931e'
+      font_colour: white
+
+    egfp:
+      label: EGFP
+      width: 100
+      colour: green
+      font_colour: white
+      simple:
+        label: EGFP
+        width: 100
+        stroke: "transparent"
+        colour: green
+        font_colour: white
+
+    en2 sa:
+      width: 80
+      label: "En2 SA"
+      class_name: SpliceAcceptor
+      simple:
+        label: SA
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+        class_name: SpliceAcceptor
+
+    en2 sa (atg):
+      alias: en2 sa
+
+    ert2:
+
+    f2a:
+
+    f3:
+      label: F3
+      width: 40
+      colour: orange
+      font_colour: orange
+      class_name: F3
+      simple:
+        label: F3
+        width: 40
+        stroke: "transparent"
+        colour: orange
+        font_colour: orange
+        class_name: F3
+
+    flag:
+
+    frame k insert:
+
+    frt:
+      label: FRT
+      width: 35
+      colour: "#008040"
+      font_colour: "#008040"
+      class_name: Frt
+      simple:
+        label: FRT
+        width: 35
+        stroke: "transparent"
+        colour: "#008040"
+        font_colour: "#008040"
+        class_name: Frt
+
+    FRT 15:
+      alias: frt
+
+    Frt 14:
+      alias: frt
+
+    "FRT ":
+      alias: frt
+
+    fsei:
+
+    gap:
+
+    ipcrtar1 (gh1111):
+
+    lacz:
+      label: lacZ
+      width: 140
+      colour: blue
+      font_colour: white
+      font_size: 20
+      simple:
+        label: lacZ
+        width: 140
+        stroke: "transparent"
+        colour: blue
+        font_colour: white
+        font_size: 28
+
+    loxp:
+      label: loxP
+      width: 40
+      colour: "#800000"
+      font_colour: "#800000"
+      class_name: Loxp
+      simple:
+        label: loxP
+        width: 40
+        stroke: "transparent"
+        colour: "#800000"
+        font_colour: "#800000"
+        class_name: Loxp
+
+    neo:
+      label: neo
+      width: 80
+      colour: '#00a99d'
+      font_colour: white
+      simple:
+        label: neo
+        width: 80
+        stroke: "transparent"
+        colour: '#00a99d'
+        font_colour: white
+        font_size: 28
+
+    "neomycin resistance":
+      alias: neo
+
+    "neomycin resistance ":
+      alias: neo
+
+    pa:
+      label: pA
+      width: 33
+      class_name: PolyA
+      simple:
+        label: pA
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+        class_name: PolyA
+
+    pa_dta_pgk:
+      width: 300
+
+    pgk_dta_pa:
+      width: 300
+
+    pgk pa:
+      alias: pa
+
+    prescission:
+
+    puc ori:
+      label: ori
+      class_name: Ori
+
+    puromycin n-acetyl transferase label:
+      label: puro trans
+
+    pzero:
+
+    rat cd4:
+    rat cd4 fragment:
+    rat cd4 transmembrane region:
+
+    rox:
+      label: Rox
+      width: 35
+      colour: "#E94E77"
+      font_colour: "#E94E77"
+      class_name: Rox
+      simple:
+        label: Rox
+        width: 35
+        stroke: "transparent"
+        colour: "#E94E77"
+        font_colour: "#E94E77"
+        class_name: Rox
+
+    "rox ":
+      alias: rox
+
+    sa:
+
+    sgra1:
+
+    splice acceptor:
+
+    sv40 pa:
+      alias: pa
+
+    sv40 polyadenylation site:
+      alias: pa
+
+    sv40pa:
+      alias: pa
+
+    synthetic loxp region:
+      alias: loxp
+
+    synthetic cassette:
+
+    t2a:
+      label: T2A
+      simple:
+        label: T2A
+
+    "'self-cleaving' 2a peptide":
+      alias: t2a
+
+    tev:
+
+    tm domain:
+
+    tm-lacz:
+      label: TM-lacZ
+      width: 140
+      colour: blue
+      font_colour: white
+      simple:
+        label: TM-lacZ
+        width: 140
+        stroke: "transparent"
+        font_colour: white
+        font_size: 28
+
+    "TM-lacZ ":
+      alias: tm-lacz
+
+    ty1:
+
+    uipcr:
+
+    uipcr cassette:
+      label: UiPCR
+
+# ---- misc_recomb ----
   misc_recomb:
     defaults:
       colour: black
@@ -511,21 +617,13 @@ features:
 
     loxp (3'):
       alias: loxp
+
     loxp (5'):
       alias: loxp
 
-  frag:
-    defaults:
-      colour: white
-      font_colour: black
-      simple:
-        stroke: "transparent"
-        colour: white
-        font_colour: black
+# ---- PCR_primer ----
 
-    poly a signal:
-      label: pA
-
+# ---- polya_signal ----
   polya_signal:
     defaults:
       colour: black
@@ -535,7 +633,94 @@ features:
         colour: black
         font_colour: white
 
-    sv40 polya:
-      label: pA
     mpgk polya:
       label: pA
+
+    sv40 polya:
+      label: pA
+
+# ---- polya_site ----
+  polya_site:
+    defaults:
+      colour: white
+      font_colour: black
+      simple:
+        stroke: "transparent"
+        colour: white
+        font_colour: black
+
+    poly a [split]:
+        label: pA
+
+# ---- primer -----
+
+# ---- primer_bind ----
+  primer_bind:
+    defaults:
+      colour: white
+      font_colour: black
+      simple:
+        stroke: "transparent"
+        colour: white
+        font_colour: black
+
+    d5:
+    d3:
+    g5:
+    g3:
+    hd:
+    hu:
+    u5:
+    u3:
+    d5 - recombineering primer:
+    d3 - recombineering primer:
+    g5 - recombineering primer:
+    g3 - recombineering primer:
+    u5 - recombineering primer:
+    u3 - recombineering primer:
+
+# ---- promoter ----
+  promoter:
+    defaults:
+      colour: black
+      font_colour: white
+      class_name: Promoter
+      simple:
+        stroke: "transparent"
+        colour: black
+        font_colour: white
+        class_name: Promoter
+
+    hubp (human ubiquitin promoter):
+      colour: DarkSlateBlue
+      label: hubiP
+
+    hubc promoter:
+      colour: DarkSlateBlue
+      label: hubiP
+
+    human beta actin promoter:
+      colour: DarkSlateBlue
+      label: hbactP
+
+    human ubiquitin promoter:
+      colour: DarkSlateBlue
+      label: hubiP
+
+    mouse phosphoglycerate kinase 1 promoter:
+      label: PGK
+
+    pgk promoter:
+      label: PGK
+
+# ---- protein_bind ----
+
+# ---- rep_origin ----
+
+# ---- source ----
+
+# ---- TATA_signal ----
+
+# ---- terminator ----
+
+# ---- vector ----

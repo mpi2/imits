@@ -26,7 +26,7 @@ module AlleleImage2
         :top_margin            => 25,
         :font_size             => 18,
         :gap_width             => 10,
-        :text_width            => 12,
+        :text_width            => 14,
         :text_height           => 22,
         :annotation_height     => 100,
         :sequence_stroke_width => 2.5,
@@ -119,21 +119,21 @@ module AlleleImage2
       wanted, rest = backbone_features.partition { |f| %w[pA DTA PGK].include?(f.label) }
 
       if wanted.empty?
-        backbone.push( render_mutant_region( backbone_features, :width => params[:width] ) )
+        backbone.push( render_mutant_region( backbone_features, :width => params[:width], :section => "backbone" ) )
       else
         unexpected_features = backbone_features.select { |e| e.label != "DTA" and wanted.first.start < e.start and e.stop < wanted.last.stop }
 
         raise "Unexpected features in PGK-DTA-pA structure: [#{unexpected_features.map(&:label).join(', ')}]" unless unexpected_features.empty?
 
-        rest_image   = render_mutant_region( rest,   :width => calculate_width(rest) )
-        wanted_image = render_mutant_region( wanted, :width => calculate_width(wanted) )
+        rest_image   = render_mutant_region( rest,   :width => calculate_width(rest), :section => "backbone" )
+        wanted_image = render_mutant_region( wanted, :width => calculate_width(wanted), :section => "backbone" )
 
         # create some padding between
         pad_width         = params[:width] - ( wanted_image.columns + rest_image.columns )
-        pad_image_5_prime = render_mutant_region( [], :width => pad_width * 0.2 )
-        pad_image_3_prime = render_mutant_region( [], :width => pad_width * 0.2 )
+        pad_image_5_prime = render_mutant_region( [], :width => pad_width * 0.2, :section => "backbone" )
+        pad_image_3_prime = render_mutant_region( [], :width => pad_width * 0.2, :section => "backbone" )
         middle_width = pad_width - ( pad_image_5_prime.columns + pad_image_3_prime.columns )
-        pad_image_middle  = render_mutant_region( [], :width => middle_width )
+        pad_image_middle  = render_mutant_region( [], :width => middle_width, :section => "backbone" )
         backbone.push(pad_image_5_prime).push(wanted_image).push(pad_image_middle).push(rest_image).push(pad_image_3_prime)
       end
 
@@ -159,7 +159,7 @@ module AlleleImage2
     private
       # These methods return a Magick::Image object
       def render_cassette
-        image = render_mutant_region( @construct.cassette_features, :label => @construct.cassette_label )
+        image = render_mutant_region( @construct.cassette_features, :label => @construct.cassette_label, :section => "cassette" )
 
         # Construct the annotation image
         image_list       = Magick::ImageList.new
@@ -291,24 +291,24 @@ module AlleleImage2
         else
           target_region_features = @construct.three_arm_features.select do |feature|
             feature.start >= rcmb_primers[0].start and \
-            feature.start <= rcmb_primers[1].start
+            feature.start <= rcmb_primers[1].stop
           end
           loxp_region_features = @construct.three_arm_features.select do |feature|
             feature.start >= rcmb_primers[1].start and \
-            feature.start <= rcmb_primers[2].start and \
+            feature.start <= rcmb_primers[2].stop and \
             feature.feature_type == "misc_feature" and \
             (feature.feature_name == "loxP" || feature.feature_name == "Downstream LoxP")
           end
           three_arm_features = @construct.three_arm_features.select do |feature|
             feature.start >= rcmb_primers[2].start and \
-            feature.start <= rcmb_primers[3].start
+            feature.start <= rcmb_primers[3].stop
           end
         end
 
         image_list.push(render_genomic_region(target_region_features)) unless target_region_features.empty?
-        image_list.push(render_mutant_region(loxp_region_features))    unless loxp_region_features.empty?
+        image_list.push(render_mutant_region(loxp_region_features, :section => "loxp"))    unless loxp_region_features.empty?
         image_list.push(render_genomic_region(three_arm_features))     unless three_arm_features.empty?
-
+        
         image = image_list.empty? ? render_genomic_region([]) : image_list.append(false)
 
         # For the (unlikely) case where we have nothing in the 3' arm,
@@ -402,6 +402,11 @@ module AlleleImage2
         
         cassette_features.each_with_index do |feature, index|
           feature_width = 0
+
+          if feature.do_not_display
+            next
+          end
+
           if feature.label == "gap"
             feature_width = @gap_width
           elsif @simple && feature.feature_type == 'promoter'
@@ -420,7 +425,9 @@ module AlleleImage2
 
         ## Render a double slash on a deletion
         if @mutation_type == 'Deletion'
-          draw_double_slash(main_image, @x, @y)
+          if params[:section] == "cassette"
+            draw_double_slash(main_image, @x, @y)
+          end
         end
 
         image_list.push(main_image)
@@ -472,11 +479,16 @@ module AlleleImage2
 
         features.each do |feature|
           feature_width = 0
+
+          if feature.do_not_display
+            next
+          end
+
           if feature.feature_name == "gap"
             feature_width = @gap_width
           elsif ( feature.feature_name.match(/5' fragment/) )
             draw_feature( main_image, feature )
-            # feature_width = @exon_min_width
+            feature_width = @exon_min_width
           elsif ( feature.feature_name.match(/central fragment/) )
             draw_feature( main_image, feature )
             feature_width = @exon_min_width
@@ -535,8 +547,10 @@ module AlleleImage2
 
       # Need to get this method drawing exons as well
       def draw_feature( image, feature, options = {} )
-        feature_renderer = feature.image
-        feature_renderer.render( self, image, options )
+        unless feature.do_not_display
+          feature_renderer = feature.image
+          feature_renderer.render( self, image, options )
+        end
       end
 
       # draw the sequence
@@ -725,7 +739,7 @@ module AlleleImage2
       # Return the width occupied by the exons based on the exon count
       def calculate_exon_image_width( count )        
         count = 3 if count >= 3
-        calc_width = ( @text_width * count ) + ( @gap_width * ( count - 1 ) )
+        calc_width = ( count * @exon_min_width ) + ( @gap_width * ( count - 1 ) )
         # allow for exon rank labels with min width
         return [ calc_width, @exon_min_width ].max
       end
@@ -745,6 +759,11 @@ module AlleleImage2
 
         # loop through all the features and calculate an overall width
         features.each do |feature|
+
+          if feature.do_not_display
+            next
+          end
+
           # for some simple features just add a gaps width
           if @simple && (feature.label == 'pA' || feature.feature_type == 'promoter' || feature.label =~ /SA/ || feature.label =~ /SD/)
             width += @gap_width # Add a little spacing

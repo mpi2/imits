@@ -22,21 +22,24 @@ module AlleleImage2
   # which has the label 'pA'
   # lacZ can be either a 'gene' as 'lacZ' or a 'misc_feature' as 'b-galactosidase' in the genbank file, so needs an entry in both sections in the yml
   SIMPLE_FEATURES = [
+    'AttP',
+    'blast',
+    'Cre',
+    'EGFP',
+    'F3',
     'FRT',
+    'Ifitm2 SD',
+    'Ifitm2 SA',
     'lacZ',
     'loxP',
     'neo',
-    'pA',
-    'Rox',
-    'EGFP',
-    'Cre',
+    'neo*',
+    'pA',    
     'Puro',
-    'F3',
-    'TM-lacZ',
-    'AttP',
-    'Ifitm2 SD',
-    'Ifitm2 SA',
-    'SA'
+    'Rox',
+    'SA',
+    'T2A',
+    'TM-lacZ'
   ]
 
   SIMPLE_FEATURE_TYPES = %w(promoter)

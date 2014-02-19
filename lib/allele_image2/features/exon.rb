@@ -10,16 +10,8 @@ class AlleleImage2::Features::Exon < AlleleImage2::Features::DefaultFeature
     
     drawing.fill feature.render_options[:colour]
 
-    # draw rectangle within larger block to allow for rank text size
-    # x1 = renderer.x + 5
-    # y1 = feature.render_options[:top_margin]
-    # x2 = x1 + feature.render_options[:width] - 10
-    # y2 = (feature.render_options[:height] / 2) + renderer.y
-
-    # x1 = renderer.x
     x1 = renderer.x + ( feature.render_options[:width] - feature.render_options[:exon_rectangle_width] ) / 2
     y1 = feature.render_options[:top_margin]
-    # x2 = x1 + feature.render_options[:width]
     x2 = x1 + feature.render_options[:exon_rectangle_width]
     y2 = (feature.render_options[:height] / 2) + renderer.y
 
@@ -33,7 +25,7 @@ class AlleleImage2::Features::Exon < AlleleImage2::Features::DefaultFeature
       font_size   = feature.render_options[:font_size]
 
       exon_rank_start_x     = renderer.x
-      
+
       # write the annotation above
       drawing.annotate(image, feature.render_options[:width], feature.render_options[:top_margin], exon_rank_start_x, 0, feature.exon_rank) do
         self.fill        = font_colour

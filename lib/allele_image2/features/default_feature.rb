@@ -6,8 +6,8 @@ class AlleleImage2::Features::DefaultFeature
     
     @feature = feature
 
-    @text_width = 12
-    @exon_min_width = 20 # used in exon, exon_fragment and sequence
+    @text_width = 14
+    @exon_min_width = 20 # used in sequence feature, must match to the same var in renederer
 
     feature.render_options = {
       :top_margin => 25,

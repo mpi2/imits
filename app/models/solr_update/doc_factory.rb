@@ -318,7 +318,10 @@ class SolrUpdate::DocFactory
       end
     end
 
-    gene.allele.each do |allele|
+    #for each allele find all alleles of the same mutation type including itself. Then count the number of es_cells associated with these alleles. This will add anew attribute called es_cell_count to each allele model returned.
+    alleles = TargRep::Allele.find_by_sql("SELECT alleles1.*, targ_rep_es_cells.count AS es_cell_count FROM targ_rep_alleles AS alleles1 JOIN targ_rep_alleles AS alleles2 ON alleles1.gene_id = alleles2.gene_id AND alleles1.mutation_type_id = alleles2.mutation_type_id AND alleles1.cassette = alleles2.cassette LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.allele_id = alleles2.id WHERE alleles2.gene_id = #{gene.id} GROUP BY alleles1.id")
+    alleles.each do |allele|
+      next if allele.es_cell_count.to_i > 0
       allele.targeting_vectors.each do |tv|
         key = tv.try(:ikmc_project).try(:name)
         value = tv.try(:ikmc_project).try(:status).try(:name)

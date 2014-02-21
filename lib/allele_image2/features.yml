@@ -224,10 +224,10 @@ features:
         font_size: 20
 
     5' Ifitm2 intron:
-      label: "Ifitm2 Intron SD"
+      label: "SD Ifitm2 Intron"
       class_name: Ifitm2Intron
       simple:
-        label: "Ifitm2 SD"
+        label: "SD Ifitm2"
         width: 10
         colour: white
         font_colour: black
@@ -304,17 +304,14 @@ features:
       alias: lacz
 
     beta-geo:
-      label: lacZ
-      width: 140
-      colour: blue
-      font_colour: white
+      alias: lacz
 
     bgh pa:
       alias: pa
 
     biotin:
 
-    blast R:
+    blastr:
       label: blast
       width: 75
       colour: darkblue
@@ -326,6 +323,9 @@ features:
         colour: darkblue
         font_colour: white
         font_size: 28
+
+    blast r:
+      alias: blastr
 
     cd4 tm:
       width: 80
@@ -539,6 +539,16 @@ features:
       alias: rox
 
     sa:
+      width: 40
+      label: SA
+      class_name: SpliceAcceptor
+      simple:
+        label: SA
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+        class_name: SpliceAcceptor
 
     sgra1:
 
@@ -557,14 +567,6 @@ features:
       alias: loxp
 
     synthetic cassette:
-
-    t2a:
-      label: T2A
-      simple:
-        label: T2A
-
-    "'self-cleaving' 2a peptide":
-      alias: t2a
 
     tev:
 

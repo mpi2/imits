@@ -5,6 +5,7 @@ class TargRep::AllelesController < TargRep::BaseController
   before_filter do
     @klass = TargRep::TargetedAllele
     @title = 'Targeted Allele'
+    @allele_type = @klass.name.demodulize.underscore
   end
 
   # For webservice interface

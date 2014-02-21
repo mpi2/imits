@@ -1,0 +1,15 @@
+<% @title = 'Notification interest by gene' %>
+
+<div class="grid_12">
+  <h2><%= @title %></h2>
+</div>
+
+<%= form_tag( { :action => :notifications_by_gene }, :method => :get, :class => 'report-form' ) do |form| %>
+  <%= render 'report_controls3', :grouping => true, :mi_plan_reports => true %>
+<% end %>
+
+<% unless params[:commit].blank? %>
+  <div class="report grid_12">
+    <%= render :partial => 'report_with_counts3', :locals => { :report => @report, :label => 'genes' } %>
+  </div>
+<% end %>

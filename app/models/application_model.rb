@@ -17,7 +17,8 @@ class ApplicationModel < ActiveRecord::Base
   COMPLETION_NOTE ={
     nil => '[none]',
     'Handoff complete' => 'Handoff complete',
-    'Allele not needed' => 'Allele not needed'
+    'Allele not needed' => 'Allele not needed',
+    'Effort concluded' => 'Effort concluded'
   }.freeze
 
   # BEGIN Callbacks

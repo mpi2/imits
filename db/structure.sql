@@ -328,7 +328,8 @@ CREATE TABLE genes (
     vega_ids character varying(255),
     ncbi_ids character varying(255),
     ensembl_ids character varying(255),
-    ccds_ids character varying(255)
+    ccds_ids character varying(255),
+    marker_type character varying(255)
 );
 
 
@@ -841,7 +842,8 @@ CREATE TABLE mi_plans (
     conditional_point_mutation boolean DEFAULT false NOT NULL,
     allele_symbol_superscript text,
     report_to_public boolean DEFAULT true NOT NULL,
-    completion_comment text
+    completion_comment text,
+    mutagenesis_via_crispr_cas9 boolean DEFAULT false
 );
 
 
@@ -3188,7 +3190,7 @@ CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
 -- Name: mi_plan_logical_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only);
+CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only, mutagenesis_via_crispr_cas9);
 
 
 --
@@ -4033,3 +4035,7 @@ INSERT INTO schema_migrations (version) VALUES ('20131219164213');
 INSERT INTO schema_migrations (version) VALUES ('20140110150335');
 
 INSERT INTO schema_migrations (version) VALUES ('20140113150335');
+
+INSERT INTO schema_migrations (version) VALUES ('20140123134728');
+
+INSERT INTO schema_migrations (version) VALUES ('20140207124917');

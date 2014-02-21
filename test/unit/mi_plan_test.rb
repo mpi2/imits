@@ -242,6 +242,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:number_of_es_cells_received)
         assert_should have_db_column(:es_cells_received_on)
         assert_should have_db_column(:es_cells_received_from_id)
+        assert_should have_db_column(:mutagenesis_via_crispr_cas9)
       end
 
       context '#latest_relevant_mi_attempt ' do
@@ -585,6 +586,63 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_contains plan.errors[:is_active], /cannot be set to false as active phenotype attempt/
         end
       end
+
+      context '#mutagenesis_via_crispr_cas9' do
+        should 'exist' do
+          assert_should have_db_column(:mutagenesis_via_crispr_cas9).with_options(:default => false)
+        end
+
+        should 'respect index' do
+
+          gene = Factory.create :gene_cbx1
+          plan = Factory.create :mi_plan_with_production_centre, :gene => gene, :is_active => true
+
+          plan.priority = MiPlan::Priority.find_by_name! 'High'
+          plan.save!
+
+          plan2 = MiPlan.create(
+          :gene_id => plan.gene_id,
+          :consortium_id => plan.consortium_id,
+          :production_centre_id => plan.production_centre_id,
+          :sub_project_id => plan.sub_project_id,
+          :is_bespoke_allele => plan.is_bespoke_allele,
+          :is_conditional_allele => plan.is_conditional_allele,
+          :is_deletion_allele => plan.is_deletion_allele,
+          :is_cre_knock_in_allele => plan.is_cre_knock_in_allele,
+          :is_cre_bac_allele => plan.is_cre_bac_allele,
+          :conditional_tm1c => plan.conditional_tm1c,
+          :point_mutation => plan.point_mutation,
+          :conditional_point_mutation => plan.conditional_point_mutation,
+          :mutagenesis_via_crispr_cas9 => plan.mutagenesis_via_crispr_cas9,
+          :phenotype_only => plan.phenotype_only,
+          :priority => plan.priority
+          )
+
+          assert_false plan2.valid?
+          assert_contains plan2.errors[:gene], /already has a plan by that consortium\/production centre and allele discription/
+
+          plan3 = MiPlan.create(
+          :gene_id => plan.gene_id,
+          :consortium_id => plan.consortium_id,
+          :production_centre_id => plan.production_centre_id,
+          :sub_project_id => plan.sub_project_id,
+          :is_bespoke_allele => plan.is_bespoke_allele,
+          :is_conditional_allele => plan.is_conditional_allele,
+          :is_deletion_allele => plan.is_deletion_allele,
+          :is_cre_knock_in_allele => plan.is_cre_knock_in_allele,
+          :is_cre_bac_allele => plan.is_cre_bac_allele,
+          :conditional_tm1c => plan.conditional_tm1c,
+          :point_mutation => plan.point_mutation,
+          :conditional_point_mutation => plan.conditional_point_mutation,
+          :mutagenesis_via_crispr_cas9 => ! plan.mutagenesis_via_crispr_cas9,
+          :phenotype_only => plan.phenotype_only,
+          :priority => plan.priority
+          )
+
+          assert_true plan3.valid?
+        end
+      end
+
     end # attribute tests
 
     context '::with_mi_attempt' do
@@ -836,60 +894,60 @@ class MiPlanTest < ActiveSupport::TestCase
         :mi_plan => default_mi_plan
 
         aborted_phenotype = Factory.create :phenotype_attempt,
-          {:mi_plan => default_mi_plan,
+        {:mi_plan => default_mi_plan,
           :created_at => "2011-12-02 23:59:59 UTC",
           :mi_attempt => mi_attempt,
-          :is_active => false}
+        :is_active => false}
 
         assert_equal aborted_phenotype.status.code, 'abt'
         assert_equal aborted_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
 
 
         registered_phenotype = Factory.create :phenotype_attempt,
-          {:mi_plan => default_mi_plan,
+        {:mi_plan => default_mi_plan,
           :created_at => "2011-12-02 23:59:59 UTC",
-          :mi_attempt => mi_attempt}
+        :mi_attempt => mi_attempt}
 
         assert_equal registered_phenotype.status.code, 'par'
         assert_equal registered_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
 
 
         red_started_phenotype = Factory.create :phenotype_attempt,
-          {:mi_plan => default_mi_plan,
+        {:mi_plan => default_mi_plan,
           :created_at => "2011-12-02 23:59:59 UTC",
           :mi_attempt => mi_attempt,
-          :rederivation_started => true}
+        :rederivation_started => true}
 
         assert_equal red_started_phenotype.status.code, 'res'
         assert_equal red_started_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
 
 
         red_complete_phenotype = Factory.create :phenotype_attempt,
-          {:mi_plan => default_mi_plan,
+        {:mi_plan => default_mi_plan,
           :created_at => "2011-12-02 23:59:59 UTC",
           :mi_attempt => mi_attempt,
           :rederivation_started => true,
-          :rederivation_complete => true}
+        :rederivation_complete => true}
 
         assert_equal red_complete_phenotype.status.code, 'rec'
         assert_equal red_complete_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
 
 
         cre_started_phenotype = Factory.create :phenotype_attempt,
-          {:mi_plan => default_mi_plan,
+        {:mi_plan => default_mi_plan,
           :created_at => "2011-12-02 23:59:59 UTC",
           :mi_attempt => mi_attempt,
           :rederivation_started => true,
           :rederivation_complete => true,
           :number_of_cre_matings_started => 1,
-          :deleter_strain_id => 1}
+        :deleter_strain_id => 1}
 
         assert_equal cre_started_phenotype.status.code, 'ces'
         assert_equal cre_started_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
 
 
         cre_complete_phenotype = Factory.create :phenotype_attempt,
-          {:mi_plan => default_mi_plan,
+        {:mi_plan => default_mi_plan,
           :created_at => "2011-12-02 23:59:59 UTC",
           :mi_attempt => mi_attempt,
           :rederivation_started => true,
@@ -898,14 +956,14 @@ class MiPlanTest < ActiveSupport::TestCase
           :number_of_cre_matings_successful => 1,
           :colony_background_strain_id => 1,
           :mouse_allele_type => 'b',
-          :deleter_strain_id => 1}
+        :deleter_strain_id => 1}
 
         assert_equal cre_complete_phenotype.status.code, 'cec'
         assert_equal cre_complete_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
 
 
         started_phenotype = Factory.create :phenotype_attempt,
-          {:mi_plan => default_mi_plan,
+        {:mi_plan => default_mi_plan,
           :created_at => "2011-12-02 23:59:59 UTC",
           :mi_attempt => mi_attempt,
           :rederivation_started => true,
@@ -915,25 +973,25 @@ class MiPlanTest < ActiveSupport::TestCase
           :colony_background_strain_id => 1,
           :mouse_allele_type => 'b',
           :deleter_strain_id => 1,
-          :phenotyping_started =>true}
+        :phenotyping_started =>true}
 
         assert_equal started_phenotype.status.code, 'pds'
         assert_equal started_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
 
 
         complete_phenotype = Factory.create :phenotype_attempt,
-          {:mi_plan => default_mi_plan,
+        {:mi_plan => default_mi_plan,
           :created_at => "2011-12-02 23:59:59 UTC",
           :mi_attempt => mi_attempt,
           :rederivation_started => true,
           :rederivation_complete => true,
           :number_of_cre_matings_started => 1,
           :number_of_cre_matings_successful => 1,
-           :colony_background_strain_id => 1,
+          :colony_background_strain_id => 1,
           :mouse_allele_type => 'b',
           :deleter_strain_id => 1,
           :phenotyping_started => true,
-          :phenotyping_complete => true}
+        :phenotyping_complete => true}
 
         assert_equal complete_phenotype.status.code, 'pdc'
         assert_equal complete_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
@@ -948,19 +1006,19 @@ class MiPlanTest < ActiveSupport::TestCase
 
         extra_phenotype = Factory.create :phenotype_attempt,
         {:mi_plan => default_mi_plan,
-        :created_at => "2011-11-09 23:59:59 UTC",
+          :created_at => "2011-11-09 23:59:59 UTC",
         :mi_attempt => mi_attempt}
         replace_status_stamps(extra_phenotype, "Phenotype Attempt Registered" => "2011-11-02 23:59:59 UTC")
 
         oldest_phenotype = Factory.create :phenotype_attempt,
         {:mi_plan => default_mi_plan,
-        :created_at => "2011-10-08 23:59:59 UTC",
+          :created_at => "2011-10-08 23:59:59 UTC",
         :mi_attempt => mi_attempt}
         replace_status_stamps(oldest_phenotype, "Phenotype Attempt Registered" => "2011-10-01 23:59:59 UTC")
 
         newest_phenotype = Factory.create :phenotype_attempt,
         {:mi_plan => default_mi_plan,
-        :created_at => "2012-12-10 23:59:59 UTC",
+          :created_at => "2012-12-10 23:59:59 UTC",
         :mi_attempt => mi_attempt}
         replace_status_stamps(newest_phenotype, "Phenotype Attempt Registered" => "2012-12-03 23:59:59 UTC")
 

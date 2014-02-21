@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140113150335) do
+ActiveRecord::Schema.define(:version => 20140207124917) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -124,6 +124,7 @@ ActiveRecord::Schema.define(:version => 20140113150335) do
     t.string   "ncbi_ids"
     t.string   "ensembl_ids"
     t.string   "ccds_ids"
+    t.string   "marker_type"
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
@@ -354,9 +355,10 @@ ActiveRecord::Schema.define(:version => 20140113150335) do
     t.text     "allele_symbol_superscript"
     t.boolean  "report_to_public",                              :default => true,  :null => false
     t.text     "completion_comment"
+    t.boolean  "mutagenesis_via_crispr_cas9",                   :default => false
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only", "mutagenesis_via_crispr_cas9"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "new_consortia_intermediate_report", :force => true do |t|
     t.string   "gene",                                             :limit => 75,  :null => false

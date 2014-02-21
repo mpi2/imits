@@ -65,6 +65,10 @@ Ext.define('Imits.model.MiPlan', {
         defaultValue: false
     },
     {
+        name: 'mutagenesis_via_crispr_cas9',
+        defaultValue: false
+    },
+    {
         name: 'is_conditional_allele',
         defaultValue: false
     },
@@ -121,7 +125,6 @@ Ext.define('Imits.model.MiPlan', {
         readOnly: true,
         persist: false
     }
-
     ],
 
     proxy: Ext.create('Imits.data.Proxy', {

@@ -9,6 +9,7 @@
         <th>Consortium</th>
         <% if current_user.can_see_sub_project? %> <th>Sub Project</th> <% end%>
         <th>Bespoke</th>
+        <th>Is Made By Crispr?</th>
         <th>Allele Structure</th>
         <th>Allele Symbol Superscript</th>
         <th>Recovery</th>
@@ -21,6 +22,7 @@
         <th>Priority</th>
         <th>Plan Status</th>
         <th>Latest Plan Status Date</th>
+        <th>Plan Assign Date</th>
         <th>Reason for Inspect/conflict</th>
         <th># Aborted attempts on this plan</th>
         <th>Date of latest aborted attempt</th>
@@ -37,6 +39,7 @@
           <td><%= rec['consortium_name'] %></td>
           <% if current_user.can_see_sub_project? %><td><%= rec['sub_project_name'] %></td><% end %>
           <td><%= boolean_to_text(rec['bespoke']) %></td>
+          <td><%= boolean_to_text(rec['mutagenesis_via_crispr_cas9']) %></td>
           <td><%= <<-EOF
                    #{boolean_to_text(rec['conditional_allele']) == 'Yes' ? '[Knockout First tm1a] ' : ''}
                    #{boolean_to_text(rec['conditional_tm1c']) == 'Yes' ? '[Conditional tm1c] ' : ''}
@@ -58,6 +61,7 @@
           <td><%= rec['priority_name'] %></td>
           <td><%= rec['status_name'] %></td>
           <td><%= rec['status_date'] %></td>
+          <td><%= rec['assign_date'] %></td>
           <td><%= "#{rec['conflict_reason_text']} #{rec['conflict_reason']}" %></td>
           <td><%= rec['plan_aborted_count'] %></td>
           <td><%= rec['plan_aborted_max_date'] %></td>

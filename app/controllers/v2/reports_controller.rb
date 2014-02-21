@@ -2,7 +2,7 @@ class V2::ReportsController < ApplicationController
 
   helper :reports
 
-  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist]
+  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report]
 
   before_filter do
     if params[:format] == 'csv'
@@ -15,8 +15,16 @@ class V2::ReportsController < ApplicationController
   before_filter do
     if params[:format] == 'tab'
       response.headers["Cache-Control"] = "no-cache"
-      response.headers["Content-Type"] = "text"
+      response.headers["Content-Type"] = "text/tab"
       response.headers["Content-Disposition"] = "attachment;filename=#{action_name}-#{Date.today.to_s(:db)}.tab"
+    end
+  end
+
+  before_filter do
+    if params[:format] == 'tsv'
+      response.headers["Cache-Control"] = "no-cache"
+      response.headers["Content-Type"] = "text/tsv"
+      response.headers["Content-Disposition"] = "attachment;filename=#{action_name}-#{Date.today.to_s(:db)}.tsv"
     end
   end
 
@@ -60,5 +68,17 @@ class V2::ReportsController < ApplicationController
   def idcc_master_genelist
     @report= IkmcProjectFeed.new
     @idcc_master_genelist = @report.idcc_master_genelist.to_a
+    respond_to do |format|
+      format.tab
+    end
   end
+
+  def mgi_modification_allele_report
+    report = PhenotypeAttemptAlleleLoadReport.new
+    @phenotype_attempt_mgi_allele = report.phenotype_attempt_mgi_allele
+    respond_to do |format|
+      format.tsv
+    end
+  end
+
 end

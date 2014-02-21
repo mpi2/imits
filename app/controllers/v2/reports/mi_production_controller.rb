@@ -1,6 +1,6 @@
 class V2::Reports::MiProductionController < ApplicationController
 
-  before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary, :planned_microinjection_list]
+  before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary, :planned_microinjection_list, :notifications_by_gene]
 
   before_filter :authenticate_user!, :except => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
   before_filter :authenticate_user_if_not_sanger, :only => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
@@ -230,6 +230,28 @@ class V2::Reports::MiProductionController < ApplicationController
       @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
       @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
       @consortium = consortium.blank? ? 'All' : consortium
+      @count = @report.blank? ? 0 : @mi_plan_summary.count
+    end
+  end
+
+  def notifications_by_gene
+    if !params[:commit].blank?
+      consortium = Consortium.find_by_name(params[:consortium]).try(:name)
+      production_centre = Centre.find_by_name(params[:production_centre]).try(:name)
+
+      @report = NotificationsByGene.new
+      @mi_plan_summary = @report.mi_plan_summary(production_centre, consortium)
+      @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
+      @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
+      @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
+      @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
+      @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
+      @production_centre = production_centre.blank? ? '' : production_centre
+      @consortium = consortium.blank? ? '' : consortium
+      @blurb = ""
+      @blurb = "#{consortium} " if ! consortium.blank?
+      @blurb += "#{production_centre}" if ! production_centre.blank?
+      @blurb = "All" if consortium.blank? && production_centre.blank?
       @count = @report.blank? ? 0 : @mi_plan_summary.count
     end
   end

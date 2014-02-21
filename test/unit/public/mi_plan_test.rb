@@ -230,7 +230,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'point_mutation',
         'allele_symbol_superscript',
         'report_to_public',
-        'completion_comment'
+        'completion_comment',
+        'mutagenesis_via_crispr_cas9'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -273,8 +274,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'point_mutation',
         'allele_symbol_superscript',
         'report_to_public',
-        'completion_comment'
-
+        'completion_comment',
+        'mutagenesis_via_crispr_cas9'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

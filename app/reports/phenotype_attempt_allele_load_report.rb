@@ -1,0 +1,101 @@
+class PhenotypeAttemptAlleleLoadReport
+
+  ##
+  ## This is the base presenter for production specific reports grouped by
+  ## consortium, centre, and status, while also displaying gene & clone efficiency data.
+  ## Consortium/centre/status queries use the intermediate report, efficiency data comes from live tables.
+  ##
+
+  attr_accessor :phenotype_attempt_mgi_allele
+
+
+  def phenotype_attempt_mgi_allele
+    @phenotype_attempt_mgi_allele ||= ActiveRecord::Base.connection.execute(self.class.mgi_allele_sql)
+  end
+
+  class << self
+
+    def show_columns
+      [{'title' => 'Marker Symbol', 'field' => 'marker_symbol'},
+       {'title' => 'MGI Accession ID', 'field' => 'mgi_accession_id'},
+       {'title' => 'Mi Attempt Colony Name', 'field' => 'mi_attempt_colony_name'},
+       {'title' => 'Mi Attempt Colony Background Strian', 'field' => 'mi_attempt_colony_background_strain'},
+       {'title' => 'Mi Attempt Production Centre', 'field' => 'mi_attempt_production_centre'},
+       {'title' => 'Mi Attempt Allele Symbol', 'field' => 'mi_attempt_allele_symbol'},
+       {'title' => 'Mi Attempt Es Cell Allele Symbol', 'field' => 'mi_attempt_es_cell_allele_symbol'},
+       {'title' => 'Mi Attempt Es Cell MGI Allele Accession', 'field' => 'mi_attempt_es_cell_mgi_allele_accession'},
+       {'title' => 'Mi Attempt Es Cell Name', 'field' => 'mi_attempt_es_cell_name'},
+       {'title' => 'Mi Attempt Es Cell Line', 'field' => 'mi_attempt_es_cell_line'},
+       {'title' => 'Colony Name', 'field' => 'colony_name'},
+       {'title' => 'Excision Type', 'field' => 'excision_type'},
+       {'title' => 'Tat Cre', 'field' => 'tat_cre'},
+       {'title' => 'Phenotype Attempt Deleter Strain', 'field' => 'phenotype_attempt_deleter_strain'},
+       {'title' => 'Phenotype Attempt Colony Background Strain', 'field' => 'phenotype_attempt_colony_background_strain'},
+       {'title' => 'Phenotype Attempt Production Centre', 'field' => 'phenotype_attempt_production_centre'},
+       {'title' => 'MGI Allele Accession', 'field' => 'MGI_allele_accession'},
+       {'title' => 'MGI Allele Name', 'field' => 'MGI_allele_name'}
+       ]
+    end
+
+    def mgi_allele_sql
+      <<-EOF
+      SELECT
+        genes.marker_symbol AS marker_symbol,
+        genes.mgi_accession_id AS mgi_accession_id,
+        mi_attempts.colony_name AS mi_attempt_colony_name,
+        ma_colony_background_strain.name AS mi_attempt_colony_background_strain,
+        ma_centres.name AS mi_attempt_production_centre,
+        CASE
+          WHEN targ_rep_es_cells.allele_symbol_superscript_template IS NOT NULL AND targ_rep_es_cells.allele_symbol_superscript_template != ''
+            AND mi_attempts.mouse_allele_type IS NOT NULL AND mi_attempts.mouse_allele_type != ''
+            AND mi_attempts.mouse_allele_type != targ_rep_es_cells.allele_type
+          THEN
+            regexp_replace(targ_rep_es_cells.allele_symbol_superscript_template, '#{TargRep::EsCell::TEMPLATE_CHARACTER}' , mi_attempts.mouse_allele_type)
+          ELSE
+            targ_rep_es_cells.mgi_allele_symbol_superscript
+        END AS mi_attempt_allele_symbol,
+        targ_rep_es_cells.mgi_allele_symbol_superscript AS mi_attempt_es_cell_allele_symbol,
+        targ_rep_es_cells.mgi_allele_id AS mi_attempt_es_cell_mgi_allele_accession,
+        targ_rep_es_cells.name AS mi_attempt_es_cell_name,
+        targ_rep_es_cells.parental_cell_line AS mi_attempt_es_cell_line,
+        phenotype_attempts.colony_name AS colony_name,
+        CASE
+          WHEN phenotype_attempts.mouse_allele_type = 'b'
+          THEN
+            'cre'
+          WHEN phenotype_attempts.mouse_allele_type = 'c'
+          THEN
+            'flp'
+          WHEN phenotype_attempts.mouse_allele_type = 'd'
+          THEN
+            'flp-cre'
+          WHEN phenotype_attempts.mouse_allele_type = '.1'
+          THEN
+            'cre'
+          WHEN phenotype_attempts.mouse_allele_type = 'e.1'
+          THEN
+            'cre'
+          ELSE ''
+        END AS excision_type,
+        phenotype_attempts.tat_cre AS tat_cre,
+        pa_deleter_strains.name AS phenotype_attempt_deleter_strain,
+        pa_colony_background_strains.name AS phenotype_attempt_colony_background_strain,
+        pa_centres.name AS phenotype_attempt_production_centre,
+        '' AS MGI_allele_accession,
+        '' AS MGI_allele_name
+      FROM phenotype_attempts
+      JOIN phenotype_attempt_status_stamps ON phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id AND phenotype_attempt_status_stamps.status_id = 6
+      JOIN strains AS pa_colony_background_strains ON pa_colony_background_strains.id = phenotype_attempts.colony_background_strain_id
+      JOIN deleter_strains AS pa_deleter_strains ON pa_deleter_strains.id = phenotype_attempts.deleter_strain_id
+      JOIN (mi_plans AS pa_mi_plans JOIN centres AS pa_centres ON pa_centres.id = pa_mi_plans.production_centre_id) ON pa_mi_plans.id = phenotype_attempts.mi_plan_id
+      JOIN genes ON genes.id = pa_mi_plans.gene_id
+      JOIN (mi_attempts JOIN mi_plans AS ma_plans ON mi_attempts.mi_plan_id = ma_plans.id JOIN centres AS ma_centres ON ma_centres.id = ma_plans.production_centre_id) ON mi_attempts.id = phenotype_attempts.mi_attempt_id
+      JOIN strains AS ma_colony_background_strain ON ma_colony_background_strain.id = mi_attempts.colony_background_strain_id
+      JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+      WHERE cre_excision_required = true
+      ORDER BY mgi_accession_id
+      EOF
+    end
+  end
+
+end

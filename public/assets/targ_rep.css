@@ -599,7 +599,7 @@ html body * dd.clear
   display: block;
 }
 /* sprites */
-.ss_sprite {display:inline;overflow:hidden;height:18px;padding-left:18px;padding-bottom:5px;background-repeat:no-repeat;background-image:url(../images/targ_rep/sprites.png?1392975590);}
+.ss_sprite {display:inline;overflow:hidden;height:18px;padding-left:18px;padding-bottom:5px;background-repeat:no-repeat;background-image:url(../images/targ_rep/sprites.png?1393252713);}
 .ss_accept {background-position:0px 0px;}
 .ss_add {background-position:0px -19px;}
 .ss_anchor {background-position:0px -37px;}
@@ -1991,7 +1991,7 @@ th                      { font-weight: 600; }
 
 /* nick it from sprites.css so iMits can use it */
 
-.ss_sprite {display:inline;overflow:hidden;height:18px;padding-left:18px;padding-bottom:5px;background-repeat:no-repeat;background-image:url(../images/targ_rep/sprites.png?1392975590);}
+.ss_sprite {display:inline;overflow:hidden;height:18px;padding-left:18px;padding-bottom:5px;background-repeat:no-repeat;background-image:url(../images/targ_rep/sprites.png?1393252713);}
 .ss_sprite {
   padding-bottom: 3px;
 }

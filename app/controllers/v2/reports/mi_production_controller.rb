@@ -251,7 +251,7 @@ class V2::Reports::MiProductionController < ApplicationController
       @count = @report.blank? ? 0 : @mi_plan_summary.count
     end
 
-    @title = 'All planned crispr-based production'
+    @title = 'All Planned Crispr-Based Production'
     render :template => 'v2/reports/mi_production/planned_microinjection_list'
   end
 

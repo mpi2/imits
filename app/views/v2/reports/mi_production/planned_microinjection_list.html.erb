@@ -1,10 +1,14 @@
-<% @title = 'All Planned Micro-Injections' %>
+<% if @title =~ /Micro.Injections/ %>
+<% action = :planned_microinjection_list %>
+<% else %>
+<% action = :planned_crispr_microinjection_list %>
+<% end %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
 </div>
 
-<%= form_tag( { :action => :planned_microinjection_list }, :method => :get, :class => 'report-form' ) do |form| %>
+<%= form_tag( { :action => action }, :method => :get, :class => 'report-form' ) do |form| %>
   <%= render 'report_controls2', :grouping => true, :mi_plan_reports => true %>
 <% end %>
 

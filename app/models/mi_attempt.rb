@@ -38,6 +38,7 @@ class MiAttempt < ApplicationModel
   belongs_to :test_cross_strain, :class_name => 'Strain'
   belongs_to :mutagenesis_factor
 
+  has_many :crisprs, through: :mutagenesis_factor
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many :phenotype_attempts
 

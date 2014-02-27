@@ -21,6 +21,8 @@ gem 'acts_as_reportable', '1.1.1', :require => 'ruport/acts_as_reportable'
 gem 'rmagick', '2.13.1', :require => false
 gem 'scruffy_Sanger','0.2.6.1', :require => 'scruffy'
 
+gem "httparty"
+
 gem 'unicorn', '4.3.0'
 
 ## For TargRep
@@ -29,7 +31,6 @@ gem 'bio', '1.4.3'
 
 gem "sequel"
 gem "mysql2"
-
 
 group :development, :test do
   gem 'launchy', '2.0.5'

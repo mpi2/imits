@@ -8,8 +8,8 @@ class PlannedMicroinjectionList
   attr_accessor :pretty_print_mi_attempts_genotype_confirmed
   attr_accessor :gene_pretty_prints
 
-  def mi_plan_summary(consortium = nil)
-    @mi_plan_summary = ActiveRecord::Base.connection.execute(self._mi_plan_summary(consortium))
+  def mi_plan_summary(consortium = nil, crisprs = false)
+    @mi_plan_summary = ActiveRecord::Base.connection.execute(self._mi_plan_summary(consortium, crisprs))
   end
 
   def pretty_print_non_assigned_mi_plans
@@ -36,9 +36,9 @@ class PlannedMicroinjectionList
     @gene_pretty_prints ||= Gene.gene_production_summary
   end
 
-  def _mi_plan_summary(consortium = nil)
+  def _mi_plan_summary(consortium = nil, crisprs = false)
 
-    <<-EOF
+    sql = <<-EOF
     WITH mi_attempt_counts AS (
       SELECT mi_plans.id AS plan_id, SUM(CASE WHEN mi_attempt_statuses.name = 'Micro-injection aborted' THEN 1 ELSE 0 END) AS plan_aborted_count,
              max(CASE WHEN mi_attempt_statuses.name = 'Micro-injection aborted' THEN mi_attempt_status_stamps.created_at ELSE NULL END ) AS plan_aborted_max_date
@@ -98,7 +98,7 @@ class PlannedMicroinjectionList
       mi_attempt_counts.plan_aborted_count AS plan_aborted_count,
       to_char(mi_attempt_counts.plan_aborted_max_date, 'dd/mm/yyyy') AS plan_aborted_max_date
     FROM mi_attempt_counts
-      JOIN mi_plans ON mi_plans.id = mi_attempt_counts.plan_id
+      JOIN mi_plans ON mi_plans.id = mi_attempt_counts.plan_id CRISPR_SUBS
       JOIN new_intermediate_report ON new_intermediate_report.mi_plan_id = mi_attempt_counts.plan_id
       JOIN mi_plan_statuses ON mi_plan_statuses.name = new_intermediate_report.mi_plan_status
       JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report.mi_plan_id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
@@ -134,6 +134,14 @@ class PlannedMicroinjectionList
     ORDER BY new_intermediate_report.gene
 
     EOF
+
+    if crisprs
+      sql.gsub!(/CRISPR_SUBS/, 'and mi_plans.mutagenesis_via_crispr_cas9 is true')
+    else
+      sql.gsub!(/CRISPR_SUBS/, '')
+    end
+
+    sql
 
   end
 end

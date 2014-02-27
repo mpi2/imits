@@ -232,8 +232,6 @@ class V2::Reports::MiProductionController < ApplicationController
       @consortium = consortium.blank? ? 'All' : consortium
       @count = @report.blank? ? 0 : @mi_plan_summary.count
     end
-
-    @title = 'All Planned Micro-Injections'
   end
 
   def planned_crispr_microinjection_list
@@ -246,9 +244,6 @@ class V2::Reports::MiProductionController < ApplicationController
     @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
     @consortium = 'All'
     @count = @report.blank? ? 0 : @mi_plan_summary.count
-
-    @title = 'All Planned Crispr-Based Production'
-    render :template => 'v2/reports/mi_production/planned_microinjection_list'
   end
 
   def notifications_by_gene

@@ -16,8 +16,8 @@ end
 #
 # Table name: mi_plan_es_qc_comments
 #
-#  id         :integer         not null, primary key
-#  name       :string(255)     not null
+#  id         :integer          not null, primary key
+#  name       :string(255)      not null
 #  created_at :datetime
 #  updated_at :datetime
 #
@@ -25,4 +25,3 @@ end
 #
 #  index_mi_plan_es_qc_comments_on_name  (name) UNIQUE
 #
-

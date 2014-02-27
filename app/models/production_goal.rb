@@ -39,17 +39,16 @@ end
 #
 # Table name: production_goals
 #
-#  id            :integer         not null, primary key
+#  id            :integer          not null, primary key
 #  consortium_id :integer
 #  year          :integer
 #  month         :integer
 #  mi_goal       :integer
 #  gc_goal       :integer
-#  created_at    :datetime        not null
-#  updated_at    :datetime        not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
 #
 # Indexes
 #
 #  index_production_goals_on_consortium_id_and_year_and_month  (consortium_id,year,month) UNIQUE
 #
-

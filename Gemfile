@@ -34,7 +34,7 @@ gem "mysql2"
 group :development, :test do
   gem 'launchy', '2.0.5'
   gem 'awesome_print', '0.4.0'
-  gem 'annotate', '2.4.0'
+  gem 'annotate', ">=2.6.0"
   gem 'letter_opener'
 
   gem 'test-unit', '2.5.3', :require => nil

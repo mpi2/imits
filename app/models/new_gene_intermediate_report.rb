@@ -12,9 +12,9 @@ end
 #
 # Table name: new_gene_intermediate_report
 #
-#  id                                               :integer         not null, primary key
-#  gene                                             :string(75)      not null
-#  consortium                                       :string(255)     not null
+#  id                                               :integer          not null, primary key
+#  gene                                             :string(75)       not null
+#  consortium                                       :string(255)      not null
 #  gene_interest_date                               :date
 #  production_centre                                :string(255)
 #  mgi_accession_id                                 :string(40)
@@ -98,4 +98,3 @@ end
 #  non_cre_ex_phenotyping_experiments_started_date  :date
 #  cre_ex_phenotyping_experiments_started_date      :date
 #
-

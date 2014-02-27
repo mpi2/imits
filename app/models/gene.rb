@@ -728,8 +728,8 @@ end
 #
 # Table name: genes
 #
-#  id                                 :integer         not null, primary key
-#  marker_symbol                      :string(75)      not null
+#  id                                 :integer          not null, primary key
+#  marker_symbol                      :string(75)       not null
 #  mgi_accession_id                   :string(40)
 #  ikmc_projects_count                :integer
 #  conditional_es_cells_count         :integer
@@ -757,4 +757,3 @@ end
 #  index_genes_on_marker_symbol     (marker_symbol) UNIQUE
 #  index_genes_on_mgi_accession_id  (mgi_accession_id) UNIQUE
 #
-

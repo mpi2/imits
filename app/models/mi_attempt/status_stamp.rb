@@ -52,9 +52,9 @@ end
 #
 # Table name: mi_attempt_status_stamps
 #
-#  id            :integer         not null, primary key
-#  mi_attempt_id :integer         not null
-#  status_id     :integer         not null
+#  id            :integer          not null, primary key
+#  mi_attempt_id :integer          not null
+#  status_id     :integer          not null
 #  created_at    :datetime
 #  updated_at    :datetime
 #
@@ -62,4 +62,3 @@ end
 #
 #  index_one_status_stamp_per_status_and_mi_attempt  (status_id,mi_attempt_id) UNIQUE
 #
-

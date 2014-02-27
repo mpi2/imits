@@ -52,7 +52,7 @@ namespace :db do
       if config['port'].blank?; config['port'] = '5432'; end
       psql_cmd = "PGPASSWORD='#{config['password']}' psql -U #{config['username']} -h #{config['host']} -p #{config['port']} #{config['database']}"
 
-      system("cd #{Rails.root}; echo 'drop schema public cascade; create schema public' | #{psql_cmd}") or raise("Failed to drop public schema in environment #{envname}")
+      system("cd #{Rails.root}; echo 'drop schema public cascade; create schema public' | #{psql_cmd}") or raise("Failed to drop public schema in environment #{Rails.env}")
       system("cd #{Rails.root}; #{psql_cmd} < #{tmppath}/dump.#{envname}.sql > /dev/null") or raise("Failed to load #{envname} dump of DB")
     end
 

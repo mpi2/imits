@@ -145,7 +145,7 @@ end
 #
 # Table name: targ_rep_distribution_qcs
 #
-#  id                             :integer         not null, primary key
+#  id                             :integer          not null, primary key
 #  five_prime_sr_pcr              :string(255)
 #  three_prime_sr_pcr             :string(255)
 #  karyotype_low                  :float
@@ -165,8 +165,8 @@ end
 #  chry                           :string(255)
 #  es_cell_id                     :integer
 #  es_cell_distribution_centre_id :integer
-#  created_at                     :datetime        not null
-#  updated_at                     :datetime        not null
+#  created_at                     :datetime         not null
+#  updated_at                     :datetime         not null
 #  loxp_srpcr                     :string(255)
 #  unspecified_repository_testing :string(255)
 #  neo_qpcr                       :string(255)
@@ -175,4 +175,3 @@ end
 #
 #  index_distribution_qcs_centre_es_cell  (es_cell_distribution_centre_id,es_cell_id) UNIQUE
 #
-

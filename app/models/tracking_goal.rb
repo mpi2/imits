@@ -100,13 +100,12 @@ end
 #
 # Table name: tracking_goals
 #
-#  id                   :integer         not null, primary key
+#  id                   :integer          not null, primary key
 #  production_centre_id :integer
 #  date                 :date
 #  goal_type            :string(255)
 #  goal                 :integer
-#  created_at           :datetime        not null
-#  updated_at           :datetime        not null
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
 #  consortium_id        :integer
 #
-

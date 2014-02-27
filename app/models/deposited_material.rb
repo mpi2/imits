@@ -8,8 +8,8 @@ end
 #
 # Table name: deposited_materials
 #
-#  id         :integer         not null, primary key
-#  name       :string(50)      not null
+#  id         :integer          not null, primary key
+#  name       :string(50)       not null
 #  created_at :datetime
 #  updated_at :datetime
 #
@@ -17,4 +17,3 @@ end
 #
 #  index_deposited_materials_on_name  (name) UNIQUE
 #
-

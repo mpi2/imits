@@ -10,9 +10,8 @@ end
 #
 # Table name: deleter_strains
 #
-#  id         :integer         not null, primary key
-#  name       :string(100)     not null
+#  id         :integer          not null, primary key
+#  name       :string(100)      not null
 #  created_at :datetime
 #  updated_at :datetime
 #
-

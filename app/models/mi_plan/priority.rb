@@ -11,8 +11,8 @@ end
 #
 # Table name: mi_plan_priorities
 #
-#  id          :integer         not null, primary key
-#  name        :string(10)      not null
+#  id          :integer          not null, primary key
+#  name        :string(10)       not null
 #  description :string(100)
 #  created_at  :datetime
 #  updated_at  :datetime
@@ -21,4 +21,3 @@ end
 #
 #  index_mi_plan_priorities_on_name  (name) UNIQUE
 #
-

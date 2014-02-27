@@ -13,9 +13,9 @@ end
 #
 # Table name: phenotype_attempt_status_stamps
 #
-#  id                   :integer         not null, primary key
-#  phenotype_attempt_id :integer         not null
-#  status_id            :integer         not null
+#  id                   :integer          not null, primary key
+#  phenotype_attempt_id :integer          not null
+#  status_id            :integer          not null
 #  created_at           :datetime
 #  updated_at           :datetime
 #
@@ -23,4 +23,3 @@ end
 #
 #  index_one_status_stamp_per_status_and_phenotype_attempt  (status_id,phenotype_attempt_id) UNIQUE
 #
-

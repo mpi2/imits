@@ -3,21 +3,10 @@
 require 'pp'
 
 def check_genes genes
-  #genes = YAML.load_file("#{Rails.root}/config/idg_symbols.yml")
-
   missing = []
   genes.each do |marker_symbol|
-    #g = Gene.find_by_marker_symbol marker_symbol
-    #missing.push marker_symbol if ! g
-    #select 1 as result if exists
     sql = "select * from genes where marker_symbol ilike '#{marker_symbol}'"
-
     rows = ActiveRecord::Base.connection.execute(sql)
-
-    #puts "#### marker_symbol: '#{marker_symbol}'"
-    #pp rows.first
-    #break
-
     missing.push marker_symbol if ! rows.first
   end
 
@@ -32,9 +21,7 @@ def load_csv filename, use_alternate = true
   CSV.foreach(filename, :headers => true) do |row|
     hash = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
     lines.push hash
-    #break
     if use_alternate && hash['Mouse Gene Symbol'].to_s.length > 0
-      #if use_alternate && ! hash['Mouse Gene Symbol'].to_s.empty?
       genes.push hash['Mouse Gene Symbol']
     else
       genes.push hash['Gene']
@@ -45,11 +32,6 @@ end
 
 def load_and_check_genes
   genes = load_csv '/nfs/users/nfs_r/re4/Desktop/CRISPR targets.csv'
-
-  #pp genes
-
-  #puts "#### count: #{genes.size}"
-
   check_genes genes
 end
 
@@ -75,7 +57,6 @@ def load_and_check_genes2 filename
     end
 
     list.push marker_symbol
-    #missing.push marker_symbol if ! rows.first
     missing.push hash if ! rows.first
   end
   return missing, list
@@ -84,14 +65,9 @@ end
 def load_and_check_genes21
   missing, list = load_and_check_genes2 '/nfs/users/nfs_r/re4/Desktop/CRISPR targets.csv'
 
-  # pp missing
-  # puts "#### missing: #{missing.size}"
-  #  puts list.to_yaml
-
   CSV.open('/nfs/users/nfs_r/re4/Desktop/missing_crispr_targets.csv', "wb") do |csv|
     csv << missing.first.keys
     missing.each do |row|
-     # pp row
       csv << row.values
     end
   end

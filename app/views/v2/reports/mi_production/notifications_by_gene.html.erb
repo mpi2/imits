@@ -1,11 +1,25 @@
-<% @title = 'Notification interest by gene' %>
+<% if @title =~ /IDG/ %>
+<% action = :notifications_by_gene_for_idg  %>
+<% else %>
+<% action = :notifications_by_gene%>
+<% end %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
+
+  <% if @title =~ /IDG/ %>
+    <p>
+    <%=
+      link_to('Download as CSV', url_for({:action => action, :controller => '/v2/reports/mi_production', :format => :csv}))
+    %>
+    </p>
+  <% end %>
 </div>
 
-<%= form_tag( { :action => :notifications_by_gene }, :method => :get, :class => 'report-form' ) do |form| %>
-  <%= render 'report_controls3', :grouping => true, :mi_plan_reports => true %>
+<% if @title !~ /IDG/ %>
+  <%= form_tag( { :action => action}, :method => :get, :class => 'report-form' ) do |form| %>
+    <%= render 'report_controls3', :grouping => true, :mi_plan_reports => true %>
+  <% end %>
 <% end %>
 
 <% unless params[:commit].blank? %>

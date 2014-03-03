@@ -317,13 +317,13 @@ class TargRep::AllelesController < TargRep::BaseController
 
     options[:mutation_type] = @allele.mutation_type_name
 
-    if params[:new]
+    if params[:old]
       send_allele_image(
-        AlleleImage2::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
+        AlleleImage::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
       )
     else
       send_allele_image(
-        AlleleImage::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
+        AlleleImage2::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
       )
     end
   end

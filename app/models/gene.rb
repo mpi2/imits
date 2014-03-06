@@ -263,7 +263,7 @@ class Gene < ActiveRecord::Base
 # mi_plan summary formatting
   def self.non_assigned_mi_plans_in_bulk(gene_ids = nil, result = nil, crispr = false)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'non assigned plans', crispr) if result.nil?
+    result = self.gene_production_summary(gene_ids, 'non assigned plans', nil, crispr) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -282,7 +282,7 @@ class Gene < ActiveRecord::Base
 
   def self.assigned_mi_plans_in_bulk(gene_ids = nil, result = nil, crispr = false)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'assigned plans', crispr) if result.nil?
+    result = self.gene_production_summary(gene_ids, 'assigned plans', nil, crispr) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -351,7 +351,7 @@ class Gene < ActiveRecord::Base
           end
 
         else
-          result = self.gene_production_summary(gene_ids, 'full_data', statuses, nil, crispr)
+          result = self.gene_production_summary(gene_ids, 'full_data', statuses, crispr)
         end
 
       else

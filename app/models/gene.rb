@@ -261,9 +261,9 @@ class Gene < ActiveRecord::Base
   end
 
 # mi_plan summary formatting
-  def self.non_assigned_mi_plans_in_bulk(gene_ids = nil, result = nil)
+  def self.non_assigned_mi_plans_in_bulk(gene_ids = nil, result = nil, crispr = false)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'non assigned plans') if result.nil?
+    result = self.gene_production_summary(gene_ids, 'non assigned plans', crispr) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -280,9 +280,9 @@ class Gene < ActiveRecord::Base
     return genes
   end
 
-  def self.assigned_mi_plans_in_bulk(gene_ids = nil, result = nil)
+  def self.assigned_mi_plans_in_bulk(gene_ids = nil, result = nil, crispr = false)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'assigned plans') if result.nil?
+    result = self.gene_production_summary(gene_ids, 'assigned plans', crispr) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -300,11 +300,14 @@ class Gene < ActiveRecord::Base
   end
 
 
-  def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil, result = nil)
-    data = Gene.non_assigned_mi_plans_in_bulk(gene_id, result)
+  def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil, result = nil, crispr = false)
+    #puts "#### pretty_print_non_assigned_mi_plans_in_bulk: crispr: #{crispr}"
+    data = Gene.non_assigned_mi_plans_in_bulk(gene_id, result, crispr)
 
     data.each do |marker_symbol,mi_plans|
       strings = mi_plans.map do |mip|
+       # pp mip
+      #  next if crispr && ! mip[:mutagenesis_via_crispr_cas9]
         string = "[#{mip[:consortium]}"
         string << ":#{mip[:production_centre]}" unless mip[:production_centre].nil?
         string << ":#{mip[:status_name]}"
@@ -316,11 +319,12 @@ class Gene < ActiveRecord::Base
     return data
   end
 
-  def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil, result = nil)
-    data = Gene.assigned_mi_plans_in_bulk(gene_id, result)
+  def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil, result = nil, crispr = false)
+    data = Gene.assigned_mi_plans_in_bulk(gene_id, result, crispr)
 
     data.each do |marker_symbol,mi_plans|
       strings = mi_plans.map do |mip|
+      #  next if crispr && ! mip[:mutagenesis_via_crispr_cas9]
         string = "[#{mip[:consortium]}"
         string << ":#{mip[:production_centre]}" unless mip[:production_centre].nil?
         string << "]"
@@ -332,7 +336,7 @@ class Gene < ActiveRecord::Base
   end
 
 
-  def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_ids = nil, result = nil)
+  def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_ids = nil, result = nil, crispr = false)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
 
     if result.nil?
@@ -341,17 +345,17 @@ class Gene < ActiveRecord::Base
         if statuses.count == 1
 
           if statuses.map{|status| status.name}.include?('Genotype confirmed')
-            result = self.gene_production_summary(gene_ids, 'genotype confirmed mi attempts')
+            result = self.gene_production_summary(gene_ids, 'genotype confirmed mi attempts', nil, crispr)
           else
-           result = self.gene_production_summary(gene_ids, 'in progress mi attempts')
+           result = self.gene_production_summary(gene_ids, 'in progress mi attempts', nil, crispr)
           end
 
         else
-          result = self.gene_production_summary(gene_ids, 'full_data', statuses)
+          result = self.gene_production_summary(gene_ids, 'full_data', statuses, nil, crispr)
         end
 
       else
-        result = self.gene_production_summary(gene_ids, 'aborted mi attempts')
+        result = self.gene_production_summary(gene_ids, 'aborted mi attempts', nil, crispr)
       end
     end
 
@@ -370,7 +374,7 @@ class Gene < ActiveRecord::Base
 
   def self.pretty_print_phenotype_attempts_in_bulk_helper(gene_ids = nil, result = nil)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'phenotype attempts') if result.nil?
+    result = self.gene_production_summary(gene_ids, 'phenotype attempts', nil, crispr) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -386,7 +390,7 @@ class Gene < ActiveRecord::Base
 
 
 # mi_plan summary SQL query.
-  def self.gene_production_summary(gene_ids = nil, return_value = nil, statuses = nil)
+  def self.gene_production_summary(gene_ids = nil, return_value = nil, statuses = nil, crispr = false)
 
     sql = <<-EOF
 
@@ -397,7 +401,7 @@ class Gene < ActiveRecord::Base
       (
         (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id, CASE WHEN mi_attempt_statuses.name IS NOT NULL THEN mi_attempt_statuses.name ELSE mi_plan_statuses.name END AS status_name
          FROM mi_plans
-           JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id
+           JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id #{crispr ? 'AND mi_plans.mutagenesis_via_crispr_cas9 IS TRUE' : ''}
            LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id) ON mi_plans.id = mi_attempts.mi_plan_id
          #{gene_ids.nil? ? "" : "WHERE mi_plans.gene_id IN (#{gene_ids.join(', ')})"}
         )
@@ -410,7 +414,7 @@ class Gene < ActiveRecord::Base
            JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id
            JOIN mi_attempts ON mi_attempts.id = phenotype_attempts.mi_attempt_id
          WHERE mi_attempts.is_active = true
-           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"}
+           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"} #{crispr ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : ''}
         )
       ) AS production_summary
       #{statuses.nil? ? "" : "WHERE production_summary.status_name IN ('#{statuses.map{|status| status.name}.join("','")}')"}
@@ -424,6 +428,8 @@ class Gene < ActiveRecord::Base
         LEFT JOIN centres ON centres.id = status_summary.production_centre_id
       ORDER BY genes.marker_symbol, status_summary.status_name, consortia.name, centres.name
     EOF
+
+   # puts "#### gene_production_summary: sql: #{sql}"
 
     result = ActiveRecord::Base.connection.execute(sql)
 

@@ -256,17 +256,11 @@ class V2::Reports::MiProductionController < ApplicationController
       consortium = Consortium.find_by_name(params[:consortium]).try(:name)
       production_centre = nil
 
-      #puts "#### request.format: #{request.format}"
-      #puts "#### request.format.to_s: #{request.format.to_s}"
-
       format = 'csv' if request.format == :csv
       format = 'html' if request.format == :html
 
       @report = ReportCache.find_by_name_and_format('notifications_by_gene_' + consortium.to_s, format)
-      #puts "#### target: " + 'notifications_by_gene_' + consortium
-      #pp @report
 
-      #pp @report.data
       @report.data.gsub!(/\n\n/, "\n")
 
       if request.format == :csv
@@ -285,9 +279,6 @@ class V2::Reports::MiProductionController < ApplicationController
     if !params[:commit].blank?
       consortium = Consortium.find_by_name(params[:consortium]).try(:name)
       production_centre = Centre.find_by_name(params[:production_centre]).try(:name)
-
-      #puts "#### notifications_by_gene: consortium: #{consortium}"
-      #puts "#### notifications_by_gene: production_centre: #{production_centre}"
 
       @report = NotificationsByGene.new
       @mi_plan_summary = @report.mi_plan_summary(production_centre, consortium)
@@ -311,8 +302,8 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def notifications_by_gene_for_idg
-    #notifications_by_gene_for_idg_live
     notifications_by_gene_for_idg_cache
+    #notifications_by_gene_for_idg_live
   end
 
   def notifications_by_gene_for_idg_live
@@ -346,17 +337,11 @@ class V2::Reports::MiProductionController < ApplicationController
     consortium = Consortium.find_by_name(params[:consortium]).try(:name)
     production_centre = nil
 
-    #puts "#### request.format: #{request.format}"
-    #puts "#### request.format.to_s: #{request.format.to_s}"
-
     format = 'csv' if request.format == :csv
     format = 'html' if request.format == :html
 
     @report = ReportCache.find_by_name_and_format('notifications_by_gene_for_idg_' + consortium.to_s, format)
-    #puts "#### target: " + 'notifications_by_gene_for_idg_' + consortium.to_s
-    #    pp @report
 
-    #pp @report.data
     @report.data.gsub!(/\n\n/, "\n")
 
     if request.format == :csv

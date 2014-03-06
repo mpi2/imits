@@ -1,5 +1,3 @@
-require 'pp'
-
 class PlannedMicroinjectionList #< Reports::Base
 
   attr_accessor :mi_plan_summary
@@ -16,35 +14,26 @@ class PlannedMicroinjectionList #< Reports::Base
   end
 
   def pretty_print_non_assigned_mi_plans
-   # puts "#### pretty_print_non_assigned_mi_plans: @crisprs: #{@crisprs}"
-    non_assigned_mi_plans = Gene.pretty_print_non_assigned_mi_plans_in_bulk(nil, gene_pretty_prints['non assigned plans'], @crisprs)
-   # puts "#### non_assigned_mi_plans:"
-    #pp non_assigned_mi_plans
-    non_assigned_mi_plans
+    Gene.pretty_print_non_assigned_mi_plans_in_bulk(nil, gene_pretty_prints['non assigned plans'], @crisprs)
   end
 
   def pretty_print_assigned_mi_plans
-  #  puts "#### pretty_print_assigned_mi_plans: @crisprs: #{@crisprs}"
     Gene.pretty_print_assigned_mi_plans_in_bulk(nil, gene_pretty_prints['assigned plans'], @crisprs)
   end
 
   def pretty_print_aborted_mi_attempts
-   # puts "#### pretty_print_aborted_mi_attempts: @crisprs: #{@crisprs}"
     Gene.pretty_print_mi_attempts_in_bulk_helper(nil, nil, nil, gene_pretty_prints['aborted mi attempts'], @crisprs)
   end
 
   def pretty_print_mi_attempts_in_progress
-   # puts "#### pretty_print_mi_attempts_in_progress: @crisprs: #{@crisprs}"
     Gene.pretty_print_mi_attempts_in_bulk_helper(nil, nil, nil, gene_pretty_prints['in progress mi attempts'], @crisprs)
   end
 
   def pretty_print_mi_attempts_genotype_confirmed
-   # puts "#### pretty_print_mi_attempts_genotype_confirmed: @crisprs: #{@crisprs}"
     Gene.pretty_print_mi_attempts_in_bulk_helper(nil, nil, nil, gene_pretty_prints['genotype confirmed mi attempts'], @crisprs)
   end
 
   def gene_pretty_prints
-   # puts "#### pretty_print_mi_attempts_genotype_confirmed: @crisprs: #{@crisprs}"
     @gene_pretty_prints ||= Gene.gene_production_summary nil, nil, nil, @crisprs
   end
 
@@ -147,18 +136,6 @@ class PlannedMicroinjectionList #< Reports::Base
     ORDER BY new_intermediate_report.gene
 
     EOF
-
-    #if crisprs
-    #  #sql.gsub!(/CRISPR_SUBS1/, 'and mi_plans.mutagenesis_via_crispr_cas9 is true and mi_attempt_counts.mutagenesis_via_crispr_cas9 is true')
-    #  #sql.gsub!(/CRISPR_SUBS0/, 'and mi_plans.mutagenesis_via_crispr_cas9 is true')
-    #  sql.gsub!(/CRISPR_SUBS0/, '')
-    #  sql.gsub!(/CRISPR_SUBS1/, 'and mi_plans.mutagenesis_via_crispr_cas9 is true')
-    #  sql.gsub!(/CRISPR_SUBS2/, 'and new_intermediate_report.mutagenesis_via_crispr_cas9 is true')
-    #else
-    #  sql.gsub!(/CRISPR_SUBS0/, '')
-    #  sql.gsub!(/CRISPR_SUBS1/, '')
-    #  sql.gsub!(/CRISPR_SUBS2/, '')
-    #end
 
     sql
 

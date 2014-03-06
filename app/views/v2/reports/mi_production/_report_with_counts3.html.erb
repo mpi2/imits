@@ -1,3 +1,5 @@
+<% label ||= 'genes' %>
+
 <% if @count == 0 %>
   <p><em>Sorry, no <%= label %> found</em></p>
 <% else %>
@@ -9,6 +11,7 @@
         <th>Gene</th>
         <th>MGI Accession ID</th>
         <th>Number of notifications</th>
+        <th>Best Status</th>
         <th style="min-width:180px !important"># Clones</th>
         <th>Non-Assigned Plans</th>
         <th>Assigned plans</th>
@@ -23,7 +26,8 @@
           <td><%= rec['gene'] %></td>
           <td><%= rec['mgi_accession_id'] %></td>
           <td><%= rec['number_of_notifications'] %></td>
-          <td><%= @pretty_print_types_of_cells_available[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_statuses[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_types_of_cells_available[rec['marker_symbol']].to_s %></td>
           <td><%= @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
           <td><%= @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
           <td><%= @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>

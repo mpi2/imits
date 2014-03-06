@@ -15,16 +15,6 @@
               )
             %>
           </td>
-          <td>
-            <%= label_tag( 'production_centre', "Production Centre:" ) %>
-            <%=
-              select_tag(
-                'production_centre',
-                options_from_collection_for_select( Centre.order("name").all, :name, :name, params[:production_centre] ),
-                { :include_blank => true, :multiple => false, :size => 5 }
-              )
-            %>
-          </td>
         </tr>
       </table>
     </fieldset>

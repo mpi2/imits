@@ -524,6 +524,7 @@ WITH best_mi_attempts AS (
             best_phenotype_attempts.pa_allele_symbol_superscript_template,
             best_phenotype_attempts.pa_allele_symbol_superscript,
             mi_plans.id AS mi_plan_id,
+            mi_plans.mutagenesis_via_crispr_cas9 AS mutagenesis_via_crispr_cas9,
             mi_plans.is_bespoke_allele,
             aborted_stamps.created_at::date AS aborted_es_cell_qc_failed_date,
             case
@@ -760,7 +761,8 @@ WITH best_mi_attempts AS (
           'cre_ex_mi_attempt_consortium',
           'cre_ex_mi_attempt_production_centre',
           'cre_ex_phenotype_attempt_colony_name',
-          'created_at'
+          'created_at',
+          'mutagenesis_via_crispr_cas9'
         ]
       end
     end

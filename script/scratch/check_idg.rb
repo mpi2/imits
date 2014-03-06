@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'pp'
+require 'yaml'
 
 def check_genes genes
   missing = []
@@ -73,7 +74,14 @@ def load_and_check_genes21
   end
 end
 
-load_and_check_genes21
+def load_and_check_genes22
+  genes = load_csv '/nfs/users/nfs_r/re4/Desktop/CRISPR targets.csv'
+  puts genes.to_yaml
+end
+
+load_and_check_genes22
+
+#load_and_check_genes21
 
 #genes = YAML.load_file("#{Rails.root}/config/idg_symbols.yml")
 #check_genes genes

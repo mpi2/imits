@@ -3,9 +3,7 @@ require 'pp'
 require 'fileutils'
 
 module SolrBulk
-
   class Refresh
-
     SOLR_BULK = YAML.load_file("#{Rails.root}/config/solr_bulk.yml")
     DIST_CENTRE_URLS = YAML.load_file("#{Rails.root}/config/dist_centre_urls.yml")
 
@@ -42,6 +40,12 @@ module SolrBulk
       list
     end
 
+    #def self.prepare_arrays(item)
+    #  item = '' if ! item
+    #  item = item.split(';') if item
+    #  item
+    #end
+
     def self.genes
       list = []
       counter = 0
@@ -49,36 +53,36 @@ module SolrBulk
       items = ActiveRecord::Base.connection.execute(GENES_SQL)
 
       items.each do |item|
+        targets = %W{project_ids project_statuses project_pipelines vector_project_statuses vector_project_ids}
+        targets.each do |target|
+          item[target] = '' if ! item[target]
+          item[target] = item[target].split(';').uniq if item[target]
+        end
 
-        ## TODO: use array
-        #targets = %W{project_ids project_statuses project_pipelines vector_project_statuses vector_project_ids}
-        #targets.each do |target|
-        #  item[target] = '' if ! item[target]
-        #  item[target] = item[target].split(';').uniq if item[target]
-        #end
+        ##prepare_arrays(item)
+        #
+        #item['project_ids'] = '' if ! item['project_ids']
+        #item['project_statuses'] = '' if ! item['project_statuses']
+        #item['project_pipelines'] = '' if ! item['project_pipelines']
+        #item['vector_project_statuses'] = '' if ! item['vector_project_statuses']
+        #item['vector_project_ids'] = '' if ! item['vector_project_ids']
+        #
+        #item['project_ids'] = item['project_ids'].split(';') if item['project_ids']
+        #item['project_statuses'] = item['project_statuses'].split(';') if item['project_statuses']
+        #item['project_pipelines'] = item['project_pipelines'].split(';') if item['project_pipelines']
+        #item['vector_project_statuses'] = item['vector_project_statuses'].split(';') if item['vector_project_statuses']
 
-        item['project_ids'] = '' if ! item['project_ids']
-        item['project_statuses'] = '' if ! item['project_statuses']
-        item['project_pipelines'] = '' if ! item['project_pipelines']
-        item['vector_project_statuses'] = '' if ! item['vector_project_statuses']
-        item['vector_project_ids'] = '' if ! item['vector_project_ids']
-
-        item['project_ids'] = item['project_ids'].split(';') if item['project_ids']
-        item['project_statuses'] = item['project_statuses'].split(';') if item['project_statuses']
-        item['project_pipelines'] = item['project_pipelines'].split(';') if item['project_pipelines']
-        item['vector_project_statuses'] = item['vector_project_statuses'].split(';') if item['vector_project_statuses']
-
-        #if item['id'].to_i == 22004
-        #  puts "#### item['vector_project_ids']: #{item['vector_project_ids']}"
-        #end
-
-        item['vector_project_ids'] = item['vector_project_ids'].split(';') if item['vector_project_ids']
-
-        #if item['id'].to_i == 22004
-        #  puts "#### item['vector_project_ids']: #{item['vector_project_ids']}"
-        #end
-
-        #item['status'] = item['status'].titleize if item['status']
+        ##if item['id'].to_i == 22004
+        ##  puts "#### item['vector_project_ids']: #{item['vector_project_ids']}"
+        ##end
+        #
+        #item['vector_project_ids'] = item['vector_project_ids'].split(';') if item['vector_project_ids']
+        #
+        ##if item['id'].to_i == 22004
+        ##  puts "#### item['vector_project_ids']: #{item['vector_project_ids']}"
+        ##end
+        #
+        ##item['status'] = item['status'].titleize if item['status']
 
         item = {'add' => {'doc' => item }}
         list.push item.to_json

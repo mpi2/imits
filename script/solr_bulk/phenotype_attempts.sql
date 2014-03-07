@@ -1,11 +1,11 @@
 -- http://www.postgresql.org/message-id/14658.1175879477@sss.pgh.pa.us
 SET client_min_messages=WARNING;
 
--- FUNCTION NAME:
+-- FUNCTION NAME: solr_get_pa_allele_type
 --
--- PARAMETERS:
+-- PARAMETERS: phenotype_attempts_id
 --
--- CORRESPONDING RUBY:
+-- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set allele_type (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L114)
 --
 -- TEST:
 --
@@ -18,7 +18,6 @@ RETURNS text AS $$
 DECLARE
 result text; mouse_allele_type text; allele_symbol_superscript_template text; marker_symbol text; mi_attempt_id int;
 BEGIN
-
     result := '';
 
     select phenotype_attempts.mi_attempt_id
@@ -59,7 +58,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
+-- FUNCTION NAME:
+--
+-- PARAMETERS:
+--
+-- CORRESPONDING RUBY:
+--
+-- TEST:
+--
+-- EQUIVALENCE TEST:
+--
+-- DESCRIPTION:
 
 CREATE OR REPLACE FUNCTION solr_get_pa_allele_name (in int)
   RETURNS text AS $$
@@ -99,8 +108,17 @@ CREATE OR REPLACE FUNCTION solr_get_pa_allele_name (in int)
   END;
 $$ LANGUAGE plpgsql;
 
-
-
+-- FUNCTION NAME:
+--
+-- PARAMETERS:
+--
+-- CORRESPONDING RUBY:
+--
+-- TEST:
+--
+-- EQUIVALENCE TEST:
+--
+-- DESCRIPTION:
 
 CREATE OR REPLACE FUNCTION solr_get_pa_order_from_names (in int)
   RETURNS text AS $$
@@ -132,8 +150,17 @@ CREATE OR REPLACE FUNCTION solr_get_pa_order_from_names (in int)
   END;
 $$ LANGUAGE plpgsql;
 
-
-
+-- FUNCTION NAME:
+--
+-- PARAMETERS:
+--
+-- CORRESPONDING RUBY:
+--
+-- TEST:
+--
+-- EQUIVALENCE TEST:
+--
+-- DESCRIPTION:
 
 CREATE OR REPLACE FUNCTION solr_get_pa_get_order_from_urls (in int)
   RETURNS text AS $$
@@ -193,10 +220,17 @@ CREATE OR REPLACE FUNCTION solr_get_pa_get_order_from_urls (in int)
   END;
 $$ LANGUAGE plpgsql;
 
-
-
-
-
+-- FUNCTION NAME:
+--
+-- PARAMETERS:
+--
+-- CORRESPONDING RUBY:
+--
+-- TEST:
+--
+-- EQUIVALENCE TEST:
+--
+-- DESCRIPTION:
 
 CREATE OR REPLACE FUNCTION solr_get_best_status_pa_cre (in int, b boolean)
 RETURNS text AS $$

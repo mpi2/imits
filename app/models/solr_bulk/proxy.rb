@@ -62,14 +62,9 @@ module SolrBulk
 
     def handle_http_response_error(http_response, request = nil)
       if ! http_response.kind_of? Net::HTTPSuccess
-#        raise SolrBulk::UpdateError, "Error during update_json: #{http_response.message}\n#{http_response.body}\n\nRequest body:#{request.body}"
         raise SolrBulk::Error, "Error during update_json: #{http_response.message}\n#{http_response.body}\n\nRequest body:#{request.body}"
       end
     end
-
-    #def details
-    #  pp @solr_uri
-    #end
 
     protected :handle_http_response_error
   end

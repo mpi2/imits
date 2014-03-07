@@ -329,13 +329,13 @@ class V2::Reports::MiProductionController < ApplicationController
     params[:commit] = true
 
     @title = 'IDG Gene List Activity'
-
     render :template => 'v2/reports/mi_production/notifications_by_gene_live'
   end
 
   def notifications_by_gene_for_idg_cache
     consortium = Consortium.find_by_name(params[:consortium]).try(:name)
     production_centre = nil
+    params[:commit] = true
 
     format = 'csv' if request.format == :csv
     format = 'html' if request.format == :html

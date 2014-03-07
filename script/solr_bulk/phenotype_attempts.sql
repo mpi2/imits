@@ -3,7 +3,7 @@ SET client_min_messages=WARNING;
 
 -- FUNCTION NAME: solr_get_pa_allele_type
 --
--- PARAMETERS: phenotype_attempts_id
+-- PARAMETERS: phenotype_attempts.id
 --
 -- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set allele_type (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L114)
 --

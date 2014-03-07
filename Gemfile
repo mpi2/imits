@@ -28,7 +28,6 @@ gem 'dynamic_form', '1.1.4'
 gem 'bio', '1.4.3'
 
 gem "sequel"
-gem "mysql2"
 
 
 group :development, :test do

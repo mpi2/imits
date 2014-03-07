@@ -1,0 +1,52 @@
+---
+
+mi_attempts_sql : |
+  select * from solr_mi_attempts;
+
+allele_sql : |
+  select * from solr_alleles;
+
+genes_sql : |
+  select * from solr_genes;
+
+phenotype_attempts_sql : |
+  select * from solr_phenotype_attempts;
+
+# full load
+
+targets:
+  - phenotype_attempt
+  - mi_attempt
+  - allele
+  - gene
+
+#targets:
+#  - phenotype_attempt
+
+# can add :id to the following to target test single doc 
+
+compare: 
+  :verbose: false
+  :check_json: false
+  :check_csv: true
+  :check_xml: false
+  :old_file_name: /home/richard/Desktop/solr-old-TEMPLATE.EXTENSION
+  :new_file_name: /home/richard/Desktop/solr-new-TEMPLATE.EXTENSION
+  :limit: -1
+  :index_old: http://localhost:8985/solr/allele
+  :index_new: http://localhost:8983/solr/allele
+  :fail_counter_limit: -10
+  :force_download: true
+
+#  :id: 195
+
+  #:old_file_name: /nfs/users/nfs_r/re4/Desktop/solr-old-TEMPLATE.EXTENSION
+  #:new_file_name: /nfs/users/nfs_r/re4/Desktop/solr-new-TEMPLATE.EXTENSION
+
+connection:
+    password: imits
+    user: imits
+    database: imits_development
+    host: localhost
+    port:  5432
+    

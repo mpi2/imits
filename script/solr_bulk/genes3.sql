@@ -1,25 +1,28 @@
 -- http://www.postgresql.org/message-id/14658.1175879477@sss.pgh.pa.us
 SET client_min_messages=WARNING;
 
-CREATE table solr_ikmc_projects_details_agg ( gene_id int, id int, project text, type text, status text );
+CREATE table solr_ikmc_projects_details_agg ( projects text, pipelines text, statuses text, gene_id int, type text );
 
 CREATE OR REPLACE FUNCTION solr_ikmc_projects_details_builder()
 RETURNS int AS $$
 DECLARE
     result int;
 BEGIN
-    CREATE temp table solr_ikmc_projects_details_es_cells ( gene_id int, id int, project text, type text,status text ) ON COMMIT DROP;
-    CREATE temp table solr_ikmc_projects_details_vectors ( gene_id int, id int, project text, type text,status text ) ON COMMIT DROP;
-    CREATE temp table solr_ikmc_projects_details_vectors_intermediate ( gene_id int, id int, project text, type text,status text ) ON COMMIT DROP;
-    CREATE temp table solr_ikmc_projects_details_es_cells_intermediate ( gene_id int, id int, project text, type text,status text ) ON COMMIT DROP;
+    CREATE temp table solr_ikmc_projects_details_es_cells ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_vectors ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_vectors_intermediate ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_es_cells_intermediate ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_all ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
 
     INSERT INTO
-    solr_ikmc_projects_details_es_cells AS
+    solr_ikmc_projects_details_es_cells
       SELECT genes.id AS gene_id,
       targ_rep_ikmc_projects.id AS id,
       targ_rep_ikmc_projects.name AS project,
       CAST( 'es_cell' AS text ) AS type,
-      genes.marker_symbol, targ_rep_pipelines.name AS pipeline, targ_rep_ikmc_project_statuses.name AS status
+      genes.marker_symbol,
+      targ_rep_pipelines.name AS pipeline,
+      targ_rep_ikmc_project_statuses.name AS status
         --,(targ_rep_es_cells.report_to_public and targ_rep_pipelines.report_to_public) AS report_to_public
       FROM targ_rep_es_cells
       JOIN targ_rep_ikmc_projects on targ_rep_es_cells.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
@@ -34,7 +37,9 @@ BEGIN
       targ_rep_ikmc_projects.id AS id,
       targ_rep_ikmc_projects.name AS project,
       CAST( 'vector' AS text ) AS type,
-      genes.marker_symbol, targ_rep_pipelines.name AS pipeline, targ_rep_ikmc_project_statuses.name AS status
+      genes.marker_symbol,
+      targ_rep_pipelines.name AS pipeline,
+      targ_rep_ikmc_project_statuses.name AS status
         --,(targ_rep_targeting_vectors.report_to_public and targ_rep_pipelines.report_to_public) AS report_to_public
       FROM targ_rep_targeting_vectors
       JOIN targ_rep_ikmc_projects on targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
@@ -45,7 +50,7 @@ BEGIN
       ;
 
     INSERT INTO
-    solr_ikmc_projects_details_vectors_intermediate AS
+    solr_ikmc_projects_details_vectors_intermediate
     SELECT * FROM solr_ikmc_projects_details_vectors
     where not exists (
         SELECT project FROM solr_ikmc_projects_details_es_cells where
@@ -53,7 +58,7 @@ BEGIN
     );
 
     INSERT INTO
-    solr_ikmc_projects_details_es_cells_intermediate AS
+    solr_ikmc_projects_details_es_cells_intermediate
     SELECT * FROM solr_ikmc_projects_details_es_cells
     UNION
     SELECT
@@ -66,10 +71,8 @@ BEGIN
       status
     FROM solr_ikmc_projects_details_vectors_intermediate;
 
-    CREATE temp table solr_ikmc_projects_details_all ( gene_id int, id int, project text, type text,status text ) ON COMMIT DROP;
-
     INSERT INTO
-    solr_ikmc_projects_details_all AS
+    solr_ikmc_projects_details_all
     SELECT
     DISTINCT
     * FROM
@@ -81,7 +84,7 @@ BEGIN
     FROM solr_ikmc_projects_details_vectors_intermediate;
 
     INSERT INTO
-    solr_ikmc_projects_details_agg AS
+    solr_ikmc_projects_details_agg
     SELECT
         string_agg(project, ';') AS projects,
         string_agg(pipeline, ';') AS pipelines,
@@ -92,7 +95,7 @@ BEGIN
     solr_ikmc_projects_details_all
     GROUP BY gene_id, type;
 
-    COMMIT;
+   -- COMMIT;
 
     SELECT count(*) INTO result FROM solr_ikmc_projects_details_agg;
 
@@ -156,10 +159,11 @@ FROM
 ) AS most_advanced
 WHERE most_advanced.id = most_advanced.most_advanced_id;
 
-
 SELECT solr_ikmc_projects_details_builder();
 
-CREATE table solr_genes AS
+CREATE
+table
+solr_genes AS
 SELECT
   genes.id AS id,
   CAST( 'gene' AS text ) AS type,

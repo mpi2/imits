@@ -43,5 +43,4 @@ SET client_min_messages=WARNING;
 
 \i alleles.sql
 
-\i genes.sql
-
+\i genes3.sql

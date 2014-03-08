@@ -9,9 +9,9 @@ SET client_min_messages=WARNING;
 --
 -- TEST:
 --
--- EQUIVALENCE TEST:
+-- EQUIVALENCE TEST: test_phenotype_attempt_allele_type in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
--- DESCRIPTION:
+-- DESCRIPTION: generate allele_type for phenotype_attempt doc type
 
 CREATE OR REPLACE FUNCTION solr_get_pa_allele_type (in int)
 RETURNS text AS $$
@@ -58,19 +58,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- FUNCTION NAME:
+-- FUNCTION NAME: solr_get_pa_allele_name
 --
--- PARAMETERS:
+-- PARAMETERS: phenotype_attempts.id
 --
--- CORRESPONDING RUBY:
+-- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set allele_name (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L122)
 --
 -- TEST:
 --
--- EQUIVALENCE TEST:
+-- EQUIVALENCE TEST: test_phenotype_attempt_allele_name in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
--- DESCRIPTION:
+-- DESCRIPTION: generate allele_name for phenotype_attempt doc type
 
-CREATE OR REPLACE FUNCTION solr_get_pa_allele_name (in int)
+CREATE OR REPLACE FUNCTION solr_get_pa_allele_name (int)
   RETURNS text AS $$
   DECLARE
   tmp RECORD; result text; mouse_allele_type text; allele_symbol_superscript_template text; marker_symbol text; mi_attempt_id int; cec_count int;
@@ -108,24 +108,27 @@ CREATE OR REPLACE FUNCTION solr_get_pa_allele_name (in int)
   END;
 $$ LANGUAGE plpgsql;
 
--- FUNCTION NAME:
+-- FUNCTION NAME: solr_get_pa_order_from_names
 --
--- PARAMETERS:
+-- PARAMETERS: phenotype_attempts.id
 --
--- CORRESPONDING RUBY:
+-- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set order_from_names (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L130)
 --
 -- TEST:
 --
--- EQUIVALENCE TEST:
+-- EQUIVALENCE TEST: test_phenotype_attempt_order_from_names in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
--- DESCRIPTION:
+-- DESCRIPTION: generate order_from_names for phenotype_attempt doc type
 
-CREATE OR REPLACE FUNCTION solr_get_pa_order_from_names (in int)
+CREATE OR REPLACE FUNCTION solr_get_pa_order_from_names (int)
   RETURNS text AS $$
   DECLARE
     tmp RECORD; result text;
   BEGIN
   result := '';
+
+  --drop table if exists solr_get_pa_order_from_names_tmp;
+
   FOR tmp IN SELECT phenotype_attempt_distribution_centres.distribution_network,
   case
   when centres.name = 'UCD' then 'KOMP'
@@ -140,34 +143,47 @@ CREATE OR REPLACE FUNCTION solr_get_pa_order_from_names (in int)
   LOOP
 
     if char_length(tmp.distribution_network) > 0 then
-      result := result || tmp.distribution_network || ';';
+        insert into solr_get_pa_order_from_names_tmp(phenotype_attempt_id, name) values ($1, tmp.distribution_network);
     else
-      result := result || tmp.name || ';';
+        insert into solr_get_pa_order_from_names_tmp(phenotype_attempt_id, name) values ($1, tmp.name);
     end if;
 
+    --if char_length(tmp.distribution_network) > 0 then
+    --  result := result || tmp.distribution_network || ';';
+    --else
+    --  result := result || tmp.name || ';';
+    --end if;
+
   END LOOP;
+
+  select string_agg(distinct name, ';') into result from solr_get_pa_order_from_names_tmp group by phenotype_attempt_id;
+
+  --COMMIT;
+
   RETURN result;
   END;
 $$ LANGUAGE plpgsql;
 
--- FUNCTION NAME:
+-- FUNCTION NAME: solr_get_pa_get_order_from_urls
 --
--- PARAMETERS:
+-- PARAMETERS: phenotype_attempts.id
 --
--- CORRESPONDING RUBY:
+-- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set order_from_urls (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L130)
 --
 -- TEST:
 --
--- EQUIVALENCE TEST:
+-- EQUIVALENCE TEST: test_phenotype_attempt_order_from_urls in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
--- DESCRIPTION:
+-- DESCRIPTION: generate order_from_urls for phenotype_attempt doc type
 
-CREATE OR REPLACE FUNCTION solr_get_pa_get_order_from_urls (in int)
+CREATE OR REPLACE FUNCTION solr_get_pa_get_order_from_urls (int)
   RETURNS text AS $$
   DECLARE
   tmp RECORD; tmp2 RECORD; result text; marker_symbol text; project_id text; tmp_result text; target_name text;
   BEGIN
   result := '';
+
+  --drop table if exists solr_get_pa_get_order_from_urls_tmp;
 
   select targ_rep_es_cells.ikmc_project_id
     into project_id
@@ -212,27 +228,32 @@ CREATE OR REPLACE FUNCTION solr_get_pa_get_order_from_urls (in int)
         end if;
 
         if char_length(tmp_result) > 0 then
-          result := result || tmp_result || ';';
+          --result := result || tmp_result || ';';
+            insert into solr_get_pa_get_order_from_urls_tmp(phenotype_attempt_id, url) values ($1, tmp_result);
         end if;
       END LOOP;
   END LOOP;
+
+  select string_agg(distinct url, ';') into result from solr_get_pa_get_order_from_urls_tmp group by phenotype_attempt_id;
+
   RETURN result;
   END;
 $$ LANGUAGE plpgsql;
 
--- FUNCTION NAME:
+-- FUNCTION NAME: solr_get_best_status_pa_cre
 --
--- PARAMETERS:
+-- PARAMETERS: phenotype_attempts.id, cre_excision_required
 --
--- CORRESPONDING RUBY:
+-- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set best_status_pa_cre_ex_required, best_status_pa_cre_ex_not_required
+-- (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L93)
 --
 -- TEST:
 --
--- EQUIVALENCE TEST:
+-- EQUIVALENCE TEST: test_phenotype_attempt_best_status_pa_cre in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
--- DESCRIPTION:
+-- DESCRIPTION: generate best_status_pa_cre_ex_required, best_status_pa_cre_ex_not_required for phenotype_attempt doc type
 
-CREATE OR REPLACE FUNCTION solr_get_best_status_pa_cre (in int, b boolean)
+CREATE OR REPLACE FUNCTION solr_get_best_status_pa_cre (int, boolean)
 RETURNS text AS $$
 DECLARE
   tmp RECORD; selected_status_name text; selected_status_order_by int; selected_status_in_progress_date timestamp; tmp_in_progress_date timestamp;
@@ -271,11 +292,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE temp table solr_get_pa_order_from_names_tmp ( phenotype_attempt_id int, name text ) ;        --ON COMMIT DROP;
+CREATE temp table solr_get_pa_get_order_from_urls_tmp ( phenotype_attempt_id int, url text ) ;      --ON COMMIT DROP;
 
-
+-- TABLE NAME: solr_phenotype_attempts
+--
+-- TEST:
+--
+-- EQUIVALENCE TEST: test_solr_phenotype_attempts in ./script/solr_bulk/test/phenotype_attempts_test.rb
+--
+-- DESCRIPTION: Provides the data for the phenotype_attempt docs. 
 
 CREATE
-VIEW
+TABLE
 solr_phenotype_attempts as
 select
   phenotype_attempts.id as id,

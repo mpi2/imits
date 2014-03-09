@@ -3,6 +3,12 @@ SET client_min_messages=WARNING;
 
 CREATE table solr_ikmc_projects_details_agg ( projects text, pipelines text, statuses text, gene_id int, type text );
 
+-- FUNCTION NAME: solr_ikmc_projects_details_builder
+--
+-- PARAMETERS: none
+--
+-- DESCRIPTION: Builds project details for gene type doc.
+
 CREATE OR REPLACE FUNCTION solr_ikmc_projects_details_builder()
 RETURNS int AS $$
 DECLARE

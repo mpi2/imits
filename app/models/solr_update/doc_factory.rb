@@ -284,7 +284,7 @@ class SolrUpdate::DocFactory
     return [solr_doc]
   end
 
-  def self.add_project_details(gene)
+  def self.add_project_details_new(gene)
     return nil if ! gene
 
     project_hash = {}
@@ -347,6 +347,113 @@ class SolrUpdate::DocFactory
         value = tv.try(:ikmc_project).try(:status).try(:name)
         next if ! key
         vector_project_hash[key] = value
+      end
+    end
+
+    vector_project_hash.keys.each do |key|
+      next if ! key
+      solr_doc['vector_project_ids'].push key
+
+      value = vector_project_hash[key]
+      value = value ? value : 'unknown'
+
+      solr_doc['vector_project_statuses'].push value
+    end
+
+    project_hash.keys.each do |key|
+      next if ! key
+      solr_doc['project_ids'].push key
+
+      value = project_hash[key]
+      value = value ? value : 'unknown'
+
+      solr_doc['project_statuses'].push value
+
+      pipeline = pipeline_hash[key]
+      pipeline = pipeline ? pipeline : 'unknown'
+
+      solr_doc['project_pipelines'].push pipeline
+    end
+
+    solr_doc
+  end
+
+  def self.create_for_gene(gene)
+    solr_doc = {
+      'id' => gene.id,
+      'type' => 'gene',
+      'allele_id' => '-1',
+      'mgi_accession_id' => ! gene.mgi_accession_id.blank? ? gene.mgi_accession_id : 'unknown',
+      'consortium' => '',
+      'production_centre' => '',
+      'marker_symbol' => gene.marker_symbol,
+      'project_ids' => [],
+      'project_statuses' => [],
+      'marker_type' => gene.marker_type
+    }
+
+    doc = add_project_details(gene)
+
+    solr_doc.merge!(doc) #if doc && ! doc.empty?
+
+    plan = gene.relevant_plan
+
+    if plan
+      solr_doc['consortium'] = plan.consortium.name if plan.consortium
+      solr_doc['production_centre'] = plan.production_centre.name if plan.production_centre
+
+      s = gene.relevant_status
+
+      solr_doc['status'] = s[:status].to_s.humanize
+      solr_doc['effective_date'] = s[:date]
+    end
+
+    return [solr_doc]
+  end
+
+  def self.add_project_details(gene)
+    return nil if ! gene
+
+    project_hash = {}
+    vector_project_hash = {}
+    pipeline_hash = {}
+    solr_doc = {'project_ids' => [], 'project_statuses' => [], 'vector_project_ids' => [], 'vector_project_statuses' => [], 'project_pipelines' => []}
+
+    gene.mi_attempts.each do |mi|
+      key = mi.try(:es_cell).try(:ikmc_project).try(:name)
+      value = mi.try(:es_cell).try(:ikmc_project).try(:status).try(:name)
+      pipeline = mi.try(:es_cell).try(:ikmc_project).try(:pipeline).try(:name)
+      next if ! key
+      project_hash[key] = value
+      pipeline_hash[key] = pipeline
+    end
+
+    gene.phenotype_attempts.each do |pa|
+      key = pa.try(:mi_attempt).try(:es_cell).try(:ikmc_project).try(:name)
+      value = pa.try(:mi_attempt).try(:es_cell).try(:ikmc_project).try(:status).try(:name)
+      pipeline = pa.try(:mi_attempt).try(:es_cell).try(:ikmc_project).try(:pipeline).try(:name)
+      next if ! key
+      project_hash[key] = value
+      pipeline_hash[key] = pipeline
+    end
+
+    gene.allele.each do |allele|
+      allele.es_cells.unique_public_info.map do |es_cell_info|
+        next if es_cell_info[:ikmc_project_name].empty?
+        project_hash[es_cell_info[:ikmc_project_name]] = es_cell_info[:ikmc_project_status_name]
+        pipeline_hash[es_cell_info[:ikmc_project_name]] = es_cell_info[:ikmc_project_pipeline]
+      end
+    end
+
+    gene.allele.each do |allele|
+      allele.targeting_vectors.each do |tv|
+        key = tv.try(:ikmc_project).try(:name)
+        value = tv.try(:ikmc_project).try(:status).try(:name)
+        pipeline = tv.try(:ikmc_project).try(:pipeline).try(:name)
+        next if ! key
+        vector_project_hash[key] = value if ! project_hash.has_key? key # don't add to project_hash
+        project_hash[key] = value
+        pipeline_hash[key] = pipeline
       end
     end
 

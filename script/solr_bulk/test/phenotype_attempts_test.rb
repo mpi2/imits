@@ -265,8 +265,9 @@ def test_solr_phenotype_attempts
   attempts = ActiveRecord::Base.connection.execute("select * from solr_phenotype_attempts")
 
   attempts.each do |attempt|
-    attempt['order_from_names'] = attempt['order_from_names'].to_s.split(';').uniq
-    attempt['order_from_urls'] = attempt['order_from_urls'].to_s.split(';').uniq
+    attempt['order_from_names'] = attempt['order_from_names'].to_s.split(';')
+    attempt['order_from_urls'] = attempt['order_from_urls'].to_s.split(';')
+    attempt['project_ids'] = attempt['project_ids'].to_s.split(';')
     hash[attempt['id'].to_i] = attempt.clone
     # pp attempts
     # break
@@ -279,7 +280,9 @@ def test_solr_phenotype_attempts
 
   # pp hash
 
-  PhenotypeAttempt.all.each do |pa|
+  PhenotypeAttempt.order(:id).each do |pa|
+    failed = false
+
     if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0 and pa.report_to_public
       docs = SolrUpdate::DocFactory.create_for_phenotype_attempt(pa)
       doc = docs.first
@@ -290,19 +293,74 @@ def test_solr_phenotype_attempts
 
       if ! hash.has_key?(doc['id'])
         puts "#### missing key: (#{doc['id']})".red
-        next
+        failed = true
+        #exit
       end
 
       if doc.keys.size != hash[doc['id']].keys.size
         puts "#### key count error: (#{doc.keys.size}/#{hash[doc['id']].keys.size})".red
+        failed = true
       end
+
+      splits = %W{order_from_names order_from_urls project_ids}
+
+      old = doc
+      new = hash[doc['id']]
+
+      #pp old
+      #pp new
+
+      #pp new
+
+      splits.each do |split|
+        if old[split].size != new[split].size
+          puts "#### #{doc['id']}: split count error: '#{split}' (#{old[split].size}/#{new[split].size})".red
+          failed = true
+        end
+
+        old[split] = old[split].sort
+        new[split] = new[split].sort
+        i = 0
+        old[split].each do |item|
+          if item != new[split][i]
+            puts "#### #{doc['id']}: split compare error: '#{split}' (#{item}/#{new[split][i]})".red
+            failed = true
+          end
+          i += 1
+        end
+      end
+
+      old.keys.each do |key|
+        next if splits.include?(key)
+        if old[key].to_s != new[key].to_s
+          puts "#### #{doc['id']}: compare error: '#{key}' (#{old[key]}/#{new[key]})".red
+          failed = true
+        end
+      end
+
       @count += 1
-      #break
+      @failed_count += 1 if failed
+
+      #if failed
+      #splits.each do |split|
+      #  pp old['id']
+      #  pp old[split]
+      #  pp new['id']
+      #  pp new[split]
+      #end
+      #end
+
+      #break if @count >= 500
     end
   end
 
   puts "#### count error: (#{count}/#{@count})".red if count != @count
 end
+
+sql = 'CREATE temp table solr_get_pa_order_from_names_tmp ( phenotype_attempt_id int, name text ) ;'
+sql += 'CREATE temp table solr_get_pa_get_order_from_urls_tmp ( phenotype_attempt_id int, url text ) ;'
+
+ActiveRecord::Base.connection.execute(sql)
 
 if enabler['test_phenotype_attempt_allele_type']
   test_phenotype_attempt_allele_type

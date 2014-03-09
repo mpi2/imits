@@ -127,7 +127,10 @@ CREATE OR REPLACE FUNCTION solr_get_pa_order_from_names (int)
   BEGIN
   result := '';
 
+  truncate solr_get_pa_order_from_names_tmp;
+
   --drop table if exists solr_get_pa_order_from_names_tmp;
+  --CREATE temp table solr_get_pa_order_from_names_tmp ( phenotype_attempt_id int, name text ) ;        --ON COMMIT DROP;
 
   FOR tmp IN SELECT phenotype_attempt_distribution_centres.distribution_network,
   case
@@ -183,7 +186,10 @@ CREATE OR REPLACE FUNCTION solr_get_pa_get_order_from_urls (int)
   BEGIN
   result := '';
 
+  truncate solr_get_pa_get_order_from_urls_tmp;
+
   --drop table if exists solr_get_pa_get_order_from_urls_tmp;
+  --CREATE temp table solr_get_pa_get_order_from_urls_tmp ( phenotype_attempt_id int, url text ) ;      --ON COMMIT DROP;
 
   select targ_rep_es_cells.ikmc_project_id
     into project_id
@@ -301,7 +307,7 @@ CREATE temp table solr_get_pa_get_order_from_urls_tmp ( phenotype_attempt_id int
 --
 -- EQUIVALENCE TEST: test_solr_phenotype_attempts in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
--- DESCRIPTION: Provides the data for the phenotype_attempt docs. 
+-- DESCRIPTION: Provides the data for the phenotype_attempt docs.
 
 CREATE
 TABLE
@@ -324,7 +330,7 @@ select
   'http://localhost:3000/targ_rep/alleles/' || targ_rep_es_cells.allele_id || '/allele-image-cre?simple=true' as simple_allele_image_url,
   'http://localhost:3000/targ_rep/alleles/' || targ_rep_es_cells.allele_id || '/escell-clone-cre-genbank-file' as genbank_file_url,
 
-  targ_rep_es_cells.ikmc_project_id as project_ids,
+  targ_rep_es_cells.ikmc_project_id || ';' as project_ids,
   genes.marker_symbol as marker_symbol,
   mi_attempts.colony_name as parent_mi_attempt_colony_name,
 

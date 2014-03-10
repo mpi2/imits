@@ -651,7 +651,7 @@ class Gene < ActiveRecord::Base
       ng.vega_ids = new_gene['vega_ids'].join('')
       ng.ncbi_ids = new_gene['ens_ids'].join('')
       ng.ensembl_ids = new_gene['ncbi_ids'].join('')
-      ng.ccds_ids = new_gene['ncbi_ids'].map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids']}.flatten.join(',')
+      ng.ccds_ids = new_gene['ncbi_ids'].to_a.map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids']}.flatten.join(',')
       if ng.valid?
         logger.info "Successfuly Created new gene: #{new_gene['mgi_accession_id']}"
         ng.save

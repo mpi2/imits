@@ -55,7 +55,8 @@ class Reports::NotificationsByGene < Reports::Base
     @blurb = ""
     @blurb = "#{consortium} " if ! consortium.blank?
     @blurb += "#{production_centre}" if ! production_centre.blank?
-    @blurb = "All" if consortium.blank? && production_centre.blank?
+    @blurb = "All" if (consortium.blank? && production_centre.blank?) || consortium =~ /all/
+    @blurb = "no consortium" if consortium =~ /none/
     @count = @report.blank? ? 0 : @mi_plan_summary.count
     @pretty_print_statuses = @report.pretty_print_statuses
     @cached = true
@@ -81,7 +82,10 @@ class Reports::NotificationsByGene < Reports::Base
     @blurb = ""
     @blurb = "#{consortium} " if ! consortium.blank?
     @blurb += "#{production_centre}" if ! production_centre.blank?
-    @blurb = "All" if consortium.blank? && production_centre.blank?
+
+    @blurb = "All" if (consortium.blank? && production_centre.blank?) || consortium =~ /all/
+    @blurb = "no consortium" if consortium =~ /none/
+
     @count = @report.blank? ? 0 : @mi_plan_summary.count
     @pretty_print_statuses = @report.pretty_print_statuses
     @cached = true

@@ -255,6 +255,7 @@ class V2::Reports::MiProductionController < ApplicationController
     if ! params[:commit].blank?
       consortium = Consortium.find_by_name(params[:consortium]).try(:name)
       production_centre = nil
+      consortium = params[:consortium] if ! consortium
 
       format = 'csv' if request.format == :csv
       format = 'html' if request.format == :html
@@ -279,6 +280,7 @@ class V2::Reports::MiProductionController < ApplicationController
     if !params[:commit].blank?
       consortium = Consortium.find_by_name(params[:consortium]).try(:name)
       production_centre = Centre.find_by_name(params[:production_centre]).try(:name)
+      consortium = params[:consortium] if ! consortium
 
       @report = NotificationsByGene.new
       @mi_plan_summary = @report.mi_plan_summary(production_centre, consortium)

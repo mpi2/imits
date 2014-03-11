@@ -121,7 +121,14 @@ class NotificationsByGene < PlannedMicroinjectionList
   def _mi_plan_summary(production_centre = nil, consortium = nil)
     where_clause = []
 
-    where_clause.push "new_intermediate_report.consortium = '#{consortium}'" if consortium
+    if consortium =~ /all/
+      where_clause = []
+    elsif consortium =~ /none/
+      where_clause.push "new_intermediate_report.consortium is null"
+    elsif consortium.to_s.length > 0
+      where_clause.push "new_intermediate_report.consortium = '#{consortium}'"
+    end
+
     where_clause.push "new_intermediate_report.production_centre = '#{production_centre}'" if production_centre
 
     where_clause = 'where ' + where_clause.join(' and ') if where_clause.length > 0

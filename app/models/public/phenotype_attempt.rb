@@ -106,7 +106,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   end
 
  def phenotyping_productions_attributes
-   return phenotyping_productions.map(&:as_json)
+   return phenotyping_productions.as_json(:except => [:created_at, :updated_at, :status_id, :phenotype_attempt_id, :mouse_allele_mod_id], :methods => [:consortium_name, :production_centre_name, :status_name])
  end
 
   def self.translations

@@ -117,6 +117,9 @@ class PhenotypingProduction < ApplicationModel
     end
   end
 
+  def status_name; status.name; end
+
+  def mouse_allele_mod_status_name; mouse_allele_mod.status.name; end
 
 ## CLASS METHODS
 

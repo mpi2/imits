@@ -82,8 +82,20 @@ features:
         colour: white
         font_colour: black
 
-    poly a signal:
+    pa:
       label: pA
+      width: 33
+      class_name: PolyA
+      simple:
+        label: pA
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+        class_name: PolyA
+
+    poly a signal:
+      alias: pa
 
 # ---- gene ----
   gene:
@@ -193,6 +205,9 @@ features:
         stroke: "transparent"
         font_colour: white
         font_size: 28
+
+    "tm-lacz ":
+      alias: tm-lacz
 
     zeor:
 
@@ -628,18 +643,30 @@ features:
 # ---- polya_signal ----
   polya_signal:
     defaults:
-      colour: black
-      font_colour: white
+      colour: white
+      font_colour: black
       simple:
         stroke: "transparent"
-        colour: black
-        font_colour: white
+        colour: white
+        font_colour: black
 
-    mpgk polya:
+    pa:
       label: pA
+      width: 33
+      class_name: PolyA
+      simple:
+        label: pA
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+        class_name: PolyA
 
-    sv40 polya:
-      label: pA
+    "mpgk polya":
+      alias: pa
+
+    "sv40 polya":
+      alias: pa
 
 # ---- polya_site ----
   polya_site:
@@ -651,8 +678,20 @@ features:
         colour: white
         font_colour: black
 
-    poly a [split]:
+    pa:
+      label: pA
+      width: 33
+      class_name: PolyA
+      simple:
         label: pA
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
+        class_name: PolyA
+
+    "poly a [split]":
+        alias: pa
 
 # ---- primer -----
 

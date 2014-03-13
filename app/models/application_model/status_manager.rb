@@ -49,7 +49,6 @@ class ApplicationModel::StatusManager
 
   def manage_status_stamps_for(object)
     status_stamp_names = object.status_stamps.all.map(&:name)
-
     @items.each do |status_name, item|
       if item.conditions_met_for?(object)
         if ! status_stamp_names.include?(status_name)
@@ -57,11 +56,10 @@ class ApplicationModel::StatusManager
         end
       else
         if status_stamp_names.include?(status_name)
-          object.status_stamps.all.find {|ss| ss.name == status_name}.destroy
+          object.status_stamps.all.find {|ss| ss.name == status_name}.try(:destroy)
         end
       end
     end
-
     object.status_stamps.reload
   end
 

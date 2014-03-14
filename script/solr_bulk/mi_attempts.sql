@@ -9,8 +9,6 @@ SET client_min_messages=WARNING;
 --
 -- TEST:
 --
--- EQUIVALENCE TEST:
---
 -- DESCRIPTION:
 
 create table solr_centre_map(

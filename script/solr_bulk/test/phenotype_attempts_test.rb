@@ -38,19 +38,12 @@ def test_phenotype_attempt_allele_type
   PhenotypeAttempt.all.each do |phenotype_attempt|
     old = phenotype_attempt_allele_type phenotype_attempt
 
-    # pp old
-
     rows = ActiveRecord::Base.connection.execute("select * from solr_get_pa_allele_type(#{phenotype_attempt.id})")
-
-    #puts "select * from solr_mi_plan_status_stamp(#{mi_plan.id});"
-    #puts "select mi_plan_status_stamps.id into result from mi_plans, mi_plan_status_stamps where mi_plan_id = #{mi_plan.id} and mi_plans.id = #{mi_plan.id} and mi_plan_status_stamps.id = mi_plans.status_id;"
 
     count = 0
     new = ''
     rows.each do |row|
-      # pp row
       new = row['solr_get_pa_allele_type']
-      #pp new
       count += 1
     end
 
@@ -62,8 +55,6 @@ def test_phenotype_attempt_allele_type
     end
 
     @count += 1
-
-    #break
   end
 end
 
@@ -74,16 +65,12 @@ def test_phenotype_attempt_allele_name
   PhenotypeAttempt.all.each do |phenotype_attempt|
     old = phenotype_attempt.allele_symbol
 
-    # pp old
-
     rows = ActiveRecord::Base.connection.execute("select * from solr_get_pa_allele_name(#{phenotype_attempt.id})")
 
     count = 0
     new = ''
     rows.each do |row|
-      # pp row
       new = row['solr_get_pa_allele_name']
-      #pp new
       count += 1
     end
 
@@ -95,8 +82,6 @@ def test_phenotype_attempt_allele_name
     end
 
     @count += 1
-
-    #break
   end
 end
 
@@ -113,16 +98,12 @@ def test_phenotype_attempt_order_from_names
 
     old = old['order_from_names']
 
-    # pp old
-
     rows = ActiveRecord::Base.connection.execute("select * from solr_get_pa_order_from_names(#{phenotype_attempt.id})")
 
     count = 0
     new = ''
     rows.each do |row|
-      # pp row
       new = row['solr_get_pa_order_from_names'].split ';'
-      #pp new
       count += 1
     end
 
@@ -130,10 +111,6 @@ def test_phenotype_attempt_order_from_names
 
     old = old.sort
     new = new.sort
-    #new = new.sort.uniq
-
-    #pp new
-    #break
 
     if old.size != new.size
       puts "#### size error: #{phenotype_attempt.id}: (#{old}/#{new})".red
@@ -152,8 +129,6 @@ def test_phenotype_attempt_order_from_names
     end
 
     @count += 1
-
-    #break
   end
 end
 
@@ -170,16 +145,12 @@ def test_phenotype_attempt_order_from_urls
 
     old = old['order_from_urls']
 
-    # pp old
-
     rows = ActiveRecord::Base.connection.execute("select * from solr_get_pa_get_order_from_urls(#{phenotype_attempt.id})")
 
     count = 0
     new = ''
     rows.each do |row|
-      # pp row
       new = row['solr_get_pa_get_order_from_urls'].split ';'
-      #pp new
       count += 1
     end
 
@@ -187,10 +158,6 @@ def test_phenotype_attempt_order_from_urls
 
     old = old.sort
     new = new.sort
-    #new = new.sort.uniq
-
-    #pp new
-    #break
 
     if old.size != new.size
       puts "#### size error: #{phenotype_attempt.id}: (#{old}/#{new})".red
@@ -209,8 +176,6 @@ def test_phenotype_attempt_order_from_urls
     end
 
     @count += 1
-
-    # break
   end
 end
 
@@ -219,26 +184,18 @@ def test_phenotype_attempt_best_status_pa_cre cre_excision_required
   @failed_count = 0
 
   PhenotypeAttempt.all.each do |phenotype_attempt|
-    #old = phenotype_attempt_allele_type phenotype_attempt
     old = nil
     old = phenotype_attempt.status.name if cre_excision_required && phenotype_attempt.cre_excision_required
     old = phenotype_attempt.status.name if ! cre_excision_required && ! phenotype_attempt.cre_excision_required
 
     next if ! old
 
-    # pp old
-
     rows = ActiveRecord::Base.connection.execute("select * from solr_get_best_status_pa_cre(#{phenotype_attempt.id}, #{cre_excision_required})")
-
-    #puts "select * from solr_mi_plan_status_stamp(#{mi_plan.id});"
-    #puts "select mi_plan_status_stamps.id into result from mi_plans, mi_plan_status_stamps where mi_plan_id = #{mi_plan.id} and mi_plans.id = #{mi_plan.id} and mi_plan_status_stamps.id = mi_plans.status_id;"
 
     count = 0
     new = ''
     rows.each do |row|
-      # pp row
       new = row['solr_get_best_status_pa_cre']
-      #pp new
       count += 1
     end
 
@@ -250,8 +207,6 @@ def test_phenotype_attempt_best_status_pa_cre cre_excision_required
     end
 
     @count += 1
-
-    #break
   end
 end
 
@@ -269,16 +224,8 @@ def test_solr_phenotype_attempts
     attempt['order_from_urls'] = attempt['order_from_urls'].to_s.split(';')
     attempt['project_ids'] = attempt['project_ids'].to_s.split(';')
     hash[attempt['id'].to_i] = attempt.clone
-    # pp attempts
-    # break
     count += 1
   end
-
-  #puts "#### count: #{count}".blue
-
-  #pp hash.first
-
-  # pp hash
 
   PhenotypeAttempt.order(:id).each do |pa|
     failed = false
@@ -288,13 +235,9 @@ def test_solr_phenotype_attempts
       doc = docs.first
       next if ! doc
 
-      #pp doc
-      #pp hash[doc['id']]
-
       if ! hash.has_key?(doc['id'])
         puts "#### missing key: (#{doc['id']})".red
         failed = true
-        #exit
       end
 
       if doc.keys.size != hash[doc['id']].keys.size
@@ -306,11 +249,6 @@ def test_solr_phenotype_attempts
 
       old = doc
       new = hash[doc['id']]
-
-      #pp old
-      #pp new
-
-      #pp new
 
       splits.each do |split|
         if old[split].size != new[split].size
@@ -340,17 +278,6 @@ def test_solr_phenotype_attempts
 
       @count += 1
       @failed_count += 1 if failed
-
-      #if failed
-      #splits.each do |split|
-      #  pp old['id']
-      #  pp old[split]
-      #  pp new['id']
-      #  pp new[split]
-      #end
-      #end
-
-      #break if @count >= 500
     end
   end
 

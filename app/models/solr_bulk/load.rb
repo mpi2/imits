@@ -102,12 +102,14 @@ module SolrBulk
     # http://wiki.apache.org/solr/UpdateJSON
 
     def self.run(targets)
-      puts "#### loading index: '#{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}'"
+     # raise "#### unrecognised target: '{targets}'"
+
+     # puts "#### loading index: '#{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}'"
 
       #puts targets
       #exit
 
-      delete
+      delete targets
 
       list = []
 
@@ -125,8 +127,22 @@ module SolrBulk
       commit
     end
 
-    def self.delete
-      command({'delete' => {'query' => '*:*'}}.to_json)
+    def self.delete targets
+      if targets.include?('all')
+        command({'delete' => {'query' => '*:*'}}.to_json)
+        return
+      end
+
+      #target = "type:gene" if targets.include?('genes')
+      #target = "type:mi_attempt" if targets.include?('mi_attempts')
+      #target = "type:phenotype_attempt" if targets.include?('phenotype_attempts')
+      #target = "type:alleles" if targets.include?('alleles')
+      #target = '*:*' if targets.include?('all')
+
+      targets.each do |t|
+        puts "#### deleting #{t}"
+        command({'delete' => {'query' => "type:#{t.singularize}"}}.to_json)
+      end
     end
 
     def self.commit

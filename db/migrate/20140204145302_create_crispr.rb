@@ -5,6 +5,7 @@ class CreateCrispr < ActiveRecord::Migration
   create_table :targ_rep_crisprs do |t|
       t.integer  :mutagenesis_factor_id, :null => false
       t.string   :sequence, :null => false
+      t.string   :chr
       t.integer  :start
       t.integer  :end
       t.datetime :created_at
@@ -12,7 +13,6 @@ class CreateCrispr < ActiveRecord::Migration
 
     create_table :mutagenesis_factors do |t|
       t.integer :vector_id, :null => true
-      t.string :crispr_method, :null => false
     end
 
     add_column :mi_attempts, :mutagenesis_factor_id, :integer

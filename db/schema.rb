@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140204145302) do
+ActiveRecord::Schema.define(:version => 20140304165417) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -124,6 +124,7 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
     t.string   "ncbi_ids"
     t.string   "ensembl_ids"
     t.string   "ccds_ids"
+    t.string   "marker_type"
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
@@ -362,7 +363,6 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
 
   create_table "mutagenesis_factors", :force => true do |t|
     t.integer "vector_id"
-    t.string  "crispr_method", :null => false
   end
 
   create_table "new_consortia_intermediate_report", :force => true do |t|
@@ -537,9 +537,9 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
   end
 
   create_table "new_intermediate_report", :force => true do |t|
-    t.string   "gene",                                             :limit => 75,  :null => false
-    t.integer  "mi_plan_id",                                                      :null => false
-    t.string   "consortium",                                                      :null => false
+    t.string   "gene",                                             :limit => 75,                     :null => false
+    t.integer  "mi_plan_id",                                                                         :null => false
+    t.string   "consortium",                                                                         :null => false
     t.string   "production_centre"
     t.string   "sub_project"
     t.string   "priority"
@@ -615,6 +615,7 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
     t.date     "phenotyping_experiments_started_date"
     t.date     "non_cre_ex_phenotyping_experiments_started_date"
     t.date     "cre_ex_phenotyping_experiments_started_date"
+    t.boolean  "mutagenesis_via_crispr_cas9",                                     :default => false
   end
 
   create_table "notifications", :force => true do |t|
@@ -799,6 +800,7 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
   create_table "targ_rep_crisprs", :force => true do |t|
     t.integer  "mutagenesis_factor_id", :null => false
     t.string   "sequence",              :null => false
+    t.string   "chr"
     t.integer  "start"
     t.integer  "end"
     t.datetime "created_at"

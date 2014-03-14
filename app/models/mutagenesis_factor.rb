@@ -12,41 +12,41 @@ class MutagenesisFactor < ActiveRecord::Base
   before_validation :set_vector_from_vector_name
 
 
-  validate do |mf|
-    crispr_count = mf.crisprs.length
-    case self.crispr_method
-    when 1
-      #1 crispr
-      if crispr_count != 1
-        mf.errors.add(:crispr_method, '= 1 requires 1 crispr')
-      end
-    when 2
-      #1 crispr with vector
-      if crispr_count != 1 or self.vector.blank?
-        mf.errors.add(:crispr_method, '= 2 requires 1 crispr and a vector')
-      end
-    when 3
-      #2 crisprs
-      if crispr_count != 2
-        mf.errors.add(:crispr_method, '= 3 requires 2 crisprs')
-      end
-    when 4
-      #2 crisprs with vector
-      if crispr_count != 2 or self.vector.blank?
-        mf.errors.add(:crispr_method, '= 4 requires 2 crisprs and a vector')
-      end
-    when 5
-      #4 crisprs
-      if crispr_count != 4
-        mf.errors.add(:crispr_method, '= 5 requires 4 crisprs')
-      end
-    when 6
-      #4 crisprs with vector
-      if crispr_count != 4 or self.vector.blank?
-        mf.errors.add(:crispr_method, '= 6 requires 4 crisprs and a vector')
-      end
-    end
-  end
+#  validate do |mf|
+#    crispr_count = mf.crisprs.length
+#    case self.crispr_method
+#    when 1
+#      #1 crispr
+#      if crispr_count != 1
+#        mf.errors.add(:crispr_method, '= 1 requires 1 crispr')
+#      end
+#    when 2
+#      #1 crispr with vector
+#      if crispr_count != 1 or self.vector.blank?
+#        mf.errors.add(:crispr_method, '= 2 requires 1 crispr and a vector')
+#      end
+#    when 3
+#      #2 crisprs
+#      if crispr_count != 2
+#        mf.errors.add(:crispr_method, '= 3 requires 2 crisprs')
+#      end
+#    when 4
+#      #2 crisprs with vector
+#      if crispr_count != 2 or self.vector.blank?
+#        mf.errors.add(:crispr_method, '= 4 requires 2 crisprs and a vector')
+#      end
+#    when 5
+#      #4 crisprs
+#      if crispr_count != 4
+#        mf.errors.add(:crispr_method, '= 5 requires 4 crisprs')
+#      end
+#    when 6
+#      #4 crisprs with vector
+#      if crispr_count != 4 or self.vector.blank?
+#        mf.errors.add(:crispr_method, '= 6 requires 4 crisprs and a vector')
+#      end
+#    end
+#  end
 
 
   def set_vector_from_vector_name
@@ -82,12 +82,12 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: mutagenesis_factors
 #
-#  id            :integer         not null, primary key
-#  vector_id     :integer
-#  crispr_method :string(255)     not null
+#  id        :integer         not null, primary key
+#  vector_id :integer
 #
 

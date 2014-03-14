@@ -8,6 +8,7 @@ class NewIntermediateReport < ActiveRecord::Base
 
 end
 
+
 # == Schema Information
 #
 # Table name: new_intermediate_report
@@ -91,5 +92,6 @@ end
 #  phenotyping_experiments_started_date             :date
 #  non_cre_ex_phenotyping_experiments_started_date  :date
 #  cre_ex_phenotyping_experiments_started_date      :date
+#  mutagenesis_via_crispr_cas9                      :boolean         default(FALSE)
 #
 

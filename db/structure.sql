@@ -328,7 +328,8 @@ CREATE TABLE genes (
     vega_ids character varying(255),
     ncbi_ids character varying(255),
     ensembl_ids character varying(255),
-    ccds_ids character varying(255)
+    ccds_ids character varying(255),
+    marker_type character varying(255)
 );
 
 
@@ -872,8 +873,7 @@ ALTER SEQUENCE mi_plans_id_seq OWNED BY mi_plans.id;
 
 CREATE TABLE mutagenesis_factors (
     id integer NOT NULL,
-    vector_id integer,
-    crispr_method character varying(255) NOT NULL
+    vector_id integer
 );
 
 
@@ -1200,7 +1200,8 @@ CREATE TABLE new_intermediate_report (
     cre_ex_phenotype_attempt_colony_name character varying(255),
     phenotyping_experiments_started_date date,
     non_cre_ex_phenotyping_experiments_started_date date,
-    cre_ex_phenotyping_experiments_started_date date
+    cre_ex_phenotyping_experiments_started_date date,
+    mutagenesis_via_crispr_cas9 boolean DEFAULT false
 );
 
 
@@ -1566,14 +1567,6 @@ CREATE TABLE schema_migrations (
 
 
 --
--- Name: solr_gene_statuses; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW solr_gene_statuses AS
-    SELECT most_advanced.mi_plan_id, most_advanced.marker_symbol, most_advanced.status_name, most_advanced.consortium, most_advanced.created_at, most_advanced.production_centre_name FROM (SELECT all_statuses.mi_plan_id, genes.marker_symbol, all_statuses.status_name, all_statuses.id, all_statuses.created_at, first_value(all_statuses.id) OVER (PARTITION BY all_statuses.gene_id ORDER BY all_statuses.order_by DESC, all_statuses.created_at) AS most_advanced_id, consortia.name AS consortium, centres.name AS production_centre_name FROM ((((((SELECT ('mi_plan'::text || mi_plan_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plan_statuses.name AS status_name, mi_plan_statuses.order_by, mi_plan_status_stamps.created_at, NULL::timestamp without time zone AS most_adv, NULL::timestamp without time zone AS progress_date FROM ((mi_plans JOIN mi_plan_statuses ON ((mi_plan_statuses.id = mi_plans.status_id))) JOIN mi_plan_status_stamps ON (((mi_plans.id = mi_plan_status_stamps.mi_plan_id) AND (mi_plan_statuses.id = mi_plan_status_stamps.status_id)))) UNION SELECT adv_mi_attempt.id, adv_mi_attempt.mi_plan_id, adv_mi_attempt.gene_id, adv_mi_attempt.status_name, adv_mi_attempt.order_by, adv_mi_attempt.created_at, adv_mi_attempt.most_adv, adv_mi_attempt.progress_date FROM (SELECT ('mi_attempt'::text || mi_attempt_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_attempt_statuses.name AS status_name, (1000 + mi_attempt_statuses.order_by) AS order_by, mi_attempt_status_stamps.created_at, first_value(progress_status.created_at) OVER (PARTITION BY mi_attempts.mi_plan_id ORDER BY mi_attempt_statuses.order_by DESC, mi_attempt_status_stamps.created_at) AS most_adv, progress_status.created_at AS progress_date FROM ((((mi_attempts JOIN mi_attempt_statuses ON ((mi_attempt_statuses.id = mi_attempts.status_id))) JOIN mi_attempt_status_stamps ON (((mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id) AND (mi_attempt_statuses.id = mi_attempt_status_stamps.status_id)))) JOIN mi_attempt_status_stamps progress_status ON (((mi_attempts.id = progress_status.mi_attempt_id) AND (progress_status.status_id = 1)))) JOIN mi_plans ON ((mi_plans.id = mi_attempts.mi_plan_id)))) adv_mi_attempt WHERE (adv_mi_attempt.progress_date = adv_mi_attempt.most_adv)) UNION SELECT ('phenotype_attempt'::text || phenotype_attempt_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, phenotype_attempt_statuses.name AS status_name, (2000 + phenotype_attempt_statuses.order_by) AS order_by, phenotype_attempt_status_stamps.created_at, NULL::timestamp without time zone AS most_adv, NULL::timestamp without time zone AS progress_date FROM (((phenotype_attempts JOIN phenotype_attempt_statuses ON ((phenotype_attempt_statuses.id = phenotype_attempts.status_id))) JOIN phenotype_attempt_status_stamps ON (((phenotype_attempts.id = phenotype_attempt_status_stamps.phenotype_attempt_id) AND (phenotype_attempt_statuses.id = phenotype_attempt_status_stamps.status_id)))) JOIN mi_plans ON ((mi_plans.id = phenotype_attempts.mi_plan_id)))) all_statuses JOIN genes ON ((genes.id = all_statuses.gene_id))) JOIN mi_plans ON ((mi_plans.id = all_statuses.mi_plan_id))) JOIN consortia ON ((mi_plans.consortium_id = consortia.id))) LEFT JOIN centres ON ((mi_plans.production_centre_id = centres.id))) ORDER BY all_statuses.order_by DESC) most_advanced WHERE (most_advanced.id = most_advanced.most_advanced_id);
-
-
---
 -- Name: solr_update_queue_items; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -1736,6 +1729,7 @@ CREATE TABLE targ_rep_crisprs (
     id integer NOT NULL,
     mutagenesis_factor_id integer NOT NULL,
     sequence character varying(255) NOT NULL,
+    chr character varying(255),
     start integer,
     "end" integer,
     created_at timestamp without time zone
@@ -4140,3 +4134,7 @@ INSERT INTO schema_migrations (version) VALUES ('20140113150335');
 INSERT INTO schema_migrations (version) VALUES ('20140123134728');
 
 INSERT INTO schema_migrations (version) VALUES ('20140204145302');
+
+INSERT INTO schema_migrations (version) VALUES ('20140207124917');
+
+INSERT INTO schema_migrations (version) VALUES ('20140304165417');

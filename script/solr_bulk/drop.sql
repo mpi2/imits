@@ -7,7 +7,7 @@ drop view if exists solr_mi_attempts cascade;
 drop TABLE if exists solr_phenotype_attempts cascade;
 drop view if exists solr_alleles cascade;
 drop table if exists solr_genes cascade;
-drop table if exists solr_gene_statuses cascade;
+drop view if exists solr_gene_statuses cascade;
 drop FUNCTION if exists solr_get_pa_allele_type (in int) cascade;
 drop FUNCTION if exists solr_get_pa_allele_name (in int) cascade;
 drop FUNCTION if exists solr_get_pa_get_order_from_urls (in int) cascade;

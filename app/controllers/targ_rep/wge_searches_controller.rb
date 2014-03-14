@@ -90,11 +90,11 @@ class TargRep::WgeSearchesController < TargRep::BaseController
         crisprs.each do |crispr|
           data << {'right_crispr' => crispr['right_crispr']['seq'],
                    'right_crispr_chr' => crispr['right_crispr']['chr_name'],
-                   'right_crispr_start' => crispr['right_crispr']['chr_start'],
+                   'right_crispr_chr_start' => crispr['right_crispr']['chr_start'],
                    'right_crispr_chr_end' => crispr['right_crispr']['chr_end'],
                    'left_crispr' => crispr['left_crispr']['seq'],
                    'left_crispr_chr' => crispr['left_crispr']['chr_name'],
-                   'left_crispr_start' => crispr['left_crispr']['chr_start'],
+                   'left_crispr_chr_start' => crispr['left_crispr']['chr_start'],
                    'left_crispr_chr_end' => crispr['left_crispr']['chr_end']}
         end
       end

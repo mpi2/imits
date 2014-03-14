@@ -29,6 +29,7 @@ class MiAttemptsController < ApplicationController
 
   def new
     @mi_attempt = Public::MiAttempt.new
+    @vector_option = []
   end
 
   def create
@@ -36,7 +37,8 @@ class MiAttemptsController < ApplicationController
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])
-
+    @vector_options = get_vector_options('Nxn')
+    get_marker_symbol
     if ! @mi_attempt.valid?
       flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
 
@@ -64,7 +66,8 @@ class MiAttemptsController < ApplicationController
     if @mi_attempt.has_status?(:gtc) && @mi_attempt.distribution_centres.length == 0
       @mi_attempt.distribution_centres.build
     end
-
+    get_marker_symbol
+    @vector_options = get_vector_options('Nxn')
     respond_with @mi_attempt
   end
 
@@ -118,4 +121,23 @@ class MiAttemptsController < ApplicationController
     render :json => create_attribute_documentation_for(Public::MiAttempt)
   end
 
+  def get_vector_options(marker_symbol)
+    gene = Gene.find_by_marker_symbol(marker_symbol)
+    if gene.nil?
+      gene = Gene.find(:first, :conditions => ["lower(marker_symbol) = ?", marker_symbol.downcase])
+    end
+    return [] if gene.nil?
+    gene.vectors.map{|v| v.name}
+  end
+  private :get_vector_options
+
+  def get_marker_symbol
+
+    if params.has_key?(:marker_symbol) and !params[:marker_symbol].blank?
+      @marker_symbol = params[:marker_symbol]
+    else
+      @marker_symbol = @mi_attempt.mi_plan.try(:gene).try(:marker_symbol)
+    end
+  end
+  private :get_marker_symbol
 end

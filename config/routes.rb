@@ -49,6 +49,8 @@ TarMits::Application.routes.draw do
     end
   end
 
+  get '/genes/vectors' => 'genes#vectors', :as => 'genes_vectors'
+
   resources :mi_plans do
     collection do
       get 'search_for_available_mi_attempt_plans'

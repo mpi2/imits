@@ -36,6 +36,29 @@ class GenesController < ApplicationController
     end
   end
 
+  def vectors
+    marker_symbol = params[:marker_symbol]
+    gene = nil
+    tv = []
+
+    if !marker_symbol.blank?
+      gene = Gene.find_by_marker_symbol(marker_symbol)
+      if gene.blank?
+        gene = Gene.find(:first, :conditions => ["lower(marker_symbol) = ?", marker_symbol.downcase])
+      end
+    end
+
+    if !gene.blank?
+      tv = gene.vectors
+    end
+
+    respond_to do |format|
+      format.json do
+        render :json => tv.to_json
+      end
+    end
+  end
+
   private
 
   def data_for_serialized(format)

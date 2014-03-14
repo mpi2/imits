@@ -5,39 +5,71 @@ require 'color'
 
 @count = 0
 @failed_count = 0
+@failed_genes = []
+@maxdatediff = 0
+@gene_targets = []
+@gene_targets2 = [
+  195,
+  828,
+  885,
+  1168,
+  1169,
+  1375,
+  1731,
+  1976,
+  2045,
+  2066,
+  2085,
+  2100,
+  2114,
+  2207,
+  2217,
+  2239,
+  2242,
+  2262,
+  2268,
+  2347,
+  2368,
+  2408,
+  2434,
+  2437,
+  2542,
+  3069,
+  3152,
+  4345,
+  5704,
+  5921,
+  6034,
+  6169,
+  6178,
+  6416,
+  7251,
+  7916,
+  8257,
+  8267,
+  9001,
+  9586,
+9691,
+10515, 10999, 11797, 11886, 12487, 13115, 13494, 14142, 14202, 14765
+]
 
-enabler = {
-  'whatever' => true
-}
+#enabler = {
+#  'whatever' => true
+#}
 
-#solr_ikmc_projects_details_agg_es_cells.projects AS project_ids,
-#solr_ikmc_projects_details_agg_es_cells.statuses AS project_statuses,
-#solr_ikmc_projects_details_agg_es_cells.pipelines AS project_pipelines,
-#
-#solr_ikmc_projects_details_agg_vectors.projects AS vector_project_ids,
-#solr_ikmc_projects_details_agg_vectors.statuses AS vector_project_statuses,
-
-#{"id"=>29,
-# "type"=>"gene",
-# "allele_id"=>"-1",
-# "mgi_accession_id"=>"MGI:1916023",
-# "consortium"=>"MGP Legacy",
-# "production_centre"=>"WTSI",
-# "marker_symbol"=>"Zc3hc1",
-# "project_ids"=>["27841", "79887", "89610"],
-# "project_statuses"=>
-#  ["Mice - Genotype confirmed", "Vector Complete", "Vector Complete"],
-# "marker_type"=>"Gene",
-# "vector_project_ids"=>["79887", "89610"],
-# "vector_project_statuses"=>["Vector Complete", "Vector Complete"],
-# "project_pipelines"=>["KOMP-CSD", "KOMP-CSD", "KOMP-CSD"],
-# "status"=>"Genotype confirmed",
-# "effective_date"=>Sun, 20 Jul 2008 00:00:00 UTC +00:00}
+LIMIT = 10000
+STARTER = 20000
+LESSTHANIGNORE = false
 
 def test_solr_genes
   @count = 0
   @failed_count = 0
   count = 0
+
+  ints = %W{id}
+  dates = %W{effective_date}
+  simples = %W{type mgi_accession_id marker_symbol marker_type allele_id}
+  complex = %W{production_centre consortium effective_date status}
 
   hash = {}
 
@@ -49,7 +81,21 @@ def test_solr_genes
     splits.each do |split|
       gene[split] = gene[split].to_s.split(';')
     end
+
+    ints.each do |i|
+      gene[i] = gene[i].to_i
+    end
+
+    #ohash[column] = Time.parse(line[column].to_s).strftime("%Y-%m-%d %H:%M:%S")
+
+    dates.each do |i|
+      gene[i] = Time.parse(gene[i].to_s).strftime("%Y-%m-%d %H:%M:%S") if gene[i].to_s.length > 0
+    end
+
+    gene['status'] = gene['status'].to_s.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
+
     hash[gene['id'].to_i] = gene.clone
+
     #pp genes
     #break
     count += 1
@@ -65,13 +111,21 @@ def test_solr_genes
 
   # return
 
-  Gene.order(:id).each do |gene|
+  puts "#### targets - #{LIMIT}...".blue if @gene_targets.size > 0 && STARTER < 1
+  puts "#### all - #{LIMIT}...".blue if @gene_targets.size == 0 && STARTER < 1
+  puts "#### start #{STARTER} - #{LIMIT}...".blue if @gene_targets.size == 0 && STARTER > 0
+
+  genes = Gene.where(:id => @gene_targets) if @gene_targets.size > 0 && STARTER < 1
+  genes = Gene.order(:id) if @gene_targets.size == 0 && STARTER < 1
+  genes = Gene.where("id > #{STARTER}") if STARTER > 0 && @gene_targets.size == 0
+
+  genes.each do |gene|
     failed = false
     docs = SolrUpdate::DocFactory.create_for_gene(gene)
     doc = docs.first
-   # next if ! doc
+    # next if ! doc
 
-   # pp doc
+    # pp doc
     #pp hash[doc['id']]
 
     if ! hash.has_key?(doc['id'])
@@ -100,8 +154,8 @@ def test_solr_genes
     #pp old
     #pp new
 
-    #splits = %W{project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
-    splits = %W{vector_project_statuses}
+    splits = %W{project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
+    #splits = %W{vector_project_statuses}
 
     #slits.each do |split|
     #  old[split] = old[split].to_a.uniq
@@ -128,12 +182,58 @@ def test_solr_genes
       end
     end
 
+    some = ints + simples
+    some.each do |item|
+      if old[item] != new[item]
+        puts "#### #{old['id']}: '#{item}': (#{old[item]}/#{new[item]})".red
+        failed = true
+      end
+    end
 
+    old['effective_date'] = Time.parse(old['effective_date'].to_s).strftime("%Y-%m-%d %H:%M:%S") if old['effective_date'].to_s.length > 0
+    old['status'] = old['status'].to_s.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
 
+    #complex = %W{production_centre consortium effective_date status}
+    complex = %W{production_centre consortium status}
+    #complex = %W{production_centre consortium status}
+
+    complex.each do |item|
+      if old[item].to_s != new[item].to_s
+        puts "#### #{old['id']}: '#{item}': (#{old[item]}/#{new[item]})".red
+        failed = true
+      end
+    end
+
+    if old['effective_date'].to_s.length > 0 || new['effective_date'].to_s.length > 0
+      if old['effective_date'] != new['effective_date']
+        error = "#{old['id']}: 'effective_date': (#{old['effective_date']}/#{new['effective_date']})"
+        #datediff =  Time.parse(old['effective_date'].to_s) - Time.parse(new['effective_date'].to_s)
+        datediff = (Time.parse(old['effective_date'].to_s) - Time.parse(new['effective_date'].to_s)).to_i.abs
+        if datediff > 1000
+          #if datediff > 86400
+          #puts "\t#### datediff: #{datediff}".red
+          @maxdatediff = datediff if @maxdatediff < datediff
+          lessthan = Time.parse(new['effective_date'].to_s) < Time.parse(old['effective_date'].to_s)
+        #  if ! LESSTHANIGNORE
+        #    if ! lessthan
+            puts "#### #{error} - diff: #{datediff} - less: #{lessthan}".red
+            # puts "#### #{old['consortium']}/#{old['production_centre']}/#{old['status']} - #{new['consortium']}/#{new['production_centre']}/#{new['status']}".red
+            failed = true
+        #  end
+        #  end
+        end
+      end
+    end
+
+    #@failed_genes.push({ 'id' => old['id'], 'marker_symbol' => old['marker_symbol'] }) if failed
+    @failed_genes.push old['id'] if failed
 
     @failed_count += 1 if failed
     @count += 1
-    break if @count >= 1000
+    break if LIMIT > -1 && @count >= LIMIT
+
+    #pp old
+    #pp new
   end
 
   puts "#### count error: (#{count}/#{@count})".red if count != @count
@@ -143,3 +243,6 @@ test_solr_genes
 
 puts "#### done test_solr_genes: (#{@failed_count}/#{@count})".red if @failed_count > 0
 puts "#### done test_solr_genes: (#{@count})".green if @failed_count == 0
+
+puts "#### max date diff: #{@maxdatediff}"
+pp @failed_genes if @failed_genes.size > 0 && @gene_targets.size == 0

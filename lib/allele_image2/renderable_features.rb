@@ -13,6 +13,9 @@ module AlleleImage2
     ["rat Cd4", "rat CD4 transmembrane region"] => "Cd4 TM",
     # ["PGK", "DTA", "pA"] => "PGK_DTA_pA",
     # ["pA", "DTA", "PGK"] => "pA_DTA_PGK",
+
+    # Regeneron-specific
+    ['LacZ','Synthetic Cassette','LacZ','LACZ(for recom.) '] => 'LacZ',
   }
 
   # list of cassette features to show in simple images

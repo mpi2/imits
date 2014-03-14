@@ -7,9 +7,7 @@ SET client_min_messages=WARNING;
 --
 -- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set allele_type (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L114)
 --
--- TEST:
---
--- EQUIVALENCE TEST: test_phenotype_attempt_allele_type in ./script/solr_bulk/test/phenotype_attempts_test.rb
+-- TEST: test_phenotype_attempt_allele_type in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
 -- DESCRIPTION: generate allele_type for phenotype_attempt doc type
 
@@ -64,9 +62,7 @@ $$ LANGUAGE plpgsql;
 --
 -- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set allele_name (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L122)
 --
--- TEST:
---
--- EQUIVALENCE TEST: test_phenotype_attempt_allele_name in ./script/solr_bulk/test/phenotype_attempts_test.rb
+-- TEST: test_phenotype_attempt_allele_name in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
 -- DESCRIPTION: generate allele_name for phenotype_attempt doc type
 
@@ -114,9 +110,7 @@ $$ LANGUAGE plpgsql;
 --
 -- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set order_from_names (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L130)
 --
--- TEST:
---
--- EQUIVALENCE TEST: test_phenotype_attempt_order_from_names in ./script/solr_bulk/test/phenotype_attempts_test.rb
+-- TEST: test_phenotype_attempt_order_from_names in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
 -- DESCRIPTION: generate order_from_names for phenotype_attempt doc type
 
@@ -128,9 +122,6 @@ CREATE OR REPLACE FUNCTION solr_get_pa_order_from_names (int)
   result := '';
 
   truncate solr_get_pa_order_from_names_tmp;
-
-  --drop table if exists solr_get_pa_order_from_names_tmp;
-  --CREATE temp table solr_get_pa_order_from_names_tmp ( phenotype_attempt_id int, name text ) ;        --ON COMMIT DROP;
 
   FOR tmp IN SELECT phenotype_attempt_distribution_centres.distribution_network,
   case
@@ -151,17 +142,9 @@ CREATE OR REPLACE FUNCTION solr_get_pa_order_from_names (int)
         insert into solr_get_pa_order_from_names_tmp(phenotype_attempt_id, name) values ($1, tmp.name);
     end if;
 
-    --if char_length(tmp.distribution_network) > 0 then
-    --  result := result || tmp.distribution_network || ';';
-    --else
-    --  result := result || tmp.name || ';';
-    --end if;
-
   END LOOP;
 
   select string_agg(distinct name, ';') into result from solr_get_pa_order_from_names_tmp group by phenotype_attempt_id;
-
-  --COMMIT;
 
   RETURN result;
   END;
@@ -173,9 +156,7 @@ $$ LANGUAGE plpgsql;
 --
 -- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set order_from_urls (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L130)
 --
--- TEST:
---
--- EQUIVALENCE TEST: test_phenotype_attempt_order_from_urls in ./script/solr_bulk/test/phenotype_attempts_test.rb
+-- TEST: test_phenotype_attempt_order_from_urls in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
 -- DESCRIPTION: generate order_from_urls for phenotype_attempt doc type
 
@@ -187,9 +168,6 @@ CREATE OR REPLACE FUNCTION solr_get_pa_get_order_from_urls (int)
   result := '';
 
   truncate solr_get_pa_get_order_from_urls_tmp;
-
-  --drop table if exists solr_get_pa_get_order_from_urls_tmp;
-  --CREATE temp table solr_get_pa_get_order_from_urls_tmp ( phenotype_attempt_id int, url text ) ;      --ON COMMIT DROP;
 
   select targ_rep_es_cells.ikmc_project_id
     into project_id
@@ -234,7 +212,6 @@ CREATE OR REPLACE FUNCTION solr_get_pa_get_order_from_urls (int)
         end if;
 
         if char_length(tmp_result) > 0 then
-          --result := result || tmp_result || ';';
             insert into solr_get_pa_get_order_from_urls_tmp(phenotype_attempt_id, url) values ($1, tmp_result);
         end if;
       END LOOP;
@@ -253,9 +230,7 @@ $$ LANGUAGE plpgsql;
 -- CORRESPONDING RUBY: in create_for_phenotype_attempt in doc_factory.rb to set best_status_pa_cre_ex_required, best_status_pa_cre_ex_not_required
 -- (https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L93)
 --
--- TEST:
---
--- EQUIVALENCE TEST: test_phenotype_attempt_best_status_pa_cre in ./script/solr_bulk/test/phenotype_attempts_test.rb
+-- TEST: test_phenotype_attempt_best_status_pa_cre in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
 -- DESCRIPTION: generate best_status_pa_cre_ex_required, best_status_pa_cre_ex_not_required for phenotype_attempt doc type
 
@@ -303,9 +278,7 @@ CREATE temp table solr_get_pa_get_order_from_urls_tmp ( phenotype_attempt_id int
 
 -- TABLE NAME: solr_phenotype_attempts
 --
--- TEST:
---
--- EQUIVALENCE TEST: test_solr_phenotype_attempts in ./script/solr_bulk/test/phenotype_attempts_test.rb
+-- TEST: test_solr_phenotype_attempts in ./script/solr_bulk/test/phenotype_attempts_test.rb
 --
 -- DESCRIPTION: Provides the data for the phenotype_attempt docs.
 
@@ -339,13 +312,27 @@ select
 
   phenotype_attempt_statuses.name as current_pa_status
 
-  from phenotype_attempts, phenotype_attempt_status_stamps s1, mi_attempts, targ_rep_es_cells, strains, genes, mi_plans, centres, phenotype_attempt_statuses
+  --from phenotype_attempts, phenotype_attempt_status_stamps s1, mi_attempts, targ_rep_es_cells, strains, genes, mi_plans, centres, phenotype_attempt_statuses
+  --where
+  --phenotype_attempt_statuses.id = phenotype_attempts.status_id and
+  --mi_plans.id = phenotype_attempts.mi_plan_id and centres.id = mi_plans.production_centre_id and
+  --mi_plans.id = phenotype_attempts.mi_plan_id and mi_plans.gene_id = genes.id and
+  --phenotype_attempts.colony_background_strain_id = strains.id and
+  --phenotype_attempts.mi_attempt_id = mi_attempts.id and targ_rep_es_cells.id = mi_attempts.es_cell_id and
+  --phenotype_attempts.report_to_public is true and s1.phenotype_attempt_id = phenotype_attempts.id and s1.status_id = 6 and
+  --not exists(select id from phenotype_attempt_status_stamps where phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id and phenotype_attempt_status_stamps.status_id = 1);
 
-  where
-  phenotype_attempt_statuses.id = phenotype_attempts.status_id and
-  mi_plans.id = phenotype_attempts.mi_plan_id and centres.id = mi_plans.production_centre_id and
-  mi_plans.id = phenotype_attempts.mi_plan_id and mi_plans.gene_id = genes.id and
-  phenotype_attempts.colony_background_strain_id = strains.id and
-  phenotype_attempts.mi_attempt_id = mi_attempts.id and targ_rep_es_cells.id = mi_attempts.es_cell_id and
-  phenotype_attempts.report_to_public is true and s1.phenotype_attempt_id = phenotype_attempts.id and s1.status_id = 6 and
-  not exists(select id from phenotype_attempt_status_stamps where phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id and phenotype_attempt_status_stamps.status_id = 1);
+  from phenotype_attempts
+  join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id and phenotype_attempts.report_to_public is true
+  join mi_plans on mi_plans.id = phenotype_attempts.mi_plan_id
+  join centres on centres.id = mi_plans.production_centre_id
+  join genes on mi_plans.gene_id = genes.id
+  join strains on phenotype_attempts.colony_background_strain_id = strains.id
+  join mi_attempts on phenotype_attempts.mi_attempt_id = mi_attempts.id
+  join targ_rep_es_cells on targ_rep_es_cells.id = mi_attempts.es_cell_id
+  join phenotype_attempt_status_stamps on phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id and phenotype_attempt_status_stamps.status_id = 6
+
+  where not exists(select id from phenotype_attempt_status_stamps where phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id and phenotype_attempt_status_stamps.status_id = 1);
+
+
+select count(*) as solr_phenotype_attempts_count from solr_phenotype_attempts;

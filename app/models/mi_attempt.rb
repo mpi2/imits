@@ -64,7 +64,7 @@ class MiAttempt < ApplicationModel
 
   validate do |mi|
     if !mi.es_cell_name.blank? and mi.es_cell.blank?
-      mi.errors.add :es_cell_name, 'was not found in the marts'
+      mi.errors.add :es_cell_name, 'was not found in the TargRep'
     end
   end
 

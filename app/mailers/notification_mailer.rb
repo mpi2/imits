@@ -282,14 +282,15 @@ class NotificationMailer < ActionMailer::Base
   end
 
   def get_production_centre_report(production_centre = nil)
-    @report = NotificationsByGene.new
+    @report = ::NotificationsByGene.new
     @mi_plan_summary = @report.mi_plan_summary(production_centre)
     @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
     @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
     @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
     @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
     @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
-   # @pretty_print_statuses = @report.pretty_print_statuses
+    @pretty_print_statuses = @report.pretty_print_statuses
+    @pretty_print_types_of_cells_available = @report.pretty_print_types_of_cells_available
 
     if ! production_centre
       @mi_plan_summary = @mi_plan_summary.to_a.reject do |rec|
@@ -297,7 +298,8 @@ class NotificationMailer < ActionMailer::Base
         @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 ||
         @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.length > 0 ||
         @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.length > 0 ||
-        @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.length > 0
+        @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.length > 0 ||
+        @pretty_print_statuses[rec['marker_symbol']].to_s.length > 0
       end
     end
 

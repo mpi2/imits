@@ -223,7 +223,8 @@ class SolrUpdate::DocFactory
 
   def self.calculate_order_from_info(data)
     if(['EUCOMM', 'EUCOMMTools', 'EUCOMMToolsCre'].include?(data[:pipeline]))
-      return {:url => 'http://www.eummcr.org/order.php', :name => 'EUMMCR'}
+      mgi_accession_id = data[:allele].gene.mgi_accession_id
+      return {:url => "http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells", :name => 'EUMMCR'}
 
     elsif(['KOMP-CSD', 'KOMP-Regeneron'].include?(data[:pipeline]))
       if ! data[:ikmc_project_id].blank?

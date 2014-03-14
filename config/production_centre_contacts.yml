@@ -1,6 +1,6 @@
 --- 
 contacts: 
-  APN: adrienne.mckenzie@anu.edu.au
+  APN: 
   BCM: isabell@bcm.edu
   CIPHE: amandine.sansoni@inserm.fr
   CNB: montoliu@cnb.csic.es
@@ -26,7 +26,7 @@ contacts:
   RIKEN BRC: yoshiki@brc.riken.jp
   SEAT: cailleau@vjf.cnrs.fr
   TCP: lauryl.nutter@phenogenomics.ca
-  UCD: service@komp.org
+  UCD: rsaraiza@ucdavis.edu|daclary@ucdavis.edu 
   UCL: 
   UniMiss: 
   UNorCar: 

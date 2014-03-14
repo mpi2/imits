@@ -49,8 +49,17 @@ require 'color'
   8267,
   9001,
   9586,
-9691,
-10515, 10999, 11797, 11886, 12487, 13115, 13494, 14142, 14202, 14765
+  9691,
+  10515,
+  10999,
+  11797,
+  11886,
+  12487,
+  13115,
+  13494,
+  14142,
+  14202,
+  14765
 ]
 
 #enabler = {
@@ -58,7 +67,7 @@ require 'color'
 #}
 
 LIMIT = 10000
-STARTER = 20000
+STARTER = 50000
 LESSTHANIGNORE = false
 
 def test_solr_genes
@@ -86,8 +95,6 @@ def test_solr_genes
       gene[i] = gene[i].to_i
     end
 
-    #ohash[column] = Time.parse(line[column].to_s).strftime("%Y-%m-%d %H:%M:%S")
-
     dates.each do |i|
       gene[i] = Time.parse(gene[i].to_s).strftime("%Y-%m-%d %H:%M:%S") if gene[i].to_s.length > 0
     end
@@ -95,38 +102,37 @@ def test_solr_genes
     gene['status'] = gene['status'].to_s.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
 
     hash[gene['id'].to_i] = gene.clone
-
-    #pp genes
-    #break
     count += 1
   end
 
-  #pp hash
+  #puts "#### targets - #{LIMIT}...".blue if @gene_targets.size > 0 && STARTER < 1
+  #puts "#### all - #{LIMIT}...".blue if @gene_targets.size == 0 && STARTER < 1
+  #puts "#### start #{STARTER} - #{LIMIT}...".blue if @gene_targets.size == 0 && STARTER > 0
 
-  #puts "#### count: #{count}".blue
+  #Person.all.find_in_batches(start: 2000, batch_size: 2000) do |group|
+  #  group.each { |person| person.party_all_night! }
+  #end
 
-  #pp hash.first
+  #User.find_each(batch_size: 5000) do |user|
+  #  NewsLetter.weekly_deliver(user)
+  #end
 
-  # pp hash
+  ##genes.each do |gene|
+  batch_size = 1000
+  Gene.find_each(:batch_size => 1000) do |gene|
+    #puts "#### batch: #{batch_size}".blue
+    #batch_size += 1000
 
-  # return
+    #  group.each do |gene|
 
-  puts "#### targets - #{LIMIT}...".blue if @gene_targets.size > 0 && STARTER < 1
-  puts "#### all - #{LIMIT}...".blue if @gene_targets.size == 0 && STARTER < 1
-  puts "#### start #{STARTER} - #{LIMIT}...".blue if @gene_targets.size == 0 && STARTER > 0
+    #genes = Gene.where(:id => @gene_targets) if @gene_targets.size > 0 && STARTER < 1
+    #genes = Gene.order(:id) if @gene_targets.size == 0 && STARTER < 1
+    #genes = Gene.where("id > #{STARTER}") if STARTER > 0 && @gene_targets.size == 0
 
-  genes = Gene.where(:id => @gene_targets) if @gene_targets.size > 0 && STARTER < 1
-  genes = Gene.order(:id) if @gene_targets.size == 0 && STARTER < 1
-  genes = Gene.where("id > #{STARTER}") if STARTER > 0 && @gene_targets.size == 0
-
-  genes.each do |gene|
+    #genes.each do |gene|
     failed = false
     docs = SolrUpdate::DocFactory.create_for_gene(gene)
     doc = docs.first
-    # next if ! doc
-
-    # pp doc
-    #pp hash[doc['id']]
 
     if ! hash.has_key?(doc['id'])
       puts "#### missing key: (#{doc['id']})".red
@@ -151,16 +157,7 @@ def test_solr_genes
       failed = true
     end
 
-    #pp old
-    #pp new
-
     splits = %W{project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
-    #splits = %W{vector_project_statuses}
-
-    #slits.each do |split|
-    #  old[split] = old[split].to_a.uniq
-    #  new[split] = new[split].to_a.uniq
-    #end
 
     splits.each do |split|
       old[split] = old[split].sort.uniq # TODO: lose uniq
@@ -195,7 +192,6 @@ def test_solr_genes
 
     #complex = %W{production_centre consortium effective_date status}
     complex = %W{production_centre consortium status}
-    #complex = %W{production_centre consortium status}
 
     complex.each do |item|
       if old[item].to_s != new[item].to_s
@@ -207,20 +203,12 @@ def test_solr_genes
     if old['effective_date'].to_s.length > 0 || new['effective_date'].to_s.length > 0
       if old['effective_date'] != new['effective_date']
         error = "#{old['id']}: 'effective_date': (#{old['effective_date']}/#{new['effective_date']})"
-        #datediff =  Time.parse(old['effective_date'].to_s) - Time.parse(new['effective_date'].to_s)
         datediff = (Time.parse(old['effective_date'].to_s) - Time.parse(new['effective_date'].to_s)).to_i.abs
         if datediff > 1000
-          #if datediff > 86400
-          #puts "\t#### datediff: #{datediff}".red
           @maxdatediff = datediff if @maxdatediff < datediff
           lessthan = Time.parse(new['effective_date'].to_s) < Time.parse(old['effective_date'].to_s)
-        #  if ! LESSTHANIGNORE
-        #    if ! lessthan
-            puts "#### #{error} - diff: #{datediff} - less: #{lessthan}".red
-            # puts "#### #{old['consortium']}/#{old['production_centre']}/#{old['status']} - #{new['consortium']}/#{new['production_centre']}/#{new['status']}".red
-            failed = true
-        #  end
-        #  end
+          puts "#### #{error} - diff: #{datediff} - less: #{lessthan}".red
+          failed = true
         end
       end
     end
@@ -231,10 +219,8 @@ def test_solr_genes
     @failed_count += 1 if failed
     @count += 1
     break if LIMIT > -1 && @count >= LIMIT
-
-    #pp old
-    #pp new
   end
+  #  end
 
   puts "#### count error: (#{count}/#{@count})".red if count != @count
 end
@@ -244,5 +230,5 @@ test_solr_genes
 puts "#### done test_solr_genes: (#{@failed_count}/#{@count})".red if @failed_count > 0
 puts "#### done test_solr_genes: (#{@count})".green if @failed_count == 0
 
-puts "#### max date diff: #{@maxdatediff}"
+#puts "#### max date diff: #{@maxdatediff}"
 pp @failed_genes if @failed_genes.size > 0 && @gene_targets.size == 0

@@ -12,36 +12,25 @@
 
   <%= form_for @mi_attempt, :as => :mi_attempt, :html => {:class => 'edit show mi-attempt'} do |form| %>
 
+  <div id="object-new-top" class="grid_8 prefix_2 suffix_2"></div>
+
     <%= form.error_messages %>
-
-    <fieldset class="collapsible">
-      <legend>ES Cell Details</legend>
-      <div>
-        <div class="marker-symbol">
-          <div class="label">Marker Symbol</div>
-          <div><%= @mi_attempt.es_cell.marker_symbol %></div>
-        </div>
-
-        <div class="es-cell-name">
-          <div class="label">ES Cell Name</div>
-          <div><%= @mi_attempt.es_cell.name %></div>
-        </div>
-      </div>
-    </fieldset>
-
-    <fieldset class="collapsible">
-      <legend>Mi-Plan Details</legend>
+    <div id="object-es-cell">
+      <fieldset class="collapsible">
+        <legend>ES Cell Details</legend>
         <div>
-          <div class="consortium-name">
-            <div class="label">Consortium</div>
-            <div><%= @mi_attempt.consortium_name %></div>
+          <div class="marker-symbol">
+            <div class="label">Marker Symbol</div>
+            <div><%= @mi_attempt.es_cell.try(:marker_symbol) %></div>
           </div>
-          <div class="production-centre-name">
-            <div class="label">Production Centre</div>
-            <div><%= @mi_attempt.production_centre_name %></div>
+
+          <div class="es-cell-name">
+            <div class="label">ES Cell Name</div>
+            <div><%= @mi_attempt.es_cell.try(:name) %></div>
           </div>
         </div>
-    </fieldset>
+      </fieldset>
+    </div>
 
     <%= render 'form_contents', :form => form %>
 

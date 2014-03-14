@@ -12,6 +12,71 @@
 
 <%= hidden_field_tag :ignore_warnings, params[:ignore_warnings] %>
 
+<%= form.hidden_field 'es_cell_name' %>
+<%= form.hidden_field 'es_cell_marker_symbol' %>
+<%= form.hidden_field 'mi_plan_id' %>
+<input id="mutagenesis-show" type="hidden" value="<%= if !@mi_attempt.mutagenesis_factor.blank? then 'true' else 'false' end %>">
+<input id="es_cell-show" type="hidden" value="<%= if !@mi_attempt.es_cell_name.blank? then 'true' else 'false' end %>">
+
+
+<div id="object-crispr">
+  <fieldset class="collapsible">
+    <legend>Mutagenesis Factor Details</legend>
+    <div id="mutagenesis-factor-form">
+      <div id="mutagenesis-factor-fields"></div>
+      <label for="marker_symbol">Marker Symbol</label>
+      <input id="marker_symbol" value="<%= @marker_symbol %>" disabled>
+      <div id="vector-container">
+        <%= form.fields_for :mutagenesis_factor do |builder| %>
+          <%= builder.select 'vector_name',@vector_options, :include_blank => true%>
+        <% end %>
+      </div>
+      <table id="mutagenesis_factor_table" class="report_table">
+        <thead class="title">
+          <tr>
+            <th>Sequence</th>
+            <th>Chr</th>
+            <th>Chr Start</th>
+            <th>Chr End</th>
+          </tr>
+        </thead>
+        <tbody class="distribution_centres"  id="crispr-table">
+            <%= form.fields_for :mutagenesis_factor do |builder| %>
+              <%= builder.fields_for :crisprs do |builder2| %>
+                <%= render '/shared/crisprs_fields', f: builder2 %>
+              <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </fieldset>
+</div>
+
+<fieldset class="collapsible">
+  <legend>Mi-Plan Details</legend>
+  <div id="mi_plan_preious_selection" class="grid_12 alpha omega" <%= if @mi_attempt.consortium_name.blank? then 'style=display:none;' end%>>
+    <div class="grid_3">
+      <div class="consortium-name">
+        <div class="label">Consortium</div>
+        <div><%= @mi_attempt.consortium_name %></div>
+      </div>
+    </div>
+    <div class="grid_3">
+      <div class="production-centre-name">
+        <div class="label">Production Centre</div>
+        <div><%= @mi_attempt.production_centre_name %></div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div id="mi_plan_selection_div" <%= if !@mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>>
+      <div id="mi_plan_list" ></div>
+      <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>" target="_blank">Create new miplan</a></div>
+    </div>
+    <div id="change_plan" <%= if @mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>></div>
+  </div>
+</fieldset>
+
 <fieldset class="collapsible">
   <legend>Universal Details</legend>
   <div>

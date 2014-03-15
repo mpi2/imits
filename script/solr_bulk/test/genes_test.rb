@@ -7,8 +7,7 @@ require 'color'
 @failed_count = 0
 @failed_genes = []
 @maxdatediff = 0
-@gene_targets = []
-@gene_targets2 = [
+@gene_targets = [
   195,
   828,
   885,
@@ -59,16 +58,21 @@ require 'color'
   13494,
   14142,
   14202,
-  14765
+  14765,
+  15890,
+  16018,
+  17083,
+  17721,
+  18509,
+  19843,
+  19898
 ]
 
-#enabler = {
-#  'whatever' => true
-#}
-
-LIMIT = 10000
-STARTER = 50000
+LIMIT = -1
+STARTER = -1
 LESSTHANIGNORE = false
+BATCH_SIZE = 1000
+IGNORE = %W{effective_date}
 
 def test_solr_genes
   @count = 0
@@ -105,31 +109,14 @@ def test_solr_genes
     count += 1
   end
 
-  #puts "#### targets - #{LIMIT}...".blue if @gene_targets.size > 0 && STARTER < 1
-  #puts "#### all - #{LIMIT}...".blue if @gene_targets.size == 0 && STARTER < 1
-  #puts "#### start #{STARTER} - #{LIMIT}...".blue if @gene_targets.size == 0 && STARTER > 0
+  #pp @gene_targets
+  #gs = Gene.where(:id => @gene_targets)
+  #pp gs
 
-  #Person.all.find_in_batches(start: 2000, batch_size: 2000) do |group|
-  #  group.each { |person| person.party_all_night! }
-  #end
+  Gene.where(:id => @gene_targets).each do |gene|
+    # puts "#### gene: #{gene.id}"
 
-  #User.find_each(batch_size: 5000) do |user|
-  #  NewsLetter.weekly_deliver(user)
-  #end
-
-  ##genes.each do |gene|
-  batch_size = 1000
-  Gene.find_each(:batch_size => 1000) do |gene|
-    #puts "#### batch: #{batch_size}".blue
-    #batch_size += 1000
-
-    #  group.each do |gene|
-
-    #genes = Gene.where(:id => @gene_targets) if @gene_targets.size > 0 && STARTER < 1
-    #genes = Gene.order(:id) if @gene_targets.size == 0 && STARTER < 1
-    #genes = Gene.where("id > #{STARTER}") if STARTER > 0 && @gene_targets.size == 0
-
-    #genes.each do |gene|
+    #Gene.find_each(:batch_size => BATCH_SIZE) do |gene|
     failed = false
     docs = SolrUpdate::DocFactory.create_for_gene(gene)
     doc = docs.first
@@ -164,7 +151,7 @@ def test_solr_genes
       new[split] = new[split].sort.uniq
 
       if old[split].size != new[split].size
-        puts "#### '#{split}': key count error 2: (#{old[split]}/#{new[split]})".red
+        puts "#### #{old['id']}: '#{split}': key count error 2: (#{old[split]}/#{new[split]})".red
         failed = true
         break
       end
@@ -172,7 +159,7 @@ def test_solr_genes
       i = 0
       old[split].each do |item|
         if item != new[split][i]
-          puts "#### split error 3: (#{item}/#{new[split][i]})".red
+          puts "#### #{old['id']}: split error 3: (#{item}/#{new[split][i]})".red
           failed = true
         end
         i += 1
@@ -200,15 +187,17 @@ def test_solr_genes
       end
     end
 
-    if old['effective_date'].to_s.length > 0 || new['effective_date'].to_s.length > 0
-      if old['effective_date'] != new['effective_date']
-        error = "#{old['id']}: 'effective_date': (#{old['effective_date']}/#{new['effective_date']})"
-        datediff = (Time.parse(old['effective_date'].to_s) - Time.parse(new['effective_date'].to_s)).to_i.abs
-        if datediff > 1000
-          @maxdatediff = datediff if @maxdatediff < datediff
-          lessthan = Time.parse(new['effective_date'].to_s) < Time.parse(old['effective_date'].to_s)
-          puts "#### #{error} - diff: #{datediff} - less: #{lessthan}".red
-          failed = true
+    if ! IGNORE.include?('effective_date')
+      if old['effective_date'].to_s.length > 0 || new['effective_date'].to_s.length > 0
+        if old['effective_date'] != new['effective_date']
+          error = "#{old['id']}: 'effective_date': (#{old['effective_date']}/#{new['effective_date']})"
+          datediff = (Time.parse(old['effective_date'].to_s) - Time.parse(new['effective_date'].to_s)).to_i.abs
+          if datediff > 1000
+            @maxdatediff = datediff if @maxdatediff < datediff
+            lessthan = Time.parse(new['effective_date'].to_s) < Time.parse(old['effective_date'].to_s)
+            puts "#### #{error} - diff: #{datediff} - less: #{lessthan}".red
+            failed = true
+          end
         end
       end
     end

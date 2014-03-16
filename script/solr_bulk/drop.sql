@@ -3,7 +3,7 @@ SET client_min_messages=WARNING;
 
 --drop TYPE if exists solr_pa_in_progress_type cascade;
 --drop TYPE if exists solr_in_progress_type cascade;
-drop view if exists solr_mi_attempts cascade;
+drop table if exists solr_mi_attempts cascade;
 drop TABLE if exists solr_phenotype_attempts cascade;
 drop view if exists solr_alleles cascade;
 drop table if exists solr_genes cascade;

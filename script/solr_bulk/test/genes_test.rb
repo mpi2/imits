@@ -7,7 +7,8 @@ require 'color'
 @failed_count = 0
 @failed_genes = []
 @maxdatediff = 0
-@gene_targets = [
+@gene_targets = []
+@gene_targets2 = [
  195,
  828,
  885,
@@ -66,7 +67,7 @@ require 'color'
  19843,
  19898]
 
-LIMIT = -1
+LIMIT = 1000
 STARTER = -1
 BATCH_SIZE = 1000
 IGNORE = []   #%W{effective_date}
@@ -110,8 +111,8 @@ def test_solr_genes
   #gs = Gene.where(:id => @gene_targets)
   #pp gs
 
-  Gene.where(:id => @gene_targets).each do |gene|
-  #Gene.find_each(:batch_size => BATCH_SIZE) do |gene|
+  #Gene.where(:id => @gene_targets).each do |gene|
+  Gene.find_each(:batch_size => BATCH_SIZE) do |gene|
     failed = false
     docs = SolrUpdate::DocFactory.create_for_gene(gene)
     doc = docs.first

@@ -1,46 +1,46 @@
 -- http://www.postgresql.org/message-id/14658.1175879477@sss.pgh.pa.us
 SET client_min_messages=WARNING;
 
--- FUNCTION NAME:
---
--- PARAMETERS:
---
--- CORRESPONDING RUBY:
---
--- TEST:
---
--- DESCRIPTION:
-
 create table solr_centre_map(
     centre_name varchar(40), pref varchar(255), def varchar(255)
 );
 
 -- TODO make switchable : 'http://localhost:3000/targ_rep/alleles/'
--- TODO load this from yaml file
 
-insert into solr_centre_map(centre_name, pref, def) values ('Harwell', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('HMGU', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('ICS', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('CNB', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('Monterotondo', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('JAX', 'http://jaxmice.jax.org/list/komp_strains', 'http://jaxmice.jax.org/list/komp_strains');
-insert into solr_centre_map(centre_name, pref, def) values ('Oulu', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('VETMEDUNI', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('BCM', 'mailto:jcrowe@bcm.tmc.edu?subject=Mutant mouse for MARKER_SYMBOL', '');
-insert into solr_centre_map(centre_name, pref, def) values ('CNRS', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('APN', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('TCP', 'mailto:lauryl.nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', 'mailto:lauryl.nutter@phenogenomics.ca?subject=Mutant mouse enquiry');
-insert into solr_centre_map(centre_name, pref, def) values ('MARC', '', '');
-insert into solr_centre_map(centre_name, pref, def) values ('UCD', 'http://www.komp.org/geneinfo.php?project=PROJECT_ID', 'http://www.komp.org/');
-insert into solr_centre_map(centre_name, pref, def) values ('WTSI', 'mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for MARKER_SYMBOL', '');
-insert into solr_centre_map(centre_name, pref, def) values ('EMMA', 'http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL', '');
-insert into solr_centre_map(centre_name, pref, def) values ('MMRRC', 'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', '');
-insert into solr_centre_map(centre_name, pref, def) values ('KOMP', 'http://www.komp.org/geneinfo.php?project=PROJECT_ID', 'http://www.komp.org/');
+insert into solr_centre_map(centre_name, pref, def) values
+('Harwell', '', ''),
+('HMGU', '', ''),
+('ICS', '', ''),
+('CNB', '', ''),
+('Monterotondo', '', ''),
+('JAX', 'http://jaxmice.jax.org/list/komp_strains', 'http://jaxmice.jax.org/list/komp_strains'),
+('Oulu', '', ''),
+('VETMEDUNI', '', ''),
+('BCM', 'mailto:jcrowe@bcm.tmc.edu?subject=Mutant mouse for MARKER_SYMBOL', ''),
+('CNRS', '', ''),
+('APN', '', ''),
+('TCP', 'mailto:lauryl.nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', 'mailto:lauryl.nutter@phenogenomics.ca?subject=Mutant mouse enquiry'),
+('MARC', '', ''),
+('UCD', 'http://www.komp.org/geneinfo.php?project=PROJECT_ID', 'http://www.komp.org/'),
+('WTSI', 'mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for MARKER_SYMBOL', ''),
+('EMMA', 'http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL', ''),
+('MMRRC', 'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', ''),
+('KOMP', 'http://www.komp.org/geneinfo.php?project=PROJECT_ID', 'http://www.komp.org/');
 
-CREATE OR REPLACE FUNCTION solr_get_mi_allele_name (in int)
+-- FUNCTION NAME: solr_get_mi_allele_name
+--
+-- PARAMETERS: mi_attempts.id
+--
+-- CORRESPONDING RUBY: https://github.com/mpi2/imits/blob/master/app/models/mi_attempt.rb#L306
+--
+-- TEST: test_mi_attempt_allele_symbol in script/solr_bulk/test/mi_attempts_test.rb
+--
+-- DESCRIPTION: Build allele_symbol
+
+CREATE OR REPLACE FUNCTION solr_get_mi_allele_name (int)
   RETURNS text AS $$
   DECLARE
-    tmp RECORD; result text; e boolean; marker_symbol text; allele_symbol_superscript_plan text; allele_symbol_superscript_template text;mouse_allele_type text;
+    tmp RECORD; result text; e boolean; marker_symbol text; marker_symbol2 text; allele_symbol_superscript_plan text; allele_symbol_superscript_template text;mouse_allele_type text;
     result1 text; result2 text; result3 text; allele_symbol_superscript_template_es_cell text; allele_type_es_cell text;
   BEGIN
   result := '';
@@ -52,6 +52,13 @@ CREATE OR REPLACE FUNCTION solr_get_mi_allele_name (in int)
   select genes.marker_symbol into marker_symbol from genes, mi_plans, mi_attempts where mi_plans.id = mi_attempts.mi_plan_id and mi_plans.gene_id = genes.id and mi_attempts.id = $1;
   select targ_rep_es_cells.allele_symbol_superscript_template into allele_symbol_superscript_template_es_cell from targ_rep_es_cells, mi_attempts where targ_rep_es_cells.id = mi_attempts.es_cell_id and mi_attempts.id = $1;
   select targ_rep_es_cells.allele_type into allele_type_es_cell from targ_rep_es_cells, mi_attempts where targ_rep_es_cells.id = mi_attempts.es_cell_id and mi_attempts.id = $1;
+
+  select genes.marker_symbol into marker_symbol2
+  from genes, mi_attempts, targ_rep_es_cells, targ_rep_alleles
+  where targ_rep_es_cells.id = mi_attempts.es_cell_id
+  and targ_rep_es_cells.allele_id = targ_rep_alleles.id
+  and targ_rep_alleles.gene_id = genes.id
+  and mi_attempts.id = $1;
 
   if e then
     if char_length(allele_symbol_superscript_plan) then
@@ -66,20 +73,35 @@ CREATE OR REPLACE FUNCTION solr_get_mi_allele_name (in int)
 
   select replace(allele_symbol_superscript_template_es_cell, '@',  COALESCE(allele_type_es_cell, '')) into result1;
 
-  result := marker_symbol || '<sup>' || result1 || '</sup>';
+  result := marker_symbol2 || '<sup>' || result1 || '</sup>';
   RETURN result;
 
   END;
 $$ LANGUAGE plpgsql;
 
+-- FUNCTION NAME: solr_get_mi_order_from_names
+--
+-- PARAMETERS: mi_attempts.id
+--
+-- CORRESPONDING RUBY: https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L135
+--
+-- TEST: test_mi_attempt_order_from_names in script/solr_bulk/test/mi_attempts_test.rb
+--
+-- DESCRIPTION: Build order_from_names
 
+CREATE temp table solr_get_mi_order_from_names_tmp ( name text ) ;        --ON COMMIT DROP;
 
-CREATE OR REPLACE FUNCTION solr_get_mi_order_from_names (in int)
+CREATE OR REPLACE FUNCTION solr_get_mi_order_from_names (int)
   RETURNS text AS $$
   DECLARE
   tmp RECORD; result text; in_config boolean;
   BEGIN
   result := '';
+
+  truncate solr_get_mi_order_from_names_tmp;
+
+  --drop table if exists solr_get_mi_order_from_names_tmp;
+
   FOR tmp IN SELECT mi_attempt_distribution_centres.distribution_network,
   case
   when centres.name = 'UCD' then 'KOMP'
@@ -97,24 +119,42 @@ CREATE OR REPLACE FUNCTION solr_get_mi_order_from_names (in int)
     continue when not in_config;
 
     if char_length(tmp.distribution_network) > 0 then
-      result := result || tmp.distribution_network || ';';
+      --result := result || tmp.distribution_network || ';';
+      insert into solr_get_mi_order_from_names_tmp ( name ) values ( tmp.distribution_network );
     else
-      result := result || tmp.name || ';';
+      --result := result || tmp.name || ';';
+      insert into solr_get_mi_order_from_names_tmp ( name ) values ( tmp.name );
     end if;
 
   END LOOP;
+
+  --select distinct name || ';' into result from solr_get_mi_order_from_names_tmp;
+  select string_agg(distinct name, ';') into result from solr_get_mi_order_from_names_tmp;
+
   RETURN result;
   END;
 $$ LANGUAGE plpgsql;
 
+-- FUNCTION NAME: solr_get_mi_order_from_urls
+--
+-- PARAMETERS: mi_attempts.id
+--
+-- CORRESPONDING RUBY: https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L135
+--
+-- TEST: test_mi_attempt_order_from_urls in script/solr_bulk/test/mi_attempts_test.rb
+--
+-- DESCRIPTION: Build order_from_urls
 
+CREATE temp table solr_get_mi_order_from_urls_tmp ( url text ) ;        --ON COMMIT DROP;
 
-CREATE OR REPLACE FUNCTION solr_get_mi_order_from_urls (in int)
+CREATE OR REPLACE FUNCTION solr_get_mi_order_from_urls (int)
   RETURNS text AS $$
   DECLARE
   tmp RECORD; tmp2 RECORD; result text; marker_symbol text; project_id text; tmp_result text; target_name text; in_config boolean;
   BEGIN
   result := '';
+
+  truncate solr_get_mi_order_from_urls_tmp;
 
   select targ_rep_es_cells.ikmc_project_id
     into project_id
@@ -162,14 +202,28 @@ CREATE OR REPLACE FUNCTION solr_get_mi_order_from_urls (in int)
         end if;
 
         if char_length(tmp_result) > 0 then
-          result := result || tmp_result || ';';
+          --result := result || tmp_result || ';';
+          insert into solr_get_mi_order_from_urls_tmp ( url ) values (tmp_result);
         end if;
       END LOOP;
   END LOOP;
+
+  --select distinct url || ';' into result from solr_get_mi_order_from_urls_tmp;
+  select string_agg(distinct url, ';') into result from solr_get_mi_order_from_urls_tmp;
+
   RETURN result;
   END;
 $$ LANGUAGE plpgsql;
 
+-- FUNCTION NAME: get_best_status_pa
+--
+-- PARAMETERS: mi_attempt-id, cre_required
+--
+-- CORRESPONDING RUBY: https://github.com/mpi2/imits/blob/master/app/models/mi_attempt.rb#L380
+--
+-- TEST: test_get_best_status_pa in script/solr_bulk/test/mi_attempts_test.rb
+--
+-- DESCRIPTION: get best status for associated phenotype_attempt
 
 CREATE OR REPLACE FUNCTION get_best_status_pa(int, boolean)
 RETURNS text AS $$
@@ -195,9 +249,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- VIEW NAME: solr_mi_attempts
+--
+-- TEST: test_solr_mi_attempts in
+--
+-- DESCRIPTION: Build the doc for type mi_attempt
 
 CREATE
-VIEW
+table
 solr_mi_attempts as
   select mi_attempts.id,
 

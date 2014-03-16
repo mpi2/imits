@@ -8,10 +8,10 @@ require 'color'
 @failed_mis = []
 
 enabler = {
-  'test_mi_attempt_allele_symbol' => false,
-  'test_mi_attempt_order_from_names' => false,
-  'test_mi_attempt_order_from_urls' => false,
-  'test_get_best_status_pa' => false,
+  'test_mi_attempt_allele_symbol' => true,
+  'test_mi_attempt_order_from_names' => true,
+  'test_mi_attempt_order_from_urls' => true,
+  'test_get_best_status_pa' => true,
   'test_solr_mi_attempts' => true
 }
 
@@ -20,15 +20,12 @@ def test_mi_attempt_allele_symbol
   @failed_count = 0
 
   MiAttempt.all.each do |mi_attempt|
-    #MiAttempt.where(:id => @failed_mis).each do |mi_attempt|
     next if mi_attempt.gene.mgi_accession_id.nil?
 
     if mi_attempt.has_status? :gtc and ! mi_attempt.has_status? :abt and mi_attempt.allele_id.to_i > 0 and mi_attempt.report_to_public
       old = mi_attempt.allele_symbol
 
       rows = ActiveRecord::Base.connection.execute("select * from solr_get_mi_allele_name(#{mi_attempt.id})")
-
-      # pp rows.first
 
       count = 0
       new = ''
@@ -45,7 +42,6 @@ def test_mi_attempt_allele_symbol
       end
 
       @count += 1
-      #break if @count >= 1000
     end
   end
 end
@@ -58,7 +54,6 @@ def test_mi_attempt_order_from_names
   ActiveRecord::Base.connection.execute(sql)
 
   MiAttempt.all.each do |mi_attempt|
-    #MiAttempt.where(:id => @failed_mis).each do |mi_attempt|
     next if mi_attempt.gene.mgi_accession_id.nil?
 
     if mi_attempt.has_status? :gtc and ! mi_attempt.has_status? :abt and mi_attempt.allele_id.to_i > 0 and mi_attempt.report_to_public
@@ -71,8 +66,6 @@ def test_mi_attempt_order_from_names
       old = old['order_from_names'].sort.uniq
 
       rows = ActiveRecord::Base.connection.execute("select * from solr_get_mi_order_from_names(#{mi_attempt.id})")
-
-      # pp rows.first
 
       count = 0
       new = ''
@@ -95,8 +88,6 @@ def test_mi_attempt_order_from_names
       end
 
       @count += 1
-      #break if @count >= 10
-      #break
     end
   end
 end
@@ -123,8 +114,6 @@ def test_mi_attempt_order_from_urls
 
       rows = ActiveRecord::Base.connection.execute("select * from solr_get_mi_order_from_urls(#{mi_attempt.id})")
 
-      # pp rows.first
-
       count = 0
       new = ''
       rows.each do |row|
@@ -146,8 +135,6 @@ def test_mi_attempt_order_from_urls
       end
 
       @count += 1
-      #break if @count >= 100
-      #break
     end
   end
 end
@@ -157,7 +144,6 @@ def test_get_best_status_pa(cre_required)
   @failed_count = 0
 
   MiAttempt.all.each do |mi_attempt|
-    #MiAttempt.where(:id => @failed_mis).each do |mi_attempt|
     next if mi_attempt.gene.mgi_accession_id.nil?
 
     if mi_attempt.has_status? :gtc and ! mi_attempt.has_status? :abt and mi_attempt.allele_id.to_i > 0 and mi_attempt.report_to_public
@@ -183,36 +169,9 @@ def test_get_best_status_pa(cre_required)
       end
 
       @count += 1
-      #break if @count >= 100
-      #break
     end
   end
 end
-
-#{"id"=>"7916",
-# "product_type"=>"Mouse",
-# "type"=>"mi_attempt",
-# "colony_name"=>"Il12rb1 <EPD0847_4_B02>",
-# "marker_symbol"=>"Il12rb1",
-# "es_cell_name"=>"EPD0847_4_B02",
-# "allele_id"=>"24745",
-# "mgi_accession_id"=>"MGI:104579",
-# "production_centre"=>"BCM",
-# "strain"=>"C57BL/6N",
-# "genbank_file_url"=>
-#  "http://localhost:3000/targ_rep/alleles/24745/escell-clone-genbank-file",
-# "allele_image_url"=>
-#  "http://localhost:3000/targ_rep/alleles/24745/allele-image",
-# "simple_allele_image_url"=>
-#  "http://localhost:3000/targ_rep/alleles/24745/allele-image?simple=true",
-# "allele_type"=>"Conditional Ready",
-# "project_ids"=>"82297",
-# "current_pa_status"=>"",
-# "allele_name"=>"Il12rb1<sup>tm1a(KOMP)Wtsi</sup>",
-# "order_from_names"=>nil,
-# "order_from_urls"=>nil,
-# "best_status_pa_cre_ex_not_required"=>"",
-# "best_status_pa_cre_ex_required"=>"Cre Excision Started"}
 
 def test_solr_mi_attempts
   @count = 0
@@ -255,7 +214,7 @@ def test_solr_mi_attempts
       next if ! doc
 
       doc.keys.each do |key|
-        doc.delete key if doc[key].nil?     #|| (doc[key].size == 1 && doc[key].first.to_s.empty?)
+        doc.delete key if doc[key].nil?
       end
 
       old = doc
@@ -296,8 +255,6 @@ def test_solr_mi_attempts
 
       @count += 1
       @failed_count += 1 if failed
-      #break if @count >= 10
-      #break
 
       if failed
         pp old

@@ -9,11 +9,9 @@ SET client_min_messages=WARNING;
 --
 -- TEST:
 --
--- EQUIVALENCE TEST:
---
 -- DESCRIPTION:
 
-CREATE OR REPLACE FUNCTION solr_get_allele_order_from_urls (in int)
+CREATE OR REPLACE FUNCTION solr_get_allele_order_from_urls (int)
 RETURNS text AS $$
 DECLARE
     tmp RECORD; result text; project text; marker_symbol text;
@@ -50,9 +48,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- FUNCTION NAME:
+--
+-- PARAMETERS:
+--
+-- CORRESPONDING RUBY:
+--
+-- TEST:
+--
+-- DESCRIPTION:
 
-
-CREATE OR REPLACE FUNCTION solr_get_allele_order_from_names (in int)
+CREATE OR REPLACE FUNCTION solr_get_allele_order_from_names (int)
 RETURNS text AS $$
 DECLARE
     tmp RECORD; result text;
@@ -78,7 +84,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
+-- VIEW NAME:
+--
+-- TEST:
+--
+-- DESCRIPTION:
 
 CREATE
 VIEW

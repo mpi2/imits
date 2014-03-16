@@ -8,71 +8,68 @@ require 'color'
 @failed_genes = []
 @maxdatediff = 0
 @gene_targets = [
-  195,
-  828,
-  885,
-  1168,
-  1169,
-  1375,
-  1731,
-  1976,
-  2045,
-  2066,
-  2085,
-  2100,
-  2114,
-  2207,
-  2217,
-  2239,
-  2242,
-  2262,
-  2268,
-  2347,
-  2368,
-  2408,
-  2434,
-  2437,
-  2542,
-  3069,
-  3152,
-  4345,
-  5704,
-  5921,
-  6034,
-  6169,
-  6178,
-  6416,
-  7251,
-  7916,
-  8257,
-  8267,
-  9001,
-  9586,
-  9691,
-  10515,
-  10999,
-  11797,
-  11886,
-  12487,
-  13115,
-  13494,
-  14142,
-  14202,
-  14765,
-  15890,
-  16018,
-  17083,
-  17721,
-  18509,
-  19843,
-  19898
-]
+ 195,
+ 828,
+ 885,
+ 1168,
+ 1169,
+ 1375,
+ 1731,
+ 1976,
+ 2045,
+ 2066,
+ 2085,
+ 2100,
+ 2114,
+ 2207,
+ 2217,
+ 2239,
+ 2242,
+ 2262,
+ 2268,
+ 2347,
+ 2368,
+ 2408,
+ 2434,
+ 2437,
+ 2542,
+ 3069,
+ 3152,
+ 4345,
+ 5704,
+ 5921,
+ 6034,
+ 6169,
+ 6178,
+ 6416,
+ 7251,
+ 7916,
+ 8257,
+ 8267,
+ 9001,
+ 9586,
+ 9691,
+ 10515,
+ 10999,
+ 11797,
+ 11886,
+ 12487,
+ 13115,
+ 13494,
+ 14142,
+ 14202,
+ 14765,
+ 15890,
+ 16018,
+ 17083,
+ 18509,
+ 19843,
+ 19898]
 
 LIMIT = -1
 STARTER = -1
-LESSTHANIGNORE = false
 BATCH_SIZE = 1000
-IGNORE = %W{effective_date}
+IGNORE = []   #%W{effective_date}
 
 def test_solr_genes
   @count = 0
@@ -114,9 +111,7 @@ def test_solr_genes
   #pp gs
 
   Gene.where(:id => @gene_targets).each do |gene|
-    # puts "#### gene: #{gene.id}"
-
-    #Gene.find_each(:batch_size => BATCH_SIZE) do |gene|
+  #Gene.find_each(:batch_size => BATCH_SIZE) do |gene|
     failed = false
     docs = SolrUpdate::DocFactory.create_for_gene(gene)
     doc = docs.first
@@ -208,6 +203,13 @@ def test_solr_genes
     @failed_count += 1 if failed
     @count += 1
     break if LIMIT > -1 && @count >= LIMIT
+
+    #if failed
+    #  pp old
+    #  pp new
+    #  break
+    #end
+
   end
   #  end
 

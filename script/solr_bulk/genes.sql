@@ -16,7 +16,7 @@ DECLARE
 BEGIN
     CREATE temp table solr_ikmc_projects_details_es_cells ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
     CREATE temp table solr_ikmc_projects_details_vectors ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
-    CREATE temp table solr_ikmc_projects_details_vectors_intermediate ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+--    CREATE temp table solr_ikmc_projects_details_vectors ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
     CREATE temp table solr_ikmc_projects_details_es_cells_intermediate ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
     CREATE temp table solr_ikmc_projects_details_all ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
     CREATE temp table allele_with_es_count_tmp ( id int, gene_id int , es_cell_count int ) ;
@@ -53,9 +53,7 @@ BEGIN
       JOIN targ_rep_alleles on targ_rep_alleles.id = targ_rep_targeting_vectors.allele_id
       JOIN genes on targ_rep_alleles.gene_id = genes.id
       JOIN targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
-      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id
-      ;
-
+      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id;
 
       INSERT INTO allele_with_es_count_tmp
       WITH allele_with_es_count AS (
@@ -83,22 +81,11 @@ BEGIN
       JOIN allele_with_es_count_tmp on allele_with_es_count_tmp.id = targ_rep_targeting_vectors.allele_id
       JOIN genes on allele_with_es_count_tmp.gene_id = genes.id
       JOIN targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
-      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id
-      ;
+      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id;
 
-
-
-
-
-
-    INSERT INTO
-    solr_ikmc_projects_details_vectors_intermediate
-    SELECT * FROM solr_ikmc_projects_details_vectors
-    --where not exists (
-    --    SELECT project FROM solr_ikmc_projects_details_es_cells where
-    --    solr_ikmc_projects_details_es_cells.project = solr_ikmc_projects_details_vectors.project
-    --)
-    ;
+    --INSERT INTO
+    --solr_ikmc_projects_details_vectors
+    --SELECT * FROM solr_ikmc_projects_details_vectors
 
     INSERT INTO
     solr_ikmc_projects_details_es_cells_intermediate
@@ -112,7 +99,7 @@ BEGIN
       marker_symbol,
       pipeline,
       status
-    FROM solr_ikmc_projects_details_vectors_intermediate;
+    FROM solr_ikmc_projects_details_vectors;
 
     INSERT INTO
     solr_ikmc_projects_details_all
@@ -124,19 +111,7 @@ BEGIN
     SELECT
     DISTINCT
     *
-    FROM solr_ikmc_projects_details_vectors_intermediate;
-
-    --INSERT INTO
-    --solr_ikmc_projects_details_all
-    --SELECT
-    --DISTINCT
-    --* FROM
-    --solr_ikmc_projects_details_es_cells
-    --UNION
-    --SELECT
-    --DISTINCT
-    --*
-    --FROM solr_ikmc_projects_details_vectors;
+    FROM solr_ikmc_projects_details_vectors;
 
     INSERT INTO
     solr_ikmc_projects_details_agg
@@ -152,7 +127,7 @@ BEGIN
 
     SELECT count(*) INTO result FROM solr_ikmc_projects_details_agg;
 
-    select count(*) INTO result from solr_ikmc_projects_details_vectors where gene_id = 1;
+    --select count(*) INTO result from solr_ikmc_projects_details_vectors where gene_id = 1;
     RETURN result;
 END;
 $$ LANGUAGE plpgsql;

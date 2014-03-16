@@ -335,4 +335,4 @@ select
   where not exists(select id from phenotype_attempt_status_stamps where phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id and phenotype_attempt_status_stamps.status_id = 1);
 
 
-select count(*) as solr_phenotype_attempts_count from solr_phenotype_attempts;
+--select count(*) as solr_phenotype_attempts_count from solr_phenotype_attempts;

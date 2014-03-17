@@ -1,3 +1,13 @@
+#puts "#### " + File.dirname(__FILE__) + '/../test/phenotype_attempts_test.rb'
+#require File.dirname(__FILE__) + '/../test/phenotype_attempts_test.rb'
+#puts "#### " + "#{Rails.root}/script/solr_bulk/test/phenotype_attempts_test.rb"
+
+require "#{Rails.root}/script/solr_bulk/test/phenotype_attempts_test.rb"
+require "#{Rails.root}/script/solr_bulk/test/mi_attempts_test.rb"
+require "#{Rails.root}/script/solr_bulk/test/genes_test.rb"
+
+#require File.dirname(__FILE__) + '/../test/phenotype_attempts_test'
+#require File.dirname(__FILE__) + '/../test'
 
 namespace :solr_bulk do
 
@@ -5,6 +15,44 @@ namespace :solr_bulk do
   DATABASE = YAML.load_file("#{Rails.root}/config/database.yml")
   SOLR_UPDATE = YAML.load_file("#{Rails.root}/config/solr_update.yml")
   LEGAL_TARGETS = %W{genes phenotype_attempts mi_attempts alleles all}
+
+  #desc 'Run the tests'
+  #task 'test', [:target] => :environment do |t, args|
+  #  args.with_defaults(:target => 'all')
+  #  Rake::Task['solr_bulk:db:load'].invoke
+  #  Rake::Task['solr_bulk:_test'].invoke(args[:target])
+  #end
+
+  #curl -s http://localhost:8983/solr/allele/admin/ping |grep -o -E "name=\"status\">([0-9]+)<"|cut -f2 -d\>|cut -f1 -d\<
+
+  desc 'Ping the solr'
+  task 'index:ping' => [:environment] do
+    #  pp "### solr: #{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}"
+    command = 'curl -s SOLR_SUBS/admin/ping |grep -o -E "name=\"status\">([0-9]+)<"|cut -f2 -d\>|cut -f1 -d\<'.gsub(/SOLR_SUBS/, SOLR_UPDATE[Rails.env]['index_proxy']['allele'])
+    #  puts "#### #{command}"
+    output = `#{command}`
+    #  puts "#### #{output}"
+    if output.to_s.length > 0 && output.to_i == 0
+      puts "#### #{SOLR_UPDATE[Rails.env]['index_proxy']['allele']} up and running!".green
+    elsif output.empty?
+      puts "#### #{SOLR_UPDATE[Rails.env]['index_proxy']['allele']} NOT running!".red
+    else
+      puts "#### #{SOLR_UPDATE[Rails.env]['index_proxy']['allele']} broken!".red
+    end
+  end
+
+  desc 'Run the tests'
+  task 'test', [:target, :load_db] => :environment do |t, args|
+    args.with_defaults(:target => 'all')
+    args.with_defaults(:load_db => false)
+
+    Rake::Task['solr_bulk:db:load'].invoke if args[:load_db]
+
+    PhenotypeAttemptsTest.new.run if %W{all phenotype_attempts}.include? args[:target]
+    MiAttemptsTest.new.run if %W{all mi_attempts}.include? args[:target]
+    GenesTest.new.run if %W{all genes}.include? args[:target]
+    #AllelesTest.new.run if %W{all alleles}.include? args[:target]
+  end
 
   desc 'generic_load'
   task 'index:generic_load', [:target] => :environment do |t, args|

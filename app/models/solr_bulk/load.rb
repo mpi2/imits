@@ -64,8 +64,8 @@ module SolrBulk
 
       attempts.each do |mi_attempt|
 
-        mi_attempt['order_from_names'] = mi_attempt['order_from_names'].split(';').uniq
-        mi_attempt['order_from_urls'] = mi_attempt['order_from_urls'].split(';').uniq
+        mi_attempt['order_from_names'] = mi_attempt['order_from_names'].to_s.split(';').uniq
+        mi_attempt['order_from_urls'] = mi_attempt['order_from_urls'].to_s.split(';').uniq
 
         item = {'add' => {'doc' => mi_attempt }}
         list.push item.to_json

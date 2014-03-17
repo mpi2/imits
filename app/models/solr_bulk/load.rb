@@ -102,12 +102,7 @@ module SolrBulk
     # http://wiki.apache.org/solr/UpdateJSON
 
     def self.run(targets)
-     # raise "#### unrecognised target: '{targets}'"
-
-     # puts "#### loading index: '#{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}'"
-
-      #puts targets
-      #exit
+      puts "#### loading index: '#{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}'"
 
       delete targets
 

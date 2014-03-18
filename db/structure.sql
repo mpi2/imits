@@ -1170,7 +1170,8 @@ CREATE TABLE new_intermediate_report (
     cre_ex_phenotype_attempt_colony_name character varying(255),
     phenotyping_experiments_started_date date,
     non_cre_ex_phenotyping_experiments_started_date date,
-    cre_ex_phenotyping_experiments_started_date date
+    cre_ex_phenotyping_experiments_started_date date,
+    mutagenesis_via_crispr_cas9 boolean DEFAULT false
 );
 
 
@@ -2175,7 +2176,8 @@ CREATE TABLE users (
     reset_password_sent_at timestamp without time zone,
     es_cell_distribution_centre_id integer,
     legacy_id integer,
-    admin boolean DEFAULT false
+    admin boolean DEFAULT false,
+    active boolean DEFAULT true
 );
 
 
@@ -4039,3 +4041,7 @@ INSERT INTO schema_migrations (version) VALUES ('20140113150335');
 INSERT INTO schema_migrations (version) VALUES ('20140123134728');
 
 INSERT INTO schema_migrations (version) VALUES ('20140207124917');
+
+INSERT INTO schema_migrations (version) VALUES ('20140304165417');
+
+INSERT INTO schema_migrations (version) VALUES ('20140318095417');

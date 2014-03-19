@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140207124917) do
+ActiveRecord::Schema.define(:version => 20140318095417) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -532,9 +532,9 @@ ActiveRecord::Schema.define(:version => 20140207124917) do
   end
 
   create_table "new_intermediate_report", :force => true do |t|
-    t.string   "gene",                                             :limit => 75,  :null => false
-    t.integer  "mi_plan_id",                                                      :null => false
-    t.string   "consortium",                                                      :null => false
+    t.string   "gene",                                             :limit => 75,                     :null => false
+    t.integer  "mi_plan_id",                                                                         :null => false
+    t.string   "consortium",                                                                         :null => false
     t.string   "production_centre"
     t.string   "sub_project"
     t.string   "priority"
@@ -610,6 +610,7 @@ ActiveRecord::Schema.define(:version => 20140207124917) do
     t.date     "phenotyping_experiments_started_date"
     t.date     "non_cre_ex_phenotyping_experiments_started_date"
     t.date     "cre_ex_phenotyping_experiments_started_date"
+    t.boolean  "mutagenesis_via_crispr_cas9",                                     :default => false
   end
 
   create_table "notifications", :force => true do |t|
@@ -978,6 +979,7 @@ ActiveRecord::Schema.define(:version => 20140207124917) do
     t.integer  "es_cell_distribution_centre_id"
     t.integer  "legacy_id"
     t.boolean  "admin",                                         :default => false
+    t.boolean  "active",                                        :default => true
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

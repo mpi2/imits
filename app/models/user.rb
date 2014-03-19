@@ -61,6 +61,7 @@ end
 #  es_cell_distribution_centre_id :integer
 #  legacy_id                      :integer
 #  admin                          :boolean          default(FALSE)
+#  active                         :boolean          default(TRUE)
 #
 # Indexes
 #

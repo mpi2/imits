@@ -299,9 +299,13 @@ select
   genes.mgi_accession_id as mgi_accession_id,
   centres.name as production_centre,
 
-  'http://localhost:3000/targ_rep/alleles/' || targ_rep_es_cells.allele_id || '/allele-image-cre' as allele_image_url,
-  'http://localhost:3000/targ_rep/alleles/' || targ_rep_es_cells.allele_id || '/allele-image-cre?simple=true' as simple_allele_image_url,
-  'http://localhost:3000/targ_rep/alleles/' || targ_rep_es_cells.allele_id || '/escell-clone-cre-genbank-file' as genbank_file_url,
+--http://localhost:3000/targ_rep/alleles/37569/allele-image-cre
+
+--#### 26: compare error: 'genbank_file_url' (http://localhost:3000/targ_rep/alleles/29436/escell-clone-cre-genbank-file/http://localhost:3000/targ_rep/alleles29436/escell-clone-cre-genbank-file)
+
+  (select value || '/alleles/' || targ_rep_es_cells.allele_id || '/allele-image-cre' from solr_options where key = 'targ_rep_url' and mode = :'env') as allele_image_url,
+  (select value || '/alleles/' || targ_rep_es_cells.allele_id || '/allele-image-cre?simple=true' from solr_options where key = 'targ_rep_url' and mode = :'env') as simple_allele_image_url,
+  (select value || '/alleles/' || targ_rep_es_cells.allele_id || '/escell-clone-cre-genbank-file' from solr_options where key = 'targ_rep_url' and mode = :'env')as genbank_file_url,
 
   targ_rep_es_cells.ikmc_project_id || ';' as project_ids,
   genes.marker_symbol as marker_symbol,
@@ -336,3 +340,7 @@ select
 
 
 --select count(*) as solr_phenotype_attempts_count from solr_phenotype_attempts;
+
+--select *, ':env' as mode_in from solr_options where key = 'targ_rep_url';
+
+--select * as counter from solr_options where key = 'targ_rep_url' and mode = :'env' ;

@@ -1,11 +1,17 @@
 -- http://www.postgresql.org/message-id/14658.1175879477@sss.pgh.pa.us
 SET client_min_messages=WARNING;
 
-create table solr_centre_map(
-    centre_name varchar(40), pref varchar(255), def varchar(255)
-);
+CREATE TABLE solr_options (key text, value text, mode text);
 
--- TODO make switchable : 'http://localhost:3000/targ_rep/alleles/'
+insert into solr_options (key, value, mode) values
+('targ_rep_url', 'http://localhost:3000/targ_rep', 'development'),
+('targ_rep_url', 'https://www.i-dcc.org/staging/imits/targ_rep', 'staging'),
+('targ_rep_url', 'https://www.i-dcc.org/imits/targ_rep', 'production'),
+('targ_rep_url', 'https://www.i-dcc.org/imits/targ_rep', 'test'),
+('targ_rep_url', 'https://www.i-dcc.org/imits/targ_rep', 'labs')
+;
+
+create table solr_centre_map( centre_name varchar(40), pref varchar(255), def varchar(255) );
 
 insert into solr_centre_map(centre_name, pref, def) values
 ('Harwell', '', ''),
@@ -270,9 +276,19 @@ solr_mi_attempts as
   (select mgi_accession_id from genes, mi_plans where mi_plans.id = mi_attempts.mi_plan_id and mi_plans.gene_id = genes.id) as mgi_accession_id,
   (select centres.name from centres, mi_plans where mi_plans.id = mi_attempts.mi_plan_id and mi_plans.production_centre_id = centres.id) as production_centre,
   (select strains.name from strains where strains.id = mi_attempts.colony_background_strain_id) as strain,
-  'http://localhost:3000/targ_rep/alleles/' || (select allele_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) || '/escell-clone-genbank-file' as genbank_file_url,
-  'http://localhost:3000/targ_rep/alleles/' || (select allele_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) || '/allele-image' as allele_image_url,
-  'http://localhost:3000/targ_rep/alleles/' || (select allele_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) || '/allele-image?simple=true' as simple_allele_image_url,
+
+--  (select value || '/alleles/' || targ_rep_es_cells.allele_id || '/allele-image-cre' from solr_options where key = 'targ_rep_url' and mode = :'env') as allele_image_url,
+
+  --'http://localhost:3000/targ_rep/alleles/' || (select allele_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) || '/escell-clone-genbank-file' as genbank_file_url,
+  --'http://localhost:3000/targ_rep/alleles/' || (select allele_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) || '/allele-image' as allele_image_url,
+  --'http://localhost:3000/targ_rep/alleles/' || (select allele_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) || '/allele-image?simple=true' as simple_allele_image_url,
+
+--  (select value || '/alleles/' from solr_options where key = 'targ_rep_url' and mode = :'env')
+
+  (select value || '/alleles/' from solr_options where key = 'targ_rep_url' and mode = :'env') || (select allele_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) || '/escell-clone-genbank-file' as genbank_file_url,
+  (select value || '/alleles/' from solr_options where key = 'targ_rep_url' and mode = :'env') || (select allele_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) || '/allele-image' as allele_image_url,
+  (select value || '/alleles/' from solr_options where key = 'targ_rep_url' and mode = :'env') || (select allele_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) || '/allele-image?simple=true' as simple_allele_image_url,
+
   (select targ_rep_mutation_types.name from targ_rep_es_cells, targ_rep_alleles, targ_rep_mutation_types where targ_rep_es_cells.id = mi_attempts.es_cell_id and
   targ_rep_es_cells.allele_id = targ_rep_alleles.id and targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id) as allele_type,
   (select ikmc_project_id from targ_rep_es_cells where targ_rep_es_cells.id = mi_attempts.es_cell_id) as project_ids,

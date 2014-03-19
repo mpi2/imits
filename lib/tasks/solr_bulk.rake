@@ -1,13 +1,7 @@
-#puts "#### " + File.dirname(__FILE__) + '/../test/phenotype_attempts_test.rb'
-#require File.dirname(__FILE__) + '/../test/phenotype_attempts_test.rb'
-#puts "#### " + "#{Rails.root}/script/solr_bulk/test/phenotype_attempts_test.rb"
 
 require "#{Rails.root}/script/solr_bulk/test/phenotype_attempts_test.rb"
 require "#{Rails.root}/script/solr_bulk/test/mi_attempts_test.rb"
 require "#{Rails.root}/script/solr_bulk/test/genes_test.rb"
-
-#require File.dirname(__FILE__) + '/../test/phenotype_attempts_test'
-#require File.dirname(__FILE__) + '/../test'
 
 namespace :solr_bulk do
 
@@ -16,22 +10,15 @@ namespace :solr_bulk do
   SOLR_UPDATE = YAML.load_file("#{Rails.root}/config/solr_update.yml")
   LEGAL_TARGETS = %W{genes phenotype_attempts mi_attempts alleles all}
 
-  #desc 'Run the tests'
-  #task 'test', [:target] => :environment do |t, args|
-  #  args.with_defaults(:target => 'all')
-  #  Rake::Task['solr_bulk:db:load'].invoke
-  #  Rake::Task['solr_bulk:_test'].invoke(args[:target])
-  #end
-
-  #curl -s http://localhost:8983/solr/allele/admin/ping |grep -o -E "name=\"status\">([0-9]+)<"|cut -f2 -d\>|cut -f1 -d\<
+  desc 'Return details of the db solr state'
+  task 'stats' => [:environment] do
+    PhenotypeAttemptsTest.summary
+  end
 
   desc 'Ping the solr'
   task 'index:ping' => [:environment] do
-    #  pp "### solr: #{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}"
     command = 'curl -s SOLR_SUBS/admin/ping |grep -o -E "name=\"status\">([0-9]+)<"|cut -f2 -d\>|cut -f1 -d\<'.gsub(/SOLR_SUBS/, SOLR_UPDATE[Rails.env]['index_proxy']['allele'])
-    #  puts "#### #{command}"
     output = `#{command}`
-    #  puts "#### #{output}"
     if output.to_s.length > 0 && output.to_i == 0
       puts "#### #{SOLR_UPDATE[Rails.env]['index_proxy']['allele']} up and running!".green
     elsif output.empty?

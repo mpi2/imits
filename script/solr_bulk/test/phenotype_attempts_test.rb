@@ -4,6 +4,8 @@ require 'pp'
 require 'color'
 
 class PhenotypeAttemptsTest
+  SOLR_UPDATE = YAML.load_file("#{Rails.root}/config/solr_update.yml")
+
   def initialize(enabler = nil)
     @count = 0
     @failed_count = 0
@@ -16,6 +18,169 @@ class PhenotypeAttemptsTest
       'test_phenotype_attempt_best_status_pa_cre' => true,
       'test_solr_phenotype_attempts' => true
     }
+  end
+
+  class CompareSolr
+
+    def initialize
+      @solr_current = Rails.env
+      @solr_alt = Rails.env.production? ? 'staging' : 'production'
+      @frame = {
+        'development' => {
+          :statuses => {
+            :current_pa_status => {},
+            :best_status_pa_cre_ex_not_required => {},
+            :best_status_pa_cre_ex_required => {}
+          }
+        },
+        'staging' => {
+          :statuses => {
+            :current_pa_status => {},
+            :best_status_pa_cre_ex_not_required => {},
+            :best_status_pa_cre_ex_required => {}
+          }
+        },
+        'production' => {
+          :statuses => {
+            :current_pa_status => {},
+            :best_status_pa_cre_ex_not_required => {},
+            :best_status_pa_cre_ex_required => {}
+          }
+        },
+        :compare => {:diffs => {}}
+      }
+    end
+
+    def dump_pa id
+      phenotype_attempt = PhenotypeAttempt.find_by_id id
+      if phenotype_attempt && (phenotype_attempt.has_status? :cec and ! phenotype_attempt.has_status? :abt and phenotype_attempt.allele_id > 0 and phenotype_attempt.report_to_public)
+        puts "#### phenotype_attempt OK!".green
+      else
+        puts "#### phenotype_attempt invalid!".red
+      end
+
+      pp phenotype_attempt.attributes
+    end
+
+    def count_solr target
+      #url = "#{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}/select?q=type:phenotype_attempt&version=2.2&start=0&rows=1000000&indent=on"
+      #puts url
+      proxy = SolrBulk::Proxy.new(SOLR_UPDATE[target]['index_proxy']['allele'])
+      result = proxy.search_count({:q => 'type:phenotype_attempt'})
+      # pp result
+
+      @frame[target][:count] = result
+      @frame[target][:ids] = []
+
+      docs = proxy.search({:q => 'type:phenotype_attempt'}, 100000)
+
+      docs.each do |doc|
+        @frame[target][:ids].push doc['id']
+        @frame[target][:statuses][:current_pa_status][doc['current_pa_status']] ||= 0
+        @frame[target][:statuses][:current_pa_status][doc['current_pa_status']] += 1
+
+        if ! doc['best_status_pa_cre_ex_not_required'].empty?
+          @frame[target][:statuses][:best_status_pa_cre_ex_not_required][doc['best_status_pa_cre_ex_not_required']] ||= 0
+          @frame[target][:statuses][:best_status_pa_cre_ex_not_required][doc['best_status_pa_cre_ex_not_required']] += 1
+          puts "#### best_status_pa_cre_ex_not_required:"
+          pp doc
+          dump_pa doc['id']
+        end
+
+        if ! doc['best_status_pa_cre_ex_required'].empty?
+          @frame[target][:statuses][:best_status_pa_cre_ex_required][doc['best_status_pa_cre_ex_required']] ||= 0
+          @frame[target][:statuses][:best_status_pa_cre_ex_required][doc['best_status_pa_cre_ex_required']] += 1
+        end
+      end
+
+      @frame[target][:statuses][:current_pa_status] = Hash[@frame[target][:statuses][:current_pa_status].sort]
+      @frame[target][:statuses][:best_status_pa_cre_ex_not_required] = Hash[@frame[target][:statuses][:best_status_pa_cre_ex_not_required].sort]
+      @frame[target][:statuses][:best_status_pa_cre_ex_required] = Hash[@frame[target][:statuses][:best_status_pa_cre_ex_required].sort]
+
+      @frame[target][:ids] = @frame[target][:ids].sort
+    end
+
+    def summary
+      # get counts from solr & db
+
+      count_solr @solr_current
+      count_solr @solr_alt
+      # count_db
+
+      # puts "DB COUNT: #{count_db} - SOLR COUNT: #{count_solr}"
+
+      # pp @frame
+
+#     :best_status_pa_cre_ex_not_required=>{"Cre Excision Complete"=>1},
+
+      message = ''
+
+      if @frame[@solr_current][:ids].size > @frame[@solr_alt][:ids].size
+        diff = @frame[@solr_current][:ids] - @frame[@solr_alt][:ids]
+        message = "missing from #{@solr_alt}"
+      else
+        diff = @frame[@solr_alt][:ids] - @frame[@solr_current][:ids]
+        message = "missing from current (#{@solr_current})"
+      end
+
+      @frame[@solr_alt].delete(:ids)
+      @frame[@solr_current].delete(:ids)
+
+      @frame[:compare][:diffs]['ids'] = diff
+      @frame[:compare][:diffs]['message'] = message
+
+      newdiff = []
+      diff.each do |id|
+        phenotype_attempt = PhenotypeAttempt.find_by_id id
+        if ! phenotype_attempt || (phenotype_attempt.has_status? :cec and ! phenotype_attempt.has_status? :abt and phenotype_attempt.allele_id > 0 and phenotype_attempt.report_to_public)
+          newdiff.push id
+        end
+      end
+
+      @frame[:compare][:diffs]['ids'] = newdiff
+      @frame[:compare][:diffs]['message'] = '' if newdiff.empty?
+
+      #pp @frame
+
+      puts "Comparing #{@solr_current} with #{@solr_alt}".blue
+      failed = false
+
+      if @frame[@solr_current][:count].to_i != @frame[@solr_alt][:count].to_i
+        failed = true
+        puts "counts wrong (#{@frame[@solr_current][:count].to_i}/#{@frame[@solr_alt][:count].to_i})".red
+      end
+
+      if @frame[:compare][:diffs]['ids'].size != 0 || @frame[:compare][:diffs]['ids'].size != 0
+        failed = true
+        puts "found diffs: (#{@frame[:compare][:diffs]['ids'].size}/#{@frame[:compare][:diffs]['ids'].size})".red
+      end
+
+      #puts "status checks..."
+
+      statuses = [:current_pa_status, :best_status_pa_cre_ex_not_required, :best_status_pa_cre_ex_required]
+      statuses.each do |status|
+        @frame[@solr_current][:statuses][status].keys.each do |status_name|
+          if @frame[@solr_current][:statuses][status][status_name].to_i != @frame[@solr_alt][:statuses][status][status_name].to_i
+            failed = true
+            puts "#{status_name}: (#{@frame[@solr_alt][:statuses][status][status_name].to_i}/#{@frame[@solr_current][:statuses][status][status_name].to_i})".red
+          end
+        end
+      end
+
+      pp @frame
+
+      if failed
+        puts "failed!".red
+      else
+        puts "OK!".green
+      end
+
+      @frame
+    end
+  end
+
+  def self.summary
+    PhenotypeAttemptsTest::CompareSolr.new.summary
   end
 
   def phenotype_attempt_allele_type phenotype_attempt

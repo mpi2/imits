@@ -30,7 +30,7 @@ module TarMits
     config.active_record.observers = [
       'SolrUpdate::Observer::AnyWithMiAttempts',
       'SolrUpdate::Observer::MiAttempt',
-      'SolrUpdate::Observer::PhenotypeAttempt',
+      #'SolrUpdate::Observer::PhenotypeAttempt',
       'SolrUpdate::Observer::DistributionCentres',
       'SolrUpdate::Observer::Allele',
       'SolrUpdate::Observer::EsCell',

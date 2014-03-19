@@ -26,6 +26,8 @@ class SolrUpdate::Enqueuer
   end
 
   def phenotype_attempt_updated(pa)
+    return if ! Rails.configuration.enable_solr_phenotype_attempt
+
     reference = {'type' => 'phenotype_attempt', 'id' => pa.id}
     reference2 = {'type' => 'mi_attempt', 'id' => pa.mi_attempt.id}
 
@@ -40,6 +42,8 @@ class SolrUpdate::Enqueuer
   end
 
   def phenotype_attempt_destroyed(pa)
+    return if ! Rails.configuration.enable_solr_phenotype_attempt
+
     SolrUpdate::Queue.enqueue_for_update({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
     SolrUpdate::Queue.enqueue_for_delete({'type' => 'phenotype_attempt', 'id' => pa.id})
 

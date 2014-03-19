@@ -208,6 +208,8 @@ class GenesTest
   end
 
   def run
+    puts "#### starting genes...".blue
+
     test_solr_genes
 
     puts "#### done test_solr_genes: (#{@failed_count}/#{@count})".red if @failed_count > 0

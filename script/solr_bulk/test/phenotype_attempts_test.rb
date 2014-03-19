@@ -6,20 +6,6 @@ require 'color'
 class PhenotypeAttemptsTest
   SOLR_UPDATE = YAML.load_file("#{Rails.root}/config/solr_update.yml")
 
-  def initialize(enabler = nil)
-    @count = 0
-    @failed_count = 0
-
-    @enabler = enabler || {
-      'test_phenotype_attempt_allele_type' => true,
-      'test_phenotype_attempt_allele_name' => true,
-      'test_phenotype_attempt_order_from_names' => true,
-      'test_phenotype_attempt_order_from_urls' => true,
-      'test_phenotype_attempt_best_status_pa_cre' => true,
-      'test_solr_phenotype_attempts' => true
-    }
-  end
-
   class CompareSolr
 
     def initialize
@@ -82,9 +68,9 @@ class PhenotypeAttemptsTest
         if ! doc['best_status_pa_cre_ex_not_required'].empty?
           @frame[target][:statuses][:best_status_pa_cre_ex_not_required][doc['best_status_pa_cre_ex_not_required']] ||= 0
           @frame[target][:statuses][:best_status_pa_cre_ex_not_required][doc['best_status_pa_cre_ex_not_required']] += 1
-          puts "#### best_status_pa_cre_ex_not_required:"
-          pp doc
-          dump_pa doc['id']
+          #puts "#### best_status_pa_cre_ex_not_required:"
+          #pp doc
+         # dump_pa doc['id']
         end
 
         if ! doc['best_status_pa_cre_ex_required'].empty?
@@ -167,7 +153,7 @@ class PhenotypeAttemptsTest
         end
       end
 
-      pp @frame
+      #pp @frame
 
       if failed
         puts "failed!".red
@@ -177,6 +163,57 @@ class PhenotypeAttemptsTest
 
       @frame
     end
+  end
+
+  class CompareBase
+    def initialize
+      @count = 0
+      @failed_count = 0
+    end
+
+    def prologue
+    end
+
+    def epilogue
+    end
+
+    def get_old object
+    end
+
+    def get_new object
+    end
+
+    def compare old, new
+    end
+
+    def run
+      prologue
+
+      PhenotypeAttempt.all.each do |phenotype_attempt|
+        if phenotype_attempt.has_status? :cec and ! phenotype_attempt.has_status? :abt and phenotype_attempt.allele_id > 0 and phenotype_attempt.report_to_public
+          old = get_old phenotype_attempt
+          new = get_new phenotype_attempt
+
+          compare(old, new)
+        end
+      end
+
+      epilogue
+    end
+  end
+
+  def initialize(enabler = nil)
+    @count = 0
+    @failed_count = 0
+
+    @enabler = enabler || {
+      'test_phenotype_attempt_allele_type' => true,
+      'test_phenotype_attempt_allele_name' => true,
+      'test_phenotype_attempt_order_from_names' => true,
+      'test_phenotype_attempt_order_from_urls' => true,
+      'test_phenotype_attempt_best_status_pa_cre' => true,
+      'test_solr_phenotype_attempts' => true
+    }
   end
 
   def self.summary
@@ -477,30 +514,22 @@ class PhenotypeAttemptsTest
   end
 
   def run
+    puts "#### starting phenotype_attempts...".blue
+
     sql = 'CREATE temp table solr_get_pa_order_from_names_tmp ( phenotype_attempt_id int, name text ) ;'
     sql += 'CREATE temp table solr_get_pa_get_order_from_urls_tmp ( phenotype_attempt_id int, url text ) ;'
 
     ActiveRecord::Base.connection.execute(sql)
+
+    _run('test_solr_phenotype_attempts') if @enabler['test_solr_phenotype_attempts']
 
     _run('test_phenotype_attempt_allele_type') if @enabler['test_phenotype_attempt_allele_type']
     _run('test_phenotype_attempt_allele_name') if @enabler['test_phenotype_attempt_allele_name']
     _run('test_phenotype_attempt_order_from_names') if @enabler['test_phenotype_attempt_order_from_names']
     _run('test_phenotype_attempt_order_from_urls') if @enabler['test_phenotype_attempt_order_from_urls']
 
-    #if enabler['test_phenotype_attempt_best_status_pa_cre']
-    #  test_phenotype_attempt_best_status_pa_cre false
-    #  puts "#### done test_phenotype_attempt_best_status_pa_cre: (#{@failed_count}/#{@count})".red if @failed_count > 0
-    #  puts "#### done test_phenotype_attempt_best_status_pa_cre: (#{@count})".green if @failed_count == 0
-    #
-    #  test_phenotype_attempt_best_status_pa_cre true
-    #  puts "#### done test_phenotype_attempt_best_status_pa_cre: (#{@failed_count}/#{@count})".red if @failed_count > 0
-    #  puts "#### done test_phenotype_attempt_best_status_pa_cre: (#{@count})".green if @failed_count == 0
-    #end
-
     _run2('test_phenotype_attempt_best_status_pa_cre', true) if @enabler['test_phenotype_attempt_best_status_pa_cre']
     _run2('test_phenotype_attempt_best_status_pa_cre', false) if @enabler['test_phenotype_attempt_best_status_pa_cre']
-
-    _run('test_solr_phenotype_attempts') if @enabler['test_solr_phenotype_attempts']
   end
 end
 

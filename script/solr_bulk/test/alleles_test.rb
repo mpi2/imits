@@ -121,6 +121,8 @@ class AllelesTest
   end
 
   def run
+    puts "#### starting alleles...".blue
+
     if @enabler['test_solr_alleles']
       test_solr_alleles
 

@@ -271,6 +271,8 @@ class MiAttemptsTest
   end
 
   def run
+    puts "#### starting mi_attempts...".blue
+
     if @enabler['test_mi_attempt_allele_symbol']
       test_mi_attempt_allele_symbol
 

@@ -5,7 +5,7 @@ require "#{Rails.root}/script/solr_bulk/test/genes_test.rb"
 
 namespace :solr_bulk do
 
-  SOLR_BULK = YAML.load_file("#{Rails.root}/config/solr_bulk.yml")
+  #SOLR_BULK = YAML.load_file("#{Rails.root}/config/solr_bulk.yml")
   DATABASE = YAML.load_file("#{Rails.root}/config/database.yml")
   SOLR_UPDATE = YAML.load_file("#{Rails.root}/config/solr_update.yml")
   LEGAL_TARGETS = %W{genes phenotype_attempts mi_attempts alleles all}
@@ -31,14 +31,14 @@ namespace :solr_bulk do
   desc 'Run the tests'
   task 'test', [:target, :load_db] => :environment do |t, args|
     args.with_defaults(:target => 'all')
-    args.with_defaults(:load_db => false)
+    args.with_defaults(:load_db => true)
 
     Rake::Task['solr_bulk:db:load'].invoke if args[:load_db]
 
     PhenotypeAttemptsTest.new.run if %W{all phenotype_attempts}.include? args[:target]
     MiAttemptsTest.new.run if %W{all mi_attempts}.include? args[:target]
-    GenesTest.new.run if %W{all genes}.include? args[:target]
-    #AllelesTest.new.run if %W{all alleles}.include? args[:target]
+    #GenesTest.new.run if %W{all genes}.include? args[:target]
+    ##AllelesTest.new.run if %W{all alleles}.include? args[:target]
   end
 
   desc 'generic_load'
@@ -70,7 +70,11 @@ namespace :solr_bulk do
     host = DATABASE[Rails.env]['host']
     port = DATABASE[Rails.env]['port'] || 5432
 
-    command = "cd #{Rails.root}/script/solr_bulk; PGPASSWORD=#{password} psql -U #{user} -d #{database} -h #{host} -p #{port} < solr_bulk.sql"
+    #command = "cd #{Rails.root}/script/solr_bulk; PGPASSWORD=#{password} psql -U #{user} -d #{database} -h #{host} -p #{port} < solr_bulk.sql"
+    command = "cd #{Rails.root}/script/solr_bulk; PGPASSWORD=#{password} psql --set 'env=#{Rails.env}' -U #{user} -d #{database} -h #{host} -p #{port} < solr_bulk.sql"
+
+    #--set 'var=foo'
+
     puts command
     output = `#{command}`
     puts output if output
@@ -90,4 +94,16 @@ namespace :solr_bulk do
     ActiveRecord::Base.connection.execute('select version();')
   end
 
+  desc 'normalize csv'
+  task 'normalize_csv', [:filename] => :environment do |t, args|
+    home = Dir.home
+    args.with_defaults(:filename => "#{home}/Desktop/#{Rails.env}-solr.csv") if args[:filename].nil?
+
+    if args[:filename].nil?
+      raise "#### supply filename!".red
+      exit
+    end
+
+    SolrBulk::Util.download_and_normalize args[:filename], SOLR_UPDATE[Rails.env]['index_proxy']['allele']
+  end
 end

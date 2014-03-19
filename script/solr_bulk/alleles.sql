@@ -99,7 +99,7 @@ $$ LANGUAGE plpgsql;
 -- DESCRIPTION:
 
 CREATE
-VIEW
+TABLE
 solr_alleles as
   with relevant_es_cells as (
   select distinct targ_rep_es_cells.allele_id, targ_rep_es_cells.strain,

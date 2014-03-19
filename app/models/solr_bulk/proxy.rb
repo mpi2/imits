@@ -31,10 +31,10 @@ module SolrBulk
       @http = NetHttpProxy.new(@solr_uri)
     end
 
-    def search(solr_params)
+    def search(solr_params, rows = 100000)
       docs = nil
       uri = @solr_uri.dup
-      uri.query = solr_params.merge(:wt => 'json', :rows => '100000').to_query
+      uri.query = solr_params.merge(:wt => 'json', :rows => "#{rows}").to_query
       uri.path = uri.path + '/select'
 
       @http.start(uri.host, uri.port) do |http|
@@ -46,6 +46,27 @@ module SolrBulk
         docs = response_body.fetch('response').fetch('docs')
       end
       return docs
+    end
+
+    def search_count(solr_params)
+      uri = @solr_uri.dup
+      uri.query = solr_params.merge(:wt => 'json', :rows => "10").to_query
+      uri.path = uri.path + '/select'
+      count = 0
+
+      @http.start(uri.host, uri.port) do |http|
+        request = Net::HTTP::Get.new uri.request_uri
+        http_response = http.request(request)
+        handle_http_response_error(http_response)
+
+        response_body = JSON.parse(http_response.body)
+        response = response_body.fetch('response')
+        #puts "###################################"
+        #pp response
+        #puts "###################################"
+        count = response['numFound'].to_i
+      end
+      return count
     end
 
     def update(commands_packet)

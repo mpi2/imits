@@ -9,7 +9,7 @@ module SolrBulk
     TYPES = %W{gene phenotype_attempt mi_attempt allele}
 
     def self.download_and_normalize filename, solr
-      command = "curl -o #{filename} '#{solr}/allele/select/?q=*:*&version=2.2&start=0&rows=1000000&indent=on&wt=csv'"
+      command = "curl -o #{filename} '#{solr}/select/?q=*:*&version=2.2&start=0&rows=1000000&indent=on&wt=csv'"
       puts command.blue
       output = `#{command}`
       puts output if output

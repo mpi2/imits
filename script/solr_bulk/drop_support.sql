@@ -28,11 +28,4 @@ DROP TABLE IF EXISTS solr_mi_plans_relevant_status_stamp_table CASCADE;
 DROP TABLE IF EXISTS solr_latest_relevant_mi_attempt_table CASCADE;
 DROP FUNCTION IF EXISTS solr_mi_plans_relevant_status_stamp_builder() CASCADE;
 DROP FUNCTION IF EXISTS solr_latest_relevant_mi_attempt_builder() CASCADE;
-DROP FUNCTION IF EXISTS solr_log(text) CASCADE;
-
---IF :delete_all THEN
-    DROP TABLE IF EXISTS solr_phenotype_attempts CASCADE;
-    DROP TABLE IF EXISTS solr_mi_attempts CASCADE;
-    DROP view IF EXISTS solr_alleles CASCADE;
-    DROP TABLE IF EXISTS solr_genes CASCADE;
---end if;
+--DROP FUNCTION IF EXISTS solr_log(text) CASCADE;

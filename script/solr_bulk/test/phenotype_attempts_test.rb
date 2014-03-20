@@ -533,6 +533,6 @@ class PhenotypeAttemptsTest
   end
 end
 
-PhenotypeAttemptsTest.new.run if File.basename($0) !~ /rake/
+#PhenotypeAttemptsTest.new.run if File.basename($0) !~ /rake/
 
 #puts "#### File.basename($0): #{File.basename($0)}"

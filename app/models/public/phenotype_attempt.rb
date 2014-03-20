@@ -151,6 +151,8 @@ end
 #  qc_critical_region_qpcr_id          :integer
 #  qc_loxp_srpcr_id                    :integer
 #  qc_loxp_srpcr_and_sequencing_id     :integer
+#  allele_name                         :string(255)
+#  mgi_accession_id                    :string(255)
 #
 # Indexes
 #

@@ -315,4 +315,4 @@ class MiAttemptsTest
   end
 end
 
-MiAttemptsTest.new.run if File.basename($0) !~ /rake/
+#MiAttemptsTest.new.run if File.basename($0) !~ /rake/

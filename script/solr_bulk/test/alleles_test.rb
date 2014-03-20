@@ -132,4 +132,4 @@ class AllelesTest
   end
 end
 
-AllelesTest.new.run if File.basename($0) !~ /rake/
+#AllelesTest.new.run if File.basename($0) !~ /rake/

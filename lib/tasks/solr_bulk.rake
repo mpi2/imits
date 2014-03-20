@@ -70,12 +70,10 @@ namespace :solr_bulk do
     host = DATABASE[Rails.env]['host']
     port = DATABASE[Rails.env]['port'] || 5432
 
-    #command = "cd #{Rails.root}/script/solr_bulk; PGPASSWORD=#{password} psql -U #{user} -d #{database} -h #{host} -p #{port} < solr_bulk.sql"
-    command = "cd #{Rails.root}/script/solr_bulk; PGPASSWORD=#{password} psql --set 'env=#{Rails.env}' -U #{user} -d #{database} -h #{host} -p #{port} < solr_bulk.sql"
-
-    #--set 'var=foo'
+    command = "cd #{Rails.root}/script/solr_bulk; PGPASSWORD=\"#{password}\" psql --set 'env=#{Rails.env}' -U #{user} -d #{database} -h #{host} -p #{port} < solr_bulk.sql"
 
     puts command
+
     output = `#{command}`
     puts output if output
   end

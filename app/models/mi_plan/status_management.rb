@@ -63,7 +63,8 @@ module MiPlan::StatusManagement
   end
 
   ss.add('Assigned - ES Cell QC In Progress') do |plan|
-    plan.number_of_es_cells_starting_qc != nil
+    plan.number_of_es_cells_starting_qc != nil and
+            plan.number_of_es_cells_starting_qc > 0
   end
 
   ss.add('Assigned - ES Cell QC Complete', 'Assigned - ES Cell QC In Progress') do |plan|

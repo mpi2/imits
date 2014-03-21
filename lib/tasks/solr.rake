@@ -24,9 +24,11 @@ namespace :solr do
       enqueuer = SolrUpdate::Enqueuer.new
       TargRep::TargetedAllele.all.each { |a| enqueuer.allele_updated(a) }
 
-      puts "#### enqueueing phenotype_attempts..."
-      enqueuer = SolrUpdate::Enqueuer.new
-      PhenotypeAttempt.all.each { |p| enqueuer.phenotype_attempt_updated(p) }
+      if Rails.configuration.enable_solr_phenotype_attempt
+        puts "#### enqueueing phenotype_attempts..."
+        enqueuer = SolrUpdate::Enqueuer.new
+        PhenotypeAttempt.all.each { |p| enqueuer.phenotype_attempt_updated(p) }
+      end
 
       puts "#### enqueueing genes..."
       enqueuer = SolrUpdate::Enqueuer.new
@@ -100,6 +102,8 @@ namespace :solr do
   end
 
   task 'update:phenotype_attempts' => [:environment] do
+    return if ! Rails.configuration.enable_solr_phenotype_attempt
+
     pp SolrUpdate::IndexProxy::Allele.get_uri
     ApplicationModel.transaction do
 

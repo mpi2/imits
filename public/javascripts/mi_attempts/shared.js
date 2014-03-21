@@ -45,37 +45,35 @@ function displayAndHideFormContents(){
     var mutagenesisShow = Ext.get('mutagenesis-show').getValue();
     var MarkerSymbolValue = Ext.get('marker_symbol').getValue();
 
-    var esCellDiv = Ext.get('object-es-cell');
-    var crisprDiv = Ext.get('object-crispr');
-
     var esCellName = Ext.get('mi_attempt_es_cell_name').getValue();
     var mutagenesisShow = Ext.get('mutagenesis-show').getValue();
     var divTop = Ext.get('object-new-top');
+    var restOfFormDiv = Ext.get('rest-of-form');
+
     if(esCellName == '' && mutagenesisShow != 'true') {
         divTop.setVisible(true, true);
         divTop.hidden = false;
+
+        restOfFormDiv.setVisible(false, 'display');
+        restOfFormDiv.hidden = true;
     } else {
         divTop.setVisible(false, 'display');
         divTop.hidden = true;
     }
 
     if(esCellName != ''){
-        esCellDiv.setVisible(true, true);
-        esCellDiv.hidden = false;
+       $('.object-es-cell').show();
        if (MarkerSymbolValue){
           listView.set_mi_plan_selection(MarkerSymbolValue);
       }
     } else {
-        esCellDiv.setVisible(false, 'display');
-        esCellDiv.hidden = true;
+        $('.object-es-cell').hide();
     }
 
     if(mutagenesisShow != 'true') {
-        crisprDiv.setVisible(false, 'display');
-        crisprDiv.hidden = true;
+        $('.object-crispr').hide();
     } else {
-        crisprDiv.setVisible(true, true);
-        crisprDiv.hidden = false;
+        $('.object-crispr').show();
 
         if (MarkerSymbolValue){
            var crispr = 'true';

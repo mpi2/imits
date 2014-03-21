@@ -174,12 +174,8 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
         var top = Ext.get('object-new-top');
         top.setVisible(false ,'display');
         top.hide();
-        var top = Ext.get('object-crispr');
-        top.setVisible(false ,'display');
-        top.hide();
-        top =  Ext.get('object-es-cell');
-        top.setVisible(true, true);
-        top.show();
+        $('.object-es-cell').show();
+        $('.object-crispr').hide();
         Imits.MiAttempts.New.restOfForm.showIfHidden();
     },
 
@@ -658,12 +654,10 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                         var top = Ext.get('object-new-top');
                         top.setVisible(false ,'display');
                         top.hide();
-                        top =  Ext.get('object-es-cell');
-                        top.setVisible(false ,'display');
-                        top.hide();
-                        top =  Ext.get('object-crispr');
-                        top.setVisible(true, true);
-                        top.hidden = false;
+
+                        $('.object-es-cell').hide();
+                        $('.object-crispr').show();
+
                         Imits.MiAttempts.New.restOfForm.showIfHidden();
                         mutagensisFactorPanel.window.hide();
 

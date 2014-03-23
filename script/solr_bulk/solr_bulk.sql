@@ -14,7 +14,7 @@ BEGIN;
 
 \i phenotype_attempts.sql
 
---\i alleles.sql
+\i alleles.sql
 
 --\i genes.sql
 

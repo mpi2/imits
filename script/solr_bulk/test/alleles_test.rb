@@ -8,6 +8,7 @@ STDOUT.sync = true
 class AllelesTest
   def initialize
     @count = 0
+    @failures = []
     @failed_count = 0
     @batch_size = 1000
 
@@ -16,47 +17,13 @@ class AllelesTest
     }
   end
 
-  #{"type"=>"allele",
-  #   "id"=>162,
-  #   "product_type"=>"ES Cell",
-  #   "allele_id"=>162,
-  #   "order_from_names"=>"EUMMCR;",
-  #   "order_from_urls"=>"http://www.eummcr.org/order.php;",
-  #   "mgi_accession_id"=>"MGI:101802",
-  #   "simple_allele_image_url"=>
-  #    "http://localhost:3000/targ_rep/alleles/162/allele-image?simple=true",
-  #   "marker_symbol"=>"F2r",
-  #   "allele_image_url"=>
-  #    "http://localhost:3000/targ_rep/alleles/162/allele-image",
-  #   "genbank_file_url"=>
-  #    "http://localhost:3000/targ_rep/alleles/162/escell-clone-genbank-file",
-  #   "allele_type"=>"Conditional Ready",
-  #   "strain"=>"C57BL/6N-A<tm1Brd>/a",
-  #   "allele_name"=>"F2r<sup>tm1a(EUCOMM)Hmgu</sup>",
-  #   "project_ids"=>["125824"],
-  #   "project_statuses"=>[],
-  #   "project_pipelines"=>[],
-  #   "vector_project_ids"=>[],
-  #   "vector_project_statuses"=>[]}
-
   def log message
     puts "#### #{message}"
   end
 
   def compare old, new, silent = true
-    # log "compare..."
-
-    #pp old
-    #pp news
-
     splits = %W{order_from_names order_from_urls project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
     failed = false
-
-    # news.each do |new|
-    #splits.each do |split|
-    #  old.delete(split) if ! old[split] || old[split].empty?
-    #  new.delete(split) if ! new[split] || new[split].empty?
-    #end
 
     splits.each do |split|
       old.delete(split) if ! old[split] || old[split].empty?
@@ -99,12 +66,15 @@ class AllelesTest
       end
     end
 
-    #  @failed_count += 1 if failed
-    #   end
+    difference = (old.size > new.size) ? old.to_a - new.to_a : new.to_a - old.to_a
 
-    #difference = (old.size > new.size) ? old.to_a - new.to_a : new.to_a - old.to_a
-
-    #failed || (difference && ! difference.empty?)
+    if ! silent && difference && ! difference.empty?
+      puts "#### difference:"
+      pp difference
+      #pp old
+      #pp new
+    #  exit
+    end
 
     failed
   end
@@ -119,7 +89,7 @@ class AllelesTest
 
     log 'start building hash...'
 
-    #alleles = ActiveRecord::Base.connection.execute("select * from solr_alleles limit 1")
+    #alleles = ActiveRecord::Base.connection.execute("select * from solr_alleles where id = 235")
     alleles = ActiveRecord::Base.connection.execute("select * from solr_alleles")
 
     splits = %W{order_from_names order_from_urls project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
@@ -136,64 +106,57 @@ class AllelesTest
         allele[i] = allele[i].to_i
       end
 
-      hash[allele['id'].to_i] ||= []
-      hash[allele['id'].to_i].push allele.clone
+      hash[allele['id']] ||= []
+      hash[allele['id']].push allele.clone
       count += 1
-      @ids.push allele['id'].to_i
-      #break if count > 10
+      @ids.push allele['id']
+
+      #if allele['id'] == 235
+      #  puts "#### found!".green
+      #end
     end
 
     log "end loop (#{count})..."
 
     log 'start main loop...'
 
-    #TargRep::TargetedAllele.all.each do |allele|
+    #TargRep::TargetedAllele.find_each(:batch_size => @batch_size) do |allele|
+    #TargRep::TargetedAllele.find(:id => @ids) do |allele|
+    # alleles.each do |allele|
+
+    #  allele_old = TargRep::TargetedAllele.find_by_id allele['id']
+
     TargRep::TargetedAllele.find_each(:batch_size => @batch_size) do |allele|
       #TargRep::TargetedAllele.find(:id => @ids) do |allele|
       # log 'start create_for_allele...'
       docs = SolrUpdate::DocFactory.create_for_allele(allele)
-      # log 'end create_for_allele...'
 
-      # puts "#### ignoring...".red if ! docs || docs.empty?
-      next if ! docs || docs.empty?
+      #if ! allele_old
+      #  puts "#### #{allele['id']}: cannot find in db!".red
+      #  @failed_count += 1
+      #  next
+      #end
 
-      @count += docs.size
+      #docs = SolrUpdate::DocFactory.create_for_allele(allele_old)
 
-      #next
-      #pp docs
-      #break
+      if ! docs || docs.empty?
+        #puts "#### #{allele['id']}: cannot find in docs!".red
+        #@failed_count += 1
+        next
+      end
 
-      # log "docs (#{docs.size})..."
+      #@count += docs.size
 
       docs.each do |doc|
         old = doc
 
-        #allele.es_cells.each do |es_cell|
-        #  rows = ActiveRecord::Base.connection.execute("select * from solr_alleles(#{es_cell.id})")
-        #
-        #  count = 0
-        #  new = ''
-        #  rows.each do |row|
-        #    new = row['solr_get_allele_order_from_urls']
-        #    count += 1
-        #  end
-        #
-        #  raise "#### invalid count detected!".red if count != 1
-        #
-        #  #pp new
-        #  @count += 1
-        # # break
-        #end
-
         @count += 1
-        #break
-        #break if @count == 10
 
-        if ! hash.has_key? old['id']
-          puts "#### #{old['id']}: cannot find in hash!".red
-          @failed_count += 1
-          next
-        end
+        #if ! hash.has_key? old['id'].to_i
+        #  puts "#### #{old['id']}: cannot find in hash!".red
+        #  @failed_count += 1
+        #  next
+        #end
 
         ok = false
 
@@ -205,28 +168,38 @@ class AllelesTest
         if ! ok
           @failed_count += 1
           puts "#### #{old['id']}: failed!".red
-          if hash[old['id']].size == 1
-           # pp old
-          #  pp hash[old['id']]
-            compare old, hash[old['id']].first, false
-           # exit
-          end
+          #if hash[old['id']].size == 1
+          #  compare old, hash[old['id']].first, false
+          #end
+          @failures.push old['id']
         end
-
-        #compare old, hash[old['id']]
-
-        #  break
       end
 
-      break if @count >= 1000
-
-      #  break if @count >= 10000
+      #break if @count >= 10000
     end
 
     log 'end main loop...'
 
-    #puts "#### count error: (#{count}/#{@count})".red if count != @count
     puts "#### count error: (#{@count}/#{count})".red if count != @count
+  end
+
+  def test_solr_alleles_counts
+    @count_new = 0
+    @count_old = 0
+
+    alleles = ActiveRecord::Base.connection.execute("select * from solr_alleles")
+
+    alleles.each do |allele|
+      @count_new += 1
+    end
+
+    TargRep::TargetedAllele.find_each(:batch_size => @batch_size) do |allele|
+      docs = SolrUpdate::DocFactory.create_for_allele(allele)
+      next if ! docs
+      @count_old += docs.size
+    end
+
+    puts "#### count error: (#{@count_old}/#{@count_new})".red if @count_old != @count_new
   end
 
   def run
@@ -237,6 +210,8 @@ class AllelesTest
 
       puts "#### done test_solr_alleles: (#{@failed_count}/#{@count})".red if @failed_count > 0
       puts "#### done test_solr_alleles: (#{@count})".green if @failed_count == 0
+
+      pp @failures if @failures && ! @failures.empty?
     end
   end
 end

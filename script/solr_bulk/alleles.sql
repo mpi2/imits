@@ -129,3 +129,5 @@ solr_alleles as
   from targ_rep_alleles, relevant_es_cells
   where type = 'TargRep::TargetedAllele'
   and relevant_es_cells.allele_id = targ_rep_alleles.id;
+
+CREATE INDEX solr_alleles_idx ON solr_alleles (id);

@@ -72,7 +72,7 @@ namespace :solr_bulk do
 
     command = "cd #{Rails.root}/script/solr_bulk; PGPASSWORD=\"#{password}\" psql --set 'env=#{Rails.env}' -U #{user} -d #{database} -h #{host} -p #{port} < solr_bulk.sql"
 
-    puts command
+    puts command if Rails.env.development?
 
     output = `#{command}`
     puts output if output

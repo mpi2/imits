@@ -220,4 +220,4 @@ class GenesTest
   end
 end
 
-GenesTest.new.run if File.basename($0) !~ /rake/
+#GenesTest.new.run if File.basename($0) !~ /rake/

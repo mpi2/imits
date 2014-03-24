@@ -285,7 +285,7 @@ end
 #  qc_loxp_srpcr_id                    :integer
 #  qc_loxp_srpcr_and_sequencing_id     :integer
 #  allele_name                         :string(255)
-#  mgi_accession_id                    :string(255)
+#  jax_mgi_accession_id                :string(255)
 #
 # Indexes
 #

@@ -119,6 +119,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: mi_attempts
@@ -185,6 +186,18 @@ end
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean
 #  mutagenesis_factor_id                           :integer
+#  crsp_total_embryos_injected                     :integer
+#  crsp_total_embryos_survived                     :integer
+#  crsp_total_transfered                           :integer
+#  crsp_no_founder_pups                            :integer
+#  founder_pcr_num_assays                          :integer
+#  founder_pcr_num_positive_results                :integer
+#  founder_surveyor_num_assays                     :integer
+#  founder_surveyor_num_positive_results           :integer
+#  founder_t7en1_num_assays                        :integer
+#  founder_t7en1_num_positive_results              :integer
+#  crsp_total_num_mutant_founders                  :integer
+#  crsp_num_founders_selected_for_breading         :integer
 #
 # Indexes
 #

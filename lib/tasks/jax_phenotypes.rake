@@ -21,7 +21,7 @@ namespace :jax_phenotypes do
   #  end
   #end
 
-  def _get_files
+  def get_files
     file_list = []
 
     ftp = Net::FTP.new(URL_ROOT)

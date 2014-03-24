@@ -2,42 +2,49 @@ require 'pp'
 require 'open-uri'
 require 'net/ftp'
 
-#Rails.logger.level = 0
-#@logger=Rails.logger
-
 namespace :jax_phenotypes do
 
   DIFF = false
   VERBOSE = false
+  URL_ROOT = 'ftp.informatics.jax.org'
+  URL_FOLDER = 'pub/IKMC/'
+  URL_TARGET = "ftp://#{URL_ROOT}/#{URL_FOLDER}"
 
-  def get_files
-    url = 'ftp.informatics.jax.org'
+  #def _get_files
+  #  try_count = 0
+  #  begin
+  #    _get_files
+  #  rescue => e
+  #    sleep 5
+  #    try_count += 1
+  #    retry if try_count < 3
+  #  end
+  #end
+
+  def _get_files
     file_list = []
 
-    ftp = Net::FTP.new(url)
+    ftp = Net::FTP.new(URL_ROOT)
     ftp.login
-    files = ftp.chdir('pub/IKMC')
+    files = ftp.chdir(URL_FOLDER)
     files = ftp.list()
 
     files.each do |file|
-      file_list.push file.scan( /(mgi_allele_ikmc.+)/).last.first if file !~ /current/
+      file_list.push file.scan(/(mgi_allele_ikmc.+)/).last.first if file !~ /current/
     end
 
     ftp.close
-
-    #pp file_list
-
-    #exit
 
     file_list
   end
 
   def read_data filename
+    #pp filename
+    #pp URL_TARGET + filename
+    #exit
+
     data = []
-
-    url = 'ftp://ftp.informatics.jax.org/pub/IKMC/'
-
-    open(url + filename, :proxy => nil) do |f|
+    open(URL_TARGET + filename, :proxy => nil) do |f|
       f.each_line do |line|
         row = line.strip.split(/\t/)
         hash = {'Colony name' => row[0], 'MGI accession id' => row[1], 'Allele name' => row[2]}
@@ -45,13 +52,10 @@ namespace :jax_phenotypes do
       end
     end
 
-    #  data = data.sort { |a, b| a['Colony name'] <=> b['Colony name'] }
-
     data
   end
 
   def log(message)
-    #Rails.logger.info "#### " + message.to_s
     puts "#### " + message.to_s if VERBOSE
   end
 
@@ -69,15 +73,7 @@ namespace :jax_phenotypes do
 
         if DIFF
           diff = pa.jax_mgi_accession_id != row['MGI accession id'] || pa.allele_name != row['Allele name']
-
-          #puts "#### '#{clean_name}'"
-          #puts "#### '#{pa.jax_mgi_accession_id}' - '#{row['MGI accession id']}'"
-          #puts "#### '#{pa.allele_name}' - '#{row['Allele name']}'"
-
-          # exit
-
           next if ! diff
-
           diffed += 1
         end
 
@@ -89,7 +85,6 @@ namespace :jax_phenotypes do
         log "before: #{before} - after: #{after}"
       end
       puts  "#### results: #{failures}/#{diffed}/#{data.size}"
-      #log "results: #{failures}/#{data.size}"
     end
   end
 
@@ -126,19 +121,4 @@ namespace :jax_phenotypes do
       end
     end
   end
-
-  #desc 'check spaces'
-  #task 'check_spaces' => [:environment] do
-  #  home = Dir.home
-  #
-  #  file_list = get_files
-  #  data = []
-  #  file_list.each { |file| data += read_data file }
-  #
-  #  data.each do |row|
-  #    puts "#### spaces: #{row}" if row['Colony name'] =~ /^\s+.+/ || row['Colony name'] =~ /.+?\s+$/ || row['Colony name'] =~ /\s\s/
-  #    puts "#### spaces: #{row}" if row['MGI accession id'] =~ /^\s+.+/ || row['MGI accession id'] =~ /.+?\s+$/ || row['MGI accession id'] =~ /\s\s/
-  #    puts "#### spaces: #{row}" if row['Allele name'] =~ /^\s+.+/ || row['Allele name'] =~ /.+?\s+$/ || row['Allele name'] =~ /\s\s/
-  #  end
-  #end
 end

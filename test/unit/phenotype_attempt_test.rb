@@ -536,7 +536,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     should 'have #allele_name and #mgi_accession_id' do
       assert_should have_db_column(:allele_name)
-      assert_should have_db_column(:mgi_accession_id)
+      assert_should have_db_column(:jax_mgi_accession_id)
     end
   end
 end

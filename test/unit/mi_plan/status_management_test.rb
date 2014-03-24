@@ -17,7 +17,7 @@ class MiPlan::StatusManagementTest < ActiveSupport::TestCase
       should 'set status to "Assigned - ES Cells QC In Progress" if number_of_es_cells_starting_qc is set to not null and passing_qc is null' do
         assert_equal 'Assigned', default_mi_plan.status.name
 
-        default_mi_plan.number_of_es_cells_starting_qc = 0
+        default_mi_plan.number_of_es_cells_starting_qc = 1
         default_mi_plan.valid?
         assert_equal 'Assigned - ES Cell QC In Progress', default_mi_plan.status.name
       end

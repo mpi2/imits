@@ -70,4 +70,21 @@ namespace :jax_phenotypes do
     data = read_data 'mgi_allele_ikmc.txt.current'
     apply_changes data
   end
+
+  desc 'Get CSV of all changes'
+  task 'get_csv' => [:environment] do
+    home = Dir.home
+
+    file_list = get_files
+    data = []
+    file_list.each { |file| data += read_data file }
+    filename = "#{home}/JAX-#{Time.now.strftime('%Y-%m-%d')}.csv"
+    puts "#### creating file '#{filename}'"
+    CSV.open(filename, "wb") do |csv|
+      csv << data[0].keys
+      data.each do |row|
+        csv << row.values
+      end
+    end
+  end
 end

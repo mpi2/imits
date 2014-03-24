@@ -67,6 +67,18 @@ class Public::MiAttempt < ::MiAttempt
     mutagenesis_factor_attributes
     cassette_transmission_verified
     cassette_transmission_verified_auto_complete
+    crsp_total_embryos_injected
+    crsp_total_embryos_survived
+    crsp_total_transfered
+    crsp_no_founder_pups
+    founder_pcr_num_assays
+    founder_pcr_num_positive_results
+    founder_surveyor_num_assays
+    founder_surveyor_num_positive_results
+    founder_t7en1_num_assays
+    founder_t7en1_num_positive_results
+    crsp_total_num_mutant_founders
+    crsp_num_founders_selected_for_breading
   }
 
   READABLE_ATTRIBUTES = %w{

@@ -37,8 +37,8 @@ class MiAttemptsController < ApplicationController
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])
-    @vector_options = get_vector_options('Nxn')
     get_marker_symbol
+    @vector_options = get_vector_options(@marker_symbol)
     if ! @mi_attempt.valid?
       flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
 
@@ -67,7 +67,7 @@ class MiAttemptsController < ApplicationController
       @mi_attempt.distribution_centres.build
     end
     get_marker_symbol
-    @vector_options = get_vector_options('Nxn')
+    @vector_options = get_vector_options(@marker_symbol)
     respond_with @mi_attempt
   end
 
@@ -82,6 +82,9 @@ class MiAttemptsController < ApplicationController
       @mi_attempt.reload
       flash.now[:notice] = 'MI attempt updated successfully'
     end
+
+    get_marker_symbol
+    @vector_options = get_vector_options(@marker_symbol)
 
     respond_with @mi_attempt do |format|
       format.html do

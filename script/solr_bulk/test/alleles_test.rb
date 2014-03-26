@@ -9,6 +9,7 @@ class AllelesTest
   def initialize
     @count = 0
     @failures = []
+    # 26749 is duplicated because of unique_public_info in app/models/targ_rep/allele.rb ?
     @failed_count = 0
     @batch_size = 500
 
@@ -72,12 +73,22 @@ class AllelesTest
     if ! silent && difference && ! difference.empty?
       puts "#### difference:"
       pp difference
-      #pp old
-      #pp new
-      #  exit
     end
 
     failed
+  end
+
+  def dump_hash hash
+    puts "{"
+    hash.keys.sort.each do |key|
+      if hash[key].to_s.empty?    #|| hash[key].to_a.empty?
+        hash.delete(key)
+        next
+      end
+
+      puts "\t#{key}: #{hash[key]}"
+    end
+    puts "}"
   end
 
   def test_solr_alleles
@@ -90,7 +101,6 @@ class AllelesTest
 
     log 'start building hash...'
 
-    #alleles = ActiveRecord::Base.connection.execute("select * from solr_alleles where id = 235")
     alleles = ActiveRecord::Base.connection.execute("select * from solr_alleles")
 
     splits = %W{order_from_names order_from_urls project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
@@ -111,24 +121,58 @@ class AllelesTest
       hash[allele['id']].push allele.clone
       count += 1
       @ids.push allele['id']
-
-      #if allele['id'] == 235
-      #  puts "#### found!".green
-      #end
     end
+
+    pp @failures
+
+    if ! @failures.empty?
+      id = 0
+      docs = nil
+      count = 0
+
+      TargRep::TargetedAllele.where(:id => @failures).each do |allele|
+        #puts "#### start 1:"
+        #pp allele.attributes
+        #puts "#### end 1:"
+
+        docs = SolrUpdate::DocFactory.create_for_allele(allele)
+
+        next if ! docs || docs.empty?
+
+        count += 1
+
+        #puts "#### stuff start:"
+        #pp docs
+        #puts "#### stuff end"
+
+        id = docs.first['id'].to_i
+        #dump_hash docs.first
+        # break
+
+        #doc.each do |doc|
+        #  dump_hash hash[id].first
+        #  dump_hash hash[id].first
+        #end
+      end
+
+      puts "#### count: #{count}"
+
+      pp docs
+      pp hash[id]
+
+      # pp hash[id]
+      #   dump_hash hash[id].first
+
+      #  puts "#### sizes: #{docs.size}/#{hash[id].size}"
+
+      return
+    end
+
+    # exit
 
     log "end loop (#{count})..."
 
     log 'start main loop...'
-
-    #TargRep::TargetedAllele.find_each(:batch_size => @batch_size) do |allele|
-    #TargRep::TargetedAllele.find(:id => @ids) do |allele|
-    # alleles.each do |allele|
-
-    #  allele_old = TargRep::TargetedAllele.find_by_id allele['id']
-
-    #pp @failures
-    #exit
 
     batch_counter = 0
     TargRep::TargetedAllele.find_in_batches(:batch_size => @batch_size) do |group|
@@ -137,38 +181,16 @@ class AllelesTest
 
       group.each do |allele|
 
-        #    TargRep::TargetedAllele.find_each(:batch_size => @batch_size) do |allele|
-        #TargRep::TargetedAllele.where(:id => @failures).each do |allele|
-        #log 'start create_for_allele...'
         docs = SolrUpdate::DocFactory.create_for_allele(allele)
 
-        #if ! allele_old
-        #  puts "#### #{allele['id']}: cannot find in db!".red
-        #  @failed_count += 1
-        #  next
-        #end
-
-        #docs = SolrUpdate::DocFactory.create_for_allele(allele_old)
-
         if ! docs || docs.empty?
-          #log 'no doc!'
-          #puts "#### #{allele['id']}: cannot find in docs!".red
-          #@failed_count += 1
           next
         end
-
-        #@count += docs.size
 
         docs.each do |doc|
           old = doc
 
           @count += 1
-
-          #if ! hash.has_key? old['id'].to_i
-          #  puts "#### #{old['id']}: cannot find in hash!".red
-          #  @failed_count += 1
-          #  next
-          #end
 
           ok = false
 
@@ -180,17 +202,9 @@ class AllelesTest
           if ! ok
             @failed_count += 1
             puts "#### #{old['id']}: failed!".red
-            #if hash[old['id']].size == 1
-            #  compare old, hash[old['id']].first, false
-            #  pp old
-            #  pp hash[old['id']].first
-            # # exit
-            #end
             @failures.push old['id']
           end
         end
-
-        #break if @count >= 10000
       end
     end
 
@@ -214,12 +228,8 @@ class AllelesTest
       @count_new += 1
     end
 
-    #log 'starting new count...'
-    #@count_new = ActiveRecord::Base.connection.execute("SELECT COUNT(*) as count FROM solr_alleles").fetch_hash['count']
-
     log 'starting old loop...'
 
-    #TargRep::TargetedAllele.find_each(:batch_size => @batch_size) do |allele|
     batch_counter = 0
     TargRep::TargetedAllele.find_in_batches(:batch_size => @batch_size) do |group|
       batch_counter += @batch_size
@@ -247,7 +257,20 @@ class AllelesTest
     end
 
     @hash_old.keys.each do |key|
-      puts "#### #{key}: #{@hash_old[key].to_i}/#{@hash_new[key].to_i}" if @hash_old[key].to_i != @hash_new[key].to_i
+      if @hash_old[key].to_i != @hash_new[key].to_i
+        allele = TargRep::TargetedAllele.find key
+        docs = SolrUpdate::DocFactory.create_for_allele(allele)
+
+        if docs.first == docs.last
+          puts "#### #{key} is duplicated!"
+          @count_old -= 1
+          next
+        else
+          puts "#### #{key} is error!"
+        end
+
+        puts "#### #{key}: #{@hash_old[key].to_i}/#{@hash_new[key].to_i}"
+      end
     end
 
     puts "#### done test_solr_alleles_counts: (#{@count_old}/#{@count_new})".red if @count_old != @count_new
@@ -259,10 +282,6 @@ class AllelesTest
 
     if @enabler['test_solr_alleles_counts']
       test_solr_alleles_counts
-
-      #puts "#### done test_solr_alleles_counts: (#{@failed_count}/#{@count})".red if @failed_count > 0
-      #puts "#### done test_solr_alleles_counts: (#{@count})".green if @failed_count == 0
-      #pp @failures if ! @failures.empty?
     end
 
     if @enabler['test_solr_alleles']

@@ -84,8 +84,6 @@ module SolrBulk
       attempts = ActiveRecord::Base.connection.execute(PHENOTYPE_ATTEMPTS_SQL)
 
       attempts.each do |attempt|
-        #pp attempt
-        #exit
         attempt['order_from_names'] = attempt['order_from_names'].to_s.split(';').uniq
         attempt['order_from_urls'] = attempt['order_from_urls'].to_s.split(';').uniq
 
@@ -104,20 +102,18 @@ module SolrBulk
     def self.run(targets)
       puts "#### loading index: '#{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}'"
 
-      delete targets
+      delete targets  # remove docs from the index based on targets
 
       list = []
 
-      list += phenotype_attempts if targets.empty? || targets.include?('phenotype_attempts') || targets.include?('all')
-      list += mi_attempts if targets.empty? || targets.include?('mi_attempts') || targets.include?('all')
+      list += phenotype_attempts if targets.empty? || targets.include?('phenotype_attempts') || targets.include?('partial') || targets.include?('all')
+      list += mi_attempts if targets.empty? || targets.include?('mi_attempts') || targets.include?('partial') || targets.include?('all')
       list += alleles if targets.empty? || targets.include?('alleles') || targets.include?('all')
       list += genes if targets.empty? || targets.include?('genes') || targets.include?('all')
 
-      new_list2 = list.each_slice(1000).to_a
+      sublist = list.each_slice(1000).to_a
 
-      new_list2.each do |thing|
-        command thing.join
-      end
+      sublist.each { |item| command item.join }
 
       commit
     end
@@ -128,11 +124,13 @@ module SolrBulk
         return
       end
 
-      #target = "type:gene" if targets.include?('genes')
-      #target = "type:mi_attempt" if targets.include?('mi_attempts')
-      #target = "type:phenotype_attempt" if targets.include?('phenotype_attempts')
-      #target = "type:alleles" if targets.include?('alleles')
-      #target = '*:*' if targets.include?('all')
+      if targets.include?('partial')
+        %W{phenotype_attempts mi_attempts}.each do |t|
+          puts "#### deleting #{t}"
+          command({'delete' => {'query' => "type:#{t.singularize}"}}.to_json)
+        end
+        return
+      end
 
       targets.each do |t|
         puts "#### deleting #{t}"

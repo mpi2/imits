@@ -46,7 +46,32 @@ class NetworkGraphTest < ActiveSupport::TestCase
 
       context 'mi_attempts and' do
         should 'have a html label' do
-          mi_attempt = Factory.create :randomly_populated_mi_attempt
+
+          #mi_attempt = nil
+          #
+          #(0..10).each do |i|
+          #  mi_attempt = Factory.build :randomly_populated_mi_attempt
+          #  puts "#### trying #{i}"
+          #  if mi_attempt.valid?
+          #    break
+          #  end
+          #end
+          #
+          #mi_attempt.save!
+
+          mi_attempt = nil
+
+          (0..5).each do |i|
+            begin
+              mi_attempt = Factory.build :randomly_populated_mi_attempt
+              puts "#### trying #{i}"
+              break if mi_attempt.save
+            rescue
+              puts "#### retry!"
+              next
+            end
+          end
+
           id = mi_attempt.id
           status_stamps = mi_attempt.status_stamps    #.order("created_at DESC")
           symbol = "PA1"

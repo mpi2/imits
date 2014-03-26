@@ -12,10 +12,11 @@ class AllelesTest
     # 26749 is duplicated because of unique_public_info in app/models/targ_rep/allele.rb ?
     @failed_count = 0
     @batch_size = 500
+    @duplicates = 0
 
     @enabler = {
-      'test_solr_alleles' => false,
-      'test_solr_alleles_counts' => true
+      #'test_solr_alleles_counts' => true,
+      'test_solr_alleles' => true
     }
   end
 
@@ -42,7 +43,8 @@ class AllelesTest
 
     splits.each do |split|
       old[split] = old[split].to_a.sort.uniq
-      new[split] = new[split].to_a.sort.uniq
+      #new[split] = new[split].to_a.sort.uniq
+      new[split] = new[split].to_a.sort
 
       next if old[split].empty? && new[split].empty?
 
@@ -81,7 +83,7 @@ class AllelesTest
   def dump_hash hash
     puts "{"
     hash.keys.sort.each do |key|
-      if hash[key].to_s.empty?    #|| hash[key].to_a.empty?
+      if hash[key].to_s.empty?
         hash.delete(key)
         next
       end
@@ -123,7 +125,7 @@ class AllelesTest
       @ids.push allele['id']
     end
 
-    pp @failures
+    #pp @failures
 
     if ! @failures.empty?
       id = 0
@@ -131,28 +133,13 @@ class AllelesTest
       count = 0
 
       TargRep::TargetedAllele.where(:id => @failures).each do |allele|
-        #puts "#### start 1:"
-        #pp allele.attributes
-        #puts "#### end 1:"
-
         docs = SolrUpdate::DocFactory.create_for_allele(allele)
 
         next if ! docs || docs.empty?
 
         count += 1
 
-        #puts "#### stuff start:"
-        #pp docs
-        #puts "#### stuff end"
-
         id = docs.first['id'].to_i
-        #dump_hash docs.first
-        # break
-
-        #doc.each do |doc|
-        #  dump_hash hash[id].first
-        #  dump_hash hash[id].first
-        #end
       end
 
       puts "#### count: #{count}"
@@ -160,15 +147,8 @@ class AllelesTest
       pp docs
       pp hash[id]
 
-      # pp hash[id]
-      #   dump_hash hash[id].first
-
-      #  puts "#### sizes: #{docs.size}/#{hash[id].size}"
-
       return
     end
-
-    # exit
 
     log "end loop (#{count})..."
 
@@ -210,7 +190,11 @@ class AllelesTest
 
     log 'end main loop...'
 
-    puts "#### count error: (#{@count}/#{count})".red if count != @count
+    puts "#### count error: (#{@count}/#{count}) - duplicates: #{@duplicates}".red if count != @count
+    puts "#### done test_solr_alleles: (#{@failed_count}/#{@count})".red if @failed_count > 0
+    puts "#### done test_solr_alleles: (#{@count})".green if @failed_count == 0
+
+    pp @failures if ! @failures.empty?
   end
 
   def test_solr_alleles_counts
@@ -263,6 +247,7 @@ class AllelesTest
 
         if docs.first == docs.last
           puts "#### #{key} is duplicated!"
+          @duplicates += 1
           @count_old -= 1
           next
         else
@@ -277,20 +262,29 @@ class AllelesTest
     puts "#### done test_solr_alleles_counts: (#{@count_new})".green if @count_old == @count_new
   end
 
+  #def run
+  #  puts "#### starting alleles...".blue
+  #
+  #  if @enabler['test_solr_alleles_counts']
+  #    test_solr_alleles_counts
+  #  end
+  #
+  #  if @enabler['test_solr_alleles']
+  #    test_solr_alleles
+  #
+  #    puts "#### done test_solr_alleles: (#{@failed_count}/#{@count})".red if @failed_count > 0
+  #    puts "#### done test_solr_alleles: (#{@count})".green if @failed_count == 0
+  #
+  #    pp @failures if ! @failures.empty?
+  #  end
+  #end
+
   def run
     puts "#### starting alleles...".blue
 
-    if @enabler['test_solr_alleles_counts']
-      test_solr_alleles_counts
-    end
-
-    if @enabler['test_solr_alleles']
-      test_solr_alleles
-
-      puts "#### done test_solr_alleles: (#{@failed_count}/#{@count})".red if @failed_count > 0
-      puts "#### done test_solr_alleles: (#{@count})".green if @failed_count == 0
-
-      pp @failures if ! @failures.empty?
+    @enabler.keys.each do |routine|
+      next if ! @enabler[routine]
+      self.send(routine)
     end
   end
 end

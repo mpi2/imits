@@ -1,37 +1,37 @@
---- 
-contacts: 
-  APN: 
+---
+contacts:
+  APN:
   BCM: isabell@bcm.edu
   CIPHE: amandine.sansoni@inserm.fr
   CNB: montoliu@cnb.csic.es
-  CNRS: 
+  CNRS:
   EMBL-Rome: pedro.moreira@embl.it
-  Fleming: 
+  Fleming:
   Harwell: impc@har.mrc.ac.uk
   HMGU: s.marschall@helmholtz-muenchen.de
   ICS: birlingm@igbmc.fr
-  IMG: 
-  INFRAFRONTIER-CNB: 
-  INFRAFRONTIER-Fleming: 
-  INFRAFRONTIER-IMG: 
-  INFRAFRONTIER-Oulu: 
-  INFRAFRONTIER-VETMEDVie: 
+  IMG:
+  INFRAFRONTIER-CNB:
+  INFRAFRONTIER-Fleming:
+  INFRAFRONTIER-IMG:
+  INFRAFRONTIER-Oulu:
+  INFRAFRONTIER-VETMEDVie:
   JAX: Steve.Murray@jax.org
   KMPC: snumouse@snu.ac.kr
   KRIBB: hckim@kribb.re.kr
   MARC: services@nbri-nju.com
   Monterotondo: mouse.resources@emma.cnr.it
-  Monterotondo R&D: 
-  Oulu: 
+  Monterotondo R&D:
+  Oulu:
   RIKEN BRC: yoshiki@brc.riken.jp
   SEAT: cailleau@vjf.cnrs.fr
   TCP: lauryl.nutter@phenogenomics.ca
-  UCD: rsaraiza@ucdavis.edu|daclary@ucdavis.edu 
-  UCL: 
-  UniMiss: 
-  UNorCar: 
-  VETMEDUNI: 
-  WTSI: vvi@sanger.ac.uk|re4@sanger.ac.uk
+  UCD: rsaraiza@ucdavis.edu|daclary@ucdavis.edu
+  UCL:
+  UniMiss:
+  UNorCar:
+  VETMEDUNI:
+  WTSI: mouseinterest@sanger.ac.uk
 
 bcc:
   - re4@sanger.ac.uk

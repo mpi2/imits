@@ -5,11 +5,11 @@ SET client_min_messages=WARNING;
 --
 -- PARAMETERS: targ_rep_es_cells.id
 --
--- CORRESPONDING RUBY:
+-- CORRESPONDING RUBY: https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L197
 --
--- TEST:
+-- TEST: test_solr_alleles in script/solr_bulk/test/alleles_test.rb
 --
--- DESCRIPTION:
+-- DESCRIPTION: Provides the order_from_urls for the allele docs.
 
 CREATE OR REPLACE FUNCTION solr_get_allele_order_from_urls (int)
 RETURNS text AS $$
@@ -32,7 +32,6 @@ BEGIN
     LOOP
 
         if tmp.name = 'EUCOMM' or tmp.name = 'EUCOMMTools' or tmp.name = 'EUCOMMToolsCre' then
-          --result := result || 'http://www.eummcr.org/order.php' || ';';
           result := result || 'http://www.eummcr.org/order?add=' || mgi_accession_id || '&material=es_cells' || ';';
         elsif tmp.name = 'KOMP-CSD' or tmp.name = 'KOMP-Regeneron' then
             if char_length(tmp.ikmc_project_id) > 0 then
@@ -56,15 +55,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- FUNCTION NAME:
+-- FUNCTION NAME: solr_get_allele_order_from_names
 --
--- PARAMETERS:
+-- PARAMETERS: targ_rep_es_cells.id
 --
--- CORRESPONDING RUBY:
+-- CORRESPONDING RUBY: https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L197
 --
--- TEST:
+-- TEST: test_solr_alleles in script/solr_bulk/test/alleles_test.rb
 --
--- DESCRIPTION:
+-- DESCRIPTION: Provides the order_from_names for the allele docs.
 
 CREATE OR REPLACE FUNCTION solr_get_allele_order_from_names (int)
 RETURNS text AS $$
@@ -92,11 +91,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- VIEW NAME:
+-- TABLE NAME: solr_alleles
 --
--- TEST:
+-- CORRESPONDING RUBY: https://github.com/mpi2/imits/blob/master/app/models/solr_update/doc_factory.rb#L197
 --
--- DESCRIPTION:
+-- TEST: test_solr_alleles in script/solr_bulk/test/alleles_test.rb
+--
+-- DESCRIPTION: Provides the data for the allele docs.
 
 CREATE
 TABLE
@@ -117,14 +118,20 @@ solr_alleles as
   targ_rep_alleles.id as allele_id,
   relevant_es_cells.order_from_names as order_from_names,
   relevant_es_cells.order_from_urls as order_from_urls,
+
+  (select value || '/alleles/' || targ_rep_alleles.id || '/allele-image?simple=true' from solr_options where key = 'targ_rep_url' and mode = :'env') as simple_allele_image_url,
+  (select value || '/alleles/' || targ_rep_alleles.id || '/allele-image' from solr_options where key = 'targ_rep_url' and mode = :'env') as allele_image_url,
+  (select value || '/alleles/' || targ_rep_alleles.id || '/escell-clone-genbank-file' from solr_options where key = 'targ_rep_url' and mode = :'env') as genbank_file_url,
+
+  --'http://localhost:3000/targ_rep/alleles/'|| targ_rep_alleles.id ||'/allele-image?simple=true' as simple_allele_image_url,
+  --'http://localhost:3000/targ_rep/alleles/'||targ_rep_alleles.id ||'/allele-image' as allele_image_url,
+  --'http://localhost:3000/targ_rep/alleles/'||targ_rep_alleles.id ||'/escell-clone-genbank-file' as genbank_file_url,
+
   (select mgi_accession_id from genes where targ_rep_alleles.gene_id = genes.id) as mgi_accession_id,
-  'http://localhost:3000/targ_rep/alleles/'|| targ_rep_alleles.id ||'/allele-image?simple=true' as simple_allele_image_url,
   (select marker_symbol from genes where targ_rep_alleles.gene_id = genes.id) as marker_symbol,
-  'http://localhost:3000/targ_rep/alleles/'||targ_rep_alleles.id ||'/allele-image' as allele_image_url,
-  'http://localhost:3000/targ_rep/alleles/'||targ_rep_alleles.id ||'/escell-clone-genbank-file' as genbank_file_url,
   (select targ_rep_mutation_types.name from targ_rep_mutation_types where targ_rep_alleles.mutation_type_id = id) as allele_type,
   relevant_es_cells.strain as strain,
-  (select marker_symbol from genes where targ_rep_alleles.gene_id = genes.id)||'<sup>'||relevant_es_cells.mgi_allele_symbol_superscript||'</sup>' as allele_name,
+  (select marker_symbol from genes where targ_rep_alleles.gene_id = genes.id)||'<sup>'||COALESCE(relevant_es_cells.mgi_allele_symbol_superscript,'')||'</sup>' as allele_name,
   relevant_es_cells.ikmc_project_id as project_ids
   from targ_rep_alleles, relevant_es_cells
   where type = 'TargRep::TargetedAllele'

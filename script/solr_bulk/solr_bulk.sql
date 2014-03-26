@@ -16,7 +16,7 @@ BEGIN;
 
 \i alleles.sql
 
---\i genes.sql
+\i genes.sql
 
 --\i drop_support.sql
 

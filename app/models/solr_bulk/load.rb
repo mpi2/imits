@@ -86,6 +86,7 @@ module SolrBulk
       attempts.each do |attempt|
         attempt['order_from_names'] = attempt['order_from_names'].to_s.split(';').uniq
         attempt['order_from_urls'] = attempt['order_from_urls'].to_s.split(';').uniq
+        attempt['project_ids'] = attempt['project_ids'].to_s.split(';').uniq
 
         item = {'add' => {'doc' => attempt }}
         list.push item.to_json

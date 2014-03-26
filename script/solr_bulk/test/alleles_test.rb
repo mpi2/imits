@@ -15,7 +15,7 @@ class AllelesTest
     @duplicates = 0
 
     @enabler = {
-      #'test_solr_alleles_counts' => true,
+      'test_solr_alleles_counts' => true,
       'test_solr_alleles' => true
     }
   end
@@ -289,4 +289,4 @@ class AllelesTest
   end
 end
 
-AllelesTest.new.run if File.basename($0) !~ /rake/
+#AllelesTest.new.run if File.basename($0) !~ /rake/

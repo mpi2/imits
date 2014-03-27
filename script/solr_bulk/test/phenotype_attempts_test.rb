@@ -70,7 +70,7 @@ class PhenotypeAttemptsTest
           @frame[target][:statuses][:best_status_pa_cre_ex_not_required][doc['best_status_pa_cre_ex_not_required']] += 1
           #puts "#### best_status_pa_cre_ex_not_required:"
           #pp doc
-         # dump_pa doc['id']
+          # dump_pa doc['id']
         end
 
         if ! doc['best_status_pa_cre_ex_required'].empty?
@@ -97,7 +97,7 @@ class PhenotypeAttemptsTest
 
       # pp @frame
 
-#     :best_status_pa_cre_ex_not_required=>{"Cre Excision Complete"=>1},
+      #     :best_status_pa_cre_ex_not_required=>{"Cre Excision Complete"=>1},
 
       message = ''
 
@@ -425,6 +425,64 @@ class PhenotypeAttemptsTest
     end
   end
 
+  def compare_arrays old, new
+    failed = false
+    splits = %W{order_from_names order_from_urls project_ids}
+
+    splits.each do |split|
+      i = 0
+      old[split].each do |item|
+        if item.to_s != new[split][i].to_s
+          puts "#### #{old['id']}: compare_arrays error: (#{item}/#{new[split][i]})".red
+          failed = true
+        end
+        i += 1
+      end
+    end
+
+    failed
+  end
+
+  def normalize_array target
+    #failed = false
+    #splits = %W{order_from_names order_from_urls project_ids}
+
+    #old_ext = []
+    #i = 0
+    #old['project_ids'].each do |item|
+    #  old_ext.push({ 'index' => i, 'value' => item })
+    #  i += 1
+    #end
+
+    #if target['project_ids'].size != target['order_from_urls'].size || target['project_ids'].size != target['order_from_names'].size
+    #  puts "#### #{target['id']}: normalize_array error: (#{target['project_ids'].size}/#{target['order_from_names'].size}/#{target['order_from_urls'].size})".red
+    #end
+
+    if target['order_from_urls'].size != target['order_from_names'].size
+      puts "#### #{target['id']}: normalize_array error: (#{target['order_from_names'].size}/#{target['order_from_urls'].size})".red
+    end
+
+    order_from_names = []
+    order_from_urls = []
+    i = 0
+    target['order_from_names'].to_a.each do |order_from_name|
+      order_from_names.push({ 'index' => i, 'value' => order_from_name })
+      i += 1
+    end
+
+    order_from_names_arr = []
+    order_from_names.sort.each do |item|
+      order_from_names_arr.push(item['value'])
+      order_from_urls.push(target['order_from_urls'][item['index']])
+    end
+
+    target['project_ids'] = target['project_ids'].sort
+    target['order_from_names'] = order_from_names_arr
+    target['order_from_urls'] = order_from_urls
+
+    target
+  end
+
   def test_solr_phenotype_attempts
     @count = 0
     @failed_count = 0
@@ -446,7 +504,7 @@ class PhenotypeAttemptsTest
       if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0 and pa.report_to_public
         failed = false
 
-        if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0 and pa.report_to_public
+      #  if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0 and pa.report_to_public
           docs = SolrUpdate::DocFactory.create_for_phenotype_attempt(pa)
           doc = docs.first
           next if ! doc
@@ -484,6 +542,14 @@ class PhenotypeAttemptsTest
             end
           end
 
+          old = normalize_array old
+          new = normalize_array new
+          failed = failed || compare_arrays(old, new)
+
+          #pp old
+          #pp new
+          #exit
+
           old.keys.each do |key|
             next if splits.include?(key)
             if old[key].to_s != new[key].to_s
@@ -495,7 +561,7 @@ class PhenotypeAttemptsTest
           @count += 1
           @failed_count += 1 if failed
         end
-      end
+    #  end
     end
 
     puts "#### count error: (#{count}/#{@count})".red if count != @count

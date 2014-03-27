@@ -113,6 +113,196 @@ module SolrBulk
         end
       end
     end
+
+    SIMPLE = %W{
+      id
+      type
+      product_type
+      mgi_accession_id
+      allele_type
+      strain
+      allele_name
+      allele_image_url
+      genbank_file_url
+      order_from_url
+      order_from_name
+      allele_id
+      status
+      effective_date
+      consortium
+      production_centre
+      best_status_pa_cre_ex_not_required
+      best_status_pa_cre_ex_required
+      current_pa_status
+      simple_allele_image_url
+      colony_name
+      es_cell_name
+      parent_mi_attempt_colony_name
+      marker_symbol
+      marker_type
+    }
+
+    MULTIVALUE = %W{
+      project_ids
+      project_statuses
+      vector_project_ids
+      vector_project_statuses
+      project_pipelines
+      order_from_urls
+      order_from_names
+    }
+
+    #def normalize_array_generic targets, target
+    #
+    #  size = target[target.first].size
+    #
+    #  targets.each do |compare|
+    #    puts "#### #{target['id']}: normalize_array error: (#{size}/#{target[compare].size})".red if size != target[compare].size
+    #  end
+    #
+    #  order_from_names = []
+    #  order_from_urls = []
+    #  i = 0
+    #  target['order_from_names'].to_a.each do |order_from_name|
+    #    order_from_names.push({ 'index' => i, 'value' => order_from_name })
+    #    i += 1
+    #  end
+    #
+    #  order_from_names_arr = []
+    #  order_from_names.sort.each do |item|
+    #    order_from_names_arr.push(item['value'])
+    #    order_from_urls.push(target['order_from_urls'][item['index']])
+    #  end
+    #
+    #  target['project_ids'] = target['project_ids'].sort
+    #  target['order_from_names'] = order_from_names_arr
+    #  target['order_from_urls'] = order_from_urls
+    #
+    #  target
+    #end
+
+    def self.normalize_array_phenotype_attempt target
+      if target['order_from_urls'].size != target['order_from_names'].size
+        puts "#### #{target['id']}: normalize_array error: (#{target['order_from_names'].size}/#{target['order_from_urls'].size})".red
+      end
+
+      order_from_names = []
+      order_from_urls = []
+      i = 0
+      target['order_from_names'].to_a.each do |order_from_name|
+        order_from_names.push({ 'index' => i, 'value' => order_from_name })
+        i += 1
+      end
+
+      order_from_names_arr = []
+      order_from_names.sort.each do |item|
+        order_from_names_arr.push(item['value'])
+        order_from_urls.push(target['order_from_urls'][item['index']])
+      end
+
+      target['order_from_names'] = order_from_names_arr
+      target['order_from_urls'] = order_from_urls
+
+      target
+    end
+
+    def self.normalize_hash hash
+      hash.keys.each do |key|
+        line.delete(key) if ! hash[key]
+      end
+
+      if hash['type'] == 'phenotype_attempt'
+        hash = normalize_array_phenotype_attempt hash
+      end
+
+      new_hash = ActiveSupport::OrderedHash.new
+
+      hash.keys.sort.each do |key|
+        new_hash[key] = hash[key]
+      end
+
+      new_hash
+    end
+
+    def self.get_and_compare(target, id)
+      if target == 'phenotype_attempt'
+        pa = PhenotypeAttempt.find_by_id id
+        if ! pa
+          puts "#### cannot find phenotype with id #{id}"
+          return
+        end
+
+        old = nil
+        new = nil
+
+        if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0 and pa.report_to_public
+          docs = SolrUpdate::DocFactory.create_for_phenotype_attempt(pa)
+          doc = docs.first
+          old = doc
+          #  pp doc
+        else
+          puts "#### phenotype with id #{id} would not be procesed by the doc_factory"
+          return
+        end
+
+        attempts = ActiveRecord::Base.connection.execute("select * from solr_phenotype_attempts where id = #{id}")
+
+        test_count = 0
+        attempts.each do |attempt|
+          attempt['order_from_names'] = attempt['order_from_names'].to_s.split(';')
+          attempt['order_from_urls'] = attempt['order_from_urls'].to_s.split(';')
+          attempt['project_ids'] = attempt['project_ids'].to_s.split(';')
+          new = attempt.clone
+          test_count += 1
+        end
+
+        failed = false
+
+        if test_count != 1
+          puts "#### incorrect row rount: #{test_count}".red
+          failed = true
+        end
+
+        old = normalize_hash old
+        new = normalize_hash new
+
+        old['project_ids'] = old['project_ids'].sort
+        new['project_ids'] = new['project_ids'].sort
+
+        pp old
+        pp new
+
+        SIMPLE.each do |key|
+          if old[key].to_s != new[key].to_s
+            puts "#### #{old['id']} '#{key}': (#{old[key]}/#{new[key]})".red
+            failed = true
+          end
+        end
+
+        MULTIVALUE.each do |key|
+          next if ! old[key] && ! new[key]
+          #puts "#### #{key}"
+          #pp old[key]
+          #pp new[key]
+
+          i = 0
+          old[key].each do |item|
+            if item.to_s != new[key][i].to_s
+              puts "#### #{old['id']}: compare_arrays error: (#{item}/#{new[split][i]})".red
+              failed = true
+            end
+            i += 1
+          end
+        end
+
+        if failed
+          puts "#### #{old['id']} failed".red
+        else
+          puts "#### #{old['id']} OK!".green
+        end
+
+      end
+    end
   end
 
 end

@@ -103,4 +103,16 @@ namespace :solr_bulk do
 
     SolrBulk::Util.download_and_normalize args[:filename], SOLR_UPDATE[Rails.env]['index_proxy']['allele']
   end
+
+  desc 'get and compare doc_factory & bulk generated item'
+  task 'get_and_compare', [:target, :id] => :environment do |t, args|
+    args.with_defaults(:target => 'phenotype_attempt')
+
+    if args[:target] == 'phenotype_attempt'
+      SolrBulk::Util.get_and_compare(args[:target], args[:id])
+    else
+      puts "#### '#{args[:target]}' not yet implemented!"
+    end
+  end
+
 end

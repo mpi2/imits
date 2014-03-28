@@ -89,6 +89,16 @@
       <% end %>
     </p>
   </fieldset>
+
+  <fieldset id="allele_issues">
+    <legend>Allele Issues</legend>
+    <p><strong>Has issue(s)? : </strong> <% if @allele.has_issue %>
+      <font color="red"><b>Yes</b></font>
+    <% else %>
+      No
+    <% end %>
+    </p>
+  </fieldset>
 </div>
 
 <% unless gene_trap? %>

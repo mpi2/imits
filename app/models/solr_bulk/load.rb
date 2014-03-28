@@ -15,13 +15,18 @@ module SolrBulk
     def self.alleles
       list = []
       counter = 0
+      splits = %W{order_from_names order_from_urls project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
 
       alleles = ActiveRecord::Base.connection.execute(ALLELE_SQL)
 
       alleles.each do |allele|
 
-        allele['order_from_names'] = allele['order_from_names'].try(:split, ';').try(:uniq)
-        allele['order_from_urls'] = allele['order_from_urls'].try(:split, ';').try(:uniq)
+        splits.each do |split|
+          allele[split] = allele[split].try(:split, ';').try(:uniq)
+        end
+
+        #allele['order_from_names'] = allele['order_from_names'].try(:split, ';').try(:uniq)
+        #allele['order_from_urls'] = allele['order_from_urls'].try(:split, ';').try(:uniq)
 
         item = {'add' => {'doc' => allele }}
         list.push item.to_json
@@ -40,8 +45,8 @@ module SolrBulk
       items = ActiveRecord::Base.connection.execute(GENES_SQL)
 
       items.each do |item|
-        targets = %W{project_ids project_statuses project_pipelines vector_project_statuses vector_project_ids}
-        targets.each do |target|
+        splits = %W{project_ids project_statuses project_pipelines vector_project_statuses vector_project_ids}
+        splits.each do |target|
           item[target] = '' if ! item[target]
           item[target] = item[target].split(';').uniq if item[target]
         end

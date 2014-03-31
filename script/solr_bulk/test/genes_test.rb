@@ -4,9 +4,9 @@ require 'pp'
 require 'color'
 
 class GenesTest
-  LIMIT = 1000
+  LIMIT = -1
   STARTER = -1
-  BATCH_SIZE = 1000
+  BATCH_SIZE = 500
   IGNORE = []
 
   def initialize
@@ -111,97 +111,109 @@ class GenesTest
       count += 1
     end
 
+    batch_counter = 0
+
+    puts "#### limit: #{LIMIT}" if LIMIT > 0
+
     #Gene.where(:id => @gene_targets).each do |gene|
-    Gene.find_each(:batch_size => BATCH_SIZE) do |gene|
-      failed = false
-      docs = SolrUpdate::DocFactory.create_for_gene(gene)
-      doc = docs.first
+    Gene.find_in_batches(:batch_size => BATCH_SIZE) do |group|
+      #Gene.find_each(:batch_size => BATCH_SIZE) do |gene|
 
-      if ! hash.has_key?(doc['id'])
-        puts "#### missing key: (#{doc['id']})".red
-        @failed_count += 1
-        next
-      end
+      batch_counter += BATCH_SIZE
+      puts "####  batch: #{batch_counter}"
 
-      diffkeys = doc.keys - hash[doc['id']].keys
-      diffkeys = hash[doc['id']].keys - doc.keys if diffkeys.empty?
+      group.each do |gene|
 
-      old = doc
-      new = hash[doc['id']]
+        failed = false
+        docs = SolrUpdate::DocFactory.create_for_gene(gene)
+        doc = docs.first
 
-      diffkeys.each do |key|
-        old.delete key
-        new.delete key
-      end
-
-      if old.keys.size != new.keys.size
-        puts "#### key count error: (#{old.keys.size}/#{new.keys.size})".red
-        pp diffkeys
-        failed = true
-      end
-
-      splits = %W{project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
-
-      splits.each do |split|
-        old[split] = old[split].sort.uniq # TODO: lose uniq
-        new[split] = new[split].sort.uniq
-
-        if old[split].size != new[split].size
-          puts "#### #{old['id']}: '#{split}': key count error 2: (#{old[split]}/#{new[split]})".red
-          failed = true
-          break
+        if ! hash.has_key?(doc['id'])
+          puts "#### missing key: (#{doc['id']})".red
+          @failed_count += 1
+          next
         end
 
-        i = 0
-        old[split].each do |item|
-          if item != new[split][i]
-            puts "#### #{old['id']}: split error 3: (#{item}/#{new[split][i]})".red
+        diffkeys = doc.keys - hash[doc['id']].keys
+        diffkeys = hash[doc['id']].keys - doc.keys if diffkeys.empty?
+
+        old = doc
+        new = hash[doc['id']]
+
+        diffkeys.each do |key|
+          old.delete key
+          new.delete key
+        end
+
+        if old.keys.size != new.keys.size
+          puts "#### key count error: (#{old.keys.size}/#{new.keys.size})".red
+          pp diffkeys
+          failed = true
+        end
+
+        splits = %W{project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
+
+        splits.each do |split|
+          old[split] = old[split].sort.uniq # TODO: lose uniq
+          new[split] = new[split].sort.uniq
+
+          if old[split].size != new[split].size
+            puts "#### #{old['id']}: '#{split}': key count error 2: (#{old[split]}/#{new[split]})".red
+            failed = true
+            break
+          end
+
+          i = 0
+          old[split].each do |item|
+            if item != new[split][i]
+              puts "#### #{old['id']}: split error 3: (#{item}/#{new[split][i]})".red
+              failed = true
+            end
+            i += 1
+          end
+        end
+
+        some = ints + simples
+        some.each do |item|
+          if old[item] != new[item]
+            puts "#### #{old['id']}: '#{item}': (#{old[item]}/#{new[item]})".red
             failed = true
           end
-          i += 1
         end
-      end
 
-      some = ints + simples
-      some.each do |item|
-        if old[item] != new[item]
-          puts "#### #{old['id']}: '#{item}': (#{old[item]}/#{new[item]})".red
-          failed = true
+        old['effective_date'] = Time.parse(old['effective_date'].to_s).strftime("%Y-%m-%d %H:%M:%S") if old['effective_date'].to_s.length > 0
+        old['status'] = old['status'].to_s.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
+
+        complex = %W{production_centre consortium status}
+
+        complex.each do |item|
+          if old[item].to_s != new[item].to_s
+            puts "#### #{old['id']}: '#{item}': (#{old[item]}/#{new[item]})".red
+            failed = true
+          end
         end
-      end
 
-      old['effective_date'] = Time.parse(old['effective_date'].to_s).strftime("%Y-%m-%d %H:%M:%S") if old['effective_date'].to_s.length > 0
-      old['status'] = old['status'].to_s.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
-
-      complex = %W{production_centre consortium status}
-
-      complex.each do |item|
-        if old[item].to_s != new[item].to_s
-          puts "#### #{old['id']}: '#{item}': (#{old[item]}/#{new[item]})".red
-          failed = true
-        end
-      end
-
-      if ! IGNORE.include?('effective_date')
-        if old['effective_date'].to_s.length > 0 || new['effective_date'].to_s.length > 0
-          if old['effective_date'] != new['effective_date']
-            error = "#{old['id']}: 'effective_date': (#{old['effective_date']}/#{new['effective_date']})"
-            datediff = (Time.parse(old['effective_date'].to_s) - Time.parse(new['effective_date'].to_s)).to_i.abs
-            if datediff > 1000
-              @maxdatediff = datediff if @maxdatediff < datediff
-              lessthan = Time.parse(new['effective_date'].to_s) < Time.parse(old['effective_date'].to_s)
-              puts "#### #{error} - diff: #{datediff} - less: #{lessthan}".red
-              failed = true
+        if ! IGNORE.include?('effective_date')
+          if old['effective_date'].to_s.length > 0 || new['effective_date'].to_s.length > 0
+            if old['effective_date'] != new['effective_date']
+              error = "#{old['id']}: 'effective_date': (#{old['effective_date']}/#{new['effective_date']})"
+              datediff = (Time.parse(old['effective_date'].to_s) - Time.parse(new['effective_date'].to_s)).to_i.abs
+              if datediff > 1000
+                @maxdatediff = datediff if @maxdatediff < datediff
+                lessthan = Time.parse(new['effective_date'].to_s) < Time.parse(old['effective_date'].to_s)
+                puts "#### #{error} - diff: #{datediff} - less: #{lessthan}".red
+                failed = true
+              end
             end
           end
         end
+
+        @failed_genes.push old['id'] if failed
+
+        @failed_count += 1 if failed
+        @count += 1
+        break if LIMIT > -1 && @count >= LIMIT
       end
-
-      @failed_genes.push old['id'] if failed
-
-      @failed_count += 1 if failed
-      @count += 1
-      break if LIMIT > -1 && @count >= LIMIT
     end
 
     puts "#### count error: (#{count}/#{@count})".red if count != @count

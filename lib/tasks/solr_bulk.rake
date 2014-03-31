@@ -5,10 +5,9 @@ require "#{Rails.root}/script/solr_bulk/test/genes_test.rb"
 
 namespace :solr_bulk do
 
-  #SOLR_BULK = YAML.load_file("#{Rails.root}/config/solr_bulk.yml")
   DATABASE = YAML.load_file("#{Rails.root}/config/database.yml")
   SOLR_UPDATE = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-  LEGAL_TARGETS = %W{genes phenotype_attempts mi_attempts alleles all}
+  LEGAL_TARGETS = %W{genes phenotype_attempts mi_attempts alleles all partial}
 
   desc 'Return details of the db solr state'
   task 'stats' => [:environment] do
@@ -37,8 +36,8 @@ namespace :solr_bulk do
 
     PhenotypeAttemptsTest.new.run if %W{all phenotype_attempts}.include? args[:target]
     MiAttemptsTest.new.run if %W{all mi_attempts}.include? args[:target]
+    AllelesTest.new.run if %W{all alleles}.include? args[:target]
     #GenesTest.new.run if %W{all genes}.include? args[:target]
-    ##AllelesTest.new.run if %W{all alleles}.include? args[:target]
   end
 
   desc 'generic_load'
@@ -72,7 +71,7 @@ namespace :solr_bulk do
 
     command = "cd #{Rails.root}/script/solr_bulk; PGPASSWORD=\"#{password}\" psql --set 'env=#{Rails.env}' -U #{user} -d #{database} -h #{host} -p #{port} < solr_bulk.sql"
 
-    puts command
+    puts command if Rails.env.development?
 
     output = `#{command}`
     puts output if output

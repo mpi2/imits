@@ -129,6 +129,14 @@
       </p>
     <% end %>
   </fieldset>
+
+  <fieldset>
+    <legend>Allele Issues</legend>
+    <p>
+      <%= f.label :has_issue, "Allele has issue(s)" %><br />
+      <%= f.select :has_issue, [ 'true', 'false' ] %>
+    </p>
+  </fieldset>
 </div>
 
 <div class="grid_12 clear"></div>

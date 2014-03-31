@@ -30,6 +30,7 @@ gem 'bio', '1.4.3'
 gem "sequel"
 gem "mysql2"
 
+gem 'turnout'
 
 group :development, :test do
   gem 'launchy', '2.0.5'

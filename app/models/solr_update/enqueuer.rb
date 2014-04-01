@@ -1,5 +1,6 @@
 class SolrUpdate::Enqueuer
   def mi_attempt_updated(mi)
+    return if ! Rails.configuration.enable_solr_update_mi_attempt
     return if mi.gene.mgi_accession_id.nil?
 
     reference = {'type' => 'mi_attempt', 'id' => mi.id}
@@ -20,13 +21,14 @@ class SolrUpdate::Enqueuer
   end
 
   def mi_attempt_destroyed(mi)
+    return if ! Rails.configuration.enable_solr_update_mi_attempt
     SolrUpdate::Queue.enqueue_for_delete({'type' => 'mi_attempt', 'id' => mi.id})
 
     mi_plan_updated(mi.mi_plan)
   end
 
   def phenotype_attempt_updated(pa)
-    return if ! Rails.configuration.enable_solr_phenotype_attempt
+    return if ! Rails.configuration.enable_solr_update_phenotype_attempt
 
     reference = {'type' => 'phenotype_attempt', 'id' => pa.id}
     reference2 = {'type' => 'mi_attempt', 'id' => pa.mi_attempt.id}
@@ -42,7 +44,7 @@ class SolrUpdate::Enqueuer
   end
 
   def phenotype_attempt_destroyed(pa)
-    return if ! Rails.configuration.enable_solr_phenotype_attempt
+    return if ! Rails.configuration.enable_solr_update_phenotype_attempt
 
     SolrUpdate::Queue.enqueue_for_update({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
     SolrUpdate::Queue.enqueue_for_delete({'type' => 'phenotype_attempt', 'id' => pa.id})

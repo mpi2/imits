@@ -21,7 +21,12 @@ class TargRep::GeneTrapTest < ActiveSupport::TestCase
         attributes_after_save = allele.attributes
         allele_after_select = TargRep::TargetedAllele.find( allele.id )
         attributes_after_reselect = allele_after_select.attributes
-        assert_equal attributes_after_reselect, attributes_after_save
+
+        assert_equal attributes_after_reselect.keys.size, attributes_after_save.keys.size
+
+        attributes_after_reselect.keys.each do |key|
+          assert_equal attributes_after_reselect[key], attributes_after_save[key]
+        end
       end
     end
   end

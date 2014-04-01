@@ -44,4 +44,5 @@ end
 #  updated_at          :datetime         not null
 #  intron              :integer
 #  type                :string(255)      default("TargRep::TargetedAllele")
+#  has_issue           :boolean          default(FALSE), not null
 #

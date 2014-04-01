@@ -126,6 +126,11 @@ class TargRep::Allele < ActiveRecord::Base
     :in         => ('1'..'19').to_a + ['X', 'Y', 'MT'],
     :message    => "is not a valid mouse chromosome"
 
+  validates_inclusion_of :has_issue, 
+    :in         => [ nil, true, false ],
+    :message    => "should be either nil, true or false",
+    :allow_nil  => true
+
   validates_associated :mutation_method,
     :message    => "should be a valid mutation method"
 
@@ -387,4 +392,5 @@ end
 #  updated_at          :datetime         not null
 #  intron              :integer
 #  type                :string(255)      default("TargRep::TargetedAllele")
+#  has_issue           :boolean          default(FALSE), not null
 #

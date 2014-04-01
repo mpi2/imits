@@ -22,7 +22,7 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
 
   context 'SolrUpdate::Observer::PhenotypeAttempt' do
     should 'tell the enqueuer that a PhenotypeAttempt is changed' do
-      return if ! Rails.configuration.enable_solr_phenotype_attempt
+      return if ! Rails.configuration.enable_solr_update_phenotype_attempt
 
       pa = stub('phenotype_attempt')
       SolrUpdate::Enqueuer.any_instance.expects(:phenotype_attempt_updated).with(pa)
@@ -32,7 +32,7 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
     end
 
     should 'tell the enqueuer that a PhenotypeAttempt is deleted' do
-      return if ! Rails.configuration.enable_solr_phenotype_attempt
+      return if ! Rails.configuration.enable_solr_update_phenotype_attempt
 
       pa = stub('phenotype_attempt')
       SolrUpdate::Enqueuer.any_instance.expects(:phenotype_attempt_destroyed).with(pa)

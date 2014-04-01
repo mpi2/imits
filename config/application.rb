@@ -27,11 +27,11 @@ module TarMits
     # Activate observers that should always be running.
     # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
 
-    config.enable_solr_phenotype_attempt = false
+    config.enable_solr_update_phenotype_attempt = false
+    config.enable_solr_update_mi_attempt = false
 
     config.active_record.observers = [
       'SolrUpdate::Observer::AnyWithMiAttempts',
-      'SolrUpdate::Observer::MiAttempt',
       'SolrUpdate::Observer::DistributionCentres',
       'SolrUpdate::Observer::Allele',
       'SolrUpdate::Observer::EsCell',
@@ -40,7 +40,8 @@ module TarMits
       'SolrUpdate::Observer::IkmcProject'
     ]
 
-    config.active_record.observers += ['SolrUpdate::Observer::PhenotypeAttempt'] if config.enable_solr_phenotype_attempt
+    config.active_record.observers += ['SolrUpdate::Observer::PhenotypeAttempt'] if config.enable_solr_update_phenotype_attempt
+    config.active_record.observers += ['SolrUpdate::Observer::MiAttempt'] if config.enable_solr_update_mi_attempt
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.

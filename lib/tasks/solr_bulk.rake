@@ -125,4 +125,12 @@ namespace :solr_bulk do
       puts "#### #{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}"
   end
 
+  desc 'grab docs from solr'
+  task 'grab_solr', [:target, :id] => :environment do |t, args|
+    proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['allele'])
+    json = { :q => "type:#{args[:target]} id:#{args[:id]}" }
+    docs = proxy.search(json)
+    pp docs
+  end
+
 end

@@ -16,15 +16,17 @@ namespace :solr do
   task 'update:enqueue:all' => [:environment] do
     ApplicationModel.transaction do
 
-      puts "#### enqueueing mi_attempts..."
-      enqueuer = SolrUpdate::Enqueuer.new
-      MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i) }
+      if Rails.configuration.enable_solr_mi_attempt
+        puts "#### enqueueing mi_attempts..."
+        enqueuer = SolrUpdate::Enqueuer.new
+        MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i) }
+      end
 
       puts "#### enqueueing alleles..."
       enqueuer = SolrUpdate::Enqueuer.new
       TargRep::TargetedAllele.all.each { |a| enqueuer.allele_updated(a) }
 
-      if Rails.configuration.enable_solr_phenotype_attempt
+      if Rails.configuration.enable_solr_update_phenotype_attempt
         puts "#### enqueueing phenotype_attempts..."
         enqueuer = SolrUpdate::Enqueuer.new
         PhenotypeAttempt.all.each { |p| enqueuer.phenotype_attempt_updated(p) }
@@ -49,6 +51,7 @@ namespace :solr do
   task 'update:all' => ['which', 'update:enqueue:all', 'update:run_queue:all']
 
   task 'update:mi_attempts' => [:environment] do
+    return if ! Rails.configuration.enable_solr_update_mi_attempt
     pp SolrUpdate::IndexProxy::Allele.get_uri
 
     ApplicationModel.transaction do
@@ -67,6 +70,7 @@ namespace :solr do
   end
 
   task 'update:mi_attemptsp' => [:environment] do
+    return if ! Rails.configuration.enable_solr_update_mi_attempt
     pp SolrUpdate::IndexProxy::Allele.get_uri
     ApplicationModel.transaction do
       puts "#### enqueueing mi_attempts..."
@@ -102,7 +106,7 @@ namespace :solr do
   end
 
   task 'update:phenotype_attempts' => [:environment] do
-    return if ! Rails.configuration.enable_solr_phenotype_attempt
+    return if ! Rails.configuration.enable_solr_update_phenotype_attempt
 
     pp SolrUpdate::IndexProxy::Allele.get_uri
     ApplicationModel.transaction do

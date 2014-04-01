@@ -116,12 +116,13 @@ CREATE OR REPLACE FUNCTION solr_get_mi_order_from_names (int)
   FROM mi_attempt_distribution_centres, centres, solr_centre_map
   where mi_attempt_distribution_centres.mi_attempt_id = $1 and
   centres.id = mi_attempt_distribution_centres.centre_id and
-  (start_date is null or end_date is null or (start_date >= current_date and end_date <= current_date)) and
+  (start_date is null and end_date is null or (start_date <= current_date and end_date >= current_date) or (start_date <= current_date and end_date is null)) and
   ( (solr_centre_map.centre_name = centres.name and (char_length(solr_centre_map.pref) > 0 or char_length(solr_centre_map.def) > 0)) or
     (solr_centre_map.centre_name = mi_attempt_distribution_centres.distribution_network and (char_length(solr_centre_map.pref) > 0 or char_length(solr_centre_map.def) > 0)))
   LOOP
 
     select exists(select centre_name from solr_centre_map where centre_name = tmp.name) into in_config;
+
     continue when not in_config;
 
     if char_length(tmp.distribution_network) > 0 then
@@ -179,11 +180,12 @@ CREATE OR REPLACE FUNCTION solr_get_mi_order_from_urls (int)
   end
   FROM mi_attempt_distribution_centres,centres where mi_attempt_distribution_centres.mi_attempt_id = $1 and
   centres.id = mi_attempt_distribution_centres.centre_id and
-  (start_date is null or end_date is null or (start_date >= current_date and end_date <= current_date))
+  (start_date is null and end_date is null or (start_date <= current_date and end_date >= current_date) or (start_date <= current_date and end_date is null))
   LOOP
       target_name := tmp.name;
 
       select exists(select centre_name from solr_centre_map where centre_name = tmp.name) into in_config;
+
       continue when not in_config;
 
       if char_length(tmp.distribution_network) > 0 then

@@ -57,23 +57,31 @@ class MiAttemptsTest
     ActiveRecord::Base.connection.execute(sql)
 
     MiAttempt.all.each do |mi_attempt|
+    #MiAttempt.where(:id => @failed_mis).each do |mi_attempt|
       next if mi_attempt.gene.mgi_accession_id.nil?
 
       if mi_attempt.has_status? :gtc and ! mi_attempt.has_status? :abt and mi_attempt.allele_id.to_i > 0 and mi_attempt.report_to_public
+
         solr_doc = {}
         SolrUpdate::DocFactory.set_order_from_details(mi_attempt, solr_doc)
         old = solr_doc
 
-        next if old.empty? || old['order_from_names'].empty?
+      #  pp solr_doc
 
-        old = old['order_from_names'].sort.uniq
+        #next if old.empty? || old['order_from_names'].empty?
+
+        old = old['order_from_names'].to_a.sort.uniq
 
         rows = ActiveRecord::Base.connection.execute("select * from solr_get_mi_order_from_names(#{mi_attempt.id})")
+
+       # puts "select * from solr_get_mi_order_from_names(#{mi_attempt.id})"
+
+      #  puts "#### processing..."
 
         count = 0
         new = ''
         rows.each do |row|
-          new = row['solr_get_mi_order_from_names'].split ';'
+          new = row['solr_get_mi_order_from_names'].to_s.split ';'
           count += 1
         end
 
@@ -85,14 +93,18 @@ class MiAttemptsTest
         if old.size != new.size
           puts "#### size error: #{mi_attempt.id}: (#{old.size}/#{new.size}) - (#{old}/#{new})".red
           @failed_count += 1
+          @failed_mis.push mi_attempt.id
         elsif old != new
           puts "#### error: #{mi_attempt.id}: (#{old}/#{new})".red
           @failed_count += 1
+          @failed_mis.push mi_attempt.id
         end
 
         @count += 1
       end
+
     end
+   #   pp @failed_mis
   end
 
   def test_mi_attempt_order_from_urls
@@ -103,7 +115,7 @@ class MiAttemptsTest
     ActiveRecord::Base.connection.execute(sql)
 
     MiAttempt.all.each do |mi_attempt|
-      #MiAttempt.where(:id => @failed_mis).each do |mi_attempt|
+    #MiAttempt.where(:id => @failed_mis).each do |mi_attempt|
       next if mi_attempt.gene.mgi_accession_id.nil?
 
       if mi_attempt.has_status? :gtc and ! mi_attempt.has_status? :abt and mi_attempt.allele_id.to_i > 0 and mi_attempt.report_to_public
@@ -111,16 +123,16 @@ class MiAttemptsTest
         SolrUpdate::DocFactory.set_order_from_details(mi_attempt, solr_doc)
         old = solr_doc
 
-        next if old.empty? || old['order_from_urls'].empty?
+        #next if old.empty? || old['order_from_urls'].empty?
 
-        old = old['order_from_urls'].sort.uniq
+        old = old['order_from_urls'].to_a.sort.uniq
 
         rows = ActiveRecord::Base.connection.execute("select * from solr_get_mi_order_from_urls(#{mi_attempt.id})")
 
         count = 0
         new = ''
         rows.each do |row|
-          new = row['solr_get_mi_order_from_urls'].split ';'
+          new = row['solr_get_mi_order_from_urls'].to_s.split ';'
           count += 1
         end
 
@@ -206,6 +218,7 @@ class MiAttemptsTest
     end
 
     MiAttempt.all.each do |mi_attempt|
+    #MiAttempt.where(:id => @failed_mis).each do |mi_attempt|
       failed = false
 
       next if mi_attempt.gene.mgi_accession_id.nil?

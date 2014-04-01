@@ -12,12 +12,15 @@ module SolrBulk
     ALLELE_SQL = SOLR_BULK['allele_sql']
     GENES_SQL = SOLR_BULK['genes_sql']
 
-    def self.alleles
+    def self.alleles(id = nil)
       list = []
       counter = 0
       splits = %W{order_from_names order_from_urls project_ids project_statuses project_pipelines vector_project_ids vector_project_statuses}
 
-      alleles = ActiveRecord::Base.connection.execute(ALLELE_SQL)
+      sql = "select * from solr_alleles"
+      sql = "select * from solr_alleles where id = #{id}" if id && id.to_i > 0
+
+      alleles = ActiveRecord::Base.connection.execute(sql)
 
       alleles.each do |allele|
 
@@ -38,11 +41,14 @@ module SolrBulk
       list
     end
 
-    def self.genes
+    def self.genes(id = nil)
       list = []
       counter = 0
 
-      items = ActiveRecord::Base.connection.execute(GENES_SQL)
+      sql = "select * from solr_genes"
+      sql = "select * from solr_genes where id = #{id}" if id && id.to_i > 0
+
+      items = ActiveRecord::Base.connection.execute(sql)
 
       items.each do |item|
         splits = %W{project_ids project_statuses project_pipelines vector_project_statuses vector_project_ids}
@@ -61,11 +67,14 @@ module SolrBulk
       list
     end
 
-    def self.mi_attempts
+    def self.mi_attempts(id = nil)
       list = []
       counter = 0
 
-      attempts = ActiveRecord::Base.connection.execute(MI_ATTEMPTS_SQL)
+      sql = "select * from solr_mi_attempts"
+      sql = "select * from solr_mi_attempts where id = #{id}" if id && id.to_i > 0
+
+      attempts = ActiveRecord::Base.connection.execute(sql)
 
       attempts.each do |mi_attempt|
 
@@ -83,11 +92,14 @@ module SolrBulk
       list
     end
 
-    def self.phenotype_attempts
+    def self.phenotype_attempts(id = nil)
       list = []
       counter = 0
 
-      attempts = ActiveRecord::Base.connection.execute(PHENOTYPE_ATTEMPTS_SQL)
+      sql = "select * from solr_phenotype_attempts"
+      sql = "select * from solr_phenotype_attempts where id = #{id}" if id && id.to_i > 0
+
+      attempts = ActiveRecord::Base.connection.execute(sql)
 
       attempts.each do |attempt|
         attempt['order_from_names'] = attempt['order_from_names'].to_s.split(';').uniq
@@ -117,6 +129,32 @@ module SolrBulk
       list += mi_attempts if targets.empty? || targets.include?('mi_attempts') || targets.include?('partial') || targets.include?('all')
       list += alleles if targets.empty? || targets.include?('alleles') || targets.include?('all')
       list += genes if targets.empty? || targets.include?('genes') || targets.include?('all')
+
+      #puts "#### list.size: #{list.size}"
+
+      sublist = list.each_slice(1000).to_a
+
+      sublist.each { |item| command item.join }
+
+      commit
+    end
+
+    def self.run_single(target, id)
+      puts "#### loading index: '#{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}'"
+
+      raise "#### target cannot be empty!" if target.empty?
+      raise "#### id cannot be empty!" if ! id || id.to_i < 1
+
+      #delete targets  # remove docs from the index based on targets
+
+      command({'delete' => {'query' => "type:#{target} id:#{id}"}}.to_json)
+
+      list = []
+
+      list += phenotype_attempts(id) if target == 'phenotype_attempt'
+      list += mi_attempts(id) if target == 'mi_attempt'
+      list += alleles(id) if target == 'allele'
+      list += genes(id) if target == 'gene'
 
       sublist = list.each_slice(1000).to_a
 
@@ -150,6 +188,8 @@ module SolrBulk
     end
 
     def self.command(json)
+      #puts json
+      #exit
       proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['allele'])
       proxy.update(json)
     end

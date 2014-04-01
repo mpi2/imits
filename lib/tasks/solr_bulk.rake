@@ -115,4 +115,14 @@ namespace :solr_bulk do
     end
   end
 
+  desc 'reload single'
+  task 'reload_single', [:target, :id] => :environment do |t, args|
+    SolrBulk::Load.run_single(args[:target], args[:id])
+  end
+
+  desc 'show which solr'
+  task 'which_solr' => [:environment] do
+      puts "#### #{SOLR_UPDATE[Rails.env]['index_proxy']['allele']}"
+  end
+
 end

@@ -15,12 +15,12 @@ sql = <<END
     targ_rep_es_cells.mgi_allele_symbol_superscript,
     targ_rep_es_cells.allele_symbol_superscript_template,
     miapc.name miacentre_name,
-    mi_attempt_statuses.name,
+    mi_attempt_statuses.name as mi_attempt_status,
     mi_attempts.mouse_allele_type as mi_mouse_allele_type,
     phenotype_attempts.mouse_allele_type as phenotype_attempt_mouse_allele_type,
     phenotype_attempts.cre_excision_required,
     pacentres.name pacentre_name,
-    phenotype_attempt_statuses.name
+    phenotype_attempt_statuses.name as phenotype_attempt_status
   from
     genes
     left outer join targ_rep_alleles on genes.id = targ_rep_alleles.gene_id
@@ -34,64 +34,154 @@ sql = <<END
     left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id
     left outer join centres pacentres on pacentres.id = paplan.production_centre_id
     left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id
-  where marker_symbol = 'Cib2'
+  where marker_symbol = 'Ell2'
 END
+
+#Cib2 Ell2
 
 rows = ActiveRecord::Base.connection.execute(sql)
 
-#count = 0
-#columns = []
-
 processed_rows = []
 remainder_rows = []
-
-#phenotype_hash = {}
-#mi_hash = {}
+original_rows = []
 
 @mark_hash = {}
 
-def mark type, row
-  @mark_hash[type] ||= {}
-  @mark_hash[type][row['mgi_accession_id'].to_s + row['mgi_allele_symbol_superscript'].to_s] = true
+STATUSES = {
+  'ES_CELL_TARGETING_CONFIRMED' => 'ES Cell Targeting Confirmed',
+  'CRE_EXCISION_COMPLETE' => 'Cre Excision Complete',
+  'GENOTYPE_CONFIRMED' => 'Genotype confirmed',
+  'ES_CELL_PRODUCTION_IN_PROGRESS' => 'ES Cell Production in Progress',
+  'NO_ES_CELL_PRODUCTION' => 'No ES Cell Production'
+}
+
+def mark row
+  raise "error" if row['allele_symbol'].to_s.empty?
+  @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] = true
 end
 
-def mark? type, row
-  return false if ! @mark_hash.has_key?(type) || ! @mark_hash[type].has_key?(row['mgi_accession_id'].to_s + row['mgi_allele_symbol_superscript'].to_s)
-  @mark_hash[type][row['mgi_accession_id'].to_s + row['mgi_allele_symbol_superscript'].to_s]
+def mark? row
+  @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_symbol'].to_s) &&
+    @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] == true
 end
+
+# see http://ruby.about.com/od/advancedruby/a/deepcopy.htm
+
+def deep_copy object
+ Marshal.load( Marshal.dump(object) )
+end
+
+#imits_development=# select * from mi_attempt_statuses order by order_by;
+# id |            name             |         created_at         |         updated_at         | order_by | code
+#----+-----------------------------+----------------------------+----------------------------+----------+------
+#  3 | Micro-injection aborted     | 2011-07-26 15:21:59.156245 | 2012-07-26 13:38:08.365281 |      210 | abt
+#  1 | Micro-injection in progress | 2011-07-13 11:10:01.227023 | 2012-07-26 13:38:08.357856 |      220 | mip
+#  4 | Chimeras obtained           | 2012-03-23 12:00:44.693233 | 2012-07-26 13:38:08.368332 |      230 | chr
+#  2 | Genotype confirmed          | 2011-07-13 11:10:01.260259 | 2012-07-26 13:38:08.361959 |      240 | gtc
+#(4 rows)
+
+#imits_development=# select * from phenotype_attempt_statuses order by order_by;
+# id |             name             |         created_at         |         updated_at         | order_by | code
+#----+------------------------------+----------------------------+----------------------------+----------+------
+#  1 | Phenotype Attempt Aborted    | 2011-12-19 13:38:41.161482 | 2012-08-23 15:38:16.852707 |      310 | abt
+#  2 | Phenotype Attempt Registered | 2011-12-19 13:38:41.172022 | 2012-07-26 13:38:08.670883 |      320 | par
+#  3 | Rederivation Started         | 2011-12-19 13:38:41.176757 | 2012-07-26 13:38:08.674262 |      330 | res
+#  4 | Rederivation Complete        | 2011-12-19 13:38:41.181782 | 2012-07-26 13:38:08.676625 |      340 | rec
+#  5 | Cre Excision Started         | 2011-12-19 13:38:41.186843 | 2012-07-26 13:38:08.67926  |      350 | ces
+#  6 | Cre Excision Complete        | 2011-12-19 13:38:41.19204  | 2012-07-26 13:38:08.681483 |      360 | cec
+#  7 | Phenotyping Started          | 2011-12-19 13:38:41.197146 | 2012-07-26 13:38:08.683849 |      370 | pds
+#  8 | Phenotyping Complete         | 2011-12-19 13:38:41.201884 | 2012-07-26 13:38:08.686295 |      380 | pdc
+#(8 rows)
+
+LEGIT_PHENOTYPE_ATTEMPT_STATUSES = ['Phenotype Attempt Aborted', 'Cre Excision Started', 'Rederivation Complete', 'Rederivation Started', 'Phenotype Attempt Registered', 'Cre Excision Complete']
 
 # pass 1/3
 
-rows.each do |row|
- # columns = row.keys
+rows.each do |row1|
+  original_rows.push row1
 
-  if row['cre_excision_required'] == 't'
+  row1['allele_symbol'] = row1['mgi_allele_symbol_superscript']
+  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].gsub(/\@/, row1['phenotype_attempt_mouse_allele_type'].to_s) if ! row1['phenotype_attempt_mouse_allele_type'].to_s.empty?
 
-    # B1
-    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, 'a')
-    processed_rows.push row.clone
+  next if row1['pacentre_name'].to_s.empty?
+  next if row1['phenotype_attempt_status'] == 'Phenotype Attempt Aborted'
 
-    # B2
-    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, 'b')
-    processed_rows.push row.clone
+  if row1['cre_excision_required'] == 't'
 
-   # phenotype_hash[row['mgi_accession_id'].to_s + row['mgi_allele_symbol_superscript'].to_s] = 1
+    #next if mark? row
 
-    mark 'phenotype', row
+    #if ! mark? row
+      row = deep_copy row1
+
+      # B1
+      row['allele_symbol'] = row['mgi_allele_symbol_superscript']
+      row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['phenotype_attempt_mouse_allele_type'].to_s) if ! row['phenotype_attempt_mouse_allele_type'].to_s.empty?
+      row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
+
+      if LEGIT_PHENOTYPE_ATTEMPT_STATUSES.include?(row['phenotype_attempt_status'])
+        row['mouse_status'] = row['phenotype_attempt_status']
+        row['phenotype_status'] = ''
+      else
+        row['mouse_status'] = STATUSES['CRE_EXCISION_COMPLETE']
+        row['phenotype_status'] = row['phenotype_attempt_status']
+      end
+
+      row['phenotyping_centre'] = row['pacentre_name']
+      row['production_centre'] = row['pacentre_name']
+
+      row['allele_type'] = 'phenotype_attempt'
+
+      row['type'] = 'B1'
+
+      processed_rows.push row
+   # end
+
+    row = deep_copy row1
+
+    ## B2
+    #row['allele_symbol'] = row['mgi_allele_symbol_superscript']
+    #row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['mgi_allele_symbol_superscript'].to_s) if ! row['mi_mouse_allele_type'].to_s.empty?
+    #
+    #row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
+    #row['mouse_status'] = STATUSES['GENOTYPE_CONFIRMED']
+    #
+    #row['phenotyping_centre'] = ''
+    #row['production_centre'] = row['miacentre_name']
+    #
+    #row['allele_type'] = 'B2'
+    #
+    #row['type'] = 'B2'
+    #
+    #processed_rows.push row
+
+    mark row
   end
 
-  if row['cre_excision_required'] == 'f'
+  if row1['cre_excision_required'] == 'f'
+
+    #pp row1['cre_excision_required']
+    #raise "B3!"
+
+    row = deep_copy row1
 
     # B3
-    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, 'a')
-    processed_rows.push row.clone
+    row['allele_symbol'] = row['mgi_allele_symbol_superscript']
+    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['mgi_allele_symbol_superscript'].to_s) if ! row['mi_mouse_allele_type'].to_s.empty?
 
-    #phenotype_hash[row['mgi_accession_id'].to_s + row['mgi_allele_symbol_superscript'].to_s] = 1
+    row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
+    row['mouse_status'] = STATUSES['GENOTYPE_CONFIRMED']
+    row['phenotype_status'] = row['phenotype_attempt_status']
+    row['production_centre'] = row['miacentre_name']
+    row['phenotyping_centre'] = row['pacentre_name']
 
-    mark 'phenotype', row
+    row['allele_type'] = 'phenotype_attempt'
+
+    row['type'] = 'B3'
+
+    processed_rows.push row
+
+    mark row
   end
-
-  #count += 1
 end
 
 
@@ -100,17 +190,30 @@ end
 
 # pass 2/3
 
-rows.each do |row|
-  #if ! row['mi_mouse_allele_type'].to_s.empty? && ! phenotype_hash.hash_key?(row['mgi_accession_id'].to_s + row['mgi_allele_symbol_superscript'].to_s)
-  if ! row['mi_mouse_allele_type'].to_s.empty? && ! mark?('phenotype', row)
+rows.each do |row1|
+
+  row1['allele_symbol'] = row1['mgi_allele_symbol_superscript']
+  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].gsub(/\@/, row1['mgi_allele_symbol_superscript'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty?
+
+  if ! row1['mi_attempt_status'].to_s.empty? && ! mark?(row1)
+
+    row = deep_copy row1
 
     # B4
     row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, 'a')
-    processed_rows.push row.clone
 
-    #mi_hash[row['mgi_accession_id'].to_s + row['mgi_allele_symbol_superscript'].to_s] = 1
+    row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
+    row['mouse_status'] = row['mi_attempt_status']
+    row['phenotype_status'] = ''
+    row['production_centre'] = row['miacentre_name']
 
-    mark 'mi', row
+    row['allele_type'] = 'mi_attempt'
+
+    row['type'] = 'B4'
+
+    processed_rows.push row
+
+    mark row
   end
 end
 
@@ -121,23 +224,120 @@ end
 
 # pass 3/3
 
-rows.each do |row|
+rows.each do |row1|
+
+  row1['allele_symbol'] = row1['mgi_allele_symbol_superscript']
+  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].gsub(/\@/, row1['mgi_allele_symbol_superscript'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty?
 
   # B5
-#  if ! phenotype_hash.hash_key?(row['mgi_accession_id'].to_s + row['mgi_allele_symbol_superscript'].to_s) && ! mi_hash.hash_key?(row['mgi_accession_id'].to_s + row['mgi_allele_symbol_superscript'].to_s)
 
-    if ! mark?('phenotype', row) && ! mark?('mi', row)
+  if ! mark?(row1)
 
-    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, 'a')
-    processed_rows.push row.clone
+    row = deep_copy row1
 
-    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, 'e')
-    processed_rows.push row.clone
+    row['allele_symbol'] = row['mgi_allele_symbol_superscript']
+
+    if row1['does_an_es_cell_exist'] == 't'
+      row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
+    elsif row1['does_a_targ_vec_exist'] == 't'
+      row['es_cell_status'] = STATUSES['ES_CELL_PRODUCTION_IN_PROGRESS']
+    else
+      row['es_cell_status'] = STATUSES['NO_ES_CELL_PRODUCTION']
+    end
+
+    row['mouse_status'] = ''
+    row['phenotype_status'] = ''
+    row['production_centre'] = ''
+
+    row['allele_type'] = 'es_cell'
+
+    row['type'] = 'B5'
+
+    processed_rows.push row
 
   end
 end
 
 
 
-#puts "#### count: #{count}"
-pp processed_rows
+#pp processed_rows
+
+def save_csv filename, data
+CSV.open(filename, "wb") do |csv|
+  csv << data.first.keys
+  data.each do |hash|
+    csv << hash.values
+  end
+end
+end
+
+key_count = 0
+target = nil
+
+new_processed_rows = []
+new_processed_rows_hash = {}
+
+processed_rows.each do |row|
+  target = row if key_count < row.keys.size
+  key_count = row.keys.size if key_count < row.keys.size
+
+  hash = {}
+  hash['marker_symbol'] = row['marker_symbol']
+  hash['marker_type'] = row['marker_type']
+  hash['mgi_accession_id'] = row['mgi_accession_id']
+  hash['es_cell_status'] = row['es_cell_status']
+  hash['mouse_status'] = row['mouse_status']
+  hash['phenotype_status'] = row['phenotype_status']
+  hash['production_centre'] = row['production_centre']
+  hash['phenotyping_centre'] = row['phenotyping_centre']
+  hash['phenotype_status'] = row['phenotype_status']
+  hash['allele_name'] = row['allele_symbol']
+  hash['allele_type'] = row['allele_type']
+  hash['type'] = row['type']
+
+  new_processed_rows.push hash if ! new_processed_rows_hash.has_key? hash.values.to_s
+
+  new_processed_rows_hash[hash.values.to_s] = true
+end
+
+#pp processed_rows
+
+home = Dir.home
+filename = "#{home}/Desktop/build_ck.csv"
+
+save_csv filename, new_processed_rows
+
+#original_rows
+filename = "#{home}/Desktop/build_ck_original_rows.csv"
+
+save_csv filename, original_rows
+
+puts "done!"
+
+#gene level:
+#
+#  mouse production center (latest project status) - hold off for a minute
+#  phenotyping center (latest project status) - hold off for a minute
+#  marker_symbol - done
+#  marker_name  - forget
+#  marker_synonym - forget
+#  marker_type - done
+#  mgi_accession_id - done
+#  latest_project_status' - hold off
+#
+#  // the following 3 are use to make the IMPC Phenotyping Status facet on search page
+#  imits_phenotype_started (from gene core) - wait
+#  imits_phenotype_complete (from gene core)  - wait
+#  imits_phenotype_status (from gene core)  - wait
+#
+#allele level (each allele)
+#  es cell status ==> does_an_es_cell_exist || does a targeting_vector_exist
+#  mice status => mi attempt status
+#  phenotyping status => pa status
+#  allele name (tm1a/tm1b…) => either the mi_attempt allele name OR the PA allele name depending on whether you're writing the Mi attempt row or the PA row
+#  allele_type: (mi/pa) => either Cell or MI (if it exists) or PA (if you're writing out the second row)
+#
+#  mouse production center = > in select; either the MI centre or PA centre depending on which mI or PA row you're spitting out
+#  phenotyping center = > the PA centre IF you're spitting out the PA row
+#
+#

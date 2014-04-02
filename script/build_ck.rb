@@ -5,6 +5,8 @@ require "digest/md5"
 
 sql = <<END
 select distinct
+  --genes.id as genes_id,
+
   targ_rep_alleles.id as targ_rep_alleles_id,
 
   genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,
@@ -33,18 +35,13 @@ from genes
   left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id
   left outer join centres pacentres on pacentres.id = paplan.production_centre_id
   left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id
-  --limit 1
+--order by genes.id
 END
-
-#--where marker_symbol = 'Ell2'
-#--limit 10000
-#  limit 10000
 
 #Cib2 Ell2
 
 processed_rows = []
 remainder_rows = []
-#original_rows = []
 
 @failures = []
 @mark_hash = {}
@@ -120,9 +117,13 @@ rows.each do |row1|
 
   row1['allele_symbol'] = row1['targ_rep_alleles_id']
   row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
-  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['phenotype_attempt_mouse_allele_type'].to_s) if ! row1['phenotype_attempt_mouse_allele_type'].to_s.empty?
+  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['phenotype_attempt_mouse_allele_type'].to_s) if ! row1['phenotype_attempt_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
   if row1['allele_symbol'].to_s.empty?
+    #pp row1
+    #exit
+
+    row1['failed'] = 'pass 1'
     @failures.push row1
     next
   end
@@ -137,7 +138,8 @@ rows.each do |row1|
     # B1
     row['allele_symbol'] = row['targ_rep_alleles_id']
     row['allele_symbol'] = row['mgi_allele_symbol_superscript'] if ! row['mgi_allele_symbol_superscript'].to_s.empty?
-    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['phenotype_attempt_mouse_allele_type'].to_s) if ! row['phenotype_attempt_mouse_allele_type'].to_s.empty?
+    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['phenotype_attempt_mouse_allele_type'].to_s) if ! row['phenotype_attempt_mouse_allele_type'].to_s.empty? && ! row['allele_symbol_superscript_template'].to_s.empty?
+
     row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
 
     if LEGIT_PHENOTYPE_ATTEMPT_STATUSES.include?(row['phenotype_attempt_status'])
@@ -169,7 +171,7 @@ rows.each do |row1|
     # B3
     row['allele_symbol'] = row['targ_rep_alleles_id']
     row['allele_symbol'] = row['mgi_allele_symbol_superscript'] if ! row['mgi_allele_symbol_superscript'].to_s.empty?
-    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['mi_mouse_allele_type'].to_s) if ! row['mi_mouse_allele_type'].to_s.empty?
+    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['mi_mouse_allele_type'].to_s) if ! row['mi_mouse_allele_type'].to_s.empty? && ! row['allele_symbol_superscript_template'].to_s.empty?
 
     row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
     row['mouse_status'] = STATUSES['GENOTYPE_CONFIRMED']
@@ -196,12 +198,10 @@ rows.each do |row1|
 
   row1['allele_symbol'] = row1['targ_rep_alleles_id']
   row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
-  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty?
+  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
   if row1['allele_symbol'].to_s.empty?
-    #puts "#############################################################"
-    #pp row1
-    #puts "#############################################################"
+    row1['failed'] = 'pass 2'
     @failures.push row1
     next
   end
@@ -240,12 +240,10 @@ rows.each do |row1|
 
   row1['allele_symbol'] = row1['targ_rep_alleles_id']
   row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
-  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty?
+  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
   if row1['allele_symbol'].to_s.empty?
-    #puts "#############################################################"
-    #pp row1
-    #puts "#############################################################"
+    row1['failed'] = 'pass 3'
     @failures.push row1
     next
   end
@@ -337,8 +335,8 @@ end
 
 #pp new_processed_list
 
-      #sublist = new_processed_list.each_slice(1000).to_a
-      #sublist.each { |item| command item.join }
+#sublist = new_processed_list.each_slice(1000).to_a
+#sublist.each { |item| command item.join }
 
 puts "#### send to index..."
 

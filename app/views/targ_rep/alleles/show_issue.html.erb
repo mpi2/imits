@@ -1,0 +1,54 @@
+<div class="grid_12">
+  <h2><%= @allele.mgi_accession_id %> | Project Design ID: <%= @allele.project_design_id %></h2>
+</div>
+
+<% if @allele.has_issue %>
+  	<div class="grid_12">
+		<fieldset>
+			<legend>Information</legend>
+			<p><strong>Thank you for expressing an interest in this product.</strong></p>
+			<p>An issue has been identified for this allele that may result in reduced functionality.</p>
+			<p>Please consult the issue report below or contact us for more details before placing an order.</p>
+		</fieldset>
+	</div>
+
+	<div class="grid_12">
+		<fieldset>
+			<legend>Issue Report</legend>
+			<p><strong>Gene name:</strong> <%= @allele.marker_symbol %></p>
+			<p><strong>Project ID:</strong> <%= @allele.project_design_id %></p>
+			<p><strong>Issue:</strong> <%= @allele.issue_description %></p>
+			<p><strong>Contact details:</strong> If you have questions about this Allele issue then please <a href="mailto:mouse.helpdesk@impc.co.uk?Subject=[IKMC%20Alleles]%20<%= @allele.marker_symbol %>%20Inquiry%20re:%20Allele%20Id%20<%= @allele.id %>" target="_top">click on this link</a> to open your email client and send us an email.</p>
+		</fieldset>
+	</div>
+
+	<div class="grid_12">
+		<fieldset>
+			<legend>Ordering</legend>
+			<% if ( @order_from_names.nil? || @order_from_names.empty? ) %>
+				<p><strong>Error:</strong> Failed to fetch order links for this allele from Solr index.</p>
+			<% else %>
+				<p>If you understand the issue with this allele and still wish to place an order please select from the options below to be directed on to the ordering page.</p>
+				<% index_cnt = 0 %>
+				<% @order_from_names.each do |order_from_name| %>
+					<p>Order from  <a href="<%= @order_from_urls[index_cnt] %>"><%= order_from_name %></a></p>
+					<% index_cnt += 1 %>
+				<% end %>
+			<% end %>
+		</fieldset>
+	</div>
+
+<% else %>
+  	<div class="grid_12">
+		<fieldset>
+			<legend>Information</legend>
+  			<p>No issues have been reported for this allele.</p>
+  			<p>Please select from the options below to be directed on to the ordering page.</p>
+			<% index_cnt = 0 %>
+			<% @order_from_names.each do |order_from_name| %>
+				<p>Order from  <a href="<%= @order_from_urls[index_cnt] %>"><%= order_from_name %></a></p>
+				<% index_cnt += 1 %>
+			<% end %>
+  		</fieldset>
+	</div>
+<% end %>

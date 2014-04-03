@@ -2172,7 +2172,8 @@ CREATE TABLE targ_rep_alleles (
     updated_at timestamp without time zone NOT NULL,
     intron integer,
     type character varying(255) DEFAULT 'TargRep::TargetedAllele'::character varying,
-    has_issue boolean DEFAULT false NOT NULL
+    has_issue boolean DEFAULT false NOT NULL,
+    issue_description text
 );
 
 
@@ -4585,3 +4586,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140318095417');
 INSERT INTO schema_migrations (version) VALUES ('20140320152942');
 
 INSERT INTO schema_migrations (version) VALUES ('20140426101200');
+
+INSERT INTO schema_migrations (version) VALUES ('20140431165000');

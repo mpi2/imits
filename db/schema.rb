@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140426101200) do
+ActiveRecord::Schema.define(:version => 20140431165000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -846,6 +846,7 @@ ActiveRecord::Schema.define(:version => 20140426101200) do
     t.integer  "intron"
     t.string   "type",                               :default => "TargRep::TargetedAllele"
     t.boolean  "has_issue",                          :default => false,                     :null => false
+    t.text     "issue_description"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|

@@ -3,6 +3,17 @@
 require 'pp'
 require "digest/md5"
 
+#require 'ruby-prof'
+#RubyProf.start
+
+#TODO report to public
+#TODO remove aborts
+#TODO allele_type
+
+SAVE_AS_CSV = false
+USE_ID = false
+USE_TYPE = false
+
 sql = <<END
 select distinct
   --genes.id as genes_id,
@@ -35,6 +46,7 @@ from genes
   left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id
   left outer join centres pacentres on pacentres.id = paplan.production_centre_id
   left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id
+--  limit 5
 --order by genes.id
 END
 
@@ -102,11 +114,38 @@ end
 #  8 | Phenotyping Complete         | 2011-12-19 13:38:41.201884 | 2012-07-26 13:38:08.686295 |      380 | pdc
 #(8 rows)
 
+def get_phenotype_attempt_statuses
+  hash = {}
+  sql = 'select * from phenotype_attempt_statuses order by order_by;'
+  rows = ActiveRecord::Base.connection.execute(sql)
+  rows.each do |row|
+    hash[row['name']] = row['order_by']
+  end
+ # pp hash
+  hash
+end
+
+def get_mi_attempt_statuses
+  hash = {}
+  sql = 'select * from mi_attempt_statuses order by order_by;'
+  rows = ActiveRecord::Base.connection.execute(sql)
+  rows.each do |row|
+    hash[row['name']] = row['order_by']
+  end
+ # pp hash
+  hash
+end
+
+PHENOTYPE_ATTEMPT_STATUSES = get_phenotype_attempt_statuses
+MI_ATTEMPT_STATUSES = get_mi_attempt_statuses
+
+#exit
+
 LEGIT_PHENOTYPE_ATTEMPT_STATUSES = ['Phenotype Attempt Aborted', 'Cre Excision Started', 'Rederivation Complete', 'Rederivation Started', 'Phenotype Attempt Registered', 'Cre Excision Complete']
 
 # pass 1/3
 
-puts "#### do select..."
+puts "#### select..."
 
 rows = ActiveRecord::Base.connection.execute(sql)
 
@@ -115,7 +154,8 @@ puts "#### pass 1..."
 rows.each do |row1|
 #  original_rows.push row1
 
-  row1['allele_symbol'] = row1['targ_rep_alleles_id']
+  row1['allele_symbol'] = 'None'
+  row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
   row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
   row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['phenotype_attempt_mouse_allele_type'].to_s) if ! row1['phenotype_attempt_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
@@ -136,8 +176,8 @@ rows.each do |row1|
     row = deep_copy row1
 
     # B1
-    row['allele_symbol'] = row['targ_rep_alleles_id']
-    row['allele_symbol'] = row['mgi_allele_symbol_superscript'] if ! row['mgi_allele_symbol_superscript'].to_s.empty?
+   # row['allele_symbol'] = row['targ_rep_alleles_id']
+   # row['allele_symbol'] = row['mgi_allele_symbol_superscript'] if ! row['mgi_allele_symbol_superscript'].to_s.empty?
     row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['phenotype_attempt_mouse_allele_type'].to_s) if ! row['phenotype_attempt_mouse_allele_type'].to_s.empty? && ! row['allele_symbol_superscript_template'].to_s.empty?
 
     row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
@@ -169,8 +209,8 @@ rows.each do |row1|
     row = deep_copy row1
 
     # B3
-    row['allele_symbol'] = row['targ_rep_alleles_id']
-    row['allele_symbol'] = row['mgi_allele_symbol_superscript'] if ! row['mgi_allele_symbol_superscript'].to_s.empty?
+  #  row['allele_symbol'] = row['targ_rep_alleles_id']
+   # row['allele_symbol'] = row['mgi_allele_symbol_superscript'] if ! row['mgi_allele_symbol_superscript'].to_s.empty?
     row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['mi_mouse_allele_type'].to_s) if ! row['mi_mouse_allele_type'].to_s.empty? && ! row['allele_symbol_superscript_template'].to_s.empty?
 
     row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
@@ -196,7 +236,8 @@ puts "#### pass 2..."
 
 rows.each do |row1|
 
-  row1['allele_symbol'] = row1['targ_rep_alleles_id']
+  row1['allele_symbol'] = 'None'
+  row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
   row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
   row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
@@ -238,7 +279,8 @@ puts "#### pass 3..."
 
 rows.each do |row1|
 
-  row1['allele_symbol'] = row1['targ_rep_alleles_id']
+  row1['allele_symbol'] = 'None'
+  row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
   row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
   row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
@@ -254,7 +296,7 @@ rows.each do |row1|
 
     row = deep_copy row1
 
-    row['allele_symbol'] = row['mgi_allele_symbol_superscript']
+  #  row['allele_symbol'] = row['mgi_allele_symbol_superscript']
 
     if row1['does_an_es_cell_exist'] == 't'
       row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
@@ -291,6 +333,10 @@ new_processed_list = []
 
 puts "#### pass 4..."
 
+genes_hash = {}
+
+#collision_detect = {}
+
 processed_rows.each do |row|
   target = row if key_count < row.keys.size
   key_count = row.keys.size if key_count < row.keys.size
@@ -307,17 +353,23 @@ processed_rows.each do |row|
   hash['phenotype_status'] = row['phenotype_status']
   hash['allele_name'] = row['allele_symbol']
   hash['allele_type'] = row['allele_type']
-  hash['type'] = row['type']
+
+  hash['type'] = row['type'] if USE_TYPE
 
   #hash['id'] = row['mgi_accession_id'].to_s + '-' + row['allele_symbol'].to_s
 
     digest = Digest::MD5.hexdigest(row['mgi_accession_id'].to_s + '-' + row['allele_symbol'].to_s)
 
-  hash['id'] = digest
+  hash['id'] = digest if USE_ID
 
   #pp digest
 
   new_processed_rows.push hash if ! new_processed_rows_hash.has_key? digest.to_s   #hash.values.to_s
+
+  if ! new_processed_rows_hash.has_key? digest.to_s
+    genes_hash[hash['marker_symbol']] ||= []
+    genes_hash[hash['marker_symbol']].push hash
+  end
 
   #puts hash.values.to_s
   #puts ""
@@ -327,6 +379,101 @@ processed_rows.each do |row|
 end
 
 puts "#### pass 5..."
+
+#PHENOTYPE_ATTEMPT_STATUSES = get_phenotype_attempt_statuses
+#MI_ATTEMPT_STATUSES = get_mi_attempt_statuses
+
+#STATUSES['ES_CELL_TARGETING_CONFIRMED']
+#STATUSES['ES_CELL_PRODUCTION_IN_PROGRESS']
+#STATUSES['NO_ES_CELL_PRODUCTION']
+
+ES_CELL_STATUSES = {
+  STATUSES['ES_CELL_TARGETING_CONFIRMED'] => 30,
+  STATUSES['ES_CELL_PRODUCTION_IN_PROGRESS'] => 20,
+  STATUSES['NO_ES_CELL_PRODUCTION'] => 10
+}
+
+genes_hash.keys.each do |key|
+
+  best_status = 0
+  best_status_string = ''
+  best_production_centre = ''
+  best_phenotyping_centre = ''
+
+  imits_phenotype_started = false
+  imits_phenotype_complete = false
+  imits_phenotype_status = ''
+
+  genes_hash[key].each do |row|
+    if ! row['phenotype_status'].to_s.empty?
+
+      imits_phenotype_started = true if row['phenotype_status'] != 'Phenotype Attempt Aborted'
+      imits_phenotype_complete = true if row['phenotype_status'] == 'Phenotyping Complete'
+      #
+      #if best_status.to_i < PHENOTYPE_ATTEMPT_STATUSES[row['mouse_status']].to_i
+      #  best_status = PHENOTYPE_ATTEMPT_STATUSES[row['mouse_status']].to_i
+      #  best_status_string = row['mouse_status']
+      #  best_production_centre = row['production_centre']
+      #  best_phenotyping_centre = row['phenotyping_centre']
+      #  imits_phenotype_status = row['mouse_status']
+      ##end
+      #
+      #els
+      #
+      if best_status.to_i < PHENOTYPE_ATTEMPT_STATUSES[row['phenotype_status']].to_i
+        best_status = PHENOTYPE_ATTEMPT_STATUSES[row['phenotype_status']].to_i
+        best_status_string = row['phenotype_status']
+        imits_phenotype_status = row['phenotype_status']
+        best_phenotyping_centre = row['phenotyping_centre']
+      end
+
+    elsif ! row['mouse_status'].to_s.empty?
+
+      #if ! MI_ATTEMPT_STATUSES.has_key? row['mouse_status']
+      #end
+
+      #if best_status.to_i < PHENOTYPE_ATTEMPT_STATUSES[row['mouse_status']].to_i
+      #  best_status = PHENOTYPE_ATTEMPT_STATUSES[row['mouse_status']].to_i
+      #  best_status_string = row['mouse_status']
+      #  best_production_centre = row['production_centre']
+      #  best_phenotyping_centre = row['phenotyping_centre']
+      #  imits_phenotype_status = row['mouse_status']
+      ##end
+      #
+      #els
+      #
+      if best_status.to_i < MI_ATTEMPT_STATUSES[row['mouse_status']].to_i
+        best_status = MI_ATTEMPT_STATUSES[row['mouse_status']].to_i
+        best_status_string = row['mouse_status']
+        best_production_centre = row['production_centre']
+      end
+
+    elsif ! row['es_cell_status'].to_s.empty? && (best_status == 0)
+
+#      best_status_string = row['es_cell_status']
+
+      if best_status.to_i < ES_CELL_STATUSES[row['es_cell_status']].to_i
+        best_status = ES_CELL_STATUSES[row['es_cell_status']].to_i
+        best_status_string = row['es_cell_status']
+      end
+
+    #else
+    #  row['best_status'] = ''
+    end
+  end
+
+  genes_hash[key].each do |row|
+    row['latest_project_status'] = best_status_string
+    row['latest_production_centre'] = best_production_centre
+    row['latest_phenotyping_centre'] = best_phenotyping_centre
+    row['imits_phenotype_started'] = imits_phenotype_started ? '1' : '0'
+    row['imits_phenotype_complete'] = imits_phenotype_complete ? '1' : '0'
+    row['imits_phenotype_status'] = imits_phenotype_status
+  end
+
+end
+
+puts "#### pass 6..."
 
 new_processed_rows.each do |row|
   item = {'add' => {'doc' => row }}
@@ -338,6 +485,14 @@ end
 #sublist = new_processed_list.each_slice(1000).to_a
 #sublist.each { |item| command item.join }
 
+if SAVE_AS_CSV
+  puts "#### save csv..."
+
+  home = Dir.home
+  filename = "#{home}/Desktop/build_ck.csv"
+  save_csv filename, new_processed_rows
+end
+
 puts "#### send to index..."
 
 solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
@@ -346,26 +501,26 @@ proxy.update({'delete' => {'query' => '*:*'}}.to_json)
 proxy.update(new_processed_list.join)
 proxy.update({'commit' => {}}.to_json)
 
-
-puts "#### write failures..."
-
-home = Dir.home
-filename = "#{home}/Desktop/build_ck_failures.csv"
-save_csv filename, @failures if ! @failures.empty?
-
-puts "done!"
-
-exit
-
-home = Dir.home
-filename = "#{home}/Desktop/build_ck.csv"
-
-save_csv filename, new_processed_rows
-
-#filename = "#{home}/Desktop/build_ck_original_rows.csv"
-#save_csv filename, original_rows
+if ! @failures.empty?
+  puts "#### write failures..."
+  home = Dir.home
+  filename = "#{home}/Desktop/build_ck_failures.csv"
+  save_csv filename, @failures
+end
 
 puts "done!"
+
+#exit
+#
+#home = Dir.home
+#filename = "#{home}/Desktop/build_ck.csv"
+#
+#save_csv filename, new_processed_rows
+#
+##filename = "#{home}/Desktop/build_ck_original_rows.csv"
+##save_csv filename, original_rows
+#
+#puts "done!"
 
 #gene level:
 #
@@ -394,3 +549,9 @@ puts "done!"
 #  phenotyping center = > the PA centre IF you're spitting out the PA row
 #
 #
+
+#result = RubyProf.stop
+#
+## Print a flat profile to text
+#printer = RubyProf::FlatPrinter.new(result)
+#printer.print(STDOUT)

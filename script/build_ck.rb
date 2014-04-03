@@ -3,21 +3,12 @@
 require 'pp'
 require "digest/md5"
 
-#require 'ruby-prof'
-#RubyProf.start
-
-#TODO report to public
-#TODO remove aborts
-#TODO allele_type
-
 SAVE_AS_CSV = false
 USE_ID = false
 USE_TYPE = false
 
 sql = <<END
 select distinct
-  --genes.id as genes_id,
-
   targ_rep_alleles.id as targ_rep_alleles_id,
 
   genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,
@@ -36,18 +27,16 @@ select distinct
   phenotype_attempt_statuses.name as phenotype_attempt_status
 from genes
   left outer join targ_rep_alleles on genes.id = targ_rep_alleles.gene_id
-  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
-  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id
-  left outer join mi_attempts on mi_attempts.es_cell_id = targ_rep_es_cells.id    --and mi_attempts.report_to_public is true
+  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id    and targ_rep_targeting_vectors.report_to_public is true
+  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id                      and targ_rep_es_cells.report_to_public is true
+  left outer join mi_attempts on mi_attempts.es_cell_id = targ_rep_es_cells.id                                and mi_attempts.report_to_public is true
   left outer join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id
-  left join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id
+  left join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id                           and mi_attempt_plan.report_to_public is true
   left join centres miapc on mi_attempt_plan.production_centre_id = miapc.id
-  left outer join phenotype_attempts on phenotype_attempts.mi_attempt_id = mi_attempts.id
-  left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id
+  left outer join phenotype_attempts on phenotype_attempts.mi_attempt_id = mi_attempts.id                     and phenotype_attempts.report_to_public is true
+  left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id                                and paplan.report_to_public is true
   left outer join centres pacentres on pacentres.id = paplan.production_centre_id
   left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id
---  limit 5
---order by genes.id
 END
 
 #Cib2 Ell2
@@ -121,7 +110,6 @@ def get_phenotype_attempt_statuses
   rows.each do |row|
     hash[row['name']] = row['order_by']
   end
- # pp hash
   hash
 end
 
@@ -132,16 +120,31 @@ def get_mi_attempt_statuses
   rows.each do |row|
     hash[row['name']] = row['order_by']
   end
- # pp hash
   hash
+end
+
+def prepare_allele_symbol row1, type
+  row1['allele_symbol'] = 'None'
+  row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
+  row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
+  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1[type].to_s) if ! row1[type].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
+
+  row1
 end
 
 PHENOTYPE_ATTEMPT_STATUSES = get_phenotype_attempt_statuses
 MI_ATTEMPT_STATUSES = get_mi_attempt_statuses
-
-#exit
+ES_CELL_STATUSES = {
+  STATUSES['ES_CELL_TARGETING_CONFIRMED'] => 30,
+  STATUSES['ES_CELL_PRODUCTION_IN_PROGRESS'] => 20,
+  STATUSES['NO_ES_CELL_PRODUCTION'] => 10
+}
 
 LEGIT_PHENOTYPE_ATTEMPT_STATUSES = ['Phenotype Attempt Aborted', 'Cre Excision Started', 'Rederivation Complete', 'Rederivation Started', 'Phenotype Attempt Registered', 'Cre Excision Complete']
+
+SOLR_UPDATE = YAML.load_file("#{Rails.root}/config/solr_update.yml")
+
+puts "#### index: #{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}"
 
 # pass 1/3
 
@@ -152,17 +155,15 @@ rows = ActiveRecord::Base.connection.execute(sql)
 puts "#### pass 1..."
 
 rows.each do |row1|
-#  original_rows.push row1
 
-  row1['allele_symbol'] = 'None'
-  row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
-  row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
-  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['phenotype_attempt_mouse_allele_type'].to_s) if ! row1['phenotype_attempt_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
+  prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
+
+  #row1['allele_symbol'] = 'None'
+  #row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
+  #row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
+  #row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['phenotype_attempt_mouse_allele_type'].to_s) if ! row1['phenotype_attempt_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
   if row1['allele_symbol'].to_s.empty?
-    #pp row1
-    #exit
-
     row1['failed'] = 'pass 1'
     @failures.push row1
     next
@@ -176,9 +177,9 @@ rows.each do |row1|
     row = deep_copy row1
 
     # B1
-   # row['allele_symbol'] = row['targ_rep_alleles_id']
-   # row['allele_symbol'] = row['mgi_allele_symbol_superscript'] if ! row['mgi_allele_symbol_superscript'].to_s.empty?
-    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['phenotype_attempt_mouse_allele_type'].to_s) if ! row['phenotype_attempt_mouse_allele_type'].to_s.empty? && ! row['allele_symbol_superscript_template'].to_s.empty?
+    #row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['phenotype_attempt_mouse_allele_type'].to_s) if ! row['phenotype_attempt_mouse_allele_type'].to_s.empty? && ! row['allele_symbol_superscript_template'].to_s.empty?
+
+    row['allele_type'] = row['phenotype_attempt_mouse_allele_type'].to_s
 
     row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
 
@@ -193,7 +194,7 @@ rows.each do |row1|
     row['phenotyping_centre'] = row['pacentre_name']
     row['production_centre'] = row['pacentre_name']
 
-    row['allele_type'] = 'phenotype_attempt'
+    row['allele_type'] = row['phenotype_attempt_mouse_allele_type'].to_s
 
     row['type'] = 'B1'
 
@@ -209,9 +210,7 @@ rows.each do |row1|
     row = deep_copy row1
 
     # B3
-  #  row['allele_symbol'] = row['targ_rep_alleles_id']
-   # row['allele_symbol'] = row['mgi_allele_symbol_superscript'] if ! row['mgi_allele_symbol_superscript'].to_s.empty?
-    row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['mi_mouse_allele_type'].to_s) if ! row['mi_mouse_allele_type'].to_s.empty? && ! row['allele_symbol_superscript_template'].to_s.empty?
+   # row['allele_symbol'] = row['allele_symbol_superscript_template'].gsub(/\@/, row['mi_mouse_allele_type'].to_s) if ! row['mi_mouse_allele_type'].to_s.empty? && ! row['allele_symbol_superscript_template'].to_s.empty?
 
     row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
     row['mouse_status'] = STATUSES['GENOTYPE_CONFIRMED']
@@ -219,7 +218,7 @@ rows.each do |row1|
     row['production_centre'] = row['miacentre_name']
     row['phenotyping_centre'] = row['pacentre_name']
 
-    row['allele_type'] = 'phenotype_attempt'
+    row['allele_type'] = row['phenotype_attempt_mouse_allele_type'].to_s
 
     row['type'] = 'B3'
 
@@ -236,10 +235,14 @@ puts "#### pass 2..."
 
 rows.each do |row1|
 
-  row1['allele_symbol'] = 'None'
-  row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
-  row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
-  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
+  next if row1['mi_attempt_status'] == 'Micro-injection aborted'
+
+  prepare_allele_symbol row1, 'mi_mouse_allele_type'
+
+  #row1['allele_symbol'] = 'None'
+  #row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
+  #row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
+  #row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
   if row1['allele_symbol'].to_s.empty?
     row1['failed'] = 'pass 2'
@@ -252,14 +255,12 @@ rows.each do |row1|
     row = deep_copy row1
 
     # B4
-    #row['allele_symbol'] = row['allele_symbol_superscript_template'].to_s.gsub(/\@/, 'a')
-
     row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
     row['mouse_status'] = row['mi_attempt_status']
     row['phenotype_status'] = ''
     row['production_centre'] = row['miacentre_name']
 
-    row['allele_type'] = 'mi_attempt'
+    row['allele_type'] = row['mi_mouse_allele_type'].to_s
 
     row['type'] = 'B4'
 
@@ -279,10 +280,12 @@ puts "#### pass 3..."
 
 rows.each do |row1|
 
-  row1['allele_symbol'] = 'None'
-  row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
-  row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
-  row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
+  prepare_allele_symbol row1, 'mi_mouse_allele_type'
+
+  #row1['allele_symbol'] = 'None'
+  #row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
+  #row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
+  #row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
   if row1['allele_symbol'].to_s.empty?
     row1['failed'] = 'pass 3'
@@ -296,8 +299,6 @@ rows.each do |row1|
 
     row = deep_copy row1
 
-  #  row['allele_symbol'] = row['mgi_allele_symbol_superscript']
-
     if row1['does_an_es_cell_exist'] == 't'
       row['es_cell_status'] = STATUSES['ES_CELL_TARGETING_CONFIRMED']
     elsif row1['does_a_targ_vec_exist'] == 't'
@@ -310,7 +311,7 @@ rows.each do |row1|
     row['phenotype_status'] = ''
     row['production_centre'] = ''
 
-    row['allele_type'] = 'es_cell'
+    row['allele_type'] = row1['mi_mouse_allele_type'].to_s
 
     row['type'] = 'B5'
 
@@ -319,9 +320,6 @@ rows.each do |row1|
   end
 end
 
-
-
-#pp processed_rows
 
 
 key_count = 0
@@ -334,8 +332,6 @@ new_processed_list = []
 puts "#### pass 4..."
 
 genes_hash = {}
-
-#collision_detect = {}
 
 processed_rows.each do |row|
   target = row if key_count < row.keys.size
@@ -356,13 +352,9 @@ processed_rows.each do |row|
 
   hash['type'] = row['type'] if USE_TYPE
 
-  #hash['id'] = row['mgi_accession_id'].to_s + '-' + row['allele_symbol'].to_s
-
-    digest = Digest::MD5.hexdigest(row['mgi_accession_id'].to_s + '-' + row['allele_symbol'].to_s)
+  digest = Digest::MD5.hexdigest(row['mgi_accession_id'].to_s + '-' + row['allele_symbol'].to_s)
 
   hash['id'] = digest if USE_ID
-
-  #pp digest
 
   new_processed_rows.push hash if ! new_processed_rows_hash.has_key? digest.to_s   #hash.values.to_s
 
@@ -371,27 +363,10 @@ processed_rows.each do |row|
     genes_hash[hash['marker_symbol']].push hash
   end
 
-  #puts hash.values.to_s
-  #puts ""
-
-  #new_processed_rows_hash[hash.values.to_s] = true
   new_processed_rows_hash[digest.to_s] = true
 end
 
 puts "#### pass 5..."
-
-#PHENOTYPE_ATTEMPT_STATUSES = get_phenotype_attempt_statuses
-#MI_ATTEMPT_STATUSES = get_mi_attempt_statuses
-
-#STATUSES['ES_CELL_TARGETING_CONFIRMED']
-#STATUSES['ES_CELL_PRODUCTION_IN_PROGRESS']
-#STATUSES['NO_ES_CELL_PRODUCTION']
-
-ES_CELL_STATUSES = {
-  STATUSES['ES_CELL_TARGETING_CONFIRMED'] => 30,
-  STATUSES['ES_CELL_PRODUCTION_IN_PROGRESS'] => 20,
-  STATUSES['NO_ES_CELL_PRODUCTION'] => 10
-}
 
 genes_hash.keys.each do |key|
 
@@ -409,17 +384,7 @@ genes_hash.keys.each do |key|
 
       imits_phenotype_started = true if row['phenotype_status'] != 'Phenotype Attempt Aborted'
       imits_phenotype_complete = true if row['phenotype_status'] == 'Phenotyping Complete'
-      #
-      #if best_status.to_i < PHENOTYPE_ATTEMPT_STATUSES[row['mouse_status']].to_i
-      #  best_status = PHENOTYPE_ATTEMPT_STATUSES[row['mouse_status']].to_i
-      #  best_status_string = row['mouse_status']
-      #  best_production_centre = row['production_centre']
-      #  best_phenotyping_centre = row['phenotyping_centre']
-      #  imits_phenotype_status = row['mouse_status']
-      ##end
-      #
-      #els
-      #
+
       if best_status.to_i < PHENOTYPE_ATTEMPT_STATUSES[row['phenotype_status']].to_i
         best_status = PHENOTYPE_ATTEMPT_STATUSES[row['phenotype_status']].to_i
         best_status_string = row['phenotype_status']
@@ -429,19 +394,9 @@ genes_hash.keys.each do |key|
 
     elsif ! row['mouse_status'].to_s.empty?
 
-      #if ! MI_ATTEMPT_STATUSES.has_key? row['mouse_status']
+      #if ! MI_ATTEMPT_STATUSES.has_key? row['mouse_status'] # TODO: what if we've assigned it to row['phenotype_attempt_status'] or 'Cre Excision Complete'
       #end
 
-      #if best_status.to_i < PHENOTYPE_ATTEMPT_STATUSES[row['mouse_status']].to_i
-      #  best_status = PHENOTYPE_ATTEMPT_STATUSES[row['mouse_status']].to_i
-      #  best_status_string = row['mouse_status']
-      #  best_production_centre = row['production_centre']
-      #  best_phenotyping_centre = row['phenotyping_centre']
-      #  imits_phenotype_status = row['mouse_status']
-      ##end
-      #
-      #els
-      #
       if best_status.to_i < MI_ATTEMPT_STATUSES[row['mouse_status']].to_i
         best_status = MI_ATTEMPT_STATUSES[row['mouse_status']].to_i
         best_status_string = row['mouse_status']
@@ -450,15 +405,11 @@ genes_hash.keys.each do |key|
 
     elsif ! row['es_cell_status'].to_s.empty? && (best_status == 0)
 
-#      best_status_string = row['es_cell_status']
-
       if best_status.to_i < ES_CELL_STATUSES[row['es_cell_status']].to_i
         best_status = ES_CELL_STATUSES[row['es_cell_status']].to_i
         best_status_string = row['es_cell_status']
       end
 
-    #else
-    #  row['best_status'] = ''
     end
   end
 
@@ -480,11 +431,6 @@ new_processed_rows.each do |row|
   new_processed_list.push item.to_json
 end
 
-#pp new_processed_list
-
-#sublist = new_processed_list.each_slice(1000).to_a
-#sublist.each { |item| command item.join }
-
 if SAVE_AS_CSV
   puts "#### save csv..."
 
@@ -493,10 +439,10 @@ if SAVE_AS_CSV
   save_csv filename, new_processed_rows
 end
 
-puts "#### send to index..."
+#SOLR_UPDATE = YAML.load_file("#{Rails.root}/config/SOLR_UPDATE.yml")
+puts "#### send to index - #{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}"
 
-solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['ck'])
+proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
 proxy.update({'delete' => {'query' => '*:*'}}.to_json)
 proxy.update(new_processed_list.join)
 proxy.update({'commit' => {}}.to_json)
@@ -509,18 +455,6 @@ if ! @failures.empty?
 end
 
 puts "done!"
-
-#exit
-#
-#home = Dir.home
-#filename = "#{home}/Desktop/build_ck.csv"
-#
-#save_csv filename, new_processed_rows
-#
-##filename = "#{home}/Desktop/build_ck_original_rows.csv"
-##save_csv filename, original_rows
-#
-#puts "done!"
 
 #gene level:
 #
@@ -547,11 +481,3 @@ puts "done!"
 #
 #  mouse production center = > in select; either the MI centre or PA centre depending on which mI or PA row you're spitting out
 #  phenotyping center = > the PA centre IF you're spitting out the PA row
-#
-#
-
-#result = RubyProf.stop
-#
-## Print a flat profile to text
-#printer = RubyProf::FlatPrinter.new(result)
-#printer.print(STDOUT)

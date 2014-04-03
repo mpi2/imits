@@ -1,44 +1,27 @@
-class TargRep::TargetedAllele < TargRep::Allele
-  include TargRep::Allele::CassetteValidation
-  include TargRep::Allele::FeatureValidation
+class TargRep::NhejAllele < TargRep::Allele
 
-  validates :homology_arm_start, :presence => true
-  validates :homology_arm_end,   :presence => true
-  validates :cassette_start,     :presence => true
-  validates :cassette_end,       :presence => true
+  before_validation :set_allele_features_to_null
 
-  validates_uniqueness_of :project_design_id,
-    :scope => [
-      :gene_id, :assembly, :chromosome, :strand,
-      :cassette, :backbone,
-      :homology_arm_start, :homology_arm_end,
-      :cassette_start, :cassette_end,
-      :loxp_start, :loxp_end
-    ],
-    :message => "must have unique design features"
-
-  after_save :check_and_set_type
-
-  def missing_fields?
-    assembly.blank? ||
-    chromosome.blank? ||
-    strand.blank? ||
-    mutation_type.blank? ||
-    homology_arm_start.blank? ||
-    homology_arm_end.blank? ||
-    cassette_start.blank? ||
-    cassette_end.blank?
+  def set_allele_features_to_null
+    self.backbone = nil
+    self.homology_arm_start = nil
+    self.homology_arm_end = nil
+    self.loxp_start = nil
+    self.loxp_end = nil
+    self.cassette_start = nil
+    self.cassette_end = nil
+    self.cassette = nil
+    self.cassette_type = nil
+    self.floxed_start_exon = nil
+    self.floxed_end_exon = nil
+    self.intron = nil
   end
 
-  def self.targeted_allele?; true; end
+  def pipeline_names
+    nil
+  end
 
-  protected
-    def check_and_set_type
-      if mutation_type.gene_trap?
-        update_attribute(:type, 'TargRep::GeneTrap')
-      end
-    end
-
+  def self.nhej_allele?; true; end
 end
 
 

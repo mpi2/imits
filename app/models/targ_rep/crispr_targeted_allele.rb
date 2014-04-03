@@ -1,43 +1,14 @@
-class TargRep::TargetedAllele < TargRep::Allele
+class TargRep::CrisprTargetedAllele < TargRep::Allele
   include TargRep::Allele::CassetteValidation
   include TargRep::Allele::FeatureValidation
 
-  validates :homology_arm_start, :presence => true
-  validates :homology_arm_end,   :presence => true
-  validates :cassette_start,     :presence => true
-  validates :cassette_end,       :presence => true
+  validates :backbone,       :presence => true
 
-  validates_uniqueness_of :project_design_id,
-    :scope => [
-      :gene_id, :assembly, :chromosome, :strand,
-      :cassette, :backbone,
-      :homology_arm_start, :homology_arm_end,
-      :cassette_start, :cassette_end,
-      :loxp_start, :loxp_end
-    ],
-    :message => "must have unique design features"
-
-  after_save :check_and_set_type
-
-  def missing_fields?
-    assembly.blank? ||
-    chromosome.blank? ||
-    strand.blank? ||
-    mutation_type.blank? ||
-    homology_arm_start.blank? ||
-    homology_arm_end.blank? ||
-    cassette_start.blank? ||
-    cassette_end.blank?
+  def pipeline_names
+    nil
   end
 
-  def self.targeted_allele?; true; end
-
-  protected
-    def check_and_set_type
-      if mutation_type.gene_trap?
-        update_attribute(:type, 'TargRep::GeneTrap')
-      end
-    end
+  def self.crispr_targeted_allele?; true; end
 
 end
 

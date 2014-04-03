@@ -68,7 +68,9 @@ th                      { font-weight: 600; }
 /* Responsive Design */
 @media only screen and (min-width: 1450px) {
 #navigation li          { margin-left: 10px; }
-#navigation li a        { font-size: 1.2em; font-weight: 400; }
+#navigation li a        { font-size: 1.1em; font-weight: 400; }
+#navigation li span     { font-size: 1.5em; font-weight: 400; }
+#navigation #home a     { font-size: 1.5em; font-weight: 400; }
 }
 
 .homepage-links p { margin-top: 5px; }

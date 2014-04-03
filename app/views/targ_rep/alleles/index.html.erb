@@ -1,6 +1,8 @@
 <% @tab = 'Alleles' if @title == 'Targeted Allele' %>
 <% @tab = 'Traps' if @title == 'Gene Trap Allele' %>
-
+<% @tab = 'Targeted' if @title == 'Crispr Targeted Allele' %>
+<% @tab = 'HDR' if @title == 'HDR Allele' %>
+<% @tab = 'NHEJ' if @title == 'NHEJ Allele' %>
 <div class="grid_12">
   <h2><%= @title %></h2>
 </div>
@@ -11,8 +13,12 @@
 </div>
 
 <div class="grid_12">
+  <% if current_user and @title != 'NHEJ Allele' and @alleles.count > 13%>
+    <a href="<%= url_for(@new_path) %>" class="button positive">
+      <%= image_tag "targ_rep/led-icons/add.png", :alt => "" %> New Allele
+    </a>
+  <% end %>
   <%= will_paginate @alleles %>
-
   <table class="list">
     <thead>
       <tr>
@@ -56,7 +62,7 @@
           <td><%= allele.targeted_trap? %></td>
           <td>
             <%= link_to 'view', allele, :class => "ss_sprite ss_magnifier" %>
-            <% if current_user %>
+            <% if current_user and @title != 'NHEJ Allele'%>
               <%= link_to 'edit', [:edit, allele], :class => "ss_sprite ss_pencil" %>
               <% if current_user.admin? %>
                 <%= link_to 'delete', allele, :confirm => 'Are you sure?', :method => :delete, :class => "ss_sprite ss_cross" %>
@@ -70,8 +76,8 @@
 
   <%= will_paginate @alleles %>
 
-  <% if current_user %>
-  <a href="<%= url_for(gene_trap? ? new_targ_rep_gene_trap_path : new_targ_rep_allele_path) %>" class="button positive">
+  <% if current_user and @title != 'NHEJ Allele'%>
+  <a href="<%= url_for(@new_path) %>" class="button positive">
     <%= image_tag "targ_rep/led-icons/add.png", :alt => "" %> New Allele
   </a>
   <% end %>

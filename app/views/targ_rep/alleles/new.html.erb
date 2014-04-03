@@ -4,13 +4,16 @@
 
 <%= form_for @allele do |f| %>
   <%= render :partial => 'form', :locals => { :f => f, :allele => @allele } %>
-  
+
   <div id="buttons" class="grid_12">
     <p>
       <button type="submit" class="button positive">
         <%= image_tag "targ_rep/led-icons/accept.png", :alt => "" %> Create
       </button>
-      <a href="<%= url_for(targ_rep_alleles_path) %>" class="button negative">
+        <% if @allele.class.targeted_allele? %><a href="<%= targ_rep_alleles_path %>" class="button negative"><% end %>
+        <% if @allele.class.hdr_allele? %><a href="<%= targ_rep_hdr_alleles_path %>" class="button negative"><% end %>
+        <% if @allele.class.crispr_targeted_allele? %><a href="<%= targ_rep_crispr_targeted_alleles_path %>" class="button negative"><% end %>
+        <% if @allele.class.gene_trap? %><a href="<%= targ_rep_gene_traps_path %>" class="button negative"><% end %>
         <%= image_tag "targ_rep/led-icons/cross.png", :alt => "" %> Cancel
       </a>
     </p>

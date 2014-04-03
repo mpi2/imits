@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140324135302) do
+ActiveRecord::Schema.define(:version => 20140324145302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -836,7 +836,7 @@ ActiveRecord::Schema.define(:version => 20140324135302) do
 
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
-    t.string   "assembly",            :limit => 50,  :default => "NCBIM37",                 :null => false
+    t.string   "assembly",                           :default => "GRCm38",                  :null => false
     t.string   "chromosome",          :limit => 2,                                          :null => false
     t.string   "strand",              :limit => 1,                                          :null => false
     t.integer  "homology_arm_start"
@@ -860,6 +860,7 @@ ActiveRecord::Schema.define(:version => 20140324135302) do
     t.datetime "updated_at",                                                                :null => false
     t.integer  "intron"
     t.string   "type",                               :default => "TargRep::TargetedAllele"
+    t.text     "sequence"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|
@@ -969,11 +970,12 @@ ActiveRecord::Schema.define(:version => 20140324135302) do
   add_index "targ_rep_es_cells", ["pipeline_id"], :name => "es_cells_pipeline_id_fk"
 
   create_table "targ_rep_genbank_files", :force => true do |t|
-    t.integer  "allele_id",        :null => false
+    t.integer  "allele_id",           :null => false
     t.text     "escell_clone"
     t.text     "targeting_vector"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "allele_genbank_file"
   end
 
   add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
@@ -1024,6 +1026,13 @@ ActiveRecord::Schema.define(:version => 20140324135302) do
   end
 
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
+
+  create_table "targ_rep_sequence_annotation", :force => true do |t|
+    t.integer "coordinate_start"
+    t.string  "expected_sequence"
+    t.string  "actual_sequence"
+    t.integer "allele_id"
+  end
 
   create_table "targ_rep_targeting_vectors", :force => true do |t|
     t.integer  "allele_id",               :null => false

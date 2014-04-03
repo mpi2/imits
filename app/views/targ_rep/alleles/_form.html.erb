@@ -4,7 +4,7 @@
   </div>
 <% end %>
 
-<div class="grid_6">
+<div <% if gene_trap? or @allele.class.targeted_allele?%> class="grid_6" <% else %> class="grid_12"<%end %> >
   <p>
     <%= label_tag :gene_marker_symbol, "Gene Filter" %><br />
     <%= text_field_tag "gene_marker_symbol", (@allele.marker_symbol if @allele.gene), :class => :title, :autocomplete => "off" %>
@@ -15,12 +15,14 @@
   </ul>
 </div>
 
-<div class="grid_6">
-  <p>
-    <%= f.label :project_design_id, "Project Design ID" %><br />
-    <%= f.text_field :project_design_id, :class => :title %>
-  </p>
-</div>
+<% if gene_trap? or @allele.class.targeted_allele?%>
+  <div class="grid_6">
+    <p>
+      <%= f.label :project_design_id, "Project Design ID" %><br />
+      <%= f.text_field :project_design_id, :class => :title %>
+    </p>
+  </div>
+<% end %>
 
 <div class="grid_6">
   <fieldset>
@@ -59,7 +61,7 @@
     <p>
       <%= f.label :mutation_type_id, "Mutation Type" %><br />
       <% if gene_trap? %>
-        <%= f.text_field :mutation_type_name, :value => 'Gene Trap', :disabled => true, :class => :text  %>
+        <%= f.text_field :mutation_type_id, :value => 'Gene Trap', :disabled => true, :class => :text  %>
       <% else %>
         <%= f.collection_select :mutation_type_id, @mutation_type, :id, :name, :include_blank => true  %>
       <% end %>
@@ -72,6 +74,13 @@
       <%= f.label :subtype_description, "Subtype Description" %><br />
       <%= f.text_field :subtype_description, :class => :text %>
     </p>
+    <% if @allele.class.hdr_allele? or @allele.class.crispr_targeted_allele? %>
+      <p>
+        <%= f.label :backbone %><br />
+        <%= f.text_field :backbone, :class => :text %>
+      </p>
+    <% end %>
+    <% unless @allele.class.hdr_allele? %>
     <p>
       <%= f.label :cassette %><br />
       <%= f.text_field :cassette, :class => :text %>
@@ -80,7 +89,7 @@
       <%= f.label :cassette_type %><br />
       <%= f.select :cassette_type, ['','Promotorless', 'Promotor Driven'] %>
     </p>
-    <% unless gene_trap? %>
+    <% unless gene_trap? or @allele.class.crispr_targeted_allele?%>
       <p>
         <%= f.label :backbone %><br />
         <%= f.text_field :backbone, :class => :text %>
@@ -94,9 +103,11 @@
         <%= f.text_field :floxed_end_exon, :class => :text %>
       </p>
     <% end %>
+    <% end %>
   </fieldset>
 </div>
 
+<% unless @allele.class.hdr_allele? or @allele.class.crispr_targeted_allele? %>
 <div class="grid_6">
   <fieldset>
     <legend>Molecular Co-Ordinates</legend>
@@ -110,42 +121,63 @@
         <%= f.text_field :homology_arm_end, :class => :text %>
       </p>
     <% end %>
-    <p>
-      <%= f.label :cassette_start, "Cassette Start" %><br />
-      <%= f.text_field :cassette_start, :class => :text %>
-    </p>
-    <p>
-      <%= f.label :cassette_end, "Cassette End" %><br />
-      <%= f.text_field :cassette_end, :class => :text %>
-    </p>
-    <% unless gene_trap? %>
       <p>
-        <%= f.label :loxp_start, "LoxP Start" %><br />
-        <%= f.text_field :loxp_start, :class => :text %>
+        <%= f.label :cassette_start, "Cassette Start" %><br />
+        <%= f.text_field :cassette_start, :class => :text %>
       </p>
       <p>
-        <%= f.label :loxp_end, "LoxP End" %><br />
-        <%= f.text_field :loxp_end, :class => :text %>
+        <%= f.label :cassette_end, "Cassette End" %><br />
+        <%= f.text_field :cassette_end, :class => :text %>
       </p>
-    <% end %>
+      <% unless gene_trap? %>
+        <p>
+          <%= f.label :loxp_start, "LoxP Start" %><br />
+          <%= f.text_field :loxp_start, :class => :text %>
+        </p>
+        <p>
+          <%= f.label :loxp_end, "LoxP End" %><br />
+          <%= f.text_field :loxp_end, :class => :text %>
+        </p>
+      <% end %>
   </fieldset>
 </div>
+<% end %>
 
-<div class="grid_12 clear"></div>
-
-<!-- Genbank files handling. -->
-<%= f.fields_for :genbank_file do |genbank_form| -%>
-  <%= genbank_form.hidden_field :nested %>
+<% if @allele.class.hdr_allele?%>
   <div class="grid_6">
-    <label>Targeting Vectors Genbank File</label><br />
-    <%= genbank_form.text_area :targeting_vector, :class => :text %>
+  <fieldset>
+  <legend>Oligos Details</legend>
+      <p>
+        <%= f.label :sequence, "Sequence" %><br />
+        <%= f.text_area :sequence, :class => :text %>
+      </p>
+  </fieldset>
   </div>
+<% end %>
 
-  <div class="grid_6">
-    <label>ES Cell Clones Genbank File</label><br />
-    <%= genbank_form.text_area :escell_clone, :class => :text %>
+<% unless @allele.class.hdr_allele? %>
+  <div class="grid_12">
+    <fieldset>
+      <legend>Genbank files Details</legend>
+      <!-- Genbank files handling. -->
+      <%= f.fields_for :genbank_file do |genbank_form| -%>
+        <%= genbank_form.hidden_field :nested %>
+        <% unless gene_trap? %>
+          <div class="grid_6">
+            <label>Targeting Vectors Genbank File</label><br />
+            <%= genbank_form.text_area :targeting_vector, :class => :text %>
+          </div>
+        <% end %>
+        <%unless @allele.class.crispr_targeted_allele? %>
+          <div class="grid_6">
+            <label>ES Cell Clones Genbank File</label><br />
+            <%= genbank_form.text_area :escell_clone, :class => :text %>
+          </div>
+        <% end %>
+      <% end -%>
+    </fieldset>
   </div>
-<% end -%>
+<% end %>
 
 <% unless gene_trap? %>
   <div class="grid_12 clear"></div>
@@ -156,6 +188,7 @@
     <h3>Targeting Vectors</h3>
     <table class="list">
       <thead>
+        <% if !@allele.class.hdr_allele?%>
         <tr>
           <th>Pipeline</th>
           <th>IKMC Project ID</th>
@@ -164,6 +197,13 @@
           <th>Report to Public</th>
           <th></th>
         </tr>
+        <% else %>
+        <tr>
+          <th>Targeting Vector</th>
+          <th>Report to Public</th>
+          <th></th>
+        </tr>
+        <% end %>
       </thead>
       <tbody id="targeting_vectors">
         <%= f.fields_for :targeting_vectors do |targ_vec_form| %>
@@ -179,28 +219,30 @@
 
 <!-- ES Cells handling. -->
 
-<div class="grid_12">
-  <h3>ES Cells</h3>
-  <table class="list">
-    <thead>
-      <tr>
-        <th>Pipeline</th>
-        <th>ES Cell</th>
-        <th>Targeting Vector</th>
-        <th>MGI Allele ID</th>
-        <th>Allele Symbol Superscript</th>
-        <th>Parental Cell Line</th>
-        <th>IKMC Project ID</th>
-        <th>Report to Public</th>
-        <th></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="es_cells">
-      <%= f.fields_for :es_cells do |es_cell_form| %>
-        <%= render :partial => 'targ_rep/alleles/es_cell_form', :locals => { :f => es_cell_form } %>
-      <% end -%>
-    </tbody>
-  </table>
-  <p><%= add_es_cell_link(f) %></p>
-</div>
+<% unless @allele.class.hdr_allele? or @allele.class.crispr_targeted_allele? %>
+  <div class="grid_12">
+    <h3>ES Cells</h3>
+    <table class="list">
+      <thead>
+        <tr>
+          <th>Pipeline</th>
+          <th>ES Cell</th>
+          <th>Targeting Vector</th>
+          <th>MGI Allele ID</th>
+          <th>Allele Symbol Superscript</th>
+          <th>Parental Cell Line</th>
+          <th>IKMC Project ID</th>
+          <th>Report to Public</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="es_cells">
+        <%= f.fields_for :es_cells do |es_cell_form| %>
+          <%= render :partial => 'targ_rep/alleles/es_cell_form', :locals => { :f => es_cell_form } %>
+        <% end -%>
+      </tbody>
+    </table>
+    <p><%= add_es_cell_link(f) %></p>
+  </div>
+<% end %>

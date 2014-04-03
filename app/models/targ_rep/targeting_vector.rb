@@ -25,7 +25,7 @@ class TargRep::TargetingVector < ActiveRecord::Base
     :uniqueness => true,
     :presence => true
 
-  validates :pipeline, :presence => true
+ # validates :pipeline, :presence => true
   validates :allele, :presence => {:unless => :nested}
 
   ##
@@ -63,7 +63,7 @@ class TargRep::TargetingVector < ActiveRecord::Base
   protected
     # Set mirKO ikmc_project_ids to "mirKO#{self.allele_id}"
     def set_mirko_ikmc_project_id
-      if (self.ikmc_project_id.blank? or self.ikmc_project_id =~ /^mirko$/i) and self.pipeline.name == "mirKO"
+      if (self.ikmc_project_id.blank? or self.ikmc_project_id =~ /^mirko$/i) and self.pipeline.try(:name) == "mirKO"
         self.ikmc_project_id = "mirKO#{ self.allele_id }"
       end
     end

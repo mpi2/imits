@@ -165,6 +165,9 @@ TarMits::Application.routes.draw do
 
     resources :gene_traps
     resources :targeted_alleles
+    resources :hdr_alleles
+    resources :crispr_targeted_alleles
+    resources :nhej_alleles, :except => [:create, :edit, :update, :new]
 
     resources :alleles do
       get :history, :on => :member
@@ -190,6 +193,7 @@ TarMits::Application.routes.draw do
     resources :distribution_qcs
 
     get '/alleles/:id/escell-clone-genbank-file' => 'alleles#escell_clone_genbank_file', :as => 'escell_clone_genbank_file'
+    get '/alleles/:id/allele-genbank-file' => 'alleles#allele_genbank_file', :as => 'allele_genbank_file'
     get '/alleles/:id/targeting-vector-genbank-file' => 'alleles#targeting_vector_genbank_file', :as => 'targeting_vector_genbank_file'
     get '/alleles/:id/escell-clone-cre-genbank-file' => 'alleles#escell_clone_cre_genbank_file', :as => 'escell_clone_cre_genbank_file'
     get '/alleles/:id/targeting-vector-cre-genbank-file' => 'alleles#targeting_vector_cre_genbank_file', :as => 'targeting_vector_cre_genbank_file'

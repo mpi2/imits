@@ -3,9 +3,10 @@ class TargRep::AllelesController < TargRep::BaseController
   respond_to :html, :xml, :json
 
   before_filter do
-    @klass = TargRep::TargetedAllele
-    @title = 'Targeted Allele'
+    @klass = TargRep::Allele
+    @title = 'Allele'
     @allele_type = @klass.name.demodulize.underscore
+    @new_path = new_targ_rep_targeted_allele_path
   end
 
   # For webservice interface
@@ -17,6 +18,7 @@ class TargRep::AllelesController < TargRep::BaseController
     :show,
     :index,
     :escell_clone_genbank_file,
+    :allele_genbank_file,
     :targeting_vector_genbank_file,
     :escell_clone_cre_genbank_file,
     :targeting_vector_cre_genbank_file,
@@ -197,6 +199,14 @@ class TargRep::AllelesController < TargRep::BaseController
     return if check_for_genbank_file
     return if check_for_escell_genbank_file
     send_genbank_file(@allele.genbank_file.escell_clone)
+  end
+
+  # GET /alleles/1/allele_genbank_file/
+  def allele_genbank_file
+    find_allele
+    return if check_for_genbank_file
+    return if check_for_allele_genbank_file
+    send_genbank_file(@allele.genbank_file.allele)
   end
 
   # GET /alleles/1/targeting-vector-genbank-file/
@@ -439,7 +449,10 @@ class TargRep::AllelesController < TargRep::BaseController
     render :json => create_attribute_documentation_for(@klass)
   end
 
+  def targeted_allele?; false; end
   def gene_trap?; false; end
+  def hdr_allele?; false; end
+  def nhej_allele?; false; end
 
   private
     def find_allele
@@ -486,6 +499,8 @@ class TargRep::AllelesController < TargRep::BaseController
       params[:targ_rep_allele] = params.delete(:allele) if params[:allele]
       params[:targ_rep_allele] = params.delete(:targ_rep_gene_trap) if params[:targ_rep_gene_trap]
       params[:targ_rep_allele] = params.delete(:targ_rep_targeted_allele) if params[:targ_rep_targeted_allele]
+      params[:targ_rep_allele] = params.delete(:targ_rep_crispr_targeted_allele) if params[:targ_rep_crispr_targeted_allele]
+      params[:targ_rep_allele] = params.delete(:targ_rep_hdr_allele) if params[:targ_rep_hdr_allele]
       allele_params = params[:targ_rep_allele]
 
       # README: http://htgt.internal.sanger.ac.uk:4005/issues/257
@@ -552,7 +567,7 @@ class TargRep::AllelesController < TargRep::BaseController
         gb_escell   = gb_files_attrs[:escell_clone]
         gb_targ_vec = gb_files_attrs[:targeting_vector]
 
-        if ( gb_escell.nil? and gb_targ_vec.nil? ) or ( gb_escell.empty? and gb_targ_vec.empty? )
+        if ( gb_escell.blank? and gb_targ_vec.blank? )
           allele_params.delete(:genbank_file_attributes)
         end
       end
@@ -571,6 +586,10 @@ class TargRep::AllelesController < TargRep::BaseController
 
     def check_for_escell_genbank_file
       four_oh_four if @allele.genbank_file.escell_clone.nil? || @allele.genbank_file.escell_clone.empty?
+    end
+
+    def check_for_allele_genbank_file
+      four_oh_four if @allele.genbank_file.allele_genbank_file.nil? || @allele.genbank_file.allele_genbank_file.empty?
     end
 
     def check_for_vector_genbank_file

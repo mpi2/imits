@@ -246,19 +246,26 @@ end
 Factory.define :invalid_pipeline, :class => TargRep::Pipeline do |f|
 end
 
-Factory.define :gene_trap, :class => TargRep::GeneTrap do |f|
+Factory.define :base_allele, :class => TargRep::Allele do |f|
   f.sequence(:project_design_id)    { |n| "design id #{n}"}
   f.sequence(:subtype_description)  { |n| "subtype description #{n}" }
-  f.sequence(:intron)               { (1..10).to_a[rand(10)] }
-  f.sequence(:cassette)             { |n| "cassette #{n}"}
   f.association :gene, :factory => :gene
 
   f.assembly       "NCBIM37"
   f.chromosome     { [("1".."19").to_a + ['X', 'Y', 'MT']].flatten[rand(22)] }
   f.strand         { ['+', '-'][rand(2)] }
+  f.mutation_method { TargRep::MutationMethod.all[rand(TargRep::MutationMethod.all.count)] }
+  f.mutation_type    { TargRep::MutationType.find_by_code('crd') }
+  f.mutation_subtype { TargRep::MutationSubtype.all[rand(TargRep::MutationSubtype.all.count)] }
+end
+
+
+Factory.define :gene_trap, :class => TargRep::GeneTrap, :parent => :base_allele do |f|
   f.mutation_method { TargRep::MutationMethod.find_by_code('gt') }
   f.mutation_type    { TargRep::MutationType.find_by_code('gt') }
-  f.mutation_subtype { TargRep::MutationSubtype.all[rand(TargRep::MutationSubtype.all.count)] }
+
+  f.sequence(:intron)               { (1..10).to_a[rand(10)] }
+  f.sequence(:cassette)             { |n| "cassette #{n}"}
   f.cassette_type  { ['Promotorless','Promotor Driven'][rand(2)] }
 
   # Cassette
@@ -278,19 +285,9 @@ Factory.define :gene_trap, :class => TargRep::GeneTrap do |f|
 
 end
 
-Factory.define :allele, :class => TargRep::TargetedAllele do |f|
-  f.sequence(:project_design_id)    { |n| "design id #{n}"}
-  f.sequence(:subtype_description)  { |n| "subtype description #{n}" }
+Factory.define :allele, :class => TargRep::TargetedAllele, :parent => :base_allele do |f|
   f.sequence(:cassette)             { |n| "cassette #{n}"}
   f.sequence(:backbone)             { |n| "backbone #{n}"}
-  f.association :gene, :factory => :gene
-
-  f.assembly       "NCBIM37"
-  f.chromosome     { [("1".."19").to_a + ['X', 'Y', 'MT']].flatten[rand(22)] }
-  f.strand         { ['+', '-'][rand(2)] }
-  f.mutation_method { TargRep::MutationMethod.all[rand(TargRep::MutationMethod.all.count)] }
-  f.mutation_type    { TargRep::MutationType.find_by_code('crd') }
-  f.mutation_subtype { TargRep::MutationSubtype.all[rand(TargRep::MutationSubtype.all.count)] }
   f.cassette_type  { ['Promotorless','Promotor Driven'][rand(2)] }
 
   #     Features positions chose for this factory:
@@ -363,6 +360,15 @@ end
 Factory.define :invalid_allele, :class => TargRep::TargetedAllele do |f|
 end
 
+Factory.define :crispr_targeted_allele, :class => TargRep::CrisprTargetedAllele, :parent => :allele do |f|
+end
+
+Factory.define :hdr_allele, :class => TargRep::HdrAllele, :parent => :base_allele do |f|
+    f.sequence(:backbone)             { |n| "backbone #{n}"}
+end
+
+Factory.define :nhej_allele, :class => TargRep::NhejAllele, :parent => :base_allele do |f|
+end
 ##
 ## Targeting Vector
 ##

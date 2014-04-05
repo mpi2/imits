@@ -6,9 +6,19 @@ require "digest/md5"
 SAVE_AS_CSV = false
 USE_ID = false
 USE_TYPE = false
+USE_IDS = false
+
+sql_template = <<END
+  genes.id as genes_id,
+  phenotype_attempts.id as phenotype_attempts_id,
+  mi_attempts.id as mi_attempts_id,
+  targ_rep_es_cells.id as targ_rep_es_cells_id,
+END
 
 sql = <<END
 select distinct
+  SUBS_TEMPLATE
+
   targ_rep_alleles.id as targ_rep_alleles_id,
 
   genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,
@@ -37,9 +47,13 @@ from genes
   left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id                                and paplan.report_to_public is true
   left outer join centres pacentres on pacentres.id = paplan.production_centre_id
   left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id
+--  where marker_symbol = 'Ino80'
 END
 
-#Cib2 Ell2
+sql.gsub!(/SUBS_TEMPLATE/, sql_template) if USE_IDS
+sql.gsub!(/SUBS_TEMPLATE/, '') if ! USE_IDS
+
+#Cib2 Ell2 Zranb1 Pet2 Ino80
 
 processed_rows = []
 remainder_rows = []
@@ -113,6 +127,9 @@ def get_phenotype_attempt_statuses
   hash
 end
 
+#  5 | Cre Excision Started         | 2011-12-19 13:38:41.186843 | 2012-07-26 13:38:08.67926  |      350 | ces
+#  6 | Cre Excision Complete        | 2011-12-19 13:38:41.19204  | 2012-07-26 13:38:08.681483 |      360 | cec
+
 def get_mi_attempt_statuses
   hash = {}
   sql = 'select * from mi_attempt_statuses order by order_by;'
@@ -120,6 +137,10 @@ def get_mi_attempt_statuses
   rows.each do |row|
     hash[row['name']] = row['order_by']
   end
+
+  hash['Cre Excision Started'] = 350
+  hash['Cre Excision Complete'] = 360
+
   hash
 end
 
@@ -128,7 +149,6 @@ def prepare_allele_symbol row1, type
   row1['allele_symbol'] = row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
   row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
   row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1[type].to_s) if ! row1[type].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
-
   row1
 end
 
@@ -228,7 +248,6 @@ rows.each do |row1|
   end
 end
 
-
 puts "#### pass 2..."
 
 # pass 2/3
@@ -270,11 +289,7 @@ rows.each do |row1|
   end
 end
 
-
-
 puts "#### pass 3..."
-
-
 
 # pass 3/3
 
@@ -320,8 +335,6 @@ rows.each do |row1|
   end
 end
 
-
-
 key_count = 0
 target = nil
 
@@ -356,6 +369,21 @@ processed_rows.each do |row|
 
   hash['id'] = digest if USE_ID
 
+  if USE_IDS
+    notes = []
+    notes.push "GENE: #{row['genes_id'].to_s}" if row['genes_id']
+    notes.push "MI: #{row['mi_attempts_id'].to_s}" if row['mi_attempts_id']
+    notes.push "PA: #{row['phenotype_attempts_id'].to_s}" if row['phenotype_attempts_id']
+    notes.push "ALELE: #{row['targ_rep_alleles_id'].to_s}" if row['targ_rep_alleles_id']
+    notes.push "ESCELL: #{row['targ_rep_es_cells_id'].to_s}" if row['targ_rep_es_cells_id']
+
+    hash['notes'] = notes.join ' - '
+  end
+
+  #genes.id as genes_id,
+  #phenotype_attempts.id as phenotype_attempts_id,
+  #mi_attempts.id as mi_attempts_id,
+
   new_processed_rows.push hash if ! new_processed_rows_hash.has_key? digest.to_s   #hash.values.to_s
 
   if ! new_processed_rows_hash.has_key? digest.to_s
@@ -382,7 +410,8 @@ genes_hash.keys.each do |key|
   genes_hash[key].each do |row|
     if ! row['phenotype_status'].to_s.empty?
 
-      imits_phenotype_started = true if row['phenotype_status'] != 'Phenotype Attempt Aborted'
+      imits_phenotype_started = true if row['phenotype_status'] == 'Phenotyping Started' || row['phenotype_status'] == 'Phenotyping Complete'
+
       imits_phenotype_complete = true if row['phenotype_status'] == 'Phenotyping Complete'
 
       if best_status.to_i < PHENOTYPE_ATTEMPT_STATUSES[row['phenotype_status']].to_i
@@ -394,8 +423,10 @@ genes_hash.keys.each do |key|
 
     elsif ! row['mouse_status'].to_s.empty?
 
-      #if ! MI_ATTEMPT_STATUSES.has_key? row['mouse_status'] # TODO: what if we've assigned it to row['phenotype_attempt_status'] or 'Cre Excision Complete'
-      #end
+      if best_status.to_i < MI_ATTEMPT_STATUSES[row['mouse_status']].to_i &&
+        (MI_ATTEMPT_STATUSES[row['mouse_status']].to_i == 350 || MI_ATTEMPT_STATUSES[row['mouse_status']].to_i == 360)
+          imits_phenotype_status = row['mouse_status']
+      end
 
       if best_status.to_i < MI_ATTEMPT_STATUSES[row['mouse_status']].to_i
         best_status = MI_ATTEMPT_STATUSES[row['mouse_status']].to_i
@@ -417,9 +448,10 @@ genes_hash.keys.each do |key|
     row['latest_project_status'] = best_status_string
     row['latest_production_centre'] = best_production_centre
     row['latest_phenotyping_centre'] = best_phenotyping_centre
-    row['imits_phenotype_started'] = imits_phenotype_started ? '1' : '0'
-    row['imits_phenotype_complete'] = imits_phenotype_complete ? '1' : '0'
-    row['imits_phenotype_status'] = imits_phenotype_status
+    row['latest_phenotype_started'] = imits_phenotype_started ? '1' : '0'
+    row['latest_phenotype_complete'] = imits_phenotype_complete ? '1' : '0'
+    row['latest_phenotype_status'] = imits_phenotype_status
+    row['latest_gene_project_status_str'] = row['marker_symbol'].to_s + "-" + row['latest_project_status'].to_s
   end
 
 end
@@ -427,7 +459,13 @@ end
 puts "#### pass 6..."
 
 new_processed_rows.each do |row|
-  item = {'add' => {'doc' => row }}
+  ohash = ActiveSupport::OrderedHash.new
+
+  row.keys.sort.each do |key|
+    ohash[key] = row[key]
+  end
+
+  item = {'add' => {'doc' => ohash }}
   new_processed_list.push item.to_json
 end
 
@@ -439,7 +477,6 @@ if SAVE_AS_CSV
   save_csv filename, new_processed_rows
 end
 
-#SOLR_UPDATE = YAML.load_file("#{Rails.root}/config/SOLR_UPDATE.yml")
 puts "#### send to index - #{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}"
 
 proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
@@ -454,7 +491,7 @@ if ! @failures.empty?
   save_csv filename, @failures
 end
 
-puts "done!"
+puts "done (#{new_processed_rows.size})!"
 
 #gene level:
 #

@@ -1,40 +1,7 @@
 #!/usr/bin/env ruby
 
-# This script is used to download the nightly dump of the Solr
-# index XMLs from the KOMP-DCC (Jackson Lab) and insert the
-# data into a staging database ready for it to be biomartized.
-
 require 'pp'
-#require 'optparse'
-#require 'yaml'
-#require 'net/ftp'
-#require 'xmlsimple'
-#require 'csv'
-#require 'net/http'
-#require 'uri'
-#require 'biomart'
-#require 'json'
-#require 'dbi'
-#require 'terminal-table/import'
 require 'open-uri'
-
-# Method to download the XML file dump from jax and extract it
-# into our directory.
-#def download_xml_files
-#  ftp = Net::FTP.new('ftp.informatics.jax.org')
-#  ftp.login
-#  ftp.chdir('pub')
-#  ftp.chdir('reports')
-#  ftp.getbinaryfile('gene_association.mgi')
-#  ftp.close
-#end
-#
-##ftp://ftp.informatics.jax.org/pub/reports/gene_association.mgi
-#
-#puts "Downloading and gene_association.mgi..."
-#download_xml_files()
-#
-#exit
 
 #Column 	Content 	              Required?   Cardinality 	Example
 #1 	        DB 	                      required 	  1 	        UniProtKB
@@ -78,8 +45,6 @@ columns = [
   'Gene Product Form ID'
 ]
 
-#columns_symbols = columns.map {|column| column.downcase.to_sym }
-
 columns_hash = Hash[columns.map.with_index.to_a]
 
 #url = 'ftp://ftp.informatics.jax.org/pub/reports/gene_association.mgi'
@@ -91,52 +56,6 @@ File.open("gene_association.mgi.original", "r") do |f|
 
     next if line[0] == '!'
 
-    #headers = line.strip.split("\t")
-    #db = headers.index('DB')
-    #db_object_id = headers.index('DB Object ID')
-    #db_object_symbol = headers.index('DB Object Symbol')
-    #qualifier = headers.index('Qualifier')
-    #go_id = headers.index('GO ID')
-    #db_reference = headers.index('DB:Reference')
-    #evidence_code = headers.index('Evidence Code')
-    #with_from = headers.index('With (or) From')
-    #aspect = headers.index('Aspect')
-    #db_object_name = headers.index('DB Object Name')
-    #db_object_synonym  = headers.index('DB Object Synonym ')
-    #db_object_type = headers.index('DB Object Type')
-    #taxon = headers.index('Taxon')
-    #date = headers.index('Date')
-    #assigned_by = headers.index('Assigned By')
-    #annotation_extension = headers.index('Annotation Extension')
-    #gene_product_form_id = headers.index('Gene Product Form ID')
-
-    #file.each_line do |line|
-    #  row = line.strip.gsub(/\"/, '').split("\t")
-    #genes_data[row[mgi_accession_index]] = {
-    #
-    #  #'db' => row[db],
-    #  #'db_object_id' => row[db_object_id],
-    #  #'db_object_symbol'   => row[db_object_symbol],
-    #  #'qualifier'           => row[qualifier],
-    #  #'go_id'         => row[go_id],
-    #  #'db_reference'           => row[db_reference],
-    #  #'evidence_code'        => row[evidence_code],
-    #  #'with_from'  => row[with_from],
-    #  #'aspect'  => row[aspect],
-    #  #'db_object_name'  => row[db_object_name],
-    #  #'db_object_synonym'  => row[db_object_synonym],
-    #  #'db_object_type'  => row[db_object_type],
-    #  #'taxon'  => row[taxon],
-    #  #'date'  => row[date],
-    #  #'assigned_by'  => row[assigned_by],
-    #  #'annotation_extension'  => row[annotation_extension],
-    #  #'gene_product_form_id'  => row[gene_product_form_id]
-    #
-    #  columns.each do |column|
-    #  end
-    #}
-
-    #row = line.strip.gsub(/\"/, '').split("\t")
     row = line.strip.split("\t")
 
     product = {}
@@ -149,15 +68,16 @@ File.open("gene_association.mgi.original", "r") do |f|
 
     genes_data[row[columns_hash['DB Object ID']]] = product if ! row[columns_hash['DB Object Synonym']].to_s.empty?
 
-    genes_data_array.push product if ! row[columns_hash['DB Object Synonym']].to_s.empty?
-
-    #break
-
+   # genes_data_array.push product if ! row[columns_hash['DB Object Synonym']].to_s.empty?
   end
 end
-#end
 
-#pp genes_data
+rows = ActiveRecord::Base.connection.execute("select id, marker_symbol, mgi_accession_id from genes")
+rows.each do |row|
+  if genes_data.has_key?(row['mgi_accession_id'])
+    genes_data_array.push(genes_data[row['mgi_accession_id']].merge({ 'marker_symbol' => row['marker_symbol']}))
+  end
+end
 
 home = Dir.home
 filename = "#{home}/Desktop/synonym_ck.csv"

@@ -160,8 +160,8 @@ class TargRep::Allele < ActiveRecord::Base
 
   # fix for error where form tries to insert empty strings when there are no floxed exons
   def set_empty_fields_to_nil
-    self.floxed_start_exon = nil if self.floxed_start_exon.empty?
-    self.floxed_end_exon   = nil if self.floxed_end_exon.empty?
+    self.floxed_start_exon = nil if self.floxed_start_exon.to_s.empty?
+    self.floxed_end_exon   = nil if self.floxed_end_exon.to_s.empty?
   end
 
   ##

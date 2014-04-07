@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   ADMIN_USERS = [
-    'aq2@sanger.ac.uk',
+    'as28@sanger.ac.uk',
     'vvi@sanger.ac.uk',
     're4@sanger.ac.uk',
     'pen1adm@sanger.ac.uk',
@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   ]
 
   REMOTE_ACCESS_USERS = [
-    'aq2@sanger.ac.uk',
+    'as28@sanger.ac.uk',
     'vvi@sanger.ac.uk',
     're4@sanger.ac.uk',
     'a.blake@har.mrc.ac.uk'

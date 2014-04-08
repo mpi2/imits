@@ -8,7 +8,7 @@ USE_ID = false
 USE_IDS = false
 USE_ORDER = false
 USE_REPORT_TO_PUBLIC = false
-USE_ALLELES = false
+USE_ALLELES = true
 USE_GENES = true
 
 sql_template = <<END

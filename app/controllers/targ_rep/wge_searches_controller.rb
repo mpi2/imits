@@ -27,7 +27,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
 
 
     if params_passed
-      response = HTTParty.get("http://www.sanger.ac.uk/htgt/wge/api/exon_search?species=Mouse&marker_symbol=#{marker_symbol}")
+      response = wge_call("api/exon_search?species=Mouse&marker_symbol=#{marker_symbol}")
 
       if response.message != 'Bad Request'
         response['exons'].each do |exon|
@@ -53,7 +53,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
   def crispr_search
     exon_ids = params[:exon_id]
 
-    response = HTTParty.get("http://www.sanger.ac.uk/htgt/wge/api/crispr_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}")
+    response = wge_call("api/crispr_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}")
 
     data = []
 
@@ -81,7 +81,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
   def crispr_pair_search
     exon_ids = params[:exon_id]
 
-    response = HTTParty.get("http://www.sanger.ac.uk/htgt/wge/api/pair_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}")
+    response = wge_call("api/pair_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}")
 
     data = []
 
@@ -114,4 +114,9 @@ class TargRep::WgeSearchesController < TargRep::BaseController
     end
   end
 
+
+private
+  def wge_call(request_url_str)
+    HTTParty.get("http://www.sanger.ac.uk/htgt/wge/#{request_url_str}")
+  end
 end

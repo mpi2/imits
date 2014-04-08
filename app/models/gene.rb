@@ -25,12 +25,12 @@ class Gene < ActiveRecord::Base
     sql = <<-EOF
                WITH gene AS (SELECT genes.* FROM genes WHERE genes.marker_symbol = '#{self.marker_symbol}')
 
-               SELECT targ_rep_targeting_vectors.*
+               SELECT targ_rep_alleles.type AS type, targ_rep_targeting_vectors.*
                FROM gene
                JOIN targ_rep_alleles ON targ_rep_alleles.gene_id = gene.id
                JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
                WHERE targ_rep_targeting_vectors.report_to_public = true
-               ORDER BY targ_rep_targeting_vectors.name
+               ORDER BY targ_rep_alleles.type, targ_rep_targeting_vectors.name
              EOF
   end
   private :retreive_genes_vectors_sql

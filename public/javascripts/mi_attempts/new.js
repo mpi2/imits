@@ -169,7 +169,9 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
         this.window.hide();
 
         listView.set_mi_plan_selection(esCellMarkerSymbol);
-
+        Ext.get('mi_attempt_mi_plan_id').set({
+            value: ''
+        });
         Imits.MiAttempts.New.restOfForm.setEsCellDetails(esCellName, esCellMarkerSymbol);
         var top = Ext.get('object-new-top');
         top.setVisible(false ,'display');
@@ -447,6 +449,45 @@ Ext.define('Imits.MiAttempts.New.MutagenesisFactorSelectorForm', {
             }
             ]
         }));
+
+        Ext.create('Ext.Button', {
+            minHeight: 20,
+            text: 'Edit Crispr Selection',
+            renderTo: 'crispr_edit_button',
+            handler: function() {
+
+                // show crisprs already selected in crisprSelectionGrid
+                var numberOfCripsrsSelected = Ext.get('crispr-table').query('tr').length;
+                for (var i=0;i<numberOfCripsrsSelected;i++){
+                    var addCrispr = {}
+                    addCrispr['seq'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_sequence').getValue();
+                    addCrispr['chr'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_chr').getValue();
+                    addCrispr['chr_start'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_start').getValue();
+                    addCrispr['chr_end'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_end').getValue();
+
+                    this.window.crisprSearch.crisprSelectionList.createCrispr(addCrispr)
+                }
+
+                // Auto fill marker_symbol if blank and find exons
+                var formMarkerSymbol = Ext.get('marker_symbol').getValue();
+                if (formMarkerSymbol !=  this.window.crisprSearch.searchBox.getValue()){
+                    this.window.crisprSearch.searchBox.focus();
+                    this.window.crisprSearch.searchBox.setValue(formMarkerSymbol);
+                    this.window.show();
+                    this.window.crisprSearch.performSearch();
+                }
+                else{
+                  this.window.show();
+                }
+
+                if (formMarkerSymbol){
+                    mutagensisFactorPanel.window.crisprSearch.searchBox.disable();
+                    mutagensisFactorPanel.window.crisprSearch.searchButton.disable();
+                }
+            },
+            scope: this
+        });
+
         this.window = Ext.create('Imits.MiAttempts.New.MutagenesisFactorSelectorWindow', {
         });
     }
@@ -533,6 +574,23 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
             }
         });
 
+        this.searchButton  = Ext.create('Ext.Button', {
+            text: 'Search',
+            margins: {
+                left: 4,
+                top: 9,
+                right: 0,
+                bottom: 0
+            },
+            listeners: {
+                'click': {
+                    fn: this.performSearch,
+                    scope: this
+                }
+            }
+        });
+
+
         this.add(Ext.create('Ext.form.Label', {
             text: this.initialConfig.searchBoxLabel,
             margin: {
@@ -550,22 +608,7 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
             ui: 'plain',
             items: [
             this.searchBox,
-            {
-                xtype: 'button',
-                text: 'Search',
-                margins: {
-                    left: 4,
-                    top: 9,
-                    right: 0,
-                    bottom: 0
-                },
-                listeners: {
-                    'click': {
-                        fn: this.performSearch,
-                        scope: this
-                    }
-                }
-            }
+            this.searchButton
             ]
         }));
 
@@ -599,11 +642,15 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                         var recordStore = mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore()
                         var newRecords = recordStore.getNewRecords();
                         var count_n = 0
+                        //remove existing rows from crispr table
+                        while (crisprTable.dom.firstChild) {
+                            crisprTable.dom.removeChild(crisprTable.dom.firstChild);
+                        };
                         newRecords.forEach(
                             function(item){
                                 var tableRow ="<tr>\
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_" + count_n + "_sequence' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][sequence]' value= " + item.data['seq'] + " >" + item.data['seq'] + "</td>\
-<td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_chr' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][chr]' value= " + '1' + " >" + '1' + "</td>\
+<td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_chr' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][chr]' value= " + item.data['chr'] + " >" + item.data['chr'] + "</td>\
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_start' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][start]' value= " + item.data['chr_start'] + " >" + item.data['chr_start'] + "</td>\
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_end' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][end]' value= " +  item.data['chr_end'] + " >" +  item.data['chr_end'] + "</td>\
 </tr>";
@@ -611,12 +658,15 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                                 count_n += 1
                             }
                         );
+                        var vectorAttribute = Ext.get('mi_attempt_mutagenesis_factor_attributes_vector_name');
+                        var vectorValue = undefined;
+                        if (vectorAttribute) {vectorValue = vectorAttribute.getValue()};
+                        Ext.get('vector-container').dom.innerHTML = '';
                         Ext.create('Ext.form.Label', {
                             renderTo: 'vector-container',
                             text: 'Vector',
                             margin: '0 0 2 0'
                         });
-
                         var urlParams = {};
                         urlParams['marker_symbol'] = mutagensisFactorPanel.window.crisprSearch.searchBox.getValue();
                         Ext.Ajax.request({
@@ -626,30 +676,40 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                             success: function(response) {
                                 var data = Ext.decode(response.responseText);
                                 var options = '<option value=""></option>';
+                                if (vectorValue){options += '<option value="' + vectorValue + '" selected>' + vectorValue + '</option>'};
+                                var crisprtv = '<option value="" disabled>Targeted Vector</option>';
+                                var oligo = '<option value="" disabled>Oligo</option>';
+                                var escelltv = '<option value="" disabled>Targeted Vector</option>';
                                 data.forEach(
                                     function(item){
-                                        options += '<option value="' + item.name + '">' + item.name + '</option>'
+                                        if (item.type =='TargRep::CrisprTargetedAllele'){
+                                            crisprtv += '<option value="' + item.name + '">' + item.name + '</option>';
+                                        }
+                                        else if (item.type =='TargRep::HrdAllele'){
+                                            oligo += '<option value="' + item.name + '">' + item.name + '</option>';
+                                        }
+                                        else if (item.type =='TargRep::TargetedAllele'){
+                                            escelltv += '<option value="' + item.name + '">' + item.name + '</option>';
+                                        }
                                     }
                                 );
-                            vectorHtml = '<select id="mi_attempt_mutagenesis_factor_attributes_vector_name" name="mi_attempt[mutagenesis_factor_attributes][vector_name]">' + options;
-                            this.vectorDiv = Ext.create('Ext.Component', {
-                            renderTo: 'vector-container',
-                            html: vectorHtml,
-                            margin: '0 0 5 0'
-                        });
+                                options += '<option value="" disabled>-- CRISPR --</option>' + crisprtv + oligo + '<option value="" disabled></option><option value="" disabled>-- ES CELL --</option>' + escelltv;
+                                vectorHtml = '<select id="mi_attempt_mutagenesis_factor_attributes_vector_name" name="mi_attempt[mutagenesis_factor_attributes][vector_name]">' + options;
+                                this.vectorDiv = Ext.create('Ext.Component', {
+                                renderTo: 'vector-container',
+                                html: vectorHtml,
+                                margin: '0 0 5 0'
+                            });
                             },
                             scope: this
                         });
-
-//                        crisprTable.query( selector );
-
-  //                      crisprTable.select();
-
 
                         mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().removeAll()
 
                         EsCellPanel.esCellNameTextField.disable();
                         EsCellPanel.esCellNameSelect.disable();
+                        mutagensisFactorPanel.window.crisprSearch.searchBox.disable();
+                        mutagensisFactorPanel.window.crisprSearch.searchButton.disable();
 
                         var top = Ext.get('object-new-top');
                         top.setVisible(false ,'display');
@@ -676,9 +736,6 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                 listeners: {
                     'click': function() {
                         mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().removeAll()
-                        mutagensisFactorPanel.window.crisprSearch.crisprselect.exonsList.getStore().removeAll()
-                        mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprList.getStore().removeAll()
-                        mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprpairList.getStore().removeAll()
                         mutagensisFactorPanel.window.hide();
                         }
                     }
@@ -839,10 +896,18 @@ Ext.define('Imits.MiAttempts.New.CrisprList', {
     }
     ],
 
+    viewConfig: {
+        getRowClass: function (record, index) {
+            // disabled-row - custom css class for disabled (you must declare it)
+            if (mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.alreadySelected(record.get('seq'))) return 'disabled-row';
+        }
+    },
+
     initComponent: function() {
         this.callParent();
         this.url = '/targ_rep/wge_searches/crispr_search.json';
         this.addListener('itemclick', function(theView, record) {
+           if (mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.alreadySelected(record.data['seq'])) return;
            addCrispr = {}
 
            addCrispr['seq'] = record.data['seq'];
@@ -891,10 +956,21 @@ Ext.define('Imits.MiAttempts.New.CrisprPairsList', {
     }
     ],
 
+    viewConfig: {
+        getRowClass: function (record, index) {
+            // disabled-row - custom css class for disabled (you must declare it)
+            if (mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.alreadySelected(record.get('left_crispr'))) return 'disabled-row';
+            if (mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.alreadySelected(record.get('right_crispr'))) return 'disabled-row';
+        }
+    },
+
     initComponent: function() {
         this.callParent();
         this.url = '/targ_rep/wge_searches/crispr_pair_search.json';
         this.addListener('itemclick', function(theView, record) {
+           if (mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.alreadySelected(record.data['left_crispr']) || mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.alreadySelected(record.data['right_crispr'])){
+             return
+           }
            addLeftCrispr = {}
            addRightCrispr = {}
 
@@ -972,6 +1048,8 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
             handler: function(grid, rowIndex, colIndex) {
                 if(confirm("Remove crispr?"))
                     mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().removeAt(rowIndex)
+                    mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprList.view.refresh();
+                    mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprpairList.view.refresh();
             }
         }]
     }
@@ -979,6 +1057,21 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
 
     createCrispr: function(addCrisprs) {
         mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().add(addCrisprs);
+        mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprList.view.refresh();
+        mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprpairList.view.refresh();
+    },
+
+    alreadySelected: function(crispr) {
+       var selected = false
+       mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().data.items.forEach(
+           function(item) {
+               if (crispr == item.data['seq']){
+                   selected = true;
+                   return false;
+               }
+           }
+       )
+       return selected
     },
 
     initComponent: function() {
@@ -1042,6 +1135,12 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
                         alert("You must enter a valid crispr sequence of length 23.");
                         return;
                     }
+
+                    if(((!(sequenceValue.match(/^[ACGT]+$/i))))) {
+                        alert("You must enter a valid crispr sequence containing only [ACGT].");
+                        return;
+                    }
+
                     if(!chrValue) {
                         alert("You must enter chromosome name.");
                         return;
@@ -1052,17 +1151,38 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
                         return;
                     }
 
+                    if((!(chrStartValue.match(/^[0-9]+$/)))) {
+                        alert("You must enter a number for the chromosome start.");
+                        return;
+                    }
+
                     if(!chrEndValue) {
                         alert("You must enter the Crisprs chromosome start.");
                         return;
                     }
 
+                    if(!(chrEndValue.match(/^[0-9]+$/))) {
+                        alert("You must enter a number for the chromosome end.");
+                        return;
+                    }
+
+                    if (mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.alreadySelected(sequenceValue)){
+                        alert("Crispr already selected.");
+                        return;
+                    }
+
                     var addCrispr = {};
-                    addCrispr['seq'] = sequenceValue;
+                    addCrispr['seq'] = sequenceValue.toUpperCase();
                     addCrispr['chr'] = chrValue;
                     addCrispr['chr_start'] = chrStartValue;
                     addCrispr['chr_end'] = chrEndValue;
                     self.createCrispr(addCrispr);
+
+                    // reset fields after successful save.
+                    self.seqText.setValue('');
+                    self.chrText.setValue('');
+                    self.chrStartText.setValue(0);
+                    self.chrEndText.setValue(0);
                 }
             }
            ]

@@ -49,7 +49,7 @@ class GenesController < ApplicationController
     end
 
     if !gene.blank?
-      tv = gene.vectors
+      tv = gene.vectors.map{|tv| {:type =>tv.type, :name =>tv.name, :allele_id=> tv.allele_id, :id => tv.id}}
     end
 
     respond_to do |format|

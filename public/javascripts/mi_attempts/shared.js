@@ -209,7 +209,9 @@ Ext.define('Imits.MiAttempts.Shared.ListView', {
     initComponent: function() {
         this.callParent();
         this.addListener('selectionchange', function(view, nodes) {
-            Ext.get("mi_attempt_mi_plan_id").set({ value: nodes[0].get('id') });
+            if (nodes.length > 0){
+              Ext.get("mi_attempt_mi_plan_id").set({ value: nodes[0].get('id') });
+            }
         });
     }
 });

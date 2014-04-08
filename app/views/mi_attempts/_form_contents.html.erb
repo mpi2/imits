@@ -28,9 +28,10 @@
       <input id="marker_symbol" value="<%= @marker_symbol %>" disabled>
       <div id="vector-container">
         <%= form.fields_for :mutagenesis_factor do |builder| %>
-          <%= builder.select 'vector_name',@vector_options, :include_blank => true%>
+          <%= builder.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: @vector_options[:selected]) %>
         <% end %>
       </div>
+      <label for="mi_attempts_mutagenesis_factor_crisprs">Crisprs</label>
       <table id="mutagenesis_factor_table" class="report_table">
         <thead class="title">
           <tr>
@@ -48,6 +49,7 @@
           <% end %>
         </tbody>
       </table>
+      <div id="crispr_edit_button"></div>
     </div>
   </fieldset>
 </div>

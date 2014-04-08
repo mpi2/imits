@@ -125,14 +125,31 @@ class MiAttemptsController < ApplicationController
   end
 
   def get_vector_options(marker_symbol)
+    return if marker_symbol.blank?
+
     gene = Gene.find_by_marker_symbol(marker_symbol)
     if gene.nil?
       gene = Gene.find(:first, :conditions => ["lower(marker_symbol) = ?", marker_symbol.downcase])
     end
     return [] if gene.nil?
-    gene.vectors.map{|v| v.name}
+
+    values = ["", "-- CRISPR --", ["Targeted Vector"], ["Oligo"], "-- ES CELL --", ["Targeted Vector"]]
+
+    gene.vectors.each do |tv|
+      if tv.type =='TargRep::CrisprTargetedAllele'
+        values[2] << tv.name
+      elsif tv.type =='TargRep::HrdAllele'
+        values[3] << tv.name
+      elsif tv.type =='TargRep::TargetedAllele'
+        values[5] << tv.name
+      end
+    end
+
+    options = {values: values.flatten, disabled: ["Targeted Vector", "Oligo", "-- CRISPR --", "-- ES CELL --"] , selected: @mi_attempt.mutagenesis_factor.try(:vector_name)}
+    return options
   end
   private :get_vector_options
+
 
   def get_marker_symbol
 

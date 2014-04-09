@@ -36,7 +36,7 @@ class MiAttempt < ApplicationModel
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
-  belongs_to :mutagenesis_factor
+  belongs_to :mutagenesis_factor, :inverse_of => :mi_attempt
 
   has_many :crisprs, through: :mutagenesis_factor
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
@@ -57,7 +57,6 @@ class MiAttempt < ApplicationModel
 
   protected :status=
 
-#  validates :es_cell_name, :presence => true
   validates :status, :presence => true
   validates :colony_name, :uniqueness => {:case_sensitive => false}, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }

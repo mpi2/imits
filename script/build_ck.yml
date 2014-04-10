@@ -1,0 +1,74 @@
+--- 
+legacy_statuses_map: 
+  Not Assigned for ES Cell Production: 
+  - No ES Cell Production
+  Assigned for ES Cell Production: 
+  - ES Cell Production in Progress
+  ES Cells Produced: 
+  - ES Cell Targeting Confirmed
+  Assigned for Mouse Production and Phenotyping: 
+  - Chimeras obtained
+  - Micro-injection in progress
+  Mice Produced: 
+  - Genotype confirmed
+  - Cre Excision Started
+  - Cre Excision Complete
+  - Phenotype Attempt Registered
+  - Phenotyping Started
+
+statuses: 
+  ES_CELL_TARGETING_CONFIRMED: ES Cell Targeting Confirmed
+  CRE_EXCISION_COMPLETE: Cre Excision Complete
+  GENOTYPE_CONFIRMED: Genotype confirmed
+  ES_CELL_PRODUCTION_IN_PROGRESS: ES Cell Production in Progress
+  NO_ES_CELL_PRODUCTION: No ES Cell Production
+
+es_cell_statuses: 
+  ES Cell Targeting Confirmed: 30
+  ES Cell Production in Progress: 20
+  No ES Cell Production: 10
+
+sql: |
+  select distinct    
+  targ_rep_alleles.id as targ_rep_alleles_id,    
+  genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,    
+  CASE WHEN (targ_rep_targeting_vectors.allele_id IS NOT NULL) THEN true else false END AS does_a_targ_vec_exist,
+  CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL) THEN true else false END AS does_an_es_cell_exist,    
+  targ_rep_es_cells.mgi_allele_symbol_superscript,
+  targ_rep_es_cells.allele_symbol_superscript_template,
+  miapc.name miacentre_name,
+  mi_attempt_statuses.name as mi_attempt_status,
+  mi_attempts.mouse_allele_type as mi_mouse_allele_type,
+  phenotype_attempts.mouse_allele_type as phenotype_attempt_mouse_allele_type,
+  phenotype_attempts.cre_excision_required,
+  pacentres.name pacentre_name,
+  phenotype_attempt_statuses.name as phenotype_attempt_status
+  from genes
+  left outer join targ_rep_alleles on genes.id = targ_rep_alleles.gene_id
+  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id    --  and targ_rep_targeting_vectors.report_to_public is true
+  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id                      --  and targ_rep_es_cells.report_to_public is true
+  left outer join mi_attempts on mi_attempts.es_cell_id = targ_rep_es_cells.id                                --  and mi_attempts.report_to_public is true
+  left outer join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id
+  left join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id                           --  and mi_attempt_plan.report_to_public is true
+  left join centres miapc on mi_attempt_plan.production_centre_id = miapc.id
+  left outer join phenotype_attempts on phenotype_attempts.mi_attempt_id = mi_attempts.id                     --  and phenotype_attempts.report_to_public is true
+  left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id                                --  and paplan.report_to_public is true
+  left outer join centres pacentres on pacentres.id = paplan.production_centre_id
+  left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id    
+
+sql_template: |
+  genes.id as genes_id,
+  phenotype_attempts.id as phenotype_attempts_id,
+  mi_attempts.id as mi_attempts_id,
+  targ_rep_es_cells.id as targ_rep_es_cells_id,
+
+options: 
+  SAVE_AS_CSV: false
+  USE_ID: false
+  USE_IDS: false
+  USE_ORDER: false
+  USE_REPORT_TO_PUBLIC: false
+  USE_ALLELES: true
+  USE_GENES: true
+  MARKER_SYMBOL: ""
+  USE_SYNONYMS: true

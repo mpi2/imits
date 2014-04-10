@@ -53,9 +53,10 @@ def process_line line
   else
     product['DB Object ID'] = row[@columns_hash['DB Object ID']]
     product['DB Object Synonym'] = row[@columns_hash['DB Object Synonym']]
+    product['DB Object Symbol'] = row[@columns_hash['DB Object Symbol']]
   end
 
-  @genes_data[row[@columns_hash['DB Object ID']]] = product if ! row[@columns_hash['DB Object Synonym']].to_s.empty?
+  @genes_data[row[@columns_hash['DB Object ID']]] = product       #if ! row[@columns_hash['DB Object Synonym']].to_s.empty?
 end
 
 def save_csv filename, data
@@ -72,8 +73,15 @@ def get_db
   rows.each do |row|
     if @genes_data.has_key?(row['mgi_accession_id'])
       @genes_data[row['mgi_accession_id']]['Marker symbol'] = row['marker_symbol']
+      @genes_data[row['mgi_accession_id']]['used'] = true
       @genes_data_array.push(@genes_data[row['mgi_accession_id']].merge({ 'Marker symbol' => row['marker_symbol']}))
+    #else
+    #  @genes_data_array.push(@genes_data[row['mgi_accession_id']].merge({ 'Marker symbol' => row['marker_symbol']}))
     end
+  end
+
+  @genes_data.keys.each do |key|
+    @genes_data_array.push(@genes_data[key].merge({ 'Marker symbol' => @genes_data[key]['DB Object Symbol'], 'used' => false})) if @genes_data[key]['used'] != true
   end
 end
 
@@ -82,6 +90,7 @@ puts "#### using #{USE_FTP ? 'ftp' : 'local file'}"
 do_ftp if USE_FTP
 do_local if ! USE_FTP
 get_db
-save_csv "#{Dir.home}/Desktop/synonym_ck.csv", @genes_data_array
+#save_csv "#{Dir.home}/Desktop/synonym_ck.csv", @genes_data_array
+save_csv "./gene_association.mgi.processed.csv", @genes_data_array
 
 puts "#### done!"

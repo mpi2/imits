@@ -45,37 +45,6 @@ remainder_rows = []
 @failures = []
 @mark_hash = {}
 
-#config = {'config' => {'LEGACY_STATUSES_MAP' => LEGACY_STATUSES_MAP, 'statuses' => STATUSES, 'sql' => sql, 'sql_template' => sql_template, 'options' => {
-#      'SAVE_AS_CSV' => SAVE_AS_CSV,
-#      'USE_ID' => USE_ID,
-#      'USE_IDS' => USE_IDS,
-#      'USE_ORDER' => USE_ORDER,
-#      'USE_REPORT_TO_PUBLIC' => USE_REPORT_TO_PUBLIC,
-#      'USE_ALLELES' => USE_ALLELES,
-#      'USE_GENES' => USE_GENES,
-#      'MARKER_SYMBOL' => MARKER_SYMBOL,
-#      'USE_SYNONYMS' => USE_SYNONYMS
-#      }}}
-#
-#puts config.to_yaml
-#exit
-
-
-#@db = nil
-#
-#def build_sqlite_db
-#  @db = SQLite3::Database.new( "build_ck.db" )
-#  #rows = db.execute( "select * from test" )
-#end
-
-#LEGACY_STATUSES = [
-#  'Not Assigned for ES Cell Production',
-#  'Assigned for ES Cell Production',
-#  'ES Cells Produced',
-#  'Assigned for Mouse Production and Phenotyping',
-#  'Mice Produced'
-#  ]
-
 def mark row
   pp row if row['allele_symbol'].to_s.empty?
   raise "#### Must have allele_symbol!" if row['allele_symbol'].to_s.empty?
@@ -160,6 +129,11 @@ def prepare_allele_symbol row1, type
   row1
 end
 
+def delete_index 
+  proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
+  proxy.update({'delete' => {'query' => '*:*'}}.to_json) 
+end
+
 def send_to_index data, delete = false
   proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
   puts "#### delete!" if delete
@@ -174,7 +148,7 @@ def build_json data
     hash = nil
     if USE_ORDER
       hash = ActiveSupport::OrderedHash.new
-      row.keys.sort.each { |key| ohash[key] = row[key] }
+      row.keys.sort.each { |key| hash[key] = row[key] }
     else
       hash = row
     end
@@ -188,9 +162,6 @@ end
 @synonyms = {}
 
 def load_synonyms
-  # load from csv
-  # build marker_symbol keyed hash
-
   CSV.foreach("gene_association.mgi.processed.csv", :headers => true, :header_converters => :symbol, :converters => :all) do |row|
     @synonyms[row.fields[0]] = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
   end
@@ -472,43 +443,6 @@ rows.each do |row1|
   latest_es_cell_status = ''
   latest_mouse_status = ''
 
-  #puts "#### #{counter}/#{count}" if counter % 1000 == 0
-  #counter += 1
-
-  #count = Gene.count
-  #counter = 0
-
-  #  rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type from genes') if MARKER_SYMBOL.empty?
-  #  rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type from genes where marker_symbol = '#{MARKER_SYMBOL}'") if ! MARKER_SYMBOL.empty?
-  #
-  #  rows.each do |row1|
-  #
-  #    puts "#### #{counter}/#{count}" if counter % 1000 == 0
-  #    counter += 1
-  #next
-  #
-  #    marker_symbol = row1['marker_symbol']
-  #
-  #    if ! genes_hash.has_key?(marker_symbol)
-  #      hash = {}
-  #      hash['marker_symbol'] = row1['marker_symbol']
-  #      hash['mgi_accession_id'] = row1['mgi_accession_id']
-  #      hash['marker_type'] = row1['marker_type']
-  #      hash['latest_project_status'] = ''
-  #      hash['latest_project_status'] = ''
-  #      hash['latest_production_centre'] = ''
-  #      hash['latest_phenotyping_centre'] = ''
-  #      hash['latest_phenotype_started'] = '0'
-  #      hash['latest_phenotype_complete'] = '0'
-  #      hash['latest_phenotype_status'] = ''
-  #      hash['type'] = 'gene'
-  #      hash['latest_es_cell_status'] = ''
-  #      hash['latest_mouse_status'] = ''
-  #      hash['synonym'] = @synonyms[hash['mgi_accession_id']][:db_object_synonym].to_s.split '|' if USE_SYNONYMS && @synonyms[hash['mgi_accession_id']] && @synonyms[hash['mgi_accession_id']].has_key?(:db_object_synonym)
-  #      new_processed_gene_rows.push hash #if MARKER_SYMBOL.empty?
-  #      next
-  #    end
-
   genes_hash[marker_symbol].each do |row|
     if ! row['phenotype_status'].to_s.empty?
 
@@ -550,31 +484,7 @@ rows.each do |row1|
       end
 
     end
-    #   end
-
-    #{
-    #  "marker_symbol":"Pet2",
-    #  "marker_type":"Gene",
-    #  "mgi_accession_id":"MGI:101758",
-    #  "es_cell_status":"ES Cell Production in Progress",
-    #  "mouse_status":"",
-    #  "phenotype_status":"",
-    #  "production_centre":"",
-    #  "allele_name":"139",
-    #  "allele_type":"",
-    #  "type":"gene",
-    #  "latest_project_status":"ES Cell Production in Progress",
-    #  "latest_production_centre":"",
-    #  "latest_phenotyping_centre":"",
-    #  "latest_phenotype_started":"0",
-    #  "latest_phenotype_complete":"0",
-    #  "latest_phenotype_status":"",
-    #  "latest_project_status_str":["ES Cell Production in Progress"],
-    #  "latest_production_centre_str":[""],
-    #  "latest_phenotyping_centre_str":[""]
-    #}
-
-    # genes_hash[key].each do |row1|
+  end
 
     exclude_keys = %W{es_cell_status mouse_status phenotype_status production_centre allele_name allele_type phenotyping_centre}
 
@@ -590,7 +500,8 @@ rows.each do |row1|
     row['latest_phenotype_status'] = imits_phenotype_status
     row['latest_es_cell_status'] = latest_es_cell_status
     row['latest_mouse_status'] = latest_mouse_status
-    row['synonym'] = @synonyms[row['mgi_accession_id']][:db_object_synonym].to_s.split '|' if USE_SYNONYMS
+    #row['synonym'] = @synonyms[row['mgi_accession_id']][:db_object_synonym].to_s.split '|' if USE_SYNONYMS
+    row['synonym'] = @synonyms[row['mgi_accession_id']][:db_object_synonym].to_s.split '|' if USE_SYNONYMS && @synonyms[row['mgi_accession_id']] && @synonyms[row['mgi_accession_id']].has_key?(:db_object_synonym)
 
     row['type'] = 'gene'
 
@@ -601,21 +512,7 @@ rows.each do |row1|
       end
     end
 
-    #pp row
-    #exit
-    #
-    #if ! MARKER_SYMBOL.empty?
-    #  if MARKER_SYMBOL == row['marker_symbol']
-    #    new_processed_gene_rows.push row
-    #    break
-    #  end
-    #  #next
-    #else
-    #  new_processed_gene_rows.push row
-    #end
-
     new_processed_gene_rows.push row
-  end
 
 end
 
@@ -623,44 +520,11 @@ end
 
 puts "#### pass 5.2..."
 
-#count = Gene.count
-#counter = 0
-#
-#rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type from genes') if MARKER_SYMBOL.empty?
-#rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type from genes where marker_symbol = '#{MARKER_SYMBOL}'") if ! MARKER_SYMBOL.empty?
-#
-#rows.each do |row1|
-#  puts "#### #{counter}/#{count}" if counter % 1000 == 0
-#  counter += 1
-#
-#  marker_symbol = row1['marker_symbol']
-#
-#  next if genes_hash.has_key?(marker_symbol)
-#
-#  hash = {}
-#  hash['marker_symbol'] = row1['marker_symbol']
-#  hash['mgi_accession_id'] = row1['mgi_accession_id']
-#  hash['marker_type'] = row1['marker_type']
-#  hash['latest_project_status'] = ''
-#  hash['latest_project_status'] = ''
-#  hash['latest_production_centre'] = ''
-#  hash['latest_phenotyping_centre'] = ''
-#  hash['latest_phenotype_started'] = '0'
-#  hash['latest_phenotype_complete'] = '0'
-#  hash['latest_phenotype_status'] = ''
-#  hash['type'] = 'gene'
-#  hash['latest_es_cell_status'] = ''
-#  hash['latest_mouse_status'] = ''
-#  hash['synonym'] = @synonyms[hash['mgi_accession_id']][:db_object_synonym].to_s.split '|' if USE_SYNONYMS && @synonyms[hash['mgi_accession_id']] && @synonyms[hash['mgi_accession_id']].has_key?(:db_object_synonym)
-#  new_processed_gene_rows.push hash
-#end
-
-
-
+counter = 0
 
 if USE_SYNONYMS && MARKER_SYMBOL.empty?
   @synonyms.keys.each do |key|
-    next if @synonyms[key][:used]
+    next if @synonyms[key][:used] != 'false'
     hash = {}
     hash['marker_symbol'] = @synonyms[key][:db_object_symbol]
     hash['mgi_accession_id'] = @synonyms[key][:db_object_id]
@@ -675,39 +539,18 @@ if USE_SYNONYMS && MARKER_SYMBOL.empty?
     hash['type'] = 'gene'
     hash['latest_es_cell_status'] = ''
     hash['latest_mouse_status'] = ''
-    hash['synonym'] = @synonyms[key][:db_object_synonym].to_s.split '|' if USE_SYNONYMS
-    new_processed_gene_rows.push row
+    hash['synonym'] = @synonyms[key][:db_object_synonym].to_s.split '|'
+    new_processed_gene_rows.push hash
+    counter += 1
   end
 end
+
+puts "#### #{counter}"
 
 puts "#### pass 6..."
 
 new_processed_list = build_json new_processed_allele_rows
 new_processed_list2 = build_json new_processed_gene_rows
-
-#new_processed_allele_rows.each do |row|
-#
-#  if USE_ORDER
-#    ohash = ActiveSupport::OrderedHash.new
-#    row.keys.sort.each { |key| ohash[key] = row[key] }
-#  end
-#
-#  item = {'add' => {'doc' => ohash }}
-#  new_processed_list.push item.to_json
-#end
-#
-#new_processed_list2 = []
-#
-#new_processed_gene_rows.each do |row|
-#
-#  if USE_ORDER
-#    ohash = ActiveSupport::OrderedHash.new
-#    row.keys.sort.each { |key| ohash[key] = row[key] }
-#  end
-#
-#  item = {'add' => {'doc' => ohash }}
-#  new_processed_list2.push item.to_json
-#end
 
 if SAVE_AS_CSV
   puts "#### save csv..."
@@ -719,15 +562,12 @@ end
 
 puts "#### send to index - #{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}"
 
-#proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
-#proxy.update({'delete' => {'query' => '*:*'}}.to_json)
-#proxy.update(new_processed_list.join)
-#proxy.update({'commit' => {}}.to_json)
-
+delete_index
 send_to_index new_processed_list, true if USE_ALLELES
 new_processed_list = []
 
-send_to_index new_processed_list2 if USE_GENES
+send_to_index new_processed_list2, true if ! USE_ALLELES && USE_GENES
+send_to_index new_processed_list2 if USE_ALLELES && USE_GENES
 new_processed_list2 = []
 
 if ! @failures.empty?
@@ -737,33 +577,7 @@ if ! @failures.empty?
   save_csv filename, @failures
 end
 
-puts "done (#{new_processed_allele_rows.size})!"
-
-#gene level:
-#
-#  mouse production center (latest project status) - hold off for a minute
-#  phenotyping center (latest project status) - hold off for a minute
-#  marker_symbol - done
-#  marker_name  - forget
-#  marker_synonym - forget
-#  marker_type - done
-#  mgi_accession_id - done
-#  latest_project_status' - hold off
-#
-#  // the following 3 are use to make the IMPC Phenotyping Status facet on search page
-#  imits_phenotype_started (from gene core) - wait
-#  imits_phenotype_complete (from gene core)  - wait
-#  imits_phenotype_status (from gene core)  - wait
-#
-#allele level (each allele)
-#  es cell status ==> does_an_es_cell_exist || does a targeting_vector_exist
-#  mice status => mi attempt status
-#  phenotyping status => pa status
-#  allele name (tm1a/tm1b…) => either the mi_attempt allele name OR the PA allele name depending on whether you're writing the Mi attempt row or the PA row
-#  allele_type: (mi/pa) => either Cell or MI (if it exists) or PA (if you're writing out the second row)
-#
-#  mouse production center = > in select; either the MI centre or PA centre depending on which mI or PA row you're spitting out
-#  phenotyping center = > the PA centre IF you're spitting out the PA row
+puts "done (#{new_processed_allele_rows.size + new_processed_gene_rows.size})!"
 
 if __FILE__ == $0
   # this will only run if the script was the main, not load'd or require'd

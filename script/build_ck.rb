@@ -16,6 +16,7 @@ USE_ALLELES = config['options']['USE_ALLELES']
 USE_GENES = config['options']['USE_GENES']
 MARKER_SYMBOL = config['options']['MARKER_SYMBOL']
 USE_SYNONYMS = config['options']['USE_SYNONYMS']
+DETECT_GENE_DUPS = config['options']['DETECT_GENE_DUPS']
 
 STATUSES = config['statuses']
 LEGACY_STATUSES_MAP = config['legacy_statuses_map']
@@ -23,6 +24,11 @@ ES_CELL_STATUSES = config['es_cell_statuses']
 
 #puts config.to_yaml
 #exit
+
+pp config['options']
+
+puts "#### loading alleles!" if USE_ALLELES
+puts "#### loading genes!" if USE_GENES
 
 sql_template = config['sql_template']
 sql = config['sql']
@@ -68,8 +74,7 @@ end
 # see http://ruby.about.com/od/advancedruby/a/deepcopy.htm
 
 def deep_copy object
-  #Marshal.load( Marshal.dump(object) )
-  object
+  Marshal.load( Marshal.dump(object) )
 end
 
 #imits_development=# select * from mi_attempt_statuses order by order_by;
@@ -129,15 +134,14 @@ def prepare_allele_symbol row1, type
   row1
 end
 
-def delete_index 
+def delete_index
   proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
-  proxy.update({'delete' => {'query' => '*:*'}}.to_json) 
+  proxy.update({'delete' => {'query' => '*:*'}}.to_json)
+  proxy.update({'commit' => {}}.to_json)
 end
 
-def send_to_index data, delete = false
+def send_to_index data
   proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
-  puts "#### delete!" if delete
-  proxy.update({'delete' => {'query' => '*:*'}}.to_json) if delete
   proxy.update(data.join)
   proxy.update({'commit' => {}}.to_json)
 end
@@ -354,7 +358,7 @@ processed_rows.each do |row|
   hash['marker_symbol'] = row['marker_symbol']
   hash['marker_type'] = row['marker_type']
   hash['mgi_accession_id'] = row['mgi_accession_id']
-  hash['es_cell_status'] = row['es_cell_status']
+  hash['es_cell_status'] = row['es_cell_status'].to_s
   hash['mouse_status'] = row['mouse_status']
   hash['phenotype_status'] = row['phenotype_status'].to_s
   hash['production_centre'] = row['production_centre'].to_s
@@ -500,7 +504,6 @@ rows.each do |row1|
     row['latest_phenotype_status'] = imits_phenotype_status
     row['latest_es_cell_status'] = latest_es_cell_status
     row['latest_mouse_status'] = latest_mouse_status
-    #row['synonym'] = @synonyms[row['mgi_accession_id']][:db_object_synonym].to_s.split '|' if USE_SYNONYMS
     row['synonym'] = @synonyms[row['mgi_accession_id']][:db_object_synonym].to_s.split '|' if USE_SYNONYMS && @synonyms[row['mgi_accession_id']] && @synonyms[row['mgi_accession_id']].has_key?(:db_object_synonym)
 
     row['type'] = 'gene'
@@ -545,7 +548,29 @@ if USE_SYNONYMS && MARKER_SYMBOL.empty?
   end
 end
 
-puts "#### #{counter}"
+puts "#### #{counter} extra from synonymns"
+
+if DETECT_GENE_DUPS
+  puts "#### check gene duplicates!"
+
+  summary_gene_dups = {}
+  gene_dups = {}
+  new_processed_gene_rows.each do |gene|
+    gene_dups[gene['marker_symbol']] ||= 0
+    gene_dups[gene['marker_symbol']] += 1
+
+    if gene_dups[gene['marker_symbol']] > 1
+      summary_gene_dups[gene['marker_symbol']] = gene_dups[gene['marker_symbol']]
+    end
+  end
+
+  if ! summary_gene_dups.empty?
+    puts "#### gene duplicates detected!"
+    pp summary_gene_dups
+  else
+    puts "#### no gene duplicates detected!"
+  end
+end
 
 puts "#### pass 6..."
 
@@ -563,11 +588,13 @@ end
 puts "#### send to index - #{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}"
 
 delete_index
-send_to_index new_processed_list, true if USE_ALLELES
+
+#puts "lists: (#{new_processed_list.size}/#{new_processed_list2.size})!"
+
+send_to_index new_processed_list if USE_ALLELES
 new_processed_list = []
 
-send_to_index new_processed_list2, true if ! USE_ALLELES && USE_GENES
-send_to_index new_processed_list2 if USE_ALLELES && USE_GENES
+send_to_index new_processed_list2 if USE_GENES
 new_processed_list2 = []
 
 if ! @failures.empty?
@@ -577,7 +604,7 @@ if ! @failures.empty?
   save_csv filename, @failures
 end
 
-puts "done (#{new_processed_allele_rows.size + new_processed_gene_rows.size})!"
+puts "done (#{new_processed_allele_rows.size}/#{new_processed_gene_rows.size}/#{new_processed_allele_rows.size + new_processed_gene_rows.size})!"
 
 if __FILE__ == $0
   # this will only run if the script was the main, not load'd or require'd

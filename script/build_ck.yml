@@ -72,3 +72,4 @@ options:
   USE_GENES: true
   MARKER_SYMBOL: ""
   USE_SYNONYMS: true
+  DETECT_GENE_DUPS: true

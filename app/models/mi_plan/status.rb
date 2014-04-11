@@ -41,16 +41,15 @@ end
 #
 # Table name: mi_plan_statuses
 #
-#  id          :integer         not null, primary key
-#  name        :string(50)      not null
+#  id          :integer          not null, primary key
+#  name        :string(50)       not null
 #  description :string(255)
 #  order_by    :integer
 #  created_at  :datetime
 #  updated_at  :datetime
-#  code        :string(10)      not null
+#  code        :string(10)       not null
 #
 # Indexes
 #
 #  index_mi_plan_statuses_on_name  (name) UNIQUE
 #
-

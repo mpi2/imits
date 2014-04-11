@@ -95,6 +95,7 @@ class MiPlan < ApplicationModel
       :conditional_tm1c => plan.conditional_tm1c,
       :point_mutation => plan.point_mutation,
       :conditional_point_mutation => plan.conditional_point_mutation,
+      :mutagenesis_via_crispr_cas9 => plan.mutagenesis_via_crispr_cas9,
       :phenotype_only => plan.phenotype_only).map(&:id)
     other_ids -= [plan.id]
     if(other_ids.count != 0)
@@ -473,7 +474,7 @@ class MiPlan < ApplicationModel
   end
 
   def self.get_completion_note_enum
-    ['', "Handoff complete", "Allele not needed"]
+    ['', "Handoff complete", "Allele not needed", "Effort concluded"]
   end
 
   def check_completion_note
@@ -507,47 +508,81 @@ class MiPlan < ApplicationModel
 
 end
 
+#  production_centre_id           :integer
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  number_of_es_cells_starting_qc :integer
+#  number_of_es_cells_passing_qc  :integer
+#  sub_project_id                 :integer          not null
+#  is_active                      :boolean          default(TRUE), not null
+#  is_bespoke_allele              :boolean          default(FALSE), not null
+#  is_conditional_allele          :boolean          default(FALSE), not null
+#  is_deletion_allele             :boolean          default(FALSE), not null
+#  is_cre_knock_in_allele         :boolean          default(FALSE), not null
+#  is_cre_bac_allele              :boolean          default(FALSE), not null
+#  comment                        :text
+#  withdrawn                      :boolean          default(FALSE), not null
+#  es_qc_comment_id               :integer
+#  phenotype_only                 :boolean          default(FALSE)
+#  completion_note                :string(100)
+#  recovery                       :boolean
+#  conditional_tm1c               :boolean          default(FALSE), not null
+#  ignore_available_mice          :boolean          default(FALSE), not null
+#  number_of_es_cells_received    :integer
+#  es_cells_received_on           :date
+#  es_cells_received_from_id      :integer
+#  point_mutation                 :boolean          default(FALSE), not null
+#  conditional_point_mutation     :boolean          default(FALSE), not null
+#  allele_symbol_superscript      :text
+#  report_to_public               :boolean          default(TRUE), not null
+#  completion_comment             :text
+#  mutagenesis_via_crispr_cas9    :boolean          default(FALSE)
+#
+# Indexes
+#
+#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id,is_bespoke_allele,is_conditional_allele,is_deletion_allele,is_cre_knock_in_allele,is_cre_bac_allele,conditional_tm1c,phenotype_only,mutagenesis_via_crispr_cas9) UNIQUE
+#
 
 # == Schema Information
 #
 # Table name: mi_plans
 #
-#  id                             :integer         not null, primary key
-#  gene_id                        :integer         not null
-#  consortium_id                  :integer         not null
-#  status_id                      :integer         not null
+#  id                             :integer          not null, primary key
+#  gene_id                        :integer          not null
+#  consortium_id                  :integer          not null
+#  status_id                      :integer          not null
 #  priority_id                    :integer
 #  production_centre_id           :integer
 #  created_at                     :datetime
 #  updated_at                     :datetime
 #  number_of_es_cells_starting_qc :integer
 #  number_of_es_cells_passing_qc  :integer
-#  sub_project_id                 :integer         not null
-#  is_active                      :boolean         default(TRUE), not null
-#  is_bespoke_allele              :boolean         default(FALSE), not null
-#  is_conditional_allele          :boolean         default(FALSE), not null
-#  is_deletion_allele             :boolean         default(FALSE), not null
-#  is_cre_knock_in_allele         :boolean         default(FALSE), not null
-#  is_cre_bac_allele              :boolean         default(FALSE), not null
+#  sub_project_id                 :integer          not null
+#  is_active                      :boolean          default(TRUE), not null
+#  is_bespoke_allele              :boolean          default(FALSE), not null
+#  is_conditional_allele          :boolean          default(FALSE), not null
+#  is_deletion_allele             :boolean          default(FALSE), not null
+#  is_cre_knock_in_allele         :boolean          default(FALSE), not null
+#  is_cre_bac_allele              :boolean          default(FALSE), not null
 #  comment                        :text
-#  withdrawn                      :boolean         default(FALSE), not null
+#  withdrawn                      :boolean          default(FALSE), not null
 #  es_qc_comment_id               :integer
-#  phenotype_only                 :boolean         default(FALSE)
+#  phenotype_only                 :boolean          default(FALSE)
 #  completion_note                :string(100)
 #  recovery                       :boolean
-#  conditional_tm1c               :boolean         default(FALSE), not null
-#  ignore_available_mice          :boolean         default(FALSE), not null
+#  conditional_tm1c               :boolean          default(FALSE), not null
+#  ignore_available_mice          :boolean          default(FALSE), not null
 #  number_of_es_cells_received    :integer
 #  es_cells_received_on           :date
 #  es_cells_received_from_id      :integer
-#  point_mutation                 :boolean         default(FALSE), not null
-#  conditional_point_mutation     :boolean         default(FALSE), not null
+#  point_mutation                 :boolean          default(FALSE), not null
+#  conditional_point_mutation     :boolean          default(FALSE), not null
 #  allele_symbol_superscript      :text
-#  report_to_public               :boolean         default(TRUE), not null
+#  report_to_public               :boolean          default(TRUE), not null
 #  completion_comment             :text
+#  mutagenesis_via_crispr_cas9    :boolean          default(FALSE)
 #
 # Indexes
 #
-#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id,is_bespoke_allele,is_conditional_allele,is_deletion_allele,is_cre_knock_in_allele,is_cre_bac_allele,conditional_tm1c,phenotype_only) UNIQUE
+#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id,is_bespoke_allele,is_conditional_allele,is_deletion_allele,is_cre_knock_in_allele,is_cre_bac_allele,conditional_tm1c,phenotype_only,mutagenesis_via_crispr_cas9) UNIQUE
 #
-

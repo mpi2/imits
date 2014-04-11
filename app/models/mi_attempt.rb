@@ -36,6 +36,7 @@ class MiAttempt < ApplicationModel
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
+  belongs_to :mutagensis_factor
 
   has_many :mouse_allele_mods
 
@@ -65,7 +66,7 @@ class MiAttempt < ApplicationModel
 
   validate do |mi|
     if !mi.es_cell_name.blank? and mi.es_cell.blank?
-      mi.errors.add :es_cell_name, 'was not found in the marts'
+      mi.errors.add :es_cell_name, 'was not found in the TargRep'
     end
   end
 
@@ -76,6 +77,10 @@ class MiAttempt < ApplicationModel
     if validate_plan #test whether to continue with validations
       if mi_attempt.mi_plan.phenotype_only
         mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
+      end
+
+      if mi_attempt.mi_plan.mutagenesis_via_crispr_cas9
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (mutagenesis_via_crispr_cas9)')
       end
 
 #      if (mi_attempt.es_cell and mi_attempt.es_cell.try(:gene) != mi_attempt.mi_plan.try(:gene))
@@ -413,10 +418,10 @@ end
 #
 # Table name: mi_attempts
 #
-#  id                                              :integer         not null, primary key
-#  es_cell_id                                      :integer         not null
-#  mi_date                                         :date            not null
-#  status_id                                       :integer         not null
+#  id                                              :integer          not null, primary key
+#  es_cell_id                                      :integer          not null
+#  mi_date                                         :date             not null
+#  status_id                                       :integer          not null
 #  colony_name                                     :string(125)
 #  updated_by_id                                   :integer
 #  blast_strain_id                                 :integer
@@ -459,19 +464,19 @@ end
 #  qc_mutant_specific_sr_pcr_id                    :integer
 #  qc_loxp_confirmation_id                         :integer
 #  qc_three_prime_lr_pcr_id                        :integer
-#  report_to_public                                :boolean         default(TRUE), not null
-#  is_active                                       :boolean         default(TRUE), not null
-#  is_released_from_genotyping                     :boolean         default(FALSE), not null
+#  report_to_public                                :boolean          default(TRUE), not null
+#  is_active                                       :boolean          default(TRUE), not null
+#  is_released_from_genotyping                     :boolean          default(FALSE), not null
 #  comments                                        :text
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
-#  mi_plan_id                                      :integer         not null
+#  mi_plan_id                                      :integer          not null
 #  genotyping_comment                              :string(512)
 #  legacy_es_cell_id                               :integer
-#  qc_lacz_count_qpcr_id                           :integer         default(1)
-#  qc_critical_region_qpcr_id                      :integer         default(1)
-#  qc_loxp_srpcr_id                                :integer         default(1)
-#  qc_loxp_srpcr_and_sequencing_id                 :integer         default(1)
+#  qc_lacz_count_qpcr_id                           :integer          default(1)
+#  qc_critical_region_qpcr_id                      :integer          default(1)
+#  qc_loxp_srpcr_id                                :integer          default(1)
+#  qc_loxp_srpcr_and_sequencing_id                 :integer          default(1)
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean
 #

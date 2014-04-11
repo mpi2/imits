@@ -13,15 +13,12 @@ class PhenotypingProduction::Status < ActiveRecord::Base
 
 end
 
-
-
 # == Schema Information
 #
 # Table name: phenotyping_production_statuses
 #
-#  id       :integer         not null, primary key
-#  name     :string(50)      not null
-#  order_by :integer         not null
-#  code     :string(4)       not null
+#  id       :integer          not null, primary key
+#  name     :string(50)       not null
+#  order_by :integer          not null
+#  code     :string(4)        not null
 #
-

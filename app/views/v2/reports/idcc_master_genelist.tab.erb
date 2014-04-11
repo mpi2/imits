@@ -1,0 +1,4 @@
+<%= IkmcProjectFeed.idcc_master_genelist_columns.map {|column| column[0]}.join("\t") %>
+<% for row in @idcc_master_genelist %>
+<%= IkmcProjectFeed.idcc_master_genelist_columns.map {|column| row[column[1]]}.join("\t").html_safe %>
+<% end %>

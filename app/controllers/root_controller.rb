@@ -23,7 +23,7 @@ class RootController < ApplicationController
       @centre_contact[centre.name] = centre.contact_email;
     end
 
-    User.order('users.name').includes(:production_centre).each do |user|
+    User.where("active = true").order('users.name').includes(:production_centre).each do |user|
       if(user.is_contactable)
         @users_by_production_centre[user.production_centre.try(:name)] ||= []
         @users_by_production_centre[user.production_centre.try(:name)].push(user)
@@ -36,7 +36,7 @@ class RootController < ApplicationController
     authenticate_user!
     @users_by_production_centre = {}
 
-    User.order('users.name').includes(:production_centre).each do |user|
+    User.where("active = true").order('users.name').includes(:production_centre).each do |user|
       @users_by_production_centre[user.production_centre.try(:name)] ||= []
       @users_by_production_centre[user.production_centre.try(:name)].push(user)
     end

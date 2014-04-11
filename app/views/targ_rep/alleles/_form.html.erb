@@ -6,10 +6,11 @@
 
 <div class="grid_6">
   <p>
-    <%= label_tag :gene_marker_symbol, "Gene" %><br />
-    <%= text_field_tag "gene_marker_symbol", (@allele.marker_symbol if @allele.gene), :class => :title %>
+    <%= label_tag :gene_marker_symbol, "Gene Filter" %><br />
+    <%= text_field_tag "gene_marker_symbol", (@allele.marker_symbol if @allele.gene), :class => :title, :autocomplete => "off" %>
     <%= f.hidden_field :gene_id %>
   </p>
+  <%= hidden_field_tag "allele_type", @allele_type %>
   <ul id="gene_autocomplete">
   </ul>
 </div>
@@ -127,6 +128,18 @@
         <%= f.text_field :loxp_end, :class => :text %>
       </p>
     <% end %>
+  </fieldset>
+
+  <fieldset>
+    <legend>Allele Issues</legend>
+    <p>
+      <%= f.label :has_issue, "Allele has issue(s)" %><br />
+      <%= f.select :has_issue, [ 'true', 'false' ] %>
+    </p>
+    <p>
+      <%= f.label :issue_description, "Issue description" %><br />
+      <%= f.text_area :issue_description, :class => :text_area %>
+    </p>
   </fieldset>
 </div>
 

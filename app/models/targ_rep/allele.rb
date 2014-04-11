@@ -87,6 +87,8 @@ class TargRep::Allele < ActiveRecord::Base
         :marker_symbol
     ]}
 
+  before_validation :set_empty_fields_to_nil
+
   ##
   ## Validations
   ##
@@ -126,6 +128,11 @@ class TargRep::Allele < ActiveRecord::Base
     :in         => ('1'..'19').to_a + ['X', 'Y', 'MT'],
     :message    => "is not a valid mouse chromosome"
 
+  validates_inclusion_of :has_issue, 
+    :in         => [ nil, true, false ],
+    :message    => "should be either nil, true or false",
+    :allow_nil  => true
+
   validates_associated :mutation_method,
     :message    => "should be a valid mutation method"
 
@@ -150,6 +157,12 @@ class TargRep::Allele < ActiveRecord::Base
   validate :has_correct_cassette_type
 
   validates :gene, :presence => true
+
+  # fix for error where form tries to insert empty strings when there are no floxed exons
+  def set_empty_fields_to_nil
+    self.floxed_start_exon = nil if self.floxed_start_exon.to_s.empty?
+    self.floxed_end_exon   = nil if self.floxed_end_exon.to_s.empty?
+  end
 
   ##
   ## Methods
@@ -361,11 +374,11 @@ end
 #
 # Table name: targ_rep_alleles
 #
-#  id                  :integer         not null, primary key
+#  id                  :integer          not null, primary key
 #  gene_id             :integer
-#  assembly            :string(50)      default("NCBIM37"), not null
-#  chromosome          :string(2)       not null
-#  strand              :string(1)       not null
+#  assembly            :string(50)       default("NCBIM37"), not null
+#  chromosome          :string(2)        not null
+#  strand              :string(1)        not null
 #  homology_arm_start  :integer
 #  homology_arm_end    :integer
 #  loxp_start          :integer
@@ -383,10 +396,12 @@ end
 #  mutation_type_id    :integer
 #  mutation_subtype_id :integer
 #  cassette_type       :string(50)
-#  created_at          :datetime        not null
-#  updated_at          :datetime        not null
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
 #  intron              :integer
-#  type                :string(255)     default("TargRep::TargetedAllele")
+#  type                :string(255)      default("TargRep::TargetedAllele")
+#  has_issue           :boolean          default(FALSE), not null
+#  issue_description   :text
 #
 
 # == Schema Information

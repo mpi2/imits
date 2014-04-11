@@ -262,9 +262,9 @@ class Gene < ActiveRecord::Base
   end
 
 # mi_plan summary formatting
-  def self.non_assigned_mi_plans_in_bulk(gene_ids = nil, result = nil)
+  def self.non_assigned_mi_plans_in_bulk(gene_ids = nil, result = nil, crispr = false)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'non assigned plans') if result.nil?
+    result = self.gene_production_summary(gene_ids, 'non assigned plans', nil, crispr) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -281,9 +281,9 @@ class Gene < ActiveRecord::Base
     return genes
   end
 
-  def self.assigned_mi_plans_in_bulk(gene_ids = nil, result = nil)
+  def self.assigned_mi_plans_in_bulk(gene_ids = nil, result = nil, crispr = false)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'assigned plans') if result.nil?
+    result = self.gene_production_summary(gene_ids, 'assigned plans', nil, crispr) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -301,11 +301,14 @@ class Gene < ActiveRecord::Base
   end
 
 
-  def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil, result = nil)
-    data = Gene.non_assigned_mi_plans_in_bulk(gene_id, result)
+  def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil, result = nil, crispr = false)
+    #puts "#### pretty_print_non_assigned_mi_plans_in_bulk: crispr: #{crispr}"
+    data = Gene.non_assigned_mi_plans_in_bulk(gene_id, result, crispr)
 
     data.each do |marker_symbol,mi_plans|
       strings = mi_plans.map do |mip|
+       # pp mip
+      #  next if crispr && ! mip[:mutagenesis_via_crispr_cas9]
         string = "[#{mip[:consortium]}"
         string << ":#{mip[:production_centre]}" unless mip[:production_centre].nil?
         string << ":#{mip[:status_name]}"
@@ -317,11 +320,12 @@ class Gene < ActiveRecord::Base
     return data
   end
 
-  def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil, result = nil)
-    data = Gene.assigned_mi_plans_in_bulk(gene_id, result)
+  def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil, result = nil, crispr = false)
+    data = Gene.assigned_mi_plans_in_bulk(gene_id, result, crispr)
 
     data.each do |marker_symbol,mi_plans|
       strings = mi_plans.map do |mip|
+      #  next if crispr && ! mip[:mutagenesis_via_crispr_cas9]
         string = "[#{mip[:consortium]}"
         string << ":#{mip[:production_centre]}" unless mip[:production_centre].nil?
         string << "]"
@@ -333,7 +337,7 @@ class Gene < ActiveRecord::Base
   end
 
 
-  def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_ids = nil, result = nil)
+  def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_ids = nil, result = nil, crispr = false)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
 
     if result.nil?
@@ -342,17 +346,17 @@ class Gene < ActiveRecord::Base
         if statuses.count == 1
 
           if statuses.map{|status| status.name}.include?('Genotype confirmed')
-            result = self.gene_production_summary(gene_ids, 'genotype confirmed mi attempts')
+            result = self.gene_production_summary(gene_ids, 'genotype confirmed mi attempts', nil, crispr)
           else
-           result = self.gene_production_summary(gene_ids, 'in progress mi attempts')
+           result = self.gene_production_summary(gene_ids, 'in progress mi attempts', nil, crispr)
           end
 
         else
-          result = self.gene_production_summary(gene_ids, 'full_data', statuses)
+          result = self.gene_production_summary(gene_ids, 'full_data', statuses, crispr)
         end
 
       else
-        result = self.gene_production_summary(gene_ids, 'aborted mi attempts')
+        result = self.gene_production_summary(gene_ids, 'aborted mi attempts', nil, crispr)
       end
     end
 
@@ -371,7 +375,7 @@ class Gene < ActiveRecord::Base
 
   def self.pretty_print_phenotype_attempts_in_bulk_helper(gene_ids = nil, result = nil)
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'phenotype attempts') if result.nil?
+    result = self.gene_production_summary(gene_ids, 'phenotype attempts', nil, crispr) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -387,7 +391,7 @@ class Gene < ActiveRecord::Base
 
 
 # mi_plan summary SQL query.
-  def self.gene_production_summary(gene_ids = nil, return_value = nil, statuses = nil)
+  def self.gene_production_summary(gene_ids = nil, return_value = nil, statuses = nil, crispr = false)
 
     sql = <<-EOF
 
@@ -398,7 +402,7 @@ class Gene < ActiveRecord::Base
       (
         (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id, CASE WHEN mi_attempt_statuses.name IS NOT NULL THEN mi_attempt_statuses.name ELSE mi_plan_statuses.name END AS status_name
          FROM mi_plans
-           JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id
+           JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id #{crispr ? 'AND mi_plans.mutagenesis_via_crispr_cas9 IS TRUE' : ''}
            LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id) ON mi_plans.id = mi_attempts.mi_plan_id
          #{gene_ids.nil? ? "" : "WHERE mi_plans.gene_id IN (#{gene_ids.join(', ')})"}
         )
@@ -417,13 +421,12 @@ class Gene < ActiveRecord::Base
                END AS status_name
 
          FROM mi_plans
-
            LEFT JOIN (mouse_allele_mods JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id) ON mouse_allele_mods.mi_plan_id = mi_plans.id
            LEFT JOIN (phenotyping_productions JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id JOIN mouse_allele_mods AS mam2 ON mam2.id = phenotyping_productions.mouse_allele_mod_id) ON phenotyping_productions.mi_plan_id = mi_plans.id
            JOIN mi_attempts ON (mi_attempts.id = mouse_allele_mods.mi_attempt_id OR mi_attempts.id = mam2.mi_attempt_id)
 
          WHERE mi_attempts.is_active = true AND (mouse_allele_mods.id IS NOT NULL OR phenotyping_productions.id IS NOT NULL)
-           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"}
+           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"} #{crispr ? 'AND mi_plans.mutagenesis_via_crispr_cas9 IS TRUE' : ''}
         )
       ) AS production_summary
       #{statuses.nil? ? "" : "WHERE production_summary.status_name IN ('#{statuses.map{|status| status.name}.join("','")}')"}
@@ -437,6 +440,8 @@ class Gene < ActiveRecord::Base
         LEFT JOIN centres ON centres.id = status_summary.production_centre_id
       ORDER BY genes.marker_symbol, status_summary.status_name, consortia.name, centres.name
     EOF
+
+   # puts "#### gene_production_summary: sql: #{sql}"
 
     result = ActiveRecord::Base.connection.execute(sql)
 
@@ -497,6 +502,180 @@ class Gene < ActiveRecord::Base
     return return_value.nil? ? data : data[return_value]
   end
 
+  def self.update_gene_list
+    require 'open-uri'
+    headers = []
+    genes_data = {}
+    ccds_data = {}
+
+    logger.info "Load gene info"
+    logger.info "downloading MGI_MRK_Coord"
+    url = 'ftp://ftp.informatics.jax.org/pub/reports/MGI_MRK_Coord.rpt'
+    open(url, :proxy => nil) do |file|
+      headers = file.readline.strip.split("\t")
+      mgi_accession_index = headers.index('1. MGI Marker Accession ID')
+      marker_symbol_index = headers.index('4. Marker Symbol')
+      marker_name_index = headers.index('5. Marker Name')
+      chr_index = headers.index('6. Chromosome')
+      start_index = headers.index('7. Start Coordinate')
+      end_index = headers.index('8. End Coordinate')
+      strand_index = headers.index('9. Strand')
+      genome_build_index = headers.index('10. Genome Build')
+      marker_type_index = headers.index('2. Marker Type')
+
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        genes_data[row[mgi_accession_index]] = {
+          'mgi_accession_id' => row[mgi_accession_index],
+          'marker_symbol' => row[marker_symbol_index],
+          'marker_name'   => row[marker_name_index],
+          'chr'           => row[chr_index],
+          'start'         => row[start_index],
+          'end'           => row[end_index],
+          'strand'        => row[strand_index],
+          'genome_build'  => row[genome_build_index],
+          'vega_ids'      => [],
+          'ens_ids'       => [],
+          'ncbi_ids'      => [],
+          'marker_type'  => row[marker_type_index]
+        }
+      end
+    end
+
+    if genes_data.blank?
+      logger.error "failed to download file"
+      exit
+    end
+
+    logger.info "Downloading Vega report"
+    url = "ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt"
+    open(url, :proxy => nil) do |file|
+      headers = file.readline.strip.split("\t")
+      mgi_accession_id_index = 0
+      vega_ids_index = 5
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        genes_data[row[mgi_accession_id_index]]['vega_ids'] << row[vega_ids_index]
+      end
+    end
+
+    logger.info "Downloading Ensemble report"
+    url = "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt"
+    open(url, :proxy => nil) do |file|
+      headers = file.readline.strip.split("\t")
+      mgi_accession_id_index = 0
+      ens_ids_index = 5
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        genes_data[row[mgi_accession_id_index]]['ens_ids'] << row[ens_ids_index]
+      end
+    end
+
+    logger.info "Downloading ncbi report"
+    url = "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt"
+    open(url, :proxy => nil) do |file|
+      headers = file.readline.strip.split("\t")
+      mgi_accession_id_index = 0
+      ncbi_ids_index = 8
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        if genes_data.has_key?(row[mgi_accession_id_index]) and !row[ncbi_ids_index].blank?
+          genes_data[row[mgi_accession_id_index]]['ncbi_ids'] << row[ncbi_ids_index]
+        end
+      end
+    end
+
+    logger.info "Downloading ccds report"
+    url = "ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_mouse/CCDS.current.txt"
+    open(url, :proxy => nil) do |file|
+      headers = file.readline.strip.split("\t")
+      ncbi_id_index = headers.index('gene_id')
+      ccds_ids_index = headers.index('ccds_id')
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        if !ccds_data.has_key?(row[ncbi_id_index])
+          ccds_data[row[ncbi_id_index]] = {
+            'ccds_ids' => []
+          }
+        end
+        ccds_data[row[ncbi_id_index]]['ccds_ids'] << row[ccds_ids_index]
+      end
+    end
+    logger.error "failed to download file" if ccds_data.blank?
+
+
+    logger.info "Update Gene List"
+
+    Gene.all.each do |gene|
+      gene_data = nil
+      gene_data = genes_data.delete(gene.mgi_accession_id)
+      if gene_data.blank?
+        logger.info "MGI accession does not exist: #{gene.mgi_accession_id}"
+        if gene.allele.count == 0 and gene.mi_plans.count == 0 and ! gene.mgi_accession_id =~ /CGI/
+          gene.delete
+          logger.info "Deleted MGI accession: #{gene.mgi_accession_id}"
+        else
+          logger.error "Cannot delete MGI accession: #{gene.mgi_accession_id}"
+        end
+        next
+      end
+
+      if gene_data['marker_name'] == 'withdrawn'
+        logger.error "MGI Accession has been withdrawn: #{gene.mgi_accession_id}"
+        next
+      end
+      if gene_data['genome_build'] != 'GRCm38'
+        logger.error "genome build is not equal to GRCm38: #{gene.mgi_accession_id}"
+        next
+      end
+      gene.marker_symbol = gene_data['marker_symbol']
+      gene.chr = gene_data['chr']
+      gene.marker_type = gene_data['marker_type']
+      gene.start_coordinates = gene_data['start']
+      gene.end_coordinates = gene_data['end']
+      gene.strand_name = gene_data['strand']
+      gene.vega_ids = gene_data['vega_ids'].join(',')
+      gene.ensembl_ids = gene_data['ens_ids'].join(',')
+      gene.ncbi_ids = gene_data['ncbi_ids'].join(',')
+      gene.ccds_ids = gene_data['ncbi_ids'].map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids'] if ccds_data.has_key?(ncbi_id)}.flatten.join(',')
+      if gene.changed?
+        logger.info "update gene references for #{gene.mgi_accession_id}"
+        if gene.valid?
+          gene.save
+          logger.info "Update Successful"
+        else
+          logger.error "Update FAILED"
+        end
+      end
+    end
+
+    puts "COUNT: #{genes_data.count}"
+    genes_data.each do |key, new_gene|
+      logger.info "Creating new gene: #{new_gene['mgi_accession_id']}"
+      ng = Gene.new
+      ng.mgi_accession_id = new_gene['mgi_accession_id']
+      ng.marker_symbol = new_gene['marker_symbol']
+      ng.chr = new_gene['chr']
+      ng.marker_type = new_gene['marker_type']
+      ng.start_coordinates = new_gene['start']
+      ng.end_coordinates = new_gene['end']
+      ng.strand_name = new_gene['strand']
+      ng.vega_ids = new_gene['vega_ids'].join('')
+      ng.ncbi_ids = new_gene['ens_ids'].join('')
+      ng.ensembl_ids = new_gene['ncbi_ids'].join('')
+
+      ng.ccds_ids = new_gene['ncbi_ids'].map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids'] if ccds_data.has_key?(ncbi_id)}.flatten.join(',')
+
+      if ng.valid?
+        logger.info "Successfuly Created new gene: #{new_gene['mgi_accession_id']}"
+        ng.save
+      else
+        logger.error "Failed to create new gene: #{new_gene['mgi_accession_id']}"
+      end
+    end
+
+    nil
+  end
 
 # other class methods
   def self.update_cached_counts_old(logger=Rails.logger)
@@ -569,8 +748,8 @@ end
 #
 # Table name: genes
 #
-#  id                                 :integer         not null, primary key
-#  marker_symbol                      :string(75)      not null
+#  id                                 :integer          not null, primary key
+#  marker_symbol                      :string(75)       not null
 #  mgi_accession_id                   :string(40)
 #  ikmc_projects_count                :integer
 #  conditional_es_cells_count         :integer
@@ -583,10 +762,18 @@ end
 #  go_annotations_for_gene_count      :integer
 #  created_at                         :datetime
 #  updated_at                         :datetime
+#  chr                                :string(2)
+#  start_coordinates                  :integer
+#  end_coordinates                    :integer
+#  strand_name                        :string(255)
+#  vega_ids                           :string(255)
+#  ncbi_ids                           :string(255)
+#  ensembl_ids                        :string(255)
+#  ccds_ids                           :string(255)
+#  marker_type                        :string(255)
 #
 # Indexes
 #
 #  index_genes_on_marker_symbol     (marker_symbol) UNIQUE
 #  index_genes_on_mgi_accession_id  (mgi_accession_id) UNIQUE
 #
-

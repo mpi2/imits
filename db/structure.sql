@@ -24,6 +24,670 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 SET search_path = public, pg_catalog;
 
+--
+-- Name: get_best_status_pa(integer, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION get_best_status_pa(integer, boolean) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+tmp RECORD; result text; order_by_const int;
+BEGIN
+    result := '';
+    order_by_const := 0;
+    FOR tmp IN select phenotype_attempt_statuses.name, phenotype_attempt_statuses.order_by
+    from phenotype_attempts, phenotype_attempt_statuses where phenotype_attempts.mi_attempt_id = $1 and
+    phenotype_attempt_statuses.id = phenotype_attempts.status_id and phenotype_attempts.cre_excision_required = $2
+    LOOP
+        if order_by_const = 0 then
+            order_by_const := tmp.order_by;
+            result := tmp.name;
+        end if;
+        if order_by_const < tmp.order_by then
+            order_by_const := tmp.order_by;
+            result := tmp.name;
+        end if;
+    END LOOP;
+    RETURN result;
+END;
+$_$;
+
+
+--
+-- Name: solr_get_allele_order_from_names(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_allele_order_from_names(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+    tmp RECORD; result text;
+BEGIN
+    result := '';
+    FOR tmp IN SELECT distinct targ_rep_pipelines.name, targ_rep_es_cells.ikmc_project_id, (targ_rep_es_cells.ikmc_project_id like '^VG') as ikmc_project_id_vg
+    from targ_rep_pipelines, targ_rep_es_cells
+    where targ_rep_es_cells.pipeline_id = targ_rep_pipelines.id and targ_rep_es_cells.id = $1
+    LOOP
+
+        if tmp.name = 'EUCOMM' or tmp.name = 'EUCOMMTools' or tmp.name = 'EUCOMMToolsCre' then
+          result := result || 'EUMMCR' || ';';
+        elsif tmp.name = 'KOMP-CSD' or tmp.name = 'KOMP-Regeneron' then
+            result := result || 'KOMP' || ';';
+        elsif tmp.name = 'mirKO' or tmp.name = 'Sanger MGP' then
+            result := result || 'Wtsi' || ';';
+        elsif tmp.name = 'NorCOMM' then
+            result := result || 'NorCOMM' || ';';
+        end if;
+
+    END LOOP;
+    RETURN result;
+END;
+$_$;
+
+
+--
+-- Name: solr_get_allele_order_from_urls(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_allele_order_from_urls(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+    tmp RECORD; result text; project text; marker_symbol text; mgi_accession_id text;
+BEGIN
+    result := '';
+
+    select genes.marker_symbol into marker_symbol from genes, targ_rep_alleles, targ_rep_es_cells
+    where targ_rep_alleles.gene_id = genes.id and targ_rep_es_cells.id = $1
+    and targ_rep_alleles.id = targ_rep_es_cells.allele_id;
+
+    select genes.mgi_accession_id into mgi_accession_id from genes, targ_rep_alleles, targ_rep_es_cells
+    where targ_rep_alleles.gene_id = genes.id and targ_rep_es_cells.id = $1
+    and targ_rep_alleles.id = targ_rep_es_cells.allele_id;
+
+    FOR tmp IN SELECT distinct targ_rep_pipelines.name, targ_rep_es_cells.ikmc_project_id, (targ_rep_es_cells.ikmc_project_id like 'VG%') as ikmc_project_id_vg
+    from targ_rep_pipelines, targ_rep_es_cells
+    where targ_rep_es_cells.pipeline_id = targ_rep_pipelines.id and targ_rep_es_cells.id = $1
+    LOOP
+
+        if tmp.name = 'EUCOMM' or tmp.name = 'EUCOMMTools' or tmp.name = 'EUCOMMToolsCre' then
+          result := result || 'http://www.eummcr.org/order?add=' || mgi_accession_id || '&material=es_cells' || ';';
+        elsif tmp.name = 'KOMP-CSD' or tmp.name = 'KOMP-Regeneron' then
+            if char_length(tmp.ikmc_project_id) > 0 then
+              if tmp.ikmc_project_id_vg then
+                project := tmp.ikmc_project_id;
+              else
+                project := 'CSD' || tmp.ikmc_project_id;
+              end if;
+              result := result || 'http://www.komp.org/geneinfo.php?project=' || project || ';';
+            else
+              result := result || 'http://www.komp.org/' || ';';
+            end if;
+        elsif tmp.name = 'mirKO' or tmp.name = 'Sanger MGP' then
+            result := result || 'mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for ' || marker_symbol || ';';
+        elsif tmp.name = 'NorCOMM' then
+            result := result || 'http://www.phenogenomics.ca/services/cmmr/escell_services.html' || ';';
+        end if;
+
+    END LOOP;
+    RETURN result;
+END;
+$_$;
+
+
+--
+-- Name: solr_get_best_status_pa_cre(integer, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_best_status_pa_cre(integer, boolean) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+  tmp RECORD; selected_status_name text; selected_status_order_by int; selected_status_in_progress_date timestamp; tmp_in_progress_date timestamp;
+BEGIN
+
+  selected_status_name := '';
+  selected_status_order_by := 0;
+  selected_status_in_progress_date := null;
+
+  FOR tmp IN select phenotype_attempt_statuses.*, phenotype_attempts.id as phenotype_attempt_id, phenotype_attempts.cre_excision_required
+  from phenotype_attempts, phenotype_attempt_statuses where phenotype_attempts.id = $1 and phenotype_attempt_statuses.id = phenotype_attempts.status_id
+  LOOP
+
+    if $2 = tmp.cre_excision_required then
+
+      select created_at into tmp_in_progress_date from phenotype_attempt_status_stamps where phenotype_attempt_id = tmp.phenotype_attempt_id and status_id = 2;
+
+      if char_length(selected_status_name) = 0 then
+        selected_status_name := tmp.name;
+        selected_status_order_by := tmp.order_by;
+        selected_status_in_progress_date := tmp_in_progress_date;
+      end if;
+
+      if tmp.order_by > selected_status_order_by or (tmp.order_by = selected_status_order_by and tmp_in_progress_date > selected_status_in_progress_date) then
+        selected_status_name := tmp.name;
+        selected_status_order_by := tmp.order_by;
+        selected_status_in_progress_date := tmp_in_progress_date;
+      end if;
+
+    end if;
+
+  END LOOP;
+
+  RETURN selected_status_name;
+
+END;
+$_$;
+
+
+--
+-- Name: solr_get_mi_allele_name(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_mi_allele_name(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+  DECLARE
+    tmp RECORD; result text; e boolean; marker_symbol text; marker_symbol2 text; allele_symbol_superscript_plan text; allele_symbol_superscript_template text;mouse_allele_type text;
+    result1 text; result2 text; result3 text; allele_symbol_superscript_template_es_cell text; allele_type_es_cell text;
+  BEGIN
+  result := '';
+
+  select exists(select targ_rep_es_cells.id from targ_rep_es_cells, mi_attempts where targ_rep_es_cells.id = mi_attempts.es_cell_id and mi_attempts.id = $1) into e;
+  select mi_plans.allele_symbol_superscript into allele_symbol_superscript_plan from mi_plans, mi_attempts where mi_plans.id = mi_attempts.mi_plan_id and mi_attempts.id = $1;
+  select targ_rep_es_cells.allele_symbol_superscript_template into allele_symbol_superscript_template from targ_rep_es_cells, mi_attempts where targ_rep_es_cells.id = mi_attempts.es_cell_id and mi_attempts.id = $1;
+  select mi_attempts.mouse_allele_type into mouse_allele_type from mi_attempts where mi_attempts.id = $1;
+  select genes.marker_symbol into marker_symbol from genes, mi_plans, mi_attempts where mi_plans.id = mi_attempts.mi_plan_id and mi_plans.gene_id = genes.id and mi_attempts.id = $1;
+  select targ_rep_es_cells.allele_symbol_superscript_template into allele_symbol_superscript_template_es_cell from targ_rep_es_cells, mi_attempts where targ_rep_es_cells.id = mi_attempts.es_cell_id and mi_attempts.id = $1;
+  select targ_rep_es_cells.allele_type into allele_type_es_cell from targ_rep_es_cells, mi_attempts where targ_rep_es_cells.id = mi_attempts.es_cell_id and mi_attempts.id = $1;
+
+  select genes.marker_symbol into marker_symbol2
+  from genes, mi_attempts, targ_rep_es_cells, targ_rep_alleles
+  where targ_rep_es_cells.id = mi_attempts.es_cell_id
+  and targ_rep_es_cells.allele_id = targ_rep_alleles.id
+  and targ_rep_alleles.gene_id = genes.id
+  and mi_attempts.id = $1;
+
+  if e then
+    if char_length(allele_symbol_superscript_plan) then
+      result := marker_symbol || '<sup>' || allele_symbol_superscript_plan || '</sup>';
+      RETURN result;
+    elsif char_length(allele_symbol_superscript_template) > 0 and char_length(mouse_allele_type) > 0 then
+      select replace(allele_symbol_superscript_template, '@', COALESCE(mouse_allele_type, '')) into result1;
+      result := marker_symbol || '<sup>' || result1 || '</sup>';
+      RETURN result;
+    end if;
+  end if;
+
+  select replace(allele_symbol_superscript_template_es_cell, '@',  COALESCE(allele_type_es_cell, '')) into result1;
+
+  result := marker_symbol2 || '<sup>' || result1 || '</sup>';
+  RETURN result;
+
+  END;
+$_$;
+
+
+--
+-- Name: solr_get_mi_order_from_names(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_mi_order_from_names(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+  DECLARE
+  tmp RECORD; result text; in_config boolean;
+  BEGIN
+  result := '';
+
+  truncate solr_get_mi_order_from_names_tmp;
+
+  --drop table if exists solr_get_mi_order_from_names_tmp;
+
+  FOR tmp IN SELECT mi_attempt_distribution_centres.distribution_network,
+  case
+  when centres.name = 'UCD' then 'KOMP'
+  else centres.name
+  end
+  FROM mi_attempt_distribution_centres, centres, solr_centre_map
+  where mi_attempt_distribution_centres.mi_attempt_id = $1 and
+  centres.id = mi_attempt_distribution_centres.centre_id and
+  (start_date is null or end_date is null or (start_date >= current_date and end_date <= current_date)) and
+  ( (solr_centre_map.centre_name = centres.name and (char_length(solr_centre_map.pref) > 0 or char_length(solr_centre_map.def) > 0)) or
+    (solr_centre_map.centre_name = mi_attempt_distribution_centres.distribution_network and (char_length(solr_centre_map.pref) > 0 or char_length(solr_centre_map.def) > 0)))
+  LOOP
+
+    select exists(select centre_name from solr_centre_map where centre_name = tmp.name) into in_config;
+    continue when not in_config;
+
+    if char_length(tmp.distribution_network) > 0 then
+      --result := result || tmp.distribution_network || ';';
+      insert into solr_get_mi_order_from_names_tmp ( name ) values ( tmp.distribution_network );
+    else
+      --result := result || tmp.name || ';';
+      insert into solr_get_mi_order_from_names_tmp ( name ) values ( tmp.name );
+    end if;
+
+  END LOOP;
+
+  --select distinct name || ';' into result from solr_get_mi_order_from_names_tmp;
+  select string_agg(distinct name, ';') into result from solr_get_mi_order_from_names_tmp;
+
+  RETURN result;
+  END;
+$_$;
+
+
+--
+-- Name: solr_get_mi_order_from_urls(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_mi_order_from_urls(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+  DECLARE
+  tmp RECORD; tmp2 RECORD; result text; marker_symbol text; project_id text; tmp_result text; target_name text; in_config boolean;
+  BEGIN
+  result := '';
+
+  truncate solr_get_mi_order_from_urls_tmp;
+
+  select targ_rep_es_cells.ikmc_project_id
+    into project_id
+  from mi_attempts, targ_rep_es_cells
+  where targ_rep_es_cells.id = mi_attempts.es_cell_id and mi_attempts.id = $1;
+
+  select genes.marker_symbol
+    into marker_symbol
+  from genes, mi_plans, mi_attempts
+  where mi_plans.id = mi_attempts.mi_plan_id and mi_plans.gene_id = genes.id and mi_attempts.id = $1;
+
+  FOR tmp IN SELECT mi_attempt_distribution_centres.distribution_network,
+  case
+  when centres.name = 'UCD' then 'KOMP'
+  else centres.name
+  end
+  FROM mi_attempt_distribution_centres,centres where mi_attempt_distribution_centres.mi_attempt_id = $1 and
+  centres.id = mi_attempt_distribution_centres.centre_id and
+  (start_date is null or end_date is null or (start_date >= current_date and end_date <= current_date))
+  LOOP
+      target_name := tmp.name;
+
+      select exists(select centre_name from solr_centre_map where centre_name = tmp.name) into in_config;
+      continue when not in_config;
+
+      if char_length(tmp.distribution_network) > 0 then
+        target_name := tmp.distribution_network;
+      end if;
+
+      FOR tmp2 IN select pref, def, (pref like '%PROJECT_ID') as project_id_found, (pref like '%MARKER_SYMBOL') as marker_symbol_found
+      from solr_centre_map where centre_name = target_name
+      LOOP
+
+        tmp_result := '';
+        if char_length(tmp2.pref) > 0 and char_length(project_id) > 0 and tmp2.project_id_found is true then
+            select replace(tmp2.pref, 'PROJECT_ID', project_id) into tmp_result;
+        end if;
+
+        IF char_length(tmp_result) = 0 and char_length(tmp2.pref) > 0 and char_length(marker_symbol) > 0 and tmp2.marker_symbol_found is true then
+            select replace(tmp2.pref, 'MARKER_SYMBOL', marker_symbol) into tmp_result;
+        end if;
+
+        if char_length(tmp_result) = 0 and char_length(tmp2.def) > 0 then
+            select tmp2.def into tmp_result;
+        end if;
+
+        if char_length(tmp_result) > 0 then
+          --result := result || tmp_result || ';';
+          insert into solr_get_mi_order_from_urls_tmp ( url ) values (tmp_result);
+        end if;
+      END LOOP;
+  END LOOP;
+
+  --select distinct url || ';' into result from solr_get_mi_order_from_urls_tmp;
+  select string_agg(distinct url, ';') into result from solr_get_mi_order_from_urls_tmp;
+
+  RETURN result;
+  END;
+$_$;
+
+
+--
+-- Name: solr_get_pa_allele_name(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_pa_allele_name(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+  DECLARE
+  tmp RECORD; result text; mouse_allele_type text; allele_symbol_superscript_template text; marker_symbol text; mi_attempt_id int; cec_count int;
+  BEGIN
+
+  result := null;
+
+  select phenotype_attempts.mi_attempt_id
+    into mi_attempt_id from phenotype_attempts where phenotype_attempts.id = $1;
+
+  select count(*) into cec_count from phenotype_attempt_status_stamps where
+  phenotype_attempt_status_stamps.phenotype_attempt_id = $1 and phenotype_attempt_status_stamps.status_id = 6;
+
+  select phenotype_attempts.mouse_allele_type
+    into mouse_allele_type from phenotype_attempts where phenotype_attempts.id = $1;
+
+  select targ_rep_es_cells.allele_symbol_superscript_template
+    into allele_symbol_superscript_template from mi_attempts, targ_rep_es_cells, phenotype_attempts where phenotype_attempts.mi_attempt_id = mi_attempts.id and targ_rep_es_cells.id = mi_attempts.es_cell_id and phenotype_attempts.id = $1;
+
+  select genes.marker_symbol
+    into marker_symbol from genes, mi_plans, phenotype_attempts where mi_plans.id = phenotype_attempts.mi_plan_id and mi_plans.gene_id = genes.id and phenotype_attempts.id = $1;
+
+  if cec_count > 0 then
+    if char_length(mouse_allele_type) > 0 and char_length(allele_symbol_superscript_template) > 0 then
+      select replace(allele_symbol_superscript_template, '@', mouse_allele_type) into result;
+      result := marker_symbol || '<sup>' || result || '</sup>';
+    else
+      result := null;
+    end if;
+  else
+    select solr_get_mi_allele_name(mi_attempt_id) into result;
+  end if;
+
+  RETURN result;
+  END;
+$_$;
+
+
+--
+-- Name: solr_get_pa_allele_type(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_pa_allele_type(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+result text; mouse_allele_type text; allele_symbol_superscript_template text; marker_symbol text; mi_attempt_id int;
+BEGIN
+    result := '';
+
+    select phenotype_attempts.mi_attempt_id
+      into mi_attempt_id
+    from phenotype_attempts where phenotype_attempts.id = $1;
+
+    select phenotype_attempts.mouse_allele_type
+      into mouse_allele_type
+    from phenotype_attempts where phenotype_attempts.id = $1;
+
+    select targ_rep_es_cells.allele_symbol_superscript_template
+      into allele_symbol_superscript_template
+    from mi_attempts, targ_rep_es_cells, phenotype_attempts where phenotype_attempts.mi_attempt_id = mi_attempts.id and targ_rep_es_cells.id = mi_attempts.es_cell_id and phenotype_attempts.id = $1;
+
+    select genes.marker_symbol
+      into marker_symbol
+    from genes, mi_plans, phenotype_attempts where mi_plans.id = phenotype_attempts.mi_plan_id and mi_plans.gene_id = genes.id and phenotype_attempts.id = $1;
+
+    if char_length(mouse_allele_type) > 0 and char_length(allele_symbol_superscript_template) > 0 then
+      select replace(allele_symbol_superscript_template, '@', mouse_allele_type) into result;
+      result := marker_symbol || '<sup>' || result || '</sup>';
+    else
+      select solr_get_mi_allele_name(mi_attempt_id) into result;
+    end if;
+
+    if char_length(result) > 0 then
+      select (regexp_matches(result, E'\\>(.+)?\\('))[1] into result;
+    end if;
+
+    if char_length(result) > 0 then
+      result := 'Cre-excised deletion (' || result || ')';
+    else
+      result := 'Cre-excised deletion';
+    end if;
+
+    RETURN result;
+
+END;
+$_$;
+
+
+--
+-- Name: solr_get_pa_get_order_from_urls(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_pa_get_order_from_urls(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+  DECLARE
+  tmp RECORD; tmp2 RECORD; result text; marker_symbol text; project_id text; tmp_result text; target_name text;
+  BEGIN
+  result := '';
+
+  truncate solr_get_pa_get_order_from_urls_tmp;
+
+  select targ_rep_es_cells.ikmc_project_id
+    into project_id
+  from mi_attempts, targ_rep_es_cells, phenotype_attempts
+  where targ_rep_es_cells.id = mi_attempts.es_cell_id and phenotype_attempts.id = $1 and mi_attempts.id = phenotype_attempts.mi_attempt_id;
+
+  select genes.marker_symbol
+    into marker_symbol
+  from genes, mi_plans, phenotype_attempts
+  where mi_plans.id = phenotype_attempts.mi_plan_id and mi_plans.gene_id = genes.id and phenotype_attempts.id = $1;
+
+  FOR tmp IN SELECT phenotype_attempt_distribution_centres.distribution_network,
+  case
+  when centres.name = 'UCD' then 'KOMP'
+  else centres.name
+  end
+  FROM phenotype_attempt_distribution_centres,centres where phenotype_attempt_distribution_centres.phenotype_attempt_id = $1 and
+  centres.id = phenotype_attempt_distribution_centres.centre_id and
+  (start_date is null or end_date is null or (start_date >= current_date and end_date <= current_date))
+  LOOP
+      target_name := tmp.name;
+
+      if char_length(tmp.distribution_network) > 0 then
+        target_name := tmp.distribution_network;
+      end if;
+
+      FOR tmp2 IN select pref, def, (pref like '%PROJECT_ID') as project_id_found, (pref like '%MARKER_SYMBOL') as marker_symbol_found
+      from solr_centre_map where centre_name = target_name
+      LOOP
+
+        tmp_result := '';
+        if char_length(tmp2.pref) > 0 and char_length(project_id) > 0 and tmp2.project_id_found is true then
+            select replace(tmp2.pref, 'PROJECT_ID', project_id) into tmp_result;
+        end if;
+
+        IF char_length(tmp_result) = 0 and char_length(tmp2.pref) > 0 and char_length(marker_symbol) > 0 and tmp2.marker_symbol_found is true then
+            select replace(tmp2.pref, 'MARKER_SYMBOL', marker_symbol) into tmp_result;
+        end if;
+
+        if char_length(tmp_result) = 0 and char_length(tmp2.def) > 0 then
+            select tmp2.def into tmp_result;
+        end if;
+
+        if char_length(tmp_result) > 0 then
+            insert into solr_get_pa_get_order_from_urls_tmp(phenotype_attempt_id, url) values ($1, tmp_result);
+        end if;
+      END LOOP;
+  END LOOP;
+
+  select string_agg(distinct url, ';') into result from solr_get_pa_get_order_from_urls_tmp group by phenotype_attempt_id;
+
+  RETURN result;
+  END;
+$_$;
+
+
+--
+-- Name: solr_get_pa_order_from_names(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_pa_order_from_names(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+  DECLARE
+    tmp RECORD; result text;
+  BEGIN
+  result := '';
+
+  truncate solr_get_pa_order_from_names_tmp;
+
+  FOR tmp IN SELECT phenotype_attempt_distribution_centres.distribution_network,
+  case
+  when centres.name = 'UCD' then 'KOMP'
+  else centres.name
+  end
+  FROM phenotype_attempt_distribution_centres, centres, solr_centre_map
+  where phenotype_attempt_distribution_centres.phenotype_attempt_id = $1 and
+  centres.id = phenotype_attempt_distribution_centres.centre_id and
+  (start_date is null or end_date is null or (start_date >= current_date and end_date <= current_date)) and
+  ( (solr_centre_map.centre_name = centres.name and (char_length(solr_centre_map.pref) > 0 or char_length(solr_centre_map.def) > 0)) or
+    (solr_centre_map.centre_name = phenotype_attempt_distribution_centres.distribution_network and (char_length(solr_centre_map.pref) > 0 or char_length(solr_centre_map.def) > 0)))
+  LOOP
+
+    if char_length(tmp.distribution_network) > 0 then
+        insert into solr_get_pa_order_from_names_tmp(phenotype_attempt_id, name) values ($1, tmp.distribution_network);
+    else
+        insert into solr_get_pa_order_from_names_tmp(phenotype_attempt_id, name) values ($1, tmp.name);
+    end if;
+
+  END LOOP;
+
+  select string_agg(distinct name, ';') into result from solr_get_pa_order_from_names_tmp group by phenotype_attempt_id;
+
+  RETURN result;
+  END;
+$_$;
+
+
+--
+-- Name: solr_ikmc_projects_details_builder(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_ikmc_projects_details_builder() RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    result int;
+BEGIN
+    CREATE temp table solr_ikmc_projects_details_es_cells ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_vectors ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+--    CREATE temp table solr_ikmc_projects_details_vectors ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_es_cells_intermediate ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_all ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table allele_with_es_count_tmp ( id int, gene_id int , es_cell_count int ) ;
+
+    INSERT INTO
+    solr_ikmc_projects_details_es_cells
+      SELECT genes.id AS gene_id,
+      targ_rep_ikmc_projects.id AS id,
+      targ_rep_ikmc_projects.name AS project,
+      CAST( 'es_cell' AS text ) AS type,
+      genes.marker_symbol,
+      targ_rep_pipelines.name AS pipeline,
+      targ_rep_ikmc_project_statuses.name AS status
+        --,(targ_rep_es_cells.report_to_public and targ_rep_pipelines.report_to_public) AS report_to_public
+      FROM targ_rep_es_cells
+      JOIN targ_rep_ikmc_projects on targ_rep_es_cells.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+      JOIN targ_rep_alleles on targ_rep_alleles.id = targ_rep_es_cells.allele_id
+      JOIN genes on targ_rep_alleles.gene_id = genes.id
+      JOIN targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
+      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id;
+
+    INSERT INTO
+    solr_ikmc_projects_details_es_cells
+      SELECT genes.id AS gene_id,
+      targ_rep_ikmc_projects.id AS id,
+      targ_rep_ikmc_projects.name AS project,
+      CAST( 'es_cell' AS text ) AS type,
+      genes.marker_symbol,
+      targ_rep_pipelines.name AS pipeline,
+      targ_rep_ikmc_project_statuses.name AS status
+        --,(targ_rep_targeting_vectors.report_to_public and targ_rep_pipelines.report_to_public) AS report_to_public
+      FROM targ_rep_targeting_vectors
+      JOIN targ_rep_ikmc_projects on targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+      JOIN targ_rep_alleles on targ_rep_alleles.id = targ_rep_targeting_vectors.allele_id
+      JOIN genes on targ_rep_alleles.gene_id = genes.id
+      JOIN targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
+      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id;
+
+      INSERT INTO allele_with_es_count_tmp
+      WITH allele_with_es_count AS (
+        SELECT alleles1.id AS allele_id, COALESCE(targ_rep_es_cells.count, 0) AS es_cell_count
+        FROM targ_rep_alleles AS alleles1
+          JOIN targ_rep_alleles AS alleles2 ON alleles1.gene_id = alleles2.gene_id AND alleles1.mutation_type_id = alleles2.mutation_type_id AND alleles1.cassette = alleles2.cassette
+          LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.allele_id = alleles2.id
+        GROUP BY alleles1.id having targ_rep_es_cells.count = 0)
+      SELECT targ_rep_alleles.id as id, targ_rep_alleles.gene_id as gene_id, allele_with_es_count.es_cell_count as es_cell_count
+      FROM targ_rep_alleles JOIN allele_with_es_count ON allele_with_es_count.allele_id = targ_rep_alleles.id
+      ;
+
+    INSERT INTO
+    solr_ikmc_projects_details_vectors
+      SELECT genes.id AS gene_id,
+      targ_rep_ikmc_projects.id AS id,
+      targ_rep_ikmc_projects.name AS project,
+      CAST( 'vector' AS text ) AS type,
+      genes.marker_symbol,
+      targ_rep_pipelines.name AS pipeline,
+      targ_rep_ikmc_project_statuses.name AS status
+        --,(targ_rep_targeting_vectors.report_to_public and targ_rep_pipelines.report_to_public) AS report_to_public
+      FROM targ_rep_targeting_vectors
+      JOIN targ_rep_ikmc_projects on targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+      JOIN allele_with_es_count_tmp on allele_with_es_count_tmp.id = targ_rep_targeting_vectors.allele_id
+      JOIN genes on allele_with_es_count_tmp.gene_id = genes.id
+      JOIN targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
+      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id;
+
+    --INSERT INTO
+    --solr_ikmc_projects_details_vectors
+    --SELECT * FROM solr_ikmc_projects_details_vectors
+
+    INSERT INTO
+    solr_ikmc_projects_details_es_cells_intermediate
+    SELECT * FROM solr_ikmc_projects_details_es_cells
+    UNION
+    SELECT
+      gene_id,
+      id,
+      project,
+      CAST( 'es_cell' AS text ) AS type,
+      marker_symbol,
+      pipeline,
+      status
+    FROM solr_ikmc_projects_details_vectors;
+
+    INSERT INTO
+    solr_ikmc_projects_details_all
+    SELECT
+    DISTINCT
+    * FROM
+    solr_ikmc_projects_details_es_cells_intermediate
+    UNION
+    SELECT
+    DISTINCT
+    *
+    FROM solr_ikmc_projects_details_vectors;
+
+    INSERT INTO
+    solr_ikmc_projects_details_agg
+    SELECT
+        string_agg(project, ';') AS projects,
+        string_agg(pipeline, ';') AS pipelines,
+        string_agg(status, ';') AS statuses,
+        gene_id,
+        type
+    FROM
+    solr_ikmc_projects_details_all
+    GROUP BY gene_id, type;
+
+    SELECT count(*) INTO result FROM solr_ikmc_projects_details_agg;
+
+    --select count(*) INTO result from solr_ikmc_projects_details_vectors where gene_id = 1;
+    RETURN result;
+END;
+$$;
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -320,7 +984,16 @@ CREATE TABLE genes (
     publications_for_gene_count integer,
     go_annotations_for_gene_count integer,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    chr character varying(2),
+    start_coordinates integer,
+    end_coordinates integer,
+    strand_name character varying(255),
+    vega_ids character varying(255),
+    ncbi_ids character varying(255),
+    ensembl_ids character varying(255),
+    ccds_ids character varying(255),
+    marker_type character varying(255)
 );
 
 
@@ -833,7 +1506,8 @@ CREATE TABLE mi_plans (
     conditional_point_mutation boolean DEFAULT false NOT NULL,
     allele_symbol_superscript text,
     report_to_public boolean DEFAULT true NOT NULL,
-    completion_comment text
+    completion_comment text,
+    mutagenesis_via_crispr_cas9 boolean DEFAULT false
 );
 
 
@@ -1287,7 +1961,8 @@ CREATE TABLE new_intermediate_report (
     cre_ex_phenotype_attempt_colony_name character varying(255),
     phenotyping_experiments_started_date date,
     non_cre_ex_phenotyping_experiments_started_date date,
-    cre_ex_phenotyping_experiments_started_date date
+    cre_ex_phenotyping_experiments_started_date date,
+    mutagenesis_via_crispr_cas9 boolean DEFAULT false
 );
 
 
@@ -1793,6 +2468,8 @@ CREATE TABLE phenotype_attempts (
     qc_critical_region_qpcr_id integer,
     qc_loxp_srpcr_id integer,
     qc_loxp_srpcr_and_sequencing_id integer,
+    allele_name character varying(255),
+    jax_mgi_accession_id character varying(255),
     ready_for_website date
 );
 
@@ -2061,6 +2738,153 @@ CREATE TABLE schema_migrations (
 
 
 --
+-- Name: solr_alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_alleles (
+    type text,
+    id integer,
+    product_type text,
+    allele_id integer,
+    order_from_names text,
+    order_from_urls text,
+    simple_allele_image_url text,
+    allele_image_url text,
+    genbank_file_url text,
+    mgi_accession_id character varying(40),
+    marker_symbol character varying(75),
+    allele_type character varying(100),
+    strain character varying(25),
+    allele_name text,
+    project_ids character varying(255)
+);
+
+
+--
+-- Name: solr_centre_map; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_centre_map (
+    centre_name character varying(40),
+    pref character varying(255),
+    def character varying(255)
+);
+
+
+--
+-- Name: solr_gene_statuses; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW solr_gene_statuses AS
+    SELECT most_advanced.mi_plan_id, most_advanced.marker_symbol, most_advanced.status_name, most_advanced.consortium, most_advanced.created_at, most_advanced.production_centre_name FROM (SELECT all_statuses.mi_plan_id, genes.marker_symbol, all_statuses.status_name, all_statuses.id, all_statuses.created_at, first_value(all_statuses.id) OVER (PARTITION BY all_statuses.gene_id ORDER BY all_statuses.order_by DESC, all_statuses.created_at) AS most_advanced_id, consortia.name AS consortium, centres.name AS production_centre_name FROM ((((((SELECT ('mi_plan'::text || mi_plan_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plan_statuses.name AS status_name, mi_plan_statuses.order_by, mi_plan_status_stamps.created_at FROM ((mi_plans JOIN mi_plan_statuses ON ((mi_plan_statuses.id = mi_plans.status_id))) JOIN mi_plan_status_stamps ON (((mi_plans.id = mi_plan_status_stamps.mi_plan_id) AND (mi_plan_statuses.id = mi_plan_status_stamps.status_id)))) UNION SELECT ('mi_attempt'::text || mi_attempt_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_attempt_statuses.name AS status_name, (1000 + mi_attempt_statuses.order_by) AS order_by, mi_attempt_status_stamps.created_at FROM (((mi_attempts JOIN mi_attempt_statuses ON ((mi_attempt_statuses.id = mi_attempts.status_id))) JOIN mi_attempt_status_stamps ON (((mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id) AND (mi_attempt_statuses.id = mi_attempt_status_stamps.status_id)))) JOIN mi_plans ON ((mi_plans.id = mi_attempts.mi_plan_id)))) UNION SELECT ('phenotype_attempt'::text || phenotype_attempt_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, phenotype_attempt_statuses.name AS status_name, (2000 + phenotype_attempt_statuses.order_by) AS order_by, phenotype_attempt_status_stamps.created_at FROM (((phenotype_attempts JOIN phenotype_attempt_statuses ON ((phenotype_attempt_statuses.id = phenotype_attempts.status_id))) JOIN phenotype_attempt_status_stamps ON (((phenotype_attempts.id = phenotype_attempt_status_stamps.phenotype_attempt_id) AND (phenotype_attempt_statuses.id = phenotype_attempt_status_stamps.status_id)))) JOIN mi_plans ON ((mi_plans.id = phenotype_attempts.mi_plan_id)))) all_statuses JOIN genes ON ((genes.id = all_statuses.gene_id))) JOIN mi_plans ON ((mi_plans.id = all_statuses.mi_plan_id))) JOIN consortia ON ((mi_plans.consortium_id = consortia.id))) LEFT JOIN centres ON ((mi_plans.production_centre_id = centres.id))) ORDER BY all_statuses.order_by DESC) most_advanced WHERE (most_advanced.id = most_advanced.most_advanced_id);
+
+
+--
+-- Name: solr_genes; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_genes (
+    id integer,
+    type text,
+    allele_id text,
+    consortium character varying(255),
+    production_centre character varying(100),
+    status character varying(50),
+    effective_date timestamp without time zone,
+    mgi_accession_id character varying,
+    project_ids text,
+    project_statuses text,
+    project_pipelines text,
+    vector_project_ids text,
+    vector_project_statuses text,
+    marker_symbol character varying(75),
+    marker_type character varying(255)
+);
+
+
+--
+-- Name: solr_ikmc_projects_details_agg; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_ikmc_projects_details_agg (
+    projects text,
+    pipelines text,
+    statuses text,
+    gene_id integer,
+    type text
+);
+
+
+--
+-- Name: solr_mi_attempts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_mi_attempts (
+    id integer,
+    product_type text,
+    type text,
+    colony_name character varying(125),
+    marker_symbol character varying(75),
+    es_cell_name character varying(100),
+    allele_id integer,
+    mgi_accession_id character varying(40),
+    production_centre character varying(100),
+    strain character varying(100),
+    genbank_file_url text,
+    allele_image_url text,
+    simple_allele_image_url text,
+    allele_type character varying(100),
+    project_ids character varying(255),
+    current_pa_status text,
+    allele_name text,
+    order_from_names text,
+    order_from_urls text,
+    best_status_pa_cre_ex_not_required text,
+    best_status_pa_cre_ex_required text
+);
+
+
+--
+-- Name: solr_options; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_options (
+    key text,
+    value text,
+    mode text
+);
+
+
+--
+-- Name: solr_phenotype_attempts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_phenotype_attempts (
+    id integer,
+    product_type text,
+    type text,
+    colony_name character varying(125),
+    allele_type text,
+    allele_name text,
+    order_from_names text,
+    order_from_urls text,
+    allele_id integer,
+    strain character varying(100),
+    mgi_accession_id character varying(40),
+    production_centre character varying(100),
+    allele_image_url text,
+    simple_allele_image_url text,
+    genbank_file_url text,
+    project_ids text,
+    marker_symbol character varying(75),
+    parent_mi_attempt_colony_name character varying(125),
+    best_status_pa_cre_ex_required text,
+    best_status_pa_cre_ex_not_required text,
+    current_pa_status character varying(50)
+);
+
+
+--
 -- Name: solr_update_queue_items; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2160,7 +2984,9 @@ CREATE TABLE targ_rep_alleles (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     intron integer,
-    type character varying(255) DEFAULT 'TargRep::TargetedAllele'::character varying
+    type character varying(255) DEFAULT 'TargRep::TargetedAllele'::character varying,
+    has_issue boolean DEFAULT false NOT NULL,
+    issue_description text
 );
 
 
@@ -2435,7 +3261,8 @@ ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
 CREATE TABLE targ_rep_ikmc_project_statuses (
     id integer NOT NULL,
     name character varying(255),
-    product_type character varying(255)
+    product_type character varying(255),
+    order_by integer
 );
 
 
@@ -2699,7 +3526,8 @@ CREATE TABLE users (
     reset_password_sent_at timestamp without time zone,
     es_cell_distribution_centre_id integer,
     legacy_id integer,
-    admin boolean DEFAULT false
+    admin boolean DEFAULT false,
+    active boolean DEFAULT true
 );
 
 
@@ -3849,7 +4677,21 @@ CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
 -- Name: mi_plan_logical_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only);
+CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only, mutagenesis_via_crispr_cas9);
+
+
+--
+-- Name: solr_alleles_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX solr_alleles_idx ON solr_alleles USING btree (id);
+
+
+--
+-- Name: solr_genes_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX solr_genes_idx ON solr_genes USING btree (id);
 
 
 --
@@ -4945,4 +5787,24 @@ INSERT INTO schema_migrations (version) VALUES ('20131209100237');
 
 INSERT INTO schema_migrations (version) VALUES ('20131219140237');
 
+INSERT INTO schema_migrations (version) VALUES ('20131219164213');
+
+INSERT INTO schema_migrations (version) VALUES ('20140110150335');
+
 INSERT INTO schema_migrations (version) VALUES ('20140113132202');
+
+INSERT INTO schema_migrations (version) VALUES ('20140113150335');
+
+INSERT INTO schema_migrations (version) VALUES ('20140123134728');
+
+INSERT INTO schema_migrations (version) VALUES ('20140207124917');
+
+INSERT INTO schema_migrations (version) VALUES ('20140304165417');
+
+INSERT INTO schema_migrations (version) VALUES ('20140318095417');
+
+INSERT INTO schema_migrations (version) VALUES ('20140320152942');
+
+INSERT INTO schema_migrations (version) VALUES ('20140426101200');
+
+INSERT INTO schema_migrations (version) VALUES ('20140431165000');

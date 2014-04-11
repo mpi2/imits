@@ -9,16 +9,13 @@ class PhenotypingProduction::StatusStamp < ActiveRecord::Base
   delegate :name, :code, :to => :status
 end
 
-
-
 # == Schema Information
 #
 # Table name: phenotyping_production_status_stamps
 #
-#  id                        :integer         not null, primary key
-#  phenotyping_production_id :integer         not null
-#  status_id                 :integer         not null
-#  created_at                :datetime        not null
-#  updated_at                :datetime        not null
+#  id                        :integer          not null, primary key
+#  phenotyping_production_id :integer          not null
+#  status_id                 :integer          not null
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
 #
-

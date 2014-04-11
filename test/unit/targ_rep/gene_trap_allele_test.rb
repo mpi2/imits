@@ -11,5 +11,18 @@ class TargRep::GeneTrapTest < ActiveSupport::TestCase
   should allow_value(nil).for(:homology_arm_end)
   should allow_value(nil).for(:backbone)
   should allow_value(nil).for(:floxed_start_exon)
+  should allow_value(nil,true,false).for(:has_issue)
 
+  context "An Allele" do
+    context "check normal creation" do
+      should "be saved" do
+        allele = Factory.build :allele
+        assert allele.save, "Targeted allele saves for a normal entry"
+        attributes_after_save = allele.attributes
+        allele_after_select = TargRep::TargetedAllele.find( allele.id )
+        attributes_after_reselect = allele_after_select.attributes
+        assert_equal attributes_after_reselect, attributes_after_save
+      end
+    end
+  end
 end

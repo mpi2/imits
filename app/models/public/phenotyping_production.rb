@@ -48,27 +48,22 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
   def mouse_allele_mod_status_name; mouse_allele_mod.status.name; end
 end
 
-
-
-
-
 # == Schema Information
 #
 # Table name: phenotyping_productions
 #
-#  id                              :integer         not null, primary key
-#  mi_plan_id                      :integer         not null
-#  mouse_allele_mod_id             :integer         not null
-#  status_id                       :integer         not null
+#  id                              :integer          not null, primary key
+#  mi_plan_id                      :integer          not null
+#  mouse_allele_mod_id             :integer          not null
+#  status_id                       :integer          not null
 #  colony_name                     :string(255)
 #  phenotyping_experiments_started :date
-#  phenotyping_started             :boolean         default(FALSE), not null
-#  phenotyping_complete            :boolean         default(FALSE), not null
-#  is_active                       :boolean         default(TRUE), not null
-#  report_to_public                :boolean         default(TRUE), not null
+#  phenotyping_started             :boolean          default(FALSE), not null
+#  phenotyping_complete            :boolean          default(FALSE), not null
+#  is_active                       :boolean          default(TRUE), not null
+#  report_to_public                :boolean          default(TRUE), not null
 #  phenotype_attempt_id            :integer
-#  created_at                      :datetime        not null
-#  updated_at                      :datetime        not null
+#  created_at                      :datetime         not null
+#  updated_at                      :datetime         not null
 #  ready_for_website               :date
 #
-

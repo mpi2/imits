@@ -81,27 +81,17 @@ class NewIntermediateReportSummaryByMiPlan < ActiveRecord::Base
 
 end
 
-
-
-
-
-
-
-
-
-
-
 # == Schema Information
 #
 # Table name: new_intermediate_report_summary_by_mi_plan
 #
-#  id                                            :integer         not null, primary key
-#  mi_plan_id                                    :integer         not null
+#  id                                            :integer          not null, primary key
+#  mi_plan_id                                    :integer          not null
 #  overall_status                                :string(50)
 #  mi_plan_status                                :string(50)
 #  mi_attempt_status                             :string(50)
 #  phenotype_attempt_status                      :string(50)
-#  consortium                                    :string(255)     not null
+#  consortium                                    :string(255)      not null
 #  production_centre                             :string(255)
 #  sub_project                                   :string(255)
 #  priority                                      :string(255)
@@ -172,4 +162,3 @@ end
 #  gc_old_pipeline_efficiency_gene_count         :integer
 #  created_at                                    :datetime
 #
-

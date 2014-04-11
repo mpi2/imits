@@ -185,6 +185,7 @@ Ext.define('Imits.widget.GeneGrid', {
         var productionCentreName = grid.centreCombo.getSubmitValue();
         var subProjectName       = grid.subprojectCombo.getSubmitValue();
         var PhenotypeOnly        = grid.phenotypeonlyCheck.getSubmitValue() || false;
+        var Crispr               = grid.crisprCheck.getSubmitValue() || false;
         var priorityName         = grid.priorityCombo.getSubmitValue();
         var isBespokeAllele      = grid.isbespokealleleCheck.getSubmitValue() || false;
         var isConditionalAllele  = grid.isconditionalalleleCheck.getSubmitValue() || false;
@@ -218,6 +219,7 @@ Ext.define('Imits.widget.GeneGrid', {
                 'production_centre_name' : productionCentreName,
                 'sub_project_name'       : subProjectName,
                 'phenotype_only'         : PhenotypeOnly,
+                'mutagenesis_via_crispr_cas9' : Crispr,
                 'priority_name'          : priorityName,
                 'is_bespoke_allele'      : isBespokeAllele,
                 'is_conditional_allele'  : isConditionalAllele,
@@ -266,6 +268,7 @@ Ext.define('Imits.widget.GeneGrid', {
         grid.subprojectCombo  = grid.createComboBox('sub_project', 'Sub Project', 65, window.SUB_PROJECT_OPTIONS, false, isSubProjectHidden);
         grid.priorityCombo    = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS, false, false);
         grid.phenotypeonlyCheck     = grid.createCheckBox('phenotype_only', 'Phenotype Only', 95, false);
+        grid.crisprCheck              = grid.createCheckBox('mutagenesis_via_crispr_cas9', 'Mutagenesis Via Crispr/Cas9?', 95, false);
         grid.isbespokealleleCheck     = grid.createCheckBox('is_bespoke_allele', 'Bespoke', 52, false);
         grid.isconditionalalleleCheck = grid.createCheckBox('is_conditional_allele', 'Knockout First Tm1a', 120, false);
         grid.isdeletionalleleCheck    = grid.createCheckBox('is_deletion_allele', 'Deletion', 57, false);
@@ -282,7 +285,8 @@ Ext.define('Imits.widget.GeneGrid', {
             grid.centreCombo,
             grid.subprojectCombo,
             grid.priorityCombo,
-            grid.phenotypeonlyCheck
+            grid.phenotypeonlyCheck,
+            grid.crisprCheck
             ]
         }));
 

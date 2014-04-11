@@ -9,17 +9,13 @@ class MouseAlleleMod::StatusStamp < ActiveRecord::Base
   delegate :name, :code, :to => :status
 end
 
-
-
-
 # == Schema Information
 #
 # Table name: mouse_allele_mod_status_stamps
 #
-#  id                  :integer         not null, primary key
-#  mouse_allele_mod_id :integer         not null
-#  status_id           :integer         not null
-#  created_at          :datetime        not null
-#  updated_at          :datetime        not null
+#  id                  :integer          not null, primary key
+#  mouse_allele_mod_id :integer          not null
+#  status_id           :integer          not null
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
 #
-

@@ -79,13 +79,11 @@ class NewIntermediateReportSummaryByConsortia < ActiveRecord::Base
 
 end
 
-
-
 # == Schema Information
 #
 # Table name: new_intermediate_report_summary_by_consortia
 #
-#  id                                            :integer         not null, primary key
+#  id                                            :integer          not null, primary key
 #  mi_plan_id                                    :integer
 #  mi_attempt_id                                 :integer
 #  mouse_allele_mod_id                           :integer
@@ -94,8 +92,8 @@ end
 #  mi_plan_status                                :string(50)
 #  mi_attempt_status                             :string(50)
 #  phenotype_attempt_status                      :string(50)
-#  consortium                                    :string(255)     not null
-#  gene                                          :string(75)      not null
+#  consortium                                    :string(255)      not null
+#  gene                                          :string(75)       not null
 #  mgi_accession_id                              :string(40)
 #  gene_interest_date                            :date
 #  mi_attempt_colony_name                        :string(255)
@@ -158,4 +156,3 @@ end
 #  gc_old_pipeline_efficiency_gene_count         :integer
 #  created_at                                    :datetime
 #
-

@@ -577,6 +577,8 @@ Factory.define :tracking_goal do |tracking_goal|
 end
 
 Factory.define :email_template_without_status, :class => EmailTemplate do |email_template|
+  email_template.status ''
+
   email_template.welcome_body <<-EOF
       Dear colleague,
 

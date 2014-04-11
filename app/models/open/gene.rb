@@ -106,8 +106,8 @@ end
 #
 # Table name: genes
 #
-#  id                                 :integer         not null, primary key
-#  marker_symbol                      :string(75)      not null
+#  id                                 :integer          not null, primary key
+#  marker_symbol                      :string(75)       not null
 #  mgi_accession_id                   :string(40)
 #  ikmc_projects_count                :integer
 #  conditional_es_cells_count         :integer
@@ -120,10 +120,18 @@ end
 #  go_annotations_for_gene_count      :integer
 #  created_at                         :datetime
 #  updated_at                         :datetime
+#  chr                                :string(2)
+#  start_coordinates                  :integer
+#  end_coordinates                    :integer
+#  strand_name                        :string(255)
+#  vega_ids                           :string(255)
+#  ncbi_ids                           :string(255)
+#  ensembl_ids                        :string(255)
+#  ccds_ids                           :string(255)
+#  marker_type                        :string(255)
 #
 # Indexes
 #
 #  index_genes_on_marker_symbol     (marker_symbol) UNIQUE
 #  index_genes_on_mgi_accession_id  (mgi_accession_id) UNIQUE
 #
-

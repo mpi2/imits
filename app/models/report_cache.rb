@@ -21,15 +21,14 @@ end
 #
 # Table name: report_caches
 #
-#  id         :integer         not null, primary key
-#  name       :text            not null
-#  data       :text            not null
+#  id         :integer          not null, primary key
+#  name       :text             not null
+#  data       :text             not null
 #  created_at :datetime
 #  updated_at :datetime
-#  format     :text            not null
+#  format     :text             not null
 #
 # Indexes
 #
 #  index_report_caches_on_name_and_format  (name,format) UNIQUE
 #
-

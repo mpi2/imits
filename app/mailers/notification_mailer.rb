@@ -9,12 +9,22 @@ class NotificationMailer < ActionMailer::Base
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
     @relevant_status = @gene.relevant_status
+    @relevant_status[:status] ||= ''
 
     set_attributes
 
     @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
     email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+
+    email_body.gsub!(/\r/, "\n")
     email_body.gsub!(/\n\n+/, "\n\n")
+    email_body.gsub!(/\n\n\s+\n\n/, "\n\n")
+
+    Rails.logger.info('#### NotificationMailer::welcome_email start')
+    Rails.logger.info('#### @contact.email: #{@contact.email}')
+    Rails.logger.info('#### @gene.marker_symbol: #{@gene.marker_symbol}')
+    Rails.logger.info('#### email_body: #{email_body}')
+    Rails.logger.info('#### NotificationMailer::welcome_email end')
 
     mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
       format.text { render :inline => email_body }
@@ -29,7 +39,7 @@ class NotificationMailer < ActionMailer::Base
     @contact_email = contact[:contact_email]
     @gene_list = []
     @genes.each do |gene|
-      @gene_list.push gene[:marker_symbol] if gene[:relevant_status] && gene[:relevant_status][:status]
+      @gene_list.push gene[:marker_symbol]
     end
 
     @gene_list.sort!
@@ -53,6 +63,7 @@ class NotificationMailer < ActionMailer::Base
         ikmc_site_fn = "=HYPERLINK(\"#{ikmc_site}\" #{hyperlink_fn_separator} \"Click here\")" if ikmc_site.length > 0
 
         @relevant_status = gene[:relevant_status]
+        #@relevant_status[:status] ||= ''
 
         email_body2 = ERB.new(File.read("#{Rails.root}/app/views/notification_mailer/welcome_email/_#{gene[:relevant_status][:status]}.text.erb")).result(binding) rescue nil
 
@@ -96,6 +107,11 @@ class NotificationMailer < ActionMailer::Base
 
     attachments['gene_list.csv'] = @csv
 
+    Rails.logger.info('#### NotificationMailer::welcome_email_bulk start')
+    Rails.logger.info('#### @contact_email: #{@contact_email}')
+    Rails.logger.info('#### email_body: #{email_body}')
+    Rails.logger.info('#### NotificationMailer::welcome_email_bulk end')
+
     mail(:to => @contact_email, :subject => "Welcome from the MPI2 (KOMP2) informatics consortium") do |format|
       format.text { render :inline => email_body }
     end
@@ -125,6 +141,13 @@ class NotificationMailer < ActionMailer::Base
     email_body = ERB.new(@email_template.update_body).result(binding) rescue nil
 
     return if @email_template.blank? || email_body.blank?
+
+    Rails.logger.info('#### NotificationMailer::status_email start')
+    Rails.logger.info('#### @contact.email: #{@contact.email}')
+    Rails.logger.info('#### @gene.marker_symbol: #{@gene.marker_symbol}')
+    Rails.logger.info('#### email_body: #{email_body}')
+    Rails.logger.info('#### NotificationMailer::status_email end')
+
     mail(:to => @contact.email, :subject => "Status update for #{@gene.marker_symbol}") do |format|
       format.text { render :inline => email_body }
     end
@@ -221,7 +244,7 @@ class NotificationMailer < ActionMailer::Base
         })
       end
 
-      mailer = self.welcome_email_bulk({:contact_email => contact.email, :genes => genes_array})
+      mailer = NotificationMailer.welcome_email_bulk({:contact_email => contact.email, :genes => genes_array})
       next if ! mailer
 
       ApplicationModel.audited_transaction do
@@ -257,4 +280,87 @@ class NotificationMailer < ActionMailer::Base
       end
     end
   end
+
+  def get_production_centre_report(production_centre = nil)
+    @report = ::NotificationsByGene.new
+    @mi_plan_summary = @report.mi_plan_summary(production_centre)
+    @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
+    @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
+    @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
+    @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
+    @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
+    @pretty_print_statuses = @report.pretty_print_statuses
+    @pretty_print_types_of_cells_available = @report.pretty_print_types_of_cells_available
+
+    if ! production_centre
+      @mi_plan_summary = @mi_plan_summary.to_a.reject do |rec|
+        @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 ||
+        @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 ||
+        @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.length > 0 ||
+        @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.length > 0 ||
+        @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.length > 0 ||
+        @pretty_print_statuses[rec['marker_symbol']].to_s.length > 0
+      end
+    end
+
+    template = IO.read("#{Rails.root}/app/views/v2/reports/mi_production/notifications_by_gene.csv.erb")
+
+    template.gsub!(/\s+\<\% end \%\>/, '<% end %>')
+    template.gsub!(/GLT Mice\s+/, 'GLT Mice')
+
+    ERB.new(template).result(binding) rescue nil
+  end
+
+  def send_production_centre_email(production_centre, email, bcc = nil)
+    @email_template = EmailTemplate.find_by_status!('production_centre_report')
+
+    @contact_email = email
+    @production_centre = production_centre
+
+    @csv2 = @@csv2
+    @csv1 = get_production_centre_report production_centre
+
+    @genes_production_count = @csv1.count("\n") - 1
+    @genes_idle_count = @csv2.count("\n") - 1
+
+    email_body = ERB.new(@email_template.update_body).result(binding) rescue nil
+    email_body.gsub!(/\r/, "\n")
+    email_body.gsub!(/\n\n+/, "\n\n")
+    email_body.gsub!(/\n\n\s+\n\n/, "\n\n")
+
+    attachments['production_centre_gene_list.csv'] = @csv1 if @genes_production_count > 0
+    attachments['production_centre_gene_list_idle.csv'] = @csv2
+
+    mail(:to => email, :subject => "iMits Production Centre #{production_centre} Report", :bcc => bcc) { |format| format.text { render :inline => email_body } }.deliver if bcc
+    mail(:to => email, :subject => "iMits Production Centre #{production_centre} Report") { |format| format.text { render :inline => email_body } }.deliver if ! bcc
+  end
+
+  def send_admin_email(email, subject, body)
+    mail(:to => email, :subject => subject) do |format|
+      format.text { render :inline => body }
+    end.deliver
+  end
+
+  def send_production_centre_emails
+    config = YAML.load_file File.join(Rails.root, 'config', 'production_centre_contacts.yml')
+
+    contacts = config['contacts']
+    bcc = config['bcc']
+
+    @@csv2 = get_production_centre_report
+
+    missing = []
+
+    contacts.keys.each do |centre|
+      if contacts[centre]
+        list = contacts[centre].split('|')
+        list.each do |email|
+          NotificationMailer.send_production_centre_email(centre, email, bcc)
+        end
+      else
+        missing.push centre
+      end
+    end
+  end
+
 end

@@ -21,9 +21,8 @@ end
 #
 # Table name: mi_plan_sub_projects
 #
-#  id         :integer         not null, primary key
-#  name       :string(255)     not null
+#  id         :integer          not null, primary key
+#  name       :string(255)      not null
 #  created_at :datetime
 #  updated_at :datetime
 #
-

@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   ADMIN_USERS = [
-    'aq2@sanger.ac.uk',
+    'as28@sanger.ac.uk',
     'vvi@sanger.ac.uk',
     're4@sanger.ac.uk',
     'pen1adm@sanger.ac.uk',
@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   ]
 
   REMOTE_ACCESS_USERS = [
-    'aq2@sanger.ac.uk',
+    'as28@sanger.ac.uk',
     'vvi@sanger.ac.uk',
     're4@sanger.ac.uk',
     'a.blake@har.mrc.ac.uk'
@@ -47,23 +47,23 @@ end
 #
 # Table name: users
 #
-#  id                             :integer         not null, primary key
-#  email                          :string(255)     default(""), not null
-#  encrypted_password             :string(128)     default(""), not null
+#  id                             :integer          not null, primary key
+#  email                          :string(255)      default(""), not null
+#  encrypted_password             :string(128)      default(""), not null
 #  remember_created_at            :datetime
-#  production_centre_id           :integer         not null
+#  production_centre_id           :integer          not null
 #  created_at                     :datetime
 #  updated_at                     :datetime
 #  name                           :string(255)
-#  is_contactable                 :boolean         default(FALSE)
+#  is_contactable                 :boolean          default(FALSE)
 #  reset_password_token           :string(255)
 #  reset_password_sent_at         :datetime
 #  es_cell_distribution_centre_id :integer
 #  legacy_id                      :integer
-#  admin                          :boolean         default(FALSE)
+#  admin                          :boolean          default(FALSE)
+#  active                         :boolean          default(TRUE)
 #
 # Indexes
 #
 #  index_users_on_email  (email) UNIQUE
 #
-

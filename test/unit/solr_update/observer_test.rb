@@ -22,6 +22,8 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
 
   context 'SolrUpdate::Observer::PhenotypeAttempt' do
     should 'tell the enqueuer that a PhenotypeAttempt is changed' do
+      return if ! Rails.configuration.enable_solr_phenotype_attempt
+
       pa = stub('phenotype_attempt')
       SolrUpdate::Enqueuer.any_instance.expects(:phenotype_attempt_updated).with(pa)
 
@@ -30,6 +32,8 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
     end
 
     should 'tell the enqueuer that a PhenotypeAttempt is deleted' do
+      return if ! Rails.configuration.enable_solr_phenotype_attempt
+
       pa = stub('phenotype_attempt')
       SolrUpdate::Enqueuer.any_instance.expects(:phenotype_attempt_destroyed).with(pa)
 
@@ -151,9 +155,9 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
 
       es_cell = stub("my es_cell")
       es_cell.stubs(:unique_public_info).returns([
-          {:ikmc_project_name => 'project_name3', :ikmc_project_status_name => 'status_name3' },
-          { :ikmc_project_name => '', :ikmc_project_status_name => '' }                             # check it doesn't get added
-          ])
+        {:ikmc_project_name => 'project_name3', :ikmc_project_status_name => 'status_name3' },
+        { :ikmc_project_name => '', :ikmc_project_status_name => '' }                             # check it doesn't get added
+      ])
 
       status = stub("my status")
       status.stubs(:name).returns('Vector Complete')

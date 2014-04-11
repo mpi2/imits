@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140113132202) do
+ActiveRecord::Schema.define(:version => 20140431165000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -116,6 +116,15 @@ ActiveRecord::Schema.define(:version => 20140113132202) do
     t.integer  "go_annotations_for_gene_count"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "chr",                                :limit => 2
+    t.integer  "start_coordinates"
+    t.integer  "end_coordinates"
+    t.string   "strand_name"
+    t.string   "vega_ids"
+    t.string   "ncbi_ids"
+    t.string   "ensembl_ids"
+    t.string   "ccds_ids"
+    t.string   "marker_type"
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
@@ -346,9 +355,10 @@ ActiveRecord::Schema.define(:version => 20140113132202) do
     t.text     "allele_symbol_superscript"
     t.boolean  "report_to_public",                              :default => true,  :null => false
     t.text     "completion_comment"
+    t.boolean  "mutagenesis_via_crispr_cas9",                   :default => false
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only", "mutagenesis_via_crispr_cas9"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "mouse_allele_mod_status_stamps", :force => true do |t|
     t.integer  "mouse_allele_mod_id", :null => false
@@ -574,9 +584,9 @@ ActiveRecord::Schema.define(:version => 20140113132202) do
   end
 
   create_table "new_intermediate_report", :force => true do |t|
-    t.string   "gene",                                             :limit => 75,  :null => false
-    t.integer  "mi_plan_id",                                                      :null => false
-    t.string   "consortium",                                                      :null => false
+    t.string   "gene",                                             :limit => 75,                     :null => false
+    t.integer  "mi_plan_id",                                                                         :null => false
+    t.string   "consortium",                                                                         :null => false
     t.string   "production_centre"
     t.string   "sub_project"
     t.string   "priority"
@@ -652,6 +662,7 @@ ActiveRecord::Schema.define(:version => 20140113132202) do
     t.date     "phenotyping_experiments_started_date"
     t.date     "non_cre_ex_phenotyping_experiments_started_date"
     t.date     "cre_ex_phenotyping_experiments_started_date"
+    t.boolean  "mutagenesis_via_crispr_cas9",                                     :default => false
   end
 
   create_table "new_intermediate_report_summary_by_centre_and_consortia", :force => true do |t|
@@ -959,6 +970,8 @@ ActiveRecord::Schema.define(:version => 20140113132202) do
     t.integer  "qc_critical_region_qpcr_id"
     t.integer  "qc_loxp_srpcr_id"
     t.integer  "qc_loxp_srpcr_and_sequencing_id"
+    t.string   "allele_name"
+    t.string   "jax_mgi_accession_id"
     t.date     "ready_for_website"
   end
 
@@ -1032,6 +1045,114 @@ ActiveRecord::Schema.define(:version => 20140113132202) do
 
   add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
 
+  create_table "solr_alleles", :id => false, :force => true do |t|
+    t.text    "type"
+    t.integer "id"
+    t.text    "product_type"
+    t.integer "allele_id"
+    t.text    "order_from_names"
+    t.text    "order_from_urls"
+    t.text    "simple_allele_image_url"
+    t.text    "allele_image_url"
+    t.text    "genbank_file_url"
+    t.string  "mgi_accession_id",        :limit => 40
+    t.string  "marker_symbol",           :limit => 75
+    t.string  "allele_type",             :limit => 100
+    t.string  "strain",                  :limit => 25
+    t.text    "allele_name"
+    t.string  "project_ids"
+  end
+
+  add_index "solr_alleles", ["id"], :name => "solr_alleles_idx"
+
+  create_table "solr_centre_map", :id => false, :force => true do |t|
+    t.string "centre_name", :limit => 40
+    t.string "pref"
+    t.string "def"
+  end
+
+  create_table "solr_genes", :id => false, :force => true do |t|
+    t.integer  "id"
+    t.text     "type"
+    t.text     "allele_id"
+    t.string   "consortium"
+    t.string   "production_centre",       :limit => 100
+    t.string   "status",                  :limit => 50
+    t.datetime "effective_date"
+    t.string   "mgi_accession_id",        :limit => nil
+    t.text     "project_ids"
+    t.text     "project_statuses"
+    t.text     "project_pipelines"
+    t.text     "vector_project_ids"
+    t.text     "vector_project_statuses"
+    t.string   "marker_symbol",           :limit => 75
+    t.string   "marker_type"
+  end
+
+  add_index "solr_genes", ["id"], :name => "solr_genes_idx"
+
+  create_table "solr_ikmc_projects_details_agg", :id => false, :force => true do |t|
+    t.text    "projects"
+    t.text    "pipelines"
+    t.text    "statuses"
+    t.integer "gene_id"
+    t.text    "type"
+  end
+
+  create_table "solr_mi_attempts", :id => false, :force => true do |t|
+    t.integer "id"
+    t.text    "product_type"
+    t.text    "type"
+    t.string  "colony_name",                        :limit => 125
+    t.string  "marker_symbol",                      :limit => 75
+    t.string  "es_cell_name",                       :limit => 100
+    t.integer "allele_id"
+    t.string  "mgi_accession_id",                   :limit => 40
+    t.string  "production_centre",                  :limit => 100
+    t.string  "strain",                             :limit => 100
+    t.text    "genbank_file_url"
+    t.text    "allele_image_url"
+    t.text    "simple_allele_image_url"
+    t.string  "allele_type",                        :limit => 100
+    t.string  "project_ids"
+    t.text    "current_pa_status"
+    t.text    "allele_name"
+    t.text    "order_from_names"
+    t.text    "order_from_urls"
+    t.text    "best_status_pa_cre_ex_not_required"
+    t.text    "best_status_pa_cre_ex_required"
+  end
+
+  create_table "solr_options", :id => false, :force => true do |t|
+    t.text "key"
+    t.text "value"
+    t.text "mode"
+  end
+
+  create_table "solr_phenotype_attempts", :id => false, :force => true do |t|
+    t.integer "id"
+    t.text    "product_type"
+    t.text    "type"
+    t.string  "colony_name",                        :limit => 125
+    t.text    "allele_type"
+    t.text    "allele_name"
+    t.text    "order_from_names"
+    t.text    "order_from_urls"
+    t.integer "allele_id"
+    t.string  "strain",                             :limit => 100
+    t.string  "mgi_accession_id",                   :limit => 40
+    t.string  "production_centre",                  :limit => 100
+    t.text    "allele_image_url"
+    t.text    "simple_allele_image_url"
+    t.text    "genbank_file_url"
+    t.text    "project_ids"
+    t.string  "marker_symbol",                      :limit => 75
+    t.string  "parent_mi_attempt_colony_name",      :limit => 125
+    t.text    "best_status_pa_cre_ex_required"
+    t.text    "best_status_pa_cre_ex_not_required"
+    t.string  "current_pa_status",                  :limit => 50
+  end
+
   create_table "solr_update_queue_items", :force => true do |t|
     t.integer  "mi_attempt_id"
     t.integer  "phenotype_attempt_id"
@@ -1082,6 +1203,8 @@ ActiveRecord::Schema.define(:version => 20140113132202) do
     t.datetime "updated_at",                                                                :null => false
     t.integer  "intron"
     t.string   "type",                               :default => "TargRep::TargetedAllele"
+    t.boolean  "has_issue",                          :default => false,                     :null => false
+    t.text     "issue_description"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|
@@ -1192,8 +1315,9 @@ ActiveRecord::Schema.define(:version => 20140113132202) do
   add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
 
   create_table "targ_rep_ikmc_project_statuses", :force => true do |t|
-    t.string "name"
-    t.string "product_type"
+    t.string  "name"
+    t.string  "product_type"
+    t.integer "order_by"
   end
 
   create_table "targ_rep_ikmc_projects", :force => true do |t|
@@ -1277,6 +1401,7 @@ ActiveRecord::Schema.define(:version => 20140113132202) do
     t.integer  "es_cell_distribution_centre_id"
     t.integer  "legacy_id"
     t.boolean  "admin",                                         :default => false
+    t.boolean  "active",                                        :default => true
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

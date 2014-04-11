@@ -286,18 +286,18 @@ end
 #
 # Table name: targ_rep_es_cells
 #
-#  id                                    :integer         not null, primary key
-#  allele_id                             :integer         not null
+#  id                                    :integer          not null, primary key
+#  allele_id                             :integer          not null
 #  targeting_vector_id                   :integer
 #  parental_cell_line                    :string(255)
 #  mgi_allele_symbol_superscript         :string(75)
-#  name                                  :string(100)     not null
+#  name                                  :string(100)      not null
 #  comment                               :string(255)
 #  contact                               :string(255)
 #  ikmc_project_id                       :string(255)
 #  mgi_allele_id                         :string(50)
 #  pipeline_id                           :integer
-#  report_to_public                      :boolean         default(TRUE), not null
+#  report_to_public                      :boolean          default(TRUE), not null
 #  strain                                :string(25)
 #  production_qc_five_prime_screen       :string(255)
 #  production_qc_three_prime_screen      :string(255)
@@ -322,9 +322,9 @@ end
 #  mutation_subtype                      :string(100)
 #  allele_symbol_superscript_template    :string(75)
 #  legacy_id                             :integer
-#  created_at                            :datetime        not null
-#  updated_at                            :datetime        not null
-#  production_centre_auto_update         :boolean         default(TRUE)
+#  created_at                            :datetime         not null
+#  updated_at                            :datetime         not null
+#  production_centre_auto_update         :boolean          default(TRUE)
 #  user_qc_loxp_srpcr_and_sequencing     :string(255)
 #  user_qc_karyotype_spread              :string(255)
 #  user_qc_karyotype_pcr                 :string(255)
@@ -342,4 +342,3 @@ end
 #  es_cells_pipeline_id_fk          (pipeline_id)
 #  targ_rep_index_es_cells_on_name  (name) UNIQUE
 #
-

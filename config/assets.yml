@@ -11,6 +11,7 @@ stylesheets:
     - public/extjs/examples/ux/**/*.css
     - public/stylesheets/application.css
     - public/stylesheets/jquery/qtip.css
+    - public/stylesheets/wdm-imits.css
   targ_rep:
     - public/stylesheets/targ_rep/reset.css
     - public/stylesheets/targ_rep/typography.css
@@ -19,6 +20,7 @@ stylesheets:
     - public/stylesheets/targ_rep/sprites.css
     - public/stylesheets/targ_rep/buttons.css
     - public/stylesheets/targ_rep/style.css
+    - public/stylesheets/wdm-imits.css
 
   ie:
     - public/stylesheets/grid_ie.css

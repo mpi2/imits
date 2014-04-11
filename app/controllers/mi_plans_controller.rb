@@ -47,7 +47,7 @@ class MiPlansController < ApplicationController
   def search_for_available_mi_attempt_plans
     sql = <<-SQL
       SELECT mi_plans.* FROM mi_plans JOIN genes ON mi_plans.gene_id = genes.id
-      WHERE genes.marker_symbol = '#{params[:marker_symbol]}' AND mi_plans.is_active AND (NOT mi_plans.withdrawn) AND (NOT phenotype_only)
+      WHERE genes.marker_symbol = '#{params[:marker_symbol]}' AND mi_plans.is_active AND (NOT mi_plans.withdrawn) AND (NOT phenotype_only) AND (NOT mutagenesis_via_crispr_cas9)
     SQL
 
     @mi_plans = MiPlan.find_by_sql(sql)

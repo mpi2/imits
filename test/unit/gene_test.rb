@@ -3,6 +3,63 @@
 require 'test_helper'
 
 class GeneTest < ActiveSupport::TestCase
+  def setup_for_non_assigned_mi_plans_tests
+    @gene = Factory.create :gene_cbx1
+    @allele = Factory.create :allele, :gene => @gene
+
+    Factory.create :mi_plan, :gene => @gene
+
+    @mgp_plan = Factory.create :mi_plan,
+            :gene => @gene,
+            :consortium => Consortium.find_by_name!('MGP'),
+            :production_centre => Centre.find_by_name!('WTSI')
+    assert_equal 'Inspect - Conflict', @mgp_plan.status.name
+
+    Factory.create :mi_plan,
+            :gene => @gene,
+            :consortium => Consortium.find_by_name!('MRC'),
+            :production_centre => Centre.find_by_name!('MRC - Harwell'),
+            :is_active => false
+
+    Factory.create :mi_plan,
+            :gene => @gene,
+            :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
+            :production_centre => Centre.find_by_name!('WTSI'),
+            :number_of_es_cells_starting_qc => 4
+
+    Factory.create :mi_attempt2,
+            :es_cell => Factory.create(:es_cell, :allele => @allele),
+            :mi_plan => TestDummy.mi_plan('MARC', 'MARC', :gene => @gene, :force_assignment => true),
+            :is_active => true
+  end
+
+  def setup_for_assigned_mi_plans_tests
+    @gene = Factory.create :gene_cbx1
+    @allele = Factory.create :allele, :gene => @gene
+
+    @bash_plan = Factory.create :mi_plan,
+            :gene => @gene,
+            :consortium => Consortium.find_by_name!('BaSH'),
+            :status => MiPlan::Status.find_by_name!('Assigned')
+
+    @mgp_plan = Factory.create :mi_plan,
+            :gene => @gene,
+            :consortium => Consortium.find_by_name!('MGP'),
+            :production_centre => Centre.find_by_name!('WTSI'),
+            :number_of_es_cells_starting_qc => 5
+
+    @jax_plan = Factory.create :mi_plan,
+            :gene => @gene,
+            :consortium => Consortium.find_by_name!('JAX'),
+            :production_centre => Centre.find_by_name!('JAX'),
+            :number_of_es_cells_passing_qc => 7
+
+    @marc_attempt = Factory.create :mi_attempt2,
+            :es_cell => Factory.create(:es_cell, :allele => @allele),
+            :mi_plan => TestDummy.mi_plan('MARC', 'MARC', :gene => @gene, :force_assignment => true),
+            :is_active => true
+  end
+
   context 'Gene' do
 
     should 'have attibutes' do
@@ -55,36 +112,6 @@ class GeneTest < ActiveSupport::TestCase
       end
     end
 
-    def setup_for_non_assigned_mi_plans_tests
-      @gene = Factory.create :gene_cbx1
-      @allele = Factory.create :allele, :gene => @gene
-
-      Factory.create :mi_plan, :gene => @gene
-
-      @mgp_plan = Factory.create :mi_plan,
-              :gene => @gene,
-              :consortium => Consortium.find_by_name!('MGP'),
-              :production_centre => Centre.find_by_name!('WTSI')
-      assert_equal 'Inspect - Conflict', @mgp_plan.status.name
-
-      Factory.create :mi_plan,
-              :gene => @gene,
-              :consortium => Consortium.find_by_name!('MRC'),
-              :production_centre => Centre.find_by_name!('MRC - Harwell'),
-              :is_active => false
-
-      Factory.create :mi_plan,
-              :gene => @gene,
-              :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :number_of_es_cells_starting_qc => 4
-
-      Factory.create :mi_attempt2,
-              :es_cell => Factory.create(:es_cell, :allele => @allele),
-              :mi_plan => TestDummy.mi_plan('MARC', 'MARC', :gene => @gene, :force_assignment => true),
-              :is_active => true
-    end
-
     context '#non_assigned_mi_plans' do
       should 'work' do
         setup_for_non_assigned_mi_plans_tests
@@ -114,33 +141,6 @@ class GeneTest < ActiveSupport::TestCase
         assert_not_include result, '[MARC:MARC:Assigned]'
         assert_not_include result, '[EUCOMM-EUMODIC:WTSI:Assigned - ES Cell QC In Progress]'
       end
-    end
-
-    def setup_for_assigned_mi_plans_tests
-      @gene = Factory.create :gene_cbx1
-      @allele = Factory.create :allele, :gene => @gene
-
-      @bash_plan = Factory.create :mi_plan,
-              :gene => @gene,
-              :consortium => Consortium.find_by_name!('BaSH'),
-              :status => MiPlan::Status.find_by_name!('Assigned')
-
-      @mgp_plan = Factory.create :mi_plan,
-              :gene => @gene,
-              :consortium => Consortium.find_by_name!('MGP'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :number_of_es_cells_starting_qc => 5
-
-      @jax_plan = Factory.create :mi_plan,
-              :gene => @gene,
-              :consortium => Consortium.find_by_name!('JAX'),
-              :production_centre => Centre.find_by_name!('JAX'),
-              :number_of_es_cells_passing_qc => 7
-
-      @marc_attempt = Factory.create :mi_attempt2,
-              :es_cell => Factory.create(:es_cell, :allele => @allele),
-              :mi_plan => TestDummy.mi_plan('MARC', 'MARC', :gene => @gene, :force_assignment => true),
-              :is_active => true
     end
 
     context '#assigned_mi_plans' do

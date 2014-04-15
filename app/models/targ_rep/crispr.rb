@@ -3,30 +3,23 @@ class TargRep::Crispr < ActiveRecord::Base
 
   attr_accessible :mutagensis_factor_id, :sequence, :chr, :start, :end
 
-  belongs_to :genes
   belongs_to :mutagenesis_factor, :inverse_of => :crisprs
 
   before_validation :upper_case_sequence
 
+  validates_uniqueness_of :sequence, :scope => [:mutagenesis_factor_id]
   validates_presence_of :mutagenesis_factor
-
   validates_format_of :sequence,
       :with       => /^[ACGT]+$/i,
-      :message    => "Crispr sequence must consist of a sequence of 'A', 'C', 'G' or 'T'"
-
+      :message    => "must consist of a sequence of 'A', 'C', 'G' or 'T'"
   validates :start, :numericality => {:only_integer => true, :greater_than => 0}
-
   validates :end, :numericality => {:only_integer => true, :greater_than => 0}
-
-  validate do |crispr|
-    if crispr.sequence.length != 23
-      crispr.errors.add :sequence, "must have a length of 23"
-    end
-  end
+  validates_length_of :sequence,
+     :is => 23
 
 
   def upper_case_sequence
-    self.sequence = self.sequence.upcase
+    self.sequence = self.sequence.upcase if !self.sequence.blank?
   end
   protected :upper_case_sequence
 end

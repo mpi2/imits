@@ -22,8 +22,16 @@ class MiAttempt::Status < ActiveRecord::Base
     @@aborted ||= self.find_by_name!('Micro-injection aborted').freeze
   end
 
+  def self.chimeras_founder_obtained
+    @@chimeras_founder_obtained ||= self.find_by_name!('Chimeras/Founder obtained').freeze
+  end
+
   def self.chimeras_obtained
     @@chimeras_obtained ||= self.find_by_name!('Chimeras obtained').freeze
+  end
+
+  def self.founder_obtained
+    @@founder_obtained ||= self.find_by_name!('Founder obtained').freeze
   end
 
   def self.status_order

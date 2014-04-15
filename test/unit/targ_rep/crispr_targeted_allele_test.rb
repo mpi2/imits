@@ -12,7 +12,6 @@ class TargRep::CrisprTargetedAlleleTest < ActiveSupport::TestCase
   end
 
   # test validation
-  should validate_presence_of :backbone
   should validate_presence_of :cassette
   should validate_presence_of :cassette_type
 

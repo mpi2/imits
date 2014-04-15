@@ -63,12 +63,12 @@ class MiAttempt < ApplicationModel
   validates :mi_date, :presence => true
 
   validate do |mi|
-    if (mi.mutagenesis_factor.blank? and mi.es_cell_name.blank? and mi.es_cell.blank?)  or  (!mi.mutagenesis_factor.blank? and !(mi.es_cell_name.blank? and mi.es_cell.blank?))
+    if (mi.mutagenesis_factor.blank? and mi.es_cell.blank?) or (!mi.mutagenesis_factor.blank? and !mi.es_cell.blank?)
       mi.errors.add :base, 'Please Select EITHER an es_cell_name OR mutagenesis_factor'
     end
   end
 
-#  validate :validate_plan # this method is in belongs_to_mi_plan
+  validate :validate_plan # this method is in belongs_to_mi_plan
 
   # validate mi plan
   validate do |mi_attempt|
@@ -77,18 +77,16 @@ class MiAttempt < ApplicationModel
         mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
       end
 
-#      if (mi_attempt.es_cell and mi_attempt.es_cell.try(:gene) != mi_attempt.mi_plan.try(:gene))
-#        mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.try(:gene).try(:marker_symbol)} != #{mi_attempt.mi_plan.try(:gene).try(:marker_symbol)})"
-#      end
+      if mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.es_cell.blank?
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (crispr plan)')
+      end
+
+      if !mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.mutagenesis_factor.blank?
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (requires crispr plan)')
+      end
     end
   end
 
-#  validate do |mi_attempt|
-#    next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
-#    if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)
-#      mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.gene.marker_symbol} != #{mi_attempt.mi_plan.gene.marker_symbol})"
-#    end
-#  end
 
   validate do |mi_attempt|
     if !mi_attempt.phenotype_attempts.blank? and
@@ -96,14 +94,6 @@ class MiAttempt < ApplicationModel
       mi_attempt.errors.add(:status, 'cannot be changed - phenotype attempts exist')
     end
   end
-
-#  validate do |mi_attempt|
-#    next if mi_attempt.mi_plan.blank?
-
-#    if mi_attempt.mi_plan.phenotype_only
-#      mi_attempt.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
-#    end
-#  end
 
   # BEGIN Callbacks
 

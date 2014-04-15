@@ -2,6 +2,11 @@ require 'test_helper'
 
 class SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
   class MockError < RuntimeError; end
+  def setup_for_process
+    @item2 = SolrUpdate::Queue::Item.create!(:mi_attempt_id => 1, :action => 'update', :created_at => '2012-01-02 00:00:00 UTC')
+    @item1 = SolrUpdate::Queue::Item.create!(:phenotype_attempt_id => 2, :action => 'delete', :created_at => '2012-01-01 00:00:00 UTC')
+    @item3 = SolrUpdate::Queue::Item.create!(:allele_id => 3, :action => 'update', :created_at => '2011-12-31 00:00:00 UTC')
+  end
 
   context 'SolrUpdate::Queue::Item' do
 
@@ -62,12 +67,6 @@ class SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
       assert_not_nil SolrUpdate::Queue::Item.find_by_mi_attempt_id_and_action(5, 'update')
       assert_not_nil SolrUpdate::Queue::Item.find_by_phenotype_attempt_id_and_action(8, 'delete')
       assert_not_nil SolrUpdate::Queue::Item.find_by_allele_id_and_action(12, 'update')
-    end
-
-    def setup_for_process
-      @item2 = SolrUpdate::Queue::Item.create!(:mi_attempt_id => 1, :action => 'update', :created_at => '2012-01-02 00:00:00 UTC')
-      @item1 = SolrUpdate::Queue::Item.create!(:phenotype_attempt_id => 2, :action => 'delete', :created_at => '2012-01-01 00:00:00 UTC')
-      @item3 = SolrUpdate::Queue::Item.create!(:allele_id => 3, :action => 'update', :created_at => '2011-12-31 00:00:00 UTC')
     end
 
     should 'process items in order they were added: #process_in_order' do

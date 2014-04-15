@@ -2,8 +2,6 @@ class TargRep::CrisprTargetedAllele < TargRep::Allele
   include TargRep::Allele::CassetteValidation
   include TargRep::Allele::FeatureValidation
 
-  validates :backbone,       :presence => true
-
   def pipeline_names
     nil
   end

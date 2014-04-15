@@ -27,3 +27,18 @@
   order_by: 230
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
+5:
+  code: fod
+  id: 5
+  name: Founder obtained
+  order_by: 231
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+6:
+  code: cof
+  id: 6
+  name: Chimeras/Founder obtained
+  order_by: 229
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+

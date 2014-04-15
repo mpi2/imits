@@ -10,6 +10,42 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
     @fake_unique_public_info.replace replacement
   end
 
+  def check_order_details(object)
+    doc = {'test_doc' => true}
+
+    SolrUpdate::DocFactory.set_order_from_details(object, doc, @config)
+
+    hash_check = {}
+    counter = 0
+    assert_equal doc['order_from_names'].size, doc['order_from_urls'].size
+    doc['order_from_names'].each do |order_from_names|
+      hash_check[order_from_names] = doc['order_from_urls'][counter]
+      counter += 1
+    end
+
+    @config.keys.each do |key|
+      next if key == 'EMMA'
+      next if key == 'KOMP'
+      if /PROJECT_ID/ =~ @config[key][:preferred]
+        if object.es_cell.ikmc_project_id
+          assert @config[key][:preferred].gsub(/PROJECT_ID/, object.es_cell.ikmc_project_id), hash_check[key]
+        else
+          assert @config[key][:default], hash_check[key]
+        end
+      elsif /MARKER_SYMBOL/ =~ @config[key][:preferred]
+        if object.gene.marker_symbol
+          assert @config[key][:preferred].gsub(/MARKER_SYMBOL/, object.gene.marker_symbol), hash_check[key]
+        else
+          assert @config[key][:default], hash_check[key]
+        end
+      else
+        assert @config[key][:default], hash_check[key]
+      end
+    end
+
+    return hash_check
+  end
+
   context 'SolrUpdate::DocFactory' do
 
     context '#create' do
@@ -454,42 +490,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         @phenotype_attempt.distribution_centres = phenotype_attempt_distribution_centre
 
         @phenotype_attempt.reload
-      end
-
-      def check_order_details(object)
-        doc = {'test_doc' => true}
-
-        SolrUpdate::DocFactory.set_order_from_details(object, doc, @config)
-
-        hash_check = {}
-        counter = 0
-        assert_equal doc['order_from_names'].size, doc['order_from_urls'].size
-        doc['order_from_names'].each do |order_from_names|
-          hash_check[order_from_names] = doc['order_from_urls'][counter]
-          counter += 1
-        end
-
-        @config.keys.each do |key|
-          next if key == 'EMMA'
-          next if key == 'KOMP'
-          if /PROJECT_ID/ =~ @config[key][:preferred]
-            if object.es_cell.ikmc_project_id
-              assert @config[key][:preferred].gsub(/PROJECT_ID/, object.es_cell.ikmc_project_id), hash_check[key]
-            else
-              assert @config[key][:default], hash_check[key]
-            end
-          elsif /MARKER_SYMBOL/ =~ @config[key][:preferred]
-            if object.gene.marker_symbol
-              assert @config[key][:preferred].gsub(/MARKER_SYMBOL/, object.gene.marker_symbol), hash_check[key]
-            else
-              assert @config[key][:default], hash_check[key]
-            end
-          else
-            assert @config[key][:default], hash_check[key]
-          end
-        end
-
-        return hash_check
       end
 
       should 'manage mi_attempt' do

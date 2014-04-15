@@ -169,7 +169,7 @@ TarMits::Application.routes.draw do
     resources :crispr_targeted_alleles
     resources :nhej_alleles, :except => [:create, :edit, :update, :new]
 
-    resources :alleles do
+    resources :alleles , :except => [:create, :edit, :update, :new] do
       get :history, :on => :member
       get :image, :on => :member
 
@@ -177,6 +177,11 @@ TarMits::Application.routes.draw do
         get :attributes
       end
     end
+
+    match "/alleles/:id" => "targeted_alleles#new", :via => :get
+    match "/alleles" => "targeted_alleles#create", :via => :post
+    match "/alleles/:id" => "targeted_alleles#update", :via => :put
+    match "/alleles/:id/edit" => "targeted_alleles#edit", :via => :get
 
     resources :genbank_files
     resources :targeting_vectors

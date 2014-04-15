@@ -50,11 +50,14 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
     context "check normal creation" do
       should "be saved" do
         allele = Factory.build :allele
+        attributes_before_save = allele.attributes.select{|attr| !['updated_at', 'created_at', 'id'].include?(attr)}
         assert allele.save, "Targeted allele saves for a normal entry"
-        attributes_after_save = allele.attributes
         allele_after_select = TargRep::TargetedAllele.find( allele.id )
         attributes_after_reselect = allele_after_select.attributes
-        assert_equal attributes_after_reselect, attributes_after_save
+        attributes_before_save.keys.each do |attribute|
+          assert_true attributes_after_reselect.has_key?(attribute)
+          assert_equal attributes_after_reselect[attribute], attributes_before_save[attribute]
+        end
       end
     end
 

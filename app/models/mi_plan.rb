@@ -508,41 +508,6 @@ class MiPlan < ApplicationModel
 
 end
 
-#  production_centre_id           :integer
-#  created_at                     :datetime
-#  updated_at                     :datetime
-#  number_of_es_cells_starting_qc :integer
-#  number_of_es_cells_passing_qc  :integer
-#  sub_project_id                 :integer          not null
-#  is_active                      :boolean          default(TRUE), not null
-#  is_bespoke_allele              :boolean          default(FALSE), not null
-#  is_conditional_allele          :boolean          default(FALSE), not null
-#  is_deletion_allele             :boolean          default(FALSE), not null
-#  is_cre_knock_in_allele         :boolean          default(FALSE), not null
-#  is_cre_bac_allele              :boolean          default(FALSE), not null
-#  comment                        :text
-#  withdrawn                      :boolean          default(FALSE), not null
-#  es_qc_comment_id               :integer
-#  phenotype_only                 :boolean          default(FALSE)
-#  completion_note                :string(100)
-#  recovery                       :boolean
-#  conditional_tm1c               :boolean          default(FALSE), not null
-#  ignore_available_mice          :boolean          default(FALSE), not null
-#  number_of_es_cells_received    :integer
-#  es_cells_received_on           :date
-#  es_cells_received_from_id      :integer
-#  point_mutation                 :boolean          default(FALSE), not null
-#  conditional_point_mutation     :boolean          default(FALSE), not null
-#  allele_symbol_superscript      :text
-#  report_to_public               :boolean          default(TRUE), not null
-#  completion_comment             :text
-#  mutagenesis_via_crispr_cas9    :boolean          default(FALSE)
-#
-# Indexes
-#
-#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id,is_bespoke_allele,is_conditional_allele,is_deletion_allele,is_cre_knock_in_allele,is_cre_bac_allele,conditional_tm1c,phenotype_only,mutagenesis_via_crispr_cas9) UNIQUE
-#
-
 # == Schema Information
 #
 # Table name: mi_plans

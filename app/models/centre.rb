@@ -42,20 +42,3 @@ end
 #
 #  index_centres_on_name  (name) UNIQUE
 #
-
-# == Schema Information
-#
-# Table name: centres
-#
-#  id            :integer         not null, primary key
-#  name          :string(100)     not null
-#  created_at    :datetime
-#  updated_at    :datetime
-#  contact_name  :string(100)
-#  contact_email :string(100)
-#
-# Indexes
-#
-#  index_centres_on_name  (name) UNIQUE
-#
-

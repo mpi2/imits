@@ -25,13 +25,3 @@ end
 #  product_type :string(255)
 #  order_by     :integer
 #
-
-# == Schema Information
-#
-# Table name: targ_rep_ikmc_project_statuses
-#
-#  id           :integer         not null, primary key
-#  name         :string(255)
-#  product_type :string(255)
-#
-

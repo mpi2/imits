@@ -70,9 +70,6 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
 end
 
-
-
-
 # == Schema Information
 #
 # Table name: phenotype_attempt_distribution_centres

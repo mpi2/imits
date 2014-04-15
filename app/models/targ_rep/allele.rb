@@ -128,7 +128,7 @@ class TargRep::Allele < ActiveRecord::Base
     :in         => ('1'..'19').to_a + ['X', 'Y', 'MT'],
     :message    => "is not a valid mouse chromosome"
 
-  validates_inclusion_of :has_issue, 
+  validates_inclusion_of :has_issue,
     :in         => [ nil, true, false ],
     :message    => "should be either nil, true or false",
     :allow_nil  => true
@@ -403,36 +403,3 @@ end
 #  has_issue           :boolean          default(FALSE), not null
 #  issue_description   :text
 #
-
-# == Schema Information
-#
-# Table name: targ_rep_alleles
-#
-#  id                  :integer         not null, primary key
-#  gene_id             :integer
-#  assembly            :string(50)      default("NCBIM37"), not null
-#  chromosome          :string(2)       not null
-#  strand              :string(1)       not null
-#  homology_arm_start  :integer
-#  homology_arm_end    :integer
-#  loxp_start          :integer
-#  loxp_end            :integer
-#  cassette_start      :integer
-#  cassette_end        :integer
-#  cassette            :string(100)
-#  backbone            :string(100)
-#  subtype_description :string(255)
-#  floxed_start_exon   :string(255)
-#  floxed_end_exon     :string(255)
-#  project_design_id   :integer
-#  reporter            :string(255)
-#  mutation_method_id  :integer
-#  mutation_type_id    :integer
-#  mutation_subtype_id :integer
-#  cassette_type       :string(50)
-#  created_at          :datetime        not null
-#  updated_at          :datetime        not null
-#  intron              :integer
-#  type                :string(255)     default("TargRep::TargetedAllele")
-#
-

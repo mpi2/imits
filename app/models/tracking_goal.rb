@@ -109,18 +109,3 @@ end
 #  updated_at           :datetime         not null
 #  consortium_id        :integer
 #
-
-# == Schema Information
-#
-# Table name: tracking_goals
-#
-#  id                   :integer         not null, primary key
-#  production_centre_id :integer
-#  date                 :date
-#  goal_type            :string(255)
-#  goal                 :integer
-#  created_at           :datetime        not null
-#  updated_at           :datetime        not null
-#  consortium_id        :integer
-#
-

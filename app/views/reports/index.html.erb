@@ -34,6 +34,11 @@
     </a>
   </div>
   <div class="report-links">
+    <a href="<%= url_for(:controller => "v2/reports/mi_production", :action => :planned_crispr_microinjection_list) %>">
+      <h4>All Planned Crispr-Based Production</h4>
+    </a>
+  </div>
+  <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :genes_list, :format => :csv) %>">
       <h4>All Genes</h4>
       <p>
@@ -43,14 +48,25 @@
       </p>
     </a>
   </div>
+
   <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :notifications_by_gene) %>">
+    <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :notifications_by_gene) %>">
       <h4>Gene interest by notification</h4>
       <p>
-        Lists all genes that current have subscribed updates and displays how many notifications there are for each gene.
+        Lists all genes that current have subscribed updates and displays further details for each gene.
       </p>
     </a>
   </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :notifications_by_gene_for_idg) %>">
+      <h4>IDG Gene List Activity</h4>
+      <p>
+        Lists all genes that current have subscribed updates and displays further details for each gene.
+      </p>
+    </a>
+  </div>
+
 </div>
 
 <div class="grid_4">

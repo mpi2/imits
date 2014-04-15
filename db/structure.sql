@@ -1868,7 +1868,9 @@ CREATE TABLE phenotype_attempts (
     qc_lacz_count_qpcr_id integer,
     qc_critical_region_qpcr_id integer,
     qc_loxp_srpcr_id integer,
-    qc_loxp_srpcr_and_sequencing_id integer
+    qc_loxp_srpcr_and_sequencing_id integer,
+    allele_name character varying(255),
+    jax_mgi_accession_id character varying(255)
 );
 
 
@@ -2212,7 +2214,9 @@ CREATE TABLE targ_rep_alleles (
     updated_at timestamp without time zone NOT NULL,
     intron integer,
     type character varying(255) DEFAULT 'TargRep::TargetedAllele'::character varying,
-    sequence text
+    sequence text,
+    has_issue boolean DEFAULT false NOT NULL,
+    issue_description text
 );
 
 
@@ -4738,6 +4742,12 @@ INSERT INTO schema_migrations (version) VALUES ('20140317115302');
 
 INSERT INTO schema_migrations (version) VALUES ('20140318095417');
 
+INSERT INTO schema_migrations (version) VALUES ('20140320152942');
+
 INSERT INTO schema_migrations (version) VALUES ('20140324135302');
 
 INSERT INTO schema_migrations (version) VALUES ('20140324145302');
+
+INSERT INTO schema_migrations (version) VALUES ('20140426101200');
+
+INSERT INTO schema_migrations (version) VALUES ('20140431165000');

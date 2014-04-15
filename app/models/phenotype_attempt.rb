@@ -244,31 +244,30 @@ class PhenotypeAttempt < ApplicationModel
 end
 
 
-
 # == Schema Information
 #
 # Table name: phenotype_attempts
 #
-#  id                                  :integer         not null, primary key
-#  mi_attempt_id                       :integer         not null
-#  status_id                           :integer         not null
-#  is_active                           :boolean         default(TRUE), not null
-#  rederivation_started                :boolean         default(FALSE), not null
-#  rederivation_complete               :boolean         default(FALSE), not null
-#  number_of_cre_matings_started       :integer         default(0), not null
-#  number_of_cre_matings_successful    :integer         default(0), not null
-#  phenotyping_started                 :boolean         default(FALSE), not null
-#  phenotyping_complete                :boolean         default(FALSE), not null
+#  id                                  :integer          not null, primary key
+#  mi_attempt_id                       :integer          not null
+#  status_id                           :integer          not null
+#  is_active                           :boolean          default(TRUE), not null
+#  rederivation_started                :boolean          default(FALSE), not null
+#  rederivation_complete               :boolean          default(FALSE), not null
+#  number_of_cre_matings_started       :integer          default(0), not null
+#  number_of_cre_matings_successful    :integer          default(0), not null
+#  phenotyping_started                 :boolean          default(FALSE), not null
+#  phenotyping_complete                :boolean          default(FALSE), not null
 #  created_at                          :datetime
 #  updated_at                          :datetime
-#  mi_plan_id                          :integer         not null
-#  colony_name                         :string(125)     not null
+#  mi_plan_id                          :integer          not null
+#  colony_name                         :string(125)      not null
 #  mouse_allele_type                   :string(3)
 #  deleter_strain_id                   :integer
 #  colony_background_strain_id         :integer
-#  cre_excision_required               :boolean         default(TRUE), not null
-#  tat_cre                             :boolean         default(FALSE)
-#  report_to_public                    :boolean         default(TRUE), not null
+#  cre_excision_required               :boolean          default(TRUE), not null
+#  tat_cre                             :boolean          default(FALSE)
+#  report_to_public                    :boolean          default(TRUE), not null
 #  phenotyping_experiments_started     :date
 #  qc_southern_blot_id                 :integer
 #  qc_five_prime_lr_pcr_id             :integer
@@ -286,9 +285,10 @@ end
 #  qc_critical_region_qpcr_id          :integer
 #  qc_loxp_srpcr_id                    :integer
 #  qc_loxp_srpcr_and_sequencing_id     :integer
+#  allele_name                         :string(255)
+#  jax_mgi_accession_id                :string(255)
 #
 # Indexes
 #
 #  index_phenotype_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

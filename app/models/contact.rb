@@ -16,14 +16,13 @@ end
 #
 # Table name: contacts
 #
-#  id               :integer         not null, primary key
-#  email            :string(255)     not null
+#  id               :integer          not null, primary key
+#  email            :string(255)      not null
 #  created_at       :datetime
 #  updated_at       :datetime
-#  report_to_public :boolean         default(TRUE)
+#  report_to_public :boolean          default(TRUE)
 #
 # Indexes
 #
 #  index_contacts_on_email  (email) UNIQUE
 #
-

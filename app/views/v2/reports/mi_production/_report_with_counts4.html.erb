@@ -1,0 +1,76 @@
+<% if @count == 0 %>
+  <p><em>Sorry, no <%= label %> found</em></p>
+<% else %>
+  <p><%= @count %> <%= label %> found for <%= @consortium %> </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <th>Bespoke</th>
+        <th>Is Made By Crispr?</th>
+        <th>Allele Structure</th>
+        <th>Allele Symbol Superscript</th>
+        <th>Recovery</th>
+        <th>Completion Note</th>
+        <th>Phenotype Only?</th>
+        <th>Ignore Available Mice</th>
+        <th>Production Centre</th>
+        <th>Marker Symbol</th>
+        <th>MGI Accession ID</th>
+        <th>Priority</th>
+        <th>Plan Status</th>
+        <th>Latest Plan Status Date</th>
+        <th>Plan Assign Date</th>
+        <th>Reason for Inspect/conflict</th>
+        <th># Aborted attempts on this plan</th>
+        <th>Date of latest aborted attempt</th>
+        <th>Non-Assigned Plans</th>
+        <th>Assigned plans</th>
+        <th>Aborted MIs</th>
+        <th>MIs in Progress</th>
+        <th>GLT Mice</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @mi_plan_summary.each do |rec|%>
+        <tr>
+          <td><%= rec['consortium_name'] %></td>
+          <td><%= boolean_to_text(rec['bespoke']) %></td>
+          <td><%= boolean_to_text(rec['mutagenesis_via_crispr_cas9']) %></td>
+          <td><%= <<-EOF
+                   #{boolean_to_text(rec['conditional_allele']) == 'Yes' ? '[Knockout First tm1a] ' : ''}
+                   #{boolean_to_text(rec['conditional_tm1c']) == 'Yes' ? '[Conditional tm1c] ' : ''}
+                   #{boolean_to_text(rec['deletion_allele']) == 'Yes' ? '[Deletion] ' : ''}
+                   #{boolean_to_text(rec['cre_knock_in_allele']) == 'Yes' ? '[Cre Knock-in] ' : ''}
+                   #{boolean_to_text(rec['cre_bac_allele']) == 'Yes' ? '[Cre BAC] ' : ''}
+                   #{boolean_to_text(rec['point_mutation']) == 'Yes' ? '[Point Mutation] ' : ''}
+                   #{boolean_to_text(rec['conditional_point_mutation']) == 'Yes' ? '[Conditional Point Mutation] ' : ''}
+               EOF
+               %></td>
+          <td><%= rec['allele_symbol_superscript'] %></td>
+          <td><%= boolean_to_text(rec['recovery']) %></td>
+          <td><%= rec['completion_note'] %></td>
+          <td><%= boolean_to_text(rec['phenotype_only']) %></td>
+          <td><%= boolean_to_text(rec['ignore_available_mice']) %></td>
+          <td><%= rec['centre_name'] %></td>
+          <td><%= rec['marker_symbol'] %></td>
+          <td><%= rec['mgi_accession_id'] %></td>
+          <td><%= rec['priority_name'] %></td>
+          <td><%= rec['status_name'] %></td>
+          <td><%= rec['status_date'] %></td>
+          <td><%= rec['assign_date'] %></td>
+          <td><%= "#{rec['conflict_reason_text']} #{rec['conflict_reason']}" %></td>
+          <td><%= rec['plan_aborted_count'] %></td>
+          <td><%= rec['plan_aborted_max_date'] %></td>
+          <td><%= @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<% end %>

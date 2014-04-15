@@ -50,18 +50,15 @@ class TargRep::GeneTrap < TargRep::Allele
 
 end
 
-
-
-
 # == Schema Information
 #
 # Table name: targ_rep_alleles
 #
-#  id                  :integer         not null, primary key
+#  id                  :integer          not null, primary key
 #  gene_id             :integer
-#  assembly            :string(255)     default("GRCm38"), not null
-#  chromosome          :string(2)       not null
-#  strand              :string(1)       not null
+#  assembly            :string(255)      default("GRCm38"), not null
+#  chromosome          :string(2)        not null
+#  strand              :string(1)        not null
 #  homology_arm_start  :integer
 #  homology_arm_end    :integer
 #  loxp_start          :integer
@@ -79,10 +76,11 @@ end
 #  mutation_type_id    :integer
 #  mutation_subtype_id :integer
 #  cassette_type       :string(50)
-#  created_at          :datetime        not null
-#  updated_at          :datetime        not null
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
 #  intron              :integer
-#  type                :string(255)     default("TargRep::TargetedAllele")
+#  type                :string(255)      default("TargRep::TargetedAllele")
 #  sequence            :text
+#  has_issue           :boolean          default(FALSE), not null
+#  issue_description   :text
 #
-

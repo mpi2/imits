@@ -218,6 +218,7 @@ TarMits::Application.routes.draw do
     get '/alleles/:id/vector-image-cre' => 'alleles#vector_image_cre', :as => 'vector_image_cre'
     get '/alleles/:id/vector-image-flp' => 'alleles#vector_image_flp', :as => 'vector_image_flp'
     get '/alleles/:id/vector-image-flp-cre' => 'alleles#vector_image_flp_cre', :as => 'vector_image_flp_cre'
+    get '/alleles/:allele_id/show-issue' => 'alleles#show_issue', :as => 'show_issue'
 
     get 'wge_searches/exon_search' => 'wge_searches#exon_search', :as => 'exon_search'
     get 'wge_searches/crispr_search' => 'wge_searches#crispr_search', :as => 'crispr_search'

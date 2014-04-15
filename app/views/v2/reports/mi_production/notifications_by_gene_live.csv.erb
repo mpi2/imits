@@ -1,0 +1,4 @@
+Gene,MGI Accession ID,Number of notifications,Best Status,# Clones,Non-Assigned Plans,Assigned plans,Aborted MIs,MIs in Progress,GLT Mice
+<% for rec in @mi_plan_summary %>
+<%= rec['marker_symbol'] %>,<%= rec['mgi_accession_id'] %>,<%= rec['number_of_notifications'] %>,<%= @pretty_print_statuses[rec['marker_symbol']].to_s.gsub('<br/>', '|') %>,<%= @pretty_print_types_of_cells_available[rec['marker_symbol']].to_s.gsub(',', ' ').gsub('<br/>', ' | ')  %>,<%= @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %>,<%= @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %>,<%= @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %>,<%= @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %>,<%= @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %>,
+<% end %>

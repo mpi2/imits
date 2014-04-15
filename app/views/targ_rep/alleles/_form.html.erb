@@ -140,6 +140,18 @@
         </p>
       <% end %>
   </fieldset>
+
+  <fieldset>
+    <legend>Allele Issues</legend>
+    <p>
+      <%= f.label :has_issue, "Allele has issue(s)" %><br />
+      <%= f.select :has_issue, [ 'true', 'false' ] %>
+    </p>
+    <p>
+      <%= f.label :issue_description, "Issue description" %><br />
+      <%= f.text_area :issue_description, :class => :text_area %>
+    </p>
+  </fieldset>
 </div>
 <% end %>
 

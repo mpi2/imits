@@ -321,7 +321,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
       context 'order_from_urls and order_from_names' do
         should 'be set for any of the EUCOMM pipelines' do
-          expected_url = ['http://www.eummcr.org/order.php']
+          expected_url = ["http://www.eummcr.org/order?add=MGI:9999999991&material=es_cells"]
           expected_name = ['EUMMCR']
 
           setup_fake_unique_public_info [
@@ -412,7 +412,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set order_from_url' do
-        url = ['http://www.eummcr.org/order.php']
+        url = ["http://www.eummcr.org/order?add=MGI:9999999991&material=es_cells"]
         assert_equal [url, url], @docs.map {|d| d['order_from_urls']}
       end
 

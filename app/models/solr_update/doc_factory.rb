@@ -1,4 +1,3 @@
-
 class SolrUpdate::DocFactory
   extend SolrUpdate::Util
 
@@ -67,6 +66,9 @@ class SolrUpdate::DocFactory
 
     solr_doc['genbank_file_url'] = genbank_file_url(mi_attempt.allele_id)
 
+    solr_doc['allele_has_issue']         = mi_attempt.es_cell.allele.has_issue
+    solr_doc['allele_issue_description'] = mi_attempt.es_cell.allele.issue_description
+
     set_order_from_details(mi_attempt, solr_doc)
 
     return [solr_doc]
@@ -126,6 +128,9 @@ class SolrUpdate::DocFactory
     solr_doc['simple_allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true, :simple => true)
 
     solr_doc['genbank_file_url'] = genbank_file_url(phenotype_attempt.allele_id, :cre => true)
+
+    solr_doc['allele_has_issue']         = phenotype_attempt.mi_attempt.es_cell.allele.has_issue
+    solr_doc['allele_issue_description'] = phenotype_attempt.mi_attempt.es_cell.allele.issue_description
 
     set_order_from_details(phenotype_attempt, solr_doc)
 
@@ -214,7 +219,9 @@ class SolrUpdate::DocFactory
         'order_from_urls' => [order_from_info[:url]],
         'order_from_names' => [order_from_info[:name]],
         'marker_symbol' => marker_symbol,
-        'project_ids' => [es_cell_info[:ikmc_project_id]]
+        'project_ids' => [es_cell_info[:ikmc_project_id]],
+        'allele_has_issue'         => allele.has_issue,
+        'allele_issue_description' => allele.issue_description
       }
     end
 
@@ -223,7 +230,8 @@ class SolrUpdate::DocFactory
 
   def self.calculate_order_from_info(data)
     if(['EUCOMM', 'EUCOMMTools', 'EUCOMMToolsCre'].include?(data[:pipeline]))
-      return {:url => 'http://www.eummcr.org/order.php', :name => 'EUMMCR'}
+      mgi_accession_id = data[:allele].gene.mgi_accession_id
+      return {:url => "http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells", :name => 'EUMMCR'}
 
     elsif(['KOMP-CSD', 'KOMP-Regeneron'].include?(data[:pipeline]))
       if ! data[:ikmc_project_id].blank?
@@ -261,7 +269,8 @@ class SolrUpdate::DocFactory
       'production_centre' => '',
       'marker_symbol' => gene.marker_symbol,
       'project_ids' => [],
-      'project_statuses' => []
+      'project_statuses' => [],
+      'marker_type' => gene.marker_type
     }
 
     doc = add_project_details(gene)
@@ -315,17 +324,37 @@ class SolrUpdate::DocFactory
         project_hash[es_cell_info[:ikmc_project_name]] = es_cell_info[:ikmc_project_status_name]
         pipeline_hash[es_cell_info[:ikmc_project_name]] = es_cell_info[:ikmc_project_pipeline]
       end
-    end
-
-    gene.allele.each do |allele|
       allele.targeting_vectors.each do |tv|
         key = tv.try(:ikmc_project).try(:name)
         value = tv.try(:ikmc_project).try(:status).try(:name)
         pipeline = tv.try(:ikmc_project).try(:pipeline).try(:name)
         next if ! key
-        vector_project_hash[key] = value if ! project_hash.has_key? key # don't add to project_hash
         project_hash[key] = value
         pipeline_hash[key] = pipeline
+      end
+    end
+
+    #for each allele find all alleles of the same mutation type including itself. Then count the number of es_cells associated with these alleles. This will add anew attribute called es_cell_count to each allele model returned.
+    sql = <<-EOF
+      WITH allele_with_es_count AS (
+        SELECT alleles1.id AS allele_id, targ_rep_es_cells.count AS es_cell_count
+        FROM targ_rep_alleles AS alleles1
+          JOIN targ_rep_alleles AS alleles2 ON alleles1.gene_id = alleles2.gene_id AND alleles1.mutation_type_id = alleles2.mutation_type_id AND alleles1.cassette = alleles2.cassette
+          LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.allele_id = alleles2.id
+        WHERE alleles2.gene_id = #{gene.id}
+        GROUP BY alleles1.id)
+
+      SELECT targ_rep_alleles.*, allele_with_es_count.es_cell_count FROM targ_rep_alleles JOIN allele_with_es_count ON allele_with_es_count.allele_id = targ_rep_alleles.id
+    EOF
+    alleles = TargRep::Allele.find_by_sql(sql)
+
+    alleles.each do |allele|
+      next if allele.es_cell_count.to_i > 0
+      allele.targeting_vectors.each do |tv|
+        key = tv.try(:ikmc_project).try(:name)
+        value = tv.try(:ikmc_project).try(:status).try(:name)
+        next if ! key
+        vector_project_hash[key] = value
       end
     end
 

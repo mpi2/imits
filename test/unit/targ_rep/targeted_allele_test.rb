@@ -37,7 +37,6 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
     should validate_numericality_of(attribute).is_greater_than(0)
   end
 
-
   [:loxp_start, :loxp_end].each do |attribute|
     should allow_value(nil).for(attribute)
   end
@@ -47,6 +46,17 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
 
 
   context "An Allele" do
+
+    context "check normal creation" do
+      should "be saved" do
+        allele = Factory.build :allele
+        assert allele.save, "Targeted allele saves for a normal entry"
+        attributes_after_save = allele.attributes
+        allele_after_select = TargRep::TargetedAllele.find( allele.id )
+        attributes_after_reselect = allele_after_select.attributes
+        assert_equal attributes_after_reselect, attributes_after_save
+      end
+    end
 
     context "with mutation type 'Deletion' and LoxP set" do
       should "not be saved" do

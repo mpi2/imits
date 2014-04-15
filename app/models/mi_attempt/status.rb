@@ -48,15 +48,14 @@ end
 #
 # Table name: mi_attempt_statuses
 #
-#  id         :integer         not null, primary key
-#  name       :string(50)      not null
+#  id         :integer          not null, primary key
+#  name       :string(50)       not null
 #  created_at :datetime
 #  updated_at :datetime
 #  order_by   :integer
-#  code       :string(10)      not null
+#  code       :string(10)       not null
 #
 # Indexes
 #
 #  index_mi_attempt_statuses_on_name  (name) UNIQUE
 #
-

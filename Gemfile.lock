@@ -38,7 +38,9 @@ GEM
     acts_as_reportable (1.1.1)
       ruport (>= 1.6.0)
     addressable (2.2.8)
-    annotate (2.4.0)
+    annotate (2.6.1)
+      activerecord (>= 2.3.0)
+      rake (>= 0.8.7)
     arel (3.0.2)
     awesome_print (0.4.0)
     bcrypt-ruby (3.0.1)
@@ -149,7 +151,7 @@ GEM
       polyamorous (~> 0.5.0)
     rdoc (3.12.2)
       json (~> 1.4)
-    rmagick (2.13.1)
+    rmagick (2.13.2)
     rubyzip (0.9.9)
     ruport (1.6.3)
       fastercsv
@@ -210,7 +212,7 @@ PLATFORMS
 DEPENDENCIES
   acts_as_audited (~> 2.0.0.rc7)
   acts_as_reportable (= 1.1.1)
-  annotate (= 2.4.0)
+  annotate (= 2.6.1)
   awesome_print (= 0.4.0)
   bio (= 1.4.3)
   biomart (= 0.2.2)
@@ -227,14 +229,13 @@ DEPENDENCIES
   launchy (= 2.0.5)
   letter_opener
   mocha (= 0.13.3)
-  mysql2
   parallel_tests (= 0.8.1)
   pg (= 0.14.1)
   rack (~> 1.4.0)
   rails (~> 3.2.11)
   rake (= 10.0.2)
   ransack (= 0.7.2)
-  rmagick (= 2.13.1)
+  rmagick (= 2.13.2)
   scruffy_Sanger (= 0.2.6.1)
   selenium-webdriver (= 2.21)
   sequel

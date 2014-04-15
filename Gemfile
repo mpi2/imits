@@ -18,7 +18,7 @@ gem 'ransack', '0.7.2'
 gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', '1.1.1', :require => 'ruport/acts_as_reportable'
 
-gem 'rmagick', '2.13.1', :require => false
+gem 'rmagick', '2.13.2', :require => false
 gem 'scruffy_Sanger','0.2.6.1', :require => 'scruffy'
 
 gem "httparty"
@@ -30,12 +30,12 @@ gem 'dynamic_form', '1.1.4'
 gem 'bio', '1.4.3'
 
 gem "sequel"
-gem "mysql2"
+## gem "mysql2"
 
 group :development, :test do
   gem 'launchy', '2.0.5'
   gem 'awesome_print', '0.4.0'
-  gem 'annotate', '2.4.0'
+  gem 'annotate', "2.6.1"
   gem 'letter_opener'
 
   gem 'test-unit', '2.5.3', :require => nil

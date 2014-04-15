@@ -32,11 +32,10 @@ end
 #
 # Table name: email_templates
 #
-#  id           :integer         not null, primary key
+#  id           :integer          not null, primary key
 #  status       :string(255)
 #  welcome_body :text
 #  update_body  :text
-#  created_at   :datetime        not null
-#  updated_at   :datetime        not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
 #
-

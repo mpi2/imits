@@ -21,8 +21,8 @@ end
 #
 # Table name: strains
 #
-#  id                      :integer         not null, primary key
-#  name                    :string(100)     not null
+#  id                      :integer          not null, primary key
+#  name                    :string(100)      not null
 #  created_at              :datetime
 #  updated_at              :datetime
 #  mgi_strain_accession_id :string(100)
@@ -32,4 +32,3 @@ end
 #
 #  index_strains_on_name  (name) UNIQUE
 #
-

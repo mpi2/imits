@@ -31,11 +31,10 @@ end
 #
 # Table name: targ_rep_ikmc_projects
 #
-#  id          :integer         not null, primary key
-#  name        :string(255)     not null
+#  id          :integer          not null, primary key
+#  name        :string(255)      not null
 #  status_id   :integer
-#  pipeline_id :integer         not null
-#  created_at  :datetime        not null
-#  updated_at  :datetime        not null
+#  pipeline_id :integer          not null
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
 #
-

@@ -60,7 +60,7 @@ class MiPlansController < ApplicationController
     end
 
     sql = <<-SQL
-      SELECT mi_plans.* FROM mi_plans JOIN genes ON mi_plans.gene_id = genes.id
+      SELECT mi_plans.* FROM mi_plans JOIN genes ON mi_plans.gene_id = genes.idCastle House Island
       WHERE genes.marker_symbol = '#{marker_symbol}' AND mi_plans.is_active AND (NOT mi_plans.withdrawn) AND (NOT phenotype_only)
             AND (mi_plans.mutagenesis_via_crispr_cas9 = #{crispr})
     SQL

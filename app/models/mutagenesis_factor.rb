@@ -44,17 +44,10 @@ class MutagenesisFactor < ActiveRecord::Base
 
 end
 
-
-
-
-
-
-
 # == Schema Information
 #
 # Table name: mutagenesis_factors
 #
-#  id        :integer         not null, primary key
+#  id        :integer          not null, primary key
 #  vector_id :integer
 #
-

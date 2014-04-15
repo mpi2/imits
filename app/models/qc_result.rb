@@ -16,8 +16,8 @@ end
 #
 # Table name: qc_results
 #
-#  id          :integer         not null, primary key
-#  description :string(50)      not null
+#  id          :integer          not null, primary key
+#  description :string(50)       not null
 #  created_at  :datetime
 #  updated_at  :datetime
 #
@@ -25,4 +25,3 @@ end
 #
 #  index_qc_results_on_description  (description) UNIQUE
 #
-

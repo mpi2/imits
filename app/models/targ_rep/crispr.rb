@@ -24,21 +24,15 @@ class TargRep::Crispr < ActiveRecord::Base
   protected :upper_case_sequence
 end
 
-
-
-
-
-
 # == Schema Information
 #
 # Table name: targ_rep_crisprs
 #
-#  id                    :integer         not null, primary key
-#  mutagenesis_factor_id :integer         not null
-#  sequence              :string(255)     not null
+#  id                    :integer          not null, primary key
+#  mutagenesis_factor_id :integer          not null
+#  sequence              :string(255)      not null
 #  chr                   :string(255)
 #  start                 :integer
 #  end                   :integer
 #  created_at            :datetime
 #
-

@@ -27,12 +27,12 @@ end
 #
 # Table name: intermediate_report
 #
-#  id                                           :integer         not null, primary key
-#  consortium                                   :string(255)     not null
-#  sub_project                                  :string(255)     not null
+#  id                                           :integer          not null, primary key
+#  consortium                                   :string(255)      not null
+#  sub_project                                  :string(255)      not null
 #  priority                                     :string(255)
-#  production_centre                            :string(255)     not null
-#  gene                                         :string(75)      not null
+#  production_centre                            :string(255)      not null
+#  gene                                         :string(75)       not null
 #  mgi_accession_id                             :string(40)
 #  overall_status                               :string(50)
 #  mi_plan_status                               :string(50)
@@ -40,8 +40,8 @@ end
 #  phenotype_attempt_status                     :string(50)
 #  ikmc_project_id                              :string(255)
 #  mutation_sub_type                            :string(100)
-#  allele_symbol                                :string(255)     not null
-#  genetic_background                           :string(255)     not null
+#  allele_symbol                                :string(255)      not null
+#  genetic_background                           :string(255)      not null
 #  assigned_date                                :date
 #  assigned_es_cell_qc_in_progress_date         :date
 #  assigned_es_cell_qc_complete_date            :date
@@ -59,7 +59,7 @@ end
 #  phenotype_attempt_aborted_date               :date
 #  distinct_genotype_confirmed_es_cells         :integer
 #  distinct_old_non_genotype_confirmed_es_cells :integer
-#  mi_plan_id                                   :integer         not null
+#  mi_plan_id                                   :integer          not null
 #  created_at                                   :datetime
 #  updated_at                                   :datetime
 #  total_pipeline_efficiency_gene_count         :integer
@@ -71,4 +71,3 @@ end
 #  mi_attempt_production_centre                 :string(255)
 #  phenotype_attempt_colony_name                :string(255)
 #
-

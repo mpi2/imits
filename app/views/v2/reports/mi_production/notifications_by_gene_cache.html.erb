@@ -1,0 +1,27 @@
+<% if @title =~ /IDG/ %>
+<% action = :notifications_by_gene_for_idg  %>
+<% else %>
+<% action = :notifications_by_gene%>
+<% end %>
+
+<div class="grid_12">
+  <h2><%= @title %></h2>
+
+  <% if @title =~ /IDG/ %>
+    <%= link_to('Download as CSV', url_for({:action => action, :controller => '/v2/reports/mi_production', :format => :csv})) %>
+  <% else %>
+    <%= form_tag( { :action => action}, :method => :get, :class => 'report-form' ) do |form| %>
+      <%= render 'report_controls3', :grouping => true, :mi_plan_reports => true %>
+    <% end %>
+  <% end %>
+
+<% unless params[:commit].blank? %>
+  <% if @report.nil? %>
+    <p><em>Sorry, no production data found</em></p>
+  <% else %>
+    <div class="report grid_12">
+    <%= raw @report.data %>
+    </div>
+  <% end %>
+<% end %>
+</div>

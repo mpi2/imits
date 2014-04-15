@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140324145302) do
+ActiveRecord::Schema.define(:version => 20140431165000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -707,6 +707,8 @@ ActiveRecord::Schema.define(:version => 20140324145302) do
     t.integer  "qc_critical_region_qpcr_id"
     t.integer  "qc_loxp_srpcr_id"
     t.integer  "qc_loxp_srpcr_and_sequencing_id"
+    t.string   "allele_name"
+    t.string   "jax_mgi_accession_id"
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true
@@ -861,6 +863,8 @@ ActiveRecord::Schema.define(:version => 20140324145302) do
     t.integer  "intron"
     t.string   "type",                               :default => "TargRep::TargetedAllele"
     t.text     "sequence"
+    t.boolean  "has_issue",                          :default => false,                     :null => false
+    t.text     "issue_description"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|

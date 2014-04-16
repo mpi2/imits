@@ -67,6 +67,7 @@ SYNONYM_FILENAME = config['options']['SYNONYM_FILENAME']
 USE_SYNONYMS = config['options']['USE_SYNONYMS'] && File.exist?(SYNONYM_FILENAME)
 DETECT_GENE_DUPS = config['options']['DETECT_GENE_DUPS']
 USE_REPLACEMENT = config['options']['USE_REPLACEMENT']
+USE_FEATURE_TYPE = config['options']['USE_FEATURE_TYPE']
 
 STATUSES = config['statuses']
 LEGACY_STATUSES_MAP = config['legacy_statuses_map']
@@ -226,6 +227,27 @@ def load_synonyms
   CSV.foreach("gene_association.mgi.processed.csv", :headers => true, :header_converters => :symbol, :converters => :all) do |row|
     @synonyms[row.fields[0]] = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
   end
+end
+
+@feature_types = {}
+
+def load_feature_types
+  CSV.foreach("MGI_MRK_Coord.csv", :headers => true, :header_converters => :symbol, :converters => :all) do |row|
+    if MARKER_SYMBOL.empty?
+      @feature_types[row.fields[0]] = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
+    else
+      if MARKER_SYMBOL == row.fields[0]
+        @feature_types[row.fields[0]] = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
+        break
+      end
+    end
+  end
+end
+
+
+if USE_FEATURE_TYPE
+  puts "#### load feature_types!"
+  load_feature_types
 end
 
 PHENOTYPE_ATTEMPT_STATUSES = get_phenotype_attempt_statuses
@@ -413,7 +435,15 @@ processed_rows.each do |row|
 
   hash = {}
   hash['marker_symbol'] = row['marker_symbol']
-  hash['marker_type'] = row['marker_type']
+
+  hash['marker_type'] = ''
+
+  if USE_FEATURE_TYPE && @feature_types.has_key?(row['mgi_accession_id'])
+    hash['marker_type'] = @feature_types[row['mgi_accession_id']]['feature_type']
+  else
+    hash['marker_type'] = row['marker_type']
+  end
+
   hash['mgi_accession_id'] = row['mgi_accession_id']
   hash['es_cell_status'] = row['es_cell_status'].to_s
   hash['mouse_status'] = row['mouse_status']
@@ -485,7 +515,10 @@ end
 
 puts "#### step 5..."
 
-load_synonyms if USE_SYNONYMS && MARKER_SYMBOL.empty?
+if USE_SYNONYMS && MARKER_SYMBOL.empty?
+  puts "#### load synonyms!"
+  load_synonyms if USE_SYNONYMS && MARKER_SYMBOL.empty?
+end
 
 puts "#### step 6..."
 
@@ -505,7 +538,15 @@ rows.each do |row1|
     hash = {}
     hash['marker_symbol'] = row1['marker_symbol']
     hash['mgi_accession_id'] = row1['mgi_accession_id']
-    hash['marker_type'] = row1['marker_type']
+
+    hash['marker_type'] = ''
+
+    if USE_FEATURE_TYPE && @feature_types.has_key?(row1['mgi_accession_id'])
+      hash['marker_type'] = @feature_types[row1['mgi_accession_id']]['feature_type']
+    else
+      hash['marker_type'] = row1['marker_type']
+    end
+
     hash['latest_project_status'] = ''
     hash['latest_project_status'] = ''
     hash['latest_production_centre'] = ''
@@ -659,7 +700,14 @@ if USE_SYNONYMS && MARKER_SYMBOL.empty?
     hash = {}
     hash['marker_symbol'] = @synonyms[key][:db_object_symbol]
     hash['mgi_accession_id'] = @synonyms[key][:db_object_id]
-    hash['marker_type'] = 'Unknown'
+    hash['marker_type'] = ''
+
+    if USE_FEATURE_TYPE && @feature_types.has_key?(hash['mgi_accession_id'])
+      hash['marker_type'] = @feature_types[hash['mgi_accession_id']]['feature_type']
+    else
+      hash['marker_type'] = 'Unknown'
+    end
+
     hash['latest_project_status'] = ''
     hash['latest_project_status'] = ''
     hash['latest_production_centre'] = ''

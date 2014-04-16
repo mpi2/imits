@@ -24,73 +24,82 @@ require 'open-uri'
 #16 	        Annotation Extension 	      optional 	  0 or greater 	part_of(CL:0000576)
 #17 	        Gene Product Form ID 	      optional 	  0 or 1 	UniProtKB:P12345-2
 
-ALL_COLUMNS = false
-USE_FTP = false
-FTP_LOCATION = 'ftp://ftp.informatics.jax.org/pub/reports/gene_association.mgi'
-LOCAL_FILE_LOCATION = 'gene_association.mgi.original'
+class SynonymCk
 
-@genes_data = {}
-@genes_data_array = []
+  def initialize
+    @all_columns = false
+    @use_ftp = false
+    @ftp_location = 'ftp://ftp.informatics.jax.org/pub/reports/gene_association.mgi'
+    @local_file_location = 'gene_association.mgi.original'
 
-@columns = [
-  'DB', 'DB Object ID', 'DB Object Symbol', 'Qualifier', 'GO ID', 'DB Reference', 'Evidence Code', 'With From', 'Aspect',
-  'DB Object Name', 'DB Object Synonym', 'DB Object Type', 'Taxon', 'Date', 'Assigned By', 'Annotation Extension', 'Gene Product Form ID'
-]
+    @genes_data = {}
+    @genes_data_array = []
 
-@columns_hash = Hash[@columns.map.with_index.to_a]
+    @columns = [
+      'DB', 'DB Object ID', 'DB Object Symbol', 'Qualifier', 'GO ID', 'DB Reference', 'Evidence Code', 'With From', 'Aspect',
+      'DB Object Name', 'DB Object Synonym', 'DB Object Type', 'Taxon', 'Date', 'Assigned By', 'Annotation Extension', 'Gene Product Form ID'
+    ]
 
-def do_ftp; open(FTP_LOCATION, :proxy => nil) { |file| file.each_line { |line| process_line line } }; end
-
-def do_local; File.open(LOCAL_FILE_LOCATION, "r") { |f| f.each_line { |line| process_line line } }; end
-
-def process_line line
-  return if line[0] == '!'
-  row = line.strip.split("\t")
-  product = {}
-
-  if ALL_COLUMNS
-    @columns.each { |column| product[column] = row[@columns_hash[column]] }
-  else
-    product['DB Object ID'] = row[@columns_hash['DB Object ID']]
-    product['DB Object Synonym'] = row[@columns_hash['DB Object Synonym']]
-    product['DB Object Symbol'] = row[@columns_hash['DB Object Symbol']]
+    @columns_hash = Hash[@columns.map.with_index.to_a]
   end
 
-  @genes_data[row[@columns_hash['DB Object ID']]] = product       #if ! row[@columns_hash['DB Object Synonym']].to_s.empty?
-end
+  def do_ftp; open(@ftp_location, :proxy => nil) { |file| file.each_line { |line| process_line line } }; end
 
-def save_csv filename, data
-  CSV.open(filename, "wb") do |csv|
-    csv << data.first.keys
-    data.each do |hash|
-      csv << hash.values
+  def do_local; File.open(@local_file_location, "r") { |f| f.each_line { |line| process_line line } }; end
+
+  def process_line line
+    return if line[0] == '!'
+    row = line.strip.split("\t")
+    product = {}
+
+    if @all_columns
+      @columns.each { |column| product[column] = row[@columns_hash[column]] }
+    else
+      product['DB Object ID'] = row[@columns_hash['DB Object ID']]
+      product['DB Object Synonym'] = row[@columns_hash['DB Object Synonym']]
+      product['DB Object Symbol'] = row[@columns_hash['DB Object Symbol']]
     end
-  end
-end
 
-def get_db
-  rows = ActiveRecord::Base.connection.execute("select id, marker_symbol, mgi_accession_id from genes")
-  rows.each do |row|
-    if @genes_data.has_key?(row['mgi_accession_id'])
-      @genes_data[row['mgi_accession_id']]['Marker symbol'] = row['marker_symbol']
-      @genes_data[row['mgi_accession_id']]['used'] = true
-      @genes_data_array.push(@genes_data[row['mgi_accession_id']].merge({ 'Marker symbol' => row['marker_symbol']}))
-    #else
-    #  @genes_data_array.push(@genes_data[row['mgi_accession_id']].merge({ 'Marker symbol' => row['marker_symbol']}))
+    @genes_data[row[@columns_hash['DB Object ID']]] = product
+  end
+
+  def save_csv filename, data
+    CSV.open(filename, "wb") do |csv|
+      csv << data.first.keys
+      data.each do |hash|
+        csv << hash.values
+      end
     end
   end
 
-  @genes_data.keys.each do |key|
-    @genes_data_array.push(@genes_data[key].merge({ 'Marker symbol' => @genes_data[key]['DB Object Symbol'], 'used' => false})) if @genes_data[key]['used'] != true
+  def get_db
+    rows = ActiveRecord::Base.connection.execute("select id, marker_symbol, mgi_accession_id from genes")
+    rows.each do |row|
+      if @genes_data.has_key?(row['mgi_accession_id'])
+        @genes_data[row['mgi_accession_id']]['Marker symbol'] = row['marker_symbol']
+        @genes_data[row['mgi_accession_id']]['used'] = true
+        @genes_data_array.push(@genes_data[row['mgi_accession_id']].merge({ 'Marker symbol' => row['marker_symbol']}))
+      end
+    end
+
+    @genes_data.keys.each do |key|
+      @genes_data_array.push(@genes_data[key].merge({ 'Marker symbol' => @genes_data[key]['DB Object Symbol'], 'used' => false})) if @genes_data[key]['used'] != true
+    end
+  end
+
+  def run
+    puts "#### using #{@use_ftp ? 'ftp' : 'local file'}"
+
+    do_ftp if @use_ftp
+    do_local if ! @use_ftp
+    get_db
+    save_csv "./gene_association.mgi.processed.csv", @genes_data_array
+
+    puts "#### done!"
   end
 end
 
-puts "#### using #{USE_FTP ? 'ftp' : 'local file'}"
-
-do_ftp if USE_FTP
-do_local if ! USE_FTP
-get_db
-#save_csv "#{Dir.home}/Desktop/synonym_ck.csv", @genes_data_array
-save_csv "./gene_association.mgi.processed.csv", @genes_data_array
-
-puts "#### done!"
+if __FILE__ == $0
+  # this will only run if the script was the main, not load'd or require'd
+  SynonymCk.new.run
+end

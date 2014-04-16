@@ -5,7 +5,55 @@ require "digest/md5"
 
 config = YAML.load_file("#{Rails.root}/script/build_ck.yml")
 
+#
+##replacements = {
+##  "marker_symbol" => "Akt2",
+##  "gene" => {
+##    "latest_es_cell_status" => "ES Cell Targeting Confirmed",
+##    "latest_mouse_status" => "Micro-injection in progress",
+##    "latest_phenotype_status" => "Phenotype Attempt Registered",
+##    "latest_project_status" => "ES Cell Targeting Confirmed",
+##    "latest_project_status_legacy" => "Assigned for Mouse Production and Phenotyping",
+##    "latest_production_centre" => "",
+##    "latest_phenotyping_centre" => ""
+##  },
+##  "allele" => {
+##    "es_cell_status" => "ES Cell Targeting Confirmed",
+##    "mouse_status" => "Micro-injection in progress",
+##    "phenotype_status" => "Phenotype Attempt Registered",
+##    "production_centre" => "",
+##    "phenotyping_centre" => ""
+##  }
+##}
+#
+#replacements = {
+#  "Akt2" => {
+#  "gene" => {
+#    "latest_es_cell_status" => "ES Cell Targeting Confirmed",
+#    "latest_mouse_status" => "Micro-injection in progress",
+#    "latest_phenotype_status" => "Phenotype Attempt Registered",
+#    "latest_project_status" => "ES Cell Targeting Confirmed",
+#    "latest_project_status_legacy" => "Assigned for Mouse Production and Phenotyping",
+#    "latest_production_centre" => "",
+#    "latest_phenotyping_centre" => ""
+#  },
+#  "allele" => {
+#    "es_cell_status" => "ES Cell Targeting Confirmed",
+#    "mouse_status" => "Micro-injection in progress",
+#    "phenotype_status" => "Phenotype Attempt Registered",
+#    "production_centre" => "",
+#    "phenotyping_centre" => ""
+#  }
+#  }
+#}
+#
+#reps = {'replacements' => [replacements]}
+#
+#puts reps.to_yaml
+#exit
+
 #pp config
+#exit
 
 SAVE_AS_CSV = config['options']['SAVE_AS_CSV']
 USE_ID = config['options']['USE_ID']
@@ -15,8 +63,10 @@ USE_REPORT_TO_PUBLIC = config['options']['USE_REPORT_TO_PUBLIC']
 USE_ALLELES = config['options']['USE_ALLELES']
 USE_GENES = config['options']['USE_GENES']
 MARKER_SYMBOL = config['options']['MARKER_SYMBOL']
-USE_SYNONYMS = config['options']['USE_SYNONYMS']
+SYNONYM_FILENAME = config['options']['SYNONYM_FILENAME']
+USE_SYNONYMS = config['options']['USE_SYNONYMS'] && File.exist?(SYNONYM_FILENAME)
 DETECT_GENE_DUPS = config['options']['DETECT_GENE_DUPS']
+USE_REPLACEMENT = config['options']['USE_REPLACEMENT']
 
 STATUSES = config['statuses']
 LEGACY_STATUSES_MAP = config['legacy_statuses_map']
@@ -24,6 +74,10 @@ ES_CELL_STATUSES = config['es_cell_statuses']
 
 #puts config.to_yaml
 #exit
+
+if ! File.exist?("gene_association.mgi.processed.csv") && config['options']['USE_SYNONYMS']
+  puts "#### cannot find #{SYNONYM_FILENAME}!"
+end
 
 pp config['options']
 
@@ -44,6 +98,9 @@ sql.gsub!(/SUBS_TEMPLATE/, '') if ! USE_IDS
 
 #Cib2 Ell2 Zranb1 Pet2 Ino80 Gsdma2
 #'Gsdma2'    #'Pira11'    #'Gja8'    #   #'Akt2'
+
+#puts sql
+#exit
 
 processed_rows = []
 remainder_rows = []
@@ -192,7 +249,7 @@ rows = ActiveRecord::Base.connection.execute(sql)
 
 
 
-puts "#### pass 1..."
+puts "#### step 1..."
 
 rows.each do |row1|
 
@@ -262,7 +319,7 @@ rows.each do |row1|
   end
 end
 
-puts "#### pass 2..."
+puts "#### step 2..."
 
 # pass 2/3
 
@@ -298,7 +355,7 @@ rows.each do |row1|
   end
 end
 
-puts "#### pass 3..."
+puts "#### step 3..."
 
 # pass 3/3
 
@@ -346,7 +403,7 @@ new_processed_allele_rows = []
 new_processed_gene_rows = []
 new_processed_rows_hash = {}
 
-puts "#### pass 4..."
+puts "#### step 4..."
 
 genes_hash = {}
 
@@ -393,16 +450,44 @@ processed_rows.each do |row|
   if ! new_processed_rows_hash.has_key? digest.to_s
     genes_hash[hash['marker_symbol']] ||= []
     genes_hash[hash['marker_symbol']].push hash
+
+if USE_REPLACEMENT
+    config['replacements'].each do |allele|
+
+      #if hash['marker_symbol'] == ms && ! config['replacements'][ms]['allele'].has_key?('done')
+      if allele.has_key?(hash['marker_symbol'])
+
+        next if allele[hash['marker_symbol']]['allele']['done']
+
+      #puts "#### allele:"
+      #pp allele[hash['marker_symbol']]['allele']
+
+        hash2 = deep_copy hash
+
+        allele[hash['marker_symbol']]['allele'].keys.each do |kk|
+          hash2[kk] = allele[hash['marker_symbol']]['allele'][kk]
+        end
+
+        hash2['notes'] = 'dummy allele'
+
+        new_processed_allele_rows.push hash2
+
+        allele[hash['marker_symbol']]['allele']['done'] = true
+
+        break
+      end
+      end
+    end
   end
 
   new_processed_rows_hash[digest.to_s] = true
 end
 
-puts "#### pass 5..."
+puts "#### step 5..."
 
-load_synonyms if USE_SYNONYMS
+load_synonyms if USE_SYNONYMS && MARKER_SYMBOL.empty?
 
-puts "#### pass 5.1..."
+puts "#### step 6..."
 
 count = Gene.count
 counter = 0
@@ -515,13 +600,56 @@ rows.each do |row1|
       end
     end
 
-    new_processed_gene_rows.push row
+    #config['replacements'].keys.each do |ms|
+    #  if hash['marker_symbol'] == ms && ! config['replacements'][ms]['gene'].has_key?('done')
+    #
+    #    row = deep_copy row
+    #
+    #    config['replacements'][ms]['gene'].keys do |kk|
+    #      hash2[kk] = config['replacements'][ms]['gene'][kk]
+    #    end
+    #
+    #    hash2['notes'] = 'dummy gene'
+    #
+    #    genes_hash[hash['marker_symbol']].push hash2
+    #
+    #    config['replacements'][ms]['gene']['done'] = true
+    #  end
+    #end
 
+if USE_REPLACEMENT
+    config['replacements'].each do |allele|
+      if allele.has_key?(row['marker_symbol'])
+
+        next if allele[row['marker_symbol']]['gene']['done']
+
+        row = deep_copy row
+
+        #puts "#### gene:"
+        #pp allele[row['marker_symbol']]['gene']
+
+        allele[row['marker_symbol']]['gene'].keys.each do |kk|
+          row[kk] = allele[row['marker_symbol']]['gene'][kk]
+        end
+
+        row['notes'] = 'dummy gene'
+
+      #  genes_hash[hash['marker_symbol']].push hash2
+       # allele[hash['marker_symbol']]['done'] = true
+
+       allele[row['marker_symbol']]['gene']['done'] = true
+
+        break
+      end
+    end
+    end
+
+    new_processed_gene_rows.push row
 end
 
 
 
-puts "#### pass 5.2..."
+puts "#### step 7..."
 
 counter = 0
 
@@ -572,7 +700,7 @@ if DETECT_GENE_DUPS
   end
 end
 
-puts "#### pass 6..."
+puts "#### step 8..."
 
 new_processed_list = build_json new_processed_allele_rows
 new_processed_list2 = build_json new_processed_gene_rows

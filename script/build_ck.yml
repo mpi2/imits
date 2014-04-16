@@ -29,11 +29,12 @@ es_cell_statuses:
   No ES Cell Production: 10
 
 sql: |
-  select distinct    
-  targ_rep_alleles.id as targ_rep_alleles_id,    
-  genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,    
+  select distinct
+  SUBS_TEMPLATE
+  targ_rep_alleles.id as targ_rep_alleles_id,  
+  genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,
   CASE WHEN (targ_rep_targeting_vectors.allele_id IS NOT NULL) THEN true else false END AS does_a_targ_vec_exist,
-  CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL) THEN true else false END AS does_an_es_cell_exist,    
+  CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL) THEN true else false END AS does_an_es_cell_exist,
   targ_rep_es_cells.mgi_allele_symbol_superscript,
   targ_rep_es_cells.allele_symbol_superscript_template,
   miapc.name miacentre_name,
@@ -45,16 +46,17 @@ sql: |
   phenotype_attempt_statuses.name as phenotype_attempt_status
   from genes
   left outer join targ_rep_alleles on genes.id = targ_rep_alleles.gene_id
-  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id    --  and targ_rep_targeting_vectors.report_to_public is true
-  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id                      --  and targ_rep_es_cells.report_to_public is true
-  left outer join mi_attempts on mi_attempts.es_cell_id = targ_rep_es_cells.id                                --  and mi_attempts.report_to_public is true
+  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id SUBS_TEMPLATE2 and targ_rep_targeting_vectors.report_to_public is true
+  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id SUBS_TEMPLATE2 and targ_rep_es_cells.report_to_public is true
+  left outer join mi_attempts on mi_attempts.es_cell_id = targ_rep_es_cells.id SUBS_TEMPLATE2 and mi_attempts.report_to_public is true
   left outer join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id
-  left join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id                           --  and mi_attempt_plan.report_to_public is true
+  left join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id SUBS_TEMPLATE2 and mi_attempt_plan.report_to_public is true
   left join centres miapc on mi_attempt_plan.production_centre_id = miapc.id
-  left outer join phenotype_attempts on phenotype_attempts.mi_attempt_id = mi_attempts.id                     --  and phenotype_attempts.report_to_public is true
-  left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id                                --  and paplan.report_to_public is true
+  left outer join phenotype_attempts on phenotype_attempts.mi_attempt_id = mi_attempts.id SUBS_TEMPLATE2 and phenotype_attempts.report_to_public is true
+  left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id SUBS_TEMPLATE2 and paplan.report_to_public is true
   left outer join centres pacentres on pacentres.id = paplan.production_centre_id
-  left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id    
+  left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id
+  SUBS_TEMPLATE3
 
 sql_template: |
   genes.id as genes_id,
@@ -73,3 +75,23 @@ options:
   MARKER_SYMBOL: ""
   USE_SYNONYMS: true
   DETECT_GENE_DUPS: true
+  USE_REPLACEMENT: true
+  SYNONYM_FILENAME: "gene_association.mgi.processed.csv"
+
+replacements: 
+- Akt2: 
+    gene: 
+      latest_es_cell_status: ES Cell Targeting Confirmed
+      latest_mouse_status: Micro-injection in progress
+      latest_phenotype_status: Phenotype Attempt Registered
+      latest_project_status: ES Cell Targeting Confirmed
+      latest_project_status_legacy: Assigned for Mouse Production and Phenotyping
+      latest_production_centre: ""
+      latest_phenotyping_centre: ""
+    allele: 
+      es_cell_status: ES Cell Targeting Confirmed
+      mouse_status: Micro-injection in progress
+      phenotype_status: Phenotype Attempt Registered
+      production_centre: ""
+      phenotyping_centre: ""
+

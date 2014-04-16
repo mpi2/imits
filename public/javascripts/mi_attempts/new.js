@@ -1043,7 +1043,7 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
         xtype:'actioncolumn',
         width:40,
         items: [{
-            icon: '/images/icons/delete.png',
+            icon: '../images/icons/delete.png',
             tooltip: 'Delete',
             handler: function(grid, rowIndex, colIndex) {
                 if(confirm("Remove crispr?"))

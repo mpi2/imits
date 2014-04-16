@@ -56,26 +56,28 @@
 
 <fieldset class="collapsible">
   <legend>Mi-Plan Details</legend>
-  <div id="mi_plan_preious_selection" class="grid_12 alpha omega" <%= if @mi_attempt.consortium_name.blank? then 'style=display:none;' end%>>
-    <div class="grid_3">
-      <div class="consortium-name">
-        <div class="label">Consortium</div>
-        <div><%= @mi_attempt.consortium_name %></div>
-      </div>
-    </div>
-    <div class="grid_3">
-      <div class="production-centre-name">
-        <div class="label">Production Centre</div>
-        <div><%= @mi_attempt.production_centre_name %></div>
-      </div>
-    </div>
-  </div>
   <div>
-    <div id="mi_plan_selection_div" <%= if !@mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>>
-      <div id="mi_plan_list" ></div>
-      <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>" target="_blank">Create new miplan</a></div>
+    <div id="mi_plan_preious_selection" class="grid_12 alpha omega" <%= if @mi_attempt.consortium_name.blank? then 'style=display:none;' end%>>
+      <div class="grid_3">
+        <div class="consortium-name">
+          <div class="label">Consortium</div>
+          <div><%= @mi_attempt.consortium_name %></div>
+        </div>
+      </div>
+      <div class="grid_3">
+        <div class="production-centre-name">
+          <div class="label">Production Centre</div>
+          <div><%= @mi_attempt.production_centre_name %></div>
+        </div>
+      </div>
     </div>
-    <div id="change_plan" <%= if @mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>></div>
+    <div>
+      <div id="mi_plan_selection_div" <%= if !@mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>>
+        <div id="mi_plan_list" ></div>
+        <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>" target="_blank">Create new miplan</a></div>
+      </div>
+      <div id="change_plan" <%= if @mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>></div>
+    </div>
   </div>
 </fieldset>
 
@@ -219,22 +221,28 @@
 </div>
 
 <div class="object-es-cell">
-  <div id='qcimage'>
+<% if !@mi_attempt.new_record?%>
+  <fieldset class="collapsible">
+    <legend>QC Diagram</legend>
+    <div>
+      <div id='qcimage'>
 
-    <h2>Mouse Genotyping QC</h2>
+        <h2>Mouse Genotyping QC</h2>
 
-    <div class="diagram">
-      <div id='holder_mutant' class='holder'></div>
-      <h3>Mutant</h3>
+        <div class="diagram">
+          <div id='holder_mutant' class='holder'></div>
+          <h3>Mutant</h3>
+        </div>
+
+        <div class="diagram">
+          <div id='holder_wildtype' class='holder'></div>
+          <h3>Wild Type</h3>
+        </div>
+
+      </div>
     </div>
-
-    <div class="diagram">
-      <div id='holder_wildtype' class='holder'></div>
-      <h3>Wild Type</h3>
-    </div>
-
-  </div>
-
+  </fieldset>
+<% end %>
 
   <fieldset class="collapsible hide-by-default qc-details">
     <legend>QC Details</legend>
@@ -246,16 +254,17 @@
 
 <fieldset class="collapsible">
   <legend>Other</legend>
-
-  <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
     <div>
-      <%= form.label field, field.to_s.titlecase %>
-      <%= form.check_box field %>
-    </div>
-  <% end %>
+    <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
+      <div>
+        <%= form.label field, field.to_s.titlecase %>
+        <%= form.check_box field %>
+      </div>
+    <% end %>
 
-  <div>
-    <label>Genotyping Comment</label>
-    <%= form.text_area :genotyping_comment, :disabled => true %>
+    <div>
+      <label>Genotyping Comment</label>
+      <%= form.text_area :genotyping_comment, :disabled => true %>
+    </div>
   </div>
 </fieldset>

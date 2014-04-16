@@ -510,6 +510,7 @@ class Gene < ActiveRecord::Base
       strand_index = headers.index('9. Strand')
       genome_build_index = headers.index('10. Genome Build')
       marker_type_index = headers.index('2. Marker Type')
+      feature_type_index = headers.index('3. Feature Type')
 
       file.each_line do |line|
         row = line.strip.gsub(/\"/, '').split("\t")
@@ -525,7 +526,9 @@ class Gene < ActiveRecord::Base
           'vega_ids'      => [],
           'ens_ids'       => [],
           'ncbi_ids'      => [],
-          'marker_type'  => row[marker_type_index]
+          'marker_type'  => row[marker_type_index],
+          'feature_type'  => row[feature_type_index],
+          'synonyms'    => ''
         }
       end
     end
@@ -565,10 +568,15 @@ class Gene < ActiveRecord::Base
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
       ncbi_ids_index = 8
+      synonym_index = 9
       file.each_line do |line|
         row = line.strip.gsub(/\"/, '').split("\t")
         if genes_data.has_key?(row[mgi_accession_id_index]) and !row[ncbi_ids_index].blank?
           genes_data[row[mgi_accession_id_index]]['ncbi_ids'] << row[ncbi_ids_index]
+        end
+
+        if genes_data.has_key?(row[mgi_accession_id_index]) and !row[synonym_index].blank?
+          genes_data[row[mgi_accession_id_index]]['synonyms'] << row[synonym_index]
         end
       end
     end
@@ -619,6 +627,7 @@ class Gene < ActiveRecord::Base
       gene.marker_symbol = gene_data['marker_symbol']
       gene.chr = gene_data['chr']
       gene.marker_type = gene_data['marker_type']
+      gene.feature_type = gene_data['feature_type']
       gene.start_coordinates = gene_data['start']
       gene.end_coordinates = gene_data['end']
       gene.strand_name = gene_data['strand']
@@ -645,6 +654,7 @@ class Gene < ActiveRecord::Base
       ng.marker_symbol = new_gene['marker_symbol']
       ng.chr = new_gene['chr']
       ng.marker_type = new_gene['marker_type']
+      ng.feature_type = gene_data['feature_type']
       ng.start_coordinates = new_gene['start']
       ng.end_coordinates = new_gene['end']
       ng.strand_name = new_gene['strand']
@@ -759,6 +769,8 @@ end
 #  ensembl_ids                        :string(255)
 #  ccds_ids                           :string(255)
 #  marker_type                        :string(255)
+#  feature_type                       :string(255)
+#  synonyms                           :string(255)
 #
 # Indexes
 #

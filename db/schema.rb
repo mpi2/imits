@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140431165000) do
+ActiveRecord::Schema.define(:version => 20140431165001) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -125,6 +125,8 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
     t.string   "ensembl_ids"
     t.string   "ccds_ids"
     t.string   "marker_type"
+    t.string   "feature_type"
+    t.string   "synonyms"
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
@@ -735,10 +737,58 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
 
   add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
 
+  create_table "solr_alleles", :id => false, :force => true do |t|
+    t.text    "type"
+    t.integer "id"
+    t.text    "product_type"
+    t.integer "allele_id"
+    t.text    "order_from_names"
+    t.text    "order_from_urls"
+    t.text    "simple_allele_image_url"
+    t.text    "allele_image_url"
+    t.text    "genbank_file_url"
+    t.string  "mgi_accession_id",        :limit => 40
+    t.string  "marker_symbol",           :limit => 75
+    t.string  "allele_type",             :limit => 100
+    t.string  "strain",                  :limit => 25
+    t.text    "allele_name"
+    t.string  "project_ids"
+  end
+
+  add_index "solr_alleles", ["id"], :name => "solr_alleles_idx"
+
   create_table "solr_centre_map", :id => false, :force => true do |t|
     t.string "centre_name", :limit => 40
     t.string "pref"
     t.string "def"
+  end
+
+  create_table "solr_genes", :id => false, :force => true do |t|
+    t.integer  "id"
+    t.text     "type"
+    t.text     "allele_id"
+    t.string   "consortium"
+    t.string   "production_centre",       :limit => 100
+    t.string   "status",                  :limit => 50
+    t.datetime "effective_date"
+    t.string   "mgi_accession_id",        :limit => nil
+    t.text     "project_ids"
+    t.text     "project_statuses"
+    t.text     "project_pipelines"
+    t.text     "vector_project_ids"
+    t.text     "vector_project_statuses"
+    t.string   "marker_symbol",           :limit => 75
+    t.string   "marker_type"
+  end
+
+  add_index "solr_genes", ["id"], :name => "solr_genes_idx"
+
+  create_table "solr_ikmc_projects_details_agg", :id => false, :force => true do |t|
+    t.text    "projects"
+    t.text    "pipelines"
+    t.text    "statuses"
+    t.integer "gene_id"
+    t.text    "type"
   end
 
   create_table "solr_mi_attempts", :id => false, :force => true do |t|

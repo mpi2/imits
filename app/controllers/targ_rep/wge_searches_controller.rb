@@ -30,7 +30,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
       response = wge_call("api/exon_search?species=Mouse&marker_symbol=#{marker_symbol}")
 
       if response.message != 'Bad Request'
-        response['exons'].each do |exon|
+        JSON.parse(response.body)['exons'].each do |exon|
           data << {'exon_id' => exon['exon_id'], 'value' => exon['exon_id'], 'rank' => exon['rank']}
           all_values << exon['exon_id']
         end
@@ -39,7 +39,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
       else
         error = "No exons available for the gene #{params[:marker_symbol]}"
       end
-    end
+   end
 
     respond_to do |format|
       if error.blank?
@@ -58,7 +58,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
     data = []
 
     if response.message != 'Bad Request'
-      response.each do |exon, crisprs|
+      JSON.parse(response.body).each do |exon, crisprs|
         data << crisprs
       end
       data = data.flatten
@@ -86,7 +86,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
     data = []
 
     if response.message != 'Bad Request'
-      response.each do |exon, crisprs|
+      JSON.parse(response.body).each do |exon, crisprs|
         crisprs.each do |crispr|
           data << {'right_crispr' => crispr['right_crispr']['seq'],
                    'right_crispr_chr' => crispr['right_crispr']['chr_name'],
@@ -117,6 +117,12 @@ class TargRep::WgeSearchesController < TargRep::BaseController
 
 private
   def wge_call(request_url_str)
-    HTTParty.get("http://www.sanger.ac.uk/htgt/wge/#{request_url_str}")
+    uri = URI("http://www.sanger.ac.uk/htgt/wge/#{request_url_str}")
+
+  #  puts "URL SCHEME :#{uri.scheme} HOST : #{uri.host} PATH : #{uri.path} QUERY : #{uri.query} : FRAGMENT #{uri.fragment} : STRING #{uri.to_s}"
+
+    res = Net::HTTP.get_response(uri)
+ #   puts "BODY #{res.body}"
+    res
   end
 end

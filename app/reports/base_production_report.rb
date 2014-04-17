@@ -377,7 +377,7 @@ class BaseProductionReport
         JOIN mi_plans ON mi_plans.id = mp.mi_plan_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
         JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id
-        WHERE consortia.name in ('#{available_consortia.join('\', \'')}')
+        WHERE consortia.name in ('#{available_consortia.join('\', \'')}') AND mi_plans.mutagenesis_via_crispr_cas9 = false
         GROUP BY consortia.name, mi_plan_statuses.name
         ORDER BY consortia.name;
       EOF
@@ -395,7 +395,7 @@ class BaseProductionReport
         JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
         JOIN centres ON centres.id = mi_plans.production_centre_id
-        WHERE consortia.name in ('#{available_consortia.join('\', \'')}')
+        WHERE consortia.name in ('#{available_consortia.join('\', \'')}') AND mi_plans.mutagenesis_via_crispr_cas9 = false
         GROUP BY consortia.name, centres.name
         ORDER BY consortia.name, centres.name;
       EOF
@@ -507,6 +507,7 @@ class BaseProductionReport
           LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
           WHERE mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
             AND consortia.name in ('#{available_consortia.join('\', \'')}')
+            AND mi_plans.mutagenesis_via_crispr_cas9 = false
           GROUP BY genes.id, consortium_name, production_centre_name
         ) as counts
         GROUP BY counts.consortium_name, counts.production_centre_name
@@ -535,6 +536,7 @@ class BaseProductionReport
           LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
           WHERE mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
             AND consortia.name in ('#{available_consortia.join('\', \'')}')
+            AND mi_plans.mutagenesis_via_crispr_cas9 = false
           GROUP BY targ_rep_es_cells.id, consortium_name, production_centre_name
         ) as counts
         GROUP BY counts.consortium_name, counts.production_centre_name
@@ -570,7 +572,8 @@ class BaseProductionReport
               mi_attempts.mi_date <= '#{6.months.ago.to_s(:db)}'
             AND
               consortia.name in ('#{available_consortia.join('\', \'')}')
-
+            AND
+              mi_plans.mutagenesis_via_crispr_cas9 = false
             GROUP BY
               genes.id,
               consortium_name,
@@ -598,7 +601,8 @@ class BaseProductionReport
             mi_attempts.mi_date <= '#{6.months.ago.to_s(:db)}'
           AND
             consortia.name in ('#{available_consortia.join('\', \'')}')
-
+          AND
+            mi_plans.mutagenesis_via_crispr_cas9 = false
           GROUP BY
             consortium_name,
             production_centre_name
@@ -675,6 +679,7 @@ class BaseProductionReport
                     mi_attempts.mi_date <= '#{6.months.ago.to_s(:db)}'
                     AND consortia.name  in ('#{available_consortia.join('\', \'')}')
                     AND centres.name  in ('#{available_production_centres.join('\', \'')}')
+                    AND mi_plans.mutagenesis_via_crispr_cas9 = false
                   ORDER BY
                     mi_plans.gene_id,
                     mi_attempt_statuses.order_by DESC,
@@ -694,7 +699,7 @@ class BaseProductionReport
             LEFT JOIN mi_attempt_status_stamps AS gc_stamps          ON gc_stamps.mi_attempt_id = best_mi_attempts.id          AND gc_stamps.status_id = 2
             LEFT JOIN mi_attempt_status_stamps AS aborted_stamps     ON aborted_stamps.mi_attempt_id = best_mi_attempts.id     AND aborted_stamps.status_id = 3
             LEFT JOIN mi_attempt_status_stamps AS chimearic_stamps   ON chimearic_stamps.mi_attempt_id = best_mi_attempts.id   AND chimearic_stamps.status_id = 4
-            JOIN mi_plans ON mi_plans.id = best_mi_attempts.mi_plan_id
+            JOIN mi_plans ON mi_plans.id = best_mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
             JOIN consortia ON consortia.id = mi_plans.consortium_id
             LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id
@@ -727,7 +732,7 @@ class BaseProductionReport
         FROM mi_attempt_distribution_centres
           JOIN centres AS dis_centre ON dis_centre.id = mi_attempt_distribution_centres.centre_id
           JOIN mi_attempts ON mi_attempts.id = mi_attempt_distribution_centres.mi_attempt_id
-          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
           JOIN consortia ON consortia.id  = mi_plans.consortium_id
           JOIN centres ON centres.id = mi_plans.production_centre_id
         GROUP BY mi_plans.gene_id, consortia.name, centres.name
@@ -777,7 +782,7 @@ class BaseProductionReport
         FROM phenotype_attempt_distribution_centres
           JOIN centres AS dis_centre ON dis_centre.id = phenotype_attempt_distribution_centres.centre_id
           JOIN phenotype_attempts ON phenotype_attempts.id = phenotype_attempt_distribution_centres.phenotype_attempt_id
-          JOIN mi_plans ON mi_plans.id = phenotype_attempts.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = phenotype_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
           JOIN consortia ON consortia.id  = mi_plans.consortium_id
           JOIN centres ON centres.id = mi_plans.production_centre_id
         GROUP BY phenotype_type, mi_plans.gene_id, consortia.name, centres.name
@@ -847,6 +852,7 @@ class BaseProductionReport
             mi_attempts.mi_date <= '#{6.months.ago.to_s(:db)}'
             AND consortia.name  in ('#{available_consortia.join('\', \'')}')
             AND centres.name  in ('#{available_production_centres.join('\', \'')}')
+            AND mi_plans.mutagenesis_via_crispr_cas9 = false
       EOF
     end
   end

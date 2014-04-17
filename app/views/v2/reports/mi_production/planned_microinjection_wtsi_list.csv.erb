@@ -6,6 +6,6 @@ Production Centre,Marker Symbol,MGI Accession ID,consortium_name,mi_plan_status,
 <% else %>
 Production Centre,Marker Symbol,MGI Accession ID,Status,Phenotyping
 <% for rec in @mi_plan_summary %>
-<%= rec['centre_name'] %>,<%= rec['marker_symbol'] %>,<%= rec['mgi_accession_id'] %>,<%= rec['processed_status'] %>,<%= rec['processed_status'] %>,
+<%= rec['centre_name'] %>,<%= rec['marker_symbol'] %>,<%= rec['mgi_accession_id'] %>,<%= rec['processed_status'] %>,<%= rec['phenotype_attempt_status'] %>,
 <% end %>
 <% end %>

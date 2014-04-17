@@ -15,6 +15,10 @@
 
   <%= javascript 'jquery.min', 'rails', 'application'  %>
   <%= include_stylesheets :targ_rep, :media => 'all' %>
+  <link href="/stylesheets/targ_rep/dropdown/dropdown.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/targ_rep//dropdown/dropdown.vertical.rtl.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/targ_rep/dropdown/themes/default/default.css" media="screen" rel="stylesheet" type="text/css">
+
   <!--[if IE]>
   <%= include_stylesheets :ie, :media => 'all' %>
   <![endif]-->
@@ -37,18 +41,25 @@
   </div>
 
   <div id="navigation" class="grid_12 alpha omega">
-    <ul>
-      <li id="home" <% if @tab == "Home" %>class="current"<% end %> ><%= link_to "Home", targ_rep_root_path %></li>
-      <li><span>Cells</span></li>
-      <li <% if @tab == "Alleles" %>class="current"<% end %> ><%= link_to "Alleles", targ_rep_alleles_path %></li>
-      <li <% if @tab == "Traps" %>class="current"<% end %> ><%= link_to "Gene Trap Alleles", targ_rep_gene_traps_path %></li>
-      <% if user_signed_in? %>
-        <li <% if @tab == "Bulk" %>class="current"<% end %> ><%= link_to "ES Cells (Bulk Edit)", bulk_edit_targ_rep_es_cells_path %></li>
-      <li><span>Crisprs</span></li>
-      <li <% if @tab == "Targeted" %>class="current"<% end %> ><%= link_to "Targeted Alleles", targ_rep_crispr_targeted_alleles_path %></li>
-      <li <% if @tab == "HDR" %>class="current"<% end %> ><%= link_to "HDR Alleles", targ_rep_hdr_alleles_path %></li>
-      <li <% if @tab == "NHEJ" %>class="current"<% end %> ><%= link_to "NHEJ Alleles", targ_rep_nhej_alleles_path %></li>
-      <% end %>
+    <ul id="nav" class="dropdown dropdown-horizontal">
+      <li id="home" <%if @tab == 'Home'%> class='current' <%end%>><%= link_to "Home", targ_rep_root_path %></li>
+      <li class="dir">
+        Cell
+        <ul>
+          <li <%if @tab == 'Alleles'%> class='current' <%end%>><%= link_to "Alleles", targ_rep_alleles_path %></li>
+          <li <%if @tab == 'Traps'%> class='current' <%end%>><%= link_to "Gene Trap Alleles", targ_rep_gene_traps_path %></li>
+          <% if user_signed_in? %>
+            <li <%if @tab == 'Bulk'%> class='current' <%end%>><%= link_to "ES Cells (Bulk Edit)", bulk_edit_targ_rep_es_cells_path %></li>
+          <% end %>
+        </ul>
+      </li>
+      <li>Crispr
+        <ul>
+          <li <%if @tab == 'Targeted'%> class='current' <%end%>><%= link_to "Targeted Alleles", targ_rep_crispr_targeted_alleles_path %></li>
+          <li <%if @tab == 'HDR'%> class='current' <%end%>><%= link_to "HDR Alleles", targ_rep_hdr_alleles_path %></li>
+          <li <%if @tab == 'NHEJ'%> class='current' <%end%>><%= link_to "NHEJ Alleles", targ_rep_nhej_alleles_path %></li>
+        </ul>
+      </li>
     </ul>
   </div>
 

@@ -1,6 +1,7 @@
 class TargRep::NhejAllele < TargRep::Allele
 
   before_validation :set_allele_features_to_null
+  before_validation :set_mutation_descriptions
 
   def set_allele_features_to_null
     self.backbone = nil
@@ -19,6 +20,12 @@ class TargRep::NhejAllele < TargRep::Allele
 
   def pipeline_names
     nil
+  end
+
+  def set_mutation_descriptions
+    self.mutation_method = TargRep::MutationMethod.find_by_code('tgm')
+    self.mutation_type = TargRep::MutationType.find_by_code('del')
+    self.mutation_subtype = TargRep::MutationSubtype.find_by_code('dmd')
   end
 
   def self.nhej_allele?; true; end

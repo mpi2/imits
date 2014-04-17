@@ -54,6 +54,8 @@
       <%= f.label :mutation_method_id, "Mutation Method" %><br />
       <% if gene_trap? %>
         <%= f.text_field :mutation_method_id, :value => 'Gene Trap', :disabled => true, :class => :text  %>
+      <% elsif @allele.class.hdr_allele? or @allele.class.crispr_targeted_allele? or @allele.class.nhej_allele? %>
+        <%= f.text_field :mutation_method_id, :value => 'Targeted Mutation', :disabled => true, :class => :text  %>
       <% else %>
         <%= f.collection_select :mutation_method_id, @mutation_method, :id, :name, :include_blank => true  %>
       <% end %>
@@ -62,13 +64,23 @@
       <%= f.label :mutation_type_id, "Mutation Type" %><br />
       <% if gene_trap? %>
         <%= f.text_field :mutation_type_id, :value => 'Gene Trap', :disabled => true, :class => :text  %>
+      <% elsif @allele.class.hdr_allele? %>
+        <%= f.text_field :mutation_method_id, :value => 'Point Mutation', :disabled => true, :class => :text  %>
+      <% elsif @allele.class.nhej_allele? %>
+        <%= f.text_field :mutation_method_id, :value => 'Deletion', :disabled => true, :class => :text  %>
       <% else %>
         <%= f.collection_select :mutation_type_id, @mutation_type, :id, :name, :include_blank => true  %>
       <% end %>
     </p>
     <p>
       <%= f.label :mutation_subtype_id, "Mutation Subtype" %><br />
-      <%= f.collection_select :mutation_subtype_id, @mutation_subtype, :id, :name, :include_blank => true %>
+      <% if @allele.class.hdr_allele? %>
+        <%= f.text_field :mutation_method_id, :value => 'Point Mutation', :disabled => true, :class => :text  %>
+      <% elsif @allele.class.nhej_allele? %>
+        <%= f.text_field :mutation_method_id, :value => 'Domain Disruption', :disabled => true, :class => :text  %>
+      <% else%>
+        <%= f.collection_select :mutation_subtype_id, @mutation_subtype, :id, :name, :include_blank => true %>
+      <% end %>
     </p>
     <p>
       <%= f.label :subtype_description, "Subtype Description" %><br />

@@ -2,8 +2,14 @@ class TargRep::CrisprTargetedAllele < TargRep::Allele
   include TargRep::Allele::CassetteValidation
   include TargRep::Allele::FeatureValidation
 
+  before_validation :set_mutation_descriptions
+
   def pipeline_names
     nil
+  end
+
+  def set_mutation_descriptions
+    self.mutation_method = TargRep::MutationMethod.find_by_code('tgm')
   end
 
   def self.crispr_targeted_allele?; true; end

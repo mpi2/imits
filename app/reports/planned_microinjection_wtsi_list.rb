@@ -55,6 +55,7 @@ class PlannedMicroinjectionWtsiList     #< PlannedMicroinjectionList
       end
 
       row['centre_name'] = production_centre
+      row['consortium_name'] = row['consortium_name'].gsub(/\|/, '; ')
 
       @mi_plan_summary.push row
     end

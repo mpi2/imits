@@ -6,12 +6,12 @@
   <table>
     <thead>
       <tr>
-        <th>Production Centre</th>
+        <th>Consortium</th>
         <th>Marker Symbol</th>
         <th>MGI Accession ID</th>
 
         <% if ! params['debug'].nil? %>
-          <th>consortium_name</th>
+          <th>Production Centre</th>
           <th>mi_plan_status</th>
           <th>overall_status</th>
           <th>mi_attempt_status</th>
@@ -24,11 +24,12 @@
     <tbody>
       <% @mi_plan_summary.each do |rec|%>
         <tr>
-          <td><%= rec['centre_name'] %></td>
+          <td><%= rec['consortium_name'] %></td>
           <td><%= rec['marker_symbol'] %></td>
           <td><%= rec['mgi_accession_id'] %></td>
 
           <% if ! params['debug'].nil? %>
+            <td><%= rec['centre_name'] %></td>
             <td><%= rec['consortium_name'] %></td>
             <td><%= rec['mi_plan_status'] %></td>
             <td><%= rec['overall_status'] %></td>

@@ -1,0 +1,14 @@
+<% @title = 'All Planned Micro-Injections (WTSI)' %>
+
+<div class="grid_12">
+  <h2><%= @title %></h2>
+<p>
+  <%=
+    link_to('Download as CSV', url_for({:action => :planned_microinjection_wtsi_list, :controller => '/v2/reports/mi_production', :format => :csv}))
+  %>
+  </p>
+</div>
+
+<div class="report grid_12">
+  <%= render :partial => 'report_with_counts5', :locals => { :report => @report, :label => 'planned micro-injections' } %>
+</div>

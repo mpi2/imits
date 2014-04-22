@@ -141,7 +141,7 @@ class GroupReport
 
       total  = @report_hash["#{field}-Total Pipeline Efficiency Clone Count"] = report_row['total_mice'].to_f
       subset = @report_hash["#{field}-GC Pipeline Efficiency Clone Count"]    = report_row['gtc_mice'].to_f
-    
+
       percentage = if subset == 0.0 && total > 0.0
         0.0
       elsif total == 0.0 && subset > 0.0
@@ -242,7 +242,7 @@ class GroupReport
           JOIN targ_rep_alleles ON genes.id = targ_rep_alleles.gene_id
           JOIN targ_rep_es_cells ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
           JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
           #{efficiency_join_statement}
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
           JOIN consortia ON consortia.id = mi_plans.consortium_id
@@ -269,7 +269,7 @@ class GroupReport
           1 as c
           FROM targ_rep_es_cells
           JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
           #{efficiency_join_statement}

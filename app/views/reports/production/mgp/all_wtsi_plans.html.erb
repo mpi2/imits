@@ -4,7 +4,7 @@
   <h2><%= @title %></h2>
 <p>
   <%=
-    link_to('Download as CSV', url_for({:action => :planned_microinjections, :format => :csv}))
+    link_to('Download as CSV', url_for({:action => :all_wtsi_plans, :format => :csv}))
   %>
   </p>
 </div>

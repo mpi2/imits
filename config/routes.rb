@@ -208,6 +208,8 @@ TarMits::Application.routes.draw do
     get '/alleles/:id/vector-image-flp' => 'alleles#vector_image_flp', :as => 'vector_image_flp'
     get '/alleles/:id/vector-image-flp-cre' => 'alleles#vector_image_flp_cre', :as => 'vector_image_flp_cre'
 
+    get '/alleles/:allele_id/show-issue' => 'alleles#show_issue', :as => 'show_issue'
+
     #connect ':controller/:action/:id.:format'
     #connect ':controller/:action.:format'
 

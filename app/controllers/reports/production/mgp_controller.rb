@@ -19,7 +19,7 @@ class Reports::Production::MgpController < ApplicationController
 
   def summary_priority
     redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :mgp_production_by_priority) and return
-    
+
     @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
     return_value = Reports::MiProduction::SummaryMgp23.generate('Priority', request)
     @report = return_value[:table]
@@ -81,6 +81,13 @@ class Reports::Production::MgpController < ApplicationController
     if request.format == :csv
       send_data_csv('languishing_production_report_mgp_detail.csv', @report.to_csv)
     end
+  end
+
+  def all_wtsi_plans
+    @report = PlannedMicroinjectionWtsiList.new
+    @mi_plan_summary = @report.mi_plan_summary
+    @consortium = 'WTSI'
+    @count = @report.blank? ? 0 : @mi_plan_summary.count
   end
 
   private

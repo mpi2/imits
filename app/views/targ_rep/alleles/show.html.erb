@@ -92,12 +92,14 @@
 
   <fieldset id="allele_issues">
     <legend>Allele Issues</legend>
-    <p><strong>Has issue(s)? : </strong> <% if @allele.has_issue %>
-      <font color="red"><b>Yes</b></font>
+    <p><strong>Are there any issues with this allele? : </strong>
+    <% if @allele.has_issue %>
+      <font color="red"><b>Yes</b></font></p>
+      <p><strong>Issue description:</strong> <%= @allele.issue_description %></p>
     <% else %>
-      No
+      None reported</p>
     <% end %>
-    </p>
+    
   </fieldset>
 </div>
 

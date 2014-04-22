@@ -1,0 +1,56 @@
+<% @title = 'All WTSI Plans, Production and Primary Phenotyping by Gene' %>
+
+<div class="grid_12">
+  <h2><%= @title %></h2>
+<p>
+  <%=
+    link_to('Download as CSV', url_for({:action => :all_wtsi_plans, :format => :csv}))
+  %>
+  </p>
+</div>
+
+<div class="report grid_12">
+
+  <p><%= @count %> planned micro-injections found for <%= @consortium %> </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <th>Marker Symbol</th>
+        <th>MGI Accession ID</th>
+
+        <% if ! params['debug'].nil? %>
+          <th>Production Centre</th>
+          <th>mi_plan_status</th>
+          <th>overall_status</th>
+          <th>mi_attempt_status</th>
+        <%end %>
+
+        <th>Best Production Status</th>
+        <th>Primary Phenotyping Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @mi_plan_summary.each do |rec|%>
+        <tr>
+          <td><%= rec['consortium_name'] %></td>
+          <td><%= rec['marker_symbol'] %></td>
+          <td><%= rec['mgi_accession_id'] %></td>
+
+          <% if ! params['debug'].nil? %>
+            <td><%= rec['centre_name'] %></td>
+            <td><%= rec['consortium_name'] %></td>
+            <td><%= rec['mi_plan_status'] %></td>
+            <td><%= rec['overall_status'] %></td>
+            <td><%= rec['mi_attempt_status'] %></td>
+          <%end %>
+
+          <td><%= rec['processed_status'] %></td>
+          <td><%= rec['phenotype_attempt_status'] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+</div>

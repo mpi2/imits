@@ -234,13 +234,6 @@ class V2::Reports::MiProductionController < ApplicationController
     end
   end
 
-  def planned_microinjection_wtsi_list
-    @report = PlannedMicroinjectionWtsiList.new
-    @mi_plan_summary = @report.mi_plan_summary
-    @consortium = 'WTSI'
-    @count = @report.blank? ? 0 : @mi_plan_summary.count
-  end
-
   def planned_crispr_microinjection_list
     @report = PlannedMicroinjectionList.new
     @mi_plan_summary = @report.mi_plan_summary(nil, true)

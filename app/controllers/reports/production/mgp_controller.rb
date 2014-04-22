@@ -83,7 +83,7 @@ class Reports::Production::MgpController < ApplicationController
     end
   end
 
-  def planned_microinjections
+  def all_wtsi_plans
     @report = PlannedMicroinjectionWtsiList.new
     @mi_plan_summary = @report.mi_plan_summary
     @consortium = 'WTSI'

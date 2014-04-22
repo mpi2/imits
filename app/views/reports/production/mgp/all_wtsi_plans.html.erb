@@ -1,10 +1,10 @@
-<% @title = 'All Planned Micro-Injections (WTSI)' %>
+<% @title = 'All WTSI Plans, Production and Primary Phenotyping by Gene' %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
 <p>
   <%=
-    link_to('Download as CSV', url_for({:action => :planned_microinjections, :format => :csv}))
+    link_to('Download as CSV', url_for({:action => :all_wtsi_plans, :format => :csv}))
   %>
   </p>
 </div>
@@ -27,8 +27,8 @@
           <th>mi_attempt_status</th>
         <%end %>
 
-        <th>Status</th>
-        <th>Phenotyping</th>
+        <th>Best Production Status</th>
+        <th>Primary Phenotyping Status</th>
       </tr>
     </thead>
     <tbody>

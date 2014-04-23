@@ -3,12 +3,14 @@
 require 'pp'
 
 def check_orphans tables, target
- puts "#### checking #{target}s"
+  puts "#### checking #{target}s"
   hash = {}
   tables.each do |table|
     hash[table] = []
-    sql = "select #{target}_id from #{table} where not exists (select id from #{target}s where #{table}.#{target}_id = #{target}s.id);"
-    puts sql
+    #sql = "select #{target}_id from #{table} where not exists (select id from #{target}s where #{table}.#{target}_id = #{target}s.id);"
+    sql = "select #{target}_id from #{table} where #{target}_id not in (select id from #{target}s);"
+    #puts sql
+    # next
     rows = ActiveRecord::Base.connection.execute(sql)
     rows.each do |row|
       next if row['mi_attempt_id'].nil?

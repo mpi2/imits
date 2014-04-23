@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140431165000) do
+ActiveRecord::Schema.define(:version => 20140431165001) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -125,6 +125,8 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
     t.string   "ensembl_ids"
     t.string   "ccds_ids"
     t.string   "marker_type"
+    t.string   "feature_type"
+    t.string   "synonyms"
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true

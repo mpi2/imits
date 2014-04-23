@@ -74,6 +74,10 @@ class GeneTest < ActiveSupport::TestCase
 
       assert_should validate_presence_of :marker_symbol
       assert_should validate_uniqueness_of :marker_symbol
+
+      assert_should have_db_column(:marker_type).of_type(:string)
+      assert_should have_db_column(:feature_type).of_type(:string)
+      assert_should have_db_column(:synonyms).of_type(:string)
     end
 
     should 'not output private attributes in serialization' do

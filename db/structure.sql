@@ -782,7 +782,9 @@ CREATE TABLE genes (
     ncbi_ids character varying(255),
     ensembl_ids character varying(255),
     ccds_ids character varying(255),
-    marker_type character varying(255)
+    marker_type character varying(255),
+    feature_type character varying(255),
+    synonyms character varying(255)
 );
 
 
@@ -4751,3 +4753,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140324145302');
 INSERT INTO schema_migrations (version) VALUES ('20140426101200');
 
 INSERT INTO schema_migrations (version) VALUES ('20140431165000');
+
+INSERT INTO schema_migrations (version) VALUES ('20140431165001');

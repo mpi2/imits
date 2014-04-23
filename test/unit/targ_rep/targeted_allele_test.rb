@@ -54,6 +54,7 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
         assert allele.save, "Targeted allele saves for a normal entry"
         allele_after_select = TargRep::TargetedAllele.find( allele.id )
         attributes_after_reselect = allele_after_select.attributes
+
         attributes_before_save.keys.each do |attribute|
           assert_true attributes_after_reselect.has_key?(attribute)
           assert_equal attributes_after_reselect[attribute], attributes_before_save[attribute]

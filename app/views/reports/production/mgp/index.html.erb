@@ -9,7 +9,7 @@
 
 <div class="grid_4">&emsp;</div>
 
-<div class="grid_4">
+<div class="grid_5">
 
   <% ['summary_subproject', 'summary_priority',
       'languishing_sub_project', 'languishing_priority'].each do |report_action| %>
@@ -19,5 +19,13 @@
       </a>
     </div>
   <% end %>
+
+  <!--do this cos of the funky title-->
+
+  <div class="report-links">
+    <a href="<%= url_for(:action => 'all_wtsi_plans') %>">
+      <h4><%= 'All WTSI Plans, Production and Primary Phenotyping by Gene' %></h4>
+    </a>
+  </div>
 
 </div>

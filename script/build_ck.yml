@@ -73,11 +73,8 @@ options:
   USE_ALLELES: true
   USE_GENES: true
   MARKER_SYMBOL: ""
-  USE_SYNONYMS: true
   DETECT_GENE_DUPS: true
   USE_REPLACEMENT: true
-  USE_FEATURE_TYPE: true
-  SYNONYM_FILENAME: "gene_association.mgi.processed.csv"
 
 replacements: 
 - Akt2: 

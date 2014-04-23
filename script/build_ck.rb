@@ -5,56 +5,6 @@ require "digest/md5"
 
 config = YAML.load_file("#{Rails.root}/script/build_ck.yml")
 
-#
-##replacements = {
-##  "marker_symbol" => "Akt2",
-##  "gene" => {
-##    "latest_es_cell_status" => "ES Cell Targeting Confirmed",
-##    "latest_mouse_status" => "Micro-injection in progress",
-##    "latest_phenotype_status" => "Phenotype Attempt Registered",
-##    "latest_project_status" => "ES Cell Targeting Confirmed",
-##    "latest_project_status_legacy" => "Assigned for Mouse Production and Phenotyping",
-##    "latest_production_centre" => "",
-##    "latest_phenotyping_centre" => ""
-##  },
-##  "allele" => {
-##    "es_cell_status" => "ES Cell Targeting Confirmed",
-##    "mouse_status" => "Micro-injection in progress",
-##    "phenotype_status" => "Phenotype Attempt Registered",
-##    "production_centre" => "",
-##    "phenotyping_centre" => ""
-##  }
-##}
-#
-#replacements = {
-#  "Akt2" => {
-#  "gene" => {
-#    "latest_es_cell_status" => "ES Cell Targeting Confirmed",
-#    "latest_mouse_status" => "Micro-injection in progress",
-#    "latest_phenotype_status" => "Phenotype Attempt Registered",
-#    "latest_project_status" => "ES Cell Targeting Confirmed",
-#    "latest_project_status_legacy" => "Assigned for Mouse Production and Phenotyping",
-#    "latest_production_centre" => "",
-#    "latest_phenotyping_centre" => ""
-#  },
-#  "allele" => {
-#    "es_cell_status" => "ES Cell Targeting Confirmed",
-#    "mouse_status" => "Micro-injection in progress",
-#    "phenotype_status" => "Phenotype Attempt Registered",
-#    "production_centre" => "",
-#    "phenotyping_centre" => ""
-#  }
-#  }
-#}
-#
-#reps = {'replacements' => [replacements]}
-#
-#puts reps.to_yaml
-#exit
-
-#pp config
-#exit
-
 SAVE_AS_CSV = config['options']['SAVE_AS_CSV']
 USE_ID = config['options']['USE_ID']
 USE_IDS = config['options']['USE_IDS']
@@ -63,22 +13,12 @@ USE_REPORT_TO_PUBLIC = config['options']['USE_REPORT_TO_PUBLIC']
 USE_ALLELES = config['options']['USE_ALLELES']
 USE_GENES = config['options']['USE_GENES']
 MARKER_SYMBOL = config['options']['MARKER_SYMBOL']
-SYNONYM_FILENAME = config['options']['SYNONYM_FILENAME']
-USE_SYNONYMS = config['options']['USE_SYNONYMS'] && File.exist?(SYNONYM_FILENAME)
 DETECT_GENE_DUPS = config['options']['DETECT_GENE_DUPS']
 USE_REPLACEMENT = config['options']['USE_REPLACEMENT']
-USE_FEATURE_TYPE = config['options']['USE_FEATURE_TYPE']
 
 STATUSES = config['statuses']
 LEGACY_STATUSES_MAP = config['legacy_statuses_map']
 ES_CELL_STATUSES = config['es_cell_statuses']
-
-#puts config.to_yaml
-#exit
-
-if ! File.exist?("gene_association.mgi.processed.csv") && config['options']['USE_SYNONYMS']
-  puts "#### cannot find #{SYNONYM_FILENAME}!"
-end
 
 pp config['options']
 
@@ -96,12 +36,6 @@ sql.gsub!(/SUBS_TEMPLATE2/, '') if USE_REPORT_TO_PUBLIC
 
 sql.gsub!(/SUBS_TEMPLATE/, sql_template) if USE_IDS
 sql.gsub!(/SUBS_TEMPLATE/, '') if ! USE_IDS
-
-#Cib2 Ell2 Zranb1 Pet2 Ino80 Gsdma2
-#'Gsdma2'    #'Pira11'    #'Gja8'    #   #'Akt2'
-
-#puts sql
-#exit
 
 processed_rows = []
 remainder_rows = []
@@ -219,35 +153,6 @@ def build_json data
     list.push item.to_json
   end
   list
-end
-
-@synonyms = {}
-
-def load_synonyms
-  CSV.foreach("gene_association.mgi.processed.csv", :headers => true, :header_converters => :symbol, :converters => :all) do |row|
-    @synonyms[row.fields[0]] = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
-  end
-end
-
-@feature_types = {}
-
-def load_feature_types
-  CSV.foreach("MGI_MRK_Coord.csv", :headers => true, :header_converters => :symbol, :converters => :all) do |row|
-    if MARKER_SYMBOL.empty?
-      @feature_types[row.fields[0]] = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
-    else
-      if MARKER_SYMBOL == row.fields[0]
-        @feature_types[row.fields[0]] = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
-        break
-      end
-    end
-  end
-end
-
-
-if USE_FEATURE_TYPE
-  puts "#### load feature_types!"
-  load_feature_types
 end
 
 PHENOTYPE_ATTEMPT_STATUSES = get_phenotype_attempt_statuses
@@ -436,13 +341,8 @@ processed_rows.each do |row|
   hash = {}
   hash['marker_symbol'] = row['marker_symbol']
 
-  hash['marker_type'] = ''
-
-  if USE_FEATURE_TYPE && @feature_types.has_key?(row['mgi_accession_id'])
-    hash['marker_type'] = @feature_types[row['mgi_accession_id']]['feature_type']
-  else
-    hash['marker_type'] = row['marker_type']
-  end
+  hash['marker_type'] = row['marker_type']
+  hash['feature_type'] = row['feature_type']
 
   hash['mgi_accession_id'] = row['mgi_accession_id']
   hash['es_cell_status'] = row['es_cell_status'].to_s
@@ -481,31 +381,31 @@ processed_rows.each do |row|
     genes_hash[hash['marker_symbol']] ||= []
     genes_hash[hash['marker_symbol']].push hash
 
-if USE_REPLACEMENT
-    config['replacements'].each do |allele|
+    if USE_REPLACEMENT
+      config['replacements'].each do |allele|
 
-      #if hash['marker_symbol'] == ms && ! config['replacements'][ms]['allele'].has_key?('done')
-      if allele.has_key?(hash['marker_symbol'])
+        #if hash['marker_symbol'] == ms && ! config['replacements'][ms]['allele'].has_key?('done')
+        if allele.has_key?(hash['marker_symbol'])
 
-        next if allele[hash['marker_symbol']]['allele']['done']
+          next if allele[hash['marker_symbol']]['allele']['done']
 
-      #puts "#### allele:"
-      #pp allele[hash['marker_symbol']]['allele']
+          #puts "#### allele:"
+          #pp allele[hash['marker_symbol']]['allele']
 
-        hash2 = deep_copy hash
+          hash2 = deep_copy hash
 
-        allele[hash['marker_symbol']]['allele'].keys.each do |kk|
-          hash2[kk] = allele[hash['marker_symbol']]['allele'][kk]
+          allele[hash['marker_symbol']]['allele'].keys.each do |kk|
+            hash2[kk] = allele[hash['marker_symbol']]['allele'][kk]
+          end
+
+          hash2['notes'] = 'dummy allele'
+
+          new_processed_allele_rows.push hash2
+
+          allele[hash['marker_symbol']]['allele']['done'] = true
+
+          break
         end
-
-        hash2['notes'] = 'dummy allele'
-
-        new_processed_allele_rows.push hash2
-
-        allele[hash['marker_symbol']]['allele']['done'] = true
-
-        break
-      end
       end
     end
   end
@@ -515,37 +415,30 @@ end
 
 puts "#### step 5..."
 
-if USE_SYNONYMS && MARKER_SYMBOL.empty?
-  puts "#### load synonyms!"
-  load_synonyms if USE_SYNONYMS && MARKER_SYMBOL.empty?
-end
-
-puts "#### step 6..."
-
 count = Gene.count
 counter = 0
 
-rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type from genes') if MARKER_SYMBOL.empty?
-rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type from genes where marker_symbol = '#{MARKER_SYMBOL}'") if ! MARKER_SYMBOL.empty?
+rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes') if MARKER_SYMBOL.empty?
+rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol = '#{MARKER_SYMBOL}'") if ! MARKER_SYMBOL.empty?
 
 rows.each do |row1|
- # puts "#### #{counter}/#{count}" if counter % 1000 == 0
+  # puts "#### #{counter}/#{count}" if counter % 1000 == 0
   counter += 1
+
+ # pp row1
 
   marker_symbol = row1['marker_symbol']
 
   if ! genes_hash.has_key?(marker_symbol)
     hash = {}
+    hash['synonym'] = ''
+    hash['feature_type'] = ''
+
     hash['marker_symbol'] = row1['marker_symbol']
     hash['mgi_accession_id'] = row1['mgi_accession_id']
 
-    hash['marker_type'] = ''
-
-    if USE_FEATURE_TYPE && @feature_types.has_key?(row1['mgi_accession_id'])
-      hash['marker_type'] = @feature_types[row1['mgi_accession_id']]['feature_type']
-    else
-      hash['marker_type'] = row1['marker_type']
-    end
+    hash['marker_type'] = row1['marker_type']
+    hash['feature_type'] = row1['feature_type']
 
     hash['latest_project_status'] = ''
     hash['latest_project_status'] = ''
@@ -557,7 +450,7 @@ rows.each do |row1|
     hash['type'] = 'gene'
     hash['latest_es_cell_status'] = ''
     hash['latest_mouse_status'] = ''
-    hash['synonym'] = @synonyms[hash['mgi_accession_id']][:db_object_synonym].to_s.split '|' if USE_SYNONYMS && @synonyms[hash['mgi_accession_id']] && @synonyms[hash['mgi_accession_id']].has_key?(:db_object_synonym)
+    hash['synonym'] = row1['synonyms']
     new_processed_gene_rows.push hash
     next
   end
@@ -616,49 +509,50 @@ rows.each do |row1|
     end
   end
 
-    exclude_keys = %W{es_cell_status mouse_status phenotype_status production_centre allele_name allele_type phenotyping_centre}
+  exclude_keys = %W{es_cell_status mouse_status phenotype_status production_centre allele_name allele_type phenotyping_centre}
 
-    row = deep_copy genes_hash[marker_symbol].first
+  row = deep_copy genes_hash[marker_symbol].first
 
-    exclude_keys.each {|ekey| row.delete(ekey) }
+  exclude_keys.each {|ekey| row.delete(ekey) }
 
-    row['latest_project_status'] = best_status_string
-    row['latest_production_centre'] = best_production_centre
-    row['latest_phenotyping_centre'] = best_phenotyping_centre
-    row['latest_phenotype_started'] = imits_phenotype_started ? '1' : '0'
-    row['latest_phenotype_complete'] = imits_phenotype_complete ? '1' : '0'
-    row['latest_phenotype_status'] = imits_phenotype_status
-    row['latest_es_cell_status'] = latest_es_cell_status
-    row['latest_mouse_status'] = latest_mouse_status
-    row['synonym'] = @synonyms[row['mgi_accession_id']][:db_object_synonym].to_s.split '|' if USE_SYNONYMS && @synonyms[row['mgi_accession_id']] && @synonyms[row['mgi_accession_id']].has_key?(:db_object_synonym)
+  row['latest_project_status'] = best_status_string
+  row['latest_production_centre'] = best_production_centre
+  row['latest_phenotyping_centre'] = best_phenotyping_centre
+  row['latest_phenotype_started'] = imits_phenotype_started ? '1' : '0'
+  row['latest_phenotype_complete'] = imits_phenotype_complete ? '1' : '0'
+  row['latest_phenotype_status'] = imits_phenotype_status
+  row['latest_es_cell_status'] = latest_es_cell_status
+  row['latest_mouse_status'] = latest_mouse_status
+  row['synonym'] = row1['synonyms'].to_s.split '|'
+  row['feature_type'] = row1['feature_type']
 
-    row['type'] = 'gene'
+  row['type'] = 'gene'
 
-    LEGACY_STATUSES_MAP.keys.each do |status|
-      if LEGACY_STATUSES_MAP[status].include?(row['latest_project_status'])
-        row['latest_project_status_legacy'] = status
-        break
-      end
+  LEGACY_STATUSES_MAP.keys.each do |status|
+    if LEGACY_STATUSES_MAP[status].include?(row['latest_project_status'])
+      row['latest_project_status_legacy'] = status
+      break
     end
+  end
 
-    #config['replacements'].keys.each do |ms|
-    #  if hash['marker_symbol'] == ms && ! config['replacements'][ms]['gene'].has_key?('done')
-    #
-    #    row = deep_copy row
-    #
-    #    config['replacements'][ms]['gene'].keys do |kk|
-    #      hash2[kk] = config['replacements'][ms]['gene'][kk]
-    #    end
-    #
-    #    hash2['notes'] = 'dummy gene'
-    #
-    #    genes_hash[hash['marker_symbol']].push hash2
-    #
-    #    config['replacements'][ms]['gene']['done'] = true
-    #  end
-    #end
+  #config['replacements'].keys.each do |ms|
+  #  if hash['marker_symbol'] == ms && ! config['replacements'][ms]['gene'].has_key?('done')
+  #
+  #    row = deep_copy row
+  #
+  #    config['replacements'][ms]['gene'].keys do |kk|
+  #      hash2[kk] = config['replacements'][ms]['gene'][kk]
+  #    end
+  #
+  #    hash2['notes'] = 'dummy gene'
+  #
+  #    genes_hash[hash['marker_symbol']].push hash2
+  #
+  #    config['replacements'][ms]['gene']['done'] = true
+  #  end
+  #end
 
-if USE_REPLACEMENT
+  if USE_REPLACEMENT
     config['replacements'].each do |allele|
       if allele.has_key?(row['marker_symbol'])
 
@@ -675,56 +569,18 @@ if USE_REPLACEMENT
 
         row['notes'] = 'dummy gene'
 
-      #  genes_hash[hash['marker_symbol']].push hash2
-       # allele[hash['marker_symbol']]['done'] = true
+        #  genes_hash[hash['marker_symbol']].push hash2
+        # allele[hash['marker_symbol']]['done'] = true
 
-       allele[row['marker_symbol']]['gene']['done'] = true
+        allele[row['marker_symbol']]['gene']['done'] = true
 
         break
       end
     end
-    end
-
-    new_processed_gene_rows.push row
-end
-
-
-
-puts "#### step 7..."
-
-counter = 0
-
-if USE_SYNONYMS && MARKER_SYMBOL.empty?
-  @synonyms.keys.each do |key|
-    next if @synonyms[key][:used] != 'false'
-    hash = {}
-    hash['marker_symbol'] = @synonyms[key][:db_object_symbol]
-    hash['mgi_accession_id'] = @synonyms[key][:db_object_id]
-    hash['marker_type'] = ''
-
-    if USE_FEATURE_TYPE && @feature_types.has_key?(hash['mgi_accession_id'])
-      hash['marker_type'] = @feature_types[hash['mgi_accession_id']]['feature_type']
-    else
-      hash['marker_type'] = 'Unknown'
-    end
-
-    hash['latest_project_status'] = ''
-    hash['latest_project_status'] = ''
-    hash['latest_production_centre'] = ''
-    hash['latest_phenotyping_centre'] = ''
-    hash['latest_phenotype_started'] = '0'
-    hash['latest_phenotype_complete'] = '0'
-    hash['latest_phenotype_status'] = ''
-    hash['type'] = 'gene'
-    hash['latest_es_cell_status'] = ''
-    hash['latest_mouse_status'] = ''
-    hash['synonym'] = @synonyms[key][:db_object_synonym].to_s.split '|'
-    new_processed_gene_rows.push hash
-    counter += 1
   end
-end
 
-puts "#### #{counter} extra from synonymns"
+  new_processed_gene_rows.push row
+end
 
 if DETECT_GENE_DUPS
   puts "#### check gene duplicates!"
@@ -748,7 +604,7 @@ if DETECT_GENE_DUPS
   end
 end
 
-puts "#### step 8..."
+puts "#### step 6..."
 
 new_processed_list = build_json new_processed_allele_rows
 new_processed_list2 = build_json new_processed_gene_rows

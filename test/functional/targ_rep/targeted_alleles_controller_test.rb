@@ -128,7 +128,7 @@ class TargRep::TargetedAllelesControllerTest < ActionController::TestCase
       assert_difference('TargRep::TargetedAllele.count') do
         post :create, :allele => allele_attrs
       end
-      assert_redirected_to targ_rep_allele_path(assigns(:allele))
+      assert_redirected_to "/targ_rep/targeted_alleles/#{assigns(:allele).id}"
 
       created_allele = TargRep::TargetedAllele.search(:gene_id_eq => allele_attrs[:gene_id]).result.last
       created_allele.save
@@ -288,7 +288,7 @@ class TargRep::TargetedAllelesControllerTest < ActionController::TestCase
       assert_difference('TargRep::TargetedAllele.count') do
         post :create, :allele => mol_struct_attrs
       end
-      assert_redirected_to targ_rep_allele_path(assigns(:allele))
+      assert_redirected_to "/targ_rep/targeted_alleles/#{assigns(:allele).id}"
 
       created_mol_struct = TargRep::TargetedAllele.search(:mgi_accession_id_eq => mol_struct_attrs[:mgi_accession_id]).result.first
 

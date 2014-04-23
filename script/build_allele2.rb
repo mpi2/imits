@@ -6,30 +6,36 @@ require "digest/md5"
 class BuildAllele2
 
   def initialize
-    config = YAML.load_file("#{Rails.root}/script/build_ck.yml")
+    @config = YAML.load_file("#{Rails.root}/script/build_allele2.yml")
 
-    @save_as_csv = config['options']['@save_as_csv']
-    @use_id = config['options']['@use_id']
-    @use_ids = config['options']['@use_ids']
-    @user_order = config['options']['@user_order']
-    @use_report_to_public = config['options']['@use_report_to_public']
-    @use_alleles = config['options']['@use_alleles']
-    @use_genes = config['options']['@use_genes']
-    @marker_symbol = config['options']['@marker_symbol']
-    @detect_gene_dups = config['options']['@detect_gene_dups']
-    @use_replacement = config['options']['@use_replacement']
+    @solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
 
-    @statuses = config['statuses']
-    @legacy_statuses_map = config['legacy_statuses_map']
-    @es_cell_statuses = config['es_cell_statuses']
+    @save_as_csv = @config['options']['SAVE_AS_CSV']
+    @use_id = @config['options']['USE_ID']
+    @use_ids = @config['options']['USE_IDS']
+    @user_order = @config['options']['USE_ORDER']
+    @use_report_to_public = @config['options']['USE_REPORT_TO_PUBLIC']
+    @use_alleles = @config['options']['USE_ALLELES']
+    @use_genes = @config['options']['USE_GENES']
+    @marker_symbol = @config['options']['MARKER_SYMBOL']
+    @detect_gene_dups = @config['options']['DETECT_GENE_DUPS']
+    @use_replacement = @config['options']['USE_REPLACEMENT']
 
-    pp config['options']
+    @statuses = @config['statuses']
+    @legacy_statuses_map = @config['legacy_statuses_map']
+    @es_cell_statuses = @config['es_cell_statuses']
+
+    @pa_statuses = get_phenotype_attempt_statuses
+    @mi_statuses = get_mi_attempt_statuses
+    @early_pa_statuses = ['Phenotype Attempt Aborted', 'Cre Excision Started', 'Rederivation Complete', 'Rederivation Started', 'Phenotype Attempt Registered', 'Cre Excision Complete']
+
+    pp @config['options']
 
     puts "#### loading alleles!" if @use_alleles
     puts "#### loading genes!" if @use_genes
 
-    sql_template = config['sql_template']
-    @sql = config['@sql']
+    sql_template = @config['sql_template']
+    @sql = @config['sql']
 
     @sql.gsub!(/SUBS_TEMPLATE3/, "where marker_symbol = '#{@marker_symbol}'") if ! @marker_symbol.empty?
     @sql.gsub!(/SUBS_TEMPLATE3/, '') if @marker_symbol.empty?
@@ -106,13 +112,13 @@ class BuildAllele2
   end
 
   def delete_index
-    proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
+    proxy = SolrBulk::Proxy.new(@solr_update[Rails.env]['index_proxy']['ck'])
     proxy.update({'delete' => {'query' => '*:*'}}.to_json)
     proxy.update({'commit' => {}}.to_json)
   end
 
   def send_to_index data
-    proxy = SolrBulk::Proxy.new(SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
+    proxy = SolrBulk::Proxy.new(@solr_update[Rails.env]['index_proxy']['ck'])
     proxy.update(data.join)
     proxy.update({'commit' => {}}.to_json)
   end
@@ -138,7 +144,7 @@ class BuildAllele2
 
   def run
 
-    puts "#### index: #{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}"
+    puts "#### index: #{@solr_update[Rails.env]['index_proxy']['ck']}"
     puts "#### select..."
 
     rows = ActiveRecord::Base.connection.execute(@sql)
@@ -168,7 +174,7 @@ class BuildAllele2
 
         row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
 
-        if EARLY_PHENOTYPE_ATTEMPT_STATUSES.include?(row['phenotype_attempt_status'])
+        if @early_pa_statuses.include?(row['phenotype_attempt_status'])
           row['mouse_status'] = row['phenotype_attempt_status']
           row['phenotype_status'] = ''
         else
@@ -336,7 +342,7 @@ class BuildAllele2
         genes_hash[hash['marker_symbol']].push hash
 
         if @use_replacement
-          config['replacements'].each do |allele|
+          @config['replacements'].each do |allele|
 
             if allele.has_key?(hash['marker_symbol'])
 
@@ -420,8 +426,8 @@ class BuildAllele2
 
           imits_phenotype_complete = true if row['phenotype_status'] == 'Phenotyping Complete'
 
-          if best_status.to_i < PHENOTYPE_ATTEMPT_STATUSES[row['phenotype_status']].to_i
-            best_status = PHENOTYPE_ATTEMPT_STATUSES[row['phenotype_status']].to_i
+          if best_status.to_i < @pa_statuses[row['phenotype_status']].to_i
+            best_status = @pa_statuses[row['phenotype_status']].to_i
             best_status_string = row['phenotype_status']
             imits_phenotype_status = row['phenotype_status']
             best_phenotyping_centre = row['phenotyping_centre']
@@ -430,15 +436,15 @@ class BuildAllele2
 
         elsif ! row['mouse_status'].to_s.empty?
 
-          if best_status.to_i < MI_ATTEMPT_STATUSES[row['mouse_status']].to_i &&
-            (MI_ATTEMPT_STATUSES[row['mouse_status']].to_i == 350 || MI_ATTEMPT_STATUSES[row['mouse_status']].to_i == 360)
+          if best_status.to_i < @mi_statuses[row['mouse_status']].to_i &&
+            (@mi_statuses[row['mouse_status']].to_i == 350 || @mi_statuses[row['mouse_status']].to_i == 360)
             imits_phenotype_status = row['mouse_status']
             latest_mouse_status = row['mouse_status']
             best_production_centre = row['production_centre']
           end
 
-          if best_status.to_i < MI_ATTEMPT_STATUSES[row['mouse_status']].to_i
-            best_status = MI_ATTEMPT_STATUSES[row['mouse_status']].to_i
+          if best_status.to_i < @mi_statuses[row['mouse_status']].to_i
+            best_status = @mi_statuses[row['mouse_status']].to_i
             best_status_string = row['mouse_status']
             best_production_centre = row['production_centre']
             latest_mouse_status = row['mouse_status']
@@ -483,7 +489,7 @@ class BuildAllele2
       end
 
       if @use_replacement
-        config['replacements'].each do |allele|
+        @config['replacements'].each do |allele|
           if allele.has_key?(row['marker_symbol'])
 
             next if allele[row['marker_symbol']]['gene']['done']
@@ -541,7 +547,7 @@ class BuildAllele2
       save_csv filename, new_processed_allele_rows
     end
 
-    puts "#### send to index - #{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}"
+    puts "#### send to index - #{@solr_update[Rails.env]['index_proxy']['ck']}"
 
     delete_index
 

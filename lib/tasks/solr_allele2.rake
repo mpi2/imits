@@ -13,7 +13,7 @@ namespace :solr_allele2 do
 
   desc 'Ping the solr'
   task 'index:ping' => [:environment] do
-    command = 'curl -s SOLR_SUBS/admin/ping |grep -o -E "name=\"status\">([0-9]+)<"|cut -f2 -d\>|cut -f1 -d\<'.gsub(/SOLR_SUBS/, SOLR_UPDATE[Rails.env]['index_proxy']['ck'])
+    command = 'curl -s SOLR_SUBS/admin/ping |grep -o -E "name=\"status\">([0-9]+)<"|cut -f2 -d\>|cut -f1 -d\<'.gsub(/SOLR_SUBS/, SOLR_UPDATE[Rails.env]['index_proxy']['allele2'])
     output = `#{command}`
     if output.to_s.length > 0 && output.to_i == 0
       puts "#### #{SOLR_UPDATE[Rails.env]['index_proxy']['allele']} up and running!".green
@@ -27,7 +27,7 @@ namespace :solr_allele2 do
   desc "Download the allele2 index as csv - place in #{Rails.env}-allele2-solr.csv"
   task 'get_csv' => [:environment] do
     home = Dir.home
-    command = "curl -o #{home}/Desktop/#{Rails.env}-allele2-solr.csv '#{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}/select/?q=*:*&version=2.2&start=0&rows=100000&indent=on&wt=csv'"
+    command = "curl -o #{home}/Desktop/#{Rails.env}-allele2-solr.csv '#{SOLR_UPDATE[Rails.env]['index_proxy']['allele2']}/select/?q=*:*&version=2.2&start=0&rows=100000&indent=on&wt=csv'"
     puts command
     output = `#{command}`
     puts output if output
@@ -46,8 +46,8 @@ namespace :solr_allele2 do
     home = Dir.home
     filename = "#{home}/Desktop/#{Rails.env}-allele2-solr.csv"
     if ! File.exist?(filename)
-      #puts "#### get #{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}"
-      command = "curl -o #{home}/Desktop/#{Rails.env}-allele2-solr.csv '#{SOLR_UPDATE[Rails.env]['index_proxy']['ck']}/select/?q=type:gene&version=2.2&start=0&rows=100000&indent=on&wt=csv'"
+      #puts "#### get #{SOLR_UPDATE[Rails.env]['index_proxy']['allele2']}"
+      command = "curl -o #{home}/Desktop/#{Rails.env}-allele2-solr.csv '#{SOLR_UPDATE[Rails.env]['index_proxy']['allele2']}/select/?q=type:gene&version=2.2&start=0&rows=100000&indent=on&wt=csv'"
       puts command
       output = `#{command}`
       puts output if output

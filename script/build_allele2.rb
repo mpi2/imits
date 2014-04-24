@@ -113,13 +113,13 @@ class BuildAllele2
   end
 
   def delete_index
-    proxy = SolrBulk::Proxy.new(@solr_update[Rails.env]['index_proxy']['ck'])
+    proxy = SolrBulk::Proxy.new(@solr_update[Rails.env]['index_proxy']['allele2'])
     proxy.update({'delete' => {'query' => '*:*'}}.to_json)
     proxy.update({'commit' => {}}.to_json)
   end
 
   def send_to_index data
-    proxy = SolrBulk::Proxy.new(@solr_update[Rails.env]['index_proxy']['ck'])
+    proxy = SolrBulk::Proxy.new(@solr_update[Rails.env]['index_proxy']['allele2'])
     proxy.update(data.join)
     proxy.update({'commit' => {}}.to_json)
   end
@@ -145,7 +145,7 @@ class BuildAllele2
 
   def run
 
-    puts "#### index: #{@solr_update[Rails.env]['index_proxy']['ck']}"
+    puts "#### index: #{@solr_update[Rails.env]['index_proxy']['allele2']}"
     puts "#### select..."
 
     rows = ActiveRecord::Base.connection.execute(@sql)
@@ -409,7 +409,7 @@ class BuildAllele2
       save_csv filename, new_processed_allele_rows
     end
 
-    puts "#### send to index - #{@solr_update[Rails.env]['index_proxy']['ck']}"
+    puts "#### send to index - #{@solr_update[Rails.env]['index_proxy']['allele2']}"
 
     delete_index
 

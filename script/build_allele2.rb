@@ -20,6 +20,7 @@ class BuildAllele2
     @marker_symbol = @config['options']['MARKER_SYMBOL']
     @detect_gene_dups = @config['options']['DETECT_GENE_DUPS']
     @use_replacement = @config['options']['USE_REPLACEMENT']
+    #@default_fields = @config['options']['DEFAULT_FIELDS']
 
     @statuses = @config['statuses']
     @legacy_statuses_map = @config['legacy_statuses_map']
@@ -291,12 +292,12 @@ class BuildAllele2
     target = nil
 
     new_processed_allele_rows = []
-    new_processed_gene_rows = []
+    @new_processed_gene_rows = []
     new_processed_rows_hash = {}
 
     puts "#### step 4..."
 
-    genes_hash = {}
+    @genes_hash = {}
 
     @processed_rows.each do |row|
       target = row if key_count < row.keys.size
@@ -338,8 +339,8 @@ class BuildAllele2
       new_processed_allele_rows.push hash if ! new_processed_rows_hash.has_key? digest.to_s   #hash.values.to_s
 
       if ! new_processed_rows_hash.has_key? digest.to_s
-        genes_hash[hash['marker_symbol']] ||= []
-        genes_hash[hash['marker_symbol']].push hash
+        @genes_hash[hash['marker_symbol']] ||= []
+        @genes_hash[hash['marker_symbol']].push hash
 
         if @use_replacement
           @config['replacements'].each do |allele|
@@ -371,6 +372,222 @@ class BuildAllele2
 
     puts "#### step 5..."
 
+    manage_genes2
+
+    if @detect_gene_dups
+      #puts "#### check gene duplicates!"
+
+      summary_gene_dups = {}
+      gene_dups = {}
+      @new_processed_gene_rows.each do |gene|
+        gene_dups[gene['marker_symbol']] ||= 0
+        gene_dups[gene['marker_symbol']] += 1
+
+        if gene_dups[gene['marker_symbol']] > 1
+          summary_gene_dups[gene['marker_symbol']] = gene_dups[gene['marker_symbol']]
+        end
+      end
+
+      if ! summary_gene_dups.empty?
+        puts "#### gene duplicates detected!"
+        pp summary_gene_dups
+        #else
+        #  puts "#### no gene duplicates detected!"
+      end
+    end
+
+    puts "#### step 6..."
+
+    new_processed_list = build_json new_processed_allele_rows
+    new_processed_list2 = build_json @new_processed_gene_rows
+
+    if @save_as_csv
+      puts "#### save csv..."
+
+      home = Dir.home
+      filename = "#{home}/Desktop/build_ck.csv"
+      save_csv filename, new_processed_allele_rows
+    end
+
+    puts "#### send to index - #{@solr_update[Rails.env]['index_proxy']['ck']}"
+
+    delete_index
+
+    send_to_index new_processed_list if @use_alleles
+    new_processed_list = []
+
+    send_to_index new_processed_list2 if @use_genes
+    new_processed_list2 = []
+
+    if ! @failures.empty?
+      puts "#### write failures..."
+      home = Dir.home
+      filename = "#{home}/Desktop/build_ck_failures.csv"
+      save_csv filename, @failures
+    end
+
+    puts "done: alleles/genes/total: #{new_processed_allele_rows.size}/#{@new_processed_gene_rows.size}/#{new_processed_allele_rows.size + @new_processed_gene_rows.size}"
+  end
+
+  #def manage_genes
+  #  count = Gene.count
+  #  counter = 0
+  #
+  #  rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes') if @marker_symbol.empty?
+  #  rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol = '#{@marker_symbol}'") if ! @marker_symbol.empty?
+  #
+  #  rows.each do |row1|
+  #    counter += 1
+  #
+  #    marker_symbol = row1['marker_symbol']
+  #
+  #    if ! @genes_hash.has_key?(marker_symbol)
+  #      hash = {}
+  #      hash['synonym'] = ''
+  #      hash['feature_type'] = ''
+  #
+  #      hash['marker_symbol'] = row1['marker_symbol']
+  #      hash['mgi_accession_id'] = row1['mgi_accession_id']
+  #
+  #      hash['marker_type'] = row1['marker_type']
+  #      hash['feature_type'] = row1['feature_type']
+  #
+  #      hash['latest_project_status'] = ''
+  #      hash['latest_project_status'] = ''
+  #      hash['latest_production_centre'] = ''
+  #      hash['latest_phenotyping_centre'] = ''
+  #      hash['latest_phenotype_started'] = '0'
+  #      hash['latest_phenotype_complete'] = '0'
+  #      hash['latest_phenotype_status'] = ''
+  #      hash['type'] = 'gene'
+  #      hash['latest_es_cell_status'] = ''
+  #      hash['latest_mouse_status'] = ''
+  #      hash['synonym'] = row1['synonyms']
+  #      @new_processed_gene_rows.push hash
+  #      next
+  #    end
+  #
+  #    best_status = 0
+  #    best_status_string = ''
+  #    best_production_centre = ''
+  #    best_phenotyping_centre = ''
+  #
+  #    imits_phenotype_started = false
+  #    imits_phenotype_complete = false
+  #    imits_phenotype_status = ''
+  #    latest_es_cell_status = ''
+  #    latest_mouse_status = ''
+  #
+  #    @genes_hash[marker_symbol].each do |row|
+  #      if ! row['phenotype_status'].to_s.empty?
+  #
+  #        imits_phenotype_started = true if row['phenotype_status'] == 'Phenotyping Started' || row['phenotype_status'] == 'Phenotyping Complete'
+  #
+  #        imits_phenotype_complete = true if row['phenotype_status'] == 'Phenotyping Complete'
+  #
+  #        if best_status.to_i < @pa_statuses[row['phenotype_status']].to_i
+  #          best_status = @pa_statuses[row['phenotype_status']].to_i
+  #          best_status_string = row['phenotype_status']
+  #          imits_phenotype_status = row['phenotype_status']
+  #          best_phenotyping_centre = row['phenotyping_centre']
+  #          best_production_centre = row['production_centre']
+  #        end
+  #
+  #      elsif ! row['mouse_status'].to_s.empty?
+  #
+  #        if best_status.to_i < @mi_statuses[row['mouse_status']].to_i && (@mi_statuses[row['mouse_status']].to_i == 350 || @mi_statuses[row['mouse_status']].to_i == 360)
+  #          imits_phenotype_status = row['mouse_status']
+  #          latest_mouse_status = row['mouse_status']
+  #          best_production_centre = row['production_centre']
+  #        end
+  #
+  #        if best_status.to_i < @mi_statuses[row['mouse_status']].to_i
+  #          best_status = @mi_statuses[row['mouse_status']].to_i
+  #          best_status_string = row['mouse_status']
+  #          best_production_centre = row['production_centre']
+  #          latest_mouse_status = row['mouse_status']
+  #        end
+  #
+  #      elsif ! row['es_cell_status'].to_s.empty? #&& (best_status == 0)
+  #
+  #        if best_status.to_i < @es_cell_statuses[row['es_cell_status']].to_i
+  #          best_status = @es_cell_statuses[row['es_cell_status']].to_i
+  #          best_status_string = row['es_cell_status']
+  #          latest_es_cell_status = row['es_cell_status']
+  #          best_production_centre = row['production_centre']
+  #        end
+  #
+  #      end
+  #    end
+  #
+  #    #if @default_fields
+  #    #
+  #    #  if ! latest_mouse_status.empty? && latest_es_cell_status.empty?
+  #    #    latest_es_cell_status = @statuses['ES_CELL_TARGETING_CONFIRMED']
+  #    #  end
+  #    #
+  #    #  if ! imits_phenotype_status.empty? && latest_es_cell_status.empty?
+  #    #    latest_es_cell_status = @statuses['ES_CELL_TARGETING_CONFIRMED']
+  #    #  end
+  #    #
+  #    #  if ! imits_phenotype_status.empty? && latest_mouse_status.empty?
+  #    #    latest_mouse_status = @statuses['GENOTYPE_CONFIRMED']
+  #    #  end
+  #    #
+  #    #end
+  #
+  #    exclude_keys = %W{es_cell_status mouse_status phenotype_status production_centre allele_name allele_type phenotyping_centre}
+  #
+  #    row = deep_copy @genes_hash[marker_symbol].first
+  #
+  #    exclude_keys.each {|ekey| row.delete(ekey) }
+  #
+  #    row['latest_project_status'] = best_status_string
+  #    row['latest_production_centre'] = best_production_centre
+  #    row['latest_phenotyping_centre'] = best_phenotyping_centre
+  #    row['latest_phenotype_started'] = imits_phenotype_started ? '1' : '0'
+  #    row['latest_phenotype_complete'] = imits_phenotype_complete ? '1' : '0'
+  #    row['latest_phenotype_status'] = imits_phenotype_status
+  #    row['latest_es_cell_status'] = latest_es_cell_status
+  #    row['latest_mouse_status'] = latest_mouse_status
+  #    row['synonym'] = row1['synonyms'].to_s.split '|'
+  #    row['feature_type'] = row1['feature_type']
+  #
+  #    row['type'] = 'gene'
+  #
+  #    @legacy_statuses_map.keys.each do |status|
+  #      if @legacy_statuses_map[status].include?(row['latest_project_status'])
+  #        row['latest_project_status_legacy'] = status
+  #        break
+  #      end
+  #    end
+  #
+  #    if @use_replacement
+  #      @config['replacements'].each do |allele|
+  #        if allele.has_key?(row['marker_symbol'])
+  #
+  #          next if allele[row['marker_symbol']]['gene']['done']
+  #
+  #          row = deep_copy row
+  #
+  #          allele[row['marker_symbol']]['gene'].keys.each do |kk|
+  #            row[kk] = allele[row['marker_symbol']]['gene'][kk]
+  #          end
+  #
+  #          row['notes'] = 'dummy gene'
+  #
+  #          allele[row['marker_symbol']]['gene']['done'] = true
+  #
+  #          break
+  #        end
+  #      end
+  #    end
+  #
+  #    @new_processed_gene_rows.push row
+  #  end
+  #end
+  #
+  def manage_genes2
     count = Gene.count
     counter = 0
 
@@ -380,9 +597,11 @@ class BuildAllele2
     rows.each do |row1|
       counter += 1
 
+      #pp row1
+
       marker_symbol = row1['marker_symbol']
 
-      if ! genes_hash.has_key?(marker_symbol)
+      if ! @genes_hash.has_key?(marker_symbol)
         hash = {}
         hash['synonym'] = ''
         hash['feature_type'] = ''
@@ -403,60 +622,63 @@ class BuildAllele2
         hash['type'] = 'gene'
         hash['latest_es_cell_status'] = ''
         hash['latest_mouse_status'] = ''
-        hash['synonym'] = row1['synonyms']
-        new_processed_gene_rows.push hash
+        hash['synonym'] = row1['synonyms'].to_s.split '|'
+        @new_processed_gene_rows.push hash
         next
       end
 
-      best_status = 0
-      best_status_string = ''
-      best_production_centre = ''
-      best_phenotyping_centre = ''
+      status_hash = {}
 
-      imits_phenotype_started = false
-      imits_phenotype_complete = false
-      imits_phenotype_status = ''
-      latest_es_cell_status = ''
-      latest_mouse_status = ''
+      status_hash[:best_phenotype_status] = 0
+      status_hash[:best_mouse_status] = 0
+      status_hash[:best_es_cell_status] = 0
 
-      genes_hash[marker_symbol].each do |row|
+      status_hash[:phenotype_centre] = ''
+      status_hash[:mouse_production_centre] = ''
+      status_hash[:es_cell_production_centre] = ''
+      status_hash[:phenotype_started] = false
+      status_hash[:phenotype_complete] = false
+      status_hash[:phenotype_status] = ''
+      status_hash[:es_cell_status] = ''
+      status_hash[:mouse_status] = ''
+
+      @genes_hash[marker_symbol].each do |row|
         if ! row['phenotype_status'].to_s.empty?
 
-          imits_phenotype_started = true if row['phenotype_status'] == 'Phenotyping Started' || row['phenotype_status'] == 'Phenotyping Complete'
+          status_hash[:phenotype_started] = true if row['phenotype_status'] == 'Phenotyping Started' || row['phenotype_status'] == 'Phenotyping Complete'
 
-          imits_phenotype_complete = true if row['phenotype_status'] == 'Phenotyping Complete'
+          status_hash[:phenotype_complete] = true if row['phenotype_status'] == 'Phenotyping Complete'
 
-          if best_status.to_i < @pa_statuses[row['phenotype_status']].to_i
-            best_status = @pa_statuses[row['phenotype_status']].to_i
-            best_status_string = row['phenotype_status']
-            imits_phenotype_status = row['phenotype_status']
-            best_phenotyping_centre = row['phenotyping_centre']
-            best_production_centre = row['production_centre']
+          if status_hash[:best_phenotype_status].to_i < @pa_statuses[row['phenotype_status']].to_i
+            status_hash[:best_phenotype_status] = @pa_statuses[row['phenotype_status']].to_i
+            status_hash[:phenotype_status] = row['phenotype_status']
+            status_hash[:phenotype_centre] = row['phenotyping_centre']
+          end
+        end
+
+        if ! row['mouse_status'].to_s.empty?
+
+          if status_hash[:best_mouse_status].to_i < @mi_statuses[row['mouse_status']].to_i && (@mi_statuses[row['mouse_status']].to_i == 350 || @mi_statuses[row['mouse_status']].to_i == 360)
+            status_hash[:best_phenotype_status] = @pa_statuses[row['mouse_status']].to_i
+            status_hash[:best_mouse_status] = @mi_statuses[row['mouse_status']].to_i
+            status_hash[:phenotype_status] = row['mouse_status']
+            status_hash[:mouse_status] = row['mouse_status']
+            status_hash[:mouse_production_centre] = row['production_centre']
           end
 
-        elsif ! row['mouse_status'].to_s.empty?
-
-          if best_status.to_i < @mi_statuses[row['mouse_status']].to_i &&
-            (@mi_statuses[row['mouse_status']].to_i == 350 || @mi_statuses[row['mouse_status']].to_i == 360)
-            imits_phenotype_status = row['mouse_status']
-            latest_mouse_status = row['mouse_status']
-            best_production_centre = row['production_centre']
+          if status_hash[:best_mouse_status].to_i < @mi_statuses[row['mouse_status']].to_i
+            status_hash[:best_mouse_status] = @mi_statuses[row['mouse_status']].to_i
+            status_hash[:mouse_status] = row['mouse_status']
+            status_hash[:mouse_production_centre] = row['production_centre']
           end
+        end
 
-          if best_status.to_i < @mi_statuses[row['mouse_status']].to_i
-            best_status = @mi_statuses[row['mouse_status']].to_i
-            best_status_string = row['mouse_status']
-            best_production_centre = row['production_centre']
-            latest_mouse_status = row['mouse_status']
-          end
+        if ! row['es_cell_status'].to_s.empty?
 
-        elsif ! row['es_cell_status'].to_s.empty? && (best_status == 0)
-
-          if best_status.to_i < @es_cell_statuses[row['es_cell_status']].to_i
-            best_status = @es_cell_statuses[row['es_cell_status']].to_i
-            best_status_string = row['es_cell_status']
-            latest_es_cell_status = row['es_cell_status']
-            best_production_centre = row['production_centre']
+          if status_hash[:best_es_cell_status].to_i < @es_cell_statuses[row['es_cell_status']].to_i
+            status_hash[:best_es_cell_status] = @es_cell_statuses[row['es_cell_status']].to_i
+            status_hash[:es_cell_status] = row['es_cell_status']
+            status_hash[:es_cell_production_centre] = row['production_centre']
           end
 
         end
@@ -464,18 +686,24 @@ class BuildAllele2
 
       exclude_keys = %W{es_cell_status mouse_status phenotype_status production_centre allele_name allele_type phenotyping_centre}
 
-      row = deep_copy genes_hash[marker_symbol].first
+      row = deep_copy @genes_hash[marker_symbol].first
 
       exclude_keys.each {|ekey| row.delete(ekey) }
 
-      row['latest_project_status'] = best_status_string
-      row['latest_production_centre'] = best_production_centre
-      row['latest_phenotyping_centre'] = best_phenotyping_centre
-      row['latest_phenotype_started'] = imits_phenotype_started ? '1' : '0'
-      row['latest_phenotype_complete'] = imits_phenotype_complete ? '1' : '0'
-      row['latest_phenotype_status'] = imits_phenotype_status
-      row['latest_es_cell_status'] = latest_es_cell_status
-      row['latest_mouse_status'] = latest_mouse_status
+      row['latest_project_status'] = status_hash[:phenotype_status] if ! status_hash[:phenotype_status].empty?
+      row['latest_project_status'] = status_hash[:mouse_status] if row['latest_project_status'].to_s.empty? && ! status_hash[:mouse_status].empty?
+      row['latest_project_status'] = status_hash[:es_cell_status] if row['latest_project_status'].to_s.empty? && ! status_hash[:es_cell_status].empty?
+
+      row['latest_production_centre'] = status_hash[:phenotype_centre] if ! status_hash[:phenotype_centre].empty?
+      row['latest_production_centre'] = status_hash[:mouse_production_centre] if row['latest_production_centre'].to_s.empty? && ! status_hash[:mouse_production_centre].empty?
+      row['latest_production_centre'] = status_hash[:es_cell_production_centre] if row['latest_production_centre'].to_s.empty? && ! status_hash[:es_cell_production_centre].empty?
+
+      row['latest_phenotyping_centre'] = status_hash[:phenotype_centre]
+      row['latest_phenotype_started'] = status_hash[:phenotype_started] ? '1' : '0'
+      row['latest_phenotype_complete'] = status_hash[:phenotype_complete] ? '1' : '0'
+      row['latest_phenotype_status'] = status_hash[:phenotype_status]
+      row['latest_es_cell_status'] = status_hash[:es_cell_status]
+      row['latest_mouse_status'] = status_hash[:mouse_status]
       row['synonym'] = row1['synonyms'].to_s.split '|'
       row['feature_type'] = row1['feature_type']
 
@@ -509,63 +737,11 @@ class BuildAllele2
         end
       end
 
-      new_processed_gene_rows.push row
+      @new_processed_gene_rows.push row
     end
 
-    if @detect_gene_dups
-      puts "#### check gene duplicates!"
-
-      summary_gene_dups = {}
-      gene_dups = {}
-      new_processed_gene_rows.each do |gene|
-        gene_dups[gene['marker_symbol']] ||= 0
-        gene_dups[gene['marker_symbol']] += 1
-
-        if gene_dups[gene['marker_symbol']] > 1
-          summary_gene_dups[gene['marker_symbol']] = gene_dups[gene['marker_symbol']]
-        end
-      end
-
-      if ! summary_gene_dups.empty?
-        puts "#### gene duplicates detected!"
-        pp summary_gene_dups
-      else
-        puts "#### no gene duplicates detected!"
-      end
-    end
-
-    puts "#### step 6..."
-
-    new_processed_list = build_json new_processed_allele_rows
-    new_processed_list2 = build_json new_processed_gene_rows
-
-    if @save_as_csv
-      puts "#### save csv..."
-
-      home = Dir.home
-      filename = "#{home}/Desktop/build_ck.csv"
-      save_csv filename, new_processed_allele_rows
-    end
-
-    puts "#### send to index - #{@solr_update[Rails.env]['index_proxy']['ck']}"
-
-    delete_index
-
-    send_to_index new_processed_list if @use_alleles
-    new_processed_list = []
-
-    send_to_index new_processed_list2 if @use_genes
-    new_processed_list2 = []
-
-    if ! @failures.empty?
-      puts "#### write failures..."
-      home = Dir.home
-      filename = "#{home}/Desktop/build_ck_failures.csv"
-      save_csv filename, @failures
-    end
-
-    puts "done (#{new_processed_allele_rows.size}/#{new_processed_gene_rows.size}/#{new_processed_allele_rows.size + new_processed_gene_rows.size})!"
   end
+
 end
 
 if __FILE__ == $0

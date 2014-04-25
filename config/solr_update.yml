@@ -5,7 +5,7 @@ development:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://localhost:8983/solr/allele
     allele2: http://localhost:8983/solr/allele2
-    allele21: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
+    allele22: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
 
 test:
   targ_rep_url: https://www.i-dcc.org/imits/targ_rep

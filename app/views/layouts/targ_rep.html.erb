@@ -15,9 +15,9 @@
 
   <%= javascript 'jquery.min', 'rails', 'application'  %>
   <%= include_stylesheets :targ_rep, :media => 'all' %>
-  <link href="/stylesheets/targ_rep/dropdown/dropdown.css" media="screen" rel="stylesheet" type="text/css">
-  <link href="/stylesheets/targ_rep//dropdown/dropdown.vertical.rtl.css" media="screen" rel="stylesheet" type="text/css">
-  <link href="/stylesheets/targ_rep/dropdown/themes/default/default.css" media="screen" rel="stylesheet" type="text/css">
+  <%= stylesheet_link_tag "/stylesheets/targ_rep/dropdown/dropdown.css" %>
+  <%= stylesheet_link_tag "/stylesheets/targ_rep//dropdown/dropdown.vertical.rtl.css" %>
+  <%= stylesheet_link_tag "/stylesheets/targ_rep/dropdown/themes/default/default.css" %>
 
   <!--[if IE]>
   <%= include_stylesheets :ie, :media => 'all' %>

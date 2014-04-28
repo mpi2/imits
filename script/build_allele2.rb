@@ -21,6 +21,7 @@ class BuildAllele2
     @detect_gene_dups = @config['options']['DETECT_GENE_DUPS']
     @use_replacement = @config['options']['USE_REPLACEMENT']
     #@default_fields = @config['options']['DEFAULT_FIELDS']
+    @filter_target = @config['options']['FILTER_TARGET'].to_s
 
     @statuses = @config['statuses']
     @legacy_statuses_map = @config['legacy_statuses_map']
@@ -29,6 +30,12 @@ class BuildAllele2
     @pa_statuses = get_phenotype_attempt_statuses
     @mi_statuses = get_mi_attempt_statuses
     @early_pa_statuses = ['Phenotype Attempt Aborted', 'Cre Excision Started', 'Rederivation Complete', 'Rederivation Started', 'Phenotype Attempt Registered', 'Cre Excision Complete']
+
+    @marker_filters = @config['marker_filters']
+
+    #pp @marker_filters
+
+    # exit
 
     pp @config['options']
 
@@ -149,6 +156,33 @@ class BuildAllele2
   # pass 1/3
 
   def run
+#thing = [
+#  "gene",
+#"gene segment",
+#"heritable phenotypic marker",
+#"lincRNA gene",
+#"marker_type",
+#"miRNA gene",
+#"non-coding RNA gene",
+#"protein coding gene",
+#"RNase MRP RNA gene",
+#"RNase P RNA gene",
+#"rRNA gene",
+#"scRNA gene",
+#"snoRNA gene",
+#"snRNA gene",
+#"SRP RNA gene",
+#"telomerase RNA gene",
+#"tRNA gene",
+#"unclassified gene",
+#"unclassified non-coding RNA gene"
+#]
+#
+#new_thing = {'thing' => thing}
+#
+#puts new_thing.to_yaml
+#
+#exit
 
     puts "#### index: #{@solr_update[Rails.env]['index_proxy']['allele2']}"
     puts "#### select..."
@@ -159,6 +193,13 @@ class BuildAllele2
 
     rows.each do |row1|
       #pp row1
+
+      if ! @filter_target.empty?
+        if ! @marker_filters.include? row1[@filter_target]
+         # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
+          next
+        end
+      end
 
       prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
 
@@ -446,6 +487,14 @@ class BuildAllele2
     rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol in (#{marker_symbols})") if ! @marker_symbol.empty?
 
     rows.each do |row1|
+
+      if ! @filter_target.empty?
+        if ! @marker_filters.include? row1[@filter_target]
+         # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
+          next
+        end
+      end
+
       counter += 1
 
       #pp row1

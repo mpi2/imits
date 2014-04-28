@@ -108,9 +108,9 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
+  before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
   before_validation :allow_override_of_plan
   before_validation :change_status
-  before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
   before_validation :check_phenotyping_production_for_update
 #  before_save :ensure_plan_exists # this method is in belongs_to_mi_plan
   before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
@@ -122,16 +122,17 @@ class PhenotypeAttempt < ApplicationModel
 
 ## BEFORE VALIDATION FUNCTIONS
   def allow_override_of_plan
-    set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
-      plan = pa.mi_attempt.mi_plan
-      if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
-        plan = [plan]
-      else
-        set_plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
+    if !self.mi_attempt_id.blank? or !self.mi_plan_id.blank?
+      set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
+        plan = pa.try(:mi_attempt).try(:mi_plan)
+        if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
+          plan = [plan]
+        else
+          set_plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
+        end
       end
+      self.mi_plan = set_plan
     end
-
-    self.mi_plan = set_plan
   end
 
 
@@ -242,10 +243,10 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   def gene
-    if mi_plan.try(:gene)
-      return mi_plan.gene
-    elsif mi_attempt.try(:gene)
-      return mi_attempt.gene
+    if self.mi_plan.try(:gene)
+      return self.mi_plan.gene
+    elsif self.mi_attempt.try(:gene)
+      return self.mi_attempt.gene
     else
       return nil
     end

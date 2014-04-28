@@ -16,7 +16,7 @@ module PhenotypeAttempt::StatusManagement
   end
 
   ss.add('Cre Excision Started') do |pt|
-    ! pt.deleter_strain.blank? || pt.tat_cre
+    !pt.deleter_strain.blank? || pt.tat_cre
   end
 
   ss.add('Cre Excision Complete', 'Cre Excision Started') do |pt|

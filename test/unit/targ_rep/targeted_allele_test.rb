@@ -43,16 +43,6 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
   should allow_value(nil,true,false).for(:has_issue)
 
   context "An Allele" do
-    context "check normal creation" do
-      should "be saved" do
-        allele = Factory.build :allele
-        assert allele.save, "Targeted allele saves for a normal entry"
-        attributes_after_save = allele.attributes
-        allele_after_select = TargRep::TargetedAllele.find( allele.id )
-        attributes_after_reselect = allele_after_select.attributes
-        assert_equal attributes_after_reselect, attributes_after_save
-      end
-    end
 
     context "with empty attributes" do
       allele = Factory.build :invalid_allele

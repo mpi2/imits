@@ -493,6 +493,7 @@ class MiPlan < ApplicationModel
     if mi_plans.count == 1
       mi_plan = mi_plans.first
     elsif mi_plans.count == 0
+      params[:force_assignment] = true
       mi_plan = MiPlan.new(params)
       if mi_plan.valid?
         mi_plan.save

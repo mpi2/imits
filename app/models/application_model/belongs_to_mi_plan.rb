@@ -15,11 +15,13 @@ module ApplicationModel::BelongsToMiPlan
 
     if ['Withdrawn', 'Inactive'].include?(mi_plan.status.name)
       self.errors.add(:mi_plan, "is in status #{mi_plan.status.name} - it must be in an assigned state.")
+      return false
     end
 
     es_cell = self.try(:es_cell)
     if (es_cell and es_cell.try(:gene) != mi_plan.try(:gene))
       self.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{es_cell.try(:gene).try(:marker_symbol)} != #{self.mi_plan.try(:gene).try(:marker_symbol)})"
+      return false
     end
 
     return true

@@ -53,14 +53,13 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'validate as having same gene as mi_attempt.es_cell' do
-        plan = Factory.create :mi_plan_phenotype_only,
-                :consortium => default_phenotype_attempt.mi_plan.consortium,
-                :production_centre => default_phenotype_attempt.mi_plan.production_centre
-        assert_not_equal plan.gene, default_phenotype_attempt.mi_attempt.es_cell.gene
+        pa = Factory.build :phenotype_attempt, :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd')
 
-        default_phenotype_attempt.mi_plan = plan
-        assert ! default_phenotype_attempt.valid?
-        assert_equal "mi_plan and es_cell gene mismatch!  Should be the same! (#{default_phenotype_attempt.mi_attempt.es_cell.gene.marker_symbol} != #{default_phenotype_attempt.mi_plan.gene.marker_symbol})", default_phenotype_attempt.errors[:base].first
+        pa.mi_plan.gene = Factory.create :gene
+        assert_not_equal pa.mi_plan.gene, pa.mi_attempt.es_cell.gene
+        assert ! pa.valid?
+        assert_equal "mi_plan and es_cell gene mismatch!  Should be the same! (#{pa.mi_attempt.es_cell.gene.marker_symbol} != #{pa.mi_plan.gene.marker_symbol})", pa.errors[:base].first
+
       end
 
     end #mi_plan

@@ -1,5 +1,6 @@
 require 'pp'
 require "#{Rails.root}/script/build_allele2.rb"
+#require 'zipruby'
 
 namespace :solr_allele2 do
 
@@ -127,71 +128,71 @@ namespace :solr_allele2 do
     end
   end
 
-  task 'compare_biomart_csv' => [:environment] do
-    home = Dir.home
-    filename = "#{home}/Desktop/#{Rails.env}-allele2-solr.csv"
-    filename2 = "#{home}/Desktop/jax_mart_export.csv"
-
-    hash1 = {}
-    counter = 0
-    headers = nil
-    header_hash = nil
-    CSV.foreach(filename, :headers => true) do |row|
-      headers = row.headers if headers.nil?
-      hash = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
-
-      header_hash = Hash[headers.map.with_index.to_a] if header_hash.nil?
-
-      hash1[row[header_hash['mgi_accession_id']]] = hash
-      counter += 1
-    end
-
-    puts "#### allele2: count: #{counter} - keys: #{hash1.keys.size}"
-
-    hash2 = {}
-    counter = 0
-    headers2 = nil
-    header_hash = nil
-    CSV.foreach(filename2, :headers => true) do |row|
-      headers2 = row.headers if headers2.nil?
-      hash = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
-
-      header_hash = Hash[headers2.map.with_index.to_a] if header_hash.nil?
-
-      hash2[row[header_hash['MGI ID']]] = hash
-      counter += 1
-    end
-
-    puts "#### biomart: count: #{counter} - keys: #{hash2.keys.size}"
-
-    diff = hash1.keys - hash2.keys
-    puts "#### #{diff.size} in allele2 but not in biomart"
-
-    diff2 = hash2.keys - hash1.keys
-    puts "#### #{diff2.size} in biomart but not in allele2"
-
-    long = true
-
-    CSV.open("#{home}/Desktop/diffs-jax-biomart.csv", "wb") do |csv|
-      csv << ['mgi_accession_id'] if ! long
-      csv << headers2 if long
-      diff2.each do |key|
-        next if ! hash2.has_key? key
-        csv << [key] if ! long
-        csv << hash2[key].values if long
-      end
-    end
-
-    CSV.open("#{home}/Desktop/diffs-allele21.csv", "wb") do |csv|
-      csv << ['mgi_accession_id'] if ! long
-      csv << headers if long
-      diff.each do |key|
-        next if ! hash1.has_key? key
-        csv << [key] if ! long
-        csv << hash1[key].values if long
-      end
-    end
-  end
+  #task 'compare_biomart_csv' => [:environment] do
+  #  home = Dir.home
+  #  filename = "#{home}/Desktop/#{Rails.env}-allele2-solr.csv"
+  #  filename2 = "#{home}/Desktop/jax_mart_export.csv"
+  #
+  #  hash1 = {}
+  #  counter = 0
+  #  headers = nil
+  #  header_hash = nil
+  #  CSV.foreach(filename, :headers => true) do |row|
+  #    headers = row.headers if headers.nil?
+  #    hash = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
+  #
+  #    header_hash = Hash[headers.map.with_index.to_a] if header_hash.nil?
+  #
+  #    hash1[row[header_hash['mgi_accession_id']]] = hash
+  #    counter += 1
+  #  end
+  #
+  #  puts "#### allele2: count: #{counter} - keys: #{hash1.keys.size}"
+  #
+  #  hash2 = {}
+  #  counter = 0
+  #  headers2 = nil
+  #  header_hash = nil
+  #  CSV.foreach(filename2, :headers => true) do |row|
+  #    headers2 = row.headers if headers2.nil?
+  #    hash = Hash[row.headers[0..-1].zip(row.fields[0..-1])]
+  #
+  #    header_hash = Hash[headers2.map.with_index.to_a] if header_hash.nil?
+  #
+  #    hash2[row[header_hash['MGI ID']]] = hash
+  #    counter += 1
+  #  end
+  #
+  #  puts "#### biomart: count: #{counter} - keys: #{hash2.keys.size}"
+  #
+  #  diff = hash1.keys - hash2.keys
+  #  puts "#### #{diff.size} in allele2 but not in biomart"
+  #
+  #  diff2 = hash2.keys - hash1.keys
+  #  puts "#### #{diff2.size} in biomart but not in allele2"
+  #
+  #  long = true
+  #
+  #  CSV.open("#{home}/Desktop/diffs-jax-biomart.csv", "wb") do |csv|
+  #    csv << ['mgi_accession_id'] if ! long
+  #    csv << headers2 if long
+  #    diff2.each do |key|
+  #      next if ! hash2.has_key? key
+  #      csv << [key] if ! long
+  #      csv << hash2[key].values if long
+  #    end
+  #  end
+  #
+  #  CSV.open("#{home}/Desktop/diffs-allele21.csv", "wb") do |csv|
+  #    csv << ['mgi_accession_id'] if ! long
+  #    csv << headers if long
+  #    diff.each do |key|
+  #      next if ! hash1.has_key? key
+  #      csv << [key] if ! long
+  #      csv << hash1[key].values if long
+  #    end
+  #  end
+  #end
 
   def save_hash_as_csv filename, hash2, diff2
     CSV.open(filename, "wb") do |csv|
@@ -220,65 +221,53 @@ namespace :solr_allele2 do
     hash2
   end
 
-  task 'compare_biomart_csv2' => [:environment] do
-    home = Dir.home
+  #task 'compare_biomart_csv2' => [:environment] do
+  #  home = Dir.home
+  #
+  #  #config = {
+  #  #  'file1' => {'name' => 'gene2', 'location' => "#{home}/Desktop/localhost-gene2.csv", 'key' => 'MGI'},
+  #  #  'file1' => {'name' => 'biomart', 'location' => "#{home}/Desktop/jax_mart_export.csv", 'key' => 'MGI ID'}
+  #  #}
+  #
+  #  filename = "#{home}/Desktop/localhost-gene2.csv"
+  #  filename2 = "#{home}/Desktop/jax_mart_export.csv"
+  #
+  #  hash1 = get_hash_from_csv filename, 'MGI'
+  #
+  #  headers1 = @headers2
+  #
+  #  puts "#### gene2: count: #{@counter} - keys: #{hash1.keys.size}"
+  #
+  #  hash2 = get_hash_from_csv filename2, 'MGI ID'
+  #
+  #  headers2 = @headers2
+  #
+  #  puts "#### biomart: count: #{@counter} - keys: #{hash2.keys.size}"
+  #
+  #  diff = hash1.keys - hash2.keys
+  #  puts "#### #{diff.size} in gene2 but not in biomart - diffs-gene21.csv"
+  #
+  #  diff2 = hash2.keys - hash1.keys
+  #  puts "#### #{diff2.size} in biomart but not in gene2 - diffs-jax-biomart.csv"
+  #
+  #  @headers2 = headers2
+  #
+  #  save_hash_as_csv "#{home}/Desktop/diffs-jax-biomart.csv", hash2, diff2
+  #
+  #  @headers2 = headers1
+  #
+  #  save_hash_as_csv "#{home}/Desktop/diffs-gene21.csv", hash1, diff
+  #
+  #  #command = "wc -l #{home}/Desktop/diffs-gene21.csv"
+  #  #puts command
+  #  #puts `#{command}`
+  #  #
+  #  #command = "wc -l #{home}/Desktop/diffs-jax-biomart.csv"
+  #  #puts command
+  #  #puts `#{command}`
+  #end
 
-    #config = {
-    #  'file1' => {'name' => 'gene2', 'location' => "#{home}/Desktop/localhost-gene2.csv", 'key' => 'MGI'},
-    #  'file1' => {'name' => 'biomart', 'location' => "#{home}/Desktop/jax_mart_export.csv", 'key' => 'MGI ID'}
-    #}
-
-    filename = "#{home}/Desktop/localhost-gene2.csv"
-    filename2 = "#{home}/Desktop/jax_mart_export.csv"
-
-    hash1 = get_hash_from_csv filename, 'MGI'
-
-    headers1 = @headers2
-
-    puts "#### gene2: count: #{@counter} - keys: #{hash1.keys.size}"
-
-    hash2 = get_hash_from_csv filename2, 'MGI ID'
-
-    headers2 = @headers2
-
-    puts "#### biomart: count: #{@counter} - keys: #{hash2.keys.size}"
-
-    diff = hash1.keys - hash2.keys
-    puts "#### #{diff.size} in gene2 but not in biomart - diffs-gene21.csv"
-
-    diff2 = hash2.keys - hash1.keys
-    puts "#### #{diff2.size} in biomart but not in gene2 - diffs-jax-biomart.csv"
-
-    @headers2 = headers2
-
-    save_hash_as_csv "#{home}/Desktop/diffs-jax-biomart.csv", hash2, diff2
-
-    @headers2 = headers1
-
-    save_hash_as_csv "#{home}/Desktop/diffs-gene21.csv", hash1, diff
-
-    #command = "wc -l #{home}/Desktop/diffs-gene21.csv"
-    #puts command
-    #puts `#{command}`
-    #
-    #command = "wc -l #{home}/Desktop/diffs-jax-biomart.csv"
-    #puts command
-    #puts `#{command}`
-  end
-
-  task 'compare_csv_generic' => [:environment] do
-    home = Dir.home
-
-    config = {
-      'file1' => {'name' => 'dcc', 'source' => "#{home}/Desktop/ikmc-dcc-gene_details.csv", 'key' => 'mgi_accession_id', 'destination' => "#{home}/Desktop/ikmc-dcc-gene_details-output.csv"},
-      'file2' => {'name' => 'biomart', 'source' => "#{home}/Desktop/jax_mart_export.csv", 'key' => 'MGI ID', 'destination' => "#{home}/Desktop/jax_mart_export-output.csv"}
-    }
-
-    #config = {
-    #  'file1' => {'name' => 'gene2', 'source' => "#{home}/Desktop/localhost-gene2.csv", 'key' => 'MGI', 'destination' => "#{home}/Desktop/localhost-gene2-output.csv"},
-    #  'file2' => {'name' => 'biomart', 'source' => "#{home}/Desktop/jax_mart_export.csv", 'key' => 'MGI ID', 'destination' => "#{home}/Desktop/jax_mart_export-output2.csv"}
-    #}
-
+  def compare_csv config
     filename = config['file1']['source']
     filename2 = config['file2']['source']
     filenameo = config['file1']['destination']
@@ -288,19 +277,22 @@ namespace :solr_allele2 do
 
     headers1 = @headers2
 
-    puts "#### #{config['file1']['name']}: count: #{@counter} - keys: #{hash1.keys.size}"
+    blurb = "#### #{config['file1']['name']}: count: #{@counter} - keys: #{hash1.keys.size}"
 
     hash2 = get_hash_from_csv filename2, config['file2']['key']
 
     headers2 = @headers2
 
-    puts "#### #{config['file2']['name']}: count: #{@counter} - keys: #{hash2.keys.size}"
+    blurb += "\n#### #{config['file2']['name']}: count: #{@counter} - keys: #{hash2.keys.size}"
 
     diff = hash1.keys - hash2.keys
-    puts "#### #{diff.size} in #{config['file1']['name']} but not in #{config['file2']['name']} - #{filename2o}"
+    blurb += "\n#### #{diff.size} in #{config['file1']['name']} but not in #{config['file2']['name']} - #{filename2o}"
 
     diff2 = hash2.keys - hash1.keys
-    puts "#### #{diff2.size} in #{config['file2']['name']} but not in #{config['file1']['name']} - #{filenameo}"
+    blurb += "\n#### #{diff2.size} in #{config['file2']['name']} but not in #{config['file1']['name']} - #{filenameo}"
+
+    puts blurb
+    puts ""
 
     @headers2 = headers2
 
@@ -317,5 +309,51 @@ namespace :solr_allele2 do
     #command = "wc -l #{home}/Desktop/diffs-jax-biomart.csv"
     #puts command
     #puts `#{command}`
+
+    home = Dir.home
+
+    #File.open("#{home}/Desktop/readme.txt", 'w') {|f| f.write(blurb) }
+    #
+    #Zip::Archive.open("#{home}/Desktop/#{config['file1']['name']}-#{config['file2']['name']}.zip", Zip::CREATE| Zip::TRUNC) do |ar|
+    #  # specifies compression level: ..., Zip::CREATE, Zip::BEST_SPEED) do |ar|
+    #
+    #  ar.add_file("#{home}/Desktop/readme.txt")
+    #  ar.add_file(config['file1']['source'])
+    #  ar.add_file(config['file2']['source'])
+    #  ar.add_file(config['file1']['destination'])
+    #  ar.add_file(config['file2']['destination'])
+    #end
+    #
+    #FileUtils.rm(config['file1']['destination'])
+    #FileUtils.rm(config['file2']['destination'])
+    #FileUtils.rm("#{home}/Desktop/readme.txt")
+  end
+
+  task 'compare_csv_generic' => [:environment] do
+    home = Dir.home
+
+    configs = [
+    {
+      'file1' => {'name' => 'dcc', 'source' => "#{home}/Desktop/ikmc-dcc-gene_details.csv", 'key' => 'mgi_accession_id', 'destination' => "#{home}/Desktop/ikmc-dcc-gene_details-output.csv"},
+      'file2' => {'name' => 'biomart', 'source' => "#{home}/Desktop/jax_mart_export.csv", 'key' => 'MGI ID', 'destination' => "#{home}/Desktop/jax_mart_export-output.csv"}
+    },
+    {
+      'file1' => {'name' => 'gene2', 'source' => "#{home}/Desktop/localhost-gene2.csv", 'key' => 'MGI', 'destination' => "#{home}/Desktop/localhost-gene2-output.csv"},
+      'file2' => {'name' => 'biomart', 'source' => "#{home}/Desktop/jax_mart_export.csv", 'key' => 'MGI ID', 'destination' => "#{home}/Desktop/jax_mart_export-output2.csv"}
+    },
+    {
+      'file1' => {'name' => 'allele2', 'source' => "#{home}/Desktop/localhost-allele2.csv", 'key' => 'mgi_accession_id', 'destination' => "#{home}/Desktop/localhost-allele2-output.csv"},
+      'file2' => {'name' => 'gene2', 'source' => "#{home}/Desktop/localhost-gene2.csv", 'key' => 'MGI', 'destination' => "#{home}/Desktop/localhost-gene2-output2.csv"}
+    },
+    {
+      'file1' => {'name' => 'allele2-full', 'source' => "#{home}/Desktop/localhost-allele2-full.csv", 'key' => 'mgi_accession_id', 'destination' => "#{home}/Desktop/localhost-allele2-full-output.csv"},
+      'file2' => {'name' => 'gene2', 'source' => "#{home}/Desktop/localhost-gene2.csv", 'key' => 'MGI', 'destination' => "#{home}/Desktop/localhost-gene2-output3.csv"}
+    }
+  ]
+
+  configs.each do |config|
+    compare_csv config
+  end
+
   end
 end

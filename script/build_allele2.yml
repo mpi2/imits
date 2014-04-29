@@ -100,7 +100,6 @@ marker_filters:
 - gene segment
 - heritable phenotypic marker
 - lincRNA gene
-- marker_type
 - miRNA gene
 - non-coding RNA gene
 - protein coding gene

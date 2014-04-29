@@ -82,4 +82,8 @@ module TarMits
       return GIT_REVISION
     end
   end
+
+  config.middleware.use 'Rack::Maintenance',
+    :file => Rails.root.join('public', 'maintenance.html'),
+    :env  => 'MAINTENANCE'
 end

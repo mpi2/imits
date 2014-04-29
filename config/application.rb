@@ -72,7 +72,7 @@ module TarMits
 
     config.show_search_page = false
 
-    config.maintenance_mode.if = Proc.new { |env| File.file?(Rails.root.join("/tmp/maintenance.on")) }
+    config.maintenance_mode.if = Proc.new { |env| File.file?(Rails.root.join("/tmp/imits-maintenance.on")) }
 
     config.maintenance_mode.response = Proc.new { |env| [503, {'Content-Type' => 'text/html'}, [Rails.root.join("public/maintenance.html").read]] }
   end

@@ -87,6 +87,8 @@ class TargRep::Allele < ActiveRecord::Base
         :marker_symbol
     ]}
 
+  before_validation :set_empty_fields_to_nil
+
   ##
   ## Validations
   ##
@@ -155,6 +157,12 @@ class TargRep::Allele < ActiveRecord::Base
   validate :has_correct_cassette_type
 
   validates :gene, :presence => true
+
+  # fix for error where form tries to insert empty strings when there are no floxed exons
+  def set_empty_fields_to_nil
+    self.floxed_start_exon = nil if self.floxed_start_exon.to_s.empty?
+    self.floxed_end_exon   = nil if self.floxed_end_exon.to_s.empty?
+  end
 
   ##
   ## Methods
@@ -393,4 +401,5 @@ end
 #  intron              :integer
 #  type                :string(255)      default("TargRep::TargetedAllele")
 #  has_issue           :boolean          default(FALSE), not null
+#  issue_description   :text
 #

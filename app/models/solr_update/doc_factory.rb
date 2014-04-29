@@ -1,4 +1,3 @@
-
 class SolrUpdate::DocFactory
   extend SolrUpdate::Util
 
@@ -67,6 +66,9 @@ class SolrUpdate::DocFactory
 
     solr_doc['genbank_file_url'] = genbank_file_url(mi_attempt.allele_id)
 
+    solr_doc['allele_has_issue']         = mi_attempt.es_cell.allele.has_issue
+    solr_doc['allele_issue_description'] = mi_attempt.es_cell.allele.issue_description
+
     set_order_from_details(mi_attempt, solr_doc)
 
     return [solr_doc]
@@ -126,6 +128,9 @@ class SolrUpdate::DocFactory
     solr_doc['simple_allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true, :simple => true)
 
     solr_doc['genbank_file_url'] = genbank_file_url(phenotype_attempt.allele_id, :cre => true)
+
+    solr_doc['allele_has_issue']         = phenotype_attempt.mi_attempt.es_cell.allele.has_issue
+    solr_doc['allele_issue_description'] = phenotype_attempt.mi_attempt.es_cell.allele.issue_description
 
     set_order_from_details(phenotype_attempt, solr_doc)
 
@@ -214,7 +219,9 @@ class SolrUpdate::DocFactory
         'order_from_urls' => [order_from_info[:url]],
         'order_from_names' => [order_from_info[:name]],
         'marker_symbol' => marker_symbol,
-        'project_ids' => [es_cell_info[:ikmc_project_id]]
+        'project_ids' => [es_cell_info[:ikmc_project_id]],
+        'allele_has_issue'         => allele.has_issue,
+        'allele_issue_description' => allele.issue_description
       }
     end
 

@@ -35,4 +35,5 @@ end
 #  start                 :integer
 #  end                   :integer
 #  created_at            :datetime
+#  grna_orientation      :string(255)
 #

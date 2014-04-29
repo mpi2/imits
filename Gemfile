@@ -53,4 +53,5 @@ group :development, :test do
   gem 'thin', '1.4.1', :require => nil
 end
 
+gem 'nokogiri', '1.5.6'
 gem 'turnout'

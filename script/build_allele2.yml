@@ -76,7 +76,7 @@ options:
   MARKER_SYMBOL: ""   #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
   DETECT_GENE_DUPS: true
   USE_REPLACEMENT: true
-  FILTER_TARGET: ""   #"feature_type"    #"marker_type"    
+  FILTER_TARGET: "feature_type"    #"marker_type"    
 
 replacements: 
 - Akt2: 

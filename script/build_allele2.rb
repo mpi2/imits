@@ -33,10 +33,6 @@ class BuildAllele2
 
     @marker_filters = @config['marker_filters']
 
-    #pp @marker_filters
-
-    # exit
-
     pp @config['options']
 
     puts "#### loading alleles!" if @use_alleles
@@ -156,34 +152,6 @@ class BuildAllele2
   # pass 1/3
 
   def run
-#thing = [
-#  "gene",
-#"gene segment",
-#"heritable phenotypic marker",
-#"lincRNA gene",
-#"marker_type",
-#"miRNA gene",
-#"non-coding RNA gene",
-#"protein coding gene",
-#"RNase MRP RNA gene",
-#"RNase P RNA gene",
-#"rRNA gene",
-#"scRNA gene",
-#"snoRNA gene",
-#"snRNA gene",
-#"SRP RNA gene",
-#"telomerase RNA gene",
-#"tRNA gene",
-#"unclassified gene",
-#"unclassified non-coding RNA gene"
-#]
-#
-#new_thing = {'thing' => thing}
-#
-#puts new_thing.to_yaml
-#
-#exit
-
     puts "#### index: #{@solr_update[Rails.env]['index_proxy']['allele2']}"
     puts "#### select..."
 
@@ -194,12 +162,12 @@ class BuildAllele2
     rows.each do |row1|
       #pp row1
 
-      if ! @filter_target.empty?
-        if ! @marker_filters.include? row1[@filter_target]
-         # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
-          next
-        end
-      end
+      #if ! @filter_target.empty?
+      #  if ! @marker_filters.include? row1[@filter_target]
+      #    # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
+      #    next
+      #  end
+      #end
 
       prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
 
@@ -268,6 +236,13 @@ class BuildAllele2
 
     rows.each do |row1|
 
+      #if ! @filter_target.empty?
+      #  if ! @marker_filters.include? row1[@filter_target]
+      #    # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
+      #    next
+      #  end
+      #end
+
       next if row1['mi_attempt_status'] == 'Micro-injection aborted'
 
       prepare_allele_symbol row1, 'mi_mouse_allele_type'
@@ -301,6 +276,13 @@ class BuildAllele2
     # pass 3/3
 
     rows.each do |row1|
+
+      #if ! @filter_target.empty?
+      #  if ! @marker_filters.include? row1[@filter_target]
+      #    # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
+      #    next
+      #  end
+      #end
 
       prepare_allele_symbol row1, 'mi_mouse_allele_type'
 
@@ -476,6 +458,12 @@ class BuildAllele2
     puts "done: alleles/genes/total: #{new_processed_allele_rows.size}/#{@new_processed_gene_rows.size}/#{new_processed_allele_rows.size + @new_processed_gene_rows.size}"
   end
 
+  #def should_include row
+  #  return true if @filter_target.empty?
+  #  return false if ! @marker_filters.include? row[@filter_target]
+  #  return true
+  #end
+
   def manage_genes2
     count = Gene.count
     counter = 0
@@ -490,8 +478,13 @@ class BuildAllele2
 
       if ! @filter_target.empty?
         if ! @marker_filters.include? row1[@filter_target]
-         # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
-          next
+          # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
+
+          next if ! @genes_hash.has_key?(row1['marker_symbol'])
+
+          next if row1['phenotype_status'].to_s.empty? && row1['mouse_status'].to_s.empty? && row1['es_cell_status'].to_s.empty?
+
+          #next
         end
       end
 

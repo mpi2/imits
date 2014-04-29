@@ -71,6 +71,10 @@ module TarMits
     end
 
     config.show_search_page = false
+
+    config.maintenance_mode.if = Proc.new { |env| File.file?(Rails.root.join("/tmp/maintenance.on")) }
+
+    config.maintenance_mode.response = Proc.new { |env| [503, {'Content-Type' => 'text/html'}, [Rails.root.join("public/maintenance.html").read]] }
   end
 
   def self.git_revision
@@ -82,8 +86,4 @@ module TarMits
       return GIT_REVISION
     end
   end
-
-  config.middleware.use 'Rack::Maintenance',
-    :file => Rails.root.join('public', 'maintenance.html'),
-    :env  => 'MAINTENANCE'
 end

@@ -53,4 +53,4 @@ group :development, :test do
   gem 'thin', '1.4.1', :require => nil
 end
 
-gem 'rack-maintenance'
+gem 'rack-maintenance_mode'

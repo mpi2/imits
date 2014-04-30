@@ -33,9 +33,7 @@ class TargRep::GeneTrapTest < ActiveSupport::TestCase
     assert_false @allele.class.nhej_allele?
     assert_false @allele.class.crispr_targeted_allele?
 
-
-  context "An Allele" do
-    context "check normal creation" do
+    context "An Allele - check normal creation" do
       should "be saved" do
         allele = Factory.build :gene_trap
         assert allele.save, "Targeted allele saves for a normal entry"

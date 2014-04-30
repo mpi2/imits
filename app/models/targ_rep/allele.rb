@@ -93,32 +93,11 @@ class TargRep::Allele < ActiveRecord::Base
   ## Validations
   ##
 
-  validates_uniqueness_of :project_design_id,
-    :scope => [
-      :gene_id, :assembly, :chromosome, :strand,
-      :cassette, :backbone,
-      :homology_arm_start, :homology_arm_end,
-      :cassette_start, :cassette_end,
-      :loxp_start, :loxp_end
-    ],
-    :message => "must have unique design features"
-
   validates :assembly,           :presence => true
   validates :chromosome,         :presence => true
   validates :strand,             :presence => true
   validates :mutation_method,    :presence => true
   validates :mutation_type,      :presence => true
-  validates :cassette_start,     :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
-  validates :cassette_end,       :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
-  validates :cassette,           :presence => true
-  validates :cassette_type,      :presence => true
-
-  validates :loxp_start, :numericality => {:only_integer => true, :greater_than => 0, :allow_nil => true}
-  validates :loxp_end, :numericality => {:only_integer => true, :greater_than => 0, :allow_nil => true}
-
-  validates_inclusion_of :cassette_type,
-    :in => ['Promotorless','Promotor Driven'],
-    :message => "Cassette Type can only be 'Promotorless' or 'Promotor Driven'"
 
   validates_inclusion_of :strand,
     :in         => ["+", "-"],
@@ -128,7 +107,7 @@ class TargRep::Allele < ActiveRecord::Base
     :in         => ('1'..'19').to_a + ['X', 'Y', 'MT'],
     :message    => "is not a valid mouse chromosome"
 
-  validates_inclusion_of :has_issue, 
+  validates_inclusion_of :has_issue,
     :in         => [ nil, true, false ],
     :message    => "should be either nil, true or false",
     :allow_nil  => true
@@ -142,21 +121,8 @@ class TargRep::Allele < ActiveRecord::Base
   validates_associated :mutation_subtype,
     :message    => "should be a valid mutation subtype"
 
-  validates_format_of :floxed_start_exon,
-    :with       => /^ENSMUSE\d+$/,
-    :message    => "is not a valid Ensembl Exon ID",
-    :allow_nil  => true
-
-  validates_format_of :floxed_end_exon,
-    :with       => /^ENSMUSE\d+$/,
-    :message    => "is not a valid Ensembl Exon ID",
-    :allow_nil  => true
-
-  validate :has_right_features, :unless => :missing_fields?
-
-  validate :has_correct_cassette_type
-
   validates :gene, :presence => true
+
 
   # fix for error where form tries to insert empty strings when there are no floxed exons
   def set_empty_fields_to_nil
@@ -172,12 +138,17 @@ class TargRep::Allele < ActiveRecord::Base
     assembly.blank? ||
     chromosome.blank? ||
     strand.blank? ||
-    mutation_type.blank? ||
-    homology_arm_start.blank? ||
-    homology_arm_end.blank? ||
-    cassette_start.blank? ||
-    cassette_end.blank?
+    mutation_type.blank?
   end
+
+  def self.targeted_allele?; false; end
+  def self.gene_trap?; false; end
+  def self.hdr_allele?; false; end
+  def self.nhej_allele?; false; end
+  def self.crispr_targeted_allele?; false; end
+  ##
+  ## Methods
+  ##
 
   public
     def to_json( options = {} )
@@ -225,149 +196,6 @@ class TargRep::Allele < ActiveRecord::Base
       pipelines.keys.sort.join(', ')
     end
 
-  protected
-
-    def has_right_features
-      return unless self.errors.empty?
-
-      error_msg = "cannot be greater than %s position on this strand (#{strand})"
-
-      case strand
-        when '+'
-          if homology_arm_start > cassette_start
-            errors.add( :homology_arm_start, error_msg % "cassette start" )
-          end
-
-          if cassette_start > cassette_end
-            errors.add( :cassette_start, error_msg % "cassette end" )
-          end
-
-        # With LoxP site
-          if loxp_start and loxp_end
-            if cassette_end > loxp_start
-              errors.add( :cassette_end, error_msg % "loxp start" )
-            end
-
-            if loxp_start > loxp_end
-              errors.add( :loxp_start, error_msg % "loxp end" )
-            end
-
-            if loxp_end > homology_arm_end
-              errors.add( :loxp_end, error_msg % "homology arm end" )
-            end
-
-            # Without LoxP site
-          else
-            if cassette_end > homology_arm_end
-              errors.add( :cassette_end, error_msg % "homology arm end" )
-            end
-          end
-
-        when '-'
-          if homology_arm_start < cassette_start
-            errors.add( :cassette_start, error_msg % "homology arm start" )
-          end
-
-          if cassette_start < cassette_end
-            errors.add( :cassette_end, error_msg % "cassette start" )
-          end
-
-          # With LoxP site
-          if loxp_start and loxp_end
-            if cassette_end < loxp_start
-              errors.add( :loxp_start, error_msg % "cassette end" )
-            end
-
-            if loxp_start < loxp_end
-              errors.add( :loxp_end, error_msg % "loxp start" )
-            end
-
-            if loxp_end < homology_arm_end
-              errors.add( :homology_arm_end, error_msg % "loxp end" )
-            end
-
-          # Without LoxP site
-          else
-            if cassette_end < homology_arm_end
-              errors.add( :homology_arm_end, error_msg % "cassette end" )
-            end
-          end
-      end
-
-      if mutation_type && mutation_type.no_loxp_site?
-        unless loxp_start.nil? and loxp_end.nil?
-          errors.add(:loxp_start, "has to be blank for this mutation method")
-          errors.add(:loxp_end,   "has to be blank for this mutation method")
-        end
-      end
-    end
-
-    def has_correct_cassette_type
-      known_cassettes = {
-        'L1L2_6XOspnEnh_Bact_P'                        => 'Promotor Driven',
-        'L1L2_Bact_P'                                  => 'Promotor Driven',
-        'L1L2_Del_BactPneo_FFL'                        => 'Promotor Driven',
-        'L1L2_GOHANU'                                  => 'Promotor Driven',
-        'L1L2_hubi_P'                                  => 'Promotor Driven',
-        'L1L2_Pgk_P'                                   => 'Promotor Driven',
-        'L1L2_Pgk_PM'                                  => 'Promotor Driven',
-        'PGK_EM7_PuDtk_bGHpA'                          => 'Promotor Driven',
-        'pL1L2_PAT_B0'                                 => 'Promotor Driven',
-        'pL1L2_PAT_B1'                                 => 'Promotor Driven',
-        'pL1L2_PAT_B2'                                 => 'Promotor Driven',
-        'TM-ZEN-UB1'                                   => 'Promotor Driven',
-        'ZEN-Ub1'                                      => 'Promotor Driven',
-        'ZEN-UB1.GB'                                   => 'Promotor Driven',
-        'pL1L2_GT0_bsd_frt15_neo_barcode'              => 'Promotor Driven',
-        'pL1L2_GT1_bsd_frt15_neo_barcode'              => 'Promotor Driven',
-        'pL1L2_GT2_bsd_frt15_neo_barcode'              => 'Promotor Driven',
-        'L1L2_gt0'                                     => 'Promotorless',
-        'L1L2_gt1'                                     => 'Promotorless',
-        'L1L2_gt2'                                     => 'Promotorless',
-        'L1L2_gtk'                                     => 'Promotorless',
-        'L1L2_NTARU-0'                                 => 'Promotorless',
-        'L1L2_NTARU-1'                                 => 'Promotorless',
-        'L1L2_NTARU-2'                                 => 'Promotorless',
-        'L1L2_NTARU-K'                                 => 'Promotorless',
-        'L1L2_st0'                                     => 'Promotorless',
-        'L1L2_st1'                                     => 'Promotorless',
-        'L1L2_st2'                                     => 'Promotorless',
-        'Ifitm2_intron_L1L2_GT0_LF2A_LacZ_BetactP_neo' => 'Promotor Driven',
-        'Ifitm2_intron_L1L2_GT1_LF2A_LacZ_BetactP_neo' => 'Promotor Driven',
-        'Ifitm2_intron_L1L2_GT2_LF2A_LacZ_BetactP_neo' => 'Promotor Driven',
-        'Ifitm2_intron_L1L2_GTk_LacZ_BetactP_neo'      => 'Promotor Driven',
-        'Ifitm2_intron_L1L2_Bact_P              '      => 'Promotor Driven',
-        'pL1L2_GT0_T2A_H2BCherry_Puro_delRsrll_NO_DTA' => 'Promotor Driven',
-        'pL1L2_GT1_T2A_H2BCherry_Puro_delRsrll_NO_DTA' => 'Promotor Driven',
-        'pL1L2_GT2_T2A_H2BCherry_Puro_delRsrll_NO_DTA' => 'Promotor Driven',
-        'pL1L2_GT0_LF2A_H2BCherry_Puro'                => 'Promotor Driven',
-        'pL1L2_GT1_LF2A_H2BCherry_Puro'                => 'Promotor Driven',
-        'pL1L2_GT2_LF2A_H2BCherry_Puro'                => 'Promotor Driven',
-        'pL1L2_GT0_T2A_iCre_KI_Puro'                   => 'Promotor Driven',
-        'pL1L2_GT1_T2A_iCre_KI_Puro'                   => 'Promotor Driven',
-        'pL1L2_GT2_T2A_iCre_KI_Puro'                   => 'Promotor Driven',
-        'pL1L2_GT0_LF2A_nEGFPO_T2A_CreERT_puro'        => 'Promotorless',
-        'pL1L2_GT1_LF2A_nEGFPO_T2A_CreERT_puro'        => 'Promotorless',
-        'pL1L2_GT2_LF2A_nEGFPO_T2A_CreERT_puro'        => 'Promotorless',
-        'pL1L2_GTK_nEGFPO_T2A_CreERT_puro'             => 'Promotorless',
-        'pL1L2_frt_BetactP_neo_frt_lox'                => 'Promotor Driven',
-        'pL1L2_frt15_BetactinBSD_frt14_neo_Rox'        => 'Promotor Driven',
-        'L1L2_GT0_LF2A_LacZ_BetactP_neo'               => 'Promotor Driven',
-        'L1L2_GT1_LF2A_LacZ_BetactP_neo'               => 'Promotor Driven',
-        'L1L2_GT2_LF2A_LacZ_BetactP_neo'               => 'Promotor Driven',
-        'L1L2_gt0_Del_LacZ'                            => 'Promotorless',
-        'L1L2_gt1_Del_LacZ'                            => 'Promotorless',
-        'L1L2_gt2_Del_LacZ'                            => 'Promotorless',
-        'V5_Flag_biotin'                               => 'Promotorless',
-      }
-
-      unless known_cassettes[cassette].nil?
-        if known_cassettes[cassette] != cassette_type
-          errors.add( :cassette_type, "The cassette #{cassette} is a known #{known_cassettes[cassette]} cassette - please correct this field." )
-        end
-      end
-    end
-
 end
 
 # == Schema Information
@@ -376,7 +204,7 @@ end
 #
 #  id                  :integer          not null, primary key
 #  gene_id             :integer
-#  assembly            :string(50)       default("NCBIM37"), not null
+#  assembly            :string(255)      default("GRCm38"), not null
 #  chromosome          :string(2)        not null
 #  strand              :string(1)        not null
 #  homology_arm_start  :integer
@@ -400,6 +228,7 @@ end
 #  updated_at          :datetime         not null
 #  intron              :integer
 #  type                :string(255)      default("TargRep::TargetedAllele")
+#  sequence            :text
 #  has_issue           :boolean          default(FALSE), not null
 #  issue_description   :text
 #

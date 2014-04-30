@@ -3,12 +3,11 @@
 require 'test_helper'
 
 class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
+  def phenotype_attempt
+    @phenotype_attempt ||= Factory.build :phenotype_attempt
+  end
+
   context 'PhenotypeAttempt::StatusChanger' do
-
-    def phenotype_attempt
-      @phenotype_attempt ||= Factory.build :phenotype_attempt
-    end
-
     should 'not set a status if any of its required statuses conditions are not met as well' do
       phenotype_attempt.deleter_strain = DeleterStrain.first
       phenotype_attempt.number_of_cre_matings_successful = 2

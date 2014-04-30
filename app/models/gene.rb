@@ -9,8 +9,32 @@ class Gene < ActiveRecord::Base
   has_many :contacts, :through => :notifications
 
   has_many :allele, :class_name => 'TargRep::Allele'
+  has_many :crispr, :class_name => 'TargRep::Crispr'
 
   validates :marker_symbol, :presence => true, :uniqueness => true
+
+
+  # GENE PRODUCTS
+
+  def vectors
+    @vectors = @vectors || TargRep::TargetingVector.find_by_sql(retreive_genes_vectors_sql)
+  end
+
+
+  def retreive_genes_vectors_sql
+    sql = <<-EOF
+               WITH gene AS (SELECT genes.* FROM genes WHERE genes.marker_symbol = '#{self.marker_symbol}')
+
+               SELECT targ_rep_alleles.type AS type, targ_rep_targeting_vectors.*
+               FROM gene
+               JOIN targ_rep_alleles ON targ_rep_alleles.gene_id = gene.id
+               JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
+               WHERE targ_rep_targeting_vectors.report_to_public = true
+               ORDER BY targ_rep_alleles.type, targ_rep_targeting_vectors.name
+             EOF
+  end
+  private :retreive_genes_vectors_sql
+
 
   # BEGIN Helper functions for clean reporting
 
@@ -743,6 +767,7 @@ class Gene < ActiveRecord::Base
   end
 
 end
+
 
 # == Schema Information
 #

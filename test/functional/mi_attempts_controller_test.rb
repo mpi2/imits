@@ -3,6 +3,49 @@
 require 'test_helper'
 
 class MiAttemptsControllerTest < ActionController::TestCase
+
+  def valid_create_for_format(format)
+    es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
+    assert_equal 0, MiAttempt.count
+    mi_plan = Factory.create(:mi_plan, :gene => es_cell.gene,
+                :production_centre => Centre.find_by_name!('WTSI'),
+                :consortium => Consortium.find_by_name!('MGP'),
+                :status => MiPlan::Status[:Assigned])
+
+    post( :create,
+      :mi_attempt => {
+        'es_cell_name' => es_cell.name,
+        'mi_plan_id' => mi_plan.id ,
+        'mi_date' => Date.today.to_s
+      },
+      :format => format
+    )
+
+    mi_attempt = MiAttempt.first
+
+    if format == :html
+      assert_redirected_to mi_attempt_path(mi_attempt)
+    else
+      assert_response :success
+    end
+
+    assert_equal es_cell, mi_attempt.es_cell
+    return mi_attempt
+  end
+
+
+  def bad_update_for_format(format)
+    Factory.create :mi_attempt2, :colony_name => 'EXISTING COLONY NAME',
+            :mi_plan => bash_wtsi_cbx1_plan
+    mi_attempt = Factory.create :mi_attempt2,
+            :mi_plan => bash_wtsi_cbx1_plan
+
+    put :update, :id => mi_attempt.id,
+            :mi_attempt => {'colony_name' => 'EXISTING COLONY NAME'},
+            :format => format
+    assert_equal response.success?, false
+  end
+
   context 'MiAttempt controller' do
 
     should 'require authentication with machine interface' do
@@ -194,35 +237,6 @@ class MiAttemptsControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      def valid_create_for_format(format)
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
-        assert_equal 0, MiAttempt.count
-        mi_plan = Factory.create(:mi_plan, :gene => es_cell.gene,
-                    :production_centre => Centre.find_by_name!('WTSI'),
-                    :consortium => Consortium.find_by_name!('MGP'),
-                    :status => MiPlan::Status[:Assigned])
-
-        post( :create,
-          :mi_attempt => {
-            'es_cell_name' => es_cell.name,
-            'mi_plan_id' => mi_plan.id ,
-            'mi_date' => Date.today.to_s
-          },
-          :format => format
-        )
-
-        mi_attempt = MiAttempt.first
-
-        if format == :html
-          assert_redirected_to mi_attempt_path(mi_attempt)
-        else
-          assert_response :success
-        end
-
-        assert_equal es_cell, mi_attempt.es_cell
-        return mi_attempt
-      end
-
       should 'on success redirect to edit page for HTML' do
         valid_create_for_format(:html)
         assert flash[:alert].blank?
@@ -255,31 +269,6 @@ class MiAttemptsControllerTest < ActionController::TestCase
         data = JSON.parse(response.body)
         assert_equal mi.id, data['id']
       end
-
-      #should 'work with valid params for XML' do
-      #  mi = valid_create_for_format(:xml)
-      #  doc = parse_xml_from_response
-      #  assert_equal mi.id.to_s, doc.css('id').text
-      #end
-
-      should 'return validation errors for JSON' do
-        mi_plan = (Factory.create :mi_plan,
-                    :production_centre => Centre.find_by_name!('WTSI'),
-                    :consortium => Consortium.find_by_name!('BaSH'),
-                    :status => MiPlan::Status[:Assigned])
-        post :create, :mi_attempt => {'mi_plan_id' => mi_plan.id}, :format => :json
-        assert_equal response.success?, false
-        data = JSON.parse(response.body)
-        assert_include data['errors']['es_cell_name'], 'cannot be blank'
-      end
-
-      #should 'return validation errors for XML' do
-      #  post :create, :mi_attempt => {'production_centre_name' => 'WTSI'}, :format => :xml
-      #  assert_equal response.success?, false
-      #
-      #  doc = parse_xml_from_response
-      #  assert_not_equal 0, doc.xpath('count(//error)')
-      #end
 
       should 'authorize the MI belongs to the user\'s production centre for REST only' do
         assert_equal 'WTSI', default_user.production_centre.name
@@ -331,18 +320,6 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_equal 1, mi_attempt.total_blasts_injected
 
         assert_equal JSON.parse(mi_attempt.to_public.to_json), JSON.parse(response.body)
-      end
-
-      def bad_update_for_format(format)
-        Factory.create :mi_attempt2, :colony_name => 'EXISTING COLONY NAME',
-                :mi_plan => bash_wtsi_cbx1_plan
-        mi_attempt = Factory.create :mi_attempt2,
-                :mi_plan => bash_wtsi_cbx1_plan
-
-        put :update, :id => mi_attempt.id,
-                :mi_attempt => {'colony_name' => 'EXISTING COLONY NAME'},
-                :format => format
-        assert_equal response.success?, false
       end
 
       should 'return errors with invalid params for JSON' do

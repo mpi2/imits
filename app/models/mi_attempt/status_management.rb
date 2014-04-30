@@ -7,17 +7,30 @@ module MiAttempt::StatusManagement
 
   ss.add('Micro-injection in progress') { |mi| true }
 
-  ss.add('Chimeras obtained') do |mi|
-    mi.total_male_chimeras.to_i > 0
+  ss.add('Chimeras/Founder obtained') do |mi|
+    (mi.es_cell? and mi.total_male_chimeras.to_i > 0) or (mi.crispr? and mi.crsp_total_num_mutant_founders.to_i > 0)
   end
 
-  ss.add('Genotype confirmed', 'Chimeras obtained') do |mi|
-    if mi.production_centre.try(:name) == 'WTSI'
+  ss.add('Chimeras obtained') do |mi|
+    mi.es_cell? and mi.total_male_chimeras.to_i > 0
+  end
+
+
+  ss.add('Founder obtained') do |mi|
+    mi.crispr? and mi.crsp_total_num_mutant_founders.to_i > 0
+  end
+
+
+  ss.add('Genotype confirmed', 'Chimeras/Founder obtained') do |mi|
+    if !mi.es_cell?
+      false
+    elsif mi.production_centre.try(:name) == 'WTSI'
       mi.is_released_from_genotyping?
     else
       mi.number_of_het_offspring.to_i != 0 or mi.number_of_chimeras_with_glt_from_genotyping.to_i != 0
     end
   end
+
 
   ss.add('Micro-injection aborted') do |mi|
     ! mi.is_active?
@@ -42,4 +55,11 @@ module MiAttempt::StatusManagement
     status_manager.manage_status_stamps_for(self)
   end
 
+  def crispr?
+    self.es_cell_id.blank? and !self.mutagenesis_factor_id.blank?
+  end
+
+  def es_cell?
+    !self.es_cell_id.blank? and self.mutagenesis_factor_id.blank?
+  end
 end

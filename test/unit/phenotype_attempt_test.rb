@@ -3,11 +3,11 @@
 require 'test_helper'
 
 class PhenotypeAttemptTest < ActiveSupport::TestCase
-  context 'PhenotypeAttempt' do
+  def default_phenotype_attempt
+    @default_phenotype_attempt ||= Factory.create :phenotype_attempt, :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd')
+  end
 
-    def default_phenotype_attempt
-      @default_phenotype_attempt ||= Factory.create :phenotype_attempt, :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd')
-    end
+  context 'PhenotypeAttempt' do
 
     should 'be audited' do
       default_phenotype_attempt.is_active = false

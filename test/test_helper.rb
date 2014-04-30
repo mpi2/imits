@@ -196,6 +196,7 @@ class TarMits::JsIntegrationTest < TarMits::IntegrationTest
   end
 
   def choose_es_cell_from_list(marker_symbol = 'Auto-generated Symbol', es_cell_name = 'EPD_1')
+    find(:xpath, '//div[@id="es-cell-selector"]//button').click
     assert page.has_css?('[name=marker_symbol-search-box]')
     fill_in 'marker_symbol-search-box', :with => marker_symbol
     find(:xpath, '//button/span[text()="Search"]').click

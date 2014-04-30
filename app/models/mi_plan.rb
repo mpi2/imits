@@ -28,6 +28,8 @@ class MiPlan < ApplicationModel
 
   access_association_by_attribute :es_cells_received_from, :name
 
+  delegate :marker_symbol, :to => :gene
+
   protected :status=
 
   validate do |plan|

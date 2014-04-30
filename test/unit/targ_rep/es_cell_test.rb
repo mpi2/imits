@@ -2,12 +2,24 @@ require 'test_helper'
 
 class TargRep::EsCellTest < ActiveSupport::TestCase
 
+  def default_es_cell
+    @default_es_cell ||= Factory.create :es_cell
+  end
+
+  def assert_HEPD0549_6_D02_attributes(es_cell)
+    assert_kind_of TargRep::EsCell, es_cell
+    assert_kind_of TargRep::EsCell, TargRep::EsCell.find_by_name('HEPD0549_6_D02')
+    assert_equal 'MGI:1924893', es_cell.gene.mgi_accession_id
+    assert_equal 'C030046E11Rik', es_cell.gene.marker_symbol
+    assert_equal 'tm1a(EUCOMM)Hmgu', es_cell.allele_symbol_superscript
+    assert_equal 'EUCOMM', es_cell.pipeline.name
+    assert_equal 'JM8A1.N3', es_cell.parental_cell_line
+    assert_equal '27671', es_cell.ikmc_project_id
+    assert_equal 'conditional_ready', es_cell.mutation_subtype
+    assert_equal 10561, es_cell.allele_id
+  end
+
   context "TargRep::EsCell" do
-
-    def default_es_cell
-      @default_es_cell ||= Factory.create :es_cell
-    end
-
     should 'have DB columns and associations' do
 
       assert_not_nil default_es_cell
@@ -173,19 +185,6 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
         default_es_cell.gene.marker_symbol = 'Xyz1'
         assert_equal 'Xyz1', default_es_cell.marker_symbol
       end
-    end
-
-    def assert_HEPD0549_6_D02_attributes(es_cell)
-      assert_kind_of TargRep::EsCell, es_cell
-      assert_kind_of TargRep::EsCell, TargRep::EsCell.find_by_name('HEPD0549_6_D02')
-      assert_equal 'MGI:1924893', es_cell.gene.mgi_accession_id
-      assert_equal 'C030046E11Rik', es_cell.gene.marker_symbol
-      assert_equal 'tm1a(EUCOMM)Hmgu', es_cell.allele_symbol_superscript
-      assert_equal 'EUCOMM', es_cell.pipeline.name
-      assert_equal 'JM8A1.N3', es_cell.parental_cell_line
-      assert_equal '27671', es_cell.ikmc_project_id
-      assert_equal 'conditional_ready', es_cell.mutation_subtype
-      assert_equal 10561, es_cell.allele_id
     end
 
     ##

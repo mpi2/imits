@@ -47,3 +47,10 @@
   code: gt
   created_at: <%= 5.days.ago.to_s(:db) %>
   updated_at: <%= 5.days.ago.to_s(:db) %>
+
+8:
+  id: 8
+  name: Point Mutation
+  code: pnt
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>

@@ -10,7 +10,7 @@ Ext.define('Imits.widget.grid.MiAttemptRansackFiltersFeature', {
 
         if(!Ext.isEmpty(terms)) {
             terms = terms.split("\n");
-            params['q[es_cell_marker_symbol_or_es_cell_name_or_colony_name_ci_in][]'] = terms;
+            params['q[mi_plan_gene_marker_symbol_or_es_cell_name_or_colony_name_ci_in][]'] = terms;
         }
 
         return params;

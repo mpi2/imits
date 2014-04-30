@@ -49,6 +49,8 @@ TarMits::Application.routes.draw do
     end
   end
 
+  get '/genes/vectors' => 'genes#vectors', :as => 'genes_vectors'
+
   resources :mi_plans do
     collection do
       get 'search_for_available_mi_attempt_plans'
@@ -163,8 +165,11 @@ TarMits::Application.routes.draw do
 
     resources :gene_traps
     resources :targeted_alleles
+    resources :hdr_alleles
+    resources :crispr_targeted_alleles
+    resources :nhej_alleles, :except => [:create, :edit, :update, :new]
 
-    resources :alleles do
+    resources :alleles , :except => [:create, :edit, :update, :new, :index] do
       get :history, :on => :member
       get :image, :on => :member
 
@@ -172,6 +177,12 @@ TarMits::Application.routes.draw do
         get :attributes
       end
     end
+
+    match "/alleles/:id" => "targeted_alleles#new", :via => :get
+    match "/alleles" => "targeted_alleles#create", :via => :post
+    match "/alleles/:id" => "targeted_alleles#update", :via => :put
+    match "/alleles/:id/edit" => "targeted_alleles#edit", :via => :get
+    match "/alleles" => "targeted_alleles#index", :via => :get
 
     resources :genbank_files
     resources :targeting_vectors
@@ -188,6 +199,7 @@ TarMits::Application.routes.draw do
     resources :distribution_qcs
 
     get '/alleles/:id/escell-clone-genbank-file' => 'alleles#escell_clone_genbank_file', :as => 'escell_clone_genbank_file'
+    get '/alleles/:id/allele-genbank-file' => 'alleles#allele_genbank_file', :as => 'allele_genbank_file'
     get '/alleles/:id/targeting-vector-genbank-file' => 'alleles#targeting_vector_genbank_file', :as => 'targeting_vector_genbank_file'
     get '/alleles/:id/escell-clone-cre-genbank-file' => 'alleles#escell_clone_cre_genbank_file', :as => 'escell_clone_cre_genbank_file'
     get '/alleles/:id/targeting-vector-cre-genbank-file' => 'alleles#targeting_vector_cre_genbank_file', :as => 'targeting_vector_cre_genbank_file'
@@ -207,9 +219,11 @@ TarMits::Application.routes.draw do
     get '/alleles/:id/vector-image-cre' => 'alleles#vector_image_cre', :as => 'vector_image_cre'
     get '/alleles/:id/vector-image-flp' => 'alleles#vector_image_flp', :as => 'vector_image_flp'
     get '/alleles/:id/vector-image-flp-cre' => 'alleles#vector_image_flp_cre', :as => 'vector_image_flp_cre'
-
     get '/alleles/:allele_id/show-issue' => 'alleles#show_issue', :as => 'show_issue'
 
+    get 'wge_searches/exon_search' => 'wge_searches#exon_search', :as => 'exon_search'
+    get 'wge_searches/crispr_search' => 'wge_searches#crispr_search', :as => 'crispr_search'
+    get 'wge_searches/crispr_pair_search' => 'wge_searches#crispr_pair_search', :as => 'crispr_pair_search'
     #connect ':controller/:action/:id.:format'
     #connect ':controller/:action.:format'
 

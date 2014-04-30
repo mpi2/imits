@@ -1,7 +1,7 @@
 class QcGridReport
 
   class Row
-    
+
     attr_accessor :data, :insertion_score, :threep_loxp_score, :targeting_score, :cassette_score
 
     def initialize(data)
@@ -91,7 +91,7 @@ class QcGridReport
           centres.name AS production_centre
 
         FROM mi_attempts
-        JOIN mi_plans ON mi_attempts.mi_plan_id = mi_plans.id
+        JOIN mi_plans ON mi_attempts.mi_plan_id = mi_plans.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
         JOIN centres   ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
         JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id
@@ -268,7 +268,7 @@ class QcGridReport
 
       FROM mi_attempts
 
-      JOIN mi_plans  ON mi_attempts.mi_plan_id = mi_plans.id
+      JOIN mi_plans  ON mi_attempts.mi_plan_id = mi_plans.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
       JOIN centres   ON centres.id = mi_plans.production_centre_id
       JOIN consortia ON consortia.id = mi_plans.consortium_id
       JOIN genes     ON genes.id = mi_plans.gene_id

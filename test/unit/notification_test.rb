@@ -4,14 +4,14 @@ require 'test_helper'
 
 class NotificationTest < ActiveSupport::TestCase
 
+  def default_notification
+    @default_notification ||= Factory.create :notification
+  end
+
   context 'Notification' do
 
     setup do
       Factory.create(:email_template_without_status)
-    end
-
-    def default_notification
-      @default_notification ||= Factory.create :notification
     end
 
     context 'attribute tests:' do

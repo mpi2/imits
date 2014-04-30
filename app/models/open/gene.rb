@@ -102,6 +102,7 @@ class Open::Gene < ::Gene
 
 end
 
+
 # == Schema Information
 #
 # Table name: genes

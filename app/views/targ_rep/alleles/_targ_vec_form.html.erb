@@ -1,13 +1,21 @@
 <% pipeline_list = TargRep::Pipeline.order("name").collect {|p| [p.name, p.id] } %>
-
-<tr class="targeting_vector">
-  <td>
+<% if !@allele.class.hdr_allele?%>
+  <tr class="targeting_vector">
+    <td>
+      <%= f.hidden_field :nested %>
+      <%= f.select :pipeline_id, pipeline_list.unshift(['',nil]) %>
+    </td>
+    <td><%= f.text_field :ikmc_project_id %></td>
+    <td><%= f.text_field :name %></td>
+    <td><%= f.text_field :intermediate_vector %></td>
+    <td><%= f.check_box :report_to_public %></td>
+    <td><%= link_to 'Remove', '', :class => "es_cell_delete_row #{f.object.new_record? ? '' : 'hard'}" %></td>
+  </tr>
+<% else %>
+  <tr class="targeting_vector">
+    <td><%= f.text_field :name %></td>
+    <td><%= f.check_box :report_to_public %></td>
+    <td><%= link_to 'Remove', '', :class => "es_cell_delete_row #{f.object.new_record? ? '' : 'hard'}" %></td>
     <%= f.hidden_field :nested %>
-    <%= f.select :pipeline_id, pipeline_list.unshift(['',nil]) %>
-  </td>
-  <td><%= f.text_field :ikmc_project_id %></td>
-  <td><%= f.text_field :name %></td>
-  <td><%= f.text_field :intermediate_vector %></td>
-  <td><%= f.check_box :report_to_public %></td>
-  <td><%= link_to 'Remove', '', :class => "es_cell_delete_row #{f.object.new_record? ? '' : 'hard'}" %></td>
-</tr>
+  </tr>
+<% end %>

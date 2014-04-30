@@ -28,6 +28,7 @@ class TestHelperTest < ActiveSupport::TestCase
         expected = [
           ['Micro-injection in progress', '2010-03-11 00:00:00 UTC'],
           ['Chimeras obtained', '2010-03-12 07:43:03 UTC'],
+          ['Chimeras/Founder obtained', '2012-03-12 07:43:03 UTC'],
           ['Genotype confirmed', '2012-05-13 05:04:01 UTC']
         ]
         replace_status_stamps(mi, expected)

@@ -87,54 +87,54 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
 
     context 'when a phenotype_attempt changes' do
       should 'enqueue an update for it if it has status "cec"' do
-        return if ! Rails.configuration.enable_solr_phenotype_attempt
-
-        pa = Factory.create :phenotype_attempt_status_cec, :id => 67545
-        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
-        SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_attempt)
-        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'phenotype_attempt', 'id' => pa.id})
-        SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
-        @enqueuer.phenotype_attempt_updated(pa)
+        if Rails.configuration.enable_solr_phenotype_attempt
+          pa = Factory.create :phenotype_attempt_status_cec, :id => 67545
+          SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
+          SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_attempt)
+          SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'phenotype_attempt', 'id' => pa.id})
+          SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
+          @enqueuer.phenotype_attempt_updated(pa)
+        end
       end
 
       should_eventually 'not enqueue an update if phenotype_attempt is not linked to an allele' do
-        return if ! Rails.configuration.enable_solr_phenotype_attempt
-
-        pa = Factory.create :phenotype_attempt_status_cec, :id => 345
-        pa.mi_attempt.es_cell.update_attributes!(:allele_id => 0)
-        pa.reload
-        puts pa.inspect
-        puts pa.es_cell.inspect
-        SolrUpdate::Queue.expects(:enqueue_for_update).never
-        @enqueuer.phenotype_attempt_updated(pa)
+        if Rails.configuration.enable_solr_phenotype_attempt
+          pa = Factory.create :phenotype_attempt_status_cec, :id => 345
+          pa.mi_attempt.es_cell.update_attributes!(:allele_id => 0)
+          pa.reload
+          puts pa.inspect
+          puts pa.es_cell.inspect
+          SolrUpdate::Queue.expects(:enqueue_for_update).never
+          @enqueuer.phenotype_attempt_updated(pa)
+        end
       end
 
       should 'enqueue a deletion for it if it does not have status "cec"' do
-        return if ! Rails.configuration.enable_solr_phenotype_attempt
-
-        pa = Factory.create :phenotype_attempt, :id => 345
-        SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'phenotype_attempt', 'id' => pa.id})
-        @enqueuer.phenotype_attempt_updated(pa)
+        if Rails.configuration.enable_solr_phenotype_attempt
+          pa = Factory.create :phenotype_attempt, :id => 345
+          SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'phenotype_attempt', 'id' => pa.id})
+          @enqueuer.phenotype_attempt_updated(pa)
+        end
       end
 
       should 'enqueue a deletion for it if it has been deleted' do
-        return if ! Rails.configuration.enable_solr_phenotype_attempt
-
-        pa = Factory.create :phenotype_attempt, :id => 568
-        SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'phenotype_attempt', 'id' => pa.id})
-        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
-        SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
-        @enqueuer.phenotype_attempt_destroyed(pa)
+        if Rails.configuration.enable_solr_phenotype_attempt
+          pa = Factory.create :phenotype_attempt, :id => 568
+          SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'phenotype_attempt', 'id' => pa.id})
+          SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
+          SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
+          @enqueuer.phenotype_attempt_destroyed(pa)
+        end
       end
 
       should 'enqueue a deletion for it if it does has status "cec" but is currently aborted' do
-        return if ! Rails.configuration.enable_solr_phenotype_attempt
-
-        pa = Factory.create :phenotype_attempt_status_cec, :id => 345, :is_active => false
-        assert_equal 'abt', pa.status.code
-        SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'phenotype_attempt', 'id' => pa.id})
-        SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
-        @enqueuer.phenotype_attempt_updated(pa)
+        if Rails.configuration.enable_solr_phenotype_attempt
+          pa = Factory.create :phenotype_attempt_status_cec, :id => 345, :is_active => false
+          assert_equal 'abt', pa.status.code
+          SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'phenotype_attempt', 'id' => pa.id})
+          SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
+          @enqueuer.phenotype_attempt_updated(pa)
+        end
       end
 
     end
@@ -181,14 +181,14 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       end
 
       should 'just work with phenotype_attempt' do
-        return if ! Rails.configuration.enable_solr_phenotype_attempt
-
-        object = stub('distribution_centre')
-        phenotype_attempt = stub('phenotype_attempt')
-        object.stubs(:phenotype_attempt).returns(phenotype_attempt)
-        object.expects("respond_to?").with('phenotype_attempt').returns(true)
-        @enqueuer.expects(:phenotype_attempt_updated).with(phenotype_attempt)
-        @enqueuer.update_mi_or_phenotype_attempt(object)
+        if Rails.configuration.enable_solr_phenotype_attempt
+          object = stub('distribution_centre')
+          phenotype_attempt = stub('phenotype_attempt')
+          object.stubs(:phenotype_attempt).returns(phenotype_attempt)
+          object.expects("respond_to?").with('phenotype_attempt').returns(true)
+          @enqueuer.expects(:phenotype_attempt_updated).with(phenotype_attempt)
+          @enqueuer.update_mi_or_phenotype_attempt(object)
+        end
       end
 
     end
@@ -240,13 +240,13 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       end
 
       should 'enqueue mi_plan to be updated if its phenotype has changed' do
-        return if ! Rails.configuration.enable_solr_phenotype_attempt
-
-        pa = Factory.create :phenotype_attempt_status_cec, :id => 88
-        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
-        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'phenotype_attempt', 'id' => 88})
-        SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
-        @enqueuer.phenotype_attempt_updated(pa)
+        if Rails.configuration.enable_solr_phenotype_attempt
+          pa = Factory.create :phenotype_attempt_status_cec, :id => 88
+          SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
+          SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'phenotype_attempt', 'id' => 88})
+          SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
+          @enqueuer.phenotype_attempt_updated(pa)
+        end
       end
     end
 

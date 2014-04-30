@@ -40,7 +40,7 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
   access_association_by_attribute :deposited_material, :name
   access_association_by_attribute :centre, :name
-  
+
   before_save do
     ## TODO: Update martbuilder so we don't need to continue updating the boolean.
     self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
@@ -68,6 +68,7 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
   end
 
 end
+
 
 # == Schema Information
 #

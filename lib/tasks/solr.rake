@@ -102,7 +102,7 @@ namespace :solr do
   end
 
   task 'update:phenotype_attempts' => [:environment] do
-    return if ! Rails.configuration.enable_solr_phenotype_attempt
+    next if ! Rails.configuration.enable_solr_phenotype_attempt
 
     pp SolrUpdate::IndexProxy::Allele.get_uri
     ApplicationModel.transaction do

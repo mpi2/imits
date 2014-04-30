@@ -184,6 +184,7 @@ module AlleleImage2
 
         if genomic.nil?
           rcmb_primers = @construct.rcmb_primers_in(:five_arm_features)
+
           genomic      = AlleleImage2::Feature.new(
             Bio::Feature.new(
               "misc_feature",
@@ -421,13 +422,6 @@ module AlleleImage2
             feature_width = feature.image.width
           end
           @x += feature_width ? feature_width : 0
-        end
-
-        ## Render a double slash on a deletion
-        if @mutation_type == 'Deletion'
-          if params[:section] == "cassette"
-            draw_double_slash(main_image, @x, @y)
-          end
         end
 
         image_list.push(main_image)
@@ -676,19 +670,6 @@ module AlleleImage2
         return image
       end
 
-      def draw_double_slash(image, x, y)
-        d = Magick::Draw.new
-
-        d.stroke( "black" )
-        d.stroke_width( @sequence_stroke_width )
-        d.line( x, @image_height - @bottom_margin, x + @text_width / 2, @top_margin )
-        d.draw( image )
-        d.line( x + @text_width / 2, @image_height - @bottom_margin, x + @text_width, @top_margin )
-        d.draw( image )
-
-        return image
-      end
-
       # UTILITY METHODS
       def calculate_genomic_region_width( exons, min_image_width )
         # if there are no exons just return minimum width
@@ -776,10 +757,11 @@ module AlleleImage2
         end
         width = ( width + gaps ) + 1
 
-        # add extra if a Deletion to allow for double slash
-        if @mutation_type == 'Deletion'
-          width += 34
-        end
+        # TODO: remove
+        # add extra if a Deletion
+        # if @mutation_type == 'Deletion'
+        #   width += 34
+        # end
 
         return width.to_i
       end

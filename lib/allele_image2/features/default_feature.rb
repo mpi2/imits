@@ -6,18 +6,20 @@ class AlleleImage2::Features::DefaultFeature
     
     @feature = feature
 
-    @text_width = 14
     @exon_min_width = 20 # used in sequence feature, must match to the same var in renederer
 
     feature.render_options = {
-      :top_margin => 25,
-      :width => feature.label.length * @text_width,
-      :height => 40,
-      :stroke => 'black',
-      :colour => '#fff',
-      :stroke_width => 2.5,
-      :font_size => 18,
-      :font_colour => 'black'
+      :top_margin    => 25,
+      :bottom_margin => 25,
+      :width         => feature.label.length * 14,
+      :height        => 40,
+      :stroke        => 'black',
+      :colour        => '#fff',
+      :stroke_width  => 2.5,
+      :font_size     => 18,
+      :text_width    => 14,
+      :text_height   => 22,
+      :font_colour   => 'black'
     }.merge(feature.render_options)
 
   end

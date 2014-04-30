@@ -365,6 +365,20 @@ features:
         font_colour: white
         font_size: 28
 
+    deletion:
+      label: Del
+      width: 40
+      colour: white
+      font_colour: black
+      class_name: Deletion
+      simple:
+        label: Del
+        width: 40
+        stroke: "transparent"
+        colour: white
+        font_colour: black
+        class_name: Deletion
+
     deltk1:
 
     downstream loxp:

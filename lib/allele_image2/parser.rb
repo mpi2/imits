@@ -8,6 +8,7 @@ module AlleleImage2
     def initialize(genbank_data, simple = false)
       @simple = simple
       @genbank_data = genbank_data
+
       @genbank = Bio::GenBank.new(@genbank_data)
 
       @alias_hash = {}
@@ -25,7 +26,6 @@ module AlleleImage2
 
     def parse
       self.features = @genbank.features.map do |f|
-
         f.feature = @alias_hash[f.feature.downcase.to_sym] || f.feature
 
         unless f.qualifiers.length == 0

@@ -25,6 +25,7 @@ module AlleleImage2
 
     def cassette_label
       cassette_type = "Promoterless Cassette"
+
       promoters     = cassette_features.select { |f| f.feature_type() == "promoter" }
 
       if promoters.size > 0

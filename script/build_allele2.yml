@@ -73,10 +73,12 @@ options:
   USE_REPORT_TO_PUBLIC: false
   USE_ALLELES: true
   USE_GENES: true
-  MARKER_SYMBOL: ""   #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
+  MARKER_SYMBOL: "" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
   DETECT_GENE_DUPS: true
   USE_REPLACEMENT: true
   FILTER_TARGET: "feature_type"    #"marker_type"    
+  CREATE_FILES: false
+  USE_FILES: false
 
 replacements: 
 - Akt2: 

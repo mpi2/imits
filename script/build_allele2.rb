@@ -33,6 +33,9 @@ class BuildAllele2
 
     @marker_filters = @config['marker_filters']
 
+    @create_files = @config['options']['CREATE_FILES']
+    @use_files = @config['options']['USE_FILES']
+
     pp @config['options']
 
     puts "#### loading alleles!" if @use_alleles
@@ -59,6 +62,10 @@ class BuildAllele2
 
     @failures = []
     @mark_hash = {}
+
+    home = Dir.home
+    #@root = "#{home}/Desktop"
+    @root = "#{Rails.root}/script"
   end
 
   def mark row
@@ -149,10 +156,37 @@ class BuildAllele2
     list
   end
 
+  def send_to_index2 filename
+    if File.file?(filename)
+      file = File.open(filename, "r")
+      contents = file.read
+      list = JSON.parse(contents)
+      send_to_index list
+    end
+  end
+
   # pass 1/3
 
   def run
     puts "#### index: #{@solr_update[Rails.env]['index_proxy']['allele2']}"
+
+    if @use_files
+      filename = "#{@root}/alleles.json"
+      filename2 = "#{@root}/genes.json"
+
+      puts "#### trying to use files..."
+
+      if File.file?(filename) && File.file?(filename2)
+        puts "#### using files..."
+        delete_index
+
+        send_to_index2 filename
+        send_to_index2 filename2
+
+        return
+      end
+    end
+
     puts "#### select..."
 
     rows = ActiveRecord::Base.connection.execute(@sql)
@@ -430,11 +464,17 @@ class BuildAllele2
     new_processed_list = build_json new_processed_allele_rows
     new_processed_list2 = build_json @new_processed_gene_rows
 
+    if @create_files
+      puts "#### writing files..."
+      File.open("#{@root}/alleles.json", 'w') {|f| f.write(new_processed_list.to_json) }
+      File.open("#{@root}/genes.json", 'w') {|f| f.write(new_processed_list2.to_json) }
+      puts "#### done!"
+    end
+
     if @save_as_csv
       puts "#### save csv..."
 
-      home = Dir.home
-      filename = "#{home}/Desktop/build_ck.csv"
+      filename = "#{@root}/build_allele2.csv"
       save_csv filename, new_processed_allele_rows
     end
 
@@ -450,8 +490,7 @@ class BuildAllele2
 
     if ! @failures.empty?
       puts "#### write failures..."
-      home = Dir.home
-      filename = "#{home}/Desktop/build_ck_failures.csv"
+      filename = "#{@root}/build_allele2_failures.csv"
       save_csv filename, @failures
     end
 

@@ -507,10 +507,16 @@ class BuildAllele2
     count = Gene.count
     counter = 0
 
-    rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes') if @marker_symbol.empty?
+    #rows = ActiveRecord::Base.connection.execute('select distinct marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes, mi_plans ' +
+    #                                             " where mi_plans.gene_id = genes.id") if @marker_symbol.empty?
+    #
+    #marker_symbols = @marker_symbol.to_a.map {|ms| "'#{ms}'" }.join ','
+    ##rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol = '#{@marker_symbol}'") if ! @marker_symbol.empty?
+    #rows = ActiveRecord::Base.connection.execute("select distinct marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes, mi_plans where marker_symbol in (#{marker_symbols})" +
+    #                                             " and mi_plans.gene_id = genes.id") if ! @marker_symbol.empty?
 
+    rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes') if @marker_symbol.empty?
     marker_symbols = @marker_symbol.to_a.map {|ms| "'#{ms}'" }.join ','
-    #rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol = '#{@marker_symbol}'") if ! @marker_symbol.empty?
     rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol in (#{marker_symbols})") if ! @marker_symbol.empty?
 
     rows.each do |row1|
@@ -521,7 +527,18 @@ class BuildAllele2
 
           next if ! @genes_hash.has_key?(row1['marker_symbol'])
 
-          next if row1['phenotype_status'].to_s.empty? && row1['mouse_status'].to_s.empty? && row1['es_cell_status'].to_s.empty?
+          empty = true
+
+          @genes_hash[row1['marker_symbol']].each do |row2|
+            if ! row2['phenotype_status'].to_s.empty? || ! row2['mouse_status'].to_s.empty? || (! row2['es_cell_status'].to_s.empty? && row2['es_cell_status'].to_s != @statuses['NO_ES_CELL_PRODUCTION'])
+              empty = false
+              break
+            end
+          end
+
+          next if empty
+
+          #next if row1['phenotype_status'].to_s.empty? && row1['mouse_status'].to_s.empty? && row1['es_cell_status'].to_s.empty?
 
           #next
         end

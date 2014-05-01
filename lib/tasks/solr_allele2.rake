@@ -186,19 +186,18 @@ namespace :solr_allele2 do
 
     #File.open("#{home}/Desktop/readme.txt", 'w') {|f| f.write(blurb) }
     #
-    #Zip::Archive.open("#{home}/Desktop/#{config['file1']['name']}-#{config['file2']['name']}.zip", Zip::CREATE| Zip::TRUNC) do |ar|
-    #  # specifies compression level: ..., Zip::CREATE, Zip::BEST_SPEED) do |ar|
+    # Zip::Archive.open("#{home}/Desktop/#{config['file1']['name']}-#{config['file2']['name']}.zip", Zip::CREATE| Zip::TRUNC) do |ar|
     #
     #  ar.add_file("#{home}/Desktop/readme.txt")
     #  ar.add_file(config['file1']['source'])
     #  ar.add_file(config['file2']['source'])
     #  ar.add_file(config['file1']['destination'])
     #  ar.add_file(config['file2']['destination'])
-    #end
+    # end
     #
-    #FileUtils.rm(config['file1']['destination'])
-    #FileUtils.rm(config['file2']['destination'])
-    #FileUtils.rm("#{home}/Desktop/readme.txt")
+    # FileUtils.rm(config['file1']['destination'])
+    # FileUtils.rm(config['file2']['destination'])
+    # FileUtils.rm("#{home}/Desktop/readme.txt")
   end
 
   task 'compare_csv_generic' => [:environment] do
@@ -221,6 +220,10 @@ namespace :solr_allele2 do
     #  'file1' => {'name' => 'allele2-full', 'source' => "#{home}/Desktop/localhost-allele2-full.csv", 'key' => 'mgi_accession_id', 'destination' => "#{home}/Desktop/localhost-allele2-full-output.csv"},
     #  'file2' => {'name' => 'gene2', 'source' => "#{home}/Desktop/localhost-gene2.csv", 'key' => 'MGI', 'destination' => "#{home}/Desktop/localhost-gene2-output3.csv"}
     #}
+    {
+      'file1' => {'name' => 'allele2', 'source' => "#{home}/Desktop/localhost-allele2.csv", 'key' => 'mgi_accession_id', 'destination' => "#{home}/Desktop/localhost-allele2-output.csv"},
+      'file2' => {'name' => 'biomart', 'source' => "#{home}/Desktop/jax_mart_export.csv", 'key' => 'MGI ID', 'destination' => "#{home}/Desktop/jax_mart_export-output2.csv"}
+    }
   ]
 
   configs.each do |config|

@@ -69,8 +69,6 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  validate :validate_plan # this method is in belongs_to_mi_plan
-
   # validate mi plan
   validate do |mi_attempt|
     if validate_plan #test whether to continue with validations

@@ -25,7 +25,7 @@
     <div id="mutagenesis-factor-form">
       <div id="mutagenesis-factor-fields"></div>
       <label for="marker_symbol">Marker Symbol</label>
-      <input id="marker_symbol" value="<%= @marker_symbol %>" disabled>
+      <input id="marker_symbol" name="marker_symbol" value="<%= @marker_symbol %>" readonly>
       <div id="vector-container">
         <%= form.fields_for :mutagenesis_factor do |builder| %>
           <%= builder.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: @vector_options[:selected]) %>

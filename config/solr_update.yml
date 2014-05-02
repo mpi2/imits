@@ -7,7 +7,8 @@ development:
     allele2: http://localhost:8983/solr/allele2
     allele22: http://ikmc.vm.bytemark.co.uk:8986/solr/allele2
     allele23: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
-    allele24: http://ikmc.vm.bytemark.co.uk:8983/solr/allele2
+    allele24: http://ikmc.vm.bytemark.co.uk:8984/solr/allele2
+    allele25: http://ikmc.vm.bytemark.co.uk:8983/solr/allele2
 
 test:
   targ_rep_url: https://www.i-dcc.org/imits/targ_rep

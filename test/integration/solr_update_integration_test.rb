@@ -82,7 +82,9 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'production_centre' => 'WTSI',
           'es_cell_name' => 'EPD0027_2_A02',
           'marker_symbol' => 'Cbx1',
-          'project_ids' => ['35505']
+          'project_ids' => ['35505'],
+          "allele_has_issue" => false,
+          "allele_id" => 1
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')

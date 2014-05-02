@@ -363,6 +363,9 @@ class BuildAllele2
     @genes_hash = {}
 
     @processed_rows.each do |row|
+
+      next if row['marker_symbol'] =~ /cgi_/i
+
       target = row if key_count < row.keys.size
       key_count = row.keys.size if key_count < row.keys.size
 
@@ -520,6 +523,8 @@ class BuildAllele2
     rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol in (#{marker_symbols})") if ! @marker_symbol.empty?
 
     rows.each do |row1|
+
+      next if row1['marker_symbol'] =~ /cgi_/i
 
       if ! @filter_target.empty?
         if ! @marker_filters.include? row1[@filter_target]

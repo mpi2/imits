@@ -105,7 +105,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       end
     end
 
-    should_if_solr 'delete SOLR docs in index for mi_attempts that are deleted from the DB' do
+    #should_if_solr 'delete SOLR docs in index for mi_attempts that are deleted from the DB' do
+    should_eventually 'delete SOLR docs in index for mi_attempts that are deleted from the DB' do
       mi = Factory.create :mi_attempt2_status_gtc
       SolrUpdate::Queue.run
       assert_equal 1, @allele_index_proxy.search(:q => 'type:mi_attempt').size

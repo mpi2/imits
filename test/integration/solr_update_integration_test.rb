@@ -83,8 +83,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'es_cell_name' => 'EPD0027_2_A02',
           'marker_symbol' => 'Cbx1',
           'project_ids' => ['35505'],
-          "allele_has_issue" => false,
-          "allele_id" => 1
+          "allele_has_issue" => false
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
@@ -97,9 +96,11 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       end
 
       should_if_solr 'update all of the MI\'s phenotype attempt docs in the SOLR index' do
-        fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
-        ids = fetched_docs.map {|i| i['id']}
-        assert_equal @phenotype_attempts.map(&:id).sort, ids.sort
+        if Rails.configuration.enable_solr_phenotype_attempt
+          fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
+          ids = fetched_docs.map {|i| i['id']}
+          assert_equal @phenotype_attempts.map(&:id).sort, ids.sort
+        end
       end
     end
 
@@ -116,55 +117,59 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
     end
 
     should_if_solr 'update a modified phenotype_attempt doc in the SOLR index' do
-      phenotype_attempt = @phenotype_attempts.first
+      if Rails.configuration.enable_solr_phenotype_attempt
+        phenotype_attempt = @phenotype_attempts.first
 
-      phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
-      SolrUpdate::Queue.run
+        phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
+        SolrUpdate::Queue.run
 
-      pa_doc = {
-        'id' => phenotype_attempt.id,
-        'type' => 'phenotype_attempt',
-        'product_type' => 'Mouse',
-        'allele_type' => 'Cre-excised deletion (tm1b)',
-        'allele_id' => @allele.id,
-        'mgi_accession_id' => cbx1.mgi_accession_id,
-        'strain' => @new_strain.name,
-        'allele_name' => phenotype_attempt.allele_symbol,
-        'allele_image_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image-cre",
-        'genbank_file_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
-        'best_status_pa_cre_ex_not_required' => '',
-        'best_status_pa_cre_ex_required' => 'Cre Excision Complete',
-        'current_pa_status' => 'Cre Excision Complete',
-        'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image-cre?simple=true',
-        'production_centre' => 'WTSI',
-        'marker_symbol' => 'Cbx1',
-        'colony_name' => 'WTSI-EPD0027_2_A02-1-1',
-        'parent_mi_attempt_colony_name' => 'WTSI-EPD0027_2_A02-1',
-        'project_ids' => ['35505']
-      }
+        pa_doc = {
+          'id' => phenotype_attempt.id,
+          'type' => 'phenotype_attempt',
+          'product_type' => 'Mouse',
+          'allele_type' => 'Cre-excised deletion (tm1b)',
+          'allele_id' => @allele.id,
+          'mgi_accession_id' => cbx1.mgi_accession_id,
+          'strain' => @new_strain.name,
+          'allele_name' => phenotype_attempt.allele_symbol,
+          'allele_image_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image-cre",
+          'genbank_file_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
+          'best_status_pa_cre_ex_not_required' => '',
+          'best_status_pa_cre_ex_required' => 'Cre Excision Complete',
+          'current_pa_status' => 'Cre Excision Complete',
+          'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image-cre?simple=true',
+          'production_centre' => 'WTSI',
+          'marker_symbol' => 'Cbx1',
+          'colony_name' => 'WTSI-EPD0027_2_A02-1-1',
+          'parent_mi_attempt_colony_name' => 'WTSI-EPD0027_2_A02-1',
+          'project_ids' => ['35505']
+        }
 
-      fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
-      fetched_docs.each {|d| d.delete('score')}
-      assert_equal 1, fetched_docs.size
+        fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
+        fetched_docs.each {|d| d.delete('score')}
+        assert_equal 1, fetched_docs.size
 
-      fetched_pa_doc = fetched_docs.first
+        fetched_pa_doc = fetched_docs.first
 
-      assert_equal pa_doc, fetched_pa_doc
+        assert_equal pa_doc, fetched_pa_doc
+      end
     end
 
     should_if_solr 'delete a deleted phenotype_attempt from the SOLR index' do
-      phenotype_attempt = @phenotype_attempts.first
-      phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
+      if Rails.configuration.enable_solr_phenotype_attempt
+        phenotype_attempt = @phenotype_attempts.first
+        phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
 
-      SolrUpdate::Queue.run
-      assert_equal 1, @allele_index_proxy.search(:q => 'type:phenotype_attempt').size
+        SolrUpdate::Queue.run
+        assert_equal 1, @allele_index_proxy.search(:q => 'type:phenotype_attempt').size
 
-      phenotype_attempt.status_stamps.destroy_all
-      phenotype_attempt.distribution_centres.destroy_all
-      phenotype_attempt.destroy
-      SolrUpdate::Queue.run
-      fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
-      assert_equal [], fetched_docs
+        phenotype_attempt.status_stamps.destroy_all
+        phenotype_attempt.distribution_centres.destroy_all
+        phenotype_attempt.destroy
+        SolrUpdate::Queue.run
+        fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
+        assert_equal [], fetched_docs
+      end
     end
 
     should_if_solr 'update an mi_plan`s mi_attempt solr docs if the mi_plan changes' do

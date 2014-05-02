@@ -1,3 +1,4 @@
+require 'pp'
 require 'test_helper'
 
 class SolrUpdateIntegrationTest < ActiveSupport::TestCase
@@ -109,7 +110,20 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       SolrUpdate::Queue.run
       assert_equal 1, @allele_index_proxy.search(:q => 'type:mi_attempt').size
 
+      mi.reload
+      mi.status_stamps.reload
+
+      puts "#### mi:"
+      pp mi
+      puts "#### mi.status_stamps:"
+      pp mi.status_stamps
+
       mi.status_stamps.destroy_all
+      mi.reload
+
+      puts "#### mi.status_stamps 2:"
+      pp mi.status_stamps
+
       mi.destroy
       SolrUpdate::Queue.run
       fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')

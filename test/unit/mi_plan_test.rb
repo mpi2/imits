@@ -3,12 +3,30 @@
 require 'test_helper'
 
 class MiPlanTest < ActiveSupport::TestCase
+  def default_mi_plan
+    @default_mi_plan ||= Factory.create :mi_plan_with_production_centre
+  end
+
+  def mi_plan_es_cell_qcs_check_list(plan, array)
+    assert_equal array[array.size-1][:number_starting_qc], plan.number_of_es_cells_starting_qc
+    assert_equal array[array.size-1][:number_passing_qc], plan.number_of_es_cells_passing_qc
+
+    assert_equal array.size, plan.es_cell_qcs.size
+
+    counter = 0
+    plan.es_cell_qcs.each do |mi_plan_es_cell_qc|
+      assert_equal array[counter][:number_starting_qc], mi_plan_es_cell_qc.number_starting_qc
+      assert_equal array[counter][:number_passing_qc], mi_plan_es_cell_qc.number_passing_qc
+      counter += 1
+    end
+  end
+
+  def ip; MiAttempt::Status.micro_injection_in_progress.name; end
+  def co; MiAttempt::Status.chimeras_obtained.name; end
+  def gc; MiAttempt::Status.genotype_confirmed.name; end
+  def abrt; MiAttempt::Status.micro_injection_aborted.name; end
 
   context 'MiPlan' do
-
-    def default_mi_plan
-      @default_mi_plan ||= Factory.create :mi_plan_with_production_centre
-    end
 
     should 'default_mi_plan should be in state Assigned for the rest of the tests' do
       assert_equal 'Assigned', default_mi_plan.status.name
@@ -27,19 +45,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
     context 'es_cell_qc tests:' do
 
-      def mi_plan_es_cell_qcs_check_list(plan, array)
-        assert_equal array[array.size-1][:number_starting_qc], plan.number_of_es_cells_starting_qc
-        assert_equal array[array.size-1][:number_passing_qc], plan.number_of_es_cells_passing_qc
 
-        assert_equal array.size, plan.es_cell_qcs.size
-
-        counter = 0
-        plan.es_cell_qcs.each do |mi_plan_es_cell_qc|
-          assert_equal array[counter][:number_starting_qc], mi_plan_es_cell_qc.number_starting_qc
-          assert_equal array[counter][:number_passing_qc], mi_plan_es_cell_qc.number_passing_qc
-          counter += 1
-        end
-      end
 
       should 'add single row to qc table when setting only number_of_es_cells_starting_qc' do
         @mi_plan = Factory.create :mi_plan_with_production_centre
@@ -246,14 +252,9 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       context '#latest_relevant_mi_attempt ' do
-        def ip; MiAttempt::Status.micro_injection_in_progress.name; end
-        def co; MiAttempt::Status.chimeras_obtained.name; end
-        def gc; MiAttempt::Status.genotype_confirmed.name; end
-        def abrt; MiAttempt::Status.micro_injection_aborted.name; end
-
         should 'selects MI with most advance status' do
 
-          status_order = ["Micro-injection aborted", "Micro-injection in progress", "Chimeras obtained", "Genotype confirmed"]
+          status_order = ["Micro-injection aborted", "Micro-injection in progress", "Chimeras/Founder obtained", "Chimeras obtained", "Founder obtained", "Genotype confirmed"]
           extract_order = []
           MiAttempt::Status.status_order.each do |status, value|
             extract_order.push([status['name'], value])

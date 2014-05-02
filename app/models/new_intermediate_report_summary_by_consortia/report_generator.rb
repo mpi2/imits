@@ -225,13 +225,17 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
       def report_sql
         <<-EOF
           -- get the best_mi_attempts per gene in a CTE using WITH
-          WITH best_mi_attempts AS (
+          WITH es_cell_plans AS (
+            SELECT mi_plans.* FROM mi_plans WHERE mi_plans.mutagenesis_via_crispr_cas9 = false
+          ),
+
+          best_mi_attempts AS (
             SELECT
               best_mi_attempts.id AS mi_attempts_id,
               mi_attempt_statuses.name AS mi_attempt_status,
               best_mi_attempts.mi_plan_id,
-              mi_plans.gene_id AS gene_id,
-              mi_plans.consortium_id AS consortium_id,
+              es_cell_plans.gene_id AS gene_id,
+              es_cell_plans.consortium_id AS consortium_id,
               best_mi_attempts.colony_name AS mi_attempt_colony_name,
               targ_rep_es_cells.ikmc_project_id,
               targ_rep_mutation_types.name AS mutation_sub_type,
@@ -255,17 +259,17 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
                   first_value(best_attempts_for_gene_consortia_centre_and_status.mi_attempt_id) OVER (PARTITION BY best_attempts_for_gene_consortia_centre_and_status.gene_id, best_attempts_for_gene_consortia_centre_and_status.consortium_id) AS mi_attempt_id
                 FROM (
                   SELECT
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     mi_attempt_statuses.order_by,
                     mi_attempts.id as mi_attempt_id
-                  FROM mi_plans
-                  JOIN mi_attempts ON mi_plans.id = mi_attempts.mi_plan_id
+                  FROM es_cell_plans
+                  JOIN mi_attempts ON es_cell_plans.id = mi_attempts.mi_plan_id
                   JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
                   JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = 1
                   ORDER BY
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     mi_attempt_statuses.order_by DESC,
                     mi_attempt_status_stamps.created_at ASC
                 ) as best_attempts_for_gene_consortia_centre_and_status
@@ -274,7 +278,7 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
 
             JOIN targ_rep_es_cells ON targ_rep_es_cells.id = best_mi_attempts.es_cell_id
             JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
-            JOIN mi_plans ON mi_plans.id = best_mi_attempts.mi_plan_id
+            JOIN es_cell_plans ON es_cell_plans.id = best_mi_attempts.mi_plan_id
             JOIN mi_attempt_statuses ON mi_attempt_statuses.id = best_mi_attempts.status_id
             LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
             LEFT JOIN strains ON best_mi_attempts.colony_background_strain_id = strains.id
@@ -321,16 +325,16 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
                     OVER (PARTITION BY best_allele_mod_for_plan_and_status.gene_id, best_allele_mod_for_plan_and_status.consortium_id) AS mouse_allele_mod_id
                 FROM (
                   SELECT
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     mouse_allele_mod_statuses.order_by,
                     mouse_allele_mods.id as mouse_allele_mod_id
                     FROM mouse_allele_mods
-                    JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id
+                    JOIN es_cell_plans ON es_cell_plans.id = mouse_allele_mods.mi_plan_id
                     JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
                     ORDER BY
-                      mi_plans.gene_id,
-                      mi_plans.consortium_id,
+                      es_cell_plans.gene_id,
+                      es_cell_plans.consortium_id,
                       mouse_allele_mod_statuses.order_by DESC
                 ) AS best_allele_mod_for_plan_and_status
               ) AS attempts_join ON mouse_allele_mods.id = attempts_join.mouse_allele_mod_id
@@ -338,8 +342,8 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
 
             LEFT JOIN mi_attempts ON best_mouse_allele_mods.mi_attempt_id = mi_attempts.id
             LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-            LEFT JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-            LEFT JOIN consortia ON consortia.id = mi_plans.consortium_id
+            LEFT JOIN es_cell_plans ON es_cell_plans.id = mi_attempts.mi_plan_id
+            LEFT JOIN consortia ON consortia.id = es_cell_plans.consortium_id
             JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = best_mouse_allele_mods.status_id
             LEFT JOIN mouse_allele_mod_status_stamps AS aborted_statuses ON aborted_statuses.mouse_allele_mod_id = best_mouse_allele_mods.id AND aborted_statuses.status_id = 7
             LEFT JOIN mouse_allele_mod_status_stamps AS registered_statuses ON registered_statuses.mouse_allele_mod_id = best_mouse_allele_mods.id AND registered_statuses.status_id = 1
@@ -378,17 +382,17 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
                     (PARTITION BY phenotype_production_ordered_by_allele_and_status.gene_id, phenotype_production_ordered_by_allele_and_status.consortium_id) AS phenotyping_production_id
                 FROM (
                   SELECT
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     phenotyping_production_statuses.order_by,
                     phenotyping_productions.id as phenotype_productions_id
                   FROM phenotyping_productions
-                    JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
+                    JOIN es_cell_plans ON es_cell_plans.id = phenotyping_productions.mi_plan_id
                     JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
                     JOIN mouse_allele_mods ON mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id
                   ORDER BY
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     phenotyping_production_statuses.order_by DESC
                 ) AS phenotype_production_ordered_by_allele_and_status
               ) AS production_join ON phenotyping_productions.id = production_join.phenotyping_production_id
@@ -439,17 +443,17 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
                     OVER (PARTITION BY best_allele_mod_for_plan_and_status.gene_id, best_allele_mod_for_plan_and_status.consortium_id, best_allele_mod_for_plan_and_status.allele_category) AS mouse_allele_mod_id
                 FROM (
                   SELECT
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     mouse_allele_mods.allele_category,
                     mouse_allele_mod_statuses.order_by,
                     mouse_allele_mods.id as mouse_allele_mod_id
                     FROM mouse_allele_mods
-                    JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id
+                    JOIN es_cell_plans ON es_cell_plans.id = mouse_allele_mods.mi_plan_id
                     JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
                     ORDER BY
-                      mi_plans.gene_id,
-                      mi_plans.consortium_id,
+                      es_cell_plans.gene_id,
+                      es_cell_plans.consortium_id,
                       mouse_allele_mods.allele_category,
                       mouse_allele_mod_statuses.order_by DESC
                 ) AS best_allele_mod_for_plan_and_status
@@ -458,8 +462,8 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
 
             LEFT JOIN mi_attempts ON best_mouse_allele_mods.mi_attempt_id = mi_attempts.id
             LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-            LEFT JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-            LEFT JOIN consortia ON consortia.id = mi_plans.consortium_id
+            LEFT JOIN es_cell_plans ON es_cell_plans.id = mi_attempts.mi_plan_id
+            LEFT JOIN consortia ON consortia.id = es_cell_plans.consortium_id
             JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = best_mouse_allele_mods.status_id
             LEFT JOIN mouse_allele_mod_status_stamps AS aborted_statuses ON aborted_statuses.mouse_allele_mod_id = best_mouse_allele_mods.id AND aborted_statuses.status_id = 7
             LEFT JOIN mouse_allele_mod_status_stamps AS registered_statuses ON registered_statuses.mouse_allele_mod_id = best_mouse_allele_mods.id AND registered_statuses.status_id = 1
@@ -514,18 +518,18 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
                     (PARTITION BY phenotype_production_ordered_by_allele_and_status.gene_id, phenotype_production_ordered_by_allele_and_status.consortium_id, phenotype_production_ordered_by_allele_and_status.allele_category) AS phenotyping_production_id
                 FROM (
                   SELECT
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     mouse_allele_mods.allele_category,
                     phenotyping_production_statuses.order_by,
                     phenotyping_productions.id as phenotype_productions_id
                   FROM phenotyping_productions
-                    JOIN mi_plans On mi_plans.id = phenotyping_productions.mi_plan_id
+                    JOIN es_cell_plans On es_cell_plans.id = phenotyping_productions.mi_plan_id
                     JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
                     JOIN mouse_allele_mods ON mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id
                   ORDER BY
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     mouse_allele_mods.allele_category,
                     phenotyping_production_statuses.order_by DESC
                 ) AS phenotype_production_ordered_by_allele_and_status
@@ -571,8 +575,8 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
               is_bespoke_allele AS is_bespoke_allele,
               mi_plan_priorities.name AS priority
             FROM (
-              SELECT DISTINCT mi_plans.*
-              FROM mi_plans
+              SELECT DISTINCT es_cell_plans.*
+              FROM es_cell_plans
               JOIN (
                 SELECT
                   best_plans_for_gene_consortia_centre_and_status.gene_id,
@@ -581,25 +585,25 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
                   first_value(best_plans_for_gene_consortia_centre_and_status.mi_plan_id) OVER (PARTITION BY best_plans_for_gene_consortia_centre_and_status.gene_id, best_plans_for_gene_consortia_centre_and_status.consortium_id) AS mi_plan_id
                 FROM (
                   SELECT
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     (CASE
                       WHEN mi_plan_statuses.name = 'Aborted - ES Cell QC Failed'       THEN 1
                       WHEN mi_plan_statuses.name = 'Assigned'                          THEN 2
                       WHEN mi_plan_statuses.name = 'Assigned - ES Cell QC In Progress' THEN 3
                       WHEN mi_plan_statuses.name = 'Assigned - ES Cell QC Complete'    THEN 4
                     END) As order_by,
-                    mi_plans.id as mi_plan_id
-                  FROM mi_plans
-                  JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id AND mi_plan_statuses.name in ('Aborted - ES Cell QC Failed', 'Assigned', 'Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete')
-                  JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = mi_plans.id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
+                    es_cell_plans.id as mi_plan_id
+                  FROM es_cell_plans
+                  JOIN mi_plan_statuses ON mi_plan_statuses.id = es_cell_plans.status_id AND mi_plan_statuses.name in ('Aborted - ES Cell QC Failed', 'Assigned', 'Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete')
+                  JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = es_cell_plans.id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
                   ORDER BY
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
+                    es_cell_plans.gene_id,
+                    es_cell_plans.consortium_id,
                     mi_plan_statuses.order_by DESC,
                     mi_plan_status_stamps.created_at ASC
                 ) as best_plans_for_gene_consortia_centre_and_status
-              ) AS att ON mi_plans.id = att.mi_plan_id
+              ) AS att ON es_cell_plans.id = att.mi_plan_id
             ) best_mi_plans
             LEFT JOIN mi_plan_sub_projects ON mi_plan_sub_projects.id = best_mi_plans.sub_project_id
             LEFT JOIN mi_plan_priorities ON mi_plan_priorities.id = best_mi_plans.priority_id
@@ -614,10 +618,10 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
           -- get the earliest date an interest in the gene occured
           gene_interest_commenced AS
           (
-          SELECT mi_plans.gene_id AS gene_id, mi_plans.consortium_id AS consortium_id, min(mi_plan_commence_date.mi_plan_date) AS commenece_date
-            FROM mi_plans
-            JOIN (SELECT mi_plan_id as mi_plan_id, min(created_at) as mi_plan_date FROM mi_plan_status_stamps GROUP BY mi_plan_id) AS mi_plan_commence_date ON mi_plan_commence_date.mi_plan_id = mi_plans.id
-          GROUP BY mi_plans.gene_id, mi_plans.consortium_id
+          SELECT es_cell_plans.gene_id AS gene_id, es_cell_plans.consortium_id AS consortium_id, min(mi_plan_commence_date.mi_plan_date) AS commenece_date
+            FROM es_cell_plans
+            JOIN (SELECT mi_plan_id as mi_plan_id, min(created_at) as mi_plan_date FROM mi_plan_status_stamps GROUP BY mi_plan_id) AS mi_plan_commence_date ON mi_plan_commence_date.mi_plan_id = es_cell_plans.id
+          GROUP BY es_cell_plans.gene_id, es_cell_plans.consortium_id
           )
 
 
@@ -759,7 +763,7 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
 
 
 
-          FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.consortium_id FROM mi_plans) AS unique_gene_plans
+          FROM (SELECT DISTINCT es_cell_plans.gene_id, es_cell_plans.consortium_id FROM es_cell_plans) AS unique_gene_plans
 
           JOIN consortia ON consortia.id = unique_gene_plans.consortium_id
           JOIN genes ON genes.id = unique_gene_plans.gene_id
@@ -807,7 +811,7 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
           FROM targ_rep_es_cells
 
           JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
 
@@ -844,7 +848,7 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
             JOIN targ_rep_alleles ON genes.id = targ_rep_alleles.gene_id
             JOIN targ_rep_es_cells ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
             JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
             JOIN consortia ON consortia.id = mi_plans.consortium_id
             JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
 

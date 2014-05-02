@@ -538,6 +538,7 @@ WITH best_mi_attempts AS (
 
           SELECT
             mi_plans.id AS mi_plan_id,
+            mi_plans.mutagenesis_via_crispr_cas9 AS mutagenesis_via_crispr_cas9,
             CASE
               WHEN best_overall_phenotyping_production_by_allele.phenotyping_production_status = 'Phenotype Production Aborted' AND (best_overall_mouse_allele_modification.mouse_allele_mod_status IS NULL OR best_overall_mouse_allele_modification.mouse_allele_mod_status = 'Mouse Allele Modification Aborted')
                 THEN 'Phenotype Attempt Aborted'
@@ -856,7 +857,8 @@ WITH best_mi_attempts AS (
           'distinct_non_genotype_confirmed_es_cells',
           'distinct_old_genotype_confirmed_es_cells',
           'distinct_old_non_genotype_confirmed_es_cells',
-          'created_at'                                # created date
+          'created_at',                                # created date
+          'mutagenesis_via_crispr_cas9'
         ]
       end
     end

@@ -3,14 +3,14 @@
 require 'test_helper'
 
 class Public::MiAttemptTest < ActiveSupport::TestCase
+
+  def default_mi_attempt
+    plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+    es_cell = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
+    @default_mi_attempt ||= Factory.create(:mi_attempt2, :es_cell => es_cell, :mi_plan => plan).to_public
+  end
+
   context 'Public::MiAttempt' do
-
-    def default_mi_attempt
-      plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
-      es_cell = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
-      @default_mi_attempt ||= Factory.create(:mi_attempt2, :es_cell => es_cell, :mi_plan => plan).to_public
-    end
-
     should 'have #status_name' do
       assert_equal default_mi_attempt.status_name, default_mi_attempt.status.name
     end
@@ -76,6 +76,20 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         status_stamps_attributes
         cassette_transmission_verified
         cassette_transmission_verified_auto_complete
+        mutagenesis_factor_id
+        mutagenesis_factor_attributes
+        crsp_total_embryos_injected
+        crsp_total_embryos_survived
+        crsp_total_transfered
+        crsp_no_founder_pups
+        founder_pcr_num_assays
+        founder_pcr_num_positive_results
+        founder_surveyor_num_assays
+        founder_surveyor_num_positive_results
+        founder_t7en1_num_assays
+        founder_t7en1_num_positive_results
+        crsp_total_num_mutant_founders
+        crsp_num_founders_selected_for_breading
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -159,6 +173,20 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         mgi_accession_id
         cassette_transmission_verified
         cassette_transmission_verified_auto_complete
+        mutagenesis_factor_id
+        mutagenesis_factor_attributes
+        crsp_total_embryos_injected
+        crsp_total_embryos_survived
+        crsp_total_transfered
+        crsp_no_founder_pups
+        founder_pcr_num_assays
+        founder_pcr_num_positive_results
+        founder_surveyor_num_assays
+        founder_surveyor_num_positive_results
+        founder_t7en1_num_assays
+        founder_t7en1_num_positive_results
+        crsp_total_num_mutant_founders
+        crsp_num_founders_selected_for_breading
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

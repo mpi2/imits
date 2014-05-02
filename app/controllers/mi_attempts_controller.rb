@@ -29,14 +29,17 @@ class MiAttemptsController < ApplicationController
 
   def new
     @mi_attempt = Public::MiAttempt.new
+    @vector_option = []
   end
 
   def create
+    puts "PARAMS: #{params}"
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])
-
+    get_marker_symbol
+    @vector_options = get_vector_options(@marker_symbol)
     if ! @mi_attempt.valid?
       flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
 
@@ -64,7 +67,8 @@ class MiAttemptsController < ApplicationController
     if @mi_attempt.has_status?(:gtc) && @mi_attempt.distribution_centres.length == 0
       @mi_attempt.distribution_centres.build
     end
-
+    get_marker_symbol
+    @vector_options = get_vector_options(@marker_symbol)
     respond_with @mi_attempt
   end
 
@@ -79,6 +83,9 @@ class MiAttemptsController < ApplicationController
       @mi_attempt.reload
       flash.now[:notice] = 'MI attempt updated successfully'
     end
+
+    get_marker_symbol
+    @vector_options = get_vector_options(@marker_symbol)
 
     respond_with @mi_attempt do |format|
       format.html do
@@ -118,4 +125,40 @@ class MiAttemptsController < ApplicationController
     render :json => create_attribute_documentation_for(Public::MiAttempt)
   end
 
+  def get_vector_options(marker_symbol)
+    return {values: [], disabled: [] , selected:''} if marker_symbol.blank?
+
+    gene = Gene.find_by_marker_symbol(marker_symbol)
+    if gene.nil?
+      gene = Gene.find(:first, :conditions => ["lower(marker_symbol) = ?", marker_symbol.downcase])
+    end
+    return [] if gene.nil?
+
+    values = ["", "-- CRISPR --", ["Targeted Vector"], ["Oligo"], "-- ES CELL --", ["Targeted Vector"]]
+
+    gene.vectors.each do |tv|
+      if tv.type =='TargRep::CrisprTargetedAllele'
+        values[2] << tv.name
+      elsif tv.type =='TargRep::HrdAllele'
+        values[3] << tv.name
+      elsif tv.type =='TargRep::TargetedAllele'
+        values[5] << tv.name
+      end
+    end
+
+    options = {values: values.flatten, disabled: ["Targeted Vector", "Oligo", "-- CRISPR --", "-- ES CELL --"] , selected: @mi_attempt.mutagenesis_factor.try(:vector_name)}
+    return options
+  end
+  private :get_vector_options
+
+
+  def get_marker_symbol
+
+    if params.has_key?(:marker_symbol) and !params[:marker_symbol].blank?
+      @marker_symbol = params[:marker_symbol]
+    else
+      @marker_symbol = @mi_attempt.mi_plan.try(:gene).try(:marker_symbol)
+    end
+  end
+  private :get_marker_symbol
 end

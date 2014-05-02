@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140431165000) do
+ActiveRecord::Schema.define(:version => 20140502125417) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -125,6 +125,8 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
     t.string   "ensembl_ids"
     t.string   "ccds_ids"
     t.string   "marker_type"
+    t.string   "feature_type"
+    t.string   "synonyms"
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
@@ -207,7 +209,7 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
   add_index "mi_attempt_statuses", ["name"], :name => "index_mi_attempt_statuses_on_name", :unique => true
 
   create_table "mi_attempts", :force => true do |t|
-    t.integer  "es_cell_id",                                                                        :null => false
+    t.integer  "es_cell_id"
     t.date     "mi_date",                                                                           :null => false
     t.integer  "status_id",                                                                         :null => false
     t.string   "colony_name",                                     :limit => 125
@@ -267,6 +269,19 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
     t.integer  "qc_loxp_srpcr_and_sequencing_id",                                :default => 1
     t.date     "cassette_transmission_verified"
     t.boolean  "cassette_transmission_verified_auto_complete"
+    t.integer  "mutagenesis_factor_id"
+    t.integer  "crsp_total_embryos_injected"
+    t.integer  "crsp_total_embryos_survived"
+    t.integer  "crsp_total_transfered"
+    t.integer  "crsp_no_founder_pups"
+    t.integer  "founder_pcr_num_assays"
+    t.integer  "founder_pcr_num_positive_results"
+    t.integer  "founder_surveyor_num_assays"
+    t.integer  "founder_surveyor_num_positive_results"
+    t.integer  "founder_t7en1_num_assays"
+    t.integer  "founder_t7en1_num_positive_results"
+    t.integer  "crsp_total_num_mutant_founders"
+    t.integer  "crsp_num_founders_selected_for_breading"
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -410,6 +425,10 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
     t.integer  "qc_critical_region_qpcr_id"
     t.integer  "qc_loxp_srpcr_id"
     t.integer  "qc_loxp_srpcr_and_sequencing_id"
+  end
+
+  create_table "mutagenesis_factors", :force => true do |t|
+    t.integer "vector_id"
   end
 
   create_table "new_consortia_intermediate_report", :force => true do |t|
@@ -815,12 +834,12 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
   end
 
   create_table "new_intermediate_report_summary_by_mi_plan", :force => true do |t|
-    t.integer  "mi_plan_id",                                                   :null => false
+    t.integer  "mi_plan_id",                                                                      :null => false
     t.string   "overall_status",                                :limit => 50
     t.string   "mi_plan_status",                                :limit => 50
     t.string   "mi_attempt_status",                             :limit => 50
     t.string   "phenotype_attempt_status",                      :limit => 50
-    t.string   "consortium",                                                   :null => false
+    t.string   "consortium",                                                                      :null => false
     t.string   "production_centre"
     t.string   "sub_project"
     t.string   "priority"
@@ -890,6 +909,7 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
     t.integer  "gc_pipeline_efficiency_gene_count"
     t.integer  "gc_old_pipeline_efficiency_gene_count"
     t.datetime "created_at"
+    t.boolean  "mutagenesis_via_crispr_cas9",                                  :default => false
   end
 
   create_table "notifications", :force => true do |t|
@@ -1179,7 +1199,7 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
 
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
-    t.string   "assembly",            :limit => 50,  :default => "NCBIM37",                 :null => false
+    t.string   "assembly",                           :default => "GRCm38",                  :null => false
     t.string   "chromosome",          :limit => 2,                                          :null => false
     t.string   "strand",              :limit => 1,                                          :null => false
     t.integer  "homology_arm_start"
@@ -1205,6 +1225,7 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
     t.string   "type",                               :default => "TargRep::TargetedAllele"
     t.boolean  "has_issue",                          :default => false,                     :null => false
     t.text     "issue_description"
+    t.text     "sequence"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|
@@ -1212,6 +1233,15 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
     t.text     "centres"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+  end
+
+  create_table "targ_rep_crisprs", :force => true do |t|
+    t.integer  "mutagenesis_factor_id", :null => false
+    t.string   "sequence",              :null => false
+    t.string   "chr"
+    t.integer  "start"
+    t.integer  "end"
+    t.datetime "created_at"
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|
@@ -1305,11 +1335,12 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
   add_index "targ_rep_es_cells", ["pipeline_id"], :name => "es_cells_pipeline_id_fk"
 
   create_table "targ_rep_genbank_files", :force => true do |t|
-    t.integer  "allele_id",        :null => false
+    t.integer  "allele_id",           :null => false
     t.text     "escell_clone"
     t.text     "targeting_vector"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "allele_genbank_file"
   end
 
   add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
@@ -1360,6 +1391,13 @@ ActiveRecord::Schema.define(:version => 20140431165000) do
   end
 
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
+
+  create_table "targ_rep_sequence_annotation", :force => true do |t|
+    t.integer "coordinate_start"
+    t.string  "expected_sequence"
+    t.string  "actual_sequence"
+    t.integer "allele_id"
+  end
 
   create_table "targ_rep_targeting_vectors", :force => true do |t|
     t.integer  "allele_id",               :null => false

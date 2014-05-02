@@ -162,6 +162,11 @@ ol { list-style-type:decimal; }
 ul[class*=x-] { margin: 0; }
 ul[class*=x-tab] { list-style: none; }
 
+.disabled-row .x-grid-cell {
+    background-color: #EF7B0B !important;
+    color: #fff;
+    font-weight: 400;
+}
 /* @end */
 
 /* @group Navigation */

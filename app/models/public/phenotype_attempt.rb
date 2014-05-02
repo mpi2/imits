@@ -118,6 +118,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   end
 end
 
+
 # == Schema Information
 #
 # Table name: phenotype_attempts

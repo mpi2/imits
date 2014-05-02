@@ -221,15 +221,16 @@ end
 Factory.define :invalid_allele, :class => TargRep::TargetedAllele do |f|
 end
 
-#Factory.define :crispr_targeted_allele, :class => TargRep::CrisprTargetedAllele, :parent => :allele do |f|
-#end
 
-#Factory.define :hdr_allele, :class => TargRep::HdrAllele, :parent => :base_allele do |f|
-#    f.sequence(:backbone)             { |n| "backbone #{n}"}
-#end
+Factory.define :crispr_targeted_allele, :class => TargRep::CrisprTargetedAllele, :parent => :allele do |f|
+end
 
-#Factory.define :nhej_allele, :class => TargRep::NhejAllele, :parent => :base_allele do |f|
-#end
+Factory.define :hdr_allele, :class => TargRep::HdrAllele, :parent => :base_allele do |f|
+    f.sequence(:backbone)             { |n| "backbone #{n}"}
+end
+
+Factory.define :nhej_allele, :class => TargRep::NhejAllele, :parent => :base_allele do |f|
+end
 
 Factory.define :allele_with_gene_cbx1, :parent => :allele do |allele|
   allele.association :gene, :factory => :gene_cbx1
@@ -517,10 +518,11 @@ end
 ## Mutagenesis Factors
 ##
 
-#Factory.define :mutagenesis_factor, :class => MutagenesisFactor do |mf|
-#  mf.crisprs_attributes [{:chr => [("1".."19").to_a, ['X', 'Y', 'MT']].flatten[rand(22)], :sequence =>(1..23).map{['A','C','G','T'][rand(4)]}.join , :start =>1, :end => 2}]
-#  mf.association :vector, :factory => :targeting_vector
-#end
+
+Factory.define :mutagenesis_factor, :class => MutagenesisFactor do |mf|
+  mf.crisprs_attributes [{:chr => [("1".."19").to_a, ['X', 'Y', 'MT']].flatten[rand(22)], :sequence =>(1..23).map{['A','C','G','T'][rand(4)]}.join , :start =>1, :end => 2}]
+  mf.association :vector, :factory => :targeting_vector
+end
 
 ##
 ## Mi Attempts
@@ -551,20 +553,23 @@ Factory.define :mi_attempt2_status_gtc, :parent => :mi_attempt2_status_chr do |m
   end
 end
 
-#Factory.define :mi_attempt_crispr, :class => MiAttempt do |mi_attempt|
-#  mi_attempt.association :mi_plan, :factory => :mi_plan_with_production_centre, :mutagenesis_via_crispr_cas9 => true
-#  mi_attempt.association :mutagenesis_factor
-#  mi_attempt.mi_date { Date.today }
-#end
 
-#Factory.define :mi_attempt_crispr_status_fod, :parent => :mi_attempt_crispr do |mi_attempt|
-#  mi_attempt.crsp_total_num_mutant_founders 1
-#end
+Factory.define :mi_attempt_crispr, :class => MiAttempt do |mi_attempt|
+  mi_attempt.association :mi_plan, :factory => :mi_plan_with_production_centre, :mutagenesis_via_crispr_cas9 => true
+  mi_attempt.association :mutagenesis_factor
+  mi_attempt.mi_date { Date.today }
+end
+
+Factory.define :mi_attempt_crispr_status_fod, :parent => :mi_attempt_crispr do |mi_attempt|
+  mi_attempt.crsp_total_num_mutant_founders 1
+end
+
 
 #Factory.define :mi_attempt_crispr_status_gtc, :parent => :mi_attempt_crispr_status_fod do |mi_attempt|
 #  mi_attempt.after_create do |mi_attempt|
 #  end
 #end
+
 
 Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt2_status_gtc do |mi_attempt|
   mi_attempt.after_create do |mi|
@@ -576,7 +581,6 @@ Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt2_s
     stamp = mi.status_stamps.where("status_id = #{MiAttempt::Status.micro_injection_in_progress.id}").first
     stamp.created_at = (Time.now - 1.month)
     stamp.save
-
 
     mi.mi_plan.status_stamps.first.update_attributes(:created_at => (Time.now - 3.month))
     mi.mi_plan.status_stamps.create!(

@@ -4,13 +4,11 @@ require 'test_helper'
 
 class Reports::MiProduction::LanguishingTest < ActiveSupport::TestCase
   Languishing = Reports::MiProduction::Languishing
+  def bash; @consortium_bash ||= Consortium.find_by_name! 'BaSH'; end
+  def wtsi; @centre_wtsi ||= Centre.find_by_name! 'WTSI'; end
+  def cbx1; @gene_cbx1 ||= Factory.create :gene_cbx1; end
 
   context 'Reports::MiProduction::Languishing' do
-
-    def bash; @consortium_bash ||= Consortium.find_by_name! 'BaSH'; end
-    def wtsi; @centre_wtsi ||= Centre.find_by_name! 'WTSI'; end
-    def cbx1; @gene_cbx1 ||= Factory.create :gene_cbx1; end
-
     should 'count latency from MiPlans without any attempts on them' do
       bash_plan1 = Factory.create :mi_plan,
               :consortium => bash,

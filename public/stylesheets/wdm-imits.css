@@ -41,7 +41,7 @@ p + p                   { margin-top: 1em; }
 
 
 /* Main navigation */
-#navigation             { margin-top: 20px; margin-bottom: 20px; width: 100%; max-width: none; background: #eee; }
+#navigation             { padding-bottom:10px; margin-top: 20px; margin-bottom: 20px; width: 100%; max-width: none; background: #eee; }
 #navigation ul          { background: none; filter: none; padding: 10px 0; margin: 0 auto; min-width: 960px; width: 80%; max-width: 1500px; }
 #navigation li          { border: none; line-height: 1em; margin-left: 5px; }
 #navigation li a        { padding: 5px 10px; margin: 0; font-weight: 400; }
@@ -68,7 +68,6 @@ th                      { font-weight: 600; }
 /* Responsive Design */
 @media only screen and (min-width: 1450px) {
 #navigation li          { margin-left: 10px; }
-#navigation li a        { font-size: 1.2em; font-weight: 400; }
 }
 
 .homepage-links p { margin-top: 5px; }

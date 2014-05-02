@@ -32,6 +32,8 @@ class MiPlan < ApplicationModel
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
 
+  delegate :marker_symbol, :to => :gene
+
   protected :status=
 
   validate do |plan|

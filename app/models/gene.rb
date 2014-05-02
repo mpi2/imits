@@ -10,8 +10,32 @@ class Gene < ActiveRecord::Base
   has_many :contacts, :through => :notifications
 
   has_many :allele, :class_name => 'TargRep::Allele'
+  has_many :crispr, :class_name => 'TargRep::Crispr'
 
   validates :marker_symbol, :presence => true, :uniqueness => true
+
+
+  # GENE PRODUCTS
+
+  def vectors
+    @vectors = @vectors || TargRep::TargetingVector.find_by_sql(retreive_genes_vectors_sql)
+  end
+
+
+  def retreive_genes_vectors_sql
+    sql = <<-EOF
+               WITH gene AS (SELECT genes.* FROM genes WHERE genes.marker_symbol = '#{self.marker_symbol}')
+
+               SELECT targ_rep_alleles.type AS type, targ_rep_targeting_vectors.*
+               FROM gene
+               JOIN targ_rep_alleles ON targ_rep_alleles.gene_id = gene.id
+               JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
+               WHERE targ_rep_targeting_vectors.report_to_public = true
+               ORDER BY targ_rep_alleles.type, targ_rep_targeting_vectors.name
+             EOF
+  end
+  private :retreive_genes_vectors_sql
+
 
   # BEGIN Helper functions for clean reporting
 
@@ -522,6 +546,7 @@ class Gene < ActiveRecord::Base
       strand_index = headers.index('9. Strand')
       genome_build_index = headers.index('10. Genome Build')
       marker_type_index = headers.index('2. Marker Type')
+      feature_type_index = headers.index('3. Feature Type')
 
       file.each_line do |line|
         row = line.strip.gsub(/\"/, '').split("\t")
@@ -537,7 +562,9 @@ class Gene < ActiveRecord::Base
           'vega_ids'      => [],
           'ens_ids'       => [],
           'ncbi_ids'      => [],
-          'marker_type'  => row[marker_type_index]
+          'marker_type'  => row[marker_type_index],
+          'feature_type'  => row[feature_type_index],
+          'synonyms'    => ''
         }
       end
     end
@@ -577,10 +604,15 @@ class Gene < ActiveRecord::Base
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
       ncbi_ids_index = 8
+      synonym_index = 9
       file.each_line do |line|
         row = line.strip.gsub(/\"/, '').split("\t")
         if genes_data.has_key?(row[mgi_accession_id_index]) and !row[ncbi_ids_index].blank?
           genes_data[row[mgi_accession_id_index]]['ncbi_ids'] << row[ncbi_ids_index]
+        end
+
+        if genes_data.has_key?(row[mgi_accession_id_index]) and !row[synonym_index].blank?
+          genes_data[row[mgi_accession_id_index]]['synonyms'] << row[synonym_index]
         end
       end
     end
@@ -631,6 +663,8 @@ class Gene < ActiveRecord::Base
       gene.marker_symbol = gene_data['marker_symbol']
       gene.chr = gene_data['chr']
       gene.marker_type = gene_data['marker_type']
+      gene.feature_type = gene_data['feature_type']
+      gene.synonyms = gene_data['synonyms']
       gene.start_coordinates = gene_data['start']
       gene.end_coordinates = gene_data['end']
       gene.strand_name = gene_data['strand']
@@ -657,6 +691,8 @@ class Gene < ActiveRecord::Base
       ng.marker_symbol = new_gene['marker_symbol']
       ng.chr = new_gene['chr']
       ng.marker_type = new_gene['marker_type']
+      ng.feature_type = new_gene['feature_type']
+      ng.synonyms = new_gene['synonyms']
       ng.start_coordinates = new_gene['start']
       ng.end_coordinates = new_gene['end']
       ng.strand_name = new_gene['strand']
@@ -744,6 +780,7 @@ class Gene < ActiveRecord::Base
 
 end
 
+
 # == Schema Information
 #
 # Table name: genes
@@ -771,6 +808,8 @@ end
 #  ensembl_ids                        :string(255)
 #  ccds_ids                           :string(255)
 #  marker_type                        :string(255)
+#  feature_type                       :string(255)
+#  synonyms                           :string(255)
 #
 # Indexes
 #

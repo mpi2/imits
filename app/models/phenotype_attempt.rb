@@ -53,6 +53,7 @@ class PhenotypeAttempt < ApplicationModel
   has_many   :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
   has_many   :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
   has_many   :phenotyping_productions
+
   access_association_by_attribute :colony_background_strain, :name
 
   accepts_nested_attributes_for :status_stamps
@@ -305,12 +306,6 @@ class PhenotypeAttempt < ApplicationModel
     'phenotype attempt'
   end
 end
-
-#
-# Indexes
-#
-#  index_phenotype_attempts_on_colony_name  (colony_name) UNIQUE
-#
 
 # == Schema Information
 #

@@ -18,36 +18,42 @@
   <% end %>
 <% end %>
 
+<%= form_tag nil do %>
+<!-- Display logic for javascript -->
+
 <div id="object-new-top" class="grid_8 prefix_2 suffix_2">
-  <%= form_tag nil do %>
     <fieldset class="collapsible">
-      <legend>ES Cell Details</legend>
+      <legend>Injection Details</legend>
       <div>
         <div id="es-cell-selector"></div>
+        <div><p>or</p></div>
+        <div id="mutagenesis-factor-selector"></div>
       </div>
     </fieldset>
-  <% end %>
 </div>
+<% end %>
 
 <div id="object-new-bottom" class="grid_8 prefix_2 suffix_2">
   <%= form_for @mi_attempt, :as => :mi_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
     <%= form.error_messages %>
 
     <div id="rest-of-form">
-      <%= form.hidden_field 'es_cell_name' %>
-      <%= form.hidden_field 'es_cell_marker_symbol' %>
 
-      <fieldset class="collapsible">
-        <legend>Mi-Plan Details</legend>
-          <div id="mi_plan_list"></div>
-          <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>">Create new miplan</a></div>
-      </fieldset>
+      <div id="object-es-cell" class="object-es-cell">
+        <%= form_tag nil do %>
+          <fieldset class="collapsible">
+            <legend>ES Cell Details</legend>
+            <div>
+              <div id="es-cell-details"></div>
+            </div>
+          </fieldset>
+        <% end %>
+      </div>
 
-      <%= form.hidden_field 'mi_plan_id' %>
       <%= render 'form_contents', :form => form %>
 
       <div>
-        <button id="mi_attempt_submit">Create</button>
+         <button id="mi_attempt_submit">Create</button>
       </div>
     </div>
   <% end %>

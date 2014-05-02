@@ -42,7 +42,7 @@ class ImpcCentreByMonthDetail
             join mi_attempt_statuses on mi_attempts.status_id = mi_attempt_statuses.id
             join targ_rep_es_cells on mi_attempts.es_cell_id = targ_rep_es_cells.id
           where
-            #{insert_bit}
+            #{insert_bit} and mi_plans.mutagenesis_via_crispr_cas9 = false
 	  and
 	    (centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
 	  OR
@@ -91,7 +91,7 @@ class ImpcCentreByMonthDetail
               ) ON (mouse_allele_mods.id is NULL AND phenotyping_productions.mi_plan_id = mi_plans.id) OR (mouse_allele_mods.id IS NOT NULL AND mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id)
           where
             #{insert_bit}
-      and (mouse_allele_mods.id IS NOT NULL OR phenotyping_productions.id IS NOT NULL)
+      and (mouse_allele_mods.id IS NOT NULL OR phenotyping_productions.id IS NOT NULL) and mi_plans.mutagenesis_via_crispr_cas9 = false
 	  and
 	    (centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
 	  OR

@@ -199,10 +199,10 @@ class ImpcCentreByMonthReportConsortiaBreakdown
         @filter_by_centre_consortium ||=
         {'HMGU' => ['Helmholtz GMC'],
          'ICS' => ['Phenomin', 'Helmholtz GMC'],
-         'BCM' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'BCM'").map{|consortium| consortium.name},
-         'TCP' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'TCP'").map{|consortium| consortium.name},
-         'JAX' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'JAX'").map{|consortium| consortium.name},
-         'RIKEN BRC' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'RIKEN BRC'").map{|consortium| consortium.name},
+         'BCM' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'BCM' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
+         'TCP' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'TCP' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
+         'JAX' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'JAX' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
+         'RIKEN BRC' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'RIKEN BRC' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
          'Harwell' => ['BaSH', 'MRC'],
          'UCD' => ['DTCC'],
          'WTSI' => ['MGP', 'BaSH'],
@@ -222,7 +222,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
 
             FROM targ_rep_es_cells
             JOIN mi_attempts ON mi_attempts.es_cell_id = targ_rep_es_cells.id
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
             JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
 
@@ -297,7 +297,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
                   mi_plans.id AS mi_plan_id,
                   consortia.name AS consortium_name
                 FROM genes
-                JOIN mi_plans ON mi_plans.gene_id = genes.id
+                JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
                 JOIN centres ON centres.id = mi_plans.production_centre_id
                 JOIN consortia ON consortia.id = mi_plans.consortium_id
 
@@ -455,7 +455,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
           date_trunc('MONTH', mip_stamps.created_at) as mip_date
         FROM targ_rep_es_cells
         JOIN mi_attempts ON mi_attempts.es_cell_id = targ_rep_es_cells.id
-        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
         JOIN centres ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
 
@@ -521,7 +521,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
           mi_plans.id AS mi_plan_id,
           consortia.name AS consortium_name
         FROM genes
-        JOIN mi_plans ON mi_plans.gene_id = genes.id
+        JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
         JOIN centres ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
 
@@ -726,7 +726,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
             AND
             centres.name = '#{centre}'
 
-            AND mi_plans.es_cells_received_on < '#{cut_off_date}'
+            AND mi_plans.es_cells_received_on < '#{cut_off_date}' AND mi_plans.mutagenesis_via_crispr_cas9 = false
 
         GROUP BY
           consortia.name,
@@ -782,7 +782,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
             (
               #{filter_by_centre_consortium.map{|key, value| "(centres.name = '#{key}' AND consortia.name IN ('#{value.join('\', \'')}'))"}.join(' OR ')}
             )
-            AND centres.name = '#{centre}'
+            AND centres.name = '#{centre}' AND mi_plans.mutagenesis_via_crispr_cas9 = false
 
           GROUP BY
             series.date,

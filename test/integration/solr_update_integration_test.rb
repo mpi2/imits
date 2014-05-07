@@ -1,4 +1,3 @@
-require 'pp'
 require 'test_helper'
 
 class SolrUpdateIntegrationTest < ActiveSupport::TestCase
@@ -114,16 +113,16 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       mi.reload
       mi.status_stamps.reload
 
-      puts "#### mi:"
-      pp mi
-      puts "#### mi.status_stamps:"
-      pp mi.status_stamps
+      #puts "#### mi:"
+      #pp mi
+      #puts "#### mi.status_stamps:"
+      #pp mi.status_stamps
 
       mi.status_stamps.destroy_all
       mi.reload
 
-      puts "#### mi.status_stamps 2:"
-      pp mi.status_stamps
+      #puts "#### mi.status_stamps 2:"
+      #pp mi.status_stamps
 
       mi.destroy
       SolrUpdate::Queue.run

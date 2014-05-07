@@ -328,11 +328,16 @@ class SolrUpdate::DocFactory
         key = tv.try(:ikmc_project).try(:name)
         value = tv.try(:ikmc_project).try(:status).try(:name)
         pipeline = tv.try(:ikmc_project).try(:pipeline).try(:name)
+
+        puts "#### tv id: #{tv.id} - tv key: #{key} - value: #{value}"
+
         next if ! key
         project_hash[key] = value
         pipeline_hash[key] = pipeline
       end
     end
+
+    pp project_hash
 
     #for each allele find all alleles of the same mutation type including itself. Then count the number of es_cells associated with these alleles. This will add anew attribute called es_cell_count to each allele model returned.
     sql = <<-EOF
@@ -348,11 +353,16 @@ class SolrUpdate::DocFactory
     EOF
     alleles = TargRep::Allele.find_by_sql(sql)
 
+   # puts sql
+
     alleles.each do |allele|
       next if allele.es_cell_count.to_i > 0
       allele.targeting_vectors.each do |tv|
         key = tv.try(:ikmc_project).try(:name)
         value = tv.try(:ikmc_project).try(:status).try(:name)
+
+        puts "#### 2 tv id: #{tv.id} - tv key: #{key} - value: #{value}"
+
         next if ! key
         vector_project_hash[key] = value
       end

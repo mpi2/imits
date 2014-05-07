@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140431165001) do
+ActiveRecord::Schema.define(:version => 20140507103001) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -282,6 +282,8 @@ ActiveRecord::Schema.define(:version => 20140431165001) do
     t.integer  "founder_t7en1_num_positive_results"
     t.integer  "crsp_total_num_mutant_founders"
     t.integer  "crsp_num_founders_selected_for_breading"
+    t.integer  "founder_loa_num_assays"
+    t.integer  "founder_loa_num_positive_results"
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true

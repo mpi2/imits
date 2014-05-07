@@ -1268,7 +1268,9 @@ CREATE TABLE mi_attempts (
     founder_t7en1_num_assays integer,
     founder_t7en1_num_positive_results integer,
     crsp_total_num_mutant_founders integer,
-    crsp_num_founders_selected_for_breading integer
+    crsp_num_founders_selected_for_breading integer,
+    founder_loa_num_assays integer,
+    founder_loa_num_positive_results integer
 );
 
 
@@ -5050,3 +5052,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140429103302');
 INSERT INTO schema_migrations (version) VALUES ('20140431165000');
 
 INSERT INTO schema_migrations (version) VALUES ('20140431165001');
+
+INSERT INTO schema_migrations (version) VALUES ('20140507103001');

@@ -90,6 +90,8 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         founder_t7en1_num_positive_results
         crsp_total_num_mutant_founders
         crsp_num_founders_selected_for_breading
+        founder_loa_num_assays
+        founder_loa_num_positive_results
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -187,6 +189,8 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         founder_t7en1_num_positive_results
         crsp_total_num_mutant_founders
         crsp_num_founders_selected_for_breading
+        founder_loa_num_assays
+        founder_loa_num_positive_results
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

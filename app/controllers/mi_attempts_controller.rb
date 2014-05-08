@@ -33,7 +33,7 @@ class MiAttemptsController < ApplicationController
   end
 
   def create
-    puts "PARAMS: #{params}"
+    #puts "PARAMS: #{params}"
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)

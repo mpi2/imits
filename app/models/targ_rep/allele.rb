@@ -84,11 +84,12 @@ class TargRep::Allele < ActiveRecord::Base
       end
 
       info = info_map.map do |key, value|
-        key.merge(:pipeline => value[:pipelines].first,
-                  :pipeline_report_to_public => value[:pipeline_report_to_public],
-                  :es_cell_report_to_public => value[:es_cell_report_to_public])
+        key.merge(:pipeline => value[:pipelines].first
+                 # :pipeline_report_to_public => value[:pipeline_report_to_public],
+                 # :es_cell_report_to_public => value[:es_cell_report_to_public]
+                 )
       end
-      pp info
+    #  pp info
       return info
     end
   end

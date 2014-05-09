@@ -29,6 +29,7 @@ class AlleleImage2::Features::Deletion < AlleleImage2::Features::DefaultFeature
 
       del_txt_start_x = renderer.x - 15
       del_txt_start_y = ( feature.render_options[:height] + feature.render_options[:bottom_margin] ) - 8
+
       del_txt         = feature.del_bp + "\n" + feature.del_exons
       
       drawing.annotate( image, feature.render_options[:width], feature.render_options[:text_height] * 2, del_txt_start_x, del_txt_start_y, del_txt ) do

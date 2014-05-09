@@ -5,13 +5,14 @@ module AlleleImage2
 
     def initialize options = {}
 
-      @simple         = options[:simple]
-      @rcmb_primers   = initialize_rcmb_primers options[:features]
-      @features       = replace_functional_units options[:features], AlleleImage2::FUNCTIONAL_UNITS
-      @circular       = options[:circular]
-      @cassette_label = options[:cassette_label]
-      @backbone_label = options[:backbone_label]
-      @bac_label      = options[:bac_label]
+      @simple              = options[:simple]
+      @rcmb_primers        = initialize_rcmb_primers options[:features]
+      @features            = replace_functional_units options[:features], AlleleImage2::FUNCTIONAL_UNITS
+      @circular            = options[:circular]
+      @cassette_label      = options[:cassette_label]
+      @backbone_label      = options[:backbone_label]
+      @bac_label           = options[:bac_label]
+      @transcript_id_label = options[:transcript_id_label]
       
       raise "NoRcmbPrimers" unless @rcmb_primers.size > 0
 
@@ -46,6 +47,10 @@ module AlleleImage2
       end
 
       return "#{ backbone_type }\n(#{ @backbone_label })"
+    end
+
+    def transcript_id_label
+      return @transcript_id_label
     end
 
     # These methods always return something

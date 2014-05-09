@@ -373,8 +373,8 @@ features:
       class_name: Deletion
       simple:
         label: Del
-        width: 40
-        stroke: "transparent"
+        width: 20
+        stroke: black
         colour: white
         font_colour: black
         class_name: Deletion

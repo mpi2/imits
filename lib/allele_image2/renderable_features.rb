@@ -42,7 +42,8 @@ module AlleleImage2
     'Rox',
     'SA',
     'T2A',
-    'TM-lacZ'
+    'TM-lacZ',
+    'Del'
   ]
 
   SIMPLE_FEATURE_TYPES = %w(promoter)

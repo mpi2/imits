@@ -47,12 +47,13 @@ module AlleleImage2
       end
 
       self.construct = AlleleImage2::Construct.new(
-        :features => self.features.dup,
-        :circular => circular,
-        :cassette_label => extract_label(@genbank, "cassette"),
-        :backbone_label => extract_label(@genbank, "backbone"),
-        :bac_label => extract_label(@genbank, "target_bac"),
-        :simple => @simple
+        :features            => self.features.dup,
+        :circular            => circular,
+        :cassette_label      => extract_label(@genbank, "cassette"),
+        :backbone_label      => extract_label(@genbank, "backbone"),
+        :bac_label           => extract_label(@genbank, "target_bac"),
+        :transcript_id_label => extract_label(@genbank, "transcript_id"),
+        :simple              => @simple
       )
     end
 

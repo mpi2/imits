@@ -91,16 +91,27 @@ module AlleleImage2
       main_image_list.unshift(five_flank)
       main_image_list.push(three_flank)
 
-      main_image_list   = main_image_list.append(false)
+      main_image = main_image_list.append(false)
+
+      # If we are drawing a linear allele image and have a transcript id then display it
+      unless ( @construct.circular || @simple )
+        if @construct.transcript_id_label
+          label_text             = "Transcript ID: #{@construct.transcript_id_label}"
+          transcript_label_image = render_transcript_id_label( label_text )
+          transcript_image_list  = Magick::ImageList.new
+          transcript_image_list.push(main_image).push( transcript_label_image )
+          main_image             = transcript_image_list.append(true)
+        end
+      end
 
       # Return the allele (i.e no backbone) unless this is a vector
-      return main_image_list unless @construct.circular
+      return main_image unless @construct.circular
 
       # Construct the backbone components and put the two images together
       vector_image_list   = Magick::ImageList.new
       backbone_image = render_backbone( :width => bb_width )
 
-      vector_image_list.push(main_image_list).push(backbone_image)
+      vector_image_list.push(main_image).push(backbone_image)
 
       return vector_image_list.append(true)
     end
@@ -523,6 +534,12 @@ module AlleleImage2
         return image_list.append(true)
       end
 
+      def render_transcript_id_label( transcript_label_text )
+        label_image = Magick::Image.new( @text_width * transcript_label_text.length, @text_height * 2 )
+        label_image = draw_label( label_image, transcript_label_text, 0, 0, @text_height * 2 )
+        return label_image
+      end
+
       def calculate_first_exon_start( image_width, exons )
         default_start = ( image_width - calculate_exon_image_width( exons.count ) ) / 2
         if exons.count == 0
@@ -756,12 +773,6 @@ module AlleleImage2
 
         end
         width = ( width + gaps ) + 1
-
-        # TODO: remove
-        # add extra if a Deletion
-        # if @mutation_type == 'Deletion'
-        #   width += 34
-        # end
 
         return width.to_i
       end

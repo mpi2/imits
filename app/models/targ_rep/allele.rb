@@ -19,48 +19,11 @@ class TargRep::Allele < ActiveRecord::Base
   has_one    :genbank_file,      :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :targeting_vectors, :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :es_cells,          :dependent => :destroy, :foreign_key => 'allele_id' do
-  #  def unique_public_info
-  #    info_map = ActiveSupport::OrderedHash.new
-  #
-  #    self.each do |es_cell|
-  #      key = {
-  #        :strain => es_cell.strain,
-  #        :allele_symbol_superscript => es_cell.allele_symbol_superscript,
-  #        :ikmc_project_id => es_cell.ikmc_project_id.to_s
-  #      }
-  #
-  #      info_map[key] ||= {:pipelines => []}
-  #      info_map[key][:pipelines].push(es_cell.pipeline.name)
-  #
-  #      if es_cell.ikmc_project && es_cell.ikmc_project.status && es_cell.ikmc_project.status.name
-  #        info_map[key][:ikmc_project_name] = es_cell.ikmc_project.name
-  #        info_map[key][:ikmc_project_status_name] = es_cell.ikmc_project.status.name
-  #        info_map[key][:ikmc_project_pipeline] = es_cell.ikmc_project.pipeline.name
-  #      end
-  #
-  #      info_map[key][:pipeline_report_to_public] = es_cell.pipeline.report_to_public
-  #      info_map[key][:es_cell_report_to_public] = es_cell.report_to_public
-  #    end
-  #
-  #    info = info_map.map do |key, value|
-  #      key.merge(:pipeline => value[:pipelines].first,
-  #                :ikmc_project_name => value[:ikmc_project_name],
-  #                :ikmc_project_status_name => value[:ikmc_project_status_name],
-  #                :ikmc_project_pipeline => value[:ikmc_project_pipeline],
-  #                :pipeline_report_to_public => value[:pipeline_report_to_public],
-  #                :es_cell_report_to_public => value[:es_cell_report_to_public]
-  #                )
-  #    end
-  #    pp info
-  #    return info
-  #  end
-  #end
-
-  def unique_public_info
+    def unique_public_info
       info_map = ActiveSupport::OrderedHash.new
 
       self.order('id ASC').each do |es_cell|
-        #next if !es_cell.pipeline.report_to_public || !es_cell.report_to_public
+        next if !es_cell.pipeline.report_to_public || !es_cell.report_to_public
 
         key = {
           :strain => es_cell.strain,
@@ -79,17 +42,11 @@ class TargRep::Allele < ActiveRecord::Base
 
         info_map[key] ||= {:pipelines => []}
         info_map[key][:pipelines].push(es_cell.pipeline.name)
-        info_map[key][:pipeline_report_to_public] = es_cell.pipeline.report_to_public
-        info_map[key][:es_cell_report_to_public] = es_cell.report_to_public
       end
 
       info = info_map.map do |key, value|
-        key.merge(:pipeline => value[:pipelines].first
-                 # :pipeline_report_to_public => value[:pipeline_report_to_public],
-                 # :es_cell_report_to_public => value[:es_cell_report_to_public]
-                 )
+        key.merge(:pipeline => value[:pipelines].first)
       end
-    #  pp info
       return info
     end
   end

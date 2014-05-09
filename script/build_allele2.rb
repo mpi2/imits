@@ -72,7 +72,6 @@ class BuildAllele2
     pp row if row['allele_symbol'].to_s.empty?
     raise "#### Must have allele_symbol!" if row['allele_symbol'].to_s.empty?
     @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] = true
-    #@mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s + row['phenotyping_centre'].to_s] = true
   end
 
   def mark? row
@@ -375,7 +374,9 @@ class BuildAllele2
       hash['marker_type'] = row['marker_type']
       hash['feature_type'] = row['feature_type']
 
-      hash['mgi_accession_id'] = row['mgi_accession_id']
+      hash['mgi_accession_id'] = row['mgi_accession_id'].to_s
+      hash['mgi_accession_id'] = hash['mgi_accession_id'].strip || hash['mgi_accession_id']
+
       hash['es_cell_status'] = row['es_cell_status'].to_s
       hash['mouse_status'] = row['mouse_status']
       hash['phenotype_status'] = row['phenotype_status'].to_s
@@ -510,14 +511,6 @@ class BuildAllele2
     count = Gene.count
     counter = 0
 
-    #rows = ActiveRecord::Base.connection.execute('select distinct marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes, mi_plans ' +
-    #                                             " where mi_plans.gene_id = genes.id") if @marker_symbol.empty?
-    #
-    #marker_symbols = @marker_symbol.to_a.map {|ms| "'#{ms}'" }.join ','
-    ##rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol = '#{@marker_symbol}'") if ! @marker_symbol.empty?
-    #rows = ActiveRecord::Base.connection.execute("select distinct marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes, mi_plans where marker_symbol in (#{marker_symbols})" +
-    #                                             " and mi_plans.gene_id = genes.id") if ! @marker_symbol.empty?
-
     rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes') if @marker_symbol.empty?
     marker_symbols = @marker_symbol.to_a.map {|ms| "'#{ms}'" }.join ','
     rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol in (#{marker_symbols})") if ! @marker_symbol.empty?
@@ -561,7 +554,8 @@ class BuildAllele2
         hash['feature_type'] = ''
 
         hash['marker_symbol'] = row1['marker_symbol']
-        hash['mgi_accession_id'] = row1['mgi_accession_id']
+        hash['mgi_accession_id'] = row1['mgi_accession_id'].to_s
+        hash['mgi_accession_id'] = hash['mgi_accession_id'].strip || hash['mgi_accession_id']
 
         hash['marker_type'] = row1['marker_type']
         hash['feature_type'] = row1['feature_type']
@@ -601,6 +595,8 @@ class BuildAllele2
       @genes_hash[marker_symbol].each do |row|
         if ! row['phenotype_status'].to_s.empty?
 
+         # pp row
+
           status_hash[:phenotype_started] = true if row['phenotype_status'] == 'Phenotyping Started' || row['phenotype_status'] == 'Phenotyping Complete'
 
           status_hash[:phenotype_complete] = true if row['phenotype_status'] == 'Phenotyping Complete'
@@ -617,10 +613,12 @@ class BuildAllele2
           if status_hash[:best_mouse_status].to_i < @mi_statuses[row['mouse_status']].to_i && (@mi_statuses[row['mouse_status']].to_i == 350 || @mi_statuses[row['mouse_status']].to_i == 360)
             status_hash[:best_phenotype_status] = @pa_statuses[row['mouse_status']].to_i
             status_hash[:best_mouse_status] = @mi_statuses[row['mouse_status']].to_i
-            status_hash[:phenotype_status] = row['mouse_status']
+            #status_hash[:phenotype_status] = row['mouse_status']
             status_hash[:mouse_status] = row['mouse_status']
             status_hash[:mouse_production_centre].push row['production_centre'] if row['production_centre']
             status_hash[:phenotype_centre].push row['production_centre'] if row['production_centre']
+
+            #status_hash[:phenotype_started] = true if row['phenotype_status'] == 'Phenotyping Started' || row['phenotype_status'] == 'Phenotyping Complete'
           end
 
           if status_hash[:best_mouse_status].to_i < @mi_statuses[row['mouse_status']].to_i

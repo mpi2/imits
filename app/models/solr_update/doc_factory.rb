@@ -329,10 +329,11 @@ class SolrUpdate::DocFactory
         value = tv.try(:ikmc_project).try(:status).try(:name)
         pipeline = tv.try(:ikmc_project).try(:pipeline).try(:name)
 
-        puts "#### tv id: #{tv.id} - tv key: #{key} - value: #{value}"
+        puts "#### 1 tv id: #{tv.id} - tv key: #{key} - value: #{value}"
 
         next if ! key
         project_hash[key] = value
+        vector_project_hash[key] = value
         pipeline_hash[key] = pipeline
       end
     end
@@ -356,6 +357,7 @@ class SolrUpdate::DocFactory
    # puts sql
 
     alleles.each do |allele|
+      puts "#### allele.es_cell_count.to_i: #{allele.es_cell_count.to_i}"
       next if allele.es_cell_count.to_i > 0
       allele.targeting_vectors.each do |tv|
         key = tv.try(:ikmc_project).try(:name)
@@ -392,6 +394,8 @@ class SolrUpdate::DocFactory
 
       solr_doc['project_pipelines'].push pipeline
     end
+
+    pp solr_doc
 
     solr_doc
   end

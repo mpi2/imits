@@ -486,6 +486,8 @@ end
 #  founder_t7en1_num_positive_results              :integer
 #  crsp_total_num_mutant_founders                  :integer
 #  crsp_num_founders_selected_for_breading         :integer
+#  founder_loa_num_assays                          :integer
+#  founder_loa_num_positive_results                :integer
 #
 # Indexes
 #

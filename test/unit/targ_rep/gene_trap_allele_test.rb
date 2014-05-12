@@ -25,14 +25,12 @@ class TargRep::GeneTrapTest < ActiveSupport::TestCase
   should allow_value(nil).for(:floxed_start_exon)
   should allow_value(nil,true,false).for(:has_issue)
 
-
   should 'default allele types to false except for gene_trap' do
     assert_false @allele.class.targeted_allele?
     assert_true @allele.class.gene_trap?
     assert_false @allele.class.hdr_allele?
     assert_false @allele.class.nhej_allele?
     assert_false @allele.class.crispr_targeted_allele?
-
   end
 
   context "An Allele - check normal creation" do

@@ -649,6 +649,7 @@ Factory.define :mi_attempt_distribution_centre, :class => MiAttempt::Distributio
   distribution_centre.association :mi_attempt, :factory => :mi_attempt2_status_gtc
 end
 
+
 ##
 ## Phenotype Attempts
 ##

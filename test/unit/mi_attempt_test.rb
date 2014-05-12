@@ -58,7 +58,8 @@ class MiAttemptTest < ActiveSupport::TestCase
       have_many_fields =   [:crisprs,
                             :status_stamps,
                             :phenotype_attempts,
-                            :distribution_centres
+                            :distribution_centres,
+                            :mouse_allele_mods
                            ]
 
       belongs_to_fields.each do |field|

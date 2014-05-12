@@ -48,11 +48,11 @@ class PhenotypeAttempt < ApplicationModel
   belongs_to :deleter_strain
   belongs_to :colony_background_strain, :class_name => 'Strain'
 
-  has_one    :mouse_allele_mod
-
-  has_many   :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
+  has_many   :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC", :dependent => :destroy
   has_many   :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
-  has_many   :phenotyping_productions
+  has_many   :phenotyping_productions, :dependent => :destroy
+
+  has_one    :mouse_allele_mod, :dependent => :destroy
 
   access_association_by_attribute :colony_background_strain, :name
 
@@ -63,8 +63,6 @@ class PhenotypeAttempt < ApplicationModel
   validates :mi_attempt, :presence => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
-
-  before_validation :set_blank_qc_fields_to_na
 
   # validate mi_plan
   validate do |me|
@@ -109,6 +107,7 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
+  before_validation :set_blank_qc_fields_to_na
   before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
   before_validation :allow_override_of_plan
   before_validation :change_status
@@ -117,8 +116,9 @@ class PhenotypeAttempt < ApplicationModel
   before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
   after_save :manage_status_stamps
-  after_save :set_phenotyping_experiments_started_if_blank
   after_save :set_allele_mod_and_production
+  after_save :set_phenotyping_experiments_started_if_blank
+
 
 
 ## BEFORE VALIDATION FUNCTIONS
@@ -148,6 +148,9 @@ class PhenotypeAttempt < ApplicationModel
         if pp_changes.has_key?(field)
           self[field] = pp_changes[field][1]
         end
+      end
+      if self.changes.has_key?(:colony_name) and linked_pp.first.colony_name == self.changes[:colony_name][0]
+        linked_pp.first.colony_name = self.colony_name
       end
     elsif deleting_pp.count >= 1
       PhenotypingProduction.phenotype_attempt_updatable_fields.each do |field, default_value|
@@ -196,8 +199,9 @@ class PhenotypeAttempt < ApplicationModel
     i = 0
     begin
       i += 1
-      self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
-    end until self.class.find_by_colony_name(self.colony_name).blank?
+      colony_name = "#{self.mi_attempt.colony_name}-#{i}"
+    end until self.class.find_by_colony_name(colony_name).blank?
+    self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
   end
 
   # END Callbacks

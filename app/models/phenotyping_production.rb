@@ -9,9 +9,9 @@ class PhenotypingProduction < ApplicationModel
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
 
+  belongs_to :mouse_allele_mod
   belongs_to :mi_plan
   belongs_to :phenotype_attempt
-  belongs_to :mouse_allele_mod
   belongs_to :status
   has_many   :status_stamps, :order => "#{PhenotypingProduction::StatusStamp.table_name}.created_at ASC", dependent: :destroy
 
@@ -168,7 +168,7 @@ class PhenotypingProduction < ApplicationModel
   end
 
   def self.phenotype_attempt_updatable_fields
-    {'phenotyping_experiments_started' => nil, 'ready_for_website' => nil, 'phenotyping_started' => false, 'phenotyping_completed' => false}
+    {'phenotyping_experiments_started' => nil, 'ready_for_website' => nil, 'phenotyping_started' => false, 'phenotyping_complete' => false}
   end
 end
 

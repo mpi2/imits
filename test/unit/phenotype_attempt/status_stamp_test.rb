@@ -17,7 +17,6 @@ class PhenotypeAttempt::StatusStampTest < ActiveSupport::TestCase
       ss = PhenotypeAttempt::StatusStamp.create!(:phenotype_attempt => pt,
         :status => status)
       assert_raise(ActiveRecord::InvalidForeignKey) { status.destroy }
-      assert_raise(ActiveRecord::InvalidForeignKey) { pt.destroy }
     end
 
     should 'have #phenotype_attempt' do

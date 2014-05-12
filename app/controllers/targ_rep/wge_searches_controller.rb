@@ -2,8 +2,6 @@ class TargRep::WgeSearchesController < TargRep::BaseController
 
   respond_to :json
 
-  before_filter :authorize_admin_user!
-
   def exon_search
     data = []
     all_values = []
@@ -81,7 +79,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
   def crispr_pair_search
     exon_ids = params[:exon_id]
 
-    response = wge_call("api/pair_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}")
+    response = wge_call("api/pair_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}&flank=200")
 
     data = []
 

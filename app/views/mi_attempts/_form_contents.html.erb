@@ -25,7 +25,7 @@
     <div id="mutagenesis-factor-form">
       <div id="mutagenesis-factor-fields"></div>
       <label for="marker_symbol">Marker Symbol</label>
-      <input id="marker_symbol" value="<%= @marker_symbol %>" disabled>
+      <input id="marker_symbol" name="marker_symbol" value="<%= @marker_symbol %>" readonly>
       <div id="vector-container">
         <%= form.fields_for :mutagenesis_factor do |builder| %>
           <%= builder.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: @vector_options[:selected]) %>
@@ -157,11 +157,13 @@
     <div>
       <%= generator.number_field :crsp_no_founder_pups, {:label => 'Number of Founder Pups Born'} %>
       <%= generator.number_field :founder_pcr_num_assays, {:label => 'Number of Founders Assayed With PCR'} %>
-      <%= generator.number_field :founder_pcr_num_positive_results, {:label => 'Number of Genotype Confirmed Founders with PCR'} %>
+      <%= generator.number_field :founder_pcr_num_positive_results, {:label => 'Number of Founders with confirmed mutation with PCR'} %>
       <%= generator.number_field :founder_surveyor_num_assays, {:label => 'Number of Founders Assayed With Surveyor'} %>
-      <%= generator.number_field :founder_surveyor_num_positive_results, {:label => 'Number of Genotype Confirmed Founders with Surveyor'} %>
+      <%= generator.number_field :founder_surveyor_num_positive_results, {:label => 'Number of Founders with confirmed mutation with Surveyor'} %>
       <%= generator.number_field :founder_t7en1_num_assays, {:label => 'Number of Founders Assayed With t7en1'} %>
-      <%= generator.number_field :founder_t7en1_num_positive_results, {:label => 'Number of Genotype Confirmed Founders with t7en1'} %>
+      <%= generator.number_field :founder_t7en1_num_positive_results, {:label => 'Number of Founders with confirmed mutation with t7en1'} %>
+      <%= generator.number_field :founder_loa_num_assays, {:label => 'Number of Founders Assayed With LOA'} %>
+      <%= generator.number_field :founder_loa_num_positive_results, {:label => 'Number of Founders with confirmed mutation with LOA'} %>
       <%= generator.number_field :crsp_total_num_mutant_founders, {:label => 'Number of Mutant Founders'} %>
       <%= generator.number_field :crsp_num_founders_selected_for_breading, {:label => 'Number of Founders Selected For Breading'} %>
     </div>

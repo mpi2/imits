@@ -32,7 +32,7 @@ class SolrUpdate::Enqueuer
     reference2 = {'type' => 'mi_attempt', 'id' => pa.mi_attempt.id}
 
     if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0 and pa.report_to_public
-      SolrUpdate::Queue.enqueue_for_update(reference2)
+      mi_attempt_updated(reference2)
       SolrUpdate::Queue.enqueue_for_update(reference)
     else
       SolrUpdate::Queue.enqueue_for_delete(reference)

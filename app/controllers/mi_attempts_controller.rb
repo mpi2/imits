@@ -33,6 +33,7 @@ class MiAttemptsController < ApplicationController
   end
 
   def create
+    #puts "PARAMS: #{params}"
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
@@ -125,7 +126,7 @@ class MiAttemptsController < ApplicationController
   end
 
   def get_vector_options(marker_symbol)
-    return if marker_symbol.blank?
+    return {values: [], disabled: [] , selected:''} if marker_symbol.blank?
 
     gene = Gene.find_by_marker_symbol(marker_symbol)
     if gene.nil?

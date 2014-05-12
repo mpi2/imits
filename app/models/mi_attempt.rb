@@ -69,8 +69,6 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  validate :validate_plan # this method is in belongs_to_mi_plan
-
   # validate mi plan
   validate do |mi_attempt|
     if validate_plan #test whether to continue with validations
@@ -488,6 +486,8 @@ end
 #  founder_t7en1_num_positive_results              :integer
 #  crsp_total_num_mutant_founders                  :integer
 #  crsp_num_founders_selected_for_breading         :integer
+#  founder_loa_num_assays                          :integer
+#  founder_loa_num_positive_results                :integer
 #
 # Indexes
 #

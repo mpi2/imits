@@ -340,13 +340,15 @@ class SolrUpdate::DocFactory
         SELECT alleles1.id AS allele_id, targ_rep_es_cells.count AS es_cell_count
         FROM targ_rep_alleles AS alleles1
           JOIN targ_rep_alleles AS alleles2 ON alleles1.gene_id = alleles2.gene_id AND alleles1.mutation_type_id = alleles2.mutation_type_id AND alleles1.cassette = alleles2.cassette
-          LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.allele_id = alleles2.id AND targ_rep_es_cells.report_to_public is true
+          LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.allele_id = alleles2.id 
         WHERE alleles2.gene_id = #{gene.id}
         GROUP BY alleles1.id)
 
       SELECT targ_rep_alleles.*, allele_with_es_count.es_cell_count FROM targ_rep_alleles JOIN allele_with_es_count ON allele_with_es_count.allele_id = targ_rep_alleles.id
     EOF
     alleles = TargRep::Allele.find_by_sql(sql)
+
+#          LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.allele_id = alleles2.id AND targ_rep_es_cells.report_to_public is true
 
     alleles.each do |allele|
       next if allele.es_cell_count.to_i > 0

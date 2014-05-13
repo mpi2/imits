@@ -100,6 +100,16 @@ def compare_type_counts
   targets['new']["all"] = alleles_new.size
 
   pp targets
+
+  targets['old']['types'].keys.each do |type|
+    #puts "#### #{type}: #{pc(targets['old']['types'][type], targets['new']['types'][type])} %"
+    puts "#### #{type}: #{targets['old']['types'][type]}/#{targets['new']['types'][type]} - #{(targets['old']['types'][type] - targets['new']['types'][type]).to_i.abs}"
+  end
+
+  attributes.each do |attribute|
+    #puts "#### #{attribute}: #{pc(targets['old'][attribute], targets['new'][attribute])} %"
+    puts "#### #{attribute}: #{targets['old'][attribute]}/#{targets['new'][attribute]} - #{(targets['old'][attribute] - targets['new'][attribute]).to_i.abs}"
+  end
 end
 
 compare_type_counts

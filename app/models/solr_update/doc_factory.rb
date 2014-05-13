@@ -340,7 +340,7 @@ class SolrUpdate::DocFactory
         SELECT alleles1.id AS allele_id, targ_rep_es_cells.count AS es_cell_count
         FROM targ_rep_alleles AS alleles1
           JOIN targ_rep_alleles AS alleles2 ON alleles1.gene_id = alleles2.gene_id AND alleles1.mutation_type_id = alleles2.mutation_type_id AND alleles1.cassette = alleles2.cassette
-          LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.allele_id = alleles2.id
+          LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.allele_id = alleles2.id AND targ_rep_es_cells.report_to_public is true
         WHERE alleles2.gene_id = #{gene.id}
         GROUP BY alleles1.id)
 

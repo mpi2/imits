@@ -2,6 +2,7 @@ class Public::MiAttempt < ::MiAttempt
 
   include ::Public::Serializable
   include ::Public::DistributionCentresAttributes
+  include ::Public::MutagenesisFactorAttributes
   include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
@@ -62,8 +63,24 @@ class Public::MiAttempt < ::MiAttempt
     distribution_centres_attributes
     mi_plan_id
     status_stamps_attributes
+    mutagenesis_factor_id
+    mutagenesis_factor_attributes
     cassette_transmission_verified
     cassette_transmission_verified_auto_complete
+    crsp_total_embryos_injected
+    crsp_total_embryos_survived
+    crsp_total_transfered
+    crsp_no_founder_pups
+    founder_pcr_num_assays
+    founder_pcr_num_positive_results
+    founder_surveyor_num_assays
+    founder_surveyor_num_positive_results
+    founder_t7en1_num_assays
+    founder_t7en1_num_positive_results
+    founder_loa_num_assays
+    founder_loa_num_positive_results
+    crsp_total_num_mutant_founders
+    crsp_num_founders_selected_for_breading
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -119,7 +136,7 @@ end
 # Table name: mi_attempts
 #
 #  id                                              :integer          not null, primary key
-#  es_cell_id                                      :integer          not null
+#  es_cell_id                                      :integer
 #  mi_date                                         :date             not null
 #  status_id                                       :integer          not null
 #  colony_name                                     :string(125)
@@ -179,6 +196,21 @@ end
 #  qc_loxp_srpcr_and_sequencing_id                 :integer          default(1)
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean
+#  mutagenesis_factor_id                           :integer
+#  crsp_total_embryos_injected                     :integer
+#  crsp_total_embryos_survived                     :integer
+#  crsp_total_transfered                           :integer
+#  crsp_no_founder_pups                            :integer
+#  founder_pcr_num_assays                          :integer
+#  founder_pcr_num_positive_results                :integer
+#  founder_surveyor_num_assays                     :integer
+#  founder_surveyor_num_positive_results           :integer
+#  founder_t7en1_num_assays                        :integer
+#  founder_t7en1_num_positive_results              :integer
+#  crsp_total_num_mutant_founders                  :integer
+#  crsp_num_founders_selected_for_breading         :integer
+#  founder_loa_num_assays                          :integer
+#  founder_loa_num_positive_results                :integer
 #
 # Indexes
 #

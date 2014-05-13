@@ -18,7 +18,8 @@ gem 'ransack', '0.7.2'
 gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', '1.1.1', :require => 'ruport/acts_as_reportable'
 
-gem 'rmagick', '2.13.2', :require => false
+#gem 'rmagick', '2.13.2', :require => false
+gem 'rmagick', '2.13.1', :require => false
 gem 'scruffy_Sanger','0.2.6.1', :require => 'scruffy'
 
 gem 'unicorn', '4.3.0'
@@ -30,7 +31,6 @@ gem 'bio', '1.4.3'
 gem "sequel"
 ## gem "mysql2"
 
-
 group :development, :test do
   gem 'launchy', '2.0.5'
   gem 'awesome_print', '0.4.0'
@@ -38,7 +38,7 @@ group :development, :test do
   gem 'letter_opener'
 
   gem 'test-unit', '2.5.3', :require => nil
-  gem 'shoulda', :require => nil
+  gem 'shoulda', '~> 3.5.0', :require => nil
   gem 'mocha', '0.13.3', :require => nil
   gem 'database_cleaner', '0.6.7', :require => nil
   gem 'factory_girl_rails', '1.1.0', :require => nil
@@ -52,3 +52,5 @@ group :development, :test do
   gem 'capybara', '1.1.2', :require => nil
   gem 'thin', '1.4.1', :require => nil
 end
+
+#gem 'rack-maintenance_mode'

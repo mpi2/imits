@@ -36,8 +36,10 @@ class MiAttempt < ApplicationModel
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
-  belongs_to :mutagensis_factor
+  belongs_to :mutagenesis_factor, :inverse_of => :mi_attempt
 
+
+  has_many :crisprs, through: :mutagenesis_factor
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many :phenotype_attempts
 
@@ -52,23 +54,20 @@ class MiAttempt < ApplicationModel
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
-  accepts_nested_attributes_for :status_stamps
+  accepts_nested_attributes_for :status_stamps, :mutagenesis_factor
 
   protected :status=
 
-  validates :es_cell_name, :presence => true
   validates :status, :presence => true
   validates :colony_name, :uniqueness => {:case_sensitive => false}, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
 
   validate do |mi|
-    if !mi.es_cell_name.blank? and mi.es_cell.blank?
-      mi.errors.add :es_cell_name, 'was not found in the TargRep'
+    if (mi.mutagenesis_factor.blank? and mi.es_cell.blank?) or (!mi.mutagenesis_factor.blank? and !mi.es_cell.blank?)
+      mi.errors.add :base, 'Please Select EITHER an es_cell_name OR mutagenesis_factor'
     end
   end
-
-#  validate :validate_plan # this method is in belongs_to_mi_plan
 
   # validate mi plan
   validate do |mi_attempt|
@@ -76,23 +75,16 @@ class MiAttempt < ApplicationModel
       if mi_attempt.mi_plan.phenotype_only
         mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
       end
-
-      if mi_attempt.mi_plan.mutagenesis_via_crispr_cas9
-        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (mutagenesis_via_crispr_cas9)')
+      if mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.es_cell.blank?
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (crispr plan)')
       end
 
-#      if (mi_attempt.es_cell and mi_attempt.es_cell.try(:gene) != mi_attempt.mi_plan.try(:gene))
-#        mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.try(:gene).try(:marker_symbol)} != #{mi_attempt.mi_plan.try(:gene).try(:marker_symbol)})"
-#      end
+      if !mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.mutagenesis_factor.blank?
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (requires crispr plan)')
+      end
     end
   end
 
-#  validate do |mi_attempt|
-#    next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
-#    if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)
-#      mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.gene.marker_symbol} != #{mi_attempt.mi_plan.gene.marker_symbol})"
-#    end
-#  end
 
   validate do |mi_attempt|
     if !mi_attempt.phenotype_attempts.blank? and
@@ -100,14 +92,6 @@ class MiAttempt < ApplicationModel
       mi_attempt.errors.add(:status, 'cannot be changed - phenotype attempts exist')
     end
   end
-
-#  validate do |mi_attempt|
-#    next if mi_attempt.mi_plan.blank?
-
-#    if mi_attempt.mi_plan.phenotype_only
-#      mi_attempt.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
-#    end
-#  end
 
   # BEGIN Callbacks
 
@@ -149,8 +133,7 @@ class MiAttempt < ApplicationModel
   protected :set_total_chimeras
 
   def set_es_cell_from_es_cell_name
-    if ! self.es_cell
-      ## TODO: This needs modifying previously "find_or_create_from_marts_by_name"
+    if ! self.es_cell and !self.es_cell_name.blank?
       self.es_cell = TargRep::EsCell.find_by_name(self.es_cell_name)
     end
   end
@@ -180,11 +163,11 @@ class MiAttempt < ApplicationModel
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
-
+    product_prefix = self.es_cell.nil? ? 'Crisp' : self.es_cell.name
     i = 0
     begin
       i += 1
-      self.colony_name = "#{self.production_centre.name}-#{self.es_cell.name}-#{i}"
+      self.colony_name = "#{self.production_centre.name}-#{product_prefix}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
   protected :generate_colony_name_if_blank
@@ -280,7 +263,7 @@ class MiAttempt < ApplicationModel
   end
 
   def mouse_allele_symbol_superscript
-    if mouse_allele_type.nil? or es_cell.allele_symbol_superscript_template.nil?
+    if mouse_allele_type.nil? or es_cell.nil? or es_cell.allele_symbol_superscript_template.nil?
       return nil
     else
       return es_cell.allele_symbol_superscript_template.sub(
@@ -315,7 +298,7 @@ class MiAttempt < ApplicationModel
   def gene
     if mi_plan.try(:gene)
       return mi_plan.gene
-    elsif es_cell.try(:gene)
+    elsif !es_cell.blank? and es_cell.try(:gene)
       return es_cell.gene
     else
       return nil
@@ -350,8 +333,21 @@ class MiAttempt < ApplicationModel
     return test_cross_strain.try(:mgi_strain_name)
   end
 
-  def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
-  def es_cell_allele_symbol; es_cell.try(:allele_symbol); end
+  def es_cell_marker_symbol
+    if !es_cell.blank?
+      es_cell.try(:marker_symbol)
+    else
+      nil
+    end
+  end
+
+  def es_cell_allele_symbol
+    if !es_cell.blank?
+      es_cell.try(:allele_symbol)
+    else
+      nil
+    end
+  end
 
   delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
 
@@ -417,7 +413,7 @@ end
 # Table name: mi_attempts
 #
 #  id                                              :integer          not null, primary key
-#  es_cell_id                                      :integer          not null
+#  es_cell_id                                      :integer
 #  mi_date                                         :date             not null
 #  status_id                                       :integer          not null
 #  colony_name                                     :string(125)
@@ -477,6 +473,21 @@ end
 #  qc_loxp_srpcr_and_sequencing_id                 :integer          default(1)
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean
+#  mutagenesis_factor_id                           :integer
+#  crsp_total_embryos_injected                     :integer
+#  crsp_total_embryos_survived                     :integer
+#  crsp_total_transfered                           :integer
+#  crsp_no_founder_pups                            :integer
+#  founder_pcr_num_assays                          :integer
+#  founder_pcr_num_positive_results                :integer
+#  founder_surveyor_num_assays                     :integer
+#  founder_surveyor_num_positive_results           :integer
+#  founder_t7en1_num_assays                        :integer
+#  founder_t7en1_num_positive_results              :integer
+#  crsp_total_num_mutant_founders                  :integer
+#  crsp_num_founders_selected_for_breading         :integer
+#  founder_loa_num_assays                          :integer
+#  founder_loa_num_positive_results                :integer
 #
 # Indexes
 #

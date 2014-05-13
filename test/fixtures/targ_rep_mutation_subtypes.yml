@@ -33,3 +33,10 @@
   code: rsa
   created_at: <%= 5.days.ago.to_s(:db) %>
   updated_at: <%= 5.days.ago.to_s(:db) %>
+
+4:
+  id: 4
+  name: Point Mutation
+  code: pnt
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>

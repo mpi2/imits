@@ -3,12 +3,11 @@
 require 'test_helper'
 
 class ContactTest < ActiveSupport::TestCase
+  def default_contact
+    @default_contact ||= Factory.create :contact
+  end
 
   context 'Contact' do
-
-    def default_contact
-      @default_contact ||= Factory.create :contact
-    end
 
     context 'attribute tests:' do
       should 'have associations' do

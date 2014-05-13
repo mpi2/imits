@@ -3,18 +3,16 @@
 require 'test_helper'
 
 class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCase
+  def new_gene_mi(factory, gene, consortia, production_centre, attrs = {})
+    plan = TestDummy.mi_plan(consortia, production_centre, gene, :force_assignment => true)
+    return Factory.create(factory, {
+        :mi_plan => plan,
+        :es_cell => TestDummy.create(:es_cell, :allele => Factory.create(:allele, :gene => Gene.find_by_marker_symbol!(gene)))
+      }.merge(attrs)
+    )
+  end
 
   context 'Reports::MiProduction::ImpcGraphReportDisplay' do
-
-    def new_gene_mi(factory, gene, consortia, production_centre, attrs = {})
-      plan = TestDummy.mi_plan(consortia, production_centre, gene, :force_assignment => true)
-      return Factory.create(factory, {
-          :mi_plan => plan,
-          :es_cell => TestDummy.create(:es_cell, :allele => Factory.create(:allele, :gene => Gene.find_by_marker_symbol!(gene)))
-        }.merge(attrs)
-      )
-    end
-
     setup do
       (1..15).each {|i| Factory.create :gene, :marker_symbol => "Cbx#{i}"}
 

@@ -1,0 +1,119 @@
+--- 
+legacy_statuses_map: 
+  Not Assigned for ES Cell Production: 
+  - No ES Cell Production
+  Assigned for ES Cell Production: 
+  - ES Cell Production in Progress
+  ES Cells Produced: 
+  - ES Cell Targeting Confirmed
+  Assigned for Mouse Production and Phenotyping: 
+  - Chimeras obtained
+  - Micro-injection in progress
+  Mice Produced: 
+  - Genotype confirmed
+  - Cre Excision Started
+  - Cre Excision Complete
+  - Phenotype Attempt Registered
+  - Phenotyping Started
+
+statuses: 
+  ES_CELL_TARGETING_CONFIRMED: ES Cell Targeting Confirmed
+  CRE_EXCISION_COMPLETE: Cre Excision Complete
+  GENOTYPE_CONFIRMED: Genotype confirmed
+  ES_CELL_PRODUCTION_IN_PROGRESS: ES Cell Production in Progress
+  NO_ES_CELL_PRODUCTION: No ES Cell Production
+
+es_cell_statuses: 
+  ES Cell Targeting Confirmed: 30
+  ES Cell Production in Progress: 20
+  No ES Cell Production: 10
+
+sql: |
+  select distinct
+  SUBS_TEMPLATE
+  targ_rep_alleles.id as targ_rep_alleles_id,  
+  genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,
+  CASE WHEN (targ_rep_targeting_vectors.allele_id IS NOT NULL) THEN true else false END AS does_a_targ_vec_exist,
+  CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL) THEN true else false END AS does_an_es_cell_exist,
+  targ_rep_es_cells.mgi_allele_symbol_superscript,
+  targ_rep_es_cells.allele_symbol_superscript_template,
+  miapc.name miacentre_name,
+  mi_attempt_statuses.name as mi_attempt_status,
+  mi_attempts.mouse_allele_type as mi_mouse_allele_type,
+  phenotype_attempts.mouse_allele_type as phenotype_attempt_mouse_allele_type,
+  phenotype_attempts.cre_excision_required,
+  pacentres.name pacentre_name,
+  phenotype_attempt_statuses.name as phenotype_attempt_status,
+  genes.feature_type as feature_type
+  from genes
+  left outer join targ_rep_alleles on genes.id = targ_rep_alleles.gene_id
+  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id SUBS_TEMPLATE2 and targ_rep_targeting_vectors.report_to_public is true
+  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id SUBS_TEMPLATE2 and targ_rep_es_cells.report_to_public is true
+  left outer join mi_attempts on mi_attempts.es_cell_id = targ_rep_es_cells.id SUBS_TEMPLATE2 and mi_attempts.report_to_public is true
+  left outer join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id
+  left join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id SUBS_TEMPLATE2 and mi_attempt_plan.report_to_public is true
+  left join centres miapc on mi_attempt_plan.production_centre_id = miapc.id
+  left outer join phenotype_attempts on phenotype_attempts.mi_attempt_id = mi_attempts.id SUBS_TEMPLATE2 and phenotype_attempts.report_to_public is true
+  left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id SUBS_TEMPLATE2 and paplan.report_to_public is true
+  left outer join centres pacentres on pacentres.id = paplan.production_centre_id
+  left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id
+  SUBS_TEMPLATE3
+
+sql_template: |
+  genes.id as genes_id,
+  phenotype_attempts.id as phenotype_attempts_id,
+  mi_attempts.id as mi_attempts_id,
+  targ_rep_es_cells.id as targ_rep_es_cells_id,
+
+options: 
+  SAVE_AS_CSV: false
+  USE_ID: false
+  USE_IDS: false
+  USE_ORDER: false
+  USE_REPORT_TO_PUBLIC: false
+  USE_ALLELES: true
+  USE_GENES: true
+  MARKER_SYMBOL: ""   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
+  DETECT_GENE_DUPS: true
+  USE_REPLACEMENT: true
+  FILTER_TARGET: ""   #"feature_type"    #"marker_type"    
+  CREATE_FILES: false
+  USE_FILES: false
+
+replacements: 
+- Akt2: 
+    gene: 
+      latest_es_cell_status: ES Cell Targeting Confirmed
+      latest_mouse_status: Micro-injection in progress
+      latest_phenotype_status: Phenotyping Started
+      latest_project_status: ES Cell Targeting Confirmed
+      latest_project_status_legacy: Assigned for Mouse Production and Phenotyping
+      latest_production_centre: ""
+      latest_phenotyping_centre: ""
+      latest_phenotype_started: "1"
+    allele: 
+      es_cell_status: ES Cell Targeting Confirmed
+      mouse_status: Micro-injection in progress
+      phenotype_status: Phenotyping Started
+      production_centre: ""
+      phenotyping_centre: ""
+
+marker_filters: 
+- gene
+- gene segment
+- heritable phenotypic marker
+- lincRNA gene
+- miRNA gene
+- non-coding RNA gene
+- protein coding gene
+- RNase MRP RNA gene
+- RNase P RNA gene
+- rRNA gene
+- scRNA gene
+- snoRNA gene
+- snRNA gene
+- SRP RNA gene
+- telomerase RNA gene
+- tRNA gene
+- unclassified gene
+- unclassified non-coding RNA gene

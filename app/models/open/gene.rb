@@ -102,6 +102,7 @@ class Open::Gene < ::Gene
 
 end
 
+
 # == Schema Information
 #
 # Table name: genes
@@ -129,6 +130,8 @@ end
 #  ensembl_ids                        :string(255)
 #  ccds_ids                           :string(255)
 #  marker_type                        :string(255)
+#  feature_type                       :string(255)
+#  synonyms                           :string(255)
 #
 # Indexes
 #

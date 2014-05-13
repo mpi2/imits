@@ -28,7 +28,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
         @mi_attempt.total_male_chimeras = 1
         @mi_attempt.save!
         @mi_attempt.save!
-        assert_equal 3, @mi_attempt.status_stamps.size
+        assert_equal 4, @mi_attempt.status_stamps.size
       end
     end
 
@@ -112,7 +112,55 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
         @mi_attempt.total_male_chimeras = 1
         @mi_attempt.save!
         @mi_attempt.save!
-        assert_equal 2, @mi_attempt.status_stamps.size
+        assert_equal 3, @mi_attempt.status_stamps.size
+      end
+    end
+
+    context 'status, when mi_attempt created from cripsrs' do
+      setup do
+        @mi_attempt = Factory.create :mi_attempt_crispr,
+                :crsp_total_num_mutant_founders => nil
+      end
+
+      should 'be Micro-injection in progress if the two fields are nil' do
+        assert_equal MiAttempt::Status.micro_injection_in_progress, @mi_attempt.status
+      end
+
+      should 'be Founder obtained if crsp_total_num_mutant_founders > 0' do
+        @mi_attempt.crsp_total_num_mutant_founders = 1
+        @mi_attempt.save!
+        assert_equal MiAttempt::Status.founder_obtained, @mi_attempt.status
+      end
+
+      should_eventually 'transition MI status to Genotype confirmed if something' do
+        @mi_attempt.crsp_total_num_mutant_founders = 1
+        @mi_attempt.save!
+        assert_equal MiAttempt::Status.genotype_confirmed, @mi_attempt.status
+      end
+
+      should 'not transition MI status to Founder obtained if crsp_total_num_mutant_founders is greater than zero and MI is not active' do
+        @mi_attempt.crsp_total_num_mutant_founders = 1
+        @mi_attempt.is_active = false
+        @mi_attempt.save!
+        assert_not_equal MiAttempt::Status.founder_obtained, @mi_attempt.status
+        assert_equal MiAttempt::Status.micro_injection_aborted, @mi_attempt.status
+      end
+
+      should 'transition back from Founder obtained to Micro-injection in progress is crsp_total_num_mutant_founders is set back to 0' do
+        @mi_attempt.crsp_total_num_mutant_founders = 1
+        @mi_attempt.save!
+        assert_equal MiAttempt::Status.founder_obtained, @mi_attempt.status
+
+        @mi_attempt.crsp_total_num_mutant_founders = 0
+        @mi_attempt.save!
+        assert_equal MiAttempt::Status.micro_injection_in_progress, @mi_attempt.status
+      end
+
+      should 'not add the same status twice' do
+        @mi_attempt.crsp_total_num_mutant_founders = 1
+        @mi_attempt.save!
+        @mi_attempt.save!
+        assert_equal 3, @mi_attempt.status_stamps.size
       end
     end
 
@@ -179,6 +227,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
 
       expected_statuses = [
         MiAttempt::Status.micro_injection_in_progress,
+        MiAttempt::Status.chimeras_founder_obtained,
         MiAttempt::Status.chimeras_obtained,
         MiAttempt::Status.genotype_confirmed,
         MiAttempt::Status.micro_injection_aborted
@@ -193,7 +242,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
         assert_equal 1, mi.status_stamps.count
 
         set_mi_attempt_genotype_confirmed(mi)
-        assert_equal 3, mi.status_stamps.count
+        assert_equal 4, mi.status_stamps.count
         assert_equal 'gtc', mi.status_stamps.last.status.code
       end
 
@@ -208,12 +257,13 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
       should_eventually 'have return order defined by StatusManager' do
         mi = Factory.create :mi_attempt2_status_gtc
         replace_status_stamps(mi,
-          :gtc => '2011-01-01',
-          :mip => '2011-01-02',
-          :chr => '2011-01-03'
+          :gtc => '2011-01-04',
+          :chr => '2011-01-03',
+          :cof => '2011-01-02',
+          :mip => '2011-01-01'
         )
         mi.reload
-        assert_equal ['mip', 'chr', 'gtc'], mi.status_stamps.all.map(&:code)
+        assert_equal ['gtc','chr','cof','mip'], mi.status_stamps.all.map(&:code)
       end
     end
 

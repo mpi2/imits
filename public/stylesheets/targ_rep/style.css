@@ -125,10 +125,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #navigation li a {
-  font-weight: bold;
   text-decoration: none;
   padding: 7px 10px 7px 10px;
-  color: #333;
 }
 
 #navigation li.current a,

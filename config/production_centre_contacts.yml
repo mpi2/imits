@@ -5,7 +5,6 @@ contacts:
   CIPHE: amandine.sansoni@inserm.fr
   CNB: montoliu@cnb.csic.es
   CNRS:
-  EMBL-Rome: pedro.moreira@embl.it
   Fleming:
   Harwell: impc@har.mrc.ac.uk
   HMGU: s.marschall@helmholtz-muenchen.de
@@ -31,7 +30,7 @@ contacts:
   UniMiss:
   UNorCar:
   VETMEDUNI:
-  WTSI: mouseinterest@sanger.ac.uk
+  WTSI: mouseinterest@sanger.ac.uk|skarnes@sanger.ac.uk
 
 bcc:
   - re4@sanger.ac.uk

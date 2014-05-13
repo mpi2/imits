@@ -3,11 +3,15 @@
 require 'test_helper'
 
 class Public::MiPlanTest < ActiveSupport::TestCase
-  context 'Public::MiPlan' do
+  def default_mi_plan
+    @default_mi_plan ||= Factory.create(:mi_plan).to_public
+  end
 
-    def default_mi_plan
-      @default_mi_plan ||= Factory.create(:mi_plan).to_public
-    end
+  def centre
+    @centre ||= Factory.create(:centre)
+  end
+
+  context 'Public::MiPlan' do
 
     context 'audits' do
       should ', on create, still be created for MiPlan, not this public version' do
@@ -133,10 +137,6 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     end
 
     context '#production_centre_name' do
-      def centre
-        @centre ||= Factory.create(:centre)
-      end
-
       should 'use AccessAssociationByAttribute' do
         default_mi_plan.production_centre_name = centre.name
         assert_equal centre, default_mi_plan.production_centre

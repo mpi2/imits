@@ -3,12 +3,17 @@
 require 'test_helper'
 
 class MiPlan::StatusManagementTest < ActiveSupport::TestCase
-  context 'MiPlan::StatusManagement' do
+  def default_mi_plan
+    @default_mi_plan ||= Factory.create :mi_plan_with_production_centre, :gene => cbx1
+  end
 
+  def create_another_assigned_plan
+    assert_equal 'Assigned', default_mi_plan.status.name
+    return TestDummy.mi_plan default_mi_plan.marker_symbol, :force_assignment => true
+  end
+
+  context 'MiPlan::StatusManagement' do
     context 'when setting status based on attributes' do
-      def default_mi_plan
-        @default_mi_plan ||= Factory.create :mi_plan_with_production_centre, :gene => cbx1
-      end
 
       should 'set status to Assigned by default' do
         assert_equal 'Assigned', default_mi_plan.status.name
@@ -72,11 +77,6 @@ class MiPlan::StatusManagementTest < ActiveSupport::TestCase
         assert_equal true, same_gene_plan.withdrawn?
         assert_equal 'Withdrawn', same_gene_plan.status.name
       end
-    end
-
-    def create_another_assigned_plan
-      assert_equal 'Assigned', default_mi_plan.status.name
-      return TestDummy.mi_plan default_mi_plan.marker_symbol, :force_assignment => true
     end
 
     context 'when setting pre-assignment statuses when a new record' do

@@ -3,38 +3,191 @@
 require 'test_helper'
 
 class MiAttemptTest < ActiveSupport::TestCase
+
+  def default_mi_attempt
+    @default_mi_attempt ||= Factory.create(:mi_attempt2,
+    :blast_strain             => Strain.find_by_name!('BALB/c'),
+    :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd'),
+    :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
+    )
+  end
+
+  def check_phenotype_attempt_status(mi, status_string)
+    status = mi.relevant_phenotype_attempt_status(true)
+    assert_equal status_string, status[:name]
+
+    status = mi.relevant_phenotype_attempt_status(false)
+    assert_nil status
+
+    pa = mi.phenotype_attempts[0]
+    pa.cre_excision_required = false
+    pa.save!
+
+    status = mi.relevant_phenotype_attempt_status(false)
+    assert_equal status_string, status[:name]
+
+    status = mi.relevant_phenotype_attempt_status(true)
+    assert_nil status
+  end
+
+  MOUSE_ALLELE_OPTIONS = {
+    nil => '[none]',
+    'a' => 'a - Knockout-first - Reporter Tagged Insertion',
+    'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
+    'c' => 'c - Knockout-First, Post-Flp - Conditional',
+    'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
+    'e' => 'e - Targeted Non-Conditional',
+    'e.1' => 'e.1 - Promoter excision from tm1e mouse',
+    '.1' => '.1 - Promoter excision from Deletion'
+  }.freeze
+
   context 'MiAttempt' do
 
-    def default_mi_attempt
-      @default_mi_attempt ||= Factory.create(:mi_attempt2,
-      :blast_strain             => Strain.find_by_name!('BALB/c'),
-      :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd'),
-      :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
-      )
+    context 'accociations' do
+      belongs_to_fields = [:mi_plan,
+                           :es_cell,
+                           :status,
+                           :updated_by,
+                           :blast_strain,
+                           :colony_background_strain,
+                           :test_cross_strain,
+                           :mutagenesis_factor,
+                           MiAttempt::QC_FIELDS
+                           ].flatten
+
+      have_many_fields =   [:crisprs,
+                            :status_stamps,
+                            :phenotype_attempts,
+                            :distribution_centres
+                           ]
+
+      belongs_to_fields.each do |field|
+        should belong_to(field)
+      end
+
+      have_many_fields.each do |field|
+        should have_many(field)
+      end
     end
+
+    context 'Validation' do
+      should validate_presence_of(:mi_date)
+      should ensure_inclusion_of(:mouse_allele_type).in_array(MOUSE_ALLELE_OPTIONS.keys)
+
+#      context 'uniqueness' do
+#        setup do
+#          Factory.create()
+#        end
+
+#        should validate_uniqueness_of(:colony_name).case_insensitive.allow_nil
+#      end
+
+      context 'require either an es_cell or mutagenesis factor' do
+        setup do
+          @mi = Factory.build(:mi_attempt)
+          Factory.create(:es_cell, :allele => Factory.create(:allele, :gene_id => @mi.mi_plan.gene_id))
+        end
+
+        should 'be invalid if both are missing' do
+          assert_false @mi.valid?
+          assert_true @mi.errors.messages[:base].include?('Please Select EITHER an es_cell_name OR mutagenesis_factor')
+        end
+
+        should 'be invalid if both are present' do
+          @mi.es_cell = TargRep::EsCell.first
+          @mi.mutagenesis_factor = Factory.create(:mutagenesis_factor)
+
+          assert_false @mi.valid?
+          assert_true @mi.errors.messages[:base].include?('Please Select EITHER an es_cell_name OR mutagenesis_factor')
+        end
+
+        should 'be valid if es_cell is present' do
+          @mi.es_cell = TargRep::EsCell.first
+
+          assert_true @mi.valid?
+        end
+
+        should 'be valid if mutagenesis_factor is present' do
+          crispr_plan = Factory.create(:crispr_plan)
+          mi = Factory.build(:mi_attempt, :mi_plan => crispr_plan)
+          mi.mutagenesis_factor = Factory.create(:mutagenesis_factor)
+
+          assert_true mi.valid?
+        end
+      end
+
+      should 'not allow es_cell mi_attempt to be assigned to a crispr plan' do
+        crispr_plan = Factory.create(:crispr_plan)
+        mi = Factory.build(:mi_attempt2, :mi_plan => crispr_plan)
+
+        assert_false mi.valid?
+        assert_true mi.errors.messages[:base].include?('MiAttempt cannot be assigned to this MiPlan. (crispr plan)')
+      end
+
+      should 'not allow crispr mi_attempt to be assigned to a non crispr plan' do
+        es_cell_plan = Factory.create(:mi_plan_with_production_centre)
+        mi = Factory.build(:mi_attempt_crispr, :mi_plan => es_cell_plan)
+
+        assert_false mi.valid?
+        assert_true mi.errors.messages[:base].include?('MiAttempt cannot be assigned to this MiPlan. (requires crispr plan)')
+      end
+
+      should 'not allow mi_attempt to be assigned to a phenotype only plan' do
+        phenotype_only_plan = Factory.create(:mi_plan_phenotype_only)
+        mi = Factory.build(:mi_attempt2_status_gtc, :mi_plan => phenotype_only_plan)
+
+        assert_false mi.valid?
+        assert_true mi.errors.messages[:base].include?('MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
+      end
+
+      should 'not allow changes that result in a status change when the current mi_attempt status is Genotype Confirmed and phenotype attempts exist.' do
+        mi = Factory.create(:phenotype_attempt).mi_attempt
+        mi.reload
+        mi.total_male_chimeras = 0
+
+        assert_false mi.valid?
+        assert_true mi.errors.messages[:status].include?('cannot be changed - phenotype attempts exist')
+      end
+    end
+
+    context 'before filter' do
+      context 'set_total_chimeras' do
+        should 'work' do
+          default_mi_attempt.total_male_chimeras = 5
+          default_mi_attempt.total_female_chimeras = 4
+          default_mi_attempt.save!
+          default_mi_attempt.reload
+          assert_equal 9, default_mi_attempt.total_chimeras
+        end
+
+        should 'deal with blank values' do
+          default_mi_attempt.total_male_chimeras = nil
+          default_mi_attempt.total_female_chimeras = nil
+          default_mi_attempt.save!
+          default_mi_attempt.reload
+          assert_equal 0, default_mi_attempt.total_chimeras
+        end
+      end
+
+      context '#set_blank_strings_to_nil (before validation)' do
+        should 'work' do
+          default_mi_attempt.total_male_chimeras = 1
+          default_mi_attempt.mouse_allele_type = ' '
+          default_mi_attempt.genotyping_comment = '  '
+          default_mi_attempt.is_active = false
+          default_mi_attempt.valid?
+          assert_equal 1, default_mi_attempt.total_male_chimeras
+          assert_equal nil, default_mi_attempt.mouse_allele_type
+          assert_equal nil, default_mi_attempt.genotyping_comment
+          assert_equal false, default_mi_attempt.is_active
+        end
+      end
+    end
+
 
     context 'misc attribute tests:' do
 
-      should 'have es_cell' do
-        assert_should have_db_column(:es_cell_id).with_options(:null => false)
-        assert_should belong_to(:es_cell)
-      end
-
-      should 'have an mi_date' do
-        assert_should have_db_column(:mi_date)
-        assert_should validate_presence_of :mi_date
-      end
-
-      should 'have distribution centres' do
-        assert_should have_many(:distribution_centres)
-      end
-
-      context '#status' do
-        should 'exist' do
-          assert_should have_db_column(:status_id).with_options(:null => false)
-          assert_should belong_to(:status)
-        end
-
+      context 'Status' do
         should 'be set to "Micro-injection in progress" by default' do
           assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt2).status.name
         end
@@ -45,71 +198,71 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.status_stamps.map(&:status)
         end
 
-        should 'not be settable to non-genotype-confirmed if mi attempt has phenotype_attempts' do
-          set_mi_attempt_genotype_confirmed(default_mi_attempt)
-          Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
-          default_mi_attempt.reload
-          default_mi_attempt.is_active = false
-          default_mi_attempt.valid?
-          assert_match(/cannot be changed/i, default_mi_attempt.errors[:status].first)
-        end
-      end
-
-      context '#status_stamps' do
-        should 'be an association' do
-          assert_should have_many :status_stamps
-        end
-
         should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
           mi = Factory.create :mi_attempt2_status_gtc
           assert_include mi.status_stamps.map {|i| i.status.code}, 'mip'
         end
-      end
 
-      context '#status_name' do
-        should 'be filtered on #public_search' do
-          default_mi_attempt.update_attributes!(:is_active => false)
-          mi_attempt_2 = Factory.create :mi_attempt2_status_gtc
-          mi_ids = MiAttempt.public_search(:status_name_ci_in => MiAttempt::Status.micro_injection_aborted.name).result.map(&:id)
-          assert_include mi_ids, default_mi_attempt.id
-          assert ! mi_ids.include?(mi_attempt_2.id)
-        end
-      end
-
-      context '#add_status_stamp' do
-        setup do
-          default_mi_attempt.status_stamps.destroy_all
-          default_mi_attempt.send(:add_status_stamp, MiAttempt::Status.micro_injection_aborted)
+        context '#status_name' do
+          should 'be filtered on #public_search' do
+            default_mi_attempt.update_attributes!(:is_active => false)
+            mi_attempt_2 = Factory.create :mi_attempt2_status_gtc
+            mi_ids = MiAttempt.public_search(:status_name_ci_in => MiAttempt::Status.micro_injection_aborted.name).result.map(&:id)
+            assert_include mi_ids, default_mi_attempt.id
+            assert ! mi_ids.include?(mi_attempt_2.id)
+          end
         end
 
-        should 'add the stamp' do
-          assert_not_nil MiAttempt::StatusStamp.where(
-          :mi_attempt_id => default_mi_attempt.id,
-          :status_id => MiAttempt::Status.micro_injection_aborted.id)
+        context '#add_status_stamp' do
+          setup do
+            default_mi_attempt.status_stamps.destroy_all
+            default_mi_attempt.send(:add_status_stamp, MiAttempt::Status.micro_injection_aborted)
+          end
+
+          should 'add the stamp' do
+            assert_not_nil MiAttempt::StatusStamp.where(
+            :mi_attempt_id => default_mi_attempt.id,
+            :status_id => MiAttempt::Status.micro_injection_aborted.id)
+          end
+
+          should 'update the association afterwards' do
+            assert_equal [MiAttempt::Status.micro_injection_aborted],
+            default_mi_attempt.status_stamps.map(&:status)
+          end
         end
 
-        should 'update the association afterwards' do
-          assert_equal [MiAttempt::Status.micro_injection_aborted],
-          default_mi_attempt.status_stamps.map(&:status)
-        end
-      end
+        context '#reportable_statuses_with_latest_dates' do
+          should 'work' do
+            mi = Factory.create :mi_attempt2
 
-      context '#reportable_statuses_with_latest_dates' do
-        should 'work' do
-          mi = Factory.create :mi_attempt2
-
-          set_mi_attempt_genotype_confirmed(mi)
-          replace_status_stamps(mi,
-          :chr => '2011-01-02',
-          :gtc => '2011-01-03'
-          )
-          expected = {
-            'Micro-injection in progress' => mi.mi_date,
-            'Chimeras obtained' => Date.parse('2011-01-02'),
-            'Genotype confirmed' => Date.parse('2011-01-03')
-          }
-          assert_equal expected, mi.reportable_statuses_with_latest_dates
+            set_mi_attempt_genotype_confirmed(mi)
+            replace_status_stamps(mi,
+            :chr => '2011-01-02',
+            :cof => '2011-01-02',
+            :gtc => '2011-01-03'
+            )
+            expected = {
+              'Micro-injection in progress' => mi.mi_date,
+              'Chimeras obtained' => Date.parse('2011-01-02'),
+              'Chimeras/Founder obtained' => Date.parse('2011-01-02'),
+              'Genotype confirmed' => Date.parse('2011-01-03')
+            }
+            assert_equal expected, mi.reportable_statuses_with_latest_dates
+          end
         end
+
+        context '#in_progress_date' do
+          should 'return status stamp date for in progress status which matches mi_date' do
+            mi = Factory.create :mi_attempt2_status_gtc
+            replace_status_stamps(mi,
+              :chr => '2011-11-12 00:00 UTC',
+              :mip => '2011-06-12 00:00 UTC', # this will be over written to match the mi_date
+              :gtc => '2011-01-24 00:00 UTC'
+            )
+            assert_equal mi.mi_date, mi.in_progress_date
+          end
+        end
+
       end
 
       context '#mouse_allele_type' do
@@ -129,6 +282,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           end
         end
       end
+
 
       context '#mouse_allele_symbol_superscript' do
         should 'be nil if mouse_allele_type is nil' do
@@ -285,9 +439,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context 'QC field tests:' do
         MiAttempt::QC_FIELDS.each do |qc_field|
-          should "include #{qc_field}" do
-            assert_should belong_to(qc_field)
-          end
 
           should "have #{qc_field}_result association accessor" do
             default_mi_attempt.send("#{qc_field}_result=", 'pass')
@@ -460,6 +611,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
+
       context '#mi_plan' do
         should 'know about its new MiAttempt without having to be manually reloaded' do
           mi = Factory.create :mi_attempt2
@@ -477,49 +629,12 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal user, default_mi_attempt.updated_by
       end
 
-      should 'have #phenotype_attempts' do
-        assert_should have_many :phenotype_attempts
-      end
-
       should 'have column genotyping_comment' do
         assert_should have_db_column(:genotyping_comment).of_type(:string).with_options(:null => true)
       end
 
     end # misc attribute tests
 
-    context 'before filter' do
-      context 'set_total_chimeras' do
-        should 'work' do
-          default_mi_attempt.total_male_chimeras = 5
-          default_mi_attempt.total_female_chimeras = 4
-          default_mi_attempt.save!
-          default_mi_attempt.reload
-          assert_equal 9, default_mi_attempt.total_chimeras
-        end
-
-        should 'deal with blank values' do
-          default_mi_attempt.total_male_chimeras = nil
-          default_mi_attempt.total_female_chimeras = nil
-          default_mi_attempt.save!
-          default_mi_attempt.reload
-          assert_equal 0, default_mi_attempt.total_chimeras
-        end
-      end
-
-      context '#set_blank_strings_to_nil (before validation)' do
-        should 'work' do
-          default_mi_attempt.total_male_chimeras = 1
-          default_mi_attempt.mouse_allele_type = ' '
-          default_mi_attempt.genotyping_comment = '  '
-          default_mi_attempt.is_active = false
-          default_mi_attempt.valid?
-          assert_equal 1, default_mi_attempt.total_male_chimeras
-          assert_equal nil, default_mi_attempt.mouse_allele_type
-          assert_equal nil, default_mi_attempt.genotyping_comment
-          assert_equal false, default_mi_attempt.is_active
-        end
-      end
-    end
 
     context '#es_cell_name virtual attribute (TODO: move to Public::MiAttempt)' do
       setup do
@@ -556,25 +671,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal @es_cell_2.name, @mi_attempt.es_cell_name
       end
 
-=begin
-      #
-      # We're not using the marts anymore
-      #
-      should 'pull in es_cell from marts if it is not in the DB' do
-        assert_equal nil, EsCell.find_by_name('EPD0127_4_E04')
-        @mi_attempt.es_cell_name = 'EPD0127_4_E04'
-        @mi_attempt.save!
-
-        assert EsCell.find_by_name('EPD0127_4_E04')
-        assert_equal EsCell.find_by_name!('EPD0127_4_E04'), @mi_attempt.es_cell
-      end
-=end
-      should 'validate as missing if not set and es_cell is not set either' do
-        @mi_attempt.es_cell_name = nil
-        @mi_attempt.valid?
-        assert_equal ['cannot be blank'], @mi_attempt.errors['es_cell_name']
-      end
-
       should 'not validate as missing if not set but es_cell is set' do
         @mi_attempt.es_cell_name = nil
         @mi_attempt.es_cell = TargRep::EsCell.find_by_name('EPD0127_4_E02')
@@ -582,11 +678,11 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert @mi_attempt.errors['es_cell_name'].blank?
       end
 
-      should 'validate when es_cell_name is not a valid es_cell in the marts' do
+      should 'validate when es_cell_name is not a valid es_cell in TargRep' do
         mi_plan = Factory.create(:mi_plan_with_production_centre)
         mi_attempt = MiAttempt.new(:es_cell_name => 'EPD0127_4_Z99', :mi_plan => mi_plan)
         assert_false mi_attempt.valid?
-        assert ! mi_attempt.errors[:es_cell_name].blank?
+        assert_true mi_attempt.errors.messages[:base].include?('Please Select EITHER an es_cell_name OR mutagenesis_factor')
       end
     end
 
@@ -739,18 +835,6 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    context '#in_progress_date' do
-      should 'return status stamp date for in progress status which matches mi_date' do
-        mi = Factory.create :mi_attempt2_status_gtc
-        replace_status_stamps(mi,
-        :chr => '2011-11-12 00:00 UTC',
-        :mip => '2011-06-12 00:00 UTC', # this will be over written to match the mi_date
-        :gtc => '2011-01-24 00:00 UTC'
-        )
-        assert_equal mi.mi_date, mi.in_progress_date
-      end
-    end
-
     context '#create_phenotype_attempt_for_komp2' do
       should 'create a new phenotype attempt if status is genotype confirmed, attached to specific consortium and no current phenotype attempts' do
         this_consortium = Consortium.find_by_name!('BaSH')
@@ -830,24 +914,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     should 'include BelongsToMiPlan' do
       assert_include MiAttempt.ancestors, ApplicationModel::BelongsToMiPlan
-    end
-
-    def check_phenotype_attempt_status(mi, status_string)
-      status = mi.relevant_phenotype_attempt_status(true)
-      assert_equal status_string, status[:name]
-
-      status = mi.relevant_phenotype_attempt_status(false)
-      assert_nil status
-
-      pa = mi.phenotype_attempts[0]
-      pa.cre_excision_required = false
-      pa.save!
-
-      status = mi.relevant_phenotype_attempt_status(false)
-      assert_equal status_string, status[:name]
-
-      status = mi.relevant_phenotype_attempt_status(true)
-      assert_nil status
     end
 
     context '#relevant_phenotype_attempt_status' do
@@ -943,6 +1009,5 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal "Rederivation Started", status[:name]
       end
     end
-
   end
 end

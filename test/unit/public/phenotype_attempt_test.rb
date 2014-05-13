@@ -3,11 +3,11 @@
 require 'test_helper'
 
 class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
-  context 'Public::PhenotypeAttempt' do
+  def default_phenotype_attempt
+    @default_phenotype_attempt ||= Factory.create(:phenotype_attempt).to_public
+  end
 
-    def default_phenotype_attempt
-      @default_phenotype_attempt ||= Factory.create(:phenotype_attempt).to_public
-    end
+  context 'Public::PhenotypeAttempt' do
 
     context '#mi_attempt_colony_name' do
       should 'AccessAssociationByAttribute' do

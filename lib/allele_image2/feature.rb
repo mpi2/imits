@@ -2,7 +2,7 @@ module AlleleImage2
   class Feature
     class NotRenderableError < RuntimeError; end
 
-    attr_accessor :feature_name, :feature_type, :start, :stop, :orientation, :exon_rank, :render_options, :simple, :do_not_display
+    attr_accessor :feature_name, :feature_type, :start, :stop, :orientation, :exon_rank, :del_bp, :del_exons, :render_options, :simple, :do_not_display
 
     def initialize(bio_feature, options = {})
       @simple = false
@@ -21,6 +21,17 @@ module AlleleImage2
       rank = bio_feature.to_hash['rank']
       if rank
         self.exon_rank = rank.first
+      end
+
+      # optionally set deletion fields if available
+      del_bp = bio_feature.to_hash['del_bp']
+      if del_bp
+        self.del_bp = del_bp.first
+      end
+
+      del_exons = bio_feature.to_hash['del_exons']
+      if del_exons
+        self.del_exons = del_exons.first
       end
 
       return if options[:skip_renderable_check]

@@ -264,4 +264,28 @@ namespace :solr do
     end
   end
 
+  task 'update:allele_single' => [:environment] do
+    pp SolrUpdate::IndexProxy::Allele.get_uri
+    ApplicationModel.transaction do
+      puts "#### enqueueing allele..."
+      enqueuer = SolrUpdate::Enqueuer.new
+
+      #TargRep::TargetedAllele.all.each do |a|
+      #  if a.gene.marker_symbol == 'Zrsr2'
+      #    enqueuer.allele_updated(a)
+      #  end
+      #end
+
+      gene = Gene.find_by_marker_symbol 'Zrsr2'
+
+      if gene
+        gene.allele.each do |a|
+          enqueuer.allele_updated(a)
+        end
+      end
+
+      SolrUpdate::Queue.run(:limit => nil)
+    end
+  end
+
 end

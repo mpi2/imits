@@ -6,8 +6,7 @@ class AlleleImage2::Features::Exon < AlleleImage2::Features::DefaultFeature
   def detailed(renderer, image, options = {})
 
     drawing = Magick::Draw.new
-    drawing.stroke feature.render_options[:stroke]
-    
+    drawing.stroke feature.render_options[:stroke]    
     drawing.fill feature.render_options[:colour]
 
     x1 = renderer.x + ( feature.render_options[:width] - feature.render_options[:exon_rectangle_width] ) / 2

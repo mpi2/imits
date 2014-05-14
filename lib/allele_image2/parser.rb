@@ -8,6 +8,7 @@ module AlleleImage2
     def initialize(genbank_data, simple = false)
       @simple = simple
       @genbank_data = genbank_data
+
       @genbank = Bio::GenBank.new(@genbank_data)
 
       @alias_hash = {}
@@ -25,7 +26,6 @@ module AlleleImage2
 
     def parse
       self.features = @genbank.features.map do |f|
-
         f.feature = @alias_hash[f.feature.downcase.to_sym] || f.feature
 
         unless f.qualifiers.length == 0
@@ -47,12 +47,13 @@ module AlleleImage2
       end
 
       self.construct = AlleleImage2::Construct.new(
-        :features => self.features.dup,
-        :circular => circular,
-        :cassette_label => extract_label(@genbank, "cassette"),
-        :backbone_label => extract_label(@genbank, "backbone"),
-        :bac_label => extract_label(@genbank, "target_bac"),
-        :simple => @simple
+        :features            => self.features.dup,
+        :circular            => circular,
+        :cassette_label      => extract_label(@genbank, "cassette"),
+        :backbone_label      => extract_label(@genbank, "backbone"),
+        :bac_label           => extract_label(@genbank, "target_bac"),
+        :transcript_id_label => extract_label(@genbank, "transcript_id"),
+        :simple              => @simple
       )
     end
 

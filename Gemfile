@@ -52,3 +52,5 @@ group :development, :test do
   gem 'capybara', '1.1.2', :require => nil
   gem 'thin', '1.4.1', :require => nil
 end
+
+#gem 'rack-maintenance_mode'

@@ -95,7 +95,49 @@
 
     </div>
   </td>
+
+  <tr>
+
+  <!--Add the following matrix to the bottom of the iMITS home page:
+Title: IKMC production statistics
+Table has 2 rows, 4 cells per row.
+Row: Project Name, # genes with vectors, #genes with ES cells, # genes with Mice
+Project Name = EUCOMM if vector or es cell pipeline is EUCOMM or EUCOMM-Tools
+Project name = KOMP if vector or es cell pipeline is KOMP-CSD or KOMP-Regeneron
+-->
+
+  <td width="800" style="display: table-cell;vertical-align: top;">
+    <h2 style="margin-bottom:0">IKMC production statistics</h2>
+    <div class="report grid_12">
+
+      <table style="width:100%;">
+      <thead>
+      <tr>
+        <th>Project name</th>
+        <th>Genes with vectors</th>
+        <th>Genes with ES cells</th>
+        <th>Genes with Mice</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <% @table_3.each do |row| %>
+      <tr>
+        <td><%= row['project_name'] %></td>
+        <td><%= row['genes_with_vectors'] %></td>
+        <td><%= row['genes_with_es_cells'] %></td>
+        <td><%= row['genes_with_mice'] %></td>
+      </tr>
+      <% end %>
+
+      </tbody>
+      </table>
+
+    </div>
+  </td>
+
   </tr>
+
   </table>
 
 </div>

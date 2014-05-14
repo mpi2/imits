@@ -13,6 +13,11 @@ module ApplicationModel::BelongsToMiPlan
       return false
     end
 
+    if mi_plan.consortium.blank? or mi_plan.production_centre.blank?
+      self.errors.add(:mi_plan, "must have been assigned to a production centre before mouse production/phenotyping can commence")
+      return false
+    end
+
     if ['Withdrawn', 'Inactive'].include?(mi_plan.status.name)
       self.errors.add(:mi_plan, "is in status #{mi_plan.status.name} - it must be in an assigned state.")
       return false

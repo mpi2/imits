@@ -489,21 +489,20 @@ class MiPlan < ApplicationModel
   end
 
   def self.find_or_create_plan(object, params, &check_plan_exists)
-    raise MiPlanError, "Did not check to see if mi_plan already exists" if check_plan_exists.nil?
+    raise "Did not check to see if mi_plan already exists" if check_plan_exists.nil?
 
     mi_plans = check_plan_exists.call(object)
     if mi_plans.count == 1
       mi_plan = mi_plans.first
     elsif mi_plans.count == 0
-      params[:force_assignment] = true
       mi_plan = MiPlan.new(params)
       if mi_plan.valid?
         mi_plan.save
       else
-        raise MiPlanError, "Invalid mi_plan. #{mi_plan.errors.messages}"
+        raise "Invalid mi_plan. #{mi_plan.errors.messages}"
       end
     else
-      raise MiPlanError, "Multiple mi_plans returned. Expected 0-1 mi_plan to be returned for the given params: #{params}"
+      raise "Multiple mi_plans returned. Expected 0-1 mi_plan to be returned for the given params: #{params}"
     end
     return mi_plan
 

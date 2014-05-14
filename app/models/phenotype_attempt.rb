@@ -123,6 +123,7 @@ class PhenotypeAttempt < ApplicationModel
 
 ## BEFORE VALIDATION FUNCTIONS
   def allow_override_of_plan
+    return if self.consortium_name.blank? or self.production_centre_name.blank? or self.gene.blank?
     if !self.mi_attempt_id.blank? or !self.mi_plan_id.blank?
       set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
         plan = pa.try(:mi_attempt).try(:mi_plan)

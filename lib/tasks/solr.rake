@@ -7,6 +7,10 @@ namespace :solr do
     SolrUpdate::Queue.run
   end
 
+  task 'update_part' => [:environment] do
+    SolrUpdate::Queue.run(:limit => 100)
+  end
+
   desc 'How many queue items are there in the queue?'
   task 'update:count' => [:environment] do
     puts SolrUpdate::Queue::Item.count
@@ -284,6 +288,38 @@ namespace :solr do
         end
       end
 
+      SolrUpdate::Queue.run(:limit => nil)
+    end
+  end
+
+  task 'update:mi_attempts_bcm' => [:environment] do
+    pp SolrUpdate::IndexProxy::Allele.get_uri
+
+    ApplicationModel.transaction do
+      puts "#### enqueueing mi_attempts..."
+      enqueuer = SolrUpdate::Enqueuer.new
+      counter = 0
+      MiAttempt.all.each do |i|
+        found = false
+        i.distribution_centres.each do |distribution_centre|
+          #pp distribution_centre
+          if distribution_centre.centre.name == 'BCM'
+            found = true
+            break
+          end
+        end
+
+        next if ! found
+      #  pp i.es_cell.allele.gene.marker_symbol
+      #  exit
+
+        enqueuer.mi_attempt_updated(i)
+        counter += 1
+        #break if counter > 100
+        #break
+      end
+
+      puts "#### running mi_attempts (#{counter})..."
       SolrUpdate::Queue.run(:limit => nil)
     end
   end

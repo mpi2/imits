@@ -82,7 +82,7 @@ require 'open-uri'
 headers = []
 data = {}
 
-url = "http://www.sanger.ac.uk/htgt/report/get_projects?view=csvdl&file=tmp.csv"
+url = "#{Rails.configuration.htgt_root}/report/get_projects?view=csvdl&file=tmp.csv"
 open(url) do |file|
   headers = file.readline.strip.split(',')
   file.each_line do |line|
@@ -107,12 +107,3 @@ results = ActiveRecord::Base.connection.execute(sql)
 result.each do |record|
 
 end
-
-
-
-
-
-
-
-
-

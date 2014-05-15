@@ -75,6 +75,8 @@ module TarMits
     #config.maintenance_mode.if = Proc.new { |env| File.file?(Rails.root.join("/tmp/imits-maintenance.on")) }
 
     #config.maintenance_mode.response = Proc.new { |env| [503, {'Content-Type' => 'text/html'}, [Rails.root.join("public/maintenance.html").read]] }
+
+    config.htgt_root = "http://www.sanger.ac.uk/htgt/htgt2"
   end
 
   def self.git_revision

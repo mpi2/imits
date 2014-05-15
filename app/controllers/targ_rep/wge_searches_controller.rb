@@ -115,7 +115,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
 
 private
   def wge_call(request_url_str)
-    uri = URI("http://www.sanger.ac.uk/htgt/wge/#{request_url_str}")
+    uri = URI("#{Rails.configuration.htgt_root}/wge/#{request_url_str}")
 
   #  puts "URL SCHEME :#{uri.scheme} HOST : #{uri.host} PATH : #{uri.path} QUERY : #{uri.query} : FRAGMENT #{uri.fragment} : STRING #{uri.to_s}"
 

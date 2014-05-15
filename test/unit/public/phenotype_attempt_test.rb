@@ -57,8 +57,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'set MiPlan to Assigned status if not assigned already' do
         plan = TestDummy.mi_plan(@mi.mi_plan.marker_symbol,
-        'JAX', @mi.mi_plan.production_centre.name)
-        plan.phenotype_only = true
+        'JAX', @mi.mi_plan.production_centre.name, :phenotype_only => true)
         assert_equal 'Inspect - GLT Mouse', plan.status.name
 
         pt = Factory.build(:public_phenotype_attempt,
@@ -92,7 +91,9 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'tat_cre',
         'status_stamps_attributes',
         'report_to_public',
-        'phenotyping_experiments_started'
+        'phenotyping_experiments_started',
+        'phenotyping_productions_attributes',
+        'ready_for_website'
       ]+
       %W{
         qc_southern_blot_result
@@ -150,7 +151,9 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'allele_symbol',
         'report_to_public',
         'phenotyping_experiments_started',
-        'mgi_accession_id'
+        'mgi_accession_id',
+        'phenotyping_productions_attributes',
+        'ready_for_website'
       ] +
       %W{
         qc_southern_blot_result

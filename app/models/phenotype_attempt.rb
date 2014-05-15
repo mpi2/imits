@@ -47,9 +47,12 @@ class PhenotypeAttempt < ApplicationModel
   belongs_to :status
   belongs_to :deleter_strain
   belongs_to :colony_background_strain, :class_name => 'Strain'
-  has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
-  has_many :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
+  has_many   :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC", :dependent => :destroy
+  has_many   :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
+  has_many   :phenotyping_productions, :dependent => :destroy
+
+  has_one    :mouse_allele_mod, :dependent => :destroy
 
   access_association_by_attribute :colony_background_strain, :name
 
@@ -60,8 +63,6 @@ class PhenotypeAttempt < ApplicationModel
   validates :mi_attempt, :presence => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
-
-  before_validation :set_blank_qc_fields_to_na
 
   # validate mi_plan
   validate do |me|
@@ -106,13 +107,80 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
-  before_validation :change_status
+  before_validation :set_blank_qc_fields_to_na
   before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
+  before_validation :allow_override_of_plan
+  before_validation :change_status
+  before_validation :check_phenotyping_production_for_update
 #  before_save :ensure_plan_exists # this method is in belongs_to_mi_plan
   before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
   after_save :manage_status_stamps
+  after_save :set_allele_mod_and_production
   after_save :set_phenotyping_experiments_started_if_blank
+
+
+
+## BEFORE VALIDATION FUNCTIONS
+  def allow_override_of_plan
+    return if self.consortium_name.blank? or self.production_centre_name.blank? or self.gene.blank?
+    if !self.mi_attempt_id.blank? or !self.mi_plan_id.blank?
+      set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
+        plan = pa.try(:mi_attempt).try(:mi_plan)
+        if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
+          plan = [plan]
+        else
+          set_plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
+        end
+      end
+      self.mi_plan = set_plan
+    end
+  end
+
+
+  def check_phenotyping_production_for_update
+    linked_pp = []
+    deleting_pp = []
+    self.phenotyping_productions.each{|pp| linked_pp << pp if pp.consortium_name == self.consortium_name and pp.production_centre_name == self.production_centre_name and !pp.marked_for_destruction?}
+    self.phenotyping_productions.each{|pp| deleting_pp << pp if pp.consortium_name == self.consortium_name and pp.production_centre_name == self.production_centre_name and pp.marked_for_destruction?}
+    if linked_pp.count == 1
+      pp_changes = linked_pp.first.changes
+      PhenotypingProduction.phenotype_attempt_updatable_fields.each do |field, default_value|
+        if pp_changes.has_key?(field)
+          self[field] = pp_changes[field][1]
+        end
+      end
+      if self.changes.has_key?(:colony_name) and linked_pp.first.colony_name == self.changes[:colony_name][0]
+        linked_pp.first.colony_name = self.colony_name
+      end
+    elsif deleting_pp.count >= 1
+      PhenotypingProduction.phenotype_attempt_updatable_fields.each do |field, default_value|
+        self[field] = default_value
+      end
+    end
+  end
+
+## AFTER SAVE FUNCTIONS
+  def set_allele_mod_and_production
+
+    mouse_allele = MouseAlleleMod.create_or_update_from_phenotype_attempt(self)
+    self.reload
+    if self.phenotyping_productions.count == 0
+      PhenotypingProduction.create_or_update_from_phenotype_attempt(self)
+      self.reload
+    end
+
+    linked_pp = []
+    self.phenotyping_productions.each{|pp| linked_pp << pp if pp.consortium_name == self.consortium_name and pp.production_centre_name == self.production_centre_name and !pp.marked_for_destruction?}
+    if linked_pp.count == 1
+      PhenotypingProduction.phenotype_attempt_updatable_fields.each do |field, default_value|
+        if self[field] != linked_pp.first[field]
+          linked_pp.first[field] = self[field]
+        end
+        linked_pp.first.save
+      end
+    end
+  end
 
   def set_mi_plan
     if ! self.mi_plan.present?
@@ -132,8 +200,9 @@ class PhenotypeAttempt < ApplicationModel
     i = 0
     begin
       i += 1
-      self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
-    end until self.class.find_by_colony_name(self.colony_name).blank?
+      colony_name = "#{self.mi_attempt.colony_name}-#{i}"
+    end until self.class.find_by_colony_name(colony_name).blank?
+    self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
   end
 
   # END Callbacks
@@ -180,10 +249,10 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   def gene
-    if mi_plan.try(:gene)
-      return mi_plan.gene
-    elsif mi_attempt.try(:gene)
-      return mi_attempt.gene
+    if self.mi_plan.try(:gene)
+      return self.mi_plan.gene
+    elsif self.mi_attempt.try(:gene)
+      return self.mi_attempt.gene
     else
       return nil
     end
@@ -243,7 +312,6 @@ class PhenotypeAttempt < ApplicationModel
   end
 end
 
-
 # == Schema Information
 #
 # Table name: phenotype_attempts
@@ -287,6 +355,7 @@ end
 #  qc_loxp_srpcr_and_sequencing_id     :integer
 #  allele_name                         :string(255)
 #  jax_mgi_accession_id                :string(255)
+#  ready_for_website                   :date
 #
 # Indexes
 #

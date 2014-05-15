@@ -21,6 +21,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     mouse_allele_type
     deleter_strain_name
     distribution_centres_attributes
+    phenotyping_productions_attributes
     colony_background_strain_name
     cre_excision_required
     tat_cre
@@ -44,6 +45,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     qc_critical_region_qpcr_result
     qc_loxp_srpcr_result
     qc_loxp_srpcr_and_sequencing_result
+    ready_for_website
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -69,6 +71,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
+  accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
 
   access_association_by_attribute :mi_attempt, :colony_name
   access_association_by_attribute :deleter_strain, :name
@@ -91,6 +94,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   # END Callbacks
 
+
   def status_name; status.name; end
 
   def status_dates
@@ -100,6 +104,10 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     end
     return retval
   end
+
+ def phenotyping_productions_attributes
+   return phenotyping_productions.as_json(:except => [:created_at, :updated_at, :status_id, :phenotype_attempt_id, :mouse_allele_mod_id], :methods => [:consortium_name, :production_centre_name, :status_name])
+ end
 
   def self.translations
     return {
@@ -154,6 +162,7 @@ end
 #  qc_loxp_srpcr_and_sequencing_id     :integer
 #  allele_name                         :string(255)
 #  jax_mgi_accession_id                :string(255)
+#  ready_for_website                   :date
 #
 # Indexes
 #

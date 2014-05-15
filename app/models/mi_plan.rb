@@ -22,11 +22,15 @@ class MiPlan < ApplicationModel
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
   has_many :phenotype_attempts
+  has_many :mouse_allele_mods
+  has_many :phenotyping_productions
   has_many :es_cell_qcs, :dependent => :delete_all
 
   accepts_nested_attributes_for :status_stamps
 
   access_association_by_attribute :es_cells_received_from, :name
+  access_association_by_attribute :consortium, :name
+  access_association_by_attribute :production_centre, :name
 
   delegate :marker_symbol, :to => :gene
 
@@ -483,6 +487,27 @@ class MiPlan < ApplicationModel
       self.errors.add :completion_note, "recognised values are #{legal_values}"
     end
   end
+
+  def self.find_or_create_plan(object, params, &check_plan_exists)
+    raise "Did not check to see if mi_plan already exists" if check_plan_exists.nil?
+
+    mi_plans = check_plan_exists.call(object)
+    if mi_plans.count == 1
+      mi_plan = mi_plans.first
+    elsif mi_plans.count == 0
+      mi_plan = MiPlan.new(params)
+      if mi_plan.valid?
+        mi_plan.save
+      else
+        raise "Invalid mi_plan. #{mi_plan.errors.messages}"
+      end
+    else
+      raise "Multiple mi_plans returned. Expected 0-1 mi_plan to be returned for the given params: #{params}"
+    end
+    return mi_plan
+
+  end
+
 end
 
 # == Schema Information
@@ -493,7 +518,7 @@ end
 #  gene_id                        :integer          not null
 #  consortium_id                  :integer          not null
 #  status_id                      :integer          not null
-#  priority_id                    :integer          not null
+#  priority_id                    :integer
 #  production_centre_id           :integer
 #  created_at                     :datetime
 #  updated_at                     :datetime

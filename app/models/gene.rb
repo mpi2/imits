@@ -4,7 +4,8 @@ class Gene < ActiveRecord::Base
   has_many :mi_plans
   has_many :mi_attempts, :through => :mi_plans
   has_many :phenotype_attempts, :through => :mi_plans
-
+  has_many :mouse_allele_mods, :through => :mi_plans
+  has_many :phenotyping_productions, :through => :mi_plans
   has_many :notifications
   has_many :contacts, :through => :notifications
 
@@ -432,13 +433,24 @@ class Gene < ActiveRecord::Base
 
         UNION ALL
 
-        (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id, phenotype_attempt_statuses.name AS status_name
+        (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id,
+                CASE
+                  WHEN phenotyping_production_statuses.name = 'Phenotype Production Aborted' AND (mouse_allele_mod_statuses.name IS NULL OR mouse_allele_mod_statuses.name = 'Mouse Allele Modification Aborted')
+                    THEN 'Phenotype Attempt Aborted'
+                 WHEN phenotyping_production_statuses.name IS NOT NULL AND (mouse_allele_mod_statuses.name IS NULL OR phenotyping_production_statuses.order_by > mouse_allele_mod_statuses.order_by)
+                   THEN phenotyping_production_statuses.name
+                 WHEN mouse_allele_mod_statuses.name = 'Mouse Allele Modification Aborted'
+                   THEN 'Phenotype Attempt Aborted'
+                 ELSE mouse_allele_mod_statuses.name
+               END AS status_name
+
          FROM mi_plans
-           JOIN phenotype_attempts ON mi_plans.id = phenotype_attempts.mi_plan_id
-           JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id
-           JOIN mi_attempts ON mi_attempts.id = phenotype_attempts.mi_attempt_id
-         WHERE mi_attempts.is_active = true
-           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"} #{crispr ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : ''}
+           LEFT JOIN (mouse_allele_mods JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id) ON mouse_allele_mods.mi_plan_id = mi_plans.id
+           LEFT JOIN (phenotyping_productions JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id JOIN mouse_allele_mods AS mam2 ON mam2.id = phenotyping_productions.mouse_allele_mod_id) ON phenotyping_productions.mi_plan_id = mi_plans.id
+           JOIN mi_attempts ON (mi_attempts.id = mouse_allele_mods.mi_attempt_id OR mi_attempts.id = mam2.mi_attempt_id)
+
+         WHERE mi_attempts.is_active = true AND (mouse_allele_mods.id IS NOT NULL OR phenotyping_productions.id IS NOT NULL)
+           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"} #{crispr ? 'AND mi_plans.mutagenesis_via_crispr_cas9 IS TRUE' : ''}
         )
       ) AS production_summary
       #{statuses.nil? ? "" : "WHERE production_summary.status_name IN ('#{statuses.map{|status| status.name}.join("','")}')"}

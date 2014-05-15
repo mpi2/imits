@@ -128,7 +128,20 @@ class BuildAllele2
 
   def delete_index
     proxy = SolrBulk::Proxy.new(@solr_update[Rails.env]['index_proxy']['allele2'])
-    proxy.update({'delete' => {'query' => '*:*'}}.to_json)
+
+    if @marker_symbol.empty?
+      proxy.update({'delete' => {'query' => '*:*'}}.to_json)
+    else
+      #marker_symbols = @marker_symbol.to_s.split ','
+
+      @marker_symbol.each do |marker_symbol|
+        #puts "#### @marker_symbol: #{@marker_symbol}"
+        #puts "#### marker_symbol_str:\/#{marker_symbol}\/"
+        ##proxy.update({'delete' => {'query' => "marker_symbol_str:\/#{marker_symbol}\/"}}.to_json)
+        proxy.update({'delete' => {'query' => "marker_symbol_str:#{marker_symbol}"}}.to_json)
+      end
+    end
+
     proxy.update({'commit' => {}}.to_json)
   end
 

@@ -92,6 +92,7 @@ function processRestOfForm() {
 
     miplanlistview.on('selectionchange', function(view, nodes){
       restOfForm.getInputElement("phenotype_attempt[mi_plan_id]").set({ value: nodes[0].get('id') });
+      Ext.get("phenotype_attempt_production_centre_name").set({ value: nodes[0].get('production_centre_name') });
     });
 
     miplanstorephenotype.on('load', function(){

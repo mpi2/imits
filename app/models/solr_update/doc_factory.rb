@@ -183,11 +183,13 @@ class SolrUpdate::DocFactory
 
       order_from_url = details[:default]
 
-      if project_id && /PROJECT_ID/ =~ details[:preferred]
+      # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
+
+      if project_id &&  details[:preferred] =~ /PROJECT_ID/
         order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
       end
 
-      if marker_symbol && /MARKER_SYMBOL/ =~ details[:preferred]
+      if marker_symbol && details[:preferred] =~ /MARKER_SYMBOL/
         order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
       end
 

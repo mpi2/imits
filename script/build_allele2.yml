@@ -85,7 +85,7 @@ replacements:
     gene: 
       latest_es_cell_status: ES Cell Targeting Confirmed
       latest_mouse_status: Micro-injection in progress
-      latest_phenotype_status: Phenotyping Started
+      latest_phenotype_status: ""
       latest_project_status: ES Cell Targeting Confirmed
       latest_project_status_legacy: Assigned for Mouse Production and Phenotyping
       latest_production_centre: ""

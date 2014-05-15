@@ -62,7 +62,7 @@ class ReadOnlyIndexReport
       JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id and targ_rep_pipelines.name IN ('EUCOMM', 'EUCOMMTools', 'KOMP-CSD', 'KOMP-Regeneron') AND targ_rep_pipelines.report_to_public IS true
       JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_targeting_vectors.allele_id
       JOIN genes ON genes.id = targ_rep_alleles.gene_id
-      JOIN targ_rep_ikmc_project_statuses ON targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id AND targ_rep_ikmc_project_statuses.name IN ('Vector Complete')
+      --JOIN targ_rep_ikmc_project_statuses ON targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id AND targ_rep_ikmc_project_statuses.name IN ('Vector Complete')
       WHERE targ_rep_targeting_vectors.report_to_public IS true
       GROUP BY substring(targ_rep_pipelines.name FROM 1 FOR 4)
 
@@ -73,7 +73,7 @@ class ReadOnlyIndexReport
       join targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id and targ_rep_pipelines.name in ('EUCOMM', 'EUCOMMTools', 'KOMP-CSD', 'KOMP-Regeneron') AND targ_rep_pipelines.report_to_public IS true
       join targ_rep_alleles on targ_rep_alleles.id = targ_rep_es_cells.allele_id
       join genes on genes.id = targ_rep_alleles.gene_id
-      join targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id and targ_rep_ikmc_project_statuses.name IN ('ES Cells - Targeting Confirmed')
+      --join targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id and targ_rep_ikmc_project_statuses.name IN ('ES Cells - Targeting Confirmed')
       where targ_rep_es_cells.report_to_public is true
       group by substring(targ_rep_pipelines.name from 1 for 4)
 

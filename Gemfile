@@ -31,8 +31,6 @@ gem 'bio', '1.4.3'
 gem "sequel"
 ## gem "mysql2"
 
-gem 'turnout'
-
 group :development, :test do
   gem 'launchy', '2.0.5'
   gem 'awesome_print', '0.4.0'
@@ -54,4 +52,3 @@ group :development, :test do
   gem 'capybara', '1.1.2', :require => nil
   gem 'thin', '1.4.1', :require => nil
 end
-

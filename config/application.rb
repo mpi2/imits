@@ -73,6 +73,11 @@ module TarMits
     config.show_search_page = false
 
     config.htgt_root = "http://www.sanger.ac.uk/htgt/htgt2"
+
+    # html maintenance response
+    config.middleware.use 'ImitsRack::Maintenance',
+      :file => Rails.root.join('public', 'maintenance.html'),
+      :trigger_file => '/tmp/imits-maintenance.on'
   end
 
   def self.git_revision

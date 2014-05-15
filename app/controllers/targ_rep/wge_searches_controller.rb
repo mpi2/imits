@@ -51,7 +51,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
   def crispr_search
     exon_ids = params[:exon_id]
 
-    response = wge_call("api/crispr_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}")
+    response = wge_call("api/crispr_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}&flank=200")
 
     data = []
 

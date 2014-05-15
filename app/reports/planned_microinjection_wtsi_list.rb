@@ -67,18 +67,18 @@ class PlannedMicroinjectionWtsiList     #< PlannedMicroinjectionList
 
     sql = <<-EOF
     SELECT
-    new_intermediate_report.gene AS marker_symbol,
-    new_intermediate_report.mgi_accession_id AS mgi_accession_id,
-    string_agg(new_intermediate_report.consortium, '|') AS consortium_name,
-    string_agg(new_intermediate_report.production_centre, '|') AS centre_name,
-    string_agg(new_intermediate_report.mi_plan_status, '|') AS mi_plan_status,
-    string_agg(new_intermediate_report.overall_status, '|') AS overall_status,
-    string_agg(new_intermediate_report.mi_attempt_status, '|') AS mi_attempt_status,
-    string_agg(new_intermediate_report.phenotype_attempt_status, '|') AS phenotype_attempt_status
-    FROM new_intermediate_report
-    where new_intermediate_report.production_centre = '#{production_centre}'
-    group by new_intermediate_report.gene, new_intermediate_report.mgi_accession_id
-    order by new_intermediate_report.gene
+    new_intermediate_report_summary_by_mi_plan.gene AS marker_symbol,
+    new_intermediate_report_summary_by_mi_plan.mgi_accession_id AS mgi_accession_id,
+    string_agg(new_intermediate_report_summary_by_mi_plan.consortium, '|') AS consortium_name,
+    string_agg(new_intermediate_report_summary_by_mi_plan.production_centre, '|') AS centre_name,
+    string_agg(new_intermediate_report_summary_by_mi_plan.mi_plan_status, '|') AS mi_plan_status,
+    string_agg(new_intermediate_report_summary_by_mi_plan.overall_status, '|') AS overall_status,
+    string_agg(new_intermediate_report_summary_by_mi_plan.mi_attempt_status, '|') AS mi_attempt_status,
+    string_agg(new_intermediate_report_summary_by_mi_plan.phenotype_attempt_status, '|') AS phenotype_attempt_status
+    FROM new_intermediate_report_summary_by_mi_plan
+    where new_intermediate_report_summary_by_mi_plan.production_centre = '#{production_centre}'
+    group by new_intermediate_report_summary_by_mi_plan.gene, new_intermediate_report_summary_by_mi_plan.mgi_accession_id
+    order by new_intermediate_report_summary_by_mi_plan.gene
     EOF
 
     sql

@@ -31,6 +31,7 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
   belongs_to :phenotype_attempt
+  belongs_to :mouse_allele_mod
   belongs_to :centre
   belongs_to :deposited_material
 
@@ -84,4 +85,5 @@ end
 #  created_at             :datetime
 #  updated_at             :datetime
 #  distribution_network   :string(255)
+#  mouse_allele_mod_id    :integer
 #

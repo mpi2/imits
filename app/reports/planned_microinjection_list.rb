@@ -10,7 +10,7 @@ class PlannedMicroinjectionList #< Reports::Base
 
   def mi_plan_summary(consortium = nil, crisprs = false)
     @crisprs = crisprs
-    @mi_plan_summary = ActiveRecord::Base.connection.execute(self._mi_plan_summary(consortium, crisprs))
+    @mi_plan_summary = ActiveRecord::Base.connection.execute(self.class.mi_plan_summary(consortium, crisprs))
   end
 
   def pretty_print_non_assigned_mi_plans
@@ -37,7 +37,8 @@ class PlannedMicroinjectionList #< Reports::Base
     @gene_pretty_prints ||= Gene.gene_production_summary nil, nil, nil, @crisprs
   end
 
-  def _mi_plan_summary(consortium = nil, crisprs = false)
+## Class Methods
+  def self.mi_plan_summary(consortium = nil, crisprs = false)
 
     sql = <<-EOF
     WITH mi_attempt_counts AS (
@@ -53,28 +54,28 @@ class PlannedMicroinjectionList #< Reports::Base
    ),
 
     status_conflict_options AS (
-    SELECT new_intermediate_report.mi_plan_id AS mi_plan_id, new_intermediate_report.gene AS marker_symbol, new_intermediate_report.consortium AS consortium_name,
+    SELECT new_intermediate_report_summary_by_mi_plan.mi_plan_id AS mi_plan_id, new_intermediate_report_summary_by_mi_plan.gene AS marker_symbol, new_intermediate_report_summary_by_mi_plan.consortium AS consortium_name,
            CASE
-             WHEN new_intermediate_report.mi_attempt_status IN ('Genotype confirmed') THEN 'Inspect - GLT Mouse'
-             WHEN new_intermediate_report.mi_attempt_status IN ('Micro-injection in progress', 'Chimeras obtained') THEN 'Inspect - MI Attempt'
-             WHEN new_intermediate_report.mi_plan_status IN ('#{MiPlan::Status.all_assigned.map{|status| status.name}.join("','")}') THEN 'Inspect - Conflict'
-             WHEN new_intermediate_report.mi_plan_status IN ('Conflict') THEN 'Conflict'
+             WHEN new_intermediate_report_summary_by_mi_plan.mi_attempt_status IN ('Genotype confirmed') THEN 'Inspect - GLT Mouse'
+             WHEN new_intermediate_report_summary_by_mi_plan.mi_attempt_status IN ('Micro-injection in progress', 'Chimeras obtained') THEN 'Inspect - MI Attempt'
+             WHEN new_intermediate_report_summary_by_mi_plan.mi_plan_status IN ('#{MiPlan::Status.all_assigned.map{|status| status.name}.join("','")}') THEN 'Inspect - Conflict'
+             WHEN new_intermediate_report_summary_by_mi_plan.mi_plan_status IN ('Conflict') THEN 'Conflict'
              ELSE NULL
            END AS possible_conflict
-    FROM new_intermediate_report
+    FROM new_intermediate_report_summary_by_mi_plan
     )
 
     SELECT
-      new_intermediate_report.mi_plan_id AS mi_plan_id,
-      new_intermediate_report.gene AS marker_symbol,
-      new_intermediate_report.mgi_accession_id AS mgi_accession_id,
-      new_intermediate_report.consortium AS consortium_name,
-      new_intermediate_report.production_centre AS centre_name,
-      new_intermediate_report.sub_project AS sub_project_name,
-      new_intermediate_report.priority AS priority_name,
-      new_intermediate_report.mi_plan_status AS status_name,
+      new_intermediate_report_summary_by_mi_plan.mi_plan_id AS mi_plan_id,
+      new_intermediate_report_summary_by_mi_plan.gene AS marker_symbol,
+      new_intermediate_report_summary_by_mi_plan.mgi_accession_id AS mgi_accession_id,
+      new_intermediate_report_summary_by_mi_plan.consortium AS consortium_name,
+      new_intermediate_report_summary_by_mi_plan.production_centre AS centre_name,
+      new_intermediate_report_summary_by_mi_plan.sub_project AS sub_project_name,
+      new_intermediate_report_summary_by_mi_plan.priority AS priority_name,
+      new_intermediate_report_summary_by_mi_plan.mi_plan_status AS status_name,
       to_char(mi_plan_status_stamps.created_at, 'dd/mm/yyyy') AS status_date,
-      to_char(new_intermediate_report.assigned_date, 'dd/mm/yyyy') AS assign_date,
+      to_char(new_intermediate_report_summary_by_mi_plan.assigned_date, 'dd/mm/yyyy') AS assign_date,
       mi_plans.is_bespoke_allele AS bespoke,
       mi_plans.mutagenesis_via_crispr_cas9 as mutagenesis_via_crispr_cas9,
       mi_plans.is_conditional_allele AS conditional_allele,
@@ -99,23 +100,24 @@ class PlannedMicroinjectionList #< Reports::Base
       string_agg(status_conflict_options.consortium_name, ', ') AS conflict_reason,
       mi_attempt_counts.plan_aborted_count AS plan_aborted_count,
       to_char(mi_attempt_counts.plan_aborted_max_date, 'dd/mm/yyyy') AS plan_aborted_max_date
+
     FROM mi_attempt_counts
       JOIN mi_plans ON mi_plans.id = mi_attempt_counts.plan_id #{crisprs ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : 'and mi_plans.mutagenesis_via_crispr_cas9 is false'}
-      JOIN new_intermediate_report ON new_intermediate_report.mi_plan_id = mi_attempt_counts.plan_id #{crisprs ? 'and new_intermediate_report.mutagenesis_via_crispr_cas9 is true' : 'and new_intermediate_report.mutagenesis_via_crispr_cas9 is false'}
-      JOIN mi_plan_statuses ON mi_plan_statuses.name = new_intermediate_report.mi_plan_status
-      JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report.mi_plan_id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
-      LEFT JOIN status_conflict_options ON new_intermediate_report.mi_plan_id != status_conflict_options.mi_plan_id AND mi_plan_statuses.name = status_conflict_options.possible_conflict AND new_intermediate_report.gene = status_conflict_options.marker_symbol
+      JOIN new_intermediate_report_summary_by_mi_plan ON new_intermediate_report_summary_by_mi_plan.mi_plan_id = mi_attempt_counts.plan_id #{crisprs ? 'and new_intermediate_report_summary_by_mi_plan.mutagenesis_via_crispr_cas9 is true' : 'and new_intermediate_report_summary_by_mi_plan.mutagenesis_via_crispr_cas9 is false'}
+      JOIN mi_plan_statuses ON mi_plan_statuses.name = new_intermediate_report_summary_by_mi_plan.mi_plan_status
+      JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report_summary_by_mi_plan.mi_plan_id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
+      LEFT JOIN status_conflict_options ON new_intermediate_report_summary_by_mi_plan.mi_plan_id != status_conflict_options.mi_plan_id AND mi_plan_statuses.name = status_conflict_options.possible_conflict AND new_intermediate_report_summary_by_mi_plan.gene = status_conflict_options.marker_symbol
     GROUP BY
-      new_intermediate_report.mi_plan_id,
-      new_intermediate_report.gene,
-      new_intermediate_report.mgi_accession_id,
-      new_intermediate_report.consortium,
-      new_intermediate_report.production_centre,
-      new_intermediate_report.sub_project,
-      new_intermediate_report.priority,
-      new_intermediate_report.mi_plan_status,
+      new_intermediate_report_summary_by_mi_plan.mi_plan_id,
+      new_intermediate_report_summary_by_mi_plan.gene,
+      new_intermediate_report_summary_by_mi_plan.mgi_accession_id,
+      new_intermediate_report_summary_by_mi_plan.consortium,
+      new_intermediate_report_summary_by_mi_plan.production_centre,
+      new_intermediate_report_summary_by_mi_plan.sub_project,
+      new_intermediate_report_summary_by_mi_plan.priority,
+      new_intermediate_report_summary_by_mi_plan.mi_plan_status,
       mi_plan_status_stamps.created_at,
-      new_intermediate_report.assigned_date,
+      new_intermediate_report_summary_by_mi_plan.assigned_date,
       mi_plan_statuses.name,
       mi_plans.is_bespoke_allele,
       mi_plans.mutagenesis_via_crispr_cas9,
@@ -133,11 +135,8 @@ class PlannedMicroinjectionList #< Reports::Base
       mi_plans.recovery,
       mi_attempt_counts.plan_aborted_count,
       mi_attempt_counts.plan_aborted_max_date
-    ORDER BY new_intermediate_report.gene
-
-    EOF
-
-    sql
+    ORDER BY new_intermediate_report_summary_by_mi_plan.gene
+      EOF
 
   end
 end

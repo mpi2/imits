@@ -312,7 +312,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
         gtc_gene_consortia AS (
           SELECT
             genes_with_plans.gene_id as gene_id,
-            genes_with_plans.consortium_name as consortium,
+            genes_with_plans.consortium_name as consortium_name,
             count(gtc_stamps.*) as genotype_confirmed_count
           FROM genes_with_plans
           JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id and mi_attempts.status_id != 3
@@ -327,31 +327,46 @@ class ImpcCentreByMonthReportConsortiaBreakdown
 
         gtc_consortia AS (
           SELECT
-            gtc_gene_consortia.consortium,
+            gtc_gene_consortia.consortium_name,
             SUM(CASE
               WHEN genotype_confirmed_count > 0
               THEN 1 ELSE 0
             END) as genotype_confirmed_count
           FROM gtc_gene_consortia
           GROUP BY
-            consortium
+            consortium_name
           ORDER BY
-            consortium ASC
+            consortium_name ASC
         ),
 
-        phenotype_gene_consortia AS (
+
+        mouse_allele_mod_gene_consortia AS (
           SELECT
             genes_with_plans.gene_id as gene_id,
-            genes_with_plans.consortium_name as consortium,
-            count(cre_stamps.*) as cre_excised_or_better_count,
+            genes_with_plans.consortium_name as consortium_name,
+            count(cre_stamps.*) as cre_excised_or_better_count
+          FROM genes_with_plans
+          JOIN mouse_allele_mods ON genes_with_plans.mi_plan_id = mouse_allele_mods.mi_plan_id AND mouse_allele_mods.status_id != 7 --not aborted
+          LEFT JOIN mouse_allele_mod_status_stamps as cre_stamps ON mouse_allele_mods.id = cre_stamps.mouse_allele_mod_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at <= '#{cut_off_date}'
+
+          GROUP BY
+            genes_with_plans.gene_id,
+            genes_with_plans.consortium_name
+
+          ORDER BY genes_with_plans.consortium_name ASC
+        ),
+
+        phenotyping_production_gene_consortia AS (
+          SELECT
+            genes_with_plans.gene_id as gene_id,
+            genes_with_plans.consortium_name as consortium_name,
             count(ps_stamps.*) as phenotype_started_or_better_count,
             count(pc_stamps.*) as phenotype_complete_count,
-            SUM(CASE WHEN phenotyping_experiments_started < '#{cut_off_date}' THEN 1 ELSE 0 END) AS phenotype_experiments_started_count
+            SUM(CASE WHEN phenotyping_experiments_started <= '#{cut_off_date}' THEN 1 ELSE 0 END) AS phenotype_experiments_started_count
           FROM genes_with_plans
-          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id AND phenotype_attempts.status_id != 1
-          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at < '#{cut_off_date}'
-          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at < '#{cut_off_date}'
-          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at < '#{cut_off_date}'
+          JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 5
+          LEFT JOIN phenotyping_production_status_stamps as ps_stamps ON phenotyping_productions.id = ps_stamps.phenotyping_production_id AND ps_stamps.status_id = 3 AND ps_stamps.created_at <= '#{cut_off_date}'
+          LEFT JOIN phenotyping_production_status_stamps as pc_stamps ON phenotyping_productions.id = pc_stamps.phenotyping_production_id AND pc_stamps.status_id = 4 AND pc_stamps.created_at <= '#{cut_off_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
@@ -362,34 +377,34 @@ class ImpcCentreByMonthReportConsortiaBreakdown
 
         phenotype_consortia AS (
           SELECT
-            phenotype_gene_consortia.consortium,
+            mouse_allele_mod_gene_consortia.consortium_name,
             SUM(CASE
-              WHEN cre_excised_or_better_count > 0
+              WHEN mouse_allele_mod_gene_consortia.cre_excised_or_better_count > 0
               THEN 1 ELSE 0
             END) as cre_excised_or_better_count,
             SUM(CASE
-              WHEN phenotype_started_or_better_count > 0
+              WHEN phenotyping_production_gene_consortia.phenotype_started_or_better_count > 0
               THEN 1 ELSE 0
             END) as phenotype_started_or_better_count,
             SUM(CASE
-              WHEN phenotype_complete_count > 0
+              WHEN phenotyping_production_gene_consortia.phenotype_complete_count > 0
               THEN 1 ELSE 0
             END) as phenotype_complete_count,
             SUM(CASE
-              WHEN phenotype_experiments_started_count > 0
+              WHEN phenotyping_production_gene_consortia.phenotype_experiments_started_count > 0
               THEN 1 ELSE 0
             END) as phenotype_experiments_started_count
-          FROM phenotype_gene_consortia
+          FROM mouse_allele_mod_gene_consortia
+          LEFT JOIN phenotyping_production_gene_consortia ON phenotyping_production_gene_consortia.gene_id = mouse_allele_mod_gene_consortia.gene_id AND phenotyping_production_gene_consortia.consortium_name = mouse_allele_mod_gene_consortia.consortium_name
           GROUP BY
-            consortium
+            mouse_allele_mod_gene_consortia.consortium_name
           ORDER BY
-            consortium ASC
+            consortium_name ASC
         )
 
 
-
          SELECT
-           gtc_consortia.consortium,
+           gtc_consortia.consortium_name AS consortium,
            gtc_consortia.genotype_confirmed_count,
            phenotype_consortia.cre_excised_or_better_count,
            phenotype_consortia.phenotype_started_or_better_count,
@@ -404,8 +419,8 @@ class ImpcCentreByMonthReportConsortiaBreakdown
 
             FROM gtc_consortia
 
-              LEFT JOIN phenotype_consortia ON phenotype_consortia.consortium = gtc_consortia.consortium
-              JOIN consortia ON consortia.name = gtc_consortia.consortium
+              LEFT JOIN phenotype_consortia ON phenotype_consortia.consortium_name = gtc_consortia.consortium_name
+              JOIN consortia ON consortia.name = gtc_consortia.consortium_name
 
           LEFT JOIN
           (
@@ -521,7 +536,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
         gtc_gene_consortia AS (
           SELECT
             genes_with_plans.gene_id as gene_id,
-            genes_with_plans.consortium_name as consortium,
+            genes_with_plans.consortium_name as consortium_name,
             date_trunc('MONTH', gtc_stamps.created_at) as gtc_date
           FROM genes_with_plans
           JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id AND mi_attempts.status_id != 3
@@ -538,7 +553,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
         gtc_consortia AS (
           SELECT
             series.date,
-            gtc_gene_consortia.consortium,
+            gtc_gene_consortia.consortium_name,
             SUM(CASE
               WHEN gtc_gene_consortia.gtc_date = series.date
               THEN 1
@@ -549,74 +564,99 @@ class ImpcCentreByMonthReportConsortiaBreakdown
           CROSS JOIN series
           GROUP BY
             series.date,
-            gtc_gene_consortia.consortium
+            gtc_gene_consortia.consortium_name
           ORDER BY series.date ASC
         ),
 
-        phenotype_gene_consortia AS (
+        mouse_allele_mod_gene_consortia AS (
           SELECT
-            genes_with_plans.gene_id as gene_id,
-            genes_with_plans.consortium_name as consortium,
-            date_trunc('MONTH', cre_stamps.created_at) as cre_date,
-            date_trunc('MONTH', ps_stamps.created_at) as ps_date,
-            date_trunc('MONTH', pc_stamps.created_at) as pc_date,
-            date_trunc('MONTH', phenotyping_experiments_started) as phenotyping_experiments_date
-          FROM genes_with_plans
-          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id AND phenotype_attempts.status_id != 1
-          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at >= '#{start_date}'
-          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at >= '#{start_date}'
-          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at >= '#{start_date}'
+            consortium_name,
+            series_date,
+            SUM( CASE WHEN mam_counts.cre_count > 0 THEN 1 ELSE 0 END) AS cre_excised_or_better_count
+          FROM
+            (
+            SELECT
+              gene_id,
+              consortium_name,
+              mam_date AS series_date,
+              SUM( CASE WHEN mams_id = 6 THEN 1 ELSE 0 END) AS cre_count
+            FROM
+            (
+              SELECT DISTINCT
+                genes_with_plans.gene_id as gene_id,
+                genes_with_plans.consortium_name as consortium_name,
+                mouse_allele_mod_status_stamps.status_id AS mams_id,
+                date_trunc('MONTH', mouse_allele_mod_status_stamps.created_at) as mam_date
+              FROM genes_with_plans
+              JOIN mouse_allele_mods ON genes_with_plans.mi_plan_id = mouse_allele_mods.mi_plan_id AND mouse_allele_mods.status_id != 7 --not aborted
+              JOIN mouse_allele_mod_status_stamps ON mouse_allele_mods.id = mouse_allele_mod_status_stamps.mouse_allele_mod_id AND mouse_allele_mod_status_stamps.status_id IN (6) AND mouse_allele_mod_status_stamps.created_at >= '#{start_date}'
+              ORDER BY genes_with_plans.gene_id, genes_with_plans.consortium_name ASC
+              ) AS mam_status_by_month
+            GROUP BY gene_id, consortium_name, mam_date
+            ) AS mam_counts
+            GROUP BY mam_counts.consortium_name, series_date
 
-          GROUP BY
-            genes_with_plans.gene_id,
-            genes_with_plans.consortium_name,
-            cre_date,
-            ps_date,
-            pc_date,
-            phenotyping_experiments_date
-          ORDER BY genes_with_plans.consortium_name ASC
         ),
 
-        phenotype_consortia AS (
+        phenotyping_production_gene_consortia AS (
           SELECT
-            series.date,
-            phenotype_gene_consortia.consortium,
-            SUM(CASE
-              WHEN phenotype_gene_consortia.cre_date = series.date
-              THEN 1
-              ELSE 0
-            END) as cre_excised_or_better_count,
-            SUM(CASE
-              WHEN phenotype_gene_consortia.ps_date = series.date
-              THEN 1
-              ELSE 0
-            END) as phenotype_started_or_better_count,
-            SUM(CASE
-              WHEN phenotype_gene_consortia.pc_date = series.date
-              THEN 1
-              ELSE 0
-            END) as phenotype_complete_count,
-            SUM(CASE
-              WHEN phenotype_gene_consortia.phenotyping_experiments_date = series.date
-              THEN 1
-              ELSE 0
-            END) as phenotyping_experiments_count
-          FROM phenotype_gene_consortia
-          CROSS JOIN series
-          GROUP BY
-            series.date,
-            phenotype_gene_consortia.consortium
-          ORDER BY series.date ASC
+            consortium_name,
+            series_date,
+            COUNT( series_date ) AS phenotyping_experiments_count
+          FROM
+            (
+            SELECT DISTINCT
+              genes_with_plans.gene_id as gene_id,
+              genes_with_plans.consortium_name as consortium_name,
+              date_trunc('MONTH', phenotyping_experiments_started) as series_date
+            FROM genes_with_plans
+            JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 5 AND phenotyping_productions.phenotyping_experiments_started >= '#{start_date}'
+            ORDER BY genes_with_plans.gene_id, genes_with_plans.consortium_name ASC
+            ) AS pp_counts
+          GROUP BY consortium_name, series_date
+
+        ),
+
+        phenotyping_production_status_gene_consortia AS (
+          SELECT
+            pp_counts.consortium_name,
+            pp_counts.series_date,
+            SUM( CASE WHEN pp_counts.ps_count > 0 THEN 1 ELSE 0 END) AS phenotype_started_or_better_count,
+            SUM( CASE WHEN pp_counts.pc_count > 0 THEN 1 ELSE 0 END) AS phenotype_complete_count
+          FROM
+            (
+            SELECT
+              gene_id,
+              consortium_name,
+              pps_date AS series_date,
+              SUM( CASE WHEN pps_id = 3 THEN 1 ELSE 0 END) AS ps_count,
+              SUM( CASE WHEN pps_id = 4 THEN 1 ELSE 0 END) AS pc_count
+            FROM
+              (
+              SELECT DISTINCT
+                genes_with_plans.gene_id as gene_id,
+                genes_with_plans.consortium_name as consortium_name,
+                phenotyping_production_status_stamps.status_id AS pps_id,
+                date_trunc('MONTH', phenotyping_production_status_stamps.created_at) as pps_date
+              FROM genes_with_plans
+              JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 5
+              JOIN phenotyping_production_status_stamps ON phenotyping_production_status_stamps.phenotyping_production_id = phenotyping_productions.id AND phenotyping_production_status_stamps.created_at >= '#{start_date}' AND phenotyping_production_status_stamps.status_id IN (3,4)
+              ORDER BY genes_with_plans.gene_id, genes_with_plans.consortium_name ASC
+              ) AS pp_status_by_month
+            GROUP BY gene_id, consortium_name, pps_date
+            ) AS pp_counts
+          GROUP BY pp_counts.consortium_name, pp_counts.series_date
         )
+
 
         SELECT
           gtc_consortia.date,
-          gtc_consortia.consortium,
+          gtc_consortia.consortium_name AS consortium,
           gtc_consortia.genotype_confirmed_count,
-          phenotype_consortia.cre_excised_or_better_count,
-          phenotype_consortia.phenotype_started_or_better_count,
-          phenotype_consortia.phenotype_complete_count,
-          phenotype_consortia.phenotyping_experiments_count AS phenotype_experiments_started_count,
+          mouse_allele_mod_gene_consortia.cre_excised_or_better_count,
+          phenotyping_production_status_gene_consortia.phenotype_started_or_better_count,
+          phenotyping_production_status_gene_consortia.phenotype_complete_count,
+          phenotyping_production_gene_consortia.phenotyping_experiments_count AS phenotype_experiments_started_count,
 
           gtc_goals.goal  AS genotype_confirmed_count_goal,
           cre_goals.goal AS cre_excised_or_better_count_goal,
@@ -626,8 +666,10 @@ class ImpcCentreByMonthReportConsortiaBreakdown
 
         FROM gtc_consortia
 
-        LEFT JOIN phenotype_consortia ON phenotype_consortia.date = gtc_consortia.date AND phenotype_consortia.consortium = gtc_consortia.consortium
-        JOIN consortia ON consortia.name = gtc_consortia.consortium
+        LEFT JOIN phenotyping_production_status_gene_consortia ON phenotyping_production_status_gene_consortia.series_date = gtc_consortia.date AND phenotyping_production_status_gene_consortia.consortium_name = gtc_consortia.consortium_name
+        LEFT JOIN phenotyping_production_gene_consortia ON phenotyping_production_gene_consortia.series_date = gtc_consortia.date AND phenotyping_production_gene_consortia.consortium_name = gtc_consortia.consortium_name
+        LEFT JOIN mouse_allele_mod_gene_consortia ON mouse_allele_mod_gene_consortia.series_date = gtc_consortia.date AND mouse_allele_mod_gene_consortia.consortium_name = gtc_consortia.consortium_name
+        JOIN consortia ON consortia.name = gtc_consortia.consortium_name
 
         LEFT JOIN (tracking_goals AS gtc_goals JOIN centres AS c1 ON c1.id = gtc_goals.production_centre_id AND c1.name = '#{centre}' )
           ON gtc_consortia.date = gtc_goals.date AND consortia.id = gtc_goals.consortium_id AND gtc_goals.goal_type = 'total_glt_genes'
@@ -640,7 +682,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
         LEFT JOIN (tracking_goals AS pc_goals JOIN centres AS c5 ON c5.id = pc_goals.production_centre_id AND c5.name = '#{centre}' )
           ON gtc_consortia.date = pc_goals.date AND consortia.id = pc_goals.consortium_id AND pc_goals.goal_type = 'phenotype_complete_genes'
 
-        ORDER BY gtc_consortia.date ASC, gtc_consortia.consortium ASC
+        ORDER BY gtc_consortia.date ASC, gtc_consortia.consortium_name ASC
       EOF
     end
 

@@ -82,12 +82,12 @@ class NotificationsByGene < PlannedMicroinjectionList
 
   def _mi_plan_summary_idg(production_centre = nil, consortium = nil)
     where_clause = []
-    where_clause.push "new_intermediate_report.consortium = '#{consortium}'" if consortium
-    where_clause.push "new_intermediate_report.production_centre = '#{production_centre}'" if production_centre
+    where_clause.push "new_intermediate_report_summary_by_mi_plan.consortium = '#{consortium}'" if consortium
+    where_clause.push "new_intermediate_report_summary_by_mi_plan.production_centre = '#{production_centre}'" if production_centre
 
     config = YAML.load_file("#{Rails.root}/config/idg_symbols.yml")
     idg_clause = config.map {|i| "'#{i}'"} * ', '
-    idg_clause = "lower(new_intermediate_report.gene) in (#{idg_clause.downcase})"
+    idg_clause = "lower(new_intermediate_report_summary_by_mi_plan.gene) in (#{idg_clause.downcase})"
 
     where_clause = ' where ' + where_clause.join(' and ') if where_clause.length > 0
     where_clause = '' if where_clause.length < 1
@@ -124,12 +124,12 @@ class NotificationsByGene < PlannedMicroinjectionList
     if consortium =~ /all/
       where_clause = []
     elsif consortium =~ /none/
-      where_clause.push "new_intermediate_report.consortium is null"
+      where_clause.push "new_intermediate_report_summary_by_mi_plan.consortium is null"
     elsif consortium.to_s.length > 0
-      where_clause.push "new_intermediate_report.consortium = '#{consortium}'"
+      where_clause.push "new_intermediate_report_summary_by_mi_plan.consortium = '#{consortium}'"
     end
 
-    where_clause.push "new_intermediate_report.production_centre = '#{production_centre}'" if production_centre
+    where_clause.push "new_intermediate_report_summary_by_mi_plan.production_centre = '#{production_centre}'" if production_centre
 
     where_clause = 'where ' + where_clause.join(' and ') if where_clause.length > 0
     where_clause = '' if where_clause.length < 1
@@ -143,7 +143,7 @@ class NotificationsByGene < PlannedMicroinjectionList
     FROM notifications
     JOIN contacts ON contacts.id = notifications.contact_id and contacts.report_to_public is true
     JOIN genes ON genes.id = notifications.gene_id
-    LEFT JOIN new_intermediate_report ON new_intermediate_report.gene = genes.marker_symbol
+    LEFT JOIN new_intermediate_report_summary_by_mi_plan ON new_intermediate_report_summary_by_mi_plan.gene = genes.marker_symbol
     #{where_clause}
     GROUP BY genes.marker_symbol, genes.mgi_accession_id
     ORDER BY number_of_notifications desc, marker_symbol

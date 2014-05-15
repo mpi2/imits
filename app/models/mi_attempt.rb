@@ -39,11 +39,11 @@ class MiAttempt < ApplicationModel
   belongs_to :mutagenesis_factor, :inverse_of => :mi_attempt
 
 
-  has_many :crisprs, through: :mutagenesis_factor
-  has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
-  has_many :phenotype_attempts
-
-  has_many :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
+  has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
+  has_many   :phenotype_attempts
+  has_many   :mouse_allele_mods
+  has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
+  has_many   :crisprs, through: :mutagenesis_factor
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :colony_background_strain, :name

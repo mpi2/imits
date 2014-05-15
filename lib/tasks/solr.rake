@@ -8,7 +8,11 @@ namespace :solr do
   end
 
   task 'update_part' => [:environment] do
-    SolrUpdate::Queue.run(:limit => 100)
+    SolrUpdate::Queue.run(:limit => 500)
+  end
+
+  task 'update_all' => [:environment] do
+    SolrUpdate::Queue.run(:limit => nil)
   end
 
   desc 'How many queue items are there in the queue?'

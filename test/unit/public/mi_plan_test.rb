@@ -1,4 +1,4 @@
-# encoding: utf-8
+ # encoding: utf-8
 
 require 'test_helper'
 
@@ -189,10 +189,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
     context '#phenotype_only' do
       should 'block MiAttempts on an MiPlan' do
-        default_mi_plan.phenotype_only = true
-        default_mi_plan.save
+        mi_plan = Factory.create :mi_plan_with_production_centre
+        mi_plan.phenotype_only = true
+        mi_plan.save
 
-        mi = Factory.build :mi_attempt2, :mi_plan => default_mi_plan
+        mi = Factory.build :mi_attempt2, :mi_plan => mi_plan
         mi.save
         assert ! mi.errors[:base].blank?
       end

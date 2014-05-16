@@ -496,6 +496,7 @@ class MiPlan < ApplicationModel
       mi_plan = mi_plans.first
     elsif mi_plans.count == 0
       mi_plan = MiPlan.new(params)
+      mi_plan.force_assignment = true
       if mi_plan.valid?
         mi_plan.save
       else

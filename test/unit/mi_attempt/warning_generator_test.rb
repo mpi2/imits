@@ -70,27 +70,6 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       assert_false mi.generate_warnings, mi.warnings
     end
 
-    context 'when checking if MiPlan to be assigned has a production centre' do
-      should 'generate warning if it does not have production centre' do
-        gene = Factory.create :gene_cbx1
-        allele = Factory.create :allele, :gene => gene
-        mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
-                :production_centre => nil,
-                :gene => gene, :force_assignment => true
-        es_cell = Factory.create :es_cell, :allele => allele
-
-        mi = Factory.build :public_mi_attempt, :mi_plan => mi_plan,
-                :es_cell_name => es_cell.name
-        assert mi.valid?
-
-        assert_true mi.generate_warnings
-        expected_message = 'Continuing will assign your production centre as the production centre micro-injecting the gene on behalf of BaSH'
-        assert_match expected_message, mi.warnings.first
-        assert_match 'BaSH is planning on micro-injecting', mi.warnings.first
-      end
-
-    end
-
     should_eventually 'be able to generate more than one warning (when we actually have conditions generating more than one)'
   end
 end

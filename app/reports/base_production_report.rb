@@ -367,8 +367,10 @@ class BaseProductionReport
         consortium AS consortium,
         mi_plan_status AS mi_plan_status,
         COUNT(*)
-        FROM new_intermediate_report_summary_by_consortia
-        WHERE consortium in ('#{available_consortia.join('\', \'')}') AND mi_plans.mutagenesis_via_crispr_cas9 = false
+        FROM new_intermediate_report_summary_by_consortia, mi_plans
+        WHERE consortium in ('#{available_consortia.join('\', \'')}')
+          AND new_intermediate_report_summary_by_consortia.mi_plan_id = mi_plans.id
+          AND mi_plans.mutagenesis_via_crispr_cas9 = false
         GROUP BY consortium, mi_plan_status
         ORDER BY consortium;
       EOF

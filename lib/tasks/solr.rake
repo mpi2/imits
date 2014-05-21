@@ -328,4 +328,73 @@ namespace :solr do
   #  end
   #end
 
+  #task 'update:gene_single2', [:marker_symbol] => :environment do |t, args|
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #  args.with_defaults(:marker_symbol => nil)
+  #
+  #  raise "#### provide marker symbol!" if ! args[:marker_symbol]
+  #
+  #  ApplicationModel.transaction do
+  #    gene = Gene.find_by_marker_symbol args[:marker_symbol]
+  #
+  #    raise "#### cannot find marker symbol '#{args[:marker_symbol]}'" if ! gene
+  #
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    enqueuer.gene_updated(gene)
+  #
+  #    gene.mi_attempts.each do |mi|
+  #      puts "#### enqueue mi"
+  #      enqueuer.mi_attempt_updated(mi)
+  #    end
+  #
+  #    gene.phenotype_attempts.each do |pa|
+  #      puts "#### enqueue pa"
+  #      enqueuer.phenotype_attempt_updated(pa)
+  #    end
+  #
+  #    gene.allele.each do |a|
+  #      puts "#### enqueue a"
+  #      enqueuer.allele_updated(a)
+  #    end
+  #
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
+
+  task 'update:alleles_mirko' => [:environment] do
+    pp SolrUpdate::IndexProxy::Allele.get_uri
+    ApplicationModel.transaction do
+      puts "#### enqueueing alleles..."
+      enqueuer = SolrUpdate::Enqueuer.new
+
+      counter = 0
+    sql = <<-EOF
+               select distinct targ_rep_alleles.* from targ_rep_alleles
+               join targ_rep_es_cells on targ_rep_es_cells.allele_id = targ_rep_alleles.id
+               join targ_rep_ikmc_projects on targ_rep_ikmc_projects.id = targ_rep_es_cells.ikmc_project_foreign_id
+               join targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id and targ_rep_pipelines.name = 'mirKO'
+             EOF
+
+      TargRep::TargetedAllele.find_by_sql(sql).each do |a|
+
+        #found = false
+        #a.es_cells.each do |es_cell|
+        #  if es_cell.ikmc_project.pipeline.name =~ /mirko/i
+        #    found = true
+        #    break
+        #  end
+        #end
+        #
+        #next if ! found
+
+        enqueuer.allele_updated(a)
+        counter += 1
+        #break if counter > 10
+      end
+
+      puts "#### running alleles (#{counter})..."
+      SolrUpdate::Queue.run(:limit => nil)
+    end
+  end
+
 end

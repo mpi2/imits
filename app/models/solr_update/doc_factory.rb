@@ -218,8 +218,8 @@ class SolrUpdate::DocFactory
         'allele_image_url' => allele_image_url(allele.id),
         'simple_allele_image_url' => allele_image_url(allele.id, :simple => true),
         'genbank_file_url' => genbank_file_url(allele.id),
-        'order_from_urls' => [order_from_info[:url]],
-        'order_from_names' => [order_from_info[:name]],
+        'order_from_urls' => order_from_info[:urls],
+        'order_from_names' => order_from_info[:names],
         'marker_symbol' => marker_symbol,
         'project_ids' => [es_cell_info[:ikmc_project_id]],
         'allele_has_issue'         => allele.has_issue,
@@ -233,7 +233,7 @@ class SolrUpdate::DocFactory
   def self.calculate_order_from_info(data)
     if(['EUCOMM', 'EUCOMMTools', 'EUCOMMToolsCre'].include?(data[:pipeline]))
       mgi_accession_id = data[:allele].gene.mgi_accession_id
-      return {:url => "http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells", :name => 'EUMMCR'}
+      return {:urls => ["http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells"], :names => ['EUMMCR']}
 
     elsif(['KOMP-CSD', 'KOMP-Regeneron'].include?(data[:pipeline]))
       if ! data[:ikmc_project_id].blank?
@@ -247,14 +247,21 @@ class SolrUpdate::DocFactory
         url = "http://www.komp.org/"
       end
 
-      return {:url => url, :name => 'KOMP'}
+      return {:urls => [url], :names => ['KOMP']}
 
-    elsif(['mirKO', 'Sanger MGP'].include?(data[:pipeline]))
+    elsif(['mirKO'].include?(data[:pipeline]))
+      mgi_accession_id = data[:allele].gene.mgi_accession_id
       marker_symbol = data[:allele].gene.marker_symbol
-      return {:url => "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for #{marker_symbol}", :name => 'Wtsi'}
+      return {:urls => ["http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells",
+                        "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"],
+              :names => ['EUMMCR', 'MMRRC']}
+
+    elsif(['Sanger MGP'].include?(data[:pipeline]))
+      marker_symbol = data[:allele].gene.marker_symbol
+      return {:urls => ["mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['Wtsi']}
 
     elsif('NorCOMM' == data[:pipeline])
-      return {:url => 'http://www.phenogenomics.ca/services/cmmr/escell_services.html', :name => 'NorCOMM'}
+      return {:urls => ['http://www.phenogenomics.ca/services/cmmr/escell_services.html'], :names => ['NorCOMM']}
 
     else
       raise "Pipeline not recognized"

@@ -26,7 +26,7 @@ class MiAttempt::DistributionCentre < ApplicationModel
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
-  } + FULL_ACCESS_ATTRIBUTES
+  } + FULL_ACCESS_ATTRIBUTES + ['mi_attempt_id']
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 

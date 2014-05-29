@@ -373,7 +373,7 @@ features:
       class_name: Deletion
       simple:
         label: Del
-        width: 20
+        width: 40
         stroke: black
         colour: white
         font_colour: black
@@ -382,6 +382,9 @@ features:
     deltk1:
 
     downstream loxp:
+      alias: loxp
+
+    Downstream LoxP:
       alias: loxp
 
     ecmv ires:
@@ -592,8 +595,8 @@ features:
     sv40pa:
       alias: pa
 
-    synthetic loxp region:
-      alias: loxp
+    # synthetic loxp region:
+    #   alias: loxp
 
     synthetic cassette:
 
@@ -651,6 +654,10 @@ features:
 
     loxp (5'):
       alias: loxp
+
+    # DO NOT DRAW THIS (relates to inverted Rox site pairing that isn't useful)
+    # "Rox(inv)":
+    #   label: rox(inv)
 
 # ---- PCR_primer ----
 

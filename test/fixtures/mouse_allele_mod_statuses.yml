@@ -1,0 +1,36 @@
+---
+1:
+  code: abt
+  id: 1
+  name: Mouse Allele Modification Aborted
+  order_by: 401
+2:
+  code: par
+  id: 2
+  name: Phenotype Attempt Registered
+  order_by: 420
+3:
+  code: mpr
+  id: 3
+  name: Mouse Allele Modification Registered
+  order_by: 410
+4:
+  code: res
+  id: 4
+  name: Rederivation Started
+  order_by: 430
+5:
+  code: rec
+  id: 5
+  name: Rederivation Complete
+  order_by: 440
+6:
+  code: ces
+  id: 6
+  name: Cre Excision Started
+  order_by: 450
+7:
+  code: cec
+  id: 7
+  name: Cre Excision Complete
+  order_by: 460

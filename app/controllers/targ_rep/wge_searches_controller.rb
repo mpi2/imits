@@ -51,7 +51,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
   def crispr_search
     exon_ids = params[:exon_id]
 
-    response = wge_call("api/crispr_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}")
+    response = wge_call("api/crispr_search?exon_id[]=#{exon_ids.join('&exon_id[]=')}&flank=200")
 
     data = []
 
@@ -115,7 +115,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
 
 private
   def wge_call(request_url_str)
-    uri = URI("http://www.sanger.ac.uk/htgt/wge/#{request_url_str}")
+    uri = URI("#{Rails.configuration.wge_root}/#{request_url_str}")
 
   #  puts "URL SCHEME :#{uri.scheme} HOST : #{uri.host} PATH : #{uri.path} QUERY : #{uri.query} : FRAGMENT #{uri.fragment} : STRING #{uri.to_s}"
 

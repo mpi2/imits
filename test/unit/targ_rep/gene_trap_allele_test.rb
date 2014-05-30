@@ -33,31 +33,34 @@ class TargRep::GeneTrapTest < ActiveSupport::TestCase
     assert_false @allele.class.crispr_targeted_allele?
   end
 
-  should "be saved" do
-    allele = Factory.build :gene_trap
-    assert allele.save, "Targeted allele saves for a normal entry"
-    attributes_after_save = allele.attributes
-    allele_after_select = TargRep::GeneTrap.find( allele.id )
-    attributes_after_reselect = allele_after_select.attributes
+  context "An Allele - check normal creation" do
+    should "be saved" do
+      allele = Factory.build :gene_trap
+      assert allele.save, "Targeted allele saves for a normal entry"
+      attributes_after_save = allele.attributes
+      allele_after_select = TargRep::GeneTrap.find( allele.id )
+      attributes_after_reselect = allele_after_select.attributes
 
-    assert_equal attributes_after_reselect.keys.size, attributes_after_save.keys.size
+      assert_equal attributes_after_reselect.keys.size, attributes_after_save.keys.size
 
-    #attributes_after_reselect.keys.each do |key|
-    #  puts "#### test #{key}: '#{attributes_after_reselect[key]}'/'#{attributes_after_save[key]}'"
-    #  if key == 'created_at' || key == 'updated_at'
-    #    #puts "#### test 2 #{key}: (#{attributes_after_reselect[key].to_i}/#{attributes_after_save[key].to_i})"
-    #    assert_equal attributes_after_reselect[key].to_i, attributes_after_save[key].to_i
-    #    next
-    #  end
-    #  assert_equal attributes_after_reselect[key], attributes_after_save[key]
-    #end
+      #attributes_after_reselect.keys.each do |key|
+      #  puts "#### test #{key}: '#{attributes_after_reselect[key]}'/'#{attributes_after_save[key]}'"
+      #  if key == 'created_at' || key == 'updated_at'
+      #    #puts "#### test 2 #{key}: (#{attributes_after_reselect[key].to_i}/#{attributes_after_save[key].to_i})"
+      #    assert_equal attributes_after_reselect[key].to_i, attributes_after_save[key].to_i
+      #    next
+      #  end
+      #  assert_equal attributes_after_reselect[key], attributes_after_save[key]
+      #end
 
-    attributes_after_reselect['created_at'] = attributes_after_reselect['created_at'].to_i
-    attributes_after_reselect['updated_at'] = attributes_after_reselect['updated_at'].to_i
+      attributes_after_reselect['created_at'] = attributes_after_reselect['created_at'].to_i
+      attributes_after_reselect['updated_at'] = attributes_after_reselect['updated_at'].to_i
 
-    attributes_after_save['created_at'] = attributes_after_save['created_at'].to_i
-    attributes_after_save['updated_at'] = attributes_after_save['updated_at'].to_i
+      attributes_after_save['created_at'] = attributes_after_save['created_at'].to_i
+      attributes_after_save['updated_at'] = attributes_after_save['updated_at'].to_i
 
-    assert_equal attributes_after_reselect, attributes_after_save
+      assert_equal attributes_after_reselect, attributes_after_save
+    end
   end
 end
+

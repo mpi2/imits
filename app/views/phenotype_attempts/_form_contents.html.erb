@@ -11,7 +11,7 @@
     <% end %>
   </div>
   <div>
-    <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
+    <%= generator.text_field(:colony_name, :size => 20) %>
   </div>
   <div>
     <% if ! @phenotype_attempt.status_id.nil? %>
@@ -78,14 +78,12 @@
       <%= form.label :cre_excision_required, 'Is Cre-Excision Required?' %>
       <%= form.check_box :cre_excision_required %>
     </div>
-    <div>
-      <%= generator.text_field :phenotyping_experiments_started, :label => 'Phenotyping Experiments Started', :class => 'date-field' %>
-    </div>
     <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
       <div>
         <%= form.label :tat_cre, "Cre Excision via TAT-Cre?" %>
         <%= form.check_box :tat_cre %>
       </div>
+
       <div id="tat-cre-hidden-fields" class="<%= @phenotype_attempt.tat_cre ? 'hidden' : '' %>">
         <div>
           <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
@@ -114,6 +112,34 @@
   <legend>QC Details</legend>
   <div>
     <%= generator.qc_fields %>
+  </div>
+</fieldset>
+
+<fieldset class="collapsible" id="distribution_centres">
+  <legend>phenotyping</legend>
+  <div class="distribution_centres">
+    <table id="phenotyping_productions_table" class="report_table">
+      <thead class="title">
+        <tr>
+         <th>Phenotyping consortium</th>
+          <th>Phenotyping centre</th>
+          <th>Colony Name</th>
+          <th>Experiments Started</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody class="distribution_centres">
+        <tr></tr>
+        <%= form.fields_for :phenotyping_productions do |builder| %>
+          <% if phenotype_attempt.phenotyping_productions.length > 0 %>
+            <% if !builder.object.new_record? %>
+              <%= render '/shared/phenotyping_production_fields', f: builder %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  <%= link_to_add_fields "Add Phenotyping Centre", form, :phenotyping_productions %>
   </div>
 </fieldset>
 

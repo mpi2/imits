@@ -1,0 +1,26 @@
+---
+1:
+  code: mpr
+  id: 1
+  name: Phenotype Attempt Registered
+  order_by: 420
+2:
+  code: ppr
+  id: 2
+  name: Phenotyping Production Registered
+  order_by: 411
+3:
+  code: pds
+  id: 3
+  name: Phenotyping Started
+  order_by: 530
+4:
+  code: pdc
+  id: 4
+  name: Phenotyping Complete
+  order_by: 540
+5:
+  code: abt
+  id: 5
+  name: Phenotype Production Aborted
+  order_by: 402

@@ -122,7 +122,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         data = {}
         statuses= {}
 
-        url = "http://www.sanger.ac.uk/htgt/report/get_projects?view=csvdl&file=tmp.csv"
+        url = "#{Rails.configuration.htgt_root}/report/get_projects?view=csvdl&file=tmp.csv"
         open(url) do |file|
           headers = file.readline.strip.split(',')
           file.each_line do |line|
@@ -172,6 +172,12 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         end
 
         results.each do |record|
+
+          if ! data[record['ikmc_project_name']]
+            puts "#### nothing for ikmc_project_name '#{record['ikmc_project_name']}'"
+            next
+          end
+
           if ! (['ES Cells - Targeting Confirmed'].include?(record['status_name']) or record['product_type'] == 'Mice')
             if ( record['status_name'] != 'Vector Complete' and record['status_name'] != data[record['ikmc_project_name']]['status_name'] ) or
                  ( record['status_name'] == 'Vector Complete' and es_cell_production_statuses_in_htgt.include?(data[record['ikmc_project_name']]['status_name']) )
@@ -252,4 +258,3 @@ module TargRep::IkmcProject::IkmcProjectGenerator
     end
   end
 end
-

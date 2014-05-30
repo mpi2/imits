@@ -11,6 +11,7 @@ class RootController < ApplicationController
     else
       @table_1 = ReadOnlyIndexReport::get_new_impc_mouse_prod_attempts_table
       @table_2 = ReadOnlyIndexReport::get_new_impc_gc_mice_table
+      @table_3 = ReadOnlyIndexReport::get_ikmc_production_statistics
       render 'open/root/index'
     end
   end

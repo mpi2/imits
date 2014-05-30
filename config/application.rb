@@ -27,7 +27,7 @@ module TarMits
     # Activate observers that should always be running.
     # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
 
-    config.enable_solr_phenotype_attempt = false
+    config.enable_solr_phenotype_attempt = true
 
     config.active_record.observers = [
       'SolrUpdate::Observer::AnyWithMiAttempts',
@@ -75,6 +75,9 @@ module TarMits
     #config.maintenance_mode.if = Proc.new { |env| File.file?(Rails.root.join("/tmp/imits-maintenance.on")) }
 
     #config.maintenance_mode.response = Proc.new { |env| [503, {'Content-Type' => 'text/html'}, [Rails.root.join("public/maintenance.html").read]] }
+
+    config.htgt_root = "http://www.sanger.ac.uk/htgt/htgt2"
+    config.wge_root = "http://www.sanger.ac.uk/htgt/wge"
   end
 
   def self.git_revision

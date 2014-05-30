@@ -1,6 +1,12 @@
 class SolrUpdate::DocFactory
   extend SolrUpdate::Util
 
+  MOUSE_ALLELE_OPTIONS = {
+    nil => '[none]',
+    'a' => 'Knockout First, Reporter-tagged insertion with conditional potential',
+    'e' => 'Targeted Non-Conditional'
+  }.freeze
+
   def self.create(reference)
     case reference['type']
 
@@ -52,7 +58,20 @@ class SolrUpdate::DocFactory
 
     solr_doc['allele_id'] = mi_attempt.allele_id
 
-    solr_doc['allele_type'] = mi_attempt.try(:es_cell).try(:allele).try(:mutation_type).try(:name).try(:titleize)
+    if mi_attempt.mouse_allele_type.blank? or mi_attempt.allele_symbol == mi_attempt.try(:es_cell).allele_symbol
+      solr_doc['allele_type'] = mi_attempt.try(:es_cell).try(:allele).try(:mutation_type).try(:name).try(:titleize)
+      solr_doc['allele_image_url'] = allele_image_url(mi_attempt.allele_id)
+      solr_doc['simple_allele_image_url'] = allele_image_url(mi_attempt.allele_id, :simple => true)
+      solr_doc['genbank_file_url'] = genbank_file_url(mi_attempt.allele_id)
+    else
+      solr_doc['allele_type'] = MOUSE_ALLELE_OPTIONS[mi_attempt.mouse_allele_type]
+      # We are not able to generate a genbank file (or image) from the data stored in iMits.
+      # Therefore we decided to set the links below to nothing. Better to not report anything than something that is incorrect.
+      solr_doc['allele_image_url'] = ''
+      solr_doc['simple_allele_image_url'] = ''
+      solr_doc['genbank_file_url'] = ''
+    end
+
     solr_doc['allele_type'] = '' if ! solr_doc['allele_type']
 
     if mi_attempt.colony_background_strain
@@ -61,10 +80,6 @@ class SolrUpdate::DocFactory
 
     solr_doc['allele_name'] = mi_attempt.allele_symbol
 
-    solr_doc['allele_image_url'] = allele_image_url(mi_attempt.allele_id)
-    solr_doc['simple_allele_image_url'] = allele_image_url(mi_attempt.allele_id, :simple => true)
-
-    solr_doc['genbank_file_url'] = genbank_file_url(mi_attempt.allele_id)
 
     solr_doc['allele_has_issue']         = mi_attempt.es_cell.allele.has_issue
     solr_doc['allele_issue_description'] = mi_attempt.es_cell.allele.issue_description
@@ -113,7 +128,30 @@ class SolrUpdate::DocFactory
     target = allele_type[/\>(.+)?\(/, 1]
     target = target ? " (#{target})" : ''
 
-    solr_doc['allele_type'] = "Cre-excised deletion#{target}"
+    if phenotype_attempt.mouse_allele_type == 'c'
+      solr_doc['allele_type'] = "Flp-excised Conditional#{target}"
+      solr_doc['allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :flp => true)
+      solr_doc['simple_allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :flp => true, :simple => true)
+      solr_doc['genbank_file_url'] = genbank_file_url(phenotype_attempt.allele_id, :flp => true)
+    elsif phenotype_attempt.mouse_allele_type == 'e.1'
+      solr_doc['allele_type'] = "Cre-excised Promoterless Non Conditional#{target}"
+      solr_doc['allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true)
+      solr_doc['simple_allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true, :simple => true)
+      solr_doc['genbank_file_url'] = genbank_file_url(phenotype_attempt.allele_id, :cre => true)
+    else
+      solr_doc['allele_type'] = "Cre-excised Reporter-tagged deletion#{target}"
+      solr_doc['allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true)
+      solr_doc['simple_allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true, :simple => true)
+      solr_doc['genbank_file_url'] = genbank_file_url(phenotype_attempt.allele_id, :cre => true)
+    end
+
+    if (!phenotype_attempt.mi_attempt.mouse_allele_type.blank?) and phenotype_attempt.mi_attempt.allele_symbol != phenotype_attempt.mi_attempt.try(:es_cell).allele_symbol
+      # The mouse allele (tm1e) is not the same as the es_cell allele (allele type overridden in mi_attempt).
+      # Therefore Genbank file of allele is incorrect.
+      solr_doc['allele_image_url'] = ''
+      solr_doc['simple_allele_image_url'] = ''
+      solr_doc['genbank_file_url'] = ''
+    end
 
     solr_doc['allele_id'] = phenotype_attempt.allele_id
 
@@ -122,12 +160,6 @@ class SolrUpdate::DocFactory
     end
 
     solr_doc['allele_name'] = phenotype_attempt.allele_symbol
-
-    solr_doc['allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true)
-
-    solr_doc['simple_allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true, :simple => true)
-
-    solr_doc['genbank_file_url'] = genbank_file_url(phenotype_attempt.allele_id, :cre => true)
 
     solr_doc['allele_has_issue']         = phenotype_attempt.mi_attempt.es_cell.allele.has_issue
     solr_doc['allele_issue_description'] = phenotype_attempt.mi_attempt.es_cell.allele.issue_description
@@ -183,11 +215,13 @@ class SolrUpdate::DocFactory
 
       order_from_url = details[:default]
 
-      if project_id && /PROJECT_ID/ =~ details[:preferred]
+      # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
+
+      if project_id &&  details[:preferred] =~ /PROJECT_ID/
         order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
       end
 
-      if marker_symbol && /MARKER_SYMBOL/ =~ details[:preferred]
+      if marker_symbol && details[:preferred] =~ /MARKER_SYMBOL/
         order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
       end
 
@@ -216,8 +250,8 @@ class SolrUpdate::DocFactory
         'allele_image_url' => allele_image_url(allele.id),
         'simple_allele_image_url' => allele_image_url(allele.id, :simple => true),
         'genbank_file_url' => genbank_file_url(allele.id),
-        'order_from_urls' => [order_from_info[:url]],
-        'order_from_names' => [order_from_info[:name]],
+        'order_from_urls' => order_from_info[:urls],
+        'order_from_names' => order_from_info[:names],
         'marker_symbol' => marker_symbol,
         'project_ids' => [es_cell_info[:ikmc_project_id]],
         'allele_has_issue'         => allele.has_issue,
@@ -231,7 +265,7 @@ class SolrUpdate::DocFactory
   def self.calculate_order_from_info(data)
     if(['EUCOMM', 'EUCOMMTools', 'EUCOMMToolsCre'].include?(data[:pipeline]))
       mgi_accession_id = data[:allele].gene.mgi_accession_id
-      return {:url => "http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells", :name => 'EUMMCR'}
+      return {:urls => ["http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells"], :names => ['EUMMCR']}
 
     elsif(['KOMP-CSD', 'KOMP-Regeneron'].include?(data[:pipeline]))
       if ! data[:ikmc_project_id].blank?
@@ -245,14 +279,21 @@ class SolrUpdate::DocFactory
         url = "http://www.komp.org/"
       end
 
-      return {:url => url, :name => 'KOMP'}
+      return {:urls => [url], :names => ['KOMP']}
 
-    elsif(['mirKO', 'Sanger MGP'].include?(data[:pipeline]))
+    elsif(['mirKO'].include?(data[:pipeline]))
+      mgi_accession_id = data[:allele].gene.mgi_accession_id
       marker_symbol = data[:allele].gene.marker_symbol
-      return {:url => "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for #{marker_symbol}", :name => 'Wtsi'}
+      return {:urls => ["http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells",
+                        "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"],
+              :names => ['EUMMCR', 'MMRRC']}
+
+    elsif(['Sanger MGP'].include?(data[:pipeline]))
+      marker_symbol = data[:allele].gene.marker_symbol
+      return {:urls => ["mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['Wtsi']}
 
     elsif('NorCOMM' == data[:pipeline])
-      return {:url => 'http://www.phenogenomics.ca/services/cmmr/escell_services.html', :name => 'NorCOMM'}
+      return {:urls => ['http://www.phenogenomics.ca/services/cmmr/escell_services.html'], :names => ['NorCOMM']}
 
     else
       raise "Pipeline not recognized"

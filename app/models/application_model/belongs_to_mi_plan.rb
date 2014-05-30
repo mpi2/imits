@@ -13,13 +13,20 @@ module ApplicationModel::BelongsToMiPlan
       return false
     end
 
+    if mi_plan.consortium.blank? or mi_plan.production_centre.blank?
+      self.errors.add(:mi_plan, "must have been assigned to a production centre before mouse production/phenotyping can commence")
+      return false
+    end
+
     if ['Withdrawn', 'Inactive'].include?(mi_plan.status.name)
       self.errors.add(:mi_plan, "is in status #{mi_plan.status.name} - it must be in an assigned state.")
+      return false
     end
 
     es_cell = self.try(:es_cell)
     if (es_cell and es_cell.try(:gene) != mi_plan.try(:gene))
       self.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{es_cell.try(:gene).try(:marker_symbol)} != #{self.mi_plan.try(:gene).try(:marker_symbol)})"
+      return false
     end
 
     return true
@@ -38,11 +45,35 @@ module ApplicationModel::BelongsToMiPlan
 
   #COMMON METHODS
   def consortium_name
-    mi_plan.try(:consortium).try(:name)
+    if @consortium_name.blank?
+      mi_plan.try(:consortium).try(:name)
+    else
+      return @consortium_name
+    end
+  end
+
+  def consortium_name=(arg)
+    @consortium_name = arg
+    if @consortium_name != self.mi_plan.try(:consortium).try(:name)
+      # this forces the changed methods to record a change.
+      self.changed_attributes['consortium_name'] = arg
+    end
   end
 
   def production_centre_name
-    mi_plan.try(:production_centre).try(:name)
+    if @production_centre_name.blank?
+      mi_plan.try(:production_centre).try(:name)
+    else
+      return @production_centre_name
+    end
+  end
+
+  def production_centre_name=(arg)
+    @production_centre_name = arg
+    if @production_centre_name != self.mi_plan.try(:production_centre).try(:name)
+      # this forces the changed methods to record a change.
+      self.changed_attributes['production_centre_name'] = arg
+    end
   end
 
 # PUBLIC MODEL

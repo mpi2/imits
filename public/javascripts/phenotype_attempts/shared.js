@@ -41,3 +41,11 @@ function initDateFields() {
 
 Ext.onReady(initNumberFields);
 Ext.onReady(initDateFields);
+
+Ext.select('.fill_other_occurences').on("change", function(event) {
+  var value = Ext.get(this).getValue();
+  var class_lookup = Ext.get(this).getAttribute('data-class-lookup');
+  var div = Ext.select('.' + class_lookup);
+  console.log(div);
+  div.update(value);
+ })

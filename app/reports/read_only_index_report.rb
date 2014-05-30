@@ -48,4 +48,70 @@ class ReadOnlyIndexReport
 
   end
 
+  USE_CACHE = false
+
+  def self.get_ikmc_production_statistics
+
+    hash = Rails.cache.read('get_ikmc_production_statistics') if USE_CACHE
+    return hash if hash && USE_CACHE
+
+    sql = %Q{
+      SELECT 'targeting_vectors' AS type, substring(targ_rep_pipelines.name from 1 for 4) AS name, count(distinct genes.id) AS count
+      FROM targ_rep_targeting_vectors
+      JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_targeting_vectors.ikmc_project_foreign_id
+      JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id and targ_rep_pipelines.name IN ('EUCOMM', 'EUCOMMTools', 'KOMP-CSD', 'KOMP-Regeneron') AND targ_rep_pipelines.report_to_public IS true
+      JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_targeting_vectors.allele_id
+      JOIN genes ON genes.id = targ_rep_alleles.gene_id
+      --JOIN targ_rep_ikmc_project_statuses ON targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id AND targ_rep_ikmc_project_statuses.name IN ('Vector Complete')
+      WHERE targ_rep_targeting_vectors.report_to_public IS true
+      GROUP BY substring(targ_rep_pipelines.name FROM 1 FOR 4)
+
+      UNION ALL
+      select 'es_cells' as type, substring(targ_rep_pipelines.name from 1 for 4) as name, count(distinct genes.id) as count
+      from targ_rep_es_cells
+      join targ_rep_ikmc_projects on targ_rep_ikmc_projects.id = targ_rep_es_cells.ikmc_project_foreign_id
+      join targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id and targ_rep_pipelines.name in ('EUCOMM', 'EUCOMMTools', 'KOMP-CSD', 'KOMP-Regeneron') AND targ_rep_pipelines.report_to_public IS true
+      join targ_rep_alleles on targ_rep_alleles.id = targ_rep_es_cells.allele_id
+      join genes on genes.id = targ_rep_alleles.gene_id
+      --join targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id and targ_rep_ikmc_project_statuses.name IN ('ES Cells - Targeting Confirmed')
+      where targ_rep_es_cells.report_to_public is true
+      group by substring(targ_rep_pipelines.name from 1 for 4)
+
+      UNION ALL
+      select 'mice' as type, substring(targ_rep_pipelines.name from 1 for 4) as name, count(distinct genes.id) as count
+      from mi_attempts
+      join targ_rep_es_cells on targ_rep_es_cells.id = mi_attempts.es_cell_id and targ_rep_es_cells.report_to_public is true
+      join targ_rep_ikmc_projects on targ_rep_ikmc_projects.id = targ_rep_es_cells.ikmc_project_foreign_id
+      join targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id and targ_rep_pipelines.name in ('EUCOMM', 'EUCOMMTools', 'KOMP-CSD', 'KOMP-Regeneron') and targ_rep_pipelines.report_to_public is true
+      join targ_rep_alleles on targ_rep_alleles.id = targ_rep_es_cells.allele_id
+      join genes on genes.id = targ_rep_alleles.gene_id
+      join mi_attempt_status_stamps on mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id
+      join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempt_status_stamps.status_id and mi_attempt_statuses.code = 'gtc'
+      group by substring(targ_rep_pipelines.name from 1 for 4)
+    }
+
+    results = ActiveRecord::Base.connection.execute(sql)
+
+    hash = {}
+
+    results.each do |row|
+      hash[row['name']] ||= {}
+      hash[row['name']][row['type']] = row['count']
+    end
+
+    result = hash.keys.map do |key|
+      {
+      'project_name' => key == 'EUCO' ? 'EUCOMM' : key,
+      'genes_with_vectors' => hash[key]['targeting_vectors'],
+      'genes_with_es_cells' => hash[key]['es_cells'],
+      'genes_with_mice' => hash[key]['mice']
+      }
+    end
+
+    Rails.cache.write('get_ikmc_production_statistics', result, :timeToLive => 1.hour) if USE_CACHE
+
+    result
+
+  end
+
 end

@@ -152,7 +152,12 @@ class MiAttempt < ApplicationModel
 
   def add_default_distribution_centre
     if ['gtc'].include?(self.status.try(:code)) and self.distribution_centres.count == 0
-      distribution_centre = MiAttempt::DistributionCentre.new({:mi_attempt_id => self.id, :centre_name => self.mi_plan.try(:production_centre).try(:name), :deposited_material_name => 'Live mice'})
+      centre = self.mi_plan.production_centre.name
+      if centre == 'UCD'
+        centre = 'KOMP Repo'
+      end
+      distribution_centre = MiAttempt::DistributionCentre.new({:mi_attempt_id => self.id, :centre_name => centre, :deposited_material_name => 'Live mice'})
+      raise "Could not save DEFAULT distribution Centre" if !distribution_centre.valid?
       distribution_centre.save
     end
   end

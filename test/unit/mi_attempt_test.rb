@@ -865,7 +865,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         :is_distributed_by_emma => true
         mi = dc.mi_attempt
         mi.reload
-        assert_equal "[EMMA, WTSI, Live mice]", mi.distribution_centres_formatted_display
+        assert_equal "[#{mi.production_centre_name}, Live mice] [EMMA, WTSI, Live mice]", mi.distribution_centres_formatted_display
       end
     end
 

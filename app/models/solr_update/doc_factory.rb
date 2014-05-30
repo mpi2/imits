@@ -149,7 +149,7 @@ class SolrUpdate::DocFactory
     object.distribution_centres.each do |distribution_centre|
       centre_name = distribution_centre.centre.name
 
-      next if ! ['UCD', 'EMMA'].include?(centre_name) && ! config.has_key?(centre_name)
+      next if ! ['UCD', 'KOMP Repo', 'EMMA'].include?(centre_name) && !(config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name)) 
 
       current_time = Time.now
 
@@ -171,27 +171,35 @@ class SolrUpdate::DocFactory
 
       next if ! range.cover?(current)
 
-      centre_name = 'KOMP' if centre_name == 'UCD'
+      centre = Centre.where("contact_email IS NOT NULL AND name = '#{centre_name}'")
+      
+      centre_name = 'KOMP' if ['UCD', 'KOMP Repo'].include?(centre_name) 
       centre_name = distribution_centre.distribution_network if distribution_centre.distribution_network
-      details = config[centre_name]
+      details = ''
 
-      next if details[:preferred].length == 0
+      if config.has_key?(centre_name) && config[centre_name][:preferred].length == 0
+        details = config[centre_name]
+        project_id = object.es_cell.ikmc_project_id
+        marker_symbol = object.gene.marker_symbol
+        order_from_name = centre_name
 
-      project_id = object.es_cell.ikmc_project_id
-      marker_symbol = object.gene.marker_symbol
-      order_from_name = centre_name
+        order_from_url = details[:default]
 
-      order_from_url = details[:default]
+        # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
 
-      # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
+        if project_id &&  details[:preferred] =~ /PROJECT_ID/
+          order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
+        end
 
-      if project_id &&  details[:preferred] =~ /PROJECT_ID/
-        order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
+        if marker_symbol && details[:preferred] =~ /MARKER_SYMBOL/
+          order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
+        end
+      elsif !centre.blank?
+        details = centre
+        order_from_url = "mailto:#{details.contact_email}?subject=Mutant mouse enquiry"
       end
 
-      if marker_symbol && details[:preferred] =~ /MARKER_SYMBOL/
-        order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
-      end
+      next if details.blank?
 
       if order_from_url
         solr_doc['order_from_names'].push order_from_name
@@ -394,5 +402,4 @@ class SolrUpdate::DocFactory
 
     solr_doc
   end
-
 end

@@ -166,8 +166,13 @@ class PhenotypeAttempt < ApplicationModel
 
 
   def add_default_distribution_centre
+    centre = self.mi_plan.production_centre.name
+    if centre == 'UCD'
+      centre = 'KOMP Repo'
+    end
     if self.status_stamps.map{|ss| ss.code}.include?('cec') and self.distribution_centres.count == 0
-      distribution_centre = PhenotypeAttempt::DistributionCentre.new({:phenotype_attempt_id => self.id, :centre_name => self.mi_plan.try(:production_centre).try(:name), :deposited_material_name => 'Live mice'})
+      distribution_centre = PhenotypeAttempt::DistributionCentre.new({:phenotype_attempt_id => self.id, :centre_name => centre, :deposited_material_name => 'Live mice'})
+      raise "Could not save default distribution centre" if !distribution_centre.valid?
       distribution_centre.save
     end
   end

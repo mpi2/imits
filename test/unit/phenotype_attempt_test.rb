@@ -434,8 +434,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         pa = Factory.create :phenotype_attempt_status_pdc,
                 :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => bash_wtsi_cbx1_plan)
 
-        dc = Factory.create(:phenotype_attempt_distribution_centre, :centre => pa.production_centre, :phenotype_attempt => pa, :deposited_material => DepositedMaterial.find_by_name!('Frozen embryos'))
-        assert_equal "[WTSI, Frozen embryos]", pa.distribution_centres_formatted_display
+        assert_equal "[WTSI, Live mice]", pa.distribution_centres_formatted_display
       end
     end
 

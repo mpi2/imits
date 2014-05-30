@@ -27,7 +27,7 @@ module TarMits
     # Activate observers that should always be running.
     # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
 
-    config.enable_solr_phenotype_attempt = false
+    config.enable_solr_phenotype_attempt = true
 
     config.active_record.observers = [
       'SolrUpdate::Observer::AnyWithMiAttempts',

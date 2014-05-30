@@ -361,40 +361,92 @@ namespace :solr do
   #  end
   #end
 
-  task 'update:alleles_mirko' => [:environment] do
-    pp SolrUpdate::IndexProxy::Allele.get_uri
-    ApplicationModel.transaction do
-      puts "#### enqueueing alleles..."
-      enqueuer = SolrUpdate::Enqueuer.new
+  #task 'update:alleles_mirko' => [:environment] do
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #  ApplicationModel.transaction do
+  #    puts "#### enqueueing alleles..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #
+  #    counter = 0
+  #  sql = <<-EOF
+  #             select distinct targ_rep_alleles.* from targ_rep_alleles
+  #             join targ_rep_es_cells on targ_rep_es_cells.allele_id = targ_rep_alleles.id
+  #             join targ_rep_ikmc_projects on targ_rep_ikmc_projects.id = targ_rep_es_cells.ikmc_project_foreign_id
+  #             join targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id and targ_rep_pipelines.name = 'mirKO'
+  #           EOF
+  #
+  #    TargRep::TargetedAllele.find_by_sql(sql).each do |a|
+  #
+  #      #found = false
+  #      #a.es_cells.each do |es_cell|
+  #      #  if es_cell.ikmc_project.pipeline.name =~ /mirko/i
+  #      #    found = true
+  #      #    break
+  #      #  end
+  #      #end
+  #      #
+  #      #next if ! found
+  #
+  #      enqueuer.allele_updated(a)
+  #      counter += 1
+  #      #break if counter > 10
+  #    end
+  #
+  #    puts "#### running alleles (#{counter})..."
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
 
-      counter = 0
-    sql = <<-EOF
-               select distinct targ_rep_alleles.* from targ_rep_alleles
-               join targ_rep_es_cells on targ_rep_es_cells.allele_id = targ_rep_alleles.id
-               join targ_rep_ikmc_projects on targ_rep_ikmc_projects.id = targ_rep_es_cells.ikmc_project_foreign_id
-               join targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id and targ_rep_pipelines.name = 'mirKO'
-             EOF
+  #task 'update:phenotype_attempts_recent' => [:environment] do
+  #  next if ! Rails.configuration.enable_solr_phenotype_attempt
+  #
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #  ApplicationModel.transaction do
+  #
+  #    puts "#### enqueueing phenotype_attempts..."
+  #
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    counter = 0
+  #    pas = PhenotypeAttempt.where "DATE(created_at) = DATE(?)", Time.now - 1.day
+  #    pas.each do |p|
+  #      next if p.updated_at <
+  #      enqueuer.phenotype_attempt_updated(p)
+  #      counter += 1
+  #      #break if counter > 10
+  #    end
+  #
+  #    puts "#### running phenotype_attempts (#{counter})..."
+  #
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
 
-      TargRep::TargetedAllele.find_by_sql(sql).each do |a|
-
-        #found = false
-        #a.es_cells.each do |es_cell|
-        #  if es_cell.ikmc_project.pipeline.name =~ /mirko/i
-        #    found = true
-        #    break
-        #  end
-        #end
-        #
-        #next if ! found
-
-        enqueuer.allele_updated(a)
-        counter += 1
-        #break if counter > 10
-      end
-
-      puts "#### running alleles (#{counter})..."
-      SolrUpdate::Queue.run(:limit => nil)
-    end
-  end
+  #desc 'Enqueue every TargRep::TargetedAllele, TargRep::EsCell, MiAttempt & PhenotypeAttempt for solr update (changed recently)'
+  #task 'update:all_recent' => [:environment] do
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #  counter = 0
+  #  ApplicationModel.transaction do
+  #
+  #    puts "#### enqueueing mi_attempts..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    MiAttempt.where("DATE(created_at) = DATE(?)", Time.now - 1.day).each { |i| counter += 1; enqueuer.mi_attempt_updated(i) }
+  #
+  #    puts "#### enqueueing alleles..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    TargRep::TargetedAllele.where("DATE(created_at) = DATE(?)", Time.now - 1.day).each { |a| counter += 1; enqueuer.allele_updated(a) }
+  #
+  #    puts "#### enqueueing phenotype_attempts..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    PhenotypeAttempt.where("DATE(created_at) = DATE(?)", Time.now - 1.day).each { |p| counter += 1; enqueuer.phenotype_attempt_updated(p) }
+  #
+  #    puts "#### enqueueing genes..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    Gene.where("DATE(created_at) = DATE(?)", Time.now - 1.day).each { |g| counter += 1; enqueuer.gene_updated(g) }
+  #
+  #    puts "#### running queue (#{counter})..."
+  #
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
 
 end

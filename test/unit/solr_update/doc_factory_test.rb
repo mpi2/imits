@@ -170,6 +170,44 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
         @doc['genbank_file_url']
       end
+
+      context 'on allele overide' do
+        should 'overide fields if allele_type is different from allele' do
+          mi_attempt = Factory.create :mi_attempt2,
+          :es_cell => @es_cell,
+          :mi_plan => bash_wtsi_cbx1_plan
+
+          doc = SolrUpdate::DocFactory.create_for_mi_attempt(mi_attempt).first
+          assert_equal 'Conditional Ready', doc['allele_type']
+          assert_not_equal '', doc['simple_allele_image_url']
+          assert_not_equal '', doc['allele_image_url']
+          assert_not_equal '', doc['genbank_file_url']
+
+          mi_attempt.mouse_allele_type = 'e'
+          doc = SolrUpdate::DocFactory.create_for_mi_attempt(mi_attempt).first
+
+          assert_not_equal 'Conditional Ready', doc['allele_type']
+          assert_equal '', doc['simple_allele_image_url']
+          assert_equal '', doc['allele_image_url']
+          assert_equal '', doc['genbank_file_url']
+        end
+
+        should 'NOT overide fields if allele_type is the same as allele' do
+          mi_attempt = Factory.create :mi_attempt2,
+          :es_cell => @es_cell,
+          :mi_plan => bash_wtsi_cbx1_plan
+
+          doc = SolrUpdate::DocFactory.create_for_mi_attempt(mi_attempt).first
+          assert_equal 'Conditional Ready', doc['allele_type']
+
+          mi_attempt.mouse_allele_type = 'a'
+          doc = SolrUpdate::DocFactory.create_for_mi_attempt(mi_attempt).first
+          assert_equal 'Conditional Ready', doc['allele_type']
+          assert_not_equal '', doc['simple_allele_image_url']
+          assert_not_equal '', doc['allele_image_url']
+          assert_not_equal '', doc['genbank_file_url']
+        end
+      end
     end
 
     context 'when creating solr docs for phenotype_attempt' do
@@ -215,13 +253,19 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         should 'be Cre Excised Conditional Ready if mouse_allele_type is b' do
           @phenotype_attempt.mouse_allele_type = 'b'
           doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
-          assert_equal 'Cre-excised deletion (tm1b)', doc['allele_type']
+          assert_equal 'Cre-excised Reporter-tagged deletion (tm1b)', doc['allele_type']
         end
 
         should 'be Cre Excised Deletion if mouse_allele_type is .1' do
           @phenotype_attempt.mouse_allele_type = '.1'
           doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
-          assert_equal 'Cre-excised deletion (tm1.1)', doc['allele_type']
+          assert_equal 'Cre-excised Reporter-tagged deletion (tm1.1)', doc['allele_type']
+        end
+
+        should 'be Flp Excised Conditional if mouse_allele_type is c' do
+          @phenotype_attempt.mouse_allele_type = 'c'
+          doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
+          assert_equal 'Flp-excised Conditional (tm1c)', doc['allele_type']
         end
       end
 
@@ -243,14 +287,46 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_equal 'TEST ALLELE SYMBOL', @doc['allele_name']
       end
 
-      should 'set allele_image_url' do
-        assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image-cre",
-        @doc['allele_image_url']
+      context 'allele_image_url' do
+        should 'show cre allele image by default' do
+          assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image-cre",
+          @doc['allele_image_url']
+        end
+
+        should 'show flp allele image if mouse_allele_type is c' do
+          @phenotype_attempt.mouse_allele_type = 'c'
+          doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
+
+          assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image-flp",
+          doc['allele_image_url']
+        end
       end
 
-      should 'set genbank_file_url' do
-        assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
-        @doc['genbank_file_url']
+      context 'genbank_file_url' do
+        should 'cre genbank file by default' do
+          assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
+          @doc['genbank_file_url']
+        end
+
+        should 'flp genbank file if mouse_allele_type is c' do
+          @phenotype_attempt.mouse_allele_type = 'c'
+          doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
+
+          assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-flp-genbank-file",
+          doc['genbank_file_url']
+        end
+      end
+
+      context 'mi_attempt allele overide' do
+        should 'NOT display any allele info ' do
+          @phenotype_attempt.mi_attempt.mouse_allele_type = 'e'
+          @phenotype_attempt.mouse_allele_type = 'b'
+          doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
+
+          assert_equal '', doc['genbank_file_url']
+          assert_equal '', doc['allele_image_url']
+          assert_equal '', doc['simple_allele_image_url']
+        end
       end
     end
 
@@ -381,19 +457,18 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           assert_equal [expected_name]*2, @docs.map{|d| d['order_from_names']}
         end
 
-        should 'work for mirKO or Sanger MGP pipelines' do
+        should 'work for Sanger MGP pipelines' do
           expected_url = ['mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for Test1']
           expected_name = ['Wtsi']
 
           setup_fake_unique_public_info [
-            {:pipeline => 'mirKO'},
             {:pipeline => 'Sanger MGP'}
           ]
 
           @docs = SolrUpdate::DocFactory.create_for_allele(@allele)
 
-          assert_equal [expected_url]*2, @docs.map{|d| d['order_from_urls']}
-          assert_equal [expected_name]*2, @docs.map{|d| d['order_from_names']}
+          assert_equal [expected_url], @docs.map{|d| d['order_from_urls']}
+          assert_equal [expected_name], @docs.map{|d| d['order_from_names']}
         end
 
         should 'work for one of the NorCOMM pipeline' do
@@ -409,6 +484,21 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           assert_equal [expected_url], @docs.map{|d| d['order_from_urls']}
           assert_equal [expected_name], @docs.map{|d| d['order_from_names']}
         end
+
+        should 'work for mirKO pipelines' do
+          expected_url = ['http://www.eummcr.org/order?add=MGI:9999999991&material=es_cells', 'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=Test1']
+          expected_name = ["EUMMCR", "MMRRC"]
+
+          setup_fake_unique_public_info [
+            {:pipeline => 'mirKO'}
+          ]
+
+          @docs = SolrUpdate::DocFactory.create_for_allele(@allele)
+
+          assert_equal [expected_url], @docs.map{|d| d['order_from_urls']}
+          assert_equal [expected_name], @docs.map{|d| d['order_from_names']}
+        end
+
       end
 
       should 'set order_from_url' do

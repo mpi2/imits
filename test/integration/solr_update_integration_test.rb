@@ -139,9 +139,10 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
         pa_doc = {
           'id' => phenotype_attempt.id,
+          'allele_has_issue' => false,
           'type' => 'phenotype_attempt',
           'product_type' => 'Mouse',
-          'allele_type' => 'Cre-excised deletion (tm1b)',
+          'allele_type' => 'Cre-excised Reporter-tagged deletion (tm1b)',
           'allele_id' => @allele.id,
           'mgi_accession_id' => cbx1.mgi_accession_id,
           'strain' => @new_strain.name,

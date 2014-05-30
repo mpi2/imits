@@ -36,5 +36,3 @@ while (  my $seq = <$stream> ) {
     my $seq_out = Bio::SeqIO->new( -fh => $ofh, -format => 'genbank' );
     $seq_out->write_seq( $modified_seq );
 }
-
-_END_

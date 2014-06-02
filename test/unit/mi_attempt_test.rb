@@ -869,6 +869,18 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#distribution_centre' do
+      should 'default to the production centre when genotype confirmed' do
+        mi_attempt = Factory.create :mi_attempt2_status_gtc
+
+        assert_equal 1, mi_attempt.distribution_centres.count
+
+        distribution_centre = mi_attempt.distribution_centres.first
+        assert_equal mi_attempt.production_centre, distribution_centre.centre
+        assert_equal 'Live mice', distribution_centre.deposited_material.name
+      end
+    end
+
     context '#allele_id' do
       should 'return es_cell allele_id' do
         assert_equal default_mi_attempt.es_cell.allele_id, default_mi_attempt.allele_id

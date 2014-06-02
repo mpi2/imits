@@ -181,7 +181,7 @@ class SolrUpdate::DocFactory
     object.distribution_centres.each do |distribution_centre|
       centre_name = distribution_centre.centre.name
 
-      next if ! ['UCD', 'KOMP Repo', 'EMMA'].include?(centre_name) && !(config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name)) 
+      next if ! ['UCD', 'KOMP Repo', 'EMMA'].include?(centre_name) && !(config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
 
       current_time = Time.now
 
@@ -202,33 +202,35 @@ class SolrUpdate::DocFactory
       range = start_date.to_time..end_date.to_time
 
       next if ! range.cover?(current)
-
-      centre = Centre.where("contact_email IS NOT NULL AND name = '#{centre_name}'")
-      
-      centre_name = 'KOMP' if ['UCD', 'KOMP Repo'].include?(centre_name) 
+      centre = Centre.where("contact_email IS NOT NULL AND name = '#{centre_name}'").first
+      centre_name = 'KOMP' if ['UCD', 'KOMP Repo'].include?(centre_name)
       centre_name = distribution_centre.distribution_network if distribution_centre.distribution_network
       details = ''
 
-      if config.has_key?(centre_name) && config[centre_name][:preferred].length == 0
+      if config.has_key?(centre_name) && (!config[centre_name][:default].blank? || !config[centre_name][:preferred].blank?)
+        # if blank then will default to order_from_url = details[:default]
         details = config[centre_name]
-        project_id = object.es_cell.ikmc_project_id
-        marker_symbol = object.gene.marker_symbol
-        order_from_name = centre_name
-
         order_from_url = details[:default]
 
-        # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
+        if !config[centre_name][:preferred].blank?
+          project_id = object.es_cell.ikmc_project_id
+          marker_symbol = object.gene.marker_symbol
+          order_from_name = centre_name
 
-        if project_id &&  details[:preferred] =~ /PROJECT_ID/
-          order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
-        end
+          # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
 
-        if marker_symbol && details[:preferred] =~ /MARKER_SYMBOL/
-          order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
+          if project_id &&  details[:preferred] =~ /PROJECT_ID/
+            order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
+          end
+
+          if marker_symbol && details[:preferred] =~ /MARKER_SYMBOL/
+            order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
+          end
         end
-      elsif !centre.blank?
+      elsif centre
         details = centre
         order_from_url = "mailto:#{details.contact_email}?subject=Mutant mouse enquiry"
+        order_from_name = centre_name
       end
 
       next if details.blank?

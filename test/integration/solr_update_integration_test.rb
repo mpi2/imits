@@ -56,7 +56,6 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 #       :centre => Centre.find_by_name!('WTSI'),
 #        :is_distributed_by_emma => false, :mi_attempt => @mi_attempt
 #        @mi_attempt.distribution_centres = [dist_centre]
-
         SolrUpdate::Queue.run
       end
 
@@ -157,7 +156,9 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'marker_symbol' => 'Cbx1',
           'colony_name' => 'WTSI-EPD0027_2_A02-1-1',
           'parent_mi_attempt_colony_name' => 'WTSI-EPD0027_2_A02-1',
-          'project_ids' => ['35505']
+          'project_ids' => ['35505'],
+          'order_from_names'=>['WTSI'],
+          'order_from_urls'=> ['mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1']
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

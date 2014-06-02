@@ -94,7 +94,7 @@ module AlleleImage2
       main_image = main_image_list.append(false)
 
       # If we are drawing a linear allele image and have a transcript id then display it
-      unless ( @construct.circular || @simple )
+      unless ( @construct.circular )
         if @construct.transcript_id_label
           label_text             = "Transcript ID: #{@construct.transcript_id_label}"
           transcript_label_image = render_transcript_id_label( label_text )
@@ -299,7 +299,7 @@ module AlleleImage2
         loxp_region_features   = []
 
         if rcmb_primers.count == 2
-           three_arm_features = @construct.three_arm_features
+          three_arm_features = @construct.three_arm_features
         else
           target_region_features = @construct.three_arm_features.select do |feature|
             feature.start >= rcmb_primers[0].start and \
@@ -438,10 +438,12 @@ module AlleleImage2
         image_list.push(main_image)
 
         # Construct the label image
-        if params[:label]
-          label_image = Magick::Image.new( image_width, @text_height * 2 )
-          label_image = draw_label( label_image, params[:label], 0, 0, @text_height * 2 )
-          image_list.push( label_image )
+        unless ( @simple )
+          if params[:label]
+            label_image = Magick::Image.new( image_width, @text_height * 2 )
+            label_image = draw_label( label_image, params[:label], 0, 0, @text_height * 2 )
+            image_list.push( label_image )
+          end
         end
 
         return image_list.append(true)
@@ -535,8 +537,13 @@ module AlleleImage2
       end
 
       def render_transcript_id_label( transcript_label_text )
-        label_image = Magick::Image.new( @text_width * transcript_label_text.length, @text_height * 2 )
-        label_image = draw_label( label_image, transcript_label_text, 0, 0, @text_height * 2 )
+        if ( @simple )
+          label_image = Magick::Image.new( ( @text_width - 3 ) * transcript_label_text.length, @text_height * 2 )
+          label_image = draw_simple_label( label_image, transcript_label_text, 0, 0, @text_height * 2 )
+        else
+          label_image = Magick::Image.new( @text_width * transcript_label_text.length, @text_height * 2 )
+          label_image = draw_label( label_image, transcript_label_text, 0, 0, @text_height * 2 )
+        end
         return label_image
       end
 
@@ -619,6 +626,23 @@ module AlleleImage2
             self.font_weight = Magick::BoldWeight
             self.pointsize   = pointsize
           end
+        end
+
+        return image
+      end
+
+      def draw_simple_label( image, label, x, y, height = @text_height )
+        d = Magick::Draw.new
+
+        d.stroke( "black" )
+        d.fill( "white" )
+        d.draw( image )
+        pointsize = 13
+        d.annotate( image, image.columns, height, x, y, label ) do
+          self.fill        = "black"
+          self.gravity     = Magick::CenterGravity
+          self.font_weight = Magick::BoldWeight
+          self.pointsize   = pointsize
         end
 
         return image

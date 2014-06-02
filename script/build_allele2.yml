@@ -79,6 +79,8 @@ options:
   FILTER_TARGET: ""   #"feature_type"    #"marker_type"    
   CREATE_FILES: false
   USE_FILES: false
+  SOLR_USER: solradmin
+  SOLR_PASSWORD: xpassword
 
 replacements: 
 - Akt2: 

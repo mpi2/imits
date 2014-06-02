@@ -3,6 +3,66 @@
 require 'pp'
 require "digest/md5"
 
+module SolrConnect
+  class Error < RuntimeError; end
+
+  class NetHttpProxy
+    def self.should_use_proxy_for?(host)
+      ENV['NO_PROXY'].to_s.delete(' ').split(',').each do |no_proxy_host_part|
+        if host.include?(no_proxy_host_part)
+          return false
+        end
+      end
+
+      return true
+    end
+
+    def initialize(solr_uri)
+      if ENV['HTTP_PROXY'].present? and self.class.should_use_proxy_for?(solr_uri.host)
+        proxy_uri = URI.parse(ENV['HTTP_PROXY'])
+        @http = Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
+      else
+        @http = Net::HTTP
+      end
+    end
+
+    def start(*args, &block)
+      @http.start(*args, &block)
+    end
+  end
+
+  class Proxy
+    def initialize(uri)
+      @solr_uri = URI.parse(uri)
+      @http = NetHttpProxy.new(@solr_uri)
+    end
+
+    def update(commands_packet, user = nil, password = nil)
+      uri = @solr_uri.dup
+      uri.path = uri.path + '/update/json'
+      @http.start(uri.host, uri.port) do |http|
+        request = Net::HTTP::Post.new uri.request_uri
+
+        #TODO: enable the following when the /update route is secure
+        #request.basic_auth(user, password) if user && password
+
+        request.content_type = 'application/json'
+        request.body = commands_packet
+        http_response = http.request(request)
+        handle_http_response_error(http_response, request)
+      end
+    end
+
+    def handle_http_response_error(http_response, request = nil)
+      if ! http_response.kind_of? Net::HTTPSuccess
+        raise SolrConnect::Error, "Error during update_json: #{http_response.message}\n#{http_response.body}\n\nRequest body:#{request.body}"
+      end
+    end
+
+    protected :handle_http_response_error
+  end
+end
+
 class BuildAllele2
 
   def initialize
@@ -36,6 +96,9 @@ class BuildAllele2
     @create_files = @config['options']['CREATE_FILES']
     @use_files = @config['options']['USE_FILES']
 
+    @solr_user = @config['options']['SOLR_USER']
+    @solr_password = @config['options']['SOLR_PASSWORD']
+
     pp @config['options']
 
     puts "#### loading alleles!" if @use_alleles
@@ -66,6 +129,10 @@ class BuildAllele2
     home = Dir.home
     #@root = "#{home}/Desktop"
     @root = "#{Rails.root}/script"
+
+    @solr_url = @solr_update[Rails.env]['index_proxy']['allele2']
+
+    puts "#### #{@solr_url}/admin/"
   end
 
   def mark row
@@ -127,10 +194,10 @@ class BuildAllele2
   end
 
   def delete_index
-    proxy = SolrBulk::Proxy.new(@solr_update[Rails.env]['index_proxy']['allele2'])
+    proxy = SolrConnect::Proxy.new(@solr_url)
 
     if @marker_symbol.empty?
-      proxy.update({'delete' => {'query' => '*:*'}}.to_json)
+      proxy.update({'delete' => {'query' => '*:*'}}.to_json, @solr_user, @solr_password)
     else
       #marker_symbols = @marker_symbol.to_s.split ','
 
@@ -138,17 +205,17 @@ class BuildAllele2
         #puts "#### @marker_symbol: #{@marker_symbol}"
         #puts "#### marker_symbol_str:\/#{marker_symbol}\/"
         ##proxy.update({'delete' => {'query' => "marker_symbol_str:\/#{marker_symbol}\/"}}.to_json)
-        proxy.update({'delete' => {'query' => "marker_symbol_str:#{marker_symbol}"}}.to_json)
+        proxy.update({'delete' => {'query' => "marker_symbol_str:#{marker_symbol}"}}.to_json, @solr_user, @solr_password)
       end
     end
 
-    proxy.update({'commit' => {}}.to_json)
+    proxy.update({'commit' => {}}.to_json, @solr_user, @solr_password)
   end
 
   def send_to_index data
-    proxy = SolrBulk::Proxy.new(@solr_update[Rails.env]['index_proxy']['allele2'])
-    proxy.update(data.join)
-    proxy.update({'commit' => {}}.to_json)
+    proxy = SolrConnect::Proxy.new(@solr_url)
+    proxy.update(data.join, @solr_user, @solr_password)
+    proxy.update({'commit' => {}}.to_json, @solr_user, @solr_password)
   end
 
   def build_json data
@@ -180,7 +247,7 @@ class BuildAllele2
   # pass 1/3
 
   def run
-    puts "#### index: #{@solr_update[Rails.env]['index_proxy']['allele2']}"
+    puts "#### index: #{@solr_url}"
 
     if @use_files
       filename = "#{@root}/alleles.json"
@@ -495,7 +562,7 @@ class BuildAllele2
       save_csv filename, new_processed_allele_rows
     end
 
-    puts "#### send to index - #{@solr_update[Rails.env]['index_proxy']['allele2']}"
+    puts "#### send to index - #{@solr_url}"
 
     delete_index
 

@@ -509,29 +509,7 @@ module AlleleImage2
           @x += feature_width # update the x coordinate
         end
 
-        # labels are not added for the simple versions of images
-        unless @simple
-          # Construct the label image
-          label_image, @x, @y = Magick::Image.new( image_width, calculate_labels_image_height ), 0, 0
-
-          # Only label target exons or 5' exon fragments on the 5' arm
-          # do not label central exon fragments ( in target region )
-          exons.each do |exon|
-            if exon.feature_name.match(/^target\s+exon\s+/) or exon.feature_name.match(/5' fragment/)
-              unless exon.feature_name.match(/central fragment/)
-                draw_label( label_image, exon.feature_name.match(/(ENSMUSE\d+)/).captures.last, x, y )
-                @y += @text_height
-              end
-            end
-          end
-
-        end
-
-        # Stack the images vertically
         image_list.push( main_image )
-        unless @simple
-          image_list.push( label_image )
-        end
 
         return image_list.append(true)
       end
@@ -747,13 +725,7 @@ module AlleleImage2
           return @text_width
         end
 
-        # for detailed images
-        target_exons = exons.select { |e| e.feature_name.match(/^target\s+exon\s+/) or e.feature_name.match(/5' fragment/) }
-        if target_exons.nil? or target_exons.empty?
-          image_width = calculate_exon_image_width( exons.size ) + @gap_width * 2 # for padding either side
-        else
-          image_width = target_exons.map { |e| e.feature_name.match(/(\ENSMUSE\d+)/).captures.last.length }.max * @text_width
-        end
+        image_width = calculate_exon_image_width( exons.size ) + @gap_width * 2 # for padding either side
 
         return [ image_width, min_image_width ].max
       end

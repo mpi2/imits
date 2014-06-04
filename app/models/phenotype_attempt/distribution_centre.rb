@@ -47,6 +47,10 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
     ## TODO: Update martbuilder so we don't need to continue updating the boolean.
     self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
 
+    if (!self.distribution_network.blank?) && self.centre.name == 'KOMP Repo'
+      self.centre = self.phenotype_attempt.mi_plan.production_centre
+    end
+
     true # Rails doesn't save if you return false.
   end
 

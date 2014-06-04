@@ -702,8 +702,8 @@ class BaseProductionReport
           consortia.name AS consortium,
           centres.name AS centre,
           SUM(CASE WHEN mi_attempt_distribution_centres.is_distributed_by_emma = true THEN 1 ELSE 0 END) AS emma,
-          SUM(CASE WHEN dis_centre.name = 'UCD' AND (mi_attempt_distribution_centres.distribution_network != 'MMRRC' OR mi_attempt_distribution_centres.distribution_network IS NULL) THEN 1 ELSE 0 END) AS KOMP,
-          SUM(CASE WHEN (dis_centre.name != 'UCD' OR mi_attempt_distribution_centres.distribution_network = 'MMRRC') AND mi_attempt_distribution_centres.is_distributed_by_emma = false THEN 1 ELSE 0 END) AS shelf
+          SUM(CASE WHEN dis_centre.name IN ('UCD', 'KOMP Repo') AND (mi_attempt_distribution_centres.distribution_network != 'MMRRC' OR mi_attempt_distribution_centres.distribution_network IS NULL) THEN 1 ELSE 0 END) AS KOMP,
+          SUM(CASE WHEN (dis_centre.name NOT IN ('UCD', 'KOMP Repo') OR mi_attempt_distribution_centres.distribution_network = 'MMRRC') AND mi_attempt_distribution_centres.is_distributed_by_emma = false THEN 1 ELSE 0 END) AS shelf
         FROM mi_attempt_distribution_centres
           JOIN centres AS dis_centre ON dis_centre.id = mi_attempt_distribution_centres.centre_id
           JOIN mi_attempts ON mi_attempts.id = mi_attempt_distribution_centres.mi_attempt_id
@@ -752,8 +752,8 @@ class BaseProductionReport
           consortia.name AS consortium,
           centres.name AS centre,
           SUM(CASE WHEN phenotype_attempt_distribution_centres.is_distributed_by_emma = true THEN 1 ELSE 0 END) AS emma,
-          SUM(CASE WHEN dis_centre.name = 'UCD' AND (phenotype_attempt_distribution_centres.distribution_network != 'MMRRC' OR phenotype_attempt_distribution_centres.distribution_network IS NULL) THEN 1 ELSE 0 END) AS KOMP,
-          SUM(CASE WHEN (dis_centre.name != 'UCD' OR (dis_centre.name = 'UCD' AND phenotype_attempt_distribution_centres.distribution_network = 'MMRRC')) AND phenotype_attempt_distribution_centres.is_distributed_by_emma = false THEN 1 ELSE 0 END) AS shelf
+          SUM(CASE WHEN dis_centre.name IN ('UCD', 'KOMP Repo') AND (phenotype_attempt_distribution_centres.distribution_network != 'MMRRC' OR phenotype_attempt_distribution_centres.distribution_network IS NULL) THEN 1 ELSE 0 END) AS KOMP,
+          SUM(CASE WHEN (dis_centre.name NOT IN ('UCD', 'KOMP Repo') OR (phenotype_attempt_distribution_centres.distribution_network = 'MMRRC')) AND phenotype_attempt_distribution_centres.is_distributed_by_emma = false THEN 1 ELSE 0 END) AS shelf
         FROM phenotype_attempt_distribution_centres
           JOIN centres AS dis_centre ON dis_centre.id = phenotype_attempt_distribution_centres.centre_id
           JOIN mouse_allele_mods ON mouse_allele_mods.id = phenotype_attempt_distribution_centres.mouse_allele_mod_id

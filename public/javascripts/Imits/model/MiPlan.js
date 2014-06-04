@@ -61,11 +61,11 @@ Ext.define('Imits.model.MiPlan', {
         name: 'completion_note'
     },
     {
-        name: 'phenotype_only',
+        name: 'mutagenesis_via_crispr_cas9',
         defaultValue: false
     },
     {
-        name: 'mutagenesis_via_crispr_cas9',
+        name: 'phenotype_only',
         defaultValue: false
     },
     {

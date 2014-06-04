@@ -46,7 +46,7 @@ class PlannedMicroinjectionList #< Reports::Base
              max(CASE WHEN mi_attempt_statuses.name = 'Micro-injection aborted' THEN mi_attempt_status_stamps.created_at ELSE NULL END ) AS plan_aborted_max_date --,
              --mi_plans.mutagenesis_via_crispr_cas9 as mutagenesis_via_crispr_cas9
         FROM mi_plans
-        JOIN consortia ON consortia.id = mi_plans.consortium_id #{consortium.nil? ? "" : "AND consortia.name = '#{consortium}'"} #{crisprs ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : 'and mi_plans.mutagenesis_via_crispr_cas9 is false'}
+        JOIN consortia ON consortia.id = mi_plans.consortium_id #{consortium.nil? ? "" : "AND consortia.name = '#{consortium}'"} #{crisprs ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : ''}
         LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id
                                JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.status_id = mi_attempt_statuses.id AND mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id
                   ) ON mi_attempts.mi_plan_id = mi_plans.id
@@ -102,11 +102,14 @@ class PlannedMicroinjectionList #< Reports::Base
       to_char(mi_attempt_counts.plan_aborted_max_date, 'dd/mm/yyyy') AS plan_aborted_max_date
 
     FROM mi_attempt_counts
-      JOIN mi_plans ON mi_plans.id = mi_attempt_counts.plan_id #{crisprs ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : 'and mi_plans.mutagenesis_via_crispr_cas9 is false'}
-      JOIN new_intermediate_report_summary_by_mi_plan ON new_intermediate_report_summary_by_mi_plan.mi_plan_id = mi_attempt_counts.plan_id #{crisprs ? 'and new_intermediate_report_summary_by_mi_plan.mutagenesis_via_crispr_cas9 is true' : 'and new_intermediate_report_summary_by_mi_plan.mutagenesis_via_crispr_cas9 is false'}
+      JOIN mi_plans ON mi_plans.id = mi_attempt_counts.plan_id -- #{crisprs ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : ''}
+      JOIN new_intermediate_report_summary_by_mi_plan ON new_intermediate_report_summary_by_mi_plan.mi_plan_id = mi_attempt_counts.plan_id #{crisprs ? 'and new_intermediate_report_summary_by_mi_plan.mutagenesis_via_crispr_cas9 is true' : ''}
       JOIN mi_plan_statuses ON mi_plan_statuses.name = new_intermediate_report_summary_by_mi_plan.mi_plan_status
-      JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report_summary_by_mi_plan.mi_plan_id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
-      LEFT JOIN status_conflict_options ON new_intermediate_report_summary_by_mi_plan.mi_plan_id != status_conflict_options.mi_plan_id AND mi_plan_statuses.name = status_conflict_options.possible_conflict AND new_intermediate_report_summary_by_mi_plan.gene = status_conflict_options.marker_symbol
+      JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report_summary_by_mi_plan.mi_plan_id 
+        AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
+      LEFT JOIN status_conflict_options ON new_intermediate_report_summary_by_mi_plan.mi_plan_id != status_conflict_options.mi_plan_id 
+        AND mi_plan_statuses.name = status_conflict_options.possible_conflict 
+        AND new_intermediate_report_summary_by_mi_plan.gene = status_conflict_options.marker_symbol
     GROUP BY
       new_intermediate_report_summary_by_mi_plan.mi_plan_id,
       new_intermediate_report_summary_by_mi_plan.gene,

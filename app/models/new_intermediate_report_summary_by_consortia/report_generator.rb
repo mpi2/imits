@@ -882,6 +882,8 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
           'consortium',                                  # plan data
           'gene',
           'mgi_accession_id',
+          'mutation_sub_type',
+          'sub_project',
           'gene_interest_date',                          #?????????????
           'mi_attempt_colony_name',                      # colony names
           'mouse_allele_mod_colony_name',

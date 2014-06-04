@@ -1,5 +1,4 @@
 class NewIntermediateReportSummaryByConsortia < ActiveRecord::Base
-
   attr_accessible(
     'mi_plan_id',
     'mi_attempt_id',
@@ -12,6 +11,8 @@ class NewIntermediateReportSummaryByConsortia < ActiveRecord::Base
     'consortium',
     'gene',
     'mgi_accession_id',
+    'mutation_sub_type',
+    'sub_project',
     'gene_interest_date',
     'mi_attempt_colony_name',
     'mouse_allele_mod_colony_name',
@@ -155,4 +156,6 @@ end
 #  gc_pipeline_efficiency_gene_count             :integer
 #  gc_old_pipeline_efficiency_gene_count         :integer
 #  created_at                                    :datetime
+#  sub_project                                   :string(255)
+#  mutation_sub_type                             :string(100)
 #

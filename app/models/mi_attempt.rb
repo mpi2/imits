@@ -123,9 +123,20 @@ class MiAttempt < ApplicationModel
   before_save :generate_colony_name_if_blank
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
+  after_save :add_default_distribution_centre
   after_save :manage_status_stamps
   after_save :make_mi_date_and_in_progress_status_consistent
   after_save :reload_mi_plan_mi_attempts
+
+
+  def set_blank_qc_fields_to_na
+    QC_FIELDS.each do |qc_field|
+      if self.send("#{qc_field}_result").blank?
+        self.send("#{qc_field}_result=", 'na')
+      end
+    end
+  end
+  protected :set_blank_qc_fields_to_na
 
   def set_total_chimeras
     self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
@@ -139,6 +150,26 @@ class MiAttempt < ApplicationModel
   end
   protected :set_es_cell_from_es_cell_name
 
+  def add_default_distribution_centre
+    if ['gtc'].include?(self.status.try(:code)) and self.distribution_centres.count == 0
+      centre = production_centre_name
+      if centre == 'UCD'
+        centre = 'KOMP Repo'
+      end
+      distribution_centre = MiAttempt::DistributionCentre.new({:mi_attempt_id => self.id, :centre_name => centre, :deposited_material_name => 'Live mice'})
+      if centre == 'TCP' && consortium_name == 'NorCOMM2'
+        distribution_centre.distribution_network = 'CMMR'
+      elsif centre == 'TCP' && ['UCD-KOMP', 'DTCC'].include?(consortium_name)
+        distribution_centre.centre = Centre.find_by_name('KOMP Repo')
+      end
+      raise "Could not save DEFAULT distribution Centre" if !distribution_centre.valid?
+      distribution_centre.save
+    end
+  end
+  protected :add_default_distribution_centre
+
+
+
   def set_cassette_transmission_verified
     if self.cassette_transmission_verified.blank?
       if self.status_stamps.where("status_id = 2").count != 0
@@ -151,15 +182,6 @@ class MiAttempt < ApplicationModel
     true
   end
   protected :set_cassette_transmission_verified
-
-  def set_blank_qc_fields_to_na
-    QC_FIELDS.each do |qc_field|
-      if self.send("#{qc_field}_result").blank?
-        self.send("#{qc_field}_result=", 'na')
-      end
-    end
-  end
-  protected :set_blank_qc_fields_to_na
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?

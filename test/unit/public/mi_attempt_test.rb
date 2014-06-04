@@ -217,14 +217,16 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
     context '#distribution_centres_attributes' do
       should 'be output correctly' do
         mi = Factory.create(:mi_attempt2_status_gtc)
-        ds1 = Factory.create(:mi_attempt_distribution_centre,
-          :start_date => '2012-01-02', :mi_attempt => mi)
+        ds1 = mi.distribution_centres.first
         ds2 = Factory.create(:mi_attempt_distribution_centre,
+          :start_date => '2012-01-02', :mi_attempt => mi)
+        ds3 = Factory.create(:mi_attempt_distribution_centre,
           :end_date => '2012-02-02', :mi_attempt => mi)
 
         expected = [
           ds1.as_json,
-          ds2.as_json
+          ds2.as_json,
+          ds3.as_json
         ]
 
         mi = mi.reload.to_public
@@ -233,21 +235,22 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
 
       should 'can be updated and destroyed' do
         mi = Factory.create(:mi_attempt2_status_gtc).to_public
-        ds1 = Factory.create(:mi_attempt_distribution_centre,
+        ds1 = mi.distribution_centres.first
+        ds2 = Factory.create(:mi_attempt_distribution_centre,
           :centre => Centre.find_by_name!('WTSI'),
           :start_date => '2012-01-02', :mi_attempt => mi)
-        ds2 = Factory.create(:mi_attempt_distribution_centre,
+        ds3 = Factory.create(:mi_attempt_distribution_centre,
           :end_date => '2012-02-02', :mi_attempt => mi)
 
         mi = mi.reload
         attrs = mi.distribution_centres_attributes
-        attrs[0]['centre_name'] = 'ICS'
-        attrs[1][:_destroy] = true
+        attrs[1]['centre_name'] = 'ICS'
+        attrs[2][:_destroy] = true
         mi.update_attributes!(:distribution_centres_attributes => attrs)
 
-        assert_nil MiAttempt::DistributionCentre.find_by_id(ds2.id)
-        ds1.reload
-        assert_equal 'ICS', ds1.centre_name
+        assert_nil MiAttempt::DistributionCentre.find_by_id(ds3.id)
+        ds2.reload
+        assert_equal 'ICS', ds2.centre_name
       end
     end
 

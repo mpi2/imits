@@ -201,9 +201,10 @@ Ext.define('Imits.widget.MiGridCommon', {
             renderer: function(value, metaData, record){
                 var miId = record.getId();
                 var phenotypeCount = record.get('phenotype_attempts_count');
-                var geneSymbol = record.get('es_cell_marker_symbol')
+                var geneSymbol = record.get('es_cell_marker_symbol');
+                var productionCentre = record.get('production_centre_name');
                 if (phenotypeCount != 0) {
-                    return Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={1}&q[production_centre_name]={2}"></a>', window.basePath, geneSymbol, phenotypeCount);
+                    return Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={1}&q[production_centre_name]={2}">{3}</a>', window.basePath, geneSymbol, productionCentre, phenotypeCount);
                 } else {
                     return Ext.String.format('{0}', phenotypeCount);
                 }

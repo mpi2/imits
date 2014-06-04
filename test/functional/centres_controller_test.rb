@@ -19,8 +19,8 @@ class CentresControllerTest < ActionController::TestCase
       should 'work (via JSON)' do
         get :index, :format => :json
         data = JSON.parse(response.body)
-        assert_response :success 
-        assert_equal 17, data.size
+        assert_response :success
+        assert_equal 18, data.size
       end
 
       should 'create a centre via POST request (via JSON)' do
@@ -31,7 +31,7 @@ class CentresControllerTest < ActionController::TestCase
         new_centre = Centre.find_by_name("New centre")
 
         assert !new_centre.blank?
-        assert_response :success 
+        assert_response :success
       end
 
       should 'create an invalid centre via POST request (via JSON)' do

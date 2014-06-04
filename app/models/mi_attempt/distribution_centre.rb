@@ -7,6 +7,7 @@ class MiAttempt::DistributionCentre < ApplicationModel
   acts_as_audited
 
   DISTRIBUTION_NETWORKS = %w{
+    CMMR
     EMMA
     MMRRC
   }
@@ -26,7 +27,7 @@ class MiAttempt::DistributionCentre < ApplicationModel
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
-  } + FULL_ACCESS_ATTRIBUTES
+  } + FULL_ACCESS_ATTRIBUTES + ['mi_attempt_id']
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 

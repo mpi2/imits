@@ -401,14 +401,50 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
     end
 
     context '#distribution_centre' do
-      should 'default to the production centre when cre excised complete' do
-        mi_attempt = Factory.create :mi_attempt2_status_gtc
+      context 'when cre excised complete' do
+        should 'default to the production centre' do
+          phenotype_attempt = Factory.create :phenotype_attempt_status_cec
 
-        assert_equal 1, mi_attempt.distribution_centres.count
+          assert_equal 1, phenotype_attempt.distribution_centres.count
 
-        distribution_centre = mi_attempt.distribution_centres.first
-        assert_equal mi_attempt.production_centre, distribution_centre.centre
-        assert_equal 'Live mice', distribution_centre.deposited_material.name
+          distribution_centre = phenotype_attempt.distribution_centres.first
+          assert_equal phenotype_attempt.production_centre, distribution_centre.centre
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
+
+        should 'default to the KOMP if production centre is UCD' do
+          mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('UCD'))
+          phenotype_attempt = Factory.create :phenotype_attempt_status_cec, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => mi_plan)
+
+          assert_equal 1, phenotype_attempt.distribution_centres.count
+
+          distribution_centre = phenotype_attempt.distribution_centres.first
+          assert_equal 'KOMP Repo', distribution_centre.centre.name
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
+
+        should 'default the distribution network to CMMR if production centre is TCP and consortium_name is NorCOMM2' do
+          mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('NorCOMM2'), :production_centre => Centre.find_by_name('TCP'))
+          phenotype_attempt = Factory.create :phenotype_attempt_status_cec, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => mi_plan)
+
+          assert_equal 1, phenotype_attempt.distribution_centres.count
+
+          distribution_centre = phenotype_attempt.distribution_centres.first
+          assert_equal phenotype_attempt.production_centre, distribution_centre.centre
+          assert_equal 'CMMR', distribution_centre.distribution_network
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
+
+        should 'default to the centre to KOMP_Rep if production centre is TCP and consortium_name is DTCC' do
+          mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('TCP'))
+          phenotype_attempt = Factory.create :phenotype_attempt_status_cec, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => mi_plan)
+
+          assert_equal 1, phenotype_attempt.distribution_centres.count
+
+          distribution_centre = phenotype_attempt.distribution_centres.first
+          assert_equal 'KOMP Repo', distribution_centre.centre.name
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
       end
     end
 

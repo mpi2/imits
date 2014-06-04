@@ -7,6 +7,7 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
   acts_as_audited
 
   DISTRIBUTION_NETWORKS = %w{
+    CMMR
     EMMA
     MMRRC
   }

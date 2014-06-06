@@ -371,6 +371,23 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  def marker_symbol
+    if !mi_plan.blank?
+      # mi_plan delegates through to gene to fetch marker symbol
+      mi_plan.try(:marker_symbol)
+    else
+      nil
+    end
+  end
+
+  def mi_plan_mutagenesis_via_crispr_cas9
+    if !mi_plan.blank?
+      mi_plan.try(:mutagenesis_via_crispr_cas9)
+    else
+      nil
+    end
+  end  
+
   delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
 
   def self.translations

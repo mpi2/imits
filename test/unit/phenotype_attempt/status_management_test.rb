@@ -125,22 +125,26 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
     end
 
-    should 'transition to Cre Excision Complete if mouse_allele_type is set to "b"' do
-      phenotype_attempt.mouse_allele_type = 'b'
-      phenotype_attempt.deleter_strain = DeleterStrain.first
-      phenotype_attempt.number_of_cre_matings_successful = 2
-      phenotype_attempt.colony_background_strain = Strain.first
-      phenotype_attempt.valid?
-      assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
+    ['b', 'c', 'd', 'e.1', '.1'].each do |type|
+      should "transition to Cre Excision Complete if mouse_allele_type is set to '#{type}'" do
+        phenotype_attempt.mouse_allele_type = type
+        phenotype_attempt.deleter_strain = DeleterStrain.first
+        phenotype_attempt.number_of_cre_matings_successful = 2
+        phenotype_attempt.colony_background_strain = Strain.first
+        phenotype_attempt.valid?
+        assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
+      end
     end
 
-    should 'transition to Cre Excision Complete if mouse_allele_type is set to ".1"' do
-      phenotype_attempt.mouse_allele_type = '.1'
-      phenotype_attempt.deleter_strain = DeleterStrain.first
-      phenotype_attempt.number_of_cre_matings_successful = 2
-      phenotype_attempt.colony_background_strain = Strain.first
-      phenotype_attempt.valid?
-      assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
+    ['a', 'e', nil].each do |type|
+      should "transition to Cre Excision Complete if mouse_allele_type is set to '#{type}'" do
+        phenotype_attempt.mouse_allele_type = type
+        phenotype_attempt.deleter_strain = DeleterStrain.first
+        phenotype_attempt.number_of_cre_matings_successful = 2
+        phenotype_attempt.colony_background_strain = Strain.first
+        phenotype_attempt.valid?
+        assert_not_equal 'Cre Excision Complete', phenotype_attempt.status.name
+      end
     end
 
     should 'transition through Phenotype Attempt Registered -> Phenotyping Started -> Phenotyping Complete by setting cre_excision_required to false' do

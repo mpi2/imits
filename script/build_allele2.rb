@@ -339,10 +339,6 @@ class BuildAllele2
 	
         else
 		
-	  # IGNORE If there is no cre-ex COMPLETE, then we will record that a genotype confirmed mouse has been made
-	  # and that phenotyping has been registered for the wrong mouse (the tm1a). 
-          # This means that this particular allele will be skipped in the (next) mouse section 
-	
 	  # Try to guess the allele type, if cre-ex is required and nothing has been set yet
 	  # If we are trhing to make a conditional ready then we switch a=>b. Otherwise we bolt on a ".1" 
 	  guessed_allele_type = row1['phenotype_attempt_mouse_allele_type']

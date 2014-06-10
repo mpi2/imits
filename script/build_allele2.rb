@@ -189,7 +189,8 @@ class BuildAllele2
     row1['allele_symbol'] = 'None'
     row1['allele_symbol'] = 'DUMMY_' + row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
     row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
-    row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1[type].to_s) if ! row1[type].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
+    row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['mi_mouse_allele_type'].to_s) if ! row1['mi_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty?
+    row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['phenotype_attempt_mouse_allele_type'].to_s) if ! row1['phenotype_attempt_mouse_allele_type'].to_s.empty? && ! row1['allele_symbol_superscript_template'].to_s.empty? && type == 'PhenotypeAttempt'
     row1
   end
 
@@ -202,6 +203,7 @@ class BuildAllele2
       #marker_symbols = @marker_symbol.to_s.split ','
 
       @marker_symbol.each do |marker_symbol|
+        puts 'HELLO'
         #puts "#### @marker_symbol: #{@marker_symbol}"
         #puts "#### marker_symbol_str:\/#{marker_symbol}\/"
         ##proxy.update({'delete' => {'query' => "marker_symbol_str:\/#{marker_symbol}\/"}}.to_json)
@@ -213,6 +215,7 @@ class BuildAllele2
   end
 
   def send_to_index data
+    pp data
     proxy = SolrConnect::Proxy.new(@solr_url)
     proxy.update(data.join, @solr_user, @solr_password)
     proxy.update({'commit' => {}}.to_json, @solr_user, @solr_password)
@@ -282,7 +285,7 @@ class BuildAllele2
       #  end
       #end
 
-      prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
+      prepare_allele_symbol row1, 'PhenotypeAttempt'
 
       if row1['allele_symbol'].to_s.empty?
         row1['failed'] = 'pass 1'
@@ -358,7 +361,7 @@ class BuildAllele2
 
       next if row1['mi_attempt_status'] == 'Micro-injection aborted'
 
-      prepare_allele_symbol row1, 'mi_mouse_allele_type'
+      prepare_allele_symbol row1, 'MiAttempt'
 
       if row1['allele_symbol'].to_s.empty?
         row1['failed'] = 'pass 2'
@@ -397,7 +400,7 @@ class BuildAllele2
       #  end
       #end
 
-      prepare_allele_symbol row1, 'mi_mouse_allele_type'
+      prepare_allele_symbol row1, 'MiAttempt'
 
       if row1['allele_symbol'].to_s.empty?
         row1['failed'] = 'pass 3'

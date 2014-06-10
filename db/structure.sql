@@ -3524,6 +3524,37 @@ ALTER SEQUENCE targ_rep_pipelines_id_seq OWNED BY targ_rep_pipelines.id;
 
 
 --
+-- Name: targ_rep_real_alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_real_alleles (
+    id integer NOT NULL,
+    gene_id integer NOT NULL,
+    allele_name character varying(20) NOT NULL,
+    allele_type character varying(10) NOT NULL
+);
+
+
+--
+-- Name: targ_rep_real_alleles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_real_alleles_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_real_alleles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_real_alleles_id_seq OWNED BY targ_rep_real_alleles.id;
+
+
+--
 -- Name: targ_rep_sequence_annotation; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4079,6 +4110,13 @@ ALTER TABLE ONLY targ_rep_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_re
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY targ_rep_real_alleles ALTER COLUMN id SET DEFAULT nextval('targ_rep_real_alleles_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY targ_rep_sequence_annotation ALTER COLUMN id SET DEFAULT nextval('targ_rep_sequence_annotation_id_seq'::regclass);
 
 
@@ -4568,6 +4606,14 @@ ALTER TABLE ONLY targ_rep_pipelines
 
 
 --
+-- Name: targ_rep_real_alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_real_alleles
+    ADD CONSTRAINT targ_rep_real_alleles_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: targ_rep_sequence_annotation_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4842,6 +4888,13 @@ CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
 --
 
 CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only, mutagenesis_via_crispr_cas9);
+
+
+--
+-- Name: real_allele_logical_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX real_allele_logical_key ON targ_rep_real_alleles USING btree (gene_id, allele_name);
 
 
 --
@@ -5638,6 +5691,14 @@ ALTER TABLE ONLY targ_rep_es_cells
 
 
 --
+-- Name: targ_rep_real_alleles_gene_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_real_alleles
+    ADD CONSTRAINT targ_rep_real_alleles_gene_id_fk FOREIGN KEY (gene_id) REFERENCES genes(id);
+
+
+--
 -- Name: users_es_cell_distribution_centre_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5988,3 +6049,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140502125417');
 INSERT INTO schema_migrations (version) VALUES ('20140507103001');
 
 INSERT INTO schema_migrations (version) VALUES ('20140604104000');
+
+INSERT INTO schema_migrations (version) VALUES ('20140609121100');

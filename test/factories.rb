@@ -265,6 +265,17 @@ Factory.define :allele_ikmc_project2, :parent => :allele do |f|
 end
 ## Alleles END
 
+##
+## Real Alleles
+##
+Factory.define :base_real_allele, :class => TargRep::RealAllele do |f|
+  f.association :gene, :factory => :gene
+
+  f.allele_name "tm1a(EUCOMM)Wtsi"
+  f.allele_type "a"
+
+  end
+## Real Alleles END
 
 ##
 ## ES Cells - from TargRep

@@ -201,9 +201,10 @@ Ext.define('Imits.widget.MiGridCommon', {
             renderer: function(value, metaData, record){
                 var miId = record.getId();
                 var phenotypeCount = record.get('phenotype_attempts_count');
-                var geneSymbol = record.get('es_cell_marker_symbol')
+                var geneSymbol = record.get('marker_symbol');
+                var productionCentre = record.get('production_centre_name');
                 if (phenotypeCount != 0) {
-                    return Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={1}&q[production_centre_name]={2}"></a>', window.basePath, geneSymbol, phenotypeCount);
+                    return Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={1}&q[production_centre_name]={2}">{3}</a>', window.basePath, geneSymbol, productionCentre, phenotypeCount);
                 } else {
                     return Ext.String.format('{0}', phenotypeCount);
                 }
@@ -233,6 +234,15 @@ Ext.define('Imits.widget.MiGridCommon', {
             sortable: false
         },
         {
+            dataIndex: 'mi_plan_mutagenesis_via_crispr_cas9',
+            header: 'CrispR Cas9',
+            readOnly: true,
+            sortable: false,
+            filter: {
+                type: 'boolean'
+            }
+        },
+        {
             dataIndex: 'es_cell_name',
             header: 'ES Cell',
             readOnly: true,
@@ -243,15 +253,11 @@ Ext.define('Imits.widget.MiGridCommon', {
             }
         },
         {
-            dataIndex: 'es_cell_marker_symbol',
+            dataIndex: 'marker_symbol',
             header: 'Marker Symbol',
-            width: 85,
+            width: 105,
             readOnly: true,
             sortable: false,
-            filter: {
-                type: 'string',
-                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'es_cell_marker_symbol')
-            }
         },
         {
             dataIndex: 'es_cell_allele_symbol',

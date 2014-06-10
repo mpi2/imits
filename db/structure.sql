@@ -2108,7 +2108,9 @@ CREATE TABLE new_intermediate_report_summary_by_centre_and_consortia (
     total_old_pipeline_efficiency_gene_count integer,
     gc_pipeline_efficiency_gene_count integer,
     gc_old_pipeline_efficiency_gene_count integer,
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    sub_project character varying(255),
+    mutation_sub_type character varying(100)
 );
 
 
@@ -2207,7 +2209,9 @@ CREATE TABLE new_intermediate_report_summary_by_consortia (
     total_old_pipeline_efficiency_gene_count integer,
     gc_pipeline_efficiency_gene_count integer,
     gc_old_pipeline_efficiency_gene_count integer,
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    sub_project character varying(255),
+    mutation_sub_type character varying(100)
 );
 
 
@@ -5982,3 +5986,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140431165001');
 INSERT INTO schema_migrations (version) VALUES ('20140502125417');
 
 INSERT INTO schema_migrations (version) VALUES ('20140507103001');
+
+INSERT INTO schema_migrations (version) VALUES ('20140604104000');

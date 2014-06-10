@@ -865,7 +865,85 @@ class MiAttemptTest < ActiveSupport::TestCase
         :is_distributed_by_emma => true
         mi = dc.mi_attempt
         mi.reload
-        assert_equal "[EMMA, WTSI, Live mice]", mi.distribution_centres_formatted_display
+        assert_equal "[#{mi.production_centre_name}, Live mice] [EMMA, WTSI, Live mice]", mi.distribution_centres_formatted_display
+      end
+    end
+
+    context '#distribution_centre' do
+      context 'when genotype confirmed' do
+        should 'default to the production centre' do
+          mi_attempt = Factory.create :mi_attempt2_status_gtc
+
+          assert_equal 1, mi_attempt.distribution_centres.count
+
+          distribution_centre = mi_attempt.distribution_centres.first
+          assert_equal mi_attempt.production_centre, distribution_centre.centre
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
+
+        should 'default to the KOMP if production centre is UCD' do
+          mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('UCD'))
+          mi_attempt = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
+
+          assert_equal 1, mi_attempt.distribution_centres.count
+
+          distribution_centre = mi_attempt.distribution_centres.first
+          assert_equal 'KOMP Repo', distribution_centre.centre.name
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
+
+        should 'default the distribution network to CMMR if production centre is TCP and consortium_name is NorCOMM2' do
+          mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('NorCOMM2'), :production_centre => Centre.find_by_name('TCP'))
+          mi_attempt = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
+
+          assert_equal 1, mi_attempt.distribution_centres.count
+
+          distribution_centre = mi_attempt.distribution_centres.first
+          assert_equal mi_attempt.production_centre, distribution_centre.centre
+          assert_equal 'CMMR', distribution_centre.distribution_network
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
+
+        should 'default to the centre to KOMP_Rep if production centre is TCP and consortium_name is DTCC' do
+          mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('TCP'))
+          mi_attempt = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
+
+          assert_equal 1, mi_attempt.distribution_centres.count
+
+          distribution_centre = mi_attempt.distribution_centres.first
+          assert_equal 'KOMP Repo', distribution_centre.centre.name
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
+      end
+
+      context 'centre' do
+        context 'when set to KOMP Repo' do
+          should 'default back to production centre if distribution network is given' do
+            mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('TCP'))
+            mi_attempt = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
+
+            mi_plan2 = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('UCD'))
+            mi_attempt2 = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
+
+            assert_equal 'KOMP Repo', mi_attempt.distribution_centres.first.centre.name
+            assert_equal 'KOMP Repo', mi_attempt2.distribution_centres.first.centre.name
+
+            distribution_centre =mi_attempt.distribution_centres.first
+            distribution_centre.distribution_network = 'CMMR'
+            distribution_centre.save
+
+            mi_attempt.reload
+            assert_equal mi_attempt.production_centre, mi_attempt.distribution_centres.first.centre
+
+            distribution_centre =mi_attempt2.distribution_centres.first
+            distribution_centre.distribution_network = 'EMMRRC'
+            distribution_centre.save
+            mi_attempt2.reload
+
+            mi_attempt2.reload
+            assert_equal mi_attempt2.production_centre, mi_attempt2.distribution_centres.first.centre
+          end
+        end
       end
     end
 

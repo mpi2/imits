@@ -64,7 +64,7 @@
           <td><%= report_row.mgi_accession_id %></td>
           <td><%= report_row.overall_status %></td>
           <% if @intermediate_report.accessible_attributes.include?('ikmc_project_id') %> <td><%= report_row.ikmc_project_id %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?('mutation_sub_type') %> <td><%= pretty_mutation_type(report_row.mutation_sub_type) %></td> <% end %>
+          <% if @intermediate_report.accessible_attributes.include?('mutation_sub_type') %> <td><%= report_row.mutation_sub_type %></td> <% end %>
           <% if @intermediate_report.accessible_attributes.include?('allele_symbol') %> <td><%= report_row.allele_symbol.to_s.html_safe %></td> <% end %>
           <% if @intermediate_report.accessible_attributes.include?('genetic_background') %> <td><%= report_row.genetic_background %></td> <% end %>
           <td><%= report_row.assigned_date %></td>

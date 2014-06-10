@@ -123,6 +123,13 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
         }
     },
     {
+        dataIndex: 'mutagenesis_via_crispr_cas9',
+        header: 'Mutagenesis via CrispR Cas9',
+        xtype: 'boolgridcolumn',
+        width: 150,
+        readOnly: true
+    },
+    {
         dataIndex: 'phenotype_only',
         header: 'Phenotype Only',
         xtype: 'boolgridcolumn',

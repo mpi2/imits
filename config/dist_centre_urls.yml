@@ -37,7 +37,7 @@ TCP:
   :default: 'mailto:lauryl.nutter@phenogenomics.ca?subject=Mutant mouse enquiry'
 MARC:
   :preferred: ''
-  :default: ''  
+  :default: ''
 UCD:
   :preferred: 'http://www.komp.org/geneinfo.php?project=PROJECT_ID'
   :default: 'http://www.komp.org/'
@@ -53,4 +53,7 @@ MMRRC:
 KOMP:
   :preferred: 'http://www.komp.org/geneinfo.php?project=PROJECT_ID'
   :default: 'http://www.komp.org/'
-  
+CMMR:
+  :preferred: 'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL'
+  :default: 'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'
+

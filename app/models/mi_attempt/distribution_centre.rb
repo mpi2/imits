@@ -7,6 +7,7 @@ class MiAttempt::DistributionCentre < ApplicationModel
   acts_as_audited
 
   DISTRIBUTION_NETWORKS = %w{
+    CMMR
     EMMA
     MMRRC
   }
@@ -26,7 +27,7 @@ class MiAttempt::DistributionCentre < ApplicationModel
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
-  } + FULL_ACCESS_ATTRIBUTES
+  } + FULL_ACCESS_ATTRIBUTES + ['mi_attempt_id']
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
@@ -44,6 +45,10 @@ class MiAttempt::DistributionCentre < ApplicationModel
   before_save do
     ## TODO: Update martbuilder so we don't need to continue updating the boolean.
     self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
+
+    if (!self.distribution_network.blank?) && self.centre.name == 'KOMP Repo'
+      self.centre = self.mi_attempt.mi_plan.production_centre
+    end
 
     true # Rails doesn't save if you return false.
   end

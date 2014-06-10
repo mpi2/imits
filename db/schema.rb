@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140507103001) do
+ActiveRecord::Schema.define(:version => 20140604104000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -695,9 +695,9 @@ ActiveRecord::Schema.define(:version => 20140507103001) do
     t.string   "mi_plan_status",                                :limit => 50
     t.string   "mi_attempt_status",                             :limit => 50
     t.string   "phenotype_attempt_status",                      :limit => 50
-    t.string   "consortium",                                                  :null => false
+    t.string   "consortium",                                                   :null => false
     t.string   "production_centre"
-    t.string   "gene",                                          :limit => 75, :null => false
+    t.string   "gene",                                          :limit => 75,  :null => false
     t.string   "mgi_accession_id",                              :limit => 40
     t.date     "gene_interest_date"
     t.string   "mi_attempt_colony_name"
@@ -759,6 +759,8 @@ ActiveRecord::Schema.define(:version => 20140507103001) do
     t.integer  "gc_pipeline_efficiency_gene_count"
     t.integer  "gc_old_pipeline_efficiency_gene_count"
     t.datetime "created_at"
+    t.string   "sub_project"
+    t.string   "mutation_sub_type",                             :limit => 100
   end
 
   create_table "new_intermediate_report_summary_by_consortia", :force => true do |t|
@@ -770,8 +772,8 @@ ActiveRecord::Schema.define(:version => 20140507103001) do
     t.string   "mi_plan_status",                                :limit => 50
     t.string   "mi_attempt_status",                             :limit => 50
     t.string   "phenotype_attempt_status",                      :limit => 50
-    t.string   "consortium",                                                  :null => false
-    t.string   "gene",                                          :limit => 75, :null => false
+    t.string   "consortium",                                                   :null => false
+    t.string   "gene",                                          :limit => 75,  :null => false
     t.string   "mgi_accession_id",                              :limit => 40
     t.date     "gene_interest_date"
     t.string   "mi_attempt_colony_name"
@@ -833,6 +835,8 @@ ActiveRecord::Schema.define(:version => 20140507103001) do
     t.integer  "gc_pipeline_efficiency_gene_count"
     t.integer  "gc_old_pipeline_efficiency_gene_count"
     t.datetime "created_at"
+    t.string   "sub_project"
+    t.string   "mutation_sub_type",                             :limit => 100
   end
 
   create_table "new_intermediate_report_summary_by_mi_plan", :force => true do |t|

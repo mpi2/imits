@@ -86,7 +86,9 @@ class Public::MiAttempt < ::MiAttempt
   READABLE_ATTRIBUTES = %w{
     id
     distribution_centres_formatted_display
+    mi_plan_mutagenesis_via_crispr_cas9
     es_cell_marker_symbol
+    marker_symbol
     es_cell_allele_symbol
     status_name
     status_dates

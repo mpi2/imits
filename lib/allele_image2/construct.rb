@@ -120,18 +120,18 @@ module AlleleImage2
         # For Knock Out Design
         if critical_region
           g5 = virtual_primer 'G5', five_arm.start, five_arm.start + 50
-          u5 = virtual_primer 'U5', cassette.start - 50, cassette.start
-          u3 = virtual_primer 'U3', cassette.stop, cassette.stop + 50
-          d5 = virtual_primer 'D5', critical_region.stop, critical_region.stop + 50
-          d3 = virtual_primer 'D3', three_arm.start - 50, three_arm.start
-          g3 = virtual_primer 'G3', three_arm.stop - 50, three_arm.stop
+          u5 = virtual_primer 'U5', cassette.start - 50, cassette.start - 1
+          u3 = virtual_primer 'U3', cassette.stop + 1, cassette.stop + 50
+          d5 = virtual_primer 'D5', critical_region.stop + 1, critical_region.stop + 50
+          d3 = virtual_primer 'D3', three_arm.start - 50, three_arm.start - 1
+          g3 = virtual_primer 'G3', three_arm.stop - 49, three_arm.stop
           return [g5, u5, u3, d5, d3, g3]
         # For Deletion/ Insertion Design where no critical region
         else
-          g5 = virtual_primer 'G5', five_arm.start, five_arm.start + 50
-          u5 = virtual_primer 'U5', cassette.start - 50, cassette.start
-          d3 = virtual_primer 'D3', cassette.stop, cassette.stop + 50
-          g3 = virtual_primer 'G3', three_arm.stop - 50, three_arm.stop
+          g5 = virtual_primer 'G5', five_arm.start, five_arm.start + 49
+          u5 = virtual_primer 'U5', cassette.start - 50, cassette.start - 1
+          d3 = virtual_primer 'D3', cassette.stop + 1, cassette.stop + 50
+          g3 = virtual_primer 'G3', three_arm.stop - 49, three_arm.stop
           return [g5, u5, d3, g3]
         end
       end
@@ -170,12 +170,23 @@ module AlleleImage2
       end
 
       def initialize_section(section)
-
-        # ap :section => section, :start => @rcmb_primers[@boundries[section][0]].start, :boundries => @boundries
-        filtered_features = @features.select do |f|
-          f.stop >= @rcmb_primers[@boundries[section][0]].stop and \
-          f.start <= @rcmb_primers[@boundries[section][1]].start and \
-          not @rcmb_primers.map(&:feature_name).include?(f.feature_name)
+        # cassette region features filtered slightly differently to 5' and 3' arm features
+        if ( section == :cassette_features )
+          filtered_features = @features.select do |f|
+            f.start >= ( @rcmb_primers[@boundries[section][0]].stop + 1 ) and \
+            f.start < @rcmb_primers[@boundries[section][1]].start and \
+            f.stop > ( @rcmb_primers[@boundries[section][0]].stop + 1 ) and \
+            f.stop <= @rcmb_primers[@boundries[section][1]].start and \
+            not @rcmb_primers.map(&:feature_name).include?(f.feature_name)
+          end
+        else 
+          filtered_features = @features.select do |f|
+            f.start >= @rcmb_primers[@boundries[section][0]].start and \
+            f.start < @rcmb_primers[@boundries[section][1]].stop and \
+            f.stop > @rcmb_primers[@boundries[section][0]].start and \
+            f.stop <= @rcmb_primers[@boundries[section][1]].stop and \
+            not @rcmb_primers.map(&:feature_name).include?(f.feature_name)
+          end
         end
 
         return filtered_features

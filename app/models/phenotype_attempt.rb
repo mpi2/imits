@@ -116,8 +116,10 @@ class PhenotypeAttempt < ApplicationModel
   before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
   after_save :manage_status_stamps
-  after_save :set_allele_mod_and_production
+  after_save :add_default_distribution_centre
   after_save :set_phenotyping_experiments_started_if_blank
+  after_save :set_allele_mod_and_production
+
 
 
 
@@ -161,6 +163,26 @@ class PhenotypeAttempt < ApplicationModel
   end
 
 ## AFTER SAVE FUNCTIONS
+
+
+  def add_default_distribution_centre
+    centre = self.mi_plan.production_centre.name
+    if centre == 'UCD'
+      centre = 'KOMP Repo'
+    end
+    if self.status_stamps.map{|ss| ss.code}.include?('cec') and self.distribution_centres.count == 0
+      distribution_centre = PhenotypeAttempt::DistributionCentre.new({:phenotype_attempt_id => self.id, :centre_name => centre, :deposited_material_name => 'Live mice'})
+      if centre == 'TCP' && consortium_name == 'NorCOMM2'
+        distribution_centre.distribution_network = 'CMMR'
+      elsif centre == 'TCP' && ['UCD-KOMP', 'DTCC'].include?(consortium_name)
+        distribution_centre.centre = Centre.find_by_name('KOMP Repo')
+      end
+      raise "Could not save default distribution centre" if !distribution_centre.valid?
+      distribution_centre.save
+    end
+  end
+  protected :add_default_distribution_centre
+
   def set_allele_mod_and_production
 
     mouse_allele = MouseAlleleMod.create_or_update_from_phenotype_attempt(self)

@@ -24,8 +24,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
     end
 
     @config.keys.each do |key|
-      next if key == 'EMMA'
-      next if key == 'KOMP'
       if /PROJECT_ID/ =~ @config[key][:preferred]
         if object.es_cell.ikmc_project_id
           assert @config[key][:preferred].gsub(/PROJECT_ID/, object.es_cell.ikmc_project_id), hash_check[key]
@@ -557,8 +555,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         :colony_background_strain => Strain.create!(:name => 'TEST STRAIN2')
 
         @config.keys.each do |key|
-          next if key == 'EMMA'
-          next if key == 'KOMP'
           Centre.create! :name => key if ! Centre.find_by_name key
           dist_centre = Factory.create :mi_attempt_distribution_centre,
           :centre => Centre.find_by_name!(key),
@@ -596,8 +592,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         hash_check = check_order_details(@mi_attempt)
 
         @config.keys.each do |key|
-          next if key == 'EMMA'
-          next if key == 'KOMP'
           if /MARKER_SYMBOL/ =~ @config[key][:preferred]
             assert @config[key][:default].length > 0
             assert hash_check[key].length > 0
@@ -613,8 +607,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         hash_check = check_order_details(@mi_attempt)
 
         @config.keys.each do |key|
-          next if key == 'EMMA'
-          next if key == 'KOMP'
           if /PROJECT_ID/ =~ @config[key][:preferred]
             assert @config[key][:default].length > 0
             assert hash_check[key].length > 0
@@ -655,7 +647,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         end
 
         hash_check = check_order_details(@mi_attempt)
-        assert_equal @config.keys.size-2, hash_check.keys.size
+        assert_equal @config.keys.size, hash_check.keys.size
       end
 
       should 'manage null dates' do
@@ -665,7 +657,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         end
 
         hash_check = check_order_details(@mi_attempt)
-        assert_equal @config.keys.size-2, hash_check.keys.size
+        assert_equal @config.keys.size, hash_check.keys.size
       end
 
       should 'manage empty config file fields (i.e. config file centres have an entry but that entry is set to empty string)' do
@@ -679,8 +671,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         }
 
         hash_check = check_order_details(@mi_attempt)
-        assert_equal 1, hash_check.keys.size
-
+        assert_equal 4, hash_check.keys.size
         @config = config
       end
 
@@ -696,7 +687,28 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
         hash_check = check_order_details(@mi_attempt)
 
-        assert_equal 0, hash_check.keys.size
+        assert_equal 2, hash_check.keys.size
+
+        @config = config
+      end
+
+      should 'manage both empty config file fields (i.e. config file centres have an entry but that entry is set to empty string) by defaulting to centres contact email if it exists' do
+        config = @config
+
+        centre = Centre.find_by_name('Harwell')
+        centre.contact_email = 'centre_contact_email@blah.com'
+        centre.save
+
+        @config = {
+          "Harwell"=> {:preferred=>"", :default=>""},
+          "HMGU"=>{:preferred=>"", :default=>""},
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.KOMP-default.com"},
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+        }
+
+        hash_check = check_order_details(@mi_attempt)
+
+        assert_equal 3, hash_check.keys.size
 
         @config = config
       end

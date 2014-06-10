@@ -297,12 +297,14 @@ class BaseProductionReport
     mi_attempt_distribution_centre_counts.each do |report_row|
       hash["mi_attempt-#{report_row['consortium']}-#{report_row['centre']}-emma"] = report_row['emma']
       hash["mi_attempt-#{report_row['consortium']}-#{report_row['centre']}-komp"] = report_row['komp']
+      hash["mi_attempt-#{report_row['consortium']}-#{report_row['centre']}-mmrrc"] = report_row['mmrrc']
       hash["mi_attempt-#{report_row['consortium']}-#{report_row['centre']}-shelf"] = report_row['shelf']
     end
 
     phenotype_attempt_distribution_centre_counts.each do |report_row|
       hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-emma"] = report_row['emma']
       hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-komp"] = report_row['komp']
+      hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-mmrrc"] = report_row['mmrrc']
       hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-shelf"] = report_row['shelf']
     end
 
@@ -694,6 +696,7 @@ class BaseProductionReport
         distribution_data.centre AS centre,
         SUM(CASE WHEN distribution_data.emma > 0 THEN 1 ELSE 0 END) AS emma,
         SUM(CASE WHEN distribution_data.komp > 0 THEN 1 ELSE 0 END) AS komp,
+        SUM(CASE WHEN distribution_data.mmrrc > 0 THEN 1 ELSE 0 END) AS mmrrc,
         SUM(CASE WHEN distribution_data.shelf > 0 THEN 1 ELSE 0 END) AS shelf
       FROM
       (
@@ -701,15 +704,17 @@ class BaseProductionReport
           mi_plans.gene_id,
           consortia.name AS consortium,
           centres.name AS centre,
-          SUM(CASE WHEN mi_attempt_distribution_centres.is_distributed_by_emma = true THEN 1 ELSE 0 END) AS emma,
-          SUM(CASE WHEN dis_centre.name = 'UCD' AND (mi_attempt_distribution_centres.distribution_network != 'MMRRC' OR mi_attempt_distribution_centres.distribution_network IS NULL) THEN 1 ELSE 0 END) AS KOMP,
-          SUM(CASE WHEN (dis_centre.name != 'UCD' OR mi_attempt_distribution_centres.distribution_network = 'MMRRC') AND mi_attempt_distribution_centres.is_distributed_by_emma = false THEN 1 ELSE 0 END) AS shelf
+          SUM(CASE WHEN mi_attempt_distribution_centres.distribution_network = 'EMMA' THEN 1 ELSE 0 END) AS emma,
+          SUM(CASE WHEN dis_centre.name IN ('UCD', 'KOMP Repo') AND (mi_attempt_distribution_centres.distribution_network != 'MMRRC' OR mi_attempt_distribution_centres.distribution_network IS NULL) THEN 1 ELSE 0 END) AS komp,
+          SUM(CASE WHEN mi_attempt_distribution_centres.distribution_network = 'MMRRC' THEN 1 ELSE 0 END) AS mmrrc,
+          SUM(CASE WHEN (dis_centre.name NOT IN ('UCD', 'KOMP Repo') AND ( mi_attempt_distribution_centres.distribution_network NOT IN ( 'MMRRC', 'EMMA' ) OR mi_attempt_distribution_centres.distribution_network IS NULL ) ) THEN 1 ELSE 0 END) AS shelf
         FROM mi_attempt_distribution_centres
           JOIN centres AS dis_centre ON dis_centre.id = mi_attempt_distribution_centres.centre_id
           JOIN mi_attempts ON mi_attempts.id = mi_attempt_distribution_centres.mi_attempt_id
           JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
           JOIN consortia ON consortia.id  = mi_plans.consortium_id
           JOIN centres ON centres.id = mi_plans.production_centre_id
+          WHERE mi_attempts.status_id = 2
         GROUP BY mi_plans.gene_id, consortia.name, centres.name
       ) AS distribution_data
       GROUP BY distribution_data.consortium, distribution_data.centre
@@ -743,6 +748,7 @@ class BaseProductionReport
         distribution_data.centre AS centre,
         SUM(CASE WHEN distribution_data.emma > 0 THEN 1 ELSE 0 END) AS emma,
         SUM(CASE WHEN distribution_data.komp > 0 THEN 1 ELSE 0 END) AS komp,
+        SUM(CASE WHEN distribution_data.mmrrc > 0 THEN 1 ELSE 0 END) AS mmrrc,
         SUM(CASE WHEN distribution_data.shelf > 0 THEN 1 ELSE 0 END) AS shelf
       FROM
       (
@@ -751,15 +757,17 @@ class BaseProductionReport
           allele_category AS phenotype_type,
           consortia.name AS consortium,
           centres.name AS centre,
-          SUM(CASE WHEN phenotype_attempt_distribution_centres.is_distributed_by_emma = true THEN 1 ELSE 0 END) AS emma,
-          SUM(CASE WHEN dis_centre.name = 'UCD' AND (phenotype_attempt_distribution_centres.distribution_network != 'MMRRC' OR phenotype_attempt_distribution_centres.distribution_network IS NULL) THEN 1 ELSE 0 END) AS KOMP,
-          SUM(CASE WHEN (dis_centre.name != 'UCD' OR (dis_centre.name = 'UCD' AND phenotype_attempt_distribution_centres.distribution_network = 'MMRRC')) AND phenotype_attempt_distribution_centres.is_distributed_by_emma = false THEN 1 ELSE 0 END) AS shelf
+          SUM(CASE WHEN phenotype_attempt_distribution_centres.distribution_network = 'EMMA' THEN 1 ELSE 0 END) AS emma,
+          SUM(CASE WHEN dis_centre.name IN ('UCD', 'KOMP Repo') AND (phenotype_attempt_distribution_centres.distribution_network != 'MMRRC' OR phenotype_attempt_distribution_centres.distribution_network IS NULL) THEN 1 ELSE 0 END) AS komp,
+          SUM(CASE WHEN phenotype_attempt_distribution_centres.distribution_network = 'MMRRC' THEN 1 ELSE 0 END) AS mmrrc,
+          SUM(CASE WHEN (dis_centre.name NOT IN ('UCD', 'KOMP Repo') AND ( phenotype_attempt_distribution_centres.distribution_network NOT IN ( 'MMRRC', 'EMMA' ) OR phenotype_attempt_distribution_centres.distribution_network IS NULL ) ) THEN 1 ELSE 0 END) AS shelf
         FROM phenotype_attempt_distribution_centres
           JOIN centres AS dis_centre ON dis_centre.id = phenotype_attempt_distribution_centres.centre_id
           JOIN mouse_allele_mods ON mouse_allele_mods.id = phenotype_attempt_distribution_centres.mouse_allele_mod_id
           JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
           JOIN consortia ON consortia.id  = mi_plans.consortium_id
           JOIN centres ON centres.id = mi_plans.production_centre_id
+          WHERE mouse_allele_mods.status_id = 6
         GROUP BY phenotype_type, mi_plans.gene_id, consortia.name, centres.name
       ) AS distribution_data
       GROUP BY phenotype_type, distribution_data.consortium, distribution_data.centre

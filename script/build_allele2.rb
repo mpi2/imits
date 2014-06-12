@@ -344,22 +344,23 @@ class BuildAllele2
 	  guessed_allele_type = row1['phenotype_attempt_mouse_allele_type']
 	  #puts "#{row1['marker_symbol']} in cre-ex true, with status #{row1['phenotype_attempt_status']} for mutation type #{row1['mutation_type']} with input allele type #{guessed_allele_type} and template #{row1['allele_symbol_superscript_template']}"
 	  if(guessed_allele_type == 'a' || guessed_allele_type.nil?)
-  		#puts "TRYING TO GUESS ALLELE TYPE WHEN IT'S NOT BEEN SET FOR A CRE-EX PA record"
+  		puts "TRYING TO GUESS ALLELE TYPE WHEN IT'S NOT BEEN SET FOR A CRE-EX PA record and allele_type is 'a' or 'nil' and mouse allele type is #{row1['mi_mouse_allele_type']} and mutation Type is #{row1['mutation_type']}"
           	row['mouse_status'] = row1['phenotype_attempt_status'] 
           	row['phenotype_status'] = "Phenotype Attempt Registered" 
 	  	mutation_type = row1['mutation_type']
-	  	if (mutation_type == 'Conditional Ready' && (row1['mi_mouse_allele_type'].nil? || row1['mi_mouse_allele_type']=='e'))
+	  	if (mutation_type == 'Conditional Ready' && (row1['mi_mouse_allele_type'] == 'a' || row1['mi_mouse_allele_type'].nil? || row1['mi_mouse_allele_type']=='e'))
 			guessed_allele_type = 'b'
 		else
 			guessed_allele_type = '.1' 
 	  	end
 	  else
+  		puts "TRYING TO GUESS ALLELE TYPE WHEN IT'S NOT BEEN SET FOR A CRE-EX PA record and allele_type is 'a' or 'nil'"
 		#We're here because we already have phenotype_attempt.mouse_allele_type = 'b' or '.1', so no guessing neccessary
           	row['mouse_status'] = row1['phenotype_attempt_status'] 
           	row['phenotype_status'] = "Phenotype Attempt Registered" 
 	  end
 
-	  #puts "in cre-ex true, found guessed allele type #{guessed_allele_type}"
+	  puts "in cre-ex true, found guessed allele type #{guessed_allele_type}"
 	  row1['phenotype_attempt_mouse_allele_type'] = guessed_allele_type
           prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
 	  if row1['allele_symbol'].to_s.empty?

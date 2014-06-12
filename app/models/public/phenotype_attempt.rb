@@ -118,7 +118,6 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   end
 end
 
-
 # == Schema Information
 #
 # Table name: phenotype_attempts
@@ -163,6 +162,8 @@ end
 #  allele_name                         :string(255)
 #  jax_mgi_accession_id                :string(255)
 #  ready_for_website                   :date
+#  allele_id                           :integer
+#  real_allele_id                      :integer
 #
 # Indexes
 #

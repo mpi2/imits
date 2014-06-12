@@ -268,13 +268,50 @@ end
 ##
 ## Real Alleles
 ##
-Factory.define :base_real_allele, :class => TargRep::RealAllele do |f|
-  f.association :gene, :factory => :gene
+Factory.define :real_allele, :class => TargRep::RealAllele do |real_allele|
+  real_allele.gene_id :gene_id
+  real_allele.allele_name :allele_name
+end
 
-  f.allele_name "tm1a(EUCOMM)Wtsi"
-  f.allele_type "a"
+Factory.define :base_real_allele, :class => TargRep::RealAllele do |real_allele|
+  real_allele.association :gene, :factory => :gene
+  real_allele.allele_name { "tm1#{(("a".."e").to_a).concat(["e.1", nil]).sample}(EUCOMM)Wtsi" }
+end
 
-  end
+Factory.define :real_allele_cbx1_a, :class => TargRep::RealAllele do |real_allele|
+  real_allele.association :gene, :factory => :gene_cbx1
+  real_allele.allele_name "tm1a(EUCOMM)Wtsi"
+end
+
+Factory.define :real_allele_cbx1_b, :class => TargRep::RealAllele do |real_allele|
+  real_allele.association :gene, :factory => :gene_cbx1
+  real_allele.allele_name "tm1b(EUCOMM)Wtsi"
+end
+
+Factory.define :real_allele_cbx1_c, :class => TargRep::RealAllele do |real_allele|
+  real_allele.association :gene, :factory => :gene_cbx1
+  real_allele.allele_name "tm1c(EUCOMM)Wtsi"
+end
+
+Factory.define :real_allele_cbx1_d, :class => TargRep::RealAllele do |real_allele|
+  real_allele.association :gene, :factory => :gene_cbx1
+  real_allele.allele_name "tm1d(EUCOMM)Wtsi"
+end
+
+Factory.define :real_allele_cbx1_e, :class => TargRep::RealAllele do |real_allele|
+  real_allele.association :gene, :factory => :gene_cbx1
+  real_allele.allele_name "tm1e(EUCOMM)Wtsi"
+end
+
+Factory.define :real_allele_cbx1_e1, :class => TargRep::RealAllele do |real_allele|
+  real_allele.association :gene, :factory => :gene_cbx1
+  real_allele.allele_name "tm1e.1(EUCOMM)Wtsi"
+end
+
+Factory.define :real_allele_cbx1_del, :class => TargRep::RealAllele do |real_allele|
+  real_allele.association :gene, :factory => :gene_cbx1
+  real_allele.allele_name "tm1(EUCOMM)Wtsi"
+end
 ## Real Alleles END
 
 ##

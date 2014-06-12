@@ -42,6 +42,8 @@ class PhenotypeAttempt < ApplicationModel
   end
   protected :set_blank_qc_fields_to_na
 
+  belongs_to :allele
+  belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :mi_attempt
   belongs_to :status
@@ -378,6 +380,8 @@ end
 #  allele_name                         :string(255)
 #  jax_mgi_accession_id                :string(255)
 #  ready_for_website                   :date
+#  allele_id                           :integer
+#  real_allele_id                      :integer
 #
 # Indexes
 #

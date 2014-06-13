@@ -41,14 +41,22 @@ class PhenotypingProductionsController < ApplicationController
     phenotype_attempt = Public::PhenotypeAttempt.find(@phenotyping_production.phenotype_attempt.id)
     phenotyping_attempt_json = JSON.parse(phenotype_attempt.to_json)
 
+    puts "HELLO"
     phenotyping_attempt_json['phenotyping_productions_attributes'].each do |pp|
+      puts "#{pp}"
       if pp['id'] == @phenotyping_production.id
-        params[:phenotyping_production].each do |key, value|
-          pp[key] = value
+        pp.each do |key, value|
+          if params[:phenotyping_production].keys.include?(key) && PhenotypingProduction.attribute_names.include?(key)
+            pp[key] = params[:phenotyping_production][key]
+          elsif key != 'id'
+            pp.delete(key)
+          end
         end
+        puts "#{pp}"
       end
     end
 
+    puts "We are here #{phenotyping_attempt_json}"
     phenotype_attempt.update_attributes(phenotyping_attempt_json)
 
     respond_with @phenotyping_production do |format|

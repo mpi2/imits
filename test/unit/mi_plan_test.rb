@@ -530,15 +530,32 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       context '#withdrawn' do
-        should 'not be settable if currently not in an allowed status' do
-          default_mi_plan.withdrawn = true
-          assert_false default_mi_plan.valid?
-          assert_match(/cannot be set/, default_mi_plan.errors[:withdrawn].first)
-        end
-
-        should 'be settable on a new record' do
+         should 'be settable on a new record' do
           plan = Factory.create :mi_plan, :withdrawn => true
           assert_equal 'Withdrawn', plan.status.name
+        end
+
+        should 'plan in Assigned state with no attempts should be allowed to be withdrawn' do
+          plan = Factory.create :mi_plan
+          assert_equal 'Assigned', plan.status.name
+          assert_true plan.validate_withdrawal_allowed?
+        end
+
+        should 'plan with mi-attempts should not be allowed to be withdrawn' do
+          gene = Factory.create :gene_cbx1
+          allele = Factory.create :allele, :gene => gene
+          plan = Factory.create :mi_plan_with_production_centre, :gene => gene, :is_active => true
+          attempt = Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :allele => allele), :mi_plan => plan
+          assert_true attempt.mi_plan.valid?
+          assert_equal 'Assigned', plan.status.name
+          assert_false attempt.mi_plan.validate_withdrawal_allowed?
+        end
+
+        should 'plan in a pre-assignment state should be withdrawable' do
+          plan = Factory.create :mi_plan_with_production_centre, :production_centre => Centre.find_by_name('WTSI'), :gene => cbx1
+          # second plan for same gene will have 'in conflict' status and should be withdrawable
+          plan_in_conflict = Factory.create :mi_plan_with_production_centre, :production_centre => Centre.find_by_name('JAX') , :gene => cbx1
+          assert_true plan_in_conflict.validate_withdrawal_allowed?
         end
       end
 

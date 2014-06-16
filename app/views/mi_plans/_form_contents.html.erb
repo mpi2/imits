@@ -106,7 +106,7 @@
     </div>
     <div>
       <%= form.label :withdrawn, :withdrawn.to_s.titlecase %>
-      <% if MiPlan::Status.all_pre_assignment.include? (mi_plan.status) %>
+      <% if mi_plan.can_be_withdrawn? %>
         <%= form.check_box :withdrawn, disabled:false %>
       <% else %>
         <%= form.check_box :withdrawn, disabled:true %>

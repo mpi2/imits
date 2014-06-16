@@ -106,10 +106,15 @@ class MiPlan < ApplicationModel
   end
 
   validate do |plan|
-    if ! plan.new_record? and plan.changes.has_key?('status_id') and plan.withdrawn == true
-      withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id)
-      if ! withdrawable_ids.include?(plan.changes['status_id'][0])
-        plan.errors.add(:withdrawn, 'cannot be set - not currently in a withdrawable state')
+    # if new record can be withdrawn
+    if ( self.new_record? )
+      return true
+    end
+
+    # if we want to set the withdrawn state, do further checks
+    if ( self.withdrawn == true )
+      unless plan.validate_withdrawal_allowed?
+        plan.errors.add(:withdrawn, 'cannot be set - plan is not currently in a withdrawable state')
       end
     end
   end
@@ -509,6 +514,65 @@ class MiPlan < ApplicationModel
 
   end
 
+  # check whether the Plan can be withdrawn, for validation
+  def validate_withdrawal_allowed?
+
+    # if state already set then Ok as no change
+    if ( self.status.name == 'Withdrawn' )
+      return true
+    else
+      if ( self.status.name == 'Assigned' && self.mi_attempts.count == 0 && self.phenotype_attempts.count == 0 )
+          return true
+      end
+
+      withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id)
+
+      if ( self.changes.has_key?('status_id') )
+        if ( withdrawable_ids.include?(self.changes['status_id'][0]) )
+          return true
+        end
+      else
+        if ( withdrawable_ids.include?(self.status_id) )
+          return true
+        end
+      end
+    end
+
+    return false
+
+  end
+
+  # check whether the Plan can be withdrawn, for the view
+  def can_be_withdrawn?
+
+    if ( self.new_record? )
+      return true
+    end
+
+    # check if currently withdrawn, allow in-withdrawing
+    if ( self.status.name == 'Withdrawn')
+      return true
+    end
+
+    # check if status is one of the pre-assigment types or type Assigned but with no attempts yet
+    withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id)
+
+    if ( self.status.name == 'Assigned' && self.mi_attempts.count == 0 && self.phenotype_attempts.count == 0 )
+        return true
+    end
+
+    if ( self.changes.has_key?('status_id') )
+      if ( withdrawable_ids.include?(self.changes['status_id'][0]) )
+        return true
+      end
+    else
+      if ( withdrawable_ids.include?(self.status_id) )
+        return true
+      end
+    end
+
+    return false
+  end
 end
 
 # == Schema Information

@@ -273,17 +273,18 @@ class BuildAllele2
     puts "#### step 1..."
 
     rows.each do |row1|
+      puts "PROCESSING ROW #{row1['marker_symbol']}"
       #pp row1
 
-      #if ! @filter_target.empty?
-      #  if ! @marker_filters.include? row1[@filter_target]
-      #    # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
-      #    next
-      #  end
-      #end
+      if ! @filter_target.empty?
+        if ! @marker_filters.include? row1[@filter_target]
+          # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
+          next
+        end
+      end
 
+      #this marks an allele symbol on every row. We'll override if need be
       prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
-
       if row1['allele_symbol'].to_s.empty?
         row1['failed'] = 'pass 1'
         @failures.push row1
@@ -299,22 +300,85 @@ class BuildAllele2
 
         # B1
 
-        row['allele_type'] = row['phenotype_attempt_mouse_allele_type'].to_s
+	if (row['phenotype_attempt_status'] == 'Phenotyping Started') || (row['phenotype_attempt_status'] == 'Phenotyping Complete')
 
-        row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
-
-        if @early_pa_statuses.include?(row['phenotype_attempt_status'])
-          row['mouse_status'] = row['phenotype_attempt_status']
-          row['phenotype_status'] = ''
-        else
           row['mouse_status'] = @statuses['CRE_EXCISION_COMPLETE']
           row['phenotype_status'] = row['phenotype_attempt_status']
+
+	  #this will be the modified allele
+          prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
+
+	  if row1['allele_symbol'].to_s.empty?
+	     row1['failed'] = 'pass 1'
+	     @failures.push row1
+	     next
+	  end
+	  row['allele_symbol'] = row1['allele_symbol']
+	
+          row['allele_type'] = row['phenotype_attempt_mouse_allele_type'].to_s
+          row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
+
+	elsif (row['phenotype_attempt_status'] == @statuses['CRE_EXCISION_COMPLETE']) 
+
+          row['mouse_status'] = @statuses['CRE_EXCISION_COMPLETE']
+          row['phenotype_status'] = 'Phenotype Attempt Registered'
+
+	  #this will be the modified allele
+          prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
+	  if row1['allele_symbol'].to_s.empty?
+	     puts "emptye allele symbol"
+	     row1['failed'] = 'pass 1'
+	     @failures.push row1
+	     next
+	  end
+	  row['allele_symbol'] = row1['allele_symbol']
+
+	  #puts "CEC making a modified allele row for #{row['allele_symbol']} with PA registered"
+          row['allele_type'] = row['phenotype_attempt_mouse_allele_type'].to_s
+          row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
+	
+        else
+		
+	  # Try to guess the allele type, if cre-ex is required and nothing has been set yet
+	  # If we are trhing to make a conditional ready then we switch a=>b. Otherwise we bolt on a ".1" 
+	  guessed_allele_type = row1['phenotype_attempt_mouse_allele_type']
+	  #puts "#{row1['marker_symbol']} in cre-ex true, with status #{row1['phenotype_attempt_status']} for mutation type #{row1['mutation_type']} with input allele type #{guessed_allele_type} and template #{row1['allele_symbol_superscript_template']}"
+	  if(guessed_allele_type == 'a' || guessed_allele_type.nil?)
+  		puts "TRYING TO GUESS ALLELE TYPE WHEN IT'S NOT BEEN SET FOR A CRE-EX PA record and allele_type is 'a' or 'nil' and mouse allele type is #{row1['mi_mouse_allele_type']} and mutation Type is #{row1['mutation_type']}"
+          	row['mouse_status'] = row1['phenotype_attempt_status'] 
+          	row['phenotype_status'] = "Phenotype Attempt Registered" 
+	  	mutation_type = row1['mutation_type']
+	  	if (mutation_type == 'Conditional Ready' && (row1['mi_mouse_allele_type'] == 'a' || row1['mi_mouse_allele_type'].nil? || row1['mi_mouse_allele_type']=='e'))
+			guessed_allele_type = 'b'
+		else
+			guessed_allele_type = '.1' 
+	  	end
+	  else
+  		puts "TRYING TO GUESS ALLELE TYPE WHEN IT'S NOT BEEN SET FOR A CRE-EX PA record and allele_type is 'a' or 'nil'"
+		#We're here because we already have phenotype_attempt.mouse_allele_type = 'b' or '.1', so no guessing neccessary
+          	row['mouse_status'] = row1['phenotype_attempt_status'] 
+          	row['phenotype_status'] = "Phenotype Attempt Registered" 
+	  end
+
+	  puts "in cre-ex true, found guessed allele type #{guessed_allele_type}"
+	  row1['phenotype_attempt_mouse_allele_type'] = guessed_allele_type
+          prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
+	  if row1['allele_symbol'].to_s.empty?
+	     puts "emptye allele symbol"
+	     row1['failed'] = 'pass 1'
+	     @failures.push row1
+	     next
+	  end
+	  row['allele_symbol'] = row1['allele_symbol']
+	  #puts "Pre-CEC: making a modified allele row for #{row['allele_symbol']} with PA registered"
+
+          row['allele_type'] = guessed_allele_type # row['phenotype_attempt_mouse_allele_type'].to_s
+
         end
 
         row['phenotyping_centre'] = row['pacentre_name']
         row['production_centre'] = row['pacentre_name']
 
-        row['allele_type'] = row['phenotype_attempt_mouse_allele_type'].to_s
 
         @processed_rows.push row
 

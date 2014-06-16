@@ -27,6 +27,9 @@ mmrrc_centres.each do |mi_dcentre|
 
 	#r2
 	alteration = mi.es_cell.allele.mutation_type.name
+	if alteration == 'Conditional Ready'
+		alteration = 'Knockout First'
+	end
 	puts "#{mi.es_cell.name} --- #{alteration}"
 	if(mi.mouse_allele_type == 'e')
 		alteration = 'Targeted NonConditional'	
@@ -36,7 +39,10 @@ mmrrc_centres.each do |mi_dcentre|
 	#r3
 	chromosome = mi.es_cell.allele.chromosome
 	mgi_accession_id= mi.mi_plan.gene.mgi_accession_id
-	mgi_allele_id = mi.es_cell.mgi_allele_id
+	mgi_allele_id = mi.mi_plan.gene.mgi_accession_id
+	# this is going to fail for crisprs - have to rework to go via mutagenesis factor, 
+	# OR it could be stamped directly on the MI (best idea ...)
+	allele_mgi_allele_id = mi.es_cell.mgi_allele_id
 
 	#r4
 	mmrrc_strain_nomenclature = "#{mi.colony_background_strain.name} - #{allele_symbol}"
@@ -55,7 +61,7 @@ mmrrc_centres.each do |mi_dcentre|
 	interbreeding_generation = ""
 	backcross_generation = ""
 	bg_strain = mi.colony_background_strain.name
-	mouse_strain_development="clone #{clone} blast strain #{blast_strain} test cross strain #{test_strain} background strain #{bg_strain}"
+	mouse_strain_development="ES cell clone #{clone} was injected into #{blast_strain} blastocysts. Resulting chimeras were mated to #{test_strain}, progeny were subsequently mated to #{bg_strain}"
 	mouse_strain_control = ''
 	phenotype_reference = "http://www.mousephenotype.org/data/genes/#{mgi_accession_id}"
 	phenotype_of_het_hemi_mutants = ''
@@ -74,7 +80,8 @@ mmrrc_centres.each do |mi_dcentre|
 
 	r2.write "#{colony_name}\t#{allele_symbol}\t#{alteration}\t#{parental_cell_line}\n"
 
-	r3.write "#{colony_name}\t#{allele_symbol}\t#{mgi_allele_id}\t#{alteration}\t#{clone}\t#{allele_symbol}\tmouse\t#{marker_symbol}\t#{mgi_accession_id}\t#{chromosome}\n"
+	r3.write "#{colony_name}\t#{marker_symbol}\t#{mgi_allele_id}\t\t\t\tmouse\t#{marker_symbol}\t#{mgi_accession_id}\t#{chromosome}\tGene\n"
+	r3.write "#{colony_name}\t#{allele_symbol}\t#{allele_mgi_allele_id}\t#{alteration}\t#{clone}\t#{allele_symbol}\tmouse\t#{marker_symbol}\t#{mgi_accession_id}\t#{chromosome}\tAllele\n"
 
 	r4.write "#{colony_name}\t#{mmrrc_strain_nomenclature}\t#{common_strain_name}\t#{genetic_alterations}\t#{backcross_generation}\t#{interbreeding_generation}\t#{mouse_strain_development}\t#{mouse_strain_control}\t#{phenotype_reference}\t#{phenotype_of_het_hemi_mutants}\t#{coat_colour}\t#{physical_characteristics}\t#{donor_primary_reference}\t#{donor_primary_reference_url}\t#{research_applications}\t#{breeding_system}\t#{breeding_schemes}\n"
 

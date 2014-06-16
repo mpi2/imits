@@ -32,6 +32,7 @@ sql: |
   select distinct
   SUBS_TEMPLATE
   targ_rep_alleles.id as targ_rep_alleles_id,  
+  targ_rep_mutation_types.name mutation_type,
   genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,
   CASE WHEN (targ_rep_targeting_vectors.allele_id IS NOT NULL) THEN true else false END AS does_a_targ_vec_exist,
   CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL) THEN true else false END AS does_an_es_cell_exist,
@@ -39,14 +40,17 @@ sql: |
   targ_rep_es_cells.allele_symbol_superscript_template,
   miapc.name miacentre_name,
   mi_attempt_statuses.name as mi_attempt_status,
+  mi_attempt_statuses.order_by as mi_attempt_status_order_by,
   mi_attempts.mouse_allele_type as mi_mouse_allele_type,
   phenotype_attempts.mouse_allele_type as phenotype_attempt_mouse_allele_type,
   phenotype_attempts.cre_excision_required,
   pacentres.name pacentre_name,
   phenotype_attempt_statuses.name as phenotype_attempt_status,
+  phenotype_attempt_statuses.order_by as phenotype_attempt_status_order_by,
   genes.feature_type as feature_type
   from genes
   left outer join targ_rep_alleles on genes.id = targ_rep_alleles.gene_id
+  left join targ_rep_mutation_types on targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
   left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id SUBS_TEMPLATE2 and targ_rep_targeting_vectors.report_to_public is true
   left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id SUBS_TEMPLATE2 and targ_rep_es_cells.report_to_public is true
   left outer join mi_attempts on mi_attempts.es_cell_id = targ_rep_es_cells.id SUBS_TEMPLATE2 and mi_attempts.report_to_public is true
@@ -58,6 +62,7 @@ sql: |
   left outer join centres pacentres on pacentres.id = paplan.production_centre_id
   left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id
   SUBS_TEMPLATE3
+  order by mi_attempt_status_order_by desc, phenotype_attempt_status_order_by desc
 
 sql_template: |
   genes.id as genes_id,
@@ -73,7 +78,7 @@ options:
   USE_REPORT_TO_PUBLIC: false
   USE_ALLELES: true
   USE_GENES: true
-  MARKER_SYMBOL: ""   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
+  MARKER_SYMBOL: #"Foxj3" # "Cbx4" #"Tmod2"  # "3110035E14Rik"   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
   DETECT_GENE_DUPS: true
   USE_REPLACEMENT: true
   FILTER_TARGET: ""   #"feature_type"    #"marker_type"    

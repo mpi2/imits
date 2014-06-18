@@ -2,7 +2,6 @@
 
 require 'pp'
 require 'json'
-#require 'rubyzip'
 require 'pathname'
 
 OPTIONS = {
@@ -78,41 +77,14 @@ module SolrConnect
       return docs
     end
 
-    #def ping(core, user = 'solaradmin', password = 'xpassword')
-    #  response_body = nil
-    #  uri = @solr_uri.dup
-    #  uri.query = {:wt => 'json'}.to_query
-    #  uri.path = uri.path + "/#{core}/admin/ping"
-    #
-    #  puts "#### ping path"
-    #  pp uri.path
-    #  pp uri.host
-    #  pp uri.port
-    #
-    #  @http.start(uri.host, uri.port) do |http|
-    #    request = Net::HTTP::Get.new uri.request_uri
-    #
-    #    request.basic_auth(user, password) #if user && password
-    #
-    #    http_response = http.request(request)
-    #
-    #    pp http_response
-    #
-    #    handle_http_response_error(http_response)
-    #
-    #    response_body = JSON.parse(http_response.body)
-    #  end
-    #  return response_body
-    #end
-
     def cores
       docs = nil
       uri = @solr_uri.dup
       uri.query = {:action => 'STATUS', :wt => 'json'}.to_query
       uri.path = uri.path + '/admin/cores'
 
-      puts "#### cores path"
-      pp uri.path
+      #puts "#### cores path"
+      #pp uri.path
 
       the_cores = nil
       cc = {}
@@ -203,18 +175,6 @@ class SolrDump < SolrCommon
     @solr['cores'] = cores
   end
 
-  #def zip input_filenames, zipfile_name
-  #  Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
-  #    input_filenames.each do |filename|
-  #      # Two arguments:
-  #      # - The name of the file as it will appear in the archive
-  #      # - The original file, including the path to find it
-  #      zipfile.add(filename, filename)
-  #    end
-  #   # zipfile.get_output_stream("myFile") { |os| os.write "myFile contains just this" }
-  #  end
-  #end
-
   def zip input_filenames, zipfile_name
     Zip::Archive.open(zipfile_name, Zip::CREATE | Zip::TRUNC) do |ar|
       input_filenames.each do |filename|
@@ -231,38 +191,35 @@ class SolrDump < SolrCommon
 
     #  pp core
 
-
     dump_directory = "#{@options['dump_directory']}/#{core['name']}"
 
-
     # pp targets
-
-
     #  return
 
     dump_directory = "#{@options['dump_directory']}/#{core['name']}"
 
     FileUtils.mkdir_p dump_directory
 
-    pp dump_directory
+    # pp dump_directory
 
-    #proxy = SolrConnect::Proxy.new(@options[:solr_url] + "/" + core['name'])
-    #
-    #docs = proxy.search(:q => "*:*", :rows => core['numDocs'])
-    #
-    #pp docs.size
-    #
-    #counter = 0
-    #docs.in_groups_of(@options[:batch_size], false) do |group|
-    #  jcounter = "%05d" % counter.to_i
-    #  File.open("#{dump_directory}/dump_#{jcounter}.json", 'w') {|f| f.write(JSON.pretty_generate(group)) }
-    #  counter += 1
-    #end
+    proxy = SolrConnect::Proxy.new(@options[:solr_url] + "/" + core['name'])
+
+    docs = proxy.search(:q => "*:*", :rows => core['numDocs'])
+
+    # pp docs.size
+
+    counter = 0
+    docs.in_groups_of(@options[:batch_size], false) do |group|
+      jcounter = "%05d" % counter.to_i
+      File.open("#{dump_directory}/dump_#{jcounter}.json", 'w') {|f| f.write(JSON.pretty_generate(group)) }
+      counter += 1
+    end
 
     targets = Dir.glob(dump_directory + "/*.json")
 
     zip targets, "#{@options['dump_directory']}/#{core['name']}.zip"
 
+    #FileUtils.rmdir dump_directory
   end
 
   def _run
@@ -271,13 +228,9 @@ class SolrDump < SolrCommon
 
     cores
 
-    #@solr['cores'].keys.each do |core|
-    #   pp ping core
-    # end
-
     @solr['cores'].keys.each do |core|
       dump_core(@solr['cores'][core])
-      break
+      #break
     end
   end
 end
@@ -305,12 +258,8 @@ if __FILE__ == $0
   solr_dump = SolrDump.new(OPTIONS)
   solr_dump.run
 
-  pp solr_dump.options
-  cores = solr_dump.solr['cores']
+  # pp solr_dump.options
+  # cores = solr_dump.solr['cores']
 
-  pp cores
-
-  #cores.keys.each do |core|
-  #  pp solr_dump.ping core
-  #end
+  #pp cores
 end

@@ -48,7 +48,7 @@ class ReadOnlyIndexReport
 
   end
 
-  USE_CACHE = true
+  USE_CACHE = false
 
   def self.get_ikmc_production_statistics
 

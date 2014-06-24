@@ -39,6 +39,8 @@ class Reports::ImpcGeneList < Reports::Base
       'Micro-injection aborted' => 'Mouse Production in Progress',
       'Chimeras obtained' => 'Mouse Production in Progress',
       'Genotype confirmed' => 'Genotype Confirmed Mice',
+     # 'Founder obtained' => 'Founder obtained',
+     # 'Chimeras/Founder obtained' => 'Chimeras/Founder obtained',
       # phenotype attempts
       "Phenotype Attempt Aborted" => "Genotype Confirmed Mice",
       "Phenotype Attempt Registered" => 'Genotype Confirmed Mice',
@@ -55,7 +57,10 @@ class Reports::ImpcGeneList < Reports::Base
       'Assigned' => 2,
       'Mouse Production in Progress' => 3,
       'Genotype Confirmed Mice' => 4,
+      "Phenotyping Complete" => 5
     }
+
+    #raise "#### hash error!" if @status_rename_map.values.sort.uniq.size != @status_order.keys.size
 
     @report = self.generate(:csv)
   end
@@ -133,7 +138,17 @@ class Reports::ImpcGeneList < Reports::Base
       report_fields = {}
       while x < headers.length
         if headers[x] == 'Overall Status'
+
+          if ! status_rename_map.has_key? line[x]
+            raise "#### 1. cannot find '#{line[x]}'"
+          end
+
           new_status = status_rename_map[line[x]]
+
+          if ! status_order.has_key? new_status
+            raise "#### 2. cannot find '#{new_status}'"
+          end
+
           sort_order = status_order[new_status]
           if new_status.nil?
             raise "cant find status rename for status #{line[x]}"

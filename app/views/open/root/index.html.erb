@@ -48,7 +48,7 @@
       <% @table_1.each do |row| %>
       <tr>
         <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= row['marker_symbol'] %></a></td>
-        <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= raw row['consortium'] %></td>
+        <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= raw row['consortium'] %></a></td>
         <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= raw row['production_centre'] %></a></td>
         <td><%= row['mi_date'] %></td>
       </tr>
@@ -95,10 +95,14 @@
 
     </div>
   </td>
+  </tr>
+
+  <% if @table_3.size > 0 %>
 
   <tr>
 
   <td width="800" style="display: table-cell;vertical-align: top;">
+
     <h2 style="margin-bottom:0">IKMC production statistics</h2>
     <div class="report grid_12">
 
@@ -126,9 +130,12 @@
       </table>
 
     </div>
+
   </td>
 
   </tr>
+
+  <% end %>
 
   </table>
 

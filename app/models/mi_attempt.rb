@@ -29,6 +29,8 @@ class MiAttempt < ApplicationModel
     :qc_loxp_srpcr_and_sequencing
   ].freeze
 
+  belongs_to :allele
+  belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :es_cell, :class_name => 'TargRep::EsCell'
   belongs_to :status
@@ -386,7 +388,7 @@ class MiAttempt < ApplicationModel
     else
       nil
     end
-  end  
+  end
 
   delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
 
@@ -527,6 +529,8 @@ end
 #  crsp_num_founders_selected_for_breading         :integer
 #  founder_loa_num_assays                          :integer
 #  founder_loa_num_positive_results                :integer
+#  allele_id                                       :integer
+#  real_allele_id                                  :integer
 #
 # Indexes
 #

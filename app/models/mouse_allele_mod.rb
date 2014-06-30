@@ -9,6 +9,8 @@ class MouseAlleleMod < ApplicationModel
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
 
+  belongs_to :allele
+  belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt
@@ -233,4 +235,6 @@ end
 #  qc_critical_region_qpcr_id          :integer
 #  qc_loxp_srpcr_id                    :integer
 #  qc_loxp_srpcr_and_sequencing_id     :integer
+#  allele_id                           :integer
+#  real_allele_id                      :integer
 #

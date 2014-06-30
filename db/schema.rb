@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140604104000) do
+ActiveRecord::Schema.define(:version => 20140609121100) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -284,6 +284,8 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
     t.integer  "crsp_num_founders_selected_for_breading"
     t.integer  "founder_loa_num_assays"
     t.integer  "founder_loa_num_positive_results"
+    t.integer  "allele_id"
+    t.integer  "real_allele_id"
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -427,6 +429,8 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
     t.integer  "qc_critical_region_qpcr_id"
     t.integer  "qc_loxp_srpcr_id"
     t.integer  "qc_loxp_srpcr_and_sequencing_id"
+    t.integer  "allele_id"
+    t.integer  "real_allele_id"
   end
 
   create_table "mutagenesis_factors", :force => true do |t|
@@ -999,6 +1003,8 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
     t.string   "allele_name"
     t.string   "jax_mgi_accession_id"
     t.date     "ready_for_website"
+    t.integer  "allele_id"
+    t.integer  "real_allele_id"
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true
@@ -1334,6 +1340,7 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
     t.string   "user_qc_chry"
     t.string   "user_qc_lacz_qpcr"
     t.integer  "ikmc_project_foreign_id"
+    t.integer  "real_allele_id"
   end
 
   add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"
@@ -1398,6 +1405,14 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
 
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
 
+  create_table "targ_rep_real_alleles", :force => true do |t|
+    t.integer "gene_id",                   :null => false
+    t.string  "allele_name", :limit => 20, :null => false
+    t.string  "allele_type", :limit => 10
+  end
+
+  add_index "targ_rep_real_alleles", ["gene_id", "allele_name"], :name => "real_allele_logical_key", :unique => true
+
   create_table "targ_rep_sequence_annotation", :force => true do |t|
     t.integer "coordinate_start"
     t.string  "expected_sequence"
@@ -1415,6 +1430,7 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
     t.datetime "created_at",              :null => false
     t.datetime "updated_at",              :null => false
     t.integer  "ikmc_project_foreign_id"
+    t.integer  "real_allele_id"
   end
 
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"
@@ -1476,6 +1492,8 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_blast_strain_id_fk", :column => "blast_strain_id"
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
+  add_foreign_key "mi_attempts", "targ_rep_alleles", :name => "mi_attempts_targ_rep_allele_id_fk", :column => "allele_id"
+  add_foreign_key "mi_attempts", "targ_rep_real_alleles", :name => "mi_attempts_targ_rep_real_allele_id_fk", :column => "real_allele_id"
   add_foreign_key "mi_attempts", "users", :name => "mi_attempts_updated_by_id_fk", :column => "updated_by_id"
 
   add_foreign_key "mi_plan_es_cell_qcs", "mi_plans", :name => "mi_plan_es_cell_qcs_mi_plan_id_fk"
@@ -1516,6 +1534,8 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
   add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_tv_backbone_assay_id_fk", :column => "qc_tv_backbone_assay_id"
   add_foreign_key "mouse_allele_mods", "strains", :name => "mouse_allele_mods_colony_background_strain_id_fk", :column => "colony_background_strain_id"
   add_foreign_key "mouse_allele_mods", "strains", :name => "mouse_allele_mods_deleter_strain_id_fk", :column => "deleter_strain_id"
+  add_foreign_key "mouse_allele_mods", "targ_rep_alleles", :name => "mouse_allele_mods_targ_rep_allele_id_fk", :column => "allele_id"
+  add_foreign_key "mouse_allele_mods", "targ_rep_real_alleles", :name => "mouse_allele_mods_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
   add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
   add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
@@ -1547,6 +1567,8 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
   add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_three_prime_lr_pcr_id_fk", :column => "qc_three_prime_lr_pcr_id"
   add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_tv_backbone_assay_id_fk", :column => "qc_tv_backbone_assay_id"
   add_foreign_key "phenotype_attempts", "strains", :name => "phenotype_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
+  add_foreign_key "phenotype_attempts", "targ_rep_alleles", :name => "phenotype_attempts_targ_rep_allele_id_fk", :column => "allele_id"
+  add_foreign_key "phenotype_attempts", "targ_rep_real_alleles", :name => "phenotype_attempts_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_production_statuses", :name => "phenotyping_production_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_productions", :name => "fk_phenotyping_productions"
@@ -1557,6 +1579,11 @@ ActiveRecord::Schema.define(:version => 20140604104000) do
   add_foreign_key "phenotyping_productions", "phenotyping_production_statuses", :name => "phenotyping_productions_status_id_fk", :column => "status_id"
 
   add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_qc_mouse_clinic_id_fk", :column => "user_qc_mouse_clinic_id"
+  add_foreign_key "targ_rep_es_cells", "targ_rep_real_alleles", :name => "targ_rep_es_cells_targ_rep_real_allele_id_fk", :column => "real_allele_id"
+
+  add_foreign_key "targ_rep_real_alleles", "genes", :name => "targ_rep_real_alleles_gene_id_fk"
+
+  add_foreign_key "targ_rep_targeting_vectors", "targ_rep_real_alleles", :name => "targ_rep_targeting_vectors_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

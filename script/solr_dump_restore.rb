@@ -6,8 +6,10 @@ require 'pathname'
 
 OPTIONS = {
   :solr_url => 'http://ikmc.vm.bytemark.co.uk:8985/solr',
-  'dump_directory' => "#{Rails.root}/tmp/solr_dump",
-  :batch_size => 1000
+  :dump_directory => "#{Rails.root}/tmp/solr_dump",
+  :batch_size => 1000,
+  :log => true,
+  :cleanup => true
 }
 
 module SolrConnect
@@ -120,6 +122,8 @@ module SolrConnect
 end
 
 class SolrCommon
+  include ActionView::Helpers::NumberHelper
+
   attr_accessor :options
   attr_accessor :solr
 
@@ -131,6 +135,10 @@ class SolrCommon
   #def options
   #  @options
   #end
+
+  def log message
+    puts "#### " + message if @options[:log]
+  end
 
   def _prologue
     raise "You must implement _prologue!"
@@ -191,46 +199,91 @@ class SolrDump < SolrCommon
 
     #  pp core
 
-    dump_directory = "#{@options['dump_directory']}/#{core['name']}"
+    dump_directory = "#{@options[:dump_directory]}/#{core['name']}"
 
     # pp targets
     #  return
 
-    dump_directory = "#{@options['dump_directory']}/#{core['name']}"
+    dump_directory = "#{@options[:dump_directory]}/#{core['name']}"
 
     FileUtils.mkdir_p dump_directory
 
     # pp dump_directory
 
-    proxy = SolrConnect::Proxy.new(@options[:solr_url] + "/" + core['name'])
+    do_dump = true
 
-    docs = proxy.search(:q => "*:*", :rows => core['numDocs'])
+    if do_dump
+      proxy = SolrConnect::Proxy.new(@options[:solr_url] + "/" + core['name'])
 
-    # pp docs.size
+      docs = proxy.search(:q => "*:*", :rows => core['numDocs'])
 
-    counter = 0
-    docs.in_groups_of(@options[:batch_size], false) do |group|
-      jcounter = "%05d" % counter.to_i
-      File.open("#{dump_directory}/dump_#{jcounter}.json", 'w') {|f| f.write(JSON.pretty_generate(group)) }
-      counter += 1
+      # pp docs.size
+
+      counter = 0
+      docs.in_groups_of(@options[:batch_size], false) do |group|
+        jcounter = "%05d" % counter.to_i
+        File.open("#{dump_directory}/dump_#{jcounter}.json", 'w') {|f| f.write(JSON.pretty_generate(group)) }
+        counter += 1
+      end
+
+      targets = Dir.glob(dump_directory + "/*.json")
+
+      now = Time.now
+      time_formatted = "#{now.year}-#{now.month.to_s.rjust(2, "0")}-#{now.day.to_s.rjust(2, "0")}-#{now.hour.to_s.rjust(2, "0")}-#{now.min.to_s.rjust(2, "0")}-#{now.sec.to_s.rjust(2, "0")}"
+      puts "#### time_formatted: #{time_formatted}"
+
+      #zip_filename = "#{@options[:dump_directory]}/#{core['name']}_#{Time.now.to_formatted_s(:number)}.zip"
+      zip_filename = "#{@options[:dump_directory]}/#{core['name']}_#{time_formatted}.zip"
+
+      zip targets, zip_filename
+
+      size = number_to_human_size File.size(zip_filename)
+      puts "#### #{zip_filename}: #{size}"
     end
 
-    targets = Dir.glob(dump_directory + "/*.json")
+    if File.directory?(dump_directory)
+      #puts "#### FileUtils.rm #{dump_directory}/*.json"
+      #Dir.glob("#{dump_directory}/*.json").each { |f| puts "#### File.delete(#{f})" }
+      puts "#### rm #{dump_directory}/*.json"
+      puts "#### FileUtils.rmdir #{dump_directory}"
+      #FileUtils.rm "#{dump_directory}/*.json" if @options[:cleanup]
+      Dir.glob("#{dump_directory}/*.json").each { |f| File.delete(f) } if @options[:cleanup]
+      FileUtils.rmdir dump_directory if @options[:cleanup]
+    end
 
-    zip targets, "#{@options['dump_directory']}/#{core['name']}.zip"
+    #sorted = Dir.glob("#{@options[:dump_directory]}/#{core['name']}_*.zip").sort_by {|f| p f; File.mtime(File.join("#{@options[:dump_directory]}/",f))}
+    #sorted = Dir.glob("#{@options[:dump_directory]}/#{core['name']}_*.zip").sort_by {|f| p File.mtime(f); File.mtime(f)}
+    sorted = Dir.glob("#{@options[:dump_directory]}/#{core['name']}_*.zip").sort_by {|f| File.mtime(f)}.reverse
+   # puts sorted.first, sorted.last
 
-    #FileUtils.rmdir dump_directory
+    #puts "### list:"
+    #pp sorted
+
+    if sorted.size > 5
+      targets = sorted.last(sorted.size - 5)
+      #puts "### delete:"
+      #pp targets
+
+      targets.each do |f|
+        puts "#### FileUtils.rm #{f}"
+        FileUtils.rm f if @options[:cleanup]
+      end
+    end
+
   end
 
   def _run
     # work out what the cores are: http://localhost:8983/solr/admin/cores?action=STATUS
     # http://stackoverflow.com/questions/6668534/how-can-i-get-a-list-of-all-the-cores-in-a-solr-server-using-solrj
 
+    puts "#### solr: #{@options[:solr_url]}"
+
     cores
 
     @solr['cores'].keys.each do |core|
+      log "Dumping " + core + " core"
       dump_core(@solr['cores'][core])
-      #break
+      break
     end
   end
 end

@@ -46,6 +46,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     qc_loxp_srpcr_result
     qc_loxp_srpcr_and_sequencing_result
     ready_for_website
+    real_allele_id
   }
 
   READABLE_ATTRIBUTES = %w{

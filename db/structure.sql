@@ -3,6 +3,7 @@
 --
 
 SET statement_timeout = 0;
+SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -2833,7 +2834,57 @@ CREATE TABLE solr_centre_map (
 --
 
 CREATE VIEW solr_gene_statuses AS
-    SELECT most_advanced.mi_plan_id, most_advanced.marker_symbol, most_advanced.status_name, most_advanced.consortium, most_advanced.created_at, most_advanced.production_centre_name FROM (SELECT all_statuses.mi_plan_id, genes.marker_symbol, all_statuses.status_name, all_statuses.id, all_statuses.created_at, first_value(all_statuses.id) OVER (PARTITION BY all_statuses.gene_id ORDER BY all_statuses.order_by DESC, all_statuses.created_at) AS most_advanced_id, consortia.name AS consortium, centres.name AS production_centre_name FROM ((((((SELECT ('mi_plan'::text || mi_plan_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plan_statuses.name AS status_name, mi_plan_statuses.order_by, mi_plan_status_stamps.created_at FROM ((mi_plans JOIN mi_plan_statuses ON ((mi_plan_statuses.id = mi_plans.status_id))) JOIN mi_plan_status_stamps ON (((mi_plans.id = mi_plan_status_stamps.mi_plan_id) AND (mi_plan_statuses.id = mi_plan_status_stamps.status_id)))) UNION SELECT ('mi_attempt'::text || mi_attempt_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_attempt_statuses.name AS status_name, (1000 + mi_attempt_statuses.order_by) AS order_by, mi_attempt_status_stamps.created_at FROM (((mi_attempts JOIN mi_attempt_statuses ON ((mi_attempt_statuses.id = mi_attempts.status_id))) JOIN mi_attempt_status_stamps ON (((mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id) AND (mi_attempt_statuses.id = mi_attempt_status_stamps.status_id)))) JOIN mi_plans ON ((mi_plans.id = mi_attempts.mi_plan_id)))) UNION SELECT ('phenotype_attempt'::text || phenotype_attempt_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, phenotype_attempt_statuses.name AS status_name, (2000 + phenotype_attempt_statuses.order_by) AS order_by, phenotype_attempt_status_stamps.created_at FROM (((phenotype_attempts JOIN phenotype_attempt_statuses ON ((phenotype_attempt_statuses.id = phenotype_attempts.status_id))) JOIN phenotype_attempt_status_stamps ON (((phenotype_attempts.id = phenotype_attempt_status_stamps.phenotype_attempt_id) AND (phenotype_attempt_statuses.id = phenotype_attempt_status_stamps.status_id)))) JOIN mi_plans ON ((mi_plans.id = phenotype_attempts.mi_plan_id)))) all_statuses JOIN genes ON ((genes.id = all_statuses.gene_id))) JOIN mi_plans ON ((mi_plans.id = all_statuses.mi_plan_id))) JOIN consortia ON ((mi_plans.consortium_id = consortia.id))) LEFT JOIN centres ON ((mi_plans.production_centre_id = centres.id))) ORDER BY all_statuses.order_by DESC) most_advanced WHERE (most_advanced.id = most_advanced.most_advanced_id);
+ SELECT most_advanced.mi_plan_id,
+    most_advanced.marker_symbol,
+    most_advanced.status_name,
+    most_advanced.consortium,
+    most_advanced.created_at,
+    most_advanced.production_centre_name
+   FROM ( SELECT all_statuses.mi_plan_id,
+            genes.marker_symbol,
+            all_statuses.status_name,
+            all_statuses.id,
+            all_statuses.created_at,
+            first_value(all_statuses.id) OVER (PARTITION BY all_statuses.gene_id ORDER BY all_statuses.order_by DESC, all_statuses.created_at) AS most_advanced_id,
+            consortia.name AS consortium,
+            centres.name AS production_centre_name
+           FROM (((((        (         SELECT ('mi_plan'::text || mi_plan_status_stamps.id) AS id,
+                                    mi_plans_1.id AS mi_plan_id,
+                                    mi_plans_1.gene_id,
+                                    mi_plan_statuses.name AS status_name,
+                                    mi_plan_statuses.order_by,
+                                    mi_plan_status_stamps.created_at
+                                   FROM ((mi_plans mi_plans_1
+                              JOIN mi_plan_statuses ON ((mi_plan_statuses.id = mi_plans_1.status_id)))
+                         JOIN mi_plan_status_stamps ON (((mi_plans_1.id = mi_plan_status_stamps.mi_plan_id) AND (mi_plan_statuses.id = mi_plan_status_stamps.status_id))))
+                        UNION
+                                 SELECT ('mi_attempt'::text || mi_attempt_status_stamps.id) AS id,
+                                    mi_plans_1.id AS mi_plan_id,
+                                    mi_plans_1.gene_id,
+                                    mi_attempt_statuses.name AS status_name,
+                                    (1000 + mi_attempt_statuses.order_by) AS order_by,
+                                    mi_attempt_status_stamps.created_at
+                                   FROM (((mi_attempts
+                              JOIN mi_attempt_statuses ON ((mi_attempt_statuses.id = mi_attempts.status_id)))
+                         JOIN mi_attempt_status_stamps ON (((mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id) AND (mi_attempt_statuses.id = mi_attempt_status_stamps.status_id))))
+                    JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = mi_attempts.mi_plan_id))))
+                UNION
+                         SELECT ('phenotype_attempt'::text || phenotype_attempt_status_stamps.id) AS id,
+                            mi_plans_1.id AS mi_plan_id,
+                            mi_plans_1.gene_id,
+                            phenotype_attempt_statuses.name AS status_name,
+                            (2000 + phenotype_attempt_statuses.order_by) AS order_by,
+                            phenotype_attempt_status_stamps.created_at
+                           FROM (((phenotype_attempts
+                      JOIN phenotype_attempt_statuses ON ((phenotype_attempt_statuses.id = phenotype_attempts.status_id)))
+                 JOIN phenotype_attempt_status_stamps ON (((phenotype_attempts.id = phenotype_attempt_status_stamps.phenotype_attempt_id) AND (phenotype_attempt_statuses.id = phenotype_attempt_status_stamps.status_id))))
+            JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = phenotype_attempts.mi_plan_id)))) all_statuses
+      JOIN genes ON ((genes.id = all_statuses.gene_id)))
+   JOIN mi_plans ON ((mi_plans.id = all_statuses.mi_plan_id)))
+   JOIN consortia ON ((mi_plans.consortium_id = consortia.id)))
+   LEFT JOIN centres ON ((mi_plans.production_centre_id = centres.id)))
+  ORDER BY all_statuses.order_by DESC) most_advanced
+  WHERE (most_advanced.id = most_advanced.most_advanced_id);
 
 
 --
@@ -3292,7 +3343,11 @@ CREATE TABLE targ_rep_mutation_types (
 --
 
 CREATE VIEW targ_rep_es_cell_mutation_types AS
-    SELECT es.id AS es_cell_id, types.name AS mutation_type FROM ((targ_rep_es_cells es LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id))) LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
+ SELECT es.id AS es_cell_id,
+    types.name AS mutation_type
+   FROM ((targ_rep_es_cells es
+   LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id)))
+   LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
 
 
 --
@@ -3537,8 +3592,9 @@ ALTER SEQUENCE targ_rep_pipelines_id_seq OWNED BY targ_rep_pipelines.id;
 CREATE TABLE targ_rep_real_alleles (
     id integer NOT NULL,
     gene_id integer NOT NULL,
-    allele_name character varying(20) NOT NULL,
-    allele_type character varying(10)
+    allele_name character varying(40) NOT NULL,
+    allele_type character varying(10),
+    mgi_accession_id character varying(255)
 );
 
 
@@ -3608,7 +3664,8 @@ CREATE TABLE targ_rep_targeting_vectors (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     ikmc_project_foreign_id integer,
-    real_allele_id integer
+    mgi_allele_name_prediction character varying(40),
+    allele_type_prediction character varying(10)
 );
 
 
@@ -5763,14 +5820,6 @@ ALTER TABLE ONLY targ_rep_real_alleles
 
 
 --
--- Name: targ_rep_targeting_vectors_targ_rep_real_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY targ_rep_targeting_vectors
-    ADD CONSTRAINT targ_rep_targeting_vectors_targ_rep_real_allele_id_fk FOREIGN KEY (real_allele_id) REFERENCES targ_rep_real_alleles(id);
-
-
---
 -- Name: users_es_cell_distribution_centre_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6123,3 +6172,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140507103001');
 INSERT INTO schema_migrations (version) VALUES ('20140604104000');
 
 INSERT INTO schema_migrations (version) VALUES ('20140609121100');
+
+INSERT INTO schema_migrations (version) VALUES ('20140617114500');

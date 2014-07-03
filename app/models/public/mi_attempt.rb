@@ -81,6 +81,7 @@ class Public::MiAttempt < ::MiAttempt
     founder_loa_num_positive_results
     crsp_total_num_mutant_founders
     crsp_num_founders_selected_for_breading
+    real_allele_id
   }
 
   READABLE_ATTRIBUTES = %w{

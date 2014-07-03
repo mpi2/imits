@@ -9,6 +9,8 @@ class MouseAlleleMod < ApplicationModel
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
 
+  belongs_to :allele
+  belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt
@@ -164,7 +166,11 @@ class MouseAlleleMod < ApplicationModel
               :qc_lacz_count_qpcr_id            => phenotype_attempt.qc_lacz_count_qpcr_id,
               :qc_critical_region_qpcr_id       => phenotype_attempt.qc_critical_region_qpcr_id,
               :qc_loxp_srpcr_id                 => phenotype_attempt.qc_loxp_srpcr_id,
-              :qc_loxp_srpcr_and_sequencing_id  => phenotype_attempt.qc_loxp_srpcr_and_sequencing_id
+              :qc_loxp_srpcr_and_sequencing_id  => phenotype_attempt.qc_loxp_srpcr_and_sequencing_id,
+              :allele_name                      => phenotype_attempt.allele_name,
+              :allele_mgi_accession_id          => phenotype_attempt.jax_mgi_accession_id,
+              :allele_id                        => phenotype_attempt.allele_id,
+              :real_allele_id                   => phenotype_attempt.real_allele_id
               }
     mam = phenotype_attempt.mouse_allele_mod || MouseAlleleMod.new
     mam.update_attributes(params)
@@ -233,4 +239,8 @@ end
 #  qc_critical_region_qpcr_id          :integer
 #  qc_loxp_srpcr_id                    :integer
 #  qc_loxp_srpcr_and_sequencing_id     :integer
+#  allele_id                           :integer
+#  real_allele_id                      :integer
+#  allele_name                         :string(255)
+#  allele_mgi_accession_id             :string(255)
 #

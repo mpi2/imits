@@ -102,6 +102,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         id
         es_cell_name
         es_cell_marker_symbol
+        marker_symbol
         es_cell_allele_symbol
         mi_date
         status_name
@@ -111,6 +112,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         production_centre_name
         distribution_centres_attributes
         distribution_centres_formatted_display
+        mi_plan_mutagenesis_via_crispr_cas9
         blast_strain_name
         blast_strain_mgi_name
         blast_strain_mgi_accession

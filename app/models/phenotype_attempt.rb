@@ -42,6 +42,8 @@ class PhenotypeAttempt < ApplicationModel
   end
   protected :set_blank_qc_fields_to_na
 
+  belongs_to :allele
+  belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :mi_attempt
   belongs_to :status
@@ -110,8 +112,8 @@ class PhenotypeAttempt < ApplicationModel
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
   before_validation :allow_override_of_plan
-  before_validation :change_status
   before_validation :check_phenotyping_production_for_update
+  before_validation :change_status
 #  before_save :ensure_plan_exists # this method is in belongs_to_mi_plan
   before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
@@ -378,6 +380,8 @@ end
 #  allele_name                         :string(255)
 #  jax_mgi_accession_id                :string(255)
 #  ready_for_website                   :date
+#  allele_id                           :integer
+#  real_allele_id                      :integer
 #
 # Indexes
 #

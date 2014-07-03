@@ -17,6 +17,10 @@ Ext.define('Imits.model.MiAttempt', {
         persist: false
     },
     {
+        name: 'marker_symbol',
+        persist: false
+    },
+    {
         name: 'es_cell_allele_symbol',
         persist: false
     },
@@ -26,6 +30,10 @@ Ext.define('Imits.model.MiAttempt', {
     },
     {
         name: 'status_name',
+        persist: false
+    },
+    {
+        name: 'mi_plan_mutagenesis_via_crispr_cas9',
         persist: false
     },
     'colony_name',

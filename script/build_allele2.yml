@@ -1,37 +1,57 @@
---- 
-legacy_statuses_map: 
-  Not Assigned for ES Cell Production: 
+---
+legacy_statuses_map:
+  Not Assigned for ES Cell Production:
   - No ES Cell Production
-  Assigned for ES Cell Production: 
+  Assigned for ES Cell Production:
   - ES Cell Production in Progress
-  ES Cells Produced: 
+  ES Cells Produced:
   - ES Cell Targeting Confirmed
-  Assigned for Mouse Production and Phenotyping: 
+  Assigned for Mouse Production and Phenotyping:
   - Chimeras obtained
   - Micro-injection in progress
-  Mice Produced: 
+  Mice Produced:
   - Genotype confirmed
   - Cre Excision Started
   - Cre Excision Complete
   - Phenotype Attempt Registered
   - Phenotyping Started
 
-statuses: 
+statuses:
   ES_CELL_TARGETING_CONFIRMED: ES Cell Targeting Confirmed
   CRE_EXCISION_COMPLETE: Cre Excision Complete
   GENOTYPE_CONFIRMED: Genotype confirmed
   ES_CELL_PRODUCTION_IN_PROGRESS: ES Cell Production in Progress
   NO_ES_CELL_PRODUCTION: No ES Cell Production
 
-es_cell_statuses: 
+es_cell_statuses:
   ES Cell Targeting Confirmed: 30
   ES Cell Production in Progress: 20
   No ES Cell Production: 10
 
 sql: |
+  WITH phenotyping AS (
+        SELECT phenotyping_summary.*
+        FROM
+          (SELECT ordered_phenotyping_production.*,
+                  first_value(ordered_phenotyping_production.id) OVER (PARTITION BY ordered_phenotyping_production.mouse_allele_mod_id) AS most_advanced_record
+           FROM
+             (SELECT phenotyping_productions.*,
+                     phenotyping_production_statuses.name AS phenotyping_status,
+                     phenotyping_production_statuses.order_by AS phenotyping_status_order_by,
+                     centres.name AS phenotyping_centre
+              FROM phenotyping_productions
+                JOIN phenotyping_production_statuses ON phenotyping_productions.status_id = phenotyping_production_statuses.id
+                JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
+                JOIN centres ON centres.id = mi_plans.production_centre_id
+              WHERE phenotyping_production_statuses.name != 'Phenotype Production Aborted'
+              ORDER BY phenotyping_productions.mouse_allele_mod_id, phenotyping_production_statuses.order_by DESC
+              ) AS ordered_phenotyping_production
+           ) AS phenotyping_summary
+         WHERE phenotyping_summary.id = phenotyping_summary.most_advanced_record
+  )
   select distinct
-  SUBS_TEMPLATE
-  targ_rep_alleles.id as targ_rep_alleles_id,  
+  targ_rep_alleles.id as targ_rep_alleles_id,
+  targ_rep_mutation_types.name mutation_type,
   genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,
   CASE WHEN (targ_rep_targeting_vectors.allele_id IS NOT NULL) THEN true else false END AS does_a_targ_vec_exist,
   CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL) THEN true else false END AS does_an_es_cell_exist,
@@ -39,25 +59,37 @@ sql: |
   targ_rep_es_cells.allele_symbol_superscript_template,
   miapc.name miacentre_name,
   mi_attempt_statuses.name as mi_attempt_status,
+  mi_attempt_statuses.order_by as mi_attempt_status_order_by,
+  targ_rep_es_cells.allele_type AS es_cell_allele_type,
   mi_attempts.mouse_allele_type as mi_mouse_allele_type,
-  phenotype_attempts.mouse_allele_type as phenotype_attempt_mouse_allele_type,
-  phenotype_attempts.cre_excision_required,
-  pacentres.name pacentre_name,
-  phenotype_attempt_statuses.name as phenotype_attempt_status,
+  mouse_allele_mods.mouse_allele_type as mouse_allele_mod_mouse_allele_type,
+  mouse_allele_mods.cre_excision AS cre_excision_required,
+  pacentres.name as pacentre_name,
+  mouse_allele_mod_statuses.name as mouse_allele_mod_status,
+  mouse_allele_mod_statuses.order_by as mouse_allele_mod_status_order_by,
+  phenotyping.phenotyping_centre as phenotyping_centre_name,
+  phenotyping.phenotyping_status as phenotyping_status,
+  phenotyping.phenotyping_status_order_by,
   genes.feature_type as feature_type
   from genes
   left outer join targ_rep_alleles on genes.id = targ_rep_alleles.gene_id
+  left outer join targ_rep_mutation_types on targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
   left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id SUBS_TEMPLATE2 and targ_rep_targeting_vectors.report_to_public is true
   left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id SUBS_TEMPLATE2 and targ_rep_es_cells.report_to_public is true
-  left outer join mi_attempts on mi_attempts.es_cell_id = targ_rep_es_cells.id SUBS_TEMPLATE2 and mi_attempts.report_to_public is true
-  left outer join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id
-  left join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id SUBS_TEMPLATE2 and mi_attempt_plan.report_to_public is true
-  left join centres miapc on mi_attempt_plan.production_centre_id = miapc.id
-  left outer join phenotype_attempts on phenotype_attempts.mi_attempt_id = mi_attempts.id SUBS_TEMPLATE2 and phenotype_attempts.report_to_public is true
-  left outer join mi_plans paplan on phenotype_attempts.mi_plan_id = paplan.id SUBS_TEMPLATE2 and paplan.report_to_public is true
+  left outer join (mi_attempts
+                   join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id SUBS_TEMPLATE2 and mi_attempt_plan.report_to_public is true
+                   join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id
+                  ) on mi_attempts.es_cell_id = targ_rep_es_cells.id SUBS_TEMPLATE2 and mi_attempts.report_to_public is true
+  left outer join centres miapc on mi_attempt_plan.production_centre_id = miapc.id
+  left outer join (mouse_allele_mods
+                   join mi_plans paplan on mouse_allele_mods.mi_plan_id = paplan.id SUBS_TEMPLATE2 and paplan.report_to_public is true
+                   join mouse_allele_mod_statuses on mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
+                  ) on mouse_allele_mods.mi_attempt_id = mi_attempts.id SUBS_TEMPLATE2 and mouse_allele_mods.report_to_public is true
   left outer join centres pacentres on pacentres.id = paplan.production_centre_id
-  left outer join phenotype_attempt_statuses on phenotype_attempt_statuses.id = phenotype_attempts.status_id
+  left outer join phenotyping ON phenotyping.mouse_allele_mod_id = mouse_allele_mods.id
+
   SUBS_TEMPLATE3
+  order by mi_attempt_status_order_by desc, mouse_allele_mod_status_order_by desc, phenotyping.phenotyping_status_order_by desc
 
 sql_template: |
   genes.id as genes_id,
@@ -65,7 +97,7 @@ sql_template: |
   mi_attempts.id as mi_attempts_id,
   targ_rep_es_cells.id as targ_rep_es_cells_id,
 
-options: 
+options:
   SAVE_AS_CSV: false
   USE_ID: false
   USE_IDS: false
@@ -73,18 +105,18 @@ options:
   USE_REPORT_TO_PUBLIC: false
   USE_ALLELES: true
   USE_GENES: true
-  MARKER_SYMBOL: ""   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
+  MARKER_SYMBOL: #Lrrc20 #Podxl2 # "Cbx4" #"Tmod2"  # "3110035E14Rik"   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
   DETECT_GENE_DUPS: true
   USE_REPLACEMENT: true
-  FILTER_TARGET: ""   #"feature_type"    #"marker_type"    
+  FILTER_TARGET: ""   #"feature_type"    #"marker_type"
   CREATE_FILES: false
   USE_FILES: false
   SOLR_USER: solradmin
   SOLR_PASSWORD: xpassword
 
-replacements: 
-- Akt2: 
-    gene: 
+replacements:
+- Akt2:
+    gene:
       latest_es_cell_status: ES Cell Targeting Confirmed
       latest_mouse_status: Micro-injection in progress
       latest_phenotype_status: ""
@@ -93,14 +125,14 @@ replacements:
       latest_production_centre: ""
       latest_phenotyping_centre: ""
       latest_phenotype_started: "1"
-    allele: 
+    allele:
       es_cell_status: ES Cell Targeting Confirmed
       mouse_status: Micro-injection in progress
       phenotype_status: Phenotyping Started
       production_centre: ""
       phenotyping_centre: ""
 
-marker_filters: 
+marker_filters:
 - gene
 - gene segment
 - heritable phenotypic marker

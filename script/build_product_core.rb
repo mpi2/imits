@@ -58,6 +58,17 @@ class BuildProductCore
         SELECT mi_attempts.es_cell_id AS es_cell_id, array_agg(mi_attempts.colony_name) AS list
         FROM mi_attempts
         GROUP BY mi_attempts.es_cell_id
+      ),
+      distribution_qcs AS (
+        SELECT grouped_distribution_qc.es_cell_id, GROUPED_QC_FIELDS AS distribution_qc_data
+        FROM
+        (
+          SELECT targ_rep_distribution_qcs.es_cell_id AS es_cell_id,
+          QC_FIELDS
+          FROM targ_rep_distribution_qcs
+          JOIN targ_rep_es_cell_distribution_centres ON targ_rep_es_cell_distribution_centres.id = targ_rep_distribution_qcs.es_cell_distribution_centre_id
+          GROUP BY targ_rep_distribution_qcs.es_cell_id
+        ) AS grouped_distribution_qc
       )
 
       SELECT es_cells.name AS es_cell_name,
@@ -78,17 +89,20 @@ class BuildProductCore
         targ_rep_pipelines.name AS pipeline,
         targ_rep_ikmc_projects.name AS ikmc_project_id,
         es_cells.created_at AS status_date,
-        ARRAY[ES_CELL_QC_RESULTS] AS qc_data
+        ARRAY[ES_CELL_QC_RESULTS] AS qc_data,
+        distribution_qcs.distribution_qc_data AS distribution_qc
       FROM es_cells
       LEFT JOIN mouse_colonies ON mouse_colonies.es_cell_id = es_cells.id
       LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = es_cells.ikmc_project_foreign_id
       LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
+      LEFT JOIN distribution_qcs ON distribution_qcs.es_cell_id = es_cells.id
       WHERE es_cells.report_to_public = true
       ORDER BY es_cell_name
     EOF
 
-    sql['ES_CELL_QC_RESULTS'] = TargRep::EsCell.qc_options.map{|key, value| "'#{key}:' || es_cells.#{key}" }.join(', ')
-
+    sql['ES_CELL_QC_RESULTS'] = TargRep::EsCell.qc_options.map{|key, value| md = /^(\w*)_qc_(\w*)/.match(key); "'#{md[1].capitalize} QC:#{md[2]}:' || es_cells.#{key}" }.join(', ')
+    sql['GROUPED_QC_FIELDS'] = TargRep::DistributionQc.get_qc_metrics.map{|key, value| "grouped_distribution_qc.#{key}"}.join(' || ')
+    sql['QC_FIELDS'] = TargRep::DistributionQc.get_qc_metrics.map{|key, value| "array_agg('Distribution QC (' || targ_rep_es_cell_distribution_centres.name || '):#{value[:name].gsub("'", "")}:' || targ_rep_distribution_qcs.#{key}) AS #{key}" }.join(', ')
     return sql
   end
 
@@ -177,7 +191,8 @@ class BuildProductCore
       WITH plans AS (#{PLAN_SQL}), es_cells AS (#{ES_CELL_SQL}),
       distribution_centres AS (#{DISTRIBUTION_CENTRES_SQL})
 
-      SELECT '' AS phenotype_attempt_mouse_allele_type,
+      SELECT 'MiAttempt' AS type,
+        '' AS mouse_allele_mod_allele_type,
         mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
         es_cells.allele_type AS es_cell_allele_type,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
@@ -187,6 +202,7 @@ class BuildProductCore
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         plans.crispr_plan AS crispr_plan,
         mi_attempts.colony_name AS colony_name,
+        '' AS parent_colony_name,
         mi_attempt_statuses.name AS mouse_status,
         mi_attempt_status_stamps.created_at AS mouse_status_date,
         es_cells.name AS es_cell_name,
@@ -196,6 +212,7 @@ class BuildProductCore
         es_cells.cassette AS cassette,
         es_cells.cassette_type AS cassette_type,
         es_cells.backbone AS backbone,
+        es_cells.mutation_type AS mutation_type,
         cb_strain.name AS background_colony_strain_name,
         del_strain.name AS deleter_strain_name,
         test_strain.name AS test_strain_name,
@@ -213,14 +230,15 @@ class BuildProductCore
         LEFT JOIN strains AS cb_strain ON cb_strain.id = mi_attempts.colony_background_strain_id
         LEFT JOIN deleter_strains AS del_strain ON del_strain.id = mi_attempts.colony_background_strain_id
         LEFT JOIN strains AS test_strain ON test_strain.id = mi_attempts.colony_background_strain_id
-        LEFT JOIN es_cells ON es_cells.id = mi_attempts.id
+        LEFT JOIN es_cells ON es_cells.id = mi_attempts.es_cell_id
         LEFT JOIN distribution_centres On distribution_centres.mi_attempt_id = mi_attempts.id
         LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = es_cells.ikmc_project_foreign_id
       WHERE mi_attempts.report_to_public = true
 
       UNION ALL
 
-      SELECT mouse_allele_mods.mouse_allele_type AS phenotype_attempt_mouse_allele_type,
+      SELECT 'MouseAlleleModification' AS type,
+        mouse_allele_mods.mouse_allele_type AS mouse_allele_mod_allele_type,
         mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
         es_cells.allele_type AS es_cell_allele_type,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
@@ -230,6 +248,7 @@ class BuildProductCore
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         false AS crispr_plan,
         mouse_allele_mods.colony_name AS colony_name,
+        mi_attempts.colony_name AS parent_colony_name,
         mouse_allele_mod_statuses.name AS mouse_status,
         mouse_allele_mod_status_stamps.created_at AS mouse_status_date,
         '' AS es_cell_name,
@@ -239,6 +258,7 @@ class BuildProductCore
         '' AS cassette,
         '' AS cassette_type,
         '' AS backbone,
+        es_cells.mutation_type AS mutation_type,
         cb_strain.name AS background_colony_strain_name,
         del_strain.name AS deleter_strain_name,
         '' AS test_strain_name,
@@ -261,10 +281,10 @@ class BuildProductCore
       WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.cre_excision = true
     EOF
 
-    mi_attempts_qc_fields = MiAttempt::QC_FIELDS.map{|field| "'#{field}:' || mi_attempts.#{field}_id"}.join(', ')
+    mi_attempts_qc_fields = MiAttempt::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || mi_attempts.#{field.to_s}_id"}.join(', ')
     sql['MI_ATTEMPT_QC_RESULTS'] = mi_attempts_qc_fields
 
-    phenotype_attempts_qc_fields = PhenotypeAttempt::QC_FIELDS.map{|field| "'#{field}:' || mouse_allele_mods.#{field}_id"}.join(', ')
+    phenotype_attempts_qc_fields = PhenotypeAttempt::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || mouse_allele_mods.#{field.to_s}_id"}.join(', ')
     sql['PHENOTYPE_ATTEMPT_QC_RESULTS'] = phenotype_attempts_qc_fields
 
     return sql
@@ -282,11 +302,33 @@ class BuildProductCore
     @solr_password = @config['options']['SOLR_PASSWORD']
     @dataset_max_size = 80000
     @process_mice = true
-    @process_es_cells = true
-    @process_targeting_vectors = true
-    @process_intermediate_vectors = true
+    @process_es_cells = false
+    @process_targeting_vectors = false
+    @process_intermediate_vectors = false
+    @guess_mapping = {'a'                        => 'b',
+                      'e'                        => 'e.1',
+                      ''                         => '.1',
+                      'Conditional Ready'        => 'a',
+                      'Targeted Non Conditional' => 'e',
+                      'Deletion'                 => '',
+                      'Cre Knock In'             => '',
+                      'Gene Trap'                => 'Gene Trap'
+                     }
+
+    @genbank_file_transformations = {'a'   => '',
+                                     'e'   => '',
+                                     ''    => '',
+                                     'b'   => 'cre',
+                                     'e.1' => 'cre',
+                                     '.1'  => 'cre',
+                                     'c'   => 'flp',
+                                     'd'   => 'flp_cre'
+                                     }
 
     @qc_results = {}
+
+    @look_up_contact = {}
+    Centre.all.each{|production_centre| if !production_centre.contact_email.blank? ; @look_up_contact[production_centre.name] = production_centre.contact_email; end }
     QcResult.all.each{|result| @qc_results[result.id] = result.description}
   end
 
@@ -334,7 +376,7 @@ class BuildProductCore
 
     puts "#### step #{step_no} #{product_type} Products #{Time.now}"
     puts "#### step #{step_no}.1 Select #{Time.now}"
-
+puts product_sql
     rows = ActiveRecord::Base.connection.execute(product_sql)
     product_count = rows.count
 
@@ -392,30 +434,44 @@ class BuildProductCore
     end
   end
 
-  def allele_symbol row
-    allele_symbol = 'None'
-      allele_symbol = row['allele_symbol_superscript'] if ! row['allele_symbol_superscript'].to_s.empty?
-    if !row['allele_symbol_superscript_template'].to_s.empty?
-      allele_symbol = row['allele_symbol_superscript_template'].to_s.gsub(/\@/, row['mi_attempt_mouse_allele_type'].to_s) if ! row['mi_attempt_mouse_allele_type'].to_s.empty?
-      allele_symbol = row['allele_symbol_superscript_template'].to_s.gsub(/\@/, row['phenotype_attempt_mouse_allele_type'].to_s) if ! row['phenotype_attempt_mouse_allele_type'].to_s.empty?
-    end
-    allele_symbol
+
+
+  def prepare_allele_symbol row, type
+    row['allele_symbol'] = 'None'
+    row['allele_symbol'] = 'DUMMY_' + row['targ_rep_alleles_id'] if ! row['targ_rep_alleles_id'].to_s.empty?
+    row['allele_symbol'] = 'tm1' + row['allele_type'] if ! row['allele_type'].blank? && row['allele_type'] != 'None'
+    row['allele_symbol'] = row['allele_symbol_superscript'] if ! row['allele_symbol_superscript'].to_s.empty?
+    row['allele_symbol'] = row['allele_symbol_superscript_template'].to_s.gsub(/\@/, row['allele_type'].to_s) if ! row['allele_type'].nil? && ! row['allele_symbol_superscript_template'].to_s.empty?
+
   end
 
-  def allele_type row
-    allele_type = row['es_cell_allele_type']
-    allele_type = row['mi_attempt_mouse_allele_type'] if ! row['mi_attempt_mouse_allele_type'].to_s.empty?
-    allele_type = row['phenotype_attempt_mouse_allele_type'] if ! row['phenotype_attempt_mouse_allele_type'].to_s.empty?
+  def process_allele_type row, type
+    row['allele_type'] = 'None'
+    row['allele_type'] = @guess_mapping[ row['mutation_type'] ] if (!row['mutation_type'].blank?) && @guess_mapping.has_key?(row['mutation_type'])
+    row['allele_type'] = row['es_cell_allele_type'] if !row['es_cell_allele_type'].nil?
+    row['allele_type'] = row['mi_attempt_mouse_allele_type'] if type != 'Allele' && !row['mi_attempt_mouse_allele_type'].blank?
+    guess_allele_type(row) if type == 'MouseAlleleModification'
 
-    allele_type
+    prepare_allele_symbol(row, type)
+  end
+
+  def guess_allele_type row
+    if !row['mouse_allele_mod_allele_type'].blank? and !['a', 'e', ''].include?(row['mouse_allele_mod_allele_type'])
+      row['allele_type'] =  row['mouse_allele_mod_allele_type']
+    else
+      # cre version of the mi_attempt allele
+      row['allele_type'] =  @guess_mapping[row['allele_type']] if @guess_mapping.has_key?(row['allele_type'])
+    end
   end
 
 
   def create_mouse_doc row
+    process_allele_type(row, row['type'])
+
     doc = {"marker_symbol"              => row["marker_symbol"],
      "mgi_accession_id"                 => row["mgi_accession_id"],
-     "allele_type"                      => allele_type(row),
-     "allele_name"                      => allele_symbol(row),
+     "allele_type"                      => row['allele_type'],
+     "allele_name"                      => row['allele_symbol'],
      "type"                             => 'mouse',
      "name"                             => row["colony_name"],
      "genetic_info"                     => ["background_colony_strain:#{row['background_colony_strain_name']}", "deleter_strain:#{row['deleter_strain_name']}", "test_strain:#{row['test_strain_name']}"],
@@ -423,12 +479,15 @@ class BuildProductCore
      "production_completed"             => ['Genotype confirmed','Cre Excision Complete'].include?(row['mouse_status']) ? true : false,
      "status"                           => row["mouse_status"],
      "status_date"                      => row["mouse_status_date"].to_date.to_s,
-     "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; "#{qc_data[0]}:#{@qc_results[qc_data[1].to_i] || ''}"},
+     "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; @qc_results.has_key?(qc_data[2].to_i) && @qc_results[qc_data[2].to_i] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{@qc_results[qc_data[2].to_i]}" : nil}.compact,
      "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == true ? 'Casp9/Crispr' : 'ES Cell'}"],
      "associated_product_es_cell_name"  => row["es_cell_name"],
+     "associated_product_colony_name"   => row["parent_colony_name"],
      "associated_product_vector_name"   => row["vector_name"],
      "order_links"                      => [],
      "order_names"                      => [],
+     "contact_links"                    => [@look_up_contact.has_key?(row["production_centre"]) ? "mailto:#{@look_up_contact[row['production_centre']]}?Subject=Mouse Line for #{row['marker_symbol']}" : ''],
+     "contact_names"                    => [@look_up_contact.has_key?(row["production_centre"]) ? row["production_centre"] : ''],
      "other_links"                      => ["production_graph:#{production_graph_url(row['imits_gene_id'])}"]
     }
 
@@ -445,10 +504,12 @@ class BuildProductCore
   end
 
   def create_es_cell_doc row
+    process_allele_type(row, 'Allele')
+
     doc = {"marker_symbol"              => row['marker_symbol'],
      "mgi_accession_id"                 => row['mgi_accession_id'],
-     "allele_type"                      => row['es_cell_allele_type'],
-     "allele_name"                      => row["allele_symbol_superscript"],
+     "allele_type"                      => row['allele_type'],
+     "allele_name"                      => row['allele_symbol'],
      "genetic_info"                     => ["strain:#{row['strain']}", "cassette:#{row['cassette']}","cassette_type:#{row['cassette_type']}","parent_es_cell_line:#{row['parental_cell_line']}"],
      "type"                             => 'es_cell',
      "name"                             => row['es_cell_name'],
@@ -456,7 +517,7 @@ class BuildProductCore
      "production_completed"             => true,
      "status"                           => 'ES Cell Produced',
      "status_date"                      => row['status_date'].to_date.to_s,
-     "qc_data"                          => self.class.convert_to_array(row['qc_data']).keep_if{|qc| qc != 'NULL'},
+     "qc_data"                          => self.class.convert_to_array(row['qc_data']).keep_if{|qc| qc != 'NULL'} + self.class.convert_to_array(row['distribution_qc']).keep_if{|qc| qc != 'NULL'},
      "associated_products_colony_names" => self.class.convert_to_array(row['colonies']),
      "associated_product_vector_name"   => row['vector_name']
     }
@@ -558,7 +619,7 @@ class BuildProductCore
   def self.convert_to_array psql_array
     return [] if psql_array.blank?
 
-    psql_array[1, psql_array.length-2].split(',')
+    psql_array[1, psql_array.length-2].gsub('"', '').split(',')
   end
 
   def self.process_vector_allele_type (allele_names, allele_types, mutation_type_code, pipeline = '', cassette = '')
@@ -568,10 +629,10 @@ class BuildProductCore
 
     cre_knock_in_suffix = /(_Cre[0-9A-Za-z]+)_/.match(cassette)
 
-    allele_guess_hash = {'crd' => {'type' => 'a', 'allele_name' => "tm1a(#{pipeline})"},
-     'tnc' => {'type' => 'e', 'allele_name' => "tm1e(#{pipeline})"},
-     'del' => {'type' => '', 'allele_name' => "tm1(#{pipeline})"},
-     'cki' => {'type' => '', 'allele_name' => "tm1(#{pipeline}#{cre_knock_in_suffix.blank? ? '' : cre_knock_in_suffix[1]})"}
+    allele_guess_hash = {'crd' => {'type' => 'a', 'allele_name' => "tm1a"},
+     'tnc' => {'type' => 'e', 'allele_name' => "tm1e"},
+     'del' => {'type' => '', 'allele_name' => "tm1"},
+     'cki' => {'type' => 'Cre Knock In', 'allele_name' => "tm1"}
       }
 
     return [] if mutation_type_code.blank? or !allele_guess_hash.has_key?(mutation_type_code)
@@ -693,4 +754,9 @@ class BuildProductCore
     end
   end
 
+end
+
+if __FILE__ == $0
+  # this will only run if the script was the main, not load'd or require'd
+  BuildProductCore.new.run
 end

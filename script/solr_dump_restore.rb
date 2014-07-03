@@ -5,11 +5,14 @@ require 'json'
 require 'pathname'
 
 OPTIONS = {
-  :solr_url => 'http://ikmc.vm.bytemark.co.uk:8985/solr',
+  :solr_url_dump => 'http://ikmc.vm.bytemark.co.uk:8984/solr',
   :dump_directory => "#{Rails.root}/tmp/solr_dump",
   :batch_size => 1000,
   :log => true,
-  :cleanup => true
+  :cleanup => false,
+  :solr_url_restore => 'http://htgt1.internal.sanger.ac.uk:8983/solr',
+  :dump => false,
+  :restore => true
 }
 
 module SolrConnect
@@ -175,11 +178,11 @@ class SolrDump < SolrCommon
 
   #def ping(core)
   #  #    command = 'curl -s SOLR_SUBS/admin/ping |grep -o -E "name=\"status\">([0-9]+)<"|cut -f2 -d\>|cut -f1 -d\<'.gsub(/SOLR_SUBS/, SOLR_UPDATE[Rails.env]['index_proxy']['allele2'])
-  #  SolrConnect::Proxy.new(@options[:solr_url]).ping core
+  #  SolrConnect::Proxy.new(@options[:solr_url_dump]).ping core
   #end
 
   def cores
-    cores = SolrConnect::Proxy.new(@options[:solr_url]).cores
+    cores = SolrConnect::Proxy.new(@options[:solr_url_dump]).cores
     @solr['cores'] = cores
   end
 
@@ -213,7 +216,7 @@ class SolrDump < SolrCommon
     do_dump = true
 
     if do_dump
-      proxy = SolrConnect::Proxy.new(@options[:solr_url] + "/" + core['name'])
+      proxy = SolrConnect::Proxy.new(@options[:solr_url_dump] + "/" + core['name'])
 
       docs = proxy.search(:q => "*:*", :rows => core['numDocs'])
 
@@ -230,15 +233,18 @@ class SolrDump < SolrCommon
 
       now = Time.now
       time_formatted = "#{now.year}-#{now.month.to_s.rjust(2, "0")}-#{now.day.to_s.rjust(2, "0")}-#{now.hour.to_s.rjust(2, "0")}-#{now.min.to_s.rjust(2, "0")}-#{now.sec.to_s.rjust(2, "0")}"
-      puts "#### time_formatted: #{time_formatted}"
+      #puts "#### time_formatted: #{time_formatted}"
 
       #zip_filename = "#{@options[:dump_directory]}/#{core['name']}_#{Time.now.to_formatted_s(:number)}.zip"
       zip_filename = "#{@options[:dump_directory]}/#{core['name']}_#{time_formatted}.zip"
 
       zip targets, zip_filename
 
-      size = number_to_human_size File.size(zip_filename)
-      puts "#### #{zip_filename}: #{size}"
+      if File.exists?(zip_filename)
+        size = number_to_human_size File.size(zip_filename)
+        puts "#### #{zip_filename}: #{size}"
+      end
+
     end
 
     if File.directory?(dump_directory)
@@ -254,7 +260,7 @@ class SolrDump < SolrCommon
     #sorted = Dir.glob("#{@options[:dump_directory]}/#{core['name']}_*.zip").sort_by {|f| p f; File.mtime(File.join("#{@options[:dump_directory]}/",f))}
     #sorted = Dir.glob("#{@options[:dump_directory]}/#{core['name']}_*.zip").sort_by {|f| p File.mtime(f); File.mtime(f)}
     sorted = Dir.glob("#{@options[:dump_directory]}/#{core['name']}_*.zip").sort_by {|f| File.mtime(f)}.reverse
-   # puts sorted.first, sorted.last
+    # puts sorted.first, sorted.last
 
     #puts "### list:"
     #pp sorted
@@ -276,14 +282,15 @@ class SolrDump < SolrCommon
     # work out what the cores are: http://localhost:8983/solr/admin/cores?action=STATUS
     # http://stackoverflow.com/questions/6668534/how-can-i-get-a-list-of-all-the-cores-in-a-solr-server-using-solrj
 
-    puts "#### solr: #{@options[:solr_url]}"
+    puts "#### solr: #{@options[:solr_url_dump]}"
 
     cores
 
     @solr['cores'].keys.each do |core|
+      #next if core != 'gene2'
       log "Dumping " + core + " core"
       dump_core(@solr['cores'][core])
-      break
+      #break
     end
   end
 end
@@ -302,17 +309,58 @@ class SolrRestore < SolrCommon
     # do clean-up
   end
 
+  def cores
+    cores = SolrConnect::Proxy.new(@options[:solr_url_restore]).cores
+    @solr['cores'] = cores
+  end
+
   def _run
+    solr_url_restore = @options[:solr_url_restore]
+
+    puts "#### solr: #{solr_url_restore}"
+
+    #    exit
+
+    # pp @options
+
+    cores
+
+    #pp cores
+
+    @solr['cores'].keys.each do |core|
+      dump_directory = "#{@options[:dump_directory]}/#{core}"
+      #puts "#### dump_directory: #{dump_directory}"
+      targets = Dir.glob(dump_directory + "/*.json")
+
+      #next if core != 'gene2'
+
+      # pp targets
+
+      next if targets.size == 0
+
+      log "Restoring " + core + " core"
+
+      proxy = SolrConnect::Proxy.new(solr_url_restore + "/" + core)
+
+      proxy.update({'delete' => {'query' => '*:*'}}.to_json, @solr_user, @solr_password)
+
+      targets.each do |target|
+        file = File.open(target, "rb")
+        contents = file.read
+        proxy.update(contents, @solr_user, @solr_password)
+      end
+
+      proxy.update({'commit' => {}}.to_json, @solr_user, @solr_password)
+
+      # exit
+    end
   end
 end
 
 if __FILE__ == $0
   # this will only run if the script was the main, not load'd or require'd
-  solr_dump = SolrDump.new(OPTIONS)
-  solr_dump.run
 
-  # pp solr_dump.options
-  # cores = solr_dump.solr['cores']
+  SolrDump.new(OPTIONS).run if OPTIONS[:dump]
 
-  #pp cores
+  SolrRestore.new(OPTIONS).run if OPTIONS[:restore]
 end

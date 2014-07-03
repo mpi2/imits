@@ -48,12 +48,7 @@ class ReadOnlyIndexReport
 
   end
 
-  USE_CACHE = false
-
   def self.get_ikmc_production_statistics
-
-    hash = Rails.cache.read('get_ikmc_production_statistics') if USE_CACHE
-    return hash if hash && USE_CACHE
 
     sql = %Q{
       SELECT 'targeting_vectors' AS type, substring(targ_rep_pipelines.name from 1 for 4) AS name, count(distinct genes.id) AS count
@@ -107,8 +102,6 @@ class ReadOnlyIndexReport
       'genes_with_mice' => hash[key]['mice']
       }
     end
-
-    Rails.cache.write('get_ikmc_production_statistics', result, :timeToLive => 1.hour) if USE_CACHE
 
     result
 

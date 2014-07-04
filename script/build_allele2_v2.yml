@@ -79,11 +79,13 @@ sql: |
   left outer join (mi_attempts
                    join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id SUBS_TEMPLATE2 and mi_attempt_plan.report_to_public is true
                    join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id
+                   join consortia miconsortium ON miconsortium.id = mi_attempt_plan.consortium_id and miconsortium.name != 'EUCOMMToolsCre'
                   ) on mi_attempts.es_cell_id = targ_rep_es_cells.id SUBS_TEMPLATE2 and mi_attempts.report_to_public is true
   left outer join centres miapc on mi_attempt_plan.production_centre_id = miapc.id
   left outer join (mouse_allele_mods
                    join mi_plans paplan on mouse_allele_mods.mi_plan_id = paplan.id SUBS_TEMPLATE2 and paplan.report_to_public is true
                    join mouse_allele_mod_statuses on mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
+                   join consortia paconsortium ON paconsortium.id = paplan.consortium_id and paconsortium.name != 'EUCOMMToolsCre'
                   ) on mouse_allele_mods.mi_attempt_id = mi_attempts.id SUBS_TEMPLATE2 and mouse_allele_mods.report_to_public is true
   left outer join centres pacentres on pacentres.id = paplan.production_centre_id
   left outer join phenotyping ON phenotyping.mouse_allele_mod_id = mouse_allele_mods.id

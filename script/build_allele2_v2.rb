@@ -261,7 +261,7 @@ class BuildAllele2
   end
 
   def send_to_index data
-    pp data
+    #pp data
     proxy = SolrConnect::Proxy.new(@solr_url)
     proxy.update(data.join, @solr_user, @solr_password)
     proxy.update({'commit' => {}}.to_json, @solr_user, @solr_password)

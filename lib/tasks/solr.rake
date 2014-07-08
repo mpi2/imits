@@ -459,7 +459,7 @@ namespace :solr do
       MiAttempt.all.each do |i|
 
         next if i.consortium.name != 'EUCOMMToolsCre'
-        next if i.id != 10641 && i.id != 11002
+       # next if i.id != 10641 && i.id != 11002
 
         puts "#### adding #{i.id}"
 

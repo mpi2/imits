@@ -55,6 +55,7 @@ class Reports::ImpcGeneList < Reports::Base
       'Assigned' => 2,
       'Mouse Production in Progress' => 3,
       'Genotype Confirmed Mice' => 4,
+      "Phenotyping Complete" => 5
     }
 
     @report = self.generate(:csv)

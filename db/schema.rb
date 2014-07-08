@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140609121100) do
+ActiveRecord::Schema.define(:version => 20140617141100) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -431,6 +431,8 @@ ActiveRecord::Schema.define(:version => 20140609121100) do
     t.integer  "qc_loxp_srpcr_and_sequencing_id"
     t.integer  "allele_id"
     t.integer  "real_allele_id"
+    t.string   "allele_name"
+    t.string   "allele_mgi_accession_id"
   end
 
   create_table "mutagenesis_factors", :force => true do |t|

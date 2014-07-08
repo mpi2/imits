@@ -1655,7 +1655,9 @@ CREATE TABLE mouse_allele_mods (
     qc_loxp_srpcr_id integer,
     qc_loxp_srpcr_and_sequencing_id integer,
     allele_id integer,
-    real_allele_id integer
+    real_allele_id integer,
+    allele_name character varying(255),
+    allele_mgi_accession_id character varying(255)
 );
 
 
@@ -6123,3 +6125,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140507103001');
 INSERT INTO schema_migrations (version) VALUES ('20140604104000');
 
 INSERT INTO schema_migrations (version) VALUES ('20140609121100');
+
+INSERT INTO schema_migrations (version) VALUES ('20140617141100');

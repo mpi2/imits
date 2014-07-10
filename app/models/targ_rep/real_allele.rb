@@ -16,7 +16,6 @@ class TargRep::RealAllele < ActiveRecord::Base
   has_many   :phenotype_attempts,         :dependent => :destroy, :foreign_key => 'real_allele_id'
   has_many   :mouse_allele_mods,          :dependent => :destroy, :foreign_key => 'real_allele_id'
   has_many   :targ_rep_es_cells,          :dependent => :destroy, :foreign_key => 'real_allele_id'
-  has_many   :targ_rep_targeting_vectors, :dependent => :destroy, :foreign_key => 'real_allele_id'
 
   delegate :marker_symbol,    :to => :gene
 
@@ -25,7 +24,6 @@ class TargRep::RealAllele < ActiveRecord::Base
   ##
   validates                 :gene_id,           :presence => true
   validates                 :allele_name,       :presence => true
-  validates                 :allele_type,       :presence => true
 
   # allele name needs to be unique for a gene id
   validates_uniqueness_of   :allele_name,

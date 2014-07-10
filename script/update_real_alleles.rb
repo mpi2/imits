@@ -34,8 +34,14 @@ require 'pp'
   "JOIN mi_attempt_statuses mias ON mias.id = mia.status_id "\
   "LEFT OUTER JOIN targ_rep_real_alleles ra ON ra.id = mia.real_allele_id ORDER BY mia.id;"
 
+@sql_real_allele_id_where_match = "targ_rep_alleles.gene_id = ? AND targ_rep_alleles.cassette = ? "\
+    "AND targ_rep_alleles.cassette_start =? AND targ_rep_alleles.cassette_end =? "\
+    "AND targ_rep_alleles.loxp_start = ? AND targ_rep_alleles.loxp_end = ? "\
+    "AND targ_rep_es_cells.mgi_allele_symbol_superscript = ? AND targ_rep_es_cells.real_allele_id IS NOT NULL"
+
 @sql_phenotype_attempts = "SELECT pa.id AS pa_id, mi_plans.gene_id AS pa_gene_id, pa.allele_name AS pa_allele_name, "\
-  "pa.mouse_allele_type AS pa_allele_type, mia.id AS mi_id, mia.mouse_allele_type AS mia_allele_type, "\
+  "pa.mouse_allele_type AS pa_allele_type, pa.cre_excision_required AS pa_cre_excision_reqd, "\
+  "mia.id AS mi_id, mia.mouse_allele_type AS mia_allele_type, "\
   "r.allele_type AS mia_ra_allele_type, es.allele_symbol_superscript_template AS es_allele_name_template, "\
   "pa.jax_mgi_accession_id AS pa_allele_mgi_accession_id, pa.status_id AS pa_status_id, pas.name AS pa_status_name, "\
   "pa.real_allele_id AS pa_real_allele_id, ra.gene_id AS ra_gene_id, ra.allele_name AS ra_allele_name, "\
@@ -48,14 +54,29 @@ require 'pp'
   "LEFT OUTER JOIN targ_rep_real_alleles r ON r.id = mia.real_allele_id "\
   "ORDER BY pa.id;"
 
-@sql_mouse_allele_mods = "TODO"
+@sql_mouse_allele_mods = "SELECT mam.id AS mam_id, mi_plans.gene_id AS mam_gene_id, mam.allele_name AS mam_allele_name, "\
+  "mam.mouse_allele_type AS mam_allele_type, mam.cre_excision AS mam_cre_excision_reqd, "\
+  "mia.id AS mi_id, mia.mouse_allele_type AS mia_allele_type, "\
+  "r.allele_type AS mia_ra_allele_type, es.allele_symbol_superscript_template AS es_allele_name_template, "\
+  "mam.allele_mgi_accession_id AS mam_allele_mgi_accession_id, mam.status_id AS mam_status_id, mams.name AS mam_status_name, "\
+  "mam.real_allele_id AS mam_real_allele_id, ra.gene_id AS ra_gene_id, ra.allele_name AS ra_allele_name, "\
+  "ra.allele_type AS ra_allele_type, ra.mgi_accession_id AS ra_allele_mgi_accession_id "\
+  "FROM mouse_allele_mods mam JOIN mi_plans ON mi_plans.id = mam.mi_plan_id "\
+  "JOIN mouse_allele_mod_statuses mams ON mams.id = mam.status_id "\
+  "JOIN mi_attempts mia ON mia.id = mam.mi_attempt_id "\
+  "JOIN targ_rep_es_cells es ON es.id = mia.es_cell_id "\
+  "LEFT OUTER JOIN targ_rep_real_alleles ra ON ra.id = mam.real_allele_id "\
+  "LEFT OUTER JOIN targ_rep_real_alleles r ON r.id = mia.real_allele_id "\
+  "ORDER BY mam.id;"
 
-@sql_targeting_vectors = "WITH t1 AS ( SELECT targeting_vector_id, count(id) AS count_es_cells "\
-  "FROM targ_rep_es_cells WHERE allele_type != 'e' GROUP BY targeting_vector_id "\
-  "ORDER BY targeting_vector_id ) SELECT targ_rep_targeting_vectors.id, targ_rep_alleles.gene_id, "\
-  "genes.mgi_accession_id AS mgi_accession_id, targ_rep_mutation_types.code AS mutation_code, "\
-  "t1.count_es_cells, targ_rep_targeting_vectors.mgi_allele_name_prediction, "\
-  "targ_rep_targeting_vectors.allele_type_prediction FROM targ_rep_targeting_vectors "\
+@sql_targeting_vectors = "WITH t1 AS ( SELECT targeting_vector_id, count(id) AS count_es_cells FROM targ_rep_es_cells "\
+  "WHERE allele_type != 'e' GROUP BY targeting_vector_id ORDER BY targeting_vector_id ) "\
+  "SELECT targ_rep_targeting_vectors.id AS tv_id, targ_rep_alleles.gene_id AS tv_gene_id, "\
+  "genes.mgi_accession_id AS tv_mgi_accession_id, targ_rep_mutation_types.code AS tv_mutation_code, "\
+  "t1.count_es_cells AS tv_count_es_cells, "\
+  "targ_rep_targeting_vectors.mgi_allele_name_prediction AS tv_mgi_allele_name_prediction, "\
+  "targ_rep_targeting_vectors.allele_type_prediction AS tv_allele_type_prediction "\
+  "FROM targ_rep_targeting_vectors "\
   "JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_targeting_vectors.allele_id "\
   "JOIN genes ON genes.id = targ_rep_alleles.gene_id "\
   "JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id "\
@@ -72,48 +93,69 @@ require 'pp'
   "WHERE es.real_allele_id IS NULL AND mia.real_allele_id IS NULL "\
   "AND pa.real_allele_id   IS NULL AND mam.real_allele_id IS NULL;"
 
+@sql_select_real_allele_for_allele_name = "SELECT ra.gene_id AS ra_gene_id, es.allele_id AS es_allele_id, "\
+  "ra.allele_name AS ra_allele_name, ra.allele_type AS ra_allele_type, ra.mgi_accession_id AS ra_allele_mgi_accession_id, "\
+  "al.cassette AS al_cassette, al.cassette_start AS al_cassette_start, al.cassette_end AS al_cassette_end, "\
+  "al.loxp_start AS al_loxp_start, al.loxp_end AS al_loxp_end "\
+  "FROM targ_rep_real_alleles ra LEFT OUTER JOIN targ_rep_es_cells es ON es.real_allele_id = ra.id "\
+  "LEFT OUTER JOIN targ_rep_alleles al ON es.allele_id = al.id WHERE ra.gene_id = ? AND ra.allele_name = ? "\
+  "GROUP BY ra.gene_id, es.allele_id, ra.allele_name, ra.allele_type, ra.mgi_accession_id, "\
+  "al.cassette, al.cassette_start, al.cassette_end, al.loxp_start, al.loxp_end;"
+
 ##
 ## Any initialisation before running checks
 ##
 def initialise
   puts "initialise : start"
 
-  @count_real_allele_inserts                        = 0
-  @count_failed_real_allele_inserts                 = 0
+  @count_real_allele_inserts                         = 0
+  @count_failed_real_allele_inserts                  = 0
 
-  @count_es_cell_rows_checked                       = 0
-  @count_es_cell_rows_missing_info                  = 0
-  @count_es_cell_no_allele_name                     = 0
-  @count_es_cell_rows_real_allele_match             = 0
-  @count_es_cell_updates                            = 0
-  @count_failed_es_cell_updates                     = 0
+  @count_es_cell_rows_checked                        = 0
+  @count_es_cell_rows_missing_info                   = 0
+  @count_es_cell_no_allele_name                      = 0
+  @count_es_cell_rows_real_allele_match              = 0
+  @count_es_cell_updates                             = 0
+  @count_failed_es_cell_updates                      = 0
 
-  @count_mi_attempt_rows_checked                    = 0
-  @count_mi_attempt_rows_aborted                    = 0
-  @count_mi_attempt_rows_missing_info               = 0
-  @count_mi_attempt_es_cell_missing_real_allele_id  = 0
-  @count_mi_attempt_rows_real_allele_match          = 0
-  @count_mi_attempt_no_allele_name                  = 0
-  @count_mi_attempt_updates                         = 0
-  @count_failed_mi_attempt_updates                  = 0
+  @count_mi_attempt_rows_checked                     = 0
+  @count_mi_attempt_rows_aborted                     = 0
+  @count_mi_attempt_rows_missing_info                = 0
+  @count_mi_attempt_es_cell_missing_real_allele_id   = 0
+  @count_mi_attempt_rows_real_allele_match           = 0
+  @count_mi_attempt_no_allele_name                   = 0
+  @count_mi_attempt_no_es_cell_allele_to_compare     = 0
+  @count_mi_attempt_no_cassette_info_match           = 0
+  @count_mi_attempt_updates                          = 0
+  @count_failed_mi_attempt_updates                   = 0
 
-  @count_phenotype_attempt_rows_checked             = 0
-  @count_phenotype_attempt_rows_missing_info        = 0
-  @count_phenotype_attempt_rows_aborted             = 0
-  @count_phenotype_attempt_rows_real_allele_match   = 0
-  @count_phenotype_attempt_no_allele_name           = 0
-  @count_phenotype_attempt_updates                  = 0
-  @count_failed_phenotype_attempt_updates           = 0
+  @count_phenotype_attempt_rows_checked              = 0
+  @count_phenotype_attempt_rows_missing_info         = 0
+  @count_phenotype_attempt_rows_aborted              = 0
+  @count_phenotype_attempt_rows_cre_excision_false   = 0
+  @count_phenotype_attempt_rows_real_allele_match    = 0
+  @count_phenotype_attempt_no_allele_name            = 0
+  @count_phenotype_attempt_updates                   = 0
+  @count_failed_phenotype_attempt_updates            = 0
 
-  @count_mouse_allele_mod_rows_checked              = 0
-  @count_mouse_allele_mod_updates                   = 0
-  @count_failed_mouse_allele_mod_updates            = 0
+  @count_mouse_allele_mod_rows_checked               = 0
+  @count_mouse_allele_mod_rows_missing_info          = 0
+  @count_mouse_allele_mod_rows_aborted               = 0
+  @count_mouse_allele_mod_rows_cre_excision_false    = 0
+  @count_mouse_allele_mod_rows_real_allele_match     = 0
+  @count_mouse_allele_mod_no_allele_name             = 0
+  @count_mouse_allele_mod_updates                    = 0
+  @count_failed_mouse_allele_mod_updates             = 0
 
-  @count_targeting_vector_rows_checked              = 0
-  @count_targeting_vector_updates                   = 0
-  @count_failed_targeting_vector_updates            = 0
+  @count_targeting_vector_rows_checked               = 0
+  @count_targeting_vector_rows_missing_info          = 0
+  @count_targeting_vector_rows_missing_mutation_code = 0
+  @count_targeting_vector_rows_invalid_mutation_code = 0
+  @count_targeting_vector_updates                    = 0
+  @count_failed_targeting_vector_updates             = 0
 
-  @count_deleted_unattached_real_alleles            = 0
+  @count_deleted_unattached_real_alleles             = 0
+  @count_failed_deletes_unattached_real_alleles      = 0
 
   puts "initialise : end"
 end
@@ -145,7 +187,7 @@ def check_targ_rep_es_cells
       # try to compose the allele name
       allele_name = compose_allele_name_for_es_cell ( row )
       if ( allele_name.nil? )
-        puts "check_targ_rep_es_cells: ERROR: unable to compose an allele name for row id #{row['id']}"
+        puts "check_targ_rep_es_cells: WARN : unable to compose an allele name for row id #{row['es_id']}"
         @count_es_cell_no_allele_name += 1
         next
       end
@@ -168,10 +210,10 @@ def check_targ_rep_es_cells
     if new_real_allele_id && new_real_allele_id > 0
       puts "check_targ_rep_es_cells: new real allele id = #{new_real_allele_id}"
       unless update_targ_rep_es_cell( row, new_real_allele_id )
-        puts "check_targ_rep_es_cells : ERROR: failed to update targ_rep_es_cells for id #{row['es_id']}"
+        puts "check_targ_rep_es_cells : WARN : failed to update targ_rep_es_cells for id #{row['es_id']}"
       end
     else
-      puts "check_targ_rep_es_cells : ERROR: failed to fetch newly inserted real_allele_id, cannot update targ_rep_es_cells row for id #{row['es_id']}"
+      puts "check_targ_rep_es_cells : WARN : failed to fetch newly inserted real_allele_id, cannot update targ_rep_es_cells row for id #{row['es_id']}"
     end
 
   end
@@ -181,22 +223,22 @@ end
 ## Display es cell row details
 ##
 def display_es_cell_row_details( row )
-
   puts "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-    puts "check_targ_rep_es_cells : processing targ_rep_es_cells : "\
-    "es_id = #{row['es_id']}, "\
-    "es_gene_id = #{row['es_gene_id']}, "\
-    "es_allele_name = #{row['es_allele_name']}, "\
-    "es_allele_mgi_accession_id = #{row['es_allele_mgi_accession_id']}, "\
-    "es_allele_name_template = #{row['es_allele_name_template']}, "\
-    "es_gene_mgi_accession_id = #{row['es_gene_mgi_accession_id']}, "\
-    "es_mutation_name = #{row['es_mutation_name']}, "\
-    "es_real_allele_id = #{row['es_real_allele_id']}, "\
-    "ra_gene_id = #{row['ra_gene_id']}, "\
-    "ra_allele_name = #{row['ra_allele_name']}, "\
-    "ra_allele_type = #{row['ra_allele_type']}, "\
-    "ra_allele_mgi_accession_id = #{row['ra_allele_mgi_accession_id']}"
-
+  puts "check_targ_rep_es_cells : processing targ_rep_es_cell : "
+  puts "es_id                      = #{row['es_id']}, "
+  puts "es_gene_id                 = #{row['es_gene_id']}, "
+  puts "es_allele_name             = #{row['es_allele_name']}, "
+  puts "es_allele_mgi_accession_id = #{row['es_allele_mgi_accession_id']}, "
+  puts "es_allele_name_template    = #{row['es_allele_name_template']}, "
+  puts "es_gene_mgi_accession_id   = #{row['es_gene_mgi_accession_id']}, "
+  puts "es_mutation_name           = #{row['es_mutation_name']}, "
+  puts "es_real_allele_id          = #{row['es_real_allele_id']}, "
+  puts "ra_gene_id                 = #{row['ra_gene_id']}, "
+  puts "ra_allele_name             = #{row['ra_allele_name']}, "
+  puts "ra_allele_type             = #{row['ra_allele_type']}, "
+  puts "ra_allele_mgi_accession_id = #{row['ra_allele_mgi_accession_id']}"
+  puts "- - - - - - - - - -"
+  return
 end
 
 ##
@@ -212,11 +254,11 @@ def compose_allele_name_for_es_cell( row )
     if ( ! es_mutation_name.nil? )
       allele_name = compose_allele_name_for_es_cell_mutation( es_mutation_name )
       if( allele_name.nil? )
-        puts "compose_allele_name_for_es_cell : ERROR: unable to create an allele name from the mutation name <#{es_mutation_name}>"
+        puts "compose_allele_name_for_es_cell : WARN : unable to create an allele name from the mutation name <#{es_mutation_name}>"
         return nil
       end
     else
-      puts "compose_allele_name_for_es_cell : ERROR: no es cell mutation name available"
+      puts "compose_allele_name_for_es_cell : WARN : no es cell mutation name available"
       return nil
     end
 
@@ -247,7 +289,7 @@ def compose_allele_name_for_es_cell_mutation ( es_mutation_name )
     # when 'Point Mutation'
     #   return ''
     else
-      puts "compose_allele_name_for_es_cell_mutation : ERROR: es cell mutation type unrecognised"
+      puts "compose_allele_name_for_es_cell_mutation : WARN : es cell mutation type unrecognised"
       return nil
   end
 
@@ -283,18 +325,18 @@ def check_mi_attempts
         # set real allele id to be same as that for the es cell if it exists
         if ( ! row['es_real_allele_id'].nil? ) && ( row['es_real_allele_id'].to_i > 0 )
 
-          if is_real_allele_id_matching_existing?( row, row['es_real_allele_id'].to_i )
+          if is_mi_attempt_real_allele_id_match_existing?( row, row['es_real_allele_id'].to_i )
             throw :next_mi_attempt
           end
 
           # otherwise update row with es cell real allele id
           unless update_mi_attempt( row, row['es_real_allele_id'].to_i )
-            puts "check_mi_attempts : ERROR: failed to update mi_attempt for id #{row['mia_id']}"
+            puts "check_mi_attempts : WARN : failed to update mi_attempt for id #{row['mia_id']}"
           end
           throw :next_mi_attempt
         else
           # ES cell should have a real allele id from earlier part of script, count and skip
-          puts "check_mi_attempts: ERROR: related ES cell does not have a real allele id"
+          puts "check_mi_attempts: WARN : related ES cell does not have a real allele id"
           @count_mi_attempt_es_cell_missing_real_allele_id += 1
           throw :next_mi_attempt
         end
@@ -308,7 +350,7 @@ def check_mi_attempts
         allele_name = compose_allele_name_for_mi_attempt( row )
 
         if ( allele_name.nil? )
-          puts "check_mi_attempts: ERROR: Failed to compose allele name from template for mi attempt id #{row['mia_id']}"
+          puts "check_mi_attempts: WARN : Failed to compose allele name from template for mi attempt id #{row['mia_id']}"
           @count_mi_attempt_no_allele_name += 1
           throw :next_mi_attempt
         end
@@ -320,13 +362,13 @@ def check_mi_attempts
 
         if ( ! es_real_allele_id.nil? ) && ( es_real_allele_id > 0 )
 
-          if is_real_allele_id_matching_existing?( row, es_real_allele_id )
+          if is_mi_attempt_real_allele_id_match_existing?( row, es_real_allele_id )
             throw :next_mi_attempt
           end
 
           # real allele id differs (perhaps due to user override of allele type) so update it
           unless update_mi_attempt( row, es_real_allele_id )
-            puts "check_mi_attempts : ERROR: failed to update mi_attempt for id = #{row['mia_id']}"
+            puts "check_mi_attempts : WARN : failed to update mi_attempt for id = #{row['mia_id']}"
           end
           throw :next_mi_attempt
         else
@@ -339,28 +381,29 @@ def check_mi_attempts
           if real_allele_id && real_allele_id > 0
             puts "check_mi_attempts: new real allele id = #{real_allele_id}"
 
-            if is_real_allele_id_matching_existing?( row, real_allele_id )
+            if is_mi_attempt_real_allele_id_match_existing?( row, real_allele_id )
               throw :next_mi_attempt
             end
 
             unless update_mi_attempt( row, real_allele_id )
-              puts "check_mi_attempts : ERROR: failed to update mi_attempt for id #{row['mia_id']}"
+              puts "check_mi_attempts : WARN : failed to update mi_attempt for id #{row['mia_id']}"
             end
           else
-            puts "check_mi_attempts : ERROR: failed to fetch real_allele_id, cannot update mi_attempt row for id #{row['mia_id']}"
+            puts "check_mi_attempts : WARN : failed to fetch real_allele_id, cannot update mi_attempt row for id #{row['mia_id']}"
           end
 
           throw :next_mi_attempt
         end
 
       else
-        puts "check_mi_attempts: ERROR: Allele name template not present, cannot generate allele name"
+        puts "check_mi_attempts: WARN : Allele name template not present, cannot generate allele name"
         @count_mi_attempt_rows_missing_info += 1
         throw :next_mi_attempt
       end
 
     end # end catch next_mi_attempt
   end # loop mi attempt rows
+  return
 end
 
 ##
@@ -390,7 +433,7 @@ end
 ##
 ## Check if mi attempt existing real allele id matches new real allele id
 ##
-def is_real_allele_id_matching_existing?( row, new_real_allele_id )
+def is_mi_attempt_real_allele_id_match_existing?( row, new_real_allele_id )
   if ( ( ! row['mia_real_allele_id'].nil? ) && ( row['mia_real_allele_id'].to_i == new_real_allele_id ) )
     puts "check_mi_attempts : mi attempt row already has correct real allele id, skip as nothing to do"
     @count_mi_attempt_rows_real_allele_match += 1
@@ -400,30 +443,34 @@ def is_real_allele_id_matching_existing?( row, new_real_allele_id )
   end
 end
 
+##
+## Display mi attempt row details
+##
 def display_mi_attempts_row_details ( row )
-
   puts "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-  puts "check_mi_attempts : processing mi attempts : "\
-    "mia_id = #{row['mia_id']}, "\
-    "mia_status_name = #{row['mia_status_name']}, "\
-    "mia_gene_id = #{row['mia_gene_id']}, "\
-    "es_allele_name = #{row['es_allele_name']}, "\
-    "es_allele_mgi_accession_id = #{row['es_allele_mgi_accession_id']}, "\
-    "es_allele_name_template = #{row['es_allele_name_template']}, "\
-    "mia_gene_mgi_accession_id = #{row['mia_gene_mgi_accession_id']}, "\
-    "mia_allele_type = #{row['mia_allele_type']}, "\
-    "es_allele_type = #{row['es_allele_type']}, "\
-    "es_real_allele_id = #{row['es_real_allele_id']}, "\
-    "ra_gene_id = #{row['ra_gene_id']}, "\
-    "ra_allele_name = #{row['ra_allele_name']}, "\
-    "ra_allele_type = #{row['ra_allele_type']}, "\
-    "ra_allele_mgi_accession_id = #{row['ra_allele_mgi_accession_id']}, "\
-    "al_cassette = #{row['al_cassette']}, "\
-    "al_cassette_start = #{row['al_cassette_start']}, "\
-    "al_cassette_end = #{row['al_cassette_end']}, "\
-    "al_loxp_start = #{row['al_loxp_start']}, "\
-    "al_loxp_end = #{row['al_loxp_end']}"
-
+  puts "check_mi_attempts : processing mi attempt : "
+  puts "mia_id                     = #{row['mia_id']}, "
+  puts "mia_status_name            = #{row['mia_status_name']}, "
+  puts "mia_gene_id                = #{row['mia_gene_id']}, "
+  puts "es_allele_name             = #{row['es_allele_name']}, "
+  puts "es_allele_mgi_accession_id = #{row['es_allele_mgi_accession_id']}, "
+  puts "es_allele_name_template    = #{row['es_allele_name_template']}, "
+  puts "mia_gene_mgi_accession_id  = #{row['mia_gene_mgi_accession_id']}, "
+  puts "mia_allele_type            = #{row['mia_allele_type']}, "
+  puts "es_allele_type             = #{row['es_allele_type']}, "
+  puts "es_real_allele_id          = #{row['es_real_allele_id']}, "
+  puts "mia_real_allele_id         = #{row['mia_real_allele_id']}, "
+  puts "ra_gene_id                 = #{row['ra_gene_id']}, "
+  puts "ra_allele_name             = #{row['ra_allele_name']}, "
+  puts "ra_allele_type             = #{row['ra_allele_type']}, "
+  puts "ra_allele_mgi_accession_id = #{row['ra_allele_mgi_accession_id']}, "
+  puts "al_cassette                = #{row['al_cassette']}, "
+  puts "al_cassette_start          = #{row['al_cassette_start']}, "
+  puts "al_cassette_end            = #{row['al_cassette_end']}, "
+  puts "al_loxp_start              = #{row['al_loxp_start']}, "
+  puts "al_loxp_end                = #{row['al_loxp_end']}"
+  puts "- - - - - - - - - -"
+  return
 end
 
 ##
@@ -436,19 +483,59 @@ def compose_allele_name_for_mi_attempt( row )
   if es_allele_name_template.nil?
     puts "compose_allele_name_for_mi_attempt : No ES cell allele name template found"
     return nil
-  else
-    allele_name = es_allele_name_template.sub!('@', row['mia_allele_type'])
-
-    lookup for this gene whether 'allele name' exists
-    if yes compare cassette information
-      if same Ok
-      if not same -> loop on tm number until find match
-
-
-
-    puts "compose_allele_name_for_mi_attempt : composed allele name = #{allele_name}"
-    return allele_name
   end
+
+  # use es cell template to generate the allele name
+  allele_name = es_allele_name_template.sub!('@', row['mia_allele_type'])
+
+  puts "compose_allele_name_for_mi_attempt : composed allele name from template = #{allele_name}"
+
+  # possible this new allele name already in use for this gene with another vector (i.e. different cassette details)
+  # select on gene, allele name exists from real allele table as es cells have been done first
+  begin
+    exist_ra = TargRep::RealAllele.find_by_sql( [ @sql_select_real_allele_for_allele_name, row['mia_gene_id'], allele_name ] ).first
+    if ( exist_ra.nil? )
+      # allele name is new and Ok to use it
+      puts "compose_allele_name_for_mi_attempt : no match found, allele name is new and can be used"
+      return allele_name
+    else
+      puts "compose_allele_name_for_mi_attempt : found real allele matching name, checking cassette information for match"
+
+      if exist_ra['es_allele_id'].nil?
+        # no es cell allele to check
+        puts "compose_allele_name_for_mi_attempt : no es cell allele to compare with"
+        @count_mi_attempt_no_es_cell_allele_to_compare += 1
+        return allele_name
+      else
+        puts "- - cassette information : - -"
+        puts "al_cassette           = #{exist_ra['al_cassette']}, "
+        puts "al_cassette_start     = #{exist_ra['al_cassette_start']}, "
+        puts "al_cassette_end       = #{exist_ra['al_cassette_end']}"
+        puts "- - - -"
+
+        # compare the cassette information to that of the mi attempt's allele
+        if ( exist_ra['al_cassette']            == row['al_cassette'] \
+          && exist_ra['al_cassette_start'].to_i == row['al_cassette_start'].to_i \
+          && exist_ra['al_cassette_end'].to_i   == row['al_cassette_end'].to_i )
+
+          # match so use this allele name
+          puts "compose_allele_name_for_mi_attempt : cassette information matches"
+          return allele_name
+        else
+          #   if not same -> loop on tm number until find match?
+          puts "compose_allele_name_for_mi_attempt : cassette information does not match"
+          @count_mi_attempt_no_cassette_info_match += 1
+          return nil
+        end
+      end
+
+    end
+  rescue => e
+    puts "compose_allele_name_for_mi_attempt : WARN : failed to compose allele name for mi_attempt with id #{row['mia_id']}"
+    puts "compose_allele_name_for_mi_attempt : message : #{e.message}"
+    return nil
+  end
+
 end
 
 ##
@@ -458,14 +545,7 @@ def select_real_allele_id_for_matching_es_cell( row, allele_name )
 
   puts "select_real_allele_id_for_matching_es_cell : for : gene_id = #{row['mia_gene_id']} and allele_name = #{allele_name}"
 
-  es_cell = TargRep::EsCell.joins(:allele).where("targ_rep_alleles.gene_id = ? "\
-    "AND targ_rep_alleles.cassette = ? "\
-    "AND targ_rep_alleles.cassette_start =? "\
-    "AND targ_rep_alleles.cassette_end =? "\
-    "AND targ_rep_alleles.loxp_start = ? "\
-    "AND targ_rep_alleles.loxp_end = ? "\
-    "AND targ_rep_es_cells.mgi_allele_symbol_superscript = ? "\
-    "AND targ_rep_es_cells.real_allele_id IS NOT NULL", \
+  es_cell = TargRep::EsCell.joins(:allele).where(@sql_real_allele_id_where_match, \
     row['mia_gene_id'], \
     row['al_cassette'], \
     row['al_cassette_start'], \
@@ -497,81 +577,134 @@ def check_phenotype_attempts
   results.each do |row|
     @count_phenotype_attempt_rows_checked += 1
 
-    # TODO: if we skip the row do we want to actively update the real_allele_id to null??
-    # check for phenotype attempt aborted and skip
-    if ( row['pa_status_name'] == 'Phenotype Attempt Aborted')
-      @count_phenotype_attempt_rows_aborted += 1
-      next
-    end
+    catch :next_phenotype_attempt do
 
-    # check for missing key information
-    if row['pa_gene_id'].nil?
-      @count_phenotype_attempt_rows_missing_info += 1
-      next
-    end
+      # TODO: if we skip the row do we want to actively update the real_allele_id to null in all cases?
 
-    display_phenotype_attempt_row_details( row )
+      if is_phenotype_attempt_aborted?( row )
+        throw :next_phenotype_attempt
+      end
 
-    # check if row has an allele name or if not compose it
-    allele_name = row['pa_allele_name']
-    if ( allele_name.nil? )
-      # try to compose the allele name
-      allele_name = compose_allele_name_for_phenotype_attempt ( row )
+      if is_phenotype_attempt_missing_information?( row )
+        throw :next_phenotype_attempt
+      end
+
+      # check cre_excision_required flag
+      if ( row['pa_cre_excision_reqd'] == 'f' )
+        @count_phenotype_attempt_rows_cre_excision_false += 1
+        if ( ( ! row['pa_real_allele_id'].nil? ) && ( row['pa_real_allele_id'].to_i > 0 ) )
+          # set real allele id back to null for this row (to trap when user has changed flag to false)
+          puts "check_phenotype_attempts : Setting real allele id to null for phenotype attempt with id #{row['pa_id']}"
+          unless update_phenotype_attempt( row, nil )
+            puts "check_phenotype_attempts : WARN : failed to update phenotype_attempt to nil for id #{row['pa_id']}"
+          end
+        end
+        throw :next_phenotype_attempt
+      end
+
+      display_phenotype_attempt_row_details( row )
+
+      # check if row has an allele name or if not compose it
+      allele_name = row['pa_allele_name']
       if ( allele_name.nil? )
-        puts "check_phenotype_attempts: ERROR: unable to compose an allele name for row id #{row['id']}"
-        @count_phenotype_attempt_no_allele_name += 1
-        next
+        # try to compose the allele name
+        allele_name = compose_allele_name_for_phenotype_attempt ( row )
+        if ( allele_name.nil? )
+          puts "check_phenotype_attempts: WARN : unable to compose an allele name for row id #{row['pa_id']}"
+          @count_phenotype_attempt_no_allele_name += 1
+          throw :next_phenotype_attempt
+        end
       end
-    end
 
-    # if row already has a real allele id, check whether its gene and allele name matches to the expected real allele name
-    if ( ( ! row['pa_real_allele_id'].nil? ) && ( row['pa_real_allele_id'].to_i > 0 ) )
-      if ( ( row['pa_gene_id'] == row['ra_gene_id'] ) && ( allele_name == row['ra_allele_name'] ) )
-        # current real allele matches expected, skip
-        puts "check_phenotype_attempts : phenotype attempt row already has correct real allele id, skip as nothing to do"
-        @count_phenotype_attempt_rows_real_allele_match += 1
-        next
+      puts "check_phenotype_attempts: Created allele name = #{allele_name}"
+
+      new_real_allele_id = select_or_insert_real_allele( row['pa_gene_id'], allele_name, row['pa_allele_mgi_accession_id'] )
+
+      # check whether we need to update the row
+      if ( new_real_allele_id && new_real_allele_id > 0 )
+        puts "check_phenotype_attempts: new real allele id = #{new_real_allele_id}"
+
+        if is_phenotype_attempt_real_allele_id_matching_existing?( row, new_real_allele_id )
+          puts "check_phenotype_attempts : phenotype attempt row already has correct real allele id, skip as nothing to do"
+          throw :next_phenotype_attempt
+        end
+
+        unless update_phenotype_attempt( row, new_real_allele_id )
+          puts "check_phenotype_attempts : WARN : failed to update phenotype_attempt for id #{row['pa_id']}"
+          throw :next_phenotype_attempt
+        end
+      else
+        puts "check_phenotype_attempts : ERROR : failed to fetch newly inserted real_allele_id, cannot update phenotype_attempt row for id #{row['pa_id']}"
+        @count_failed_phenotype_attempt_updates += 1
+        throw :next_phenotype_attempt
       end
-    end
 
-    # not a match, select or insert correct real allele and update
-    new_real_allele_id = select_or_insert_real_allele( row['pa_gene_id'], allele_name, row['pa_allele_mgi_accession_id'] )
+    end # catch next phenotype attempt
+  end # next row
+  return
+end
 
-    # and update the row with the new real_allele_id
-    if new_real_allele_id && new_real_allele_id > 0
-      puts "check_phenotype_attempts: new real allele id = #{new_real_allele_id}"
-      unless update_phenotype_attempt( row, new_real_allele_id )
-        puts "check_phenotype_attempts : ERROR: failed to update phenotype_attempt for id #{row['pa_id']}"
-      end
-    else
-      puts "check_phenotype_attempts : ERROR: failed to fetch newly inserted real_allele_id, cannot update phenotype_attempt row for id #{row['pa_id']}"
-      @count_failed_phenotype_attempt_updates += 1
-    end
-
+##
+## Check for phenotype attempt aborted
+##
+def is_phenotype_attempt_aborted?( row )
+  if ( row['pa_status_name'] == 'Phenotype Attempt Aborted' )
+    @count_phenotype_attempt_rows_aborted += 1
+    return true
+  else
+    return false
   end
 end
 
+##
+## Check for missing key information
+##
+def is_phenotype_attempt_missing_information?( row )
+  if row['pa_gene_id'].nil?
+    @count_phenotype_attempt_rows_missing_info += 1
+    return true
+  else
+    return false
+  end
+end
+
+##
+## Check if phenotype attempt existing real allele id matches new real allele id
+##
+def is_phenotype_attempt_real_allele_id_matching_existing?( row, new_real_allele_id )
+  if ( ( ! row['pa_real_allele_id'].nil? ) && ( row['pa_real_allele_id'].to_i == new_real_allele_id ) )
+    @count_phenotype_attempt_rows_real_allele_match += 1
+    return true
+  else
+    return false
+  end
+end
+
+##
+## Display the phenotype attempts row details
+##
 def display_phenotype_attempt_row_details( row )
-
   puts "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-  puts "check_phenotype_attempts : processing phenotype_attempts "\
-    "pa_id = #{row['pa_id']}, "\
-    "pa_gene_id = #{row['pa_gene_id']}, "\
-    "pa_allele_name = #{row['pa_allele_name']}, "\
-    "pa_allele_type = #{row['pa_allele_type']}, "\
-    "mi_id = #{row['mi_id']}, "\
-    "mia_allele_type = #{row['mia_allele_type']}, "\
-    "mia_ra_allele_type = #{row['mia_ra_allele_type']}, "\
-    "es_allele_name_template = #{row['es_allele_name_template']}, "\
-    "pa_allele_mgi_accession_id = #{row['pa_allele_mgi_accession_id']}, "\
-    "pa_status_id = #{row['pa_status_id']}, "\
-    "pa_status_name = #{row['pa_status_name']}, "\
-    "pa_real_allele_id = #{row['pa_real_allele_id']}, "\
-    "ra_gene_id = #{row['ra_gene_id']}, "\
-    "ra_allele_name = #{row['ra_allele_name']}, "\
-    "ra_allele_type = #{row['ra_allele_type']}, "\
-    "ra_allele_mgi_accession_id = #{row['ra_allele_mgi_accession_id']}"
-
+  puts "check_phenotype_attempts : processing phenotype_attempts "
+  puts "pa_id = #{row['pa_id']}, "
+  puts "pa_gene_id = #{row['pa_gene_id']}, "
+  puts "pa_allele_name = #{row['pa_allele_name']}, "
+  puts "pa_allele_type = #{row['pa_allele_type']}, "
+  puts "pa_cre_excision_reqd = #{row['pa_cre_excision_reqd']}, "
+  puts "mi_id = #{row['mi_id']}, "
+  puts "mia_allele_type = #{row['mia_allele_type']}, "
+  puts "mia_ra_allele_type = #{row['mia_ra_allele_type']}, "
+  puts "es_allele_name_template = #{row['es_allele_name_template']}, "
+  puts "pa_allele_mgi_accession_id = #{row['pa_allele_mgi_accession_id']}, "
+  puts "pa_status_id = #{row['pa_status_id']}, "
+  puts "pa_status_name = #{row['pa_status_name']}, "
+  puts "pa_real_allele_id = #{row['pa_real_allele_id']}, "
+  puts "ra_gene_id = #{row['ra_gene_id']}, "
+  puts "ra_allele_name = #{row['ra_allele_name']}, "
+  puts "ra_allele_type = #{row['ra_allele_type']}, "
+  puts "ra_allele_mgi_accession_id = #{row['ra_allele_mgi_accession_id']}"
+  puts "- - - - - - - - - -"
+  return
 end
 
 ##
@@ -585,30 +718,11 @@ def compose_allele_name_for_phenotype_attempt( row )
       return nil
     end
 
-    allele_type = nil
+    allele_type = compose_allele_type( row['pa_allele_type'], row['mia_ra_allele_type'] )
 
-    if ( ! row['pa_allele_type'].nil? ) && ( ['a','b','c','d','e','e.1','.1','.2', ''].include?( row['pa_allele_type'] ) )
-      allele_type = row['pa_allele_type']
-    else
-      # retrieve real allele type from mi attempt and map to new allele type
-      if ( ! row['mia_ra_allele_type'].nil? )
-        puts "compose_allele_name_for_phenotype_attempt : using mi attempt real allele type to determine allele name"
-        case row['mia_ra_allele_type']
-          when 'a'
-            allele_type = 'b'
-          when ''
-            allele_type = '.1'
-          when 'e'
-            allele_type = 'e.1'
-          else
-            puts "compose_allele_name_for_phenotype_attempt : ERROR: mi attempt allele type unrecognised"
-            return nil
-        end
-      else
-        # cannot determine allele type
-        puts "compose_allele_name_for_phenotype_attempt : ERROR: no mi attempt allele type available"
-        return nil
-      end
+    if allele_type.nil?
+      puts "compose_allele_name_for_phenotype_attempt : WARN : no allele type available to create allele name"
+      return nil
     end
 
     allele_name = es_allele_name_template.sub!('@', allele_type)
@@ -617,177 +731,351 @@ def compose_allele_name_for_phenotype_attempt( row )
     return allele_name
 end
 
-# ##
-# ## Check the mouse_allele_mods table for new or updated real alleles
-# ##
-# def check_mouse_allele_mods
-#   puts "===== Checking mouse_allele_mods table ====="
-#   puts "NOT IMPLEMENTED YET"
+##
+## Compose the allele type from the override or mi attempt allele types
+##
+def compose_allele_type( override_allele_type, mi_attempt_allele_type )
 
-#   # results = ActiveRecord::Base.connection.execute(@sql_mouse_allele_mods)
+  if ( ! override_allele_type.nil? ) && ( ['a','b','c','d','e','e.1','.1','.2', ''].include?( override_allele_type ) )
+    puts "compose_allele_type : using override real allele type"
+    return override_allele_type
+  else
+    # use real allele type from mi attempt to map to new allele type
+    if ( ! mi_attempt_allele_type.nil? )
+      puts "compose_allele_type : no valid override, attempting to use mi attempt real allele type"
+      case mi_attempt_allele_type
+        when 'a'
+          return 'b'
+        when ''
+          return '.1'
+        when 'e'
+          return 'e.1'
+        else
+          puts "compose_allele_type : WARN : mi attempt allele type unrecognised"
+          return nil
+      end
+    else
+      # cannot determine allele type
+      puts "compose_allele_type : WARN : no valid override and no mi attempt allele types available"
+      return nil
+    end
+  end
+end
 
-#   # results.each do |row|
-#   #   @count_mouse_allele_mod_rows_checked += 1
+##
+## Check the mouse_allele_mods table for new or updated real alleles
+##
+def check_mouse_allele_mods
+  puts "===== Checking mouse_allele_mods table ====="
 
-#   #   # TODO: if we skip the row do we want to actively update the real_allele_id to null??
-#   #   next if row['gene_id'].nil?
-#   #   next if row['allele_name'].nil?
-#   #   next if row['jax_mgi_accession_id'].nil?
+  results = ActiveRecord::Base.connection.execute(@sql_mouse_allele_mods)
 
-#   #   puts "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-#   #   puts "check_mouse_allele_mods : processing phenotype_attempts_id = #{row['id']}, gene_id = #{row['gene_id']}, allele_name = #{row['allele_name']}, mgi_accession_id = #{row['jax_mgi_accession_id']}"
+  results.each do |row|
+    @count_mouse_allele_mod_rows_checked += 1
 
-#   #   # check if this real_allele already exists and fetch its id
-#   #   existing_real_allele_id = select_real_allele( row['gene_id'], row['allele_name'], row['jax_mgi_accession_id'] )
+    catch :next_mouse_allele_mod do
 
-#   #   # perform an insert or update if required
-#   #   if existing_real_allele_id && existing_real_allele_id > 0
+      # TODO: if we skip the row do we want to actively update the real_allele_id to null in all cases?
 
-#   #     puts "check_mouse_allele_mods : found existing real_allele with id = #{existing_real_allele_id}"
+      if is_mouse_allele_mod_aborted?( row )
+        throw :next_mouse_allele_mod
+      end
 
-#   #     # skip if real_allele_ids already match
-#   #     if ( ( ! row['real_allele_id'].nil? ) && ( existing_real_allele_id == row['real_allele_id'].to_i ) )
-#   #       puts "mouse allele mod row already has same id, nothing to do"
-#   #       next
-#   #     end
+      if is_mouse_allele_mod_missing_information?( row )
+        throw :next_mouse_allele_mod
+      end
 
-#   #     # update the row with the real_allele_id
-#   #     if update_mouse_allele_mod( row['id'], existing_real_allele_id )
-#   #       @count_mouse_allele_mod_updates += 1
-#   #     else
-#   #       puts "check_mouse_allele_mods : ERROR: failed to update mouse allele mod for id #{row['id']}"
-#   #       @count_failed_mouse_allele_mod_updates += 1
-#   #     end
+      # check cre_excision_required flag
+      if ( row['mam_cre_excision_reqd'] == 'f' )
+        @count_mouse_allele_mod_rows_cre_excision_false += 1
+        if ( ( ! row['mam_real_allele_id'].nil? ) && ( row['mam_real_allele_id'].to_i > 0 ) )
+          # set real allele id back to null for this row (to trap when user has changed flag to false)
+          unless update_mouse_allele_mod( row, nil )
+            puts "check_mouse_allele_mods : WARN : failed to update mouse_allele_mod to nil for id #{row['mam_id']}"
+          end
+        end
+        throw :next_mouse_allele_mod
+      end
 
-#   #   else
-#   #     # insert a new real_allele
-#   #     new_real_allele_id = select_or_insert_real_allele( row['gene_id'], row['allele_name'], row['jax_mgi_accession_id'] )
+      display_mouse_allele_mod_row_details( row )
 
-#   #     # and update the row with the real_allele_id
-#   #     if new_real_allele_id && new_real_allele_id > 0
-#   #       puts "check_mouse_allele_mods: newly inserted id = #{new_real_allele_id}"
-#   #       @count_real_allele_inserts += 1
-#   #       if update_mouse_allele_mod( row['id'], new_real_allele_id )
-#   #         @count_mouse_allele_mod_updates += 1
-#   #       else
-#   #         puts "check_mouse_allele_mods : ERROR: failed to update mouse allele mod for id #{row['id']}"
-#   #         @count_failed_mouse_allele_mod_updates += 1
-#   #       end
-#   #     else
-#   #       puts "check_mouse_allele_mods : ERROR: failed to fetch newly inserted real_allele_id, cannot update mouse_allele_mod row"
-#   #       @count_failed_real_allele_inserts += 1
-#   #     end
-#   #   end
-#   # end
-# end
+      # check if row has an allele name or if not compose it
+      allele_name = row['mam_allele_name']
+      if ( allele_name.nil? )
+        # try to compose the allele name
+        allele_name = compose_allele_name_for_mouse_allele_mod ( row )
+        if ( allele_name.nil? )
+          puts "check_mouse_allele_mods: WARN : unable to compose an allele name for row id #{row['mam_id']}"
+          @count_mouse_allele_mod_no_allele_name += 1
+          throw :next_mouse_allele_mod
+        end
+      end
 
-# ##
-# ## Check the targ_rep_targeting_alleles table for new or updated real alleles
-# ##
-# def check_targ_rep_targeting_vectors
-#   puts "===== Checking targ_rep_targeting_vectors table ====="
+      puts "check_mouse_allele_mods: Created allele name = #{allele_name}"
 
-#   results = ActiveRecord::Base.connection.execute(@sql_targeting_vectors)
+      new_real_allele_id = select_or_insert_real_allele( row['mam_gene_id'], allele_name, row['mam_allele_mgi_accession_id'] )
 
-#   results.each do |row|
-#     @count_targeting_vector_rows_checked += 1
+      # check whether we need to update the row
+      if new_real_allele_id && new_real_allele_id > 0
+        puts "check_mouse_allele_mods: new real allele id = #{new_real_allele_id}"
 
-#     # TODO: if we skip the row do we want to actively update the real_allele_id to null??
-#     next if row['gene_id'].nil?
-#     next if row['mutation_code'].nil?
-#     next if row['mgi_accession_id'].nil?
-#     next if row['mutation_code'].nil?
-#     unless  ["crd", "del", "cki"].include?( row['mutation_code'] )
-#       puts "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-#       puts "check_targ_rep_targeting_vectors : invalid mutation code <#{row['mutation_code']}> "\
-#            "for targ_rep_targeting_vectors_id = #{row['id']}, gene_id = #{row['gene_id']}, "\
-#            "mutation_code = #{row['mutation_code']}, mgi_accession_id = #{row['mgi_accession_id']}"
-#       next
-#     end
+        if is_mouse_allele_mod_real_allele_id_matching_existing?( row, new_real_allele_id )
+          puts "check_mouse_allele_mods : mouse allele mod row already has correct real allele id, skip as nothing to do"
+          throw :next_mouse_allele_mod
+        end
 
-#     puts "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-#     puts "check_targ_rep_targeting_vectors : processing targ_rep_targeting_vectors_id = "\
-#          "#{row['id']}, gene_id = #{row['gene_id']}, mutation_code = #{row['mutation_code']}, "\
-#          "mgi_accession_id = #{row['mgi_accession_id']}, mgi_allele_name_prediction = #{row['mgi_allele_name_prediction']}, "\
-#          "allele_type_prediction = #{row['allele_type_prediction']}, count es cells = #{row['count_es_cells']}"
+        unless update_mouse_allele_mod( row, new_real_allele_id )
+          puts "check_mouse_allele_mods : WARN : failed to update mouse_allele_mod for id #{row['mam_id']}"
+        end
+      else
+        puts "check_mouse_allele_mods : ERROR: failed to fetch newly inserted real_allele_id, cannot update mouse_allele_mod row for id #{row['mam_id']}"
+        @count_failed_mouse_allele_mod_updates += 1
+      end
 
-#     new_allele_name = nil
-#     new_allele_type = nil
+    end # catch next row
+  end # next row
+  return
+end
 
-#     if ( ! row['count_es_cells'].nil? && row['count_es_cells'].to_i > 0 )
-#       # have es cells so use one to determine allele name and type
-#       puts "SELECT an es cell"
-#       es_cell = select_es_cell_for_targeting_vector(row['id'])
+##
+## Check for mouse allele mod aborted
+##
+def is_mouse_allele_mod_aborted?( row )
+  if ( row['mam_status_name'] == 'Mouse Allele Modification Aborted' )
+    @count_mouse_allele_mod_rows_aborted += 1
+    return true
+  else
+    return false
+  end
+end
 
-#       if es_cell.nil?
-#         puts "check_targ_rep_targeting_vectors : ERROR: Failed to select es cell, skipping row"
-#         @count_failed_targeting_vector_updates += 1
-#         next
-#       else
-#         new_allele_name = es_cell.mgi_allele_symbol_superscript
-#         new_allele_type = es_cell.allele_type
-#       end
-#     else
-#       # if no es cells use allele mutation code to work out allele type
-#       new_allele_name, new_allele_type = derive_allele_details_from_mutation_type( row['mutation_code'] )
+##
+## Check for missing key information
+##
+def is_mouse_allele_mod_missing_information?( row )
+  if row['mam_gene_id'].nil?
+    @count_mouse_allele_mod_rows_missing_info += 1
+    return true
+  else
+    return false
+  end
+end
 
-#       if ( new_allele_name.nil? || new_allele_type.nil? )
-#         puts "check_targ_rep_targeting_vectors : ERROR: Mutation code <#{row['mutation_code']}> unrecognised, skipping row"
-#         @count_failed_targeting_vector_updates += 1
-#         next
-#       end
-#     end
+##
+## Check if mouse allele mod existing real allele id matches new real allele id
+##
+def is_mouse_allele_mod_real_allele_id_matching_existing?( row, new_real_allele_id )
+  if ( ( ! row['mam_real_allele_id'].nil? ) && ( row['mam_real_allele_id'].to_i == new_real_allele_id ) )
+    @count_mouse_allele_mod_rows_real_allele_match += 1
+    return true
+  else
+    return false
+  end
+end
 
-#     puts "check_targ_rep_targeting_vectors : new_allele_type = #{new_allele_type}"
-#     puts "check_targ_rep_targeting_vectors : new_allele_name = #{new_allele_name}"
+##
+## Display the Mouse Allele Mods row details
+##
+def display_mouse_allele_mod_row_details( row )
+  puts "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+  puts "check_mouse_allele_mods : processing mouse_allele_mods "
+  puts "mam_id = #{row['mam_id']}, "
+  puts "mam_gene_id = #{row['mam_gene_id']}, "
+  puts "mam_allele_name = #{row['mam_allele_name']}, "
+  puts "mam_allele_type = #{row['mam_allele_type']}, "
+  puts "mam_cre_excision_reqd = #{row['mam_cre_excision_reqd']}, "
+  puts "mi_id = #{row['mi_id']}, "
+  puts "mia_allele_type = #{row['mia_allele_type']}, "
+  puts "mia_ra_allele_type = #{row['mia_ra_allele_type']}, "
+  puts "es_allele_name_template = #{row['es_allele_name_template']}, "
+  puts "mam_allele_mgi_accession_id = #{row['mam_allele_mgi_accession_id']}, "
+  puts "mam_status_id = #{row['mam_status_id']}, "
+  puts "mam_status_name = #{row['mam_status_name']}, "
+  puts "mam_real_allele_id = #{row['mam_real_allele_id']}, "
+  puts "ra_gene_id = #{row['ra_gene_id']}, "
+  puts "ra_allele_name = #{row['ra_allele_name']}, "
+  puts "ra_allele_type = #{row['ra_allele_type']}, "
+  puts "ra_allele_mgi_accession_id = #{row['ra_allele_mgi_accession_id']}"
+  puts "- - - - - - - - - -"
+  return
+end
 
-#     # if allele_type_prediction or mgi_allele_name_prediction not same update them
-#     if ( ( row['mgi_allele_name_prediction'] != new_allele_name ) || ( row['allele_type_prediction'] != new_allele_type ) )
-#       if update_targ_rep_targeting_vector( row['id'], new_allele_name, new_allele_type )
-#         @count_targeting_vector_updates += 1
-#       else
-#         @count_failed_targeting_vector_updates += 1
-#       end
-#     end
-#   end
+##
+## Determine the expected allele name for this Mouse Allele Mod row
+##
+def compose_allele_name_for_mouse_allele_mod( row )
 
-# end
+    es_allele_name_template = row['es_allele_name_template']
+    if es_allele_name_template.nil?
+      puts "compose_allele_name_for_mouse_allele_mod : No ES cell allele name template available"
+      return nil
+    end
 
-# ##
-# ## Derive the allele name and type from the mutation type
-# ##
-# def derive_allele_details_from_mutation_type( mutation_code )
+    allele_type = compose_allele_type( row['mam_allele_type'], row['mia_ra_allele_type'] )
 
-#   case mutation_code
-#     when 'crd'
-#       # Conditional Ready
-#       return 'tm1a', 'a'
-#     when 'del'
-#       # Deletion
-#       return 'tml1', ''
-#     when 'tnc'
-#       # Targeted Non Conditional
-#       return 'tm1e', 'e'
-#     when 'cki'
-#       # Cre Knock In
-#       return 'tm1(CRE)', ''
-#     when 'gt'
-#       # Gene Trap
-#       return 'genetrap', 'gt'
-#     # when 'cbc'
-#     #   # Cre BAC
-#     #   return '?', '?'
-#     # when 'ins'
-#     #   # Insertion
-#     #   return '?', '?'
-#     # when 'pnt'
-#     #   # Point mutation
-#     #   return '?','?'
-#     else
-#       puts "derive_allele_detail_from_mutation_type : ERROR: Mutation code unrecognised"
-#       return nil, nil
-#   end
-# end
+    if allele_type.nil?
+      puts "compose_allele_name_for_mouse_allele_mod : WARN : no allele type available to create allele name"
+      return nil
+    end
+
+    allele_name = es_allele_name_template.sub!('@', allele_type)
+    puts "compose_allele_name_for_mouse_allele_mod : composed allele name = #{allele_name}"
+
+    return allele_name
+end
+
+##
+## Check the targ_rep_targeting_alleles table for new or updated real alleles
+##
+def check_targ_rep_targeting_vectors
+  puts "===== Checking targ_rep_targeting_vectors table ====="
+
+  results = ActiveRecord::Base.connection.execute(@sql_targeting_vectors)
+
+  results.each do |row|
+    @count_targeting_vector_rows_checked += 1
+
+    catch :next_targeting_vector do
+
+      # TODO: if we skip the row do we want to actively update the real_allele_id to null??
+
+      if is_targeting_vector_row_missing_information?( row )
+        throw :next_targeting_vector
+      end
+
+      if is_targeting_vector_mutation_code_invalid?( row )
+        throw :next_targeting_vector
+      end
+
+      display_targeting_vector_row_details( row )
+
+      new_allele_name = nil
+      new_allele_type = nil
+
+      if ( ! row['tv_count_es_cells'].nil? && row['tv_count_es_cells'].to_i > 0 )
+        # have es cells so use one to determine allele name and type
+        puts "SELECT an es cell"
+        es_cell = select_es_cell_for_targeting_vector(row['tv_id'])
+
+        if es_cell.nil?
+          puts "check_targ_rep_targeting_vectors : ERROR: Failed to select es cell, skipping row"
+          @count_failed_targeting_vector_updates += 1
+          throw :next_targeting_vector
+        else
+          new_allele_name = es_cell.mgi_allele_symbol_superscript
+          new_allele_type = es_cell.allele_type
+        end
+      else
+        # if no es cells use allele mutation code to work out allele type
+        new_allele_name, new_allele_type = derive_allele_details_from_mutation_type( row['tv_mutation_code'] )
+
+        # allele type can be an empty string but not nil
+        if ( new_allele_name.nil? || new_allele_type.nil? )
+          puts "check_targ_rep_targeting_vectors : WARN : Mutation code <#{row['tv_mutation_code']}> unrecognised, skipping row"
+          @count_failed_targeting_vector_updates += 1
+          throw :next_targeting_vector
+        end
+      end
+
+      puts "check_targ_rep_targeting_vectors : new_allele_type = #{new_allele_type} and new_allele_name = #{new_allele_name}"
+
+      # if allele_type_prediction or mgi_allele_name_prediction not same update them
+      if ( ( row['tv_mgi_allele_name_prediction'] != new_allele_name ) || ( row['tv_allele_type_prediction'] != new_allele_type ) )
+        unless update_targ_rep_targeting_vector( row, new_allele_name, new_allele_type )
+          puts "check_targ_rep_targeting_vectors : WARN : failed to update targeting vector id #{row['tv_id']}"
+        end
+      end
+    end # catch next row
+  end # each row
+
+  return
+end
+
+##
+## Check for missing key information
+##
+def is_targeting_vector_row_missing_information?( row )
+  if row['tv_gene_id'].nil?
+    @count_targeting_vector_rows_missing_info += 1
+    return true
+  else
+    return false
+  end
+end
+
+##
+## Check mutation type
+##
+def is_targeting_vector_mutation_code_invalid?( row )
+  if row['tv_mutation_code'].nil?
+    @count_targeting_vector_rows_missing_mutation_code += 1
+    return true
+  end
+
+  unless  ["crd", "del", "cki"].include?( row['tv_mutation_code'] )
+    puts "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+    puts "is_targeting_vector_mutation_code_valid : invalid mutation code <#{row['tv_mutation_code']}> "\
+         "for targ_rep_targeting_vectors id = #{row['tv_id']}, gene_id = #{row['tv_gene_id']}, "\
+         "mutation_code = #{row['tv_mutation_code']}, mgi_accession_id = #{row['tv_mgi_accession_id']}"
+    @count_targeting_vector_rows_invalid_mutation_code += 1
+    return true
+  end
+
+  return false
+end
+
+##
+## Display the Targeting vector row details
+##
+def display_targeting_vector_row_details( row )
+  puts "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+  puts "display_targeting_vector_row_details : processing targ_rep_targeting_vectors "
+  puts "id = #{row['tv_id']}, "
+  puts "gene_id = #{row['tv_gene_id']}, "
+  puts "mutation_code = #{row['tv_mutation_code']}, "
+  puts "mgi_accession_id = #{row['tv_mgi_accession_id']}, "
+  puts "mgi_allele_name_prediction = #{row['tv_mgi_allele_name_prediction']}, "
+  puts "allele_type_prediction = #{row['tv_allele_type_prediction']}, "
+  puts "count es cells = #{row['tv_count_es_cells']}"
+  puts "- - - - - - - - - -"
+  return
+end
+
+##
+## Derive the allele name and type from the mutation type
+##
+def derive_allele_details_from_mutation_type( mutation_code )
+
+  case mutation_code
+    when 'crd'
+      # Conditional Ready
+      return 'tm1a', 'a'
+    when 'del'
+      # Deletion
+      return 'tml1', ''
+    when 'tnc'
+      # Targeted Non Conditional
+      return 'tm1e', 'e'
+    when 'cki'
+      # Cre Knock In
+      return 'tm1(CRE)', ''
+    when 'gt'
+      # Gene Trap
+      return 'genetrap', 'gt'
+    # when 'cbc'
+    #   # Cre BAC
+    #   return '?', '?'
+    # when 'ins'
+    #   # Insertion
+    #   return '?', '?'
+    # when 'pnt'
+    #   # Point mutation
+    #   return '?','?'
+    else
+      puts "derive_allele_detail_from_mutation_type : WARN : Mutation code unrecognised"
+      return nil, nil
+  end
+end
 
 ##
 ## Any post-run cleanup in here
@@ -795,8 +1083,8 @@ end
 def cleanup
   # remove unattached real alleles from the database (e.g. guesses no longer needed)
   delele_unattached_real_alleles()
-
   display_counters()
+  return
 end
 
 ##
@@ -821,6 +1109,7 @@ def delele_unattached_real_alleles
     rescue => e
       puts "delele_unattached_real_alleles : ERROR : failed to delete unattached real alleles"
       puts "delele_unattached_real_alleles : message : #{e.message}"
+      @count_failed_deletes_unattached_real_alleles += 1
     end
   end
 
@@ -852,22 +1141,33 @@ def display_counters
   puts "rows skipped as missing ES cell real allele id = #{@count_mi_attempt_es_cell_missing_real_allele_id}"
   puts "rows skipped as allele id match                = #{@count_mi_attempt_rows_real_allele_match}"
   puts "rows skipped as no allele name                 = #{@count_mi_attempt_no_allele_name}"
+  puts "rows skipped as no es cell allele to compare   = #{@count_mi_attempt_no_es_cell_allele_to_compare}"
+  puts "rows unmatched cassette info                   = #{@count_mi_attempt_no_cassette_info_match}"
   puts "updates                                        = #{@count_mi_attempt_updates}"
   puts ""
   puts "Table: phenotype_attempts"
   puts "rows checked                                   = #{@count_phenotype_attempt_rows_checked}"
   puts "rows skipped as missing info                   = #{@count_phenotype_attempt_rows_missing_info}"
   puts "rows skipped as aborted                        = #{@count_phenotype_attempt_rows_aborted}"
+  puts "rows skipped as cre excision false             = #{@count_phenotype_attempt_rows_cre_excision_false}"
   puts "rows skipped as allele id match                = #{@count_phenotype_attempt_rows_real_allele_match}"
   puts "rows skipped as no allele name                 = #{@count_phenotype_attempt_no_allele_name}"
   puts "updates                                        = #{@count_phenotype_attempt_updates}"
   puts ""
   puts "Table: mouse_allele_mods"
   puts "rows checked                                   = #{@count_mouse_allele_mod_rows_checked}"
+  puts "rows skipped as missing info                   = #{@count_mouse_allele_mod_rows_missing_info}"
+  puts "rows skipped as aborted                        = #{@count_mouse_allele_mod_rows_aborted}"
+  puts "rows skipped as cre excision false             = #{@count_mouse_allele_mod_rows_cre_excision_false}"
+  puts "rows skipped as allele id match                = #{@count_mouse_allele_mod_rows_real_allele_match}"
+  puts "rows skipped as no allele name                 = #{@count_mouse_allele_mod_no_allele_name}"
   puts "updates                                        = #{@count_mouse_allele_mod_updates}"
   puts ""
   puts "Table: targ_rep_targeting_vectors"
   puts "rows checked                                   = #{@count_targeting_vector_rows_checked}"
+  puts "rows skipped as missing info                   = #{@count_targeting_vector_rows_missing_info}"
+  puts "rows skipped as missing mutation code          = #{@count_targeting_vector_rows_missing_mutation_code}"
+  puts "rows skipped as mutation code is invalid       = #{@count_targeting_vector_rows_invalid_mutation_code}"
   puts "updates                                        = #{@count_targeting_vector_updates}"
   puts ""
   puts "Deleted unattached real alleles                = #{@count_deleted_unattached_real_alleles}"
@@ -879,6 +1179,7 @@ def display_counters
   puts "FAILED phenotype attempt updates               = #{@count_failed_phenotype_attempt_updates}"
   puts "FAILED mouse allele mod updates                = #{@count_failed_mouse_allele_mod_updates}"
   puts "FAILED targ rep targeting vector updates       = #{@count_failed_targeting_vector_updates}"
+  puts "FAILED deletes of unattached real alleles      = #{@count_failed_deletes_unattached_real_alleles}"
 
   return
 end
@@ -969,24 +1270,25 @@ end
 ##
 ## Update the real allele id in the mouse_allele_mods table
 ##
-def update_mouse_allele_mod ( id, real_allele_id )
-  puts "update_mouse_allele_mod : id = #{id}, real_allele_id = #{real_allele_id}"
+def update_mouse_allele_mod ( row, real_allele_id )
+  puts "update_mouse_allele_mod : id = #{row['mam_id']}, real_allele_id = #{real_allele_id}"
 
-  mouse_allele_mod = MouseAlleleMod.find( id )
+  mouse_allele_mod = MouseAlleleMod.find( row['mam_id'] )
+
+  if mouse_allele_mod.nil?
+    puts "update_mouse_allele_mod : ERROR updating mouse allele mod with id #{row['mam_id']}, no mouse allele mod found"
+    @count_failed_mouse_allele_mod_updates += 1
+    return false
+  end
 
   begin
-    if mouse_allele_mod.update_attributes( :real_allele_id => real_allele_id )
-      puts "update_mouse_allele_mod : updated mouse_allele_mod new real_allele_id = #{mouse_allele_mod.real_allele_id}"
-      @count_mouse_allele_mod_updates += 1
-      return true
-    else
-      puts "update_mouse_allele_mod : ERROR updating mouse_allele_mod with id #{id}, model returned invalid, messages (if any): "
-      puts mouse_allele_mod.errors.messages
-      @count_failed_mouse_allele_mod_updates += 1
-      return false
-    end
-  rescue
-    puts "update_mouse_allele_mod : ERROR updating mouse_allele_mod with id #{id}"
+    mouse_allele_mod.real_allele_id = real_allele_id
+    mouse_allele_mod.save!
+    @count_mouse_allele_mod_updates += 1
+    return true
+  rescue => e
+    puts "update_mouse_allele_mod : ERROR updating mouse_allele_mod with id #{row['mam_id']}"
+    puts "update_mouse_allele_mod : message : #{e.message}"
     @count_failed_mouse_allele_mod_updates += 1
     return false
   end
@@ -995,26 +1297,27 @@ end
 ##
 ## Update the mgi_allele_name_prediction and allele_type_prediction in the targ_rep_targeting_vectors table
 ##
-def update_targ_rep_targeting_vector ( id, mgi_allele_name_prediction, allele_type_prediction )
-  puts "update_targ_rep_targeting_vector : id = #{id}, mgi_allele_name_prediction = #{mgi_allele_name_prediction}, "\
+def update_targ_rep_targeting_vector ( row, mgi_allele_name_prediction, allele_type_prediction )
+  puts "update_targ_rep_targeting_vector : id = #{row['tv_id']}, mgi_allele_name_prediction = #{mgi_allele_name_prediction}, "\
     "allele_type_prediction = #{allele_type_prediction}"
 
-  targ_rep_targeting_vector = TargRep::TargetingVector.find( id )
+  targ_rep_targeting_vector = TargRep::TargetingVector.find( row['tv_id'] )
+
+  if targ_rep_targeting_vector.nil?
+    puts "update_targ_rep_targeting_vector : ERROR updating targeting_vector with id #{row['tv_id']}, no targeting_vector found"
+    @count_failed_targeting_vector_updates += 1
+    return false
+  end
 
   begin
-    if targ_rep_targeting_vector.update_attributes( :mgi_allele_name_prediction => mgi_allele_name_prediction, :allele_type_prediction => allele_type_prediction )
-      puts "update_targ_rep_targeting_vector : updated targ_rep_targeting_vector new mgi_allele_name_prediction = #{targ_rep_targeting_vector.mgi_allele_name_prediction} "\
-        "and new allele_type_prediction = #{targ_rep_targeting_vector.allele_type_prediction}"
-      @count_targeting_vector_updates += 1
-      return true
-    else
-      puts "update_targ_rep_targeting_vector : ERROR updating targ_rep_targeting_vector with id #{id}, messages : "
-      puts targ_rep_targeting_vector.errors.messages
-      @count_failed_targeting_vector_updates += 1
-      return false
-    end
-  rescue
-    puts "update_targ_rep_targeting_vector : ERROR updating targ_rep_targeting_vector with id #{id}"
+    targ_rep_targeting_vector.allele_type_prediction     = allele_type_prediction
+    targ_rep_targeting_vector.mgi_allele_name_prediction = mgi_allele_name_prediction
+    targ_rep_targeting_vector.save!
+    @count_targeting_vector_updates += 1
+    return true
+  rescue => e
+    puts "update_targ_rep_targeting_vector : ERROR updating targ_rep_targeting_vector with id #{row['tv_id']}"
+    puts "update_targ_rep_targeting_vector : message : #{e.message}"
     @count_failed_targeting_vector_updates += 1
     return false
   end
@@ -1034,7 +1337,7 @@ def select_or_insert_real_allele ( gene_id, allele_name, allele_mgi_accession_id
     # no existing real allele, insert a new one
     inserted_real_allele = insert_real_allele( gene_id, allele_name, allele_mgi_accession_id )
     if inserted_real_allele.nil?
-      puts "select_or_insert_real_allele : ERROR inserting targ_rep_real_allele for gene_id = #{gene_id}, allele_name = #{allele_name}, allele_mgi_accession_id = #{allele_mgi_accession_id}"
+      puts "select_or_insert_real_allele : failed to insert targ_rep_real_allele for gene_id = #{gene_id}, allele_name = #{allele_name}, allele_mgi_accession_id = #{allele_mgi_accession_id}"
       return nil
     else
       inserted_real_allele_id = inserted_real_allele.id
@@ -1045,10 +1348,12 @@ def select_or_insert_real_allele ( gene_id, allele_name, allele_mgi_accession_id
     # check in case we can update with an mgi_accession_id, i.e. allele is a guess until confirmed and jax assigns an mgi id
     if selected_real_allele.mgi_accession_id.nil?
       unless allele_mgi_accession_id.nil? || allele_mgi_accession_id.to_s == ''
-        unless selected_real_allele.update_attributes( :mgi_accession_id => allele_mgi_accession_id)
-          puts "select_or_insert_real_allele : ERROR updating targ_rep_real_alleles attribute mgi_accession_id to #{allele_mgi_accession_id} for id #{selected_real_allele.id}, messages : "
-          puts selected_real_allele.errors.messages
-          return nil
+        begin
+          selected_real_allele.mgi_accession_id = allele_mgi_accession_id
+          selected_real_allele.save!
+        rescue => e
+          puts "select_or_insert_real_allele : ERROR : failed to update targ_rep_real_alleles attribute mgi_accession_id to #{allele_mgi_accession_id} for id #{selected_real_allele.id}, messages : "
+          puts "select_or_insert_real_allele : message : #{e.message}"
         end
       end
     end
@@ -1071,20 +1376,15 @@ def insert_real_allele( gene_id, allele_name, allele_mgi_accession_id )
   end
 
   begin
-    unless new_real_allele.save
-      puts "insert_real_allele_id : ERROR inserting new real_allele model, messages (if any):"
-      puts new_real_allele.errors.messages
-      @count_failed_real_allele_inserts += 1
-      return nil
-    end
+    new_real_allele.save!
     @count_real_allele_inserts += 1
-  rescue
+    return new_real_allele
+  rescue => e
     puts "insert_real_allele_id : ERROR inserting new real allele id with gene_id = #{gene_id}, allele_name = #{allele_name} and mgi_accession_id = #{allele_mgi_accession_id}"
+    puts "insert_real_allele_id : message : #{e.message}"
     @count_failed_real_allele_inserts += 1
     return nil
   end
-
-  return new_real_allele
 end
 
 ##
@@ -1101,19 +1401,19 @@ end
 initialise
 
 # targ_rep_es_cells
-# check_targ_rep_es_cells
+check_targ_rep_es_cells
 
 # mi_attempts
-# check_mi_attempts
+check_mi_attempts
 
 # phenotype_attempts table
 check_phenotype_attempts
 
 # mouse_allele_mods
-# check_mouse_allele_mods
+check_mouse_allele_mods
 
 # targ_rep_targeting_vectors
-# check_targ_rep_targeting_vectors
+check_targ_rep_targeting_vectors
 
 # any cleanup tasks here
 cleanup

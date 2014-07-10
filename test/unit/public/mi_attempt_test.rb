@@ -92,6 +92,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         crsp_num_founders_selected_for_breading
         founder_loa_num_assays
         founder_loa_num_positive_results
+        real_allele_id
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -193,6 +194,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         crsp_num_founders_selected_for_breading
         founder_loa_num_assays
         founder_loa_num_positive_results
+        real_allele_id
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

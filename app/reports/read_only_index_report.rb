@@ -12,7 +12,7 @@ class ReadOnlyIndexReport
         centres.id as production_centre_id,
         to_char(mi_date, 'DD Mon YYYY') as mi_date
       from mi_attempts join mi_plans on mi_attempts.mi_plan_id = mi_plans.id
-      join consortia on consortia.id = mi_plans.consortium_id
+      join consortia on consortia.id = mi_plans.consortium_id and consortia.name != 'EUCOMMToolsCre'
       join centres on centres.id = mi_plans.production_centre_id
       join genes on genes.id = mi_plans.gene_id
       where (mi_date - current_date >= -30) and mi_attempts.report_to_public = true and mi_plans.report_to_public = true
@@ -36,7 +36,7 @@ class ReadOnlyIndexReport
         to_char(mi_attempt_status_stamps.created_at, 'DD Mon YYYY') as gc_date,
         DATE_PART('day', current_date - mi_attempt_status_stamps.created_at) || ' days' as other_date
       from mi_attempts join mi_plans on mi_attempts.mi_plan_id = mi_plans.id
-      join consortia on consortia.id = mi_plans.consortium_id
+      join consortia on consortia.id = mi_plans.consortium_id and consortia.name != 'EUCOMMToolsCre'
       join centres on centres.id = mi_plans.production_centre_id
       join genes on genes.id = mi_plans.gene_id
       join mi_attempt_status_stamps on mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id and mi_attempt_status_stamps.status_id = 2
@@ -48,12 +48,7 @@ class ReadOnlyIndexReport
 
   end
 
-  USE_CACHE = false
-
   def self.get_ikmc_production_statistics
-
-    hash = Rails.cache.read('get_ikmc_production_statistics') if USE_CACHE
-    return hash if hash && USE_CACHE
 
     sql = %Q{
       SELECT 'targeting_vectors' AS type, substring(targ_rep_pipelines.name from 1 for 4) AS name, count(distinct genes.id) AS count
@@ -107,8 +102,6 @@ class ReadOnlyIndexReport
       'genes_with_mice' => hash[key]['mice']
       }
     end
-
-    Rails.cache.write('get_ikmc_production_statistics', result, :timeToLive => 1.hour) if USE_CACHE
 
     result
 

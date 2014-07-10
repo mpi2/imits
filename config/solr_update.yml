@@ -5,6 +5,8 @@ development:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://localhost:8983/solr/allele
     allele2: http://localhost:8983/solr/allele2
+    product1: http://ikmc.vm.bytemark.co.uk:8985/solr/product
+    product: http://localhost:8983/solr/product
     allele22: http://ikmc.vm.bytemark.co.uk:8986/solr/allele2
     allele23: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
     allele24: http://ikmc.vm.bytemark.co.uk:8984/solr/allele2
@@ -16,6 +18,7 @@ test:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://localhost:8984/solr/allele
     allele2: http://localhost:8984/solr/allele2
+    product: http://localhost:8984/solr/product
 
 labs:
   targ_rep_url: https://www.i-dcc.org/labs/imits/targ_rep
@@ -23,6 +26,7 @@ labs:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://t87-dev.internal.sanger.ac.uk:8983/solr/allele
     allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
+    product: http://ikmc.vm.bytemark.co.uk:8985/solr/product
 
 migration:
   targ_rep_url: https://www.i-dcc.org/imits/targ_rep
@@ -30,6 +34,7 @@ migration:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://t87-dev.internal.sanger.ac.uk:8983/solr/allele
     allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
+    product: http://ikmc.vm.bytemark.co.uk:8985/solr/product
 
 staging:
   targ_rep_url: https://www.i-dcc.org/staging/imits/targ_rep
@@ -37,6 +42,7 @@ staging:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://ikmc.vm.bytemark.co.uk:8984/solr/allele
     allele2: http://ikmc.vm.bytemark.co.uk:8984/solr/allele2
+    product: http://ikmc.vm.bytemark.co.uk:8984/solr/product
 
 production:
   targ_rep_url: https://www.i-dcc.org/imits/targ_rep
@@ -44,6 +50,7 @@ production:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://ikmc.vm.bytemark.co.uk:8983/solr/allele
     allele2: http://ikmc.vm.bytemark.co.uk:8983/solr/allele2
+    product: http://ikmc.vm.bytemark.co.uk:8983/solr/product
 
 all:
   queue_run_limit: 100

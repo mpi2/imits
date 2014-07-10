@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140617114500) do
+ActiveRecord::Schema.define(:version => 20140617141100) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -431,6 +431,8 @@ ActiveRecord::Schema.define(:version => 20140617114500) do
     t.integer  "qc_loxp_srpcr_and_sequencing_id"
     t.integer  "allele_id"
     t.integer  "real_allele_id"
+    t.string   "allele_name"
+    t.string   "allele_mgi_accession_id"
   end
 
   create_table "mutagenesis_factors", :force => true do |t|
@@ -1406,10 +1408,9 @@ ActiveRecord::Schema.define(:version => 20140617114500) do
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
 
   create_table "targ_rep_real_alleles", :force => true do |t|
-    t.integer "gene_id",                        :null => false
-    t.string  "allele_name",      :limit => 40, :null => false
-    t.string  "allele_type",      :limit => 10
-    t.string  "mgi_accession_id"
+    t.integer "gene_id",                   :null => false
+    t.string  "allele_name", :limit => 20, :null => false
+    t.string  "allele_type", :limit => 10
   end
 
   add_index "targ_rep_real_alleles", ["gene_id", "allele_name"], :name => "real_allele_logical_key", :unique => true
@@ -1422,17 +1423,16 @@ ActiveRecord::Schema.define(:version => 20140617114500) do
   end
 
   create_table "targ_rep_targeting_vectors", :force => true do |t|
-    t.integer  "allele_id",                                :null => false
-    t.string   "name",                                     :null => false
+    t.integer  "allele_id",               :null => false
+    t.string   "name",                    :null => false
     t.string   "ikmc_project_id"
     t.string   "intermediate_vector"
-    t.boolean  "report_to_public",                         :null => false
+    t.boolean  "report_to_public",        :null => false
     t.integer  "pipeline_id"
-    t.datetime "created_at",                               :null => false
-    t.datetime "updated_at",                               :null => false
+    t.datetime "created_at",              :null => false
+    t.datetime "updated_at",              :null => false
     t.integer  "ikmc_project_foreign_id"
-    t.string   "mgi_allele_name_prediction", :limit => 40
-    t.string   "allele_type_prediction",     :limit => 10
+    t.integer  "real_allele_id"
   end
 
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"
@@ -1584,6 +1584,8 @@ ActiveRecord::Schema.define(:version => 20140617114500) do
   add_foreign_key "targ_rep_es_cells", "targ_rep_real_alleles", :name => "targ_rep_es_cells_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
   add_foreign_key "targ_rep_real_alleles", "genes", :name => "targ_rep_real_alleles_gene_id_fk"
+
+  add_foreign_key "targ_rep_targeting_vectors", "targ_rep_real_alleles", :name => "targ_rep_targeting_vectors_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

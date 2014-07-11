@@ -984,6 +984,8 @@ def check_targ_rep_targeting_vectors
         unless update_targ_rep_targeting_vector( row, new_allele_name, new_allele_type )
           puts "check_targ_rep_targeting_vectors : WARN : failed to update targeting vector id #{row['tv_id']}"
         end
+      else
+        puts "check_targ_rep_targeting_vectors : allele name and type predictions match existing, skip as nothing to do"
       end
     end # catch next row
   end # each row

@@ -449,24 +449,92 @@ namespace :solr do
   #  end
   #end
 
-  task 'update:mi_attempts_eucommtoolscre' => [:environment] do
+  #task 'update:mi_attempts_eucommtoolscre' => [:environment] do
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #
+  #  ApplicationModel.transaction do
+  #    puts "#### enqueueing mi_attempts..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    counter = 0
+  #    MiAttempt.all.each do |i|
+  #
+  #      next if i.consortium.name != 'EUCOMMToolsCre'
+  #     # next if i.id != 10641 && i.id != 11002
+  #
+  #      puts "#### adding #{i.id}"
+  #
+  #      enqueuer.mi_attempt_updated(i)
+  #      counter += 1
+  #      #break if counter > 10
+  #      #break
+  #    end
+  #
+  #    puts "#### running mi_attempts (#{counter})..."
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
+  #
+  #task 'update:phenotype_attempts_eucommtoolscre' => [:environment] do
+  #  next if ! Rails.configuration.enable_solr_phenotype_attempt
+  #
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #  ApplicationModel.transaction do
+  #
+  #    puts "#### enqueueing phenotype_attempts..."
+  #
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    counter = 0
+  #    PhenotypeAttempt.all.each do |p|
+  #      next if p.consortium.name != 'EUCOMMToolsCre'
+  #      puts "#### adding #{p.id}"
+  #      enqueuer.phenotype_attempt_updated(p)
+  #      counter += 1
+  #      #break if counter > 10
+  #      #break
+  #    end
+  #
+  #    puts "#### running phenotype_attempts (#{counter})..."
+  #
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
+
+  task 'update:mi_attempts_orders' => [:environment] do
     pp SolrUpdate::IndexProxy::Allele.get_uri
 
     ApplicationModel.transaction do
       puts "#### enqueueing mi_attempts..."
       enqueuer = SolrUpdate::Enqueuer.new
       counter = 0
-      MiAttempt.all.each do |i|
 
-        next if i.consortium.name != 'EUCOMMToolsCre'
-       # next if i.id != 10641 && i.id != 11002
+      list = %W{
+        1700008O03Rik
+        Uri1
+        Col4a3bp
+        Kif13b
+        Ccdc127
+        Plscr2
+        Sult1c1
+        Serinc3
+        Il23r
+        Fam46c
+        1700001C02Rik
+        1700123O20Rik
+        Rbm33
+        Snx31
+        Bivm
+      }
 
-        puts "#### adding #{i.id}"
+ #     pp list
 
-        enqueuer.mi_attempt_updated(i)
-        counter += 1
-        #break if counter > 10
-        #break
+      list.each do |item|
+        gene = Gene.find_by_marker_symbol item
+
+        gene.mi_attempts.each do |i|
+          enqueuer.mi_attempt_updated(i)
+          counter += 1
+          #break if counter > 10
+        end
       end
 
       puts "#### running mi_attempts (#{counter})..."
@@ -474,27 +542,33 @@ namespace :solr do
     end
   end
 
-  task 'update:phenotype_attempts_eucommtoolscre' => [:environment] do
-    next if ! Rails.configuration.enable_solr_phenotype_attempt
-
+  task 'update:mi_attempts_orders_fleming' => [:environment] do
     pp SolrUpdate::IndexProxy::Allele.get_uri
+
     ApplicationModel.transaction do
-
-      puts "#### enqueueing phenotype_attempts..."
-
+      puts "#### enqueueing mi_attempts..."
       enqueuer = SolrUpdate::Enqueuer.new
       counter = 0
-      PhenotypeAttempt.all.each do |p|
-        next if p.consortium.name != 'EUCOMMToolsCre'
-        puts "#### adding #{p.id}"
-        enqueuer.phenotype_attempt_updated(p)
-        counter += 1
-        #break if counter > 10
-        #break
+
+      Gene.all.each do |gene|
+        gene.mi_attempts.each do |i|
+          found = false
+          i.distribution_centres.each do |distribution_centre|
+            if distribution_centre.centre.name == 'Fleming'
+              found = true
+              break
+            end
+          end
+
+          next if ! found
+
+          enqueuer.mi_attempt_updated(i)
+          counter += 1
+          #break if counter > 10
+        end
       end
 
-      puts "#### running phenotype_attempts (#{counter})..."
-
+      puts "#### running mi_attempts (#{counter})..."
       SolrUpdate::Queue.run(:limit => nil)
     end
   end

@@ -56,4 +56,7 @@ KOMP:
 CMMR:
   :preferred: 'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL'
   :default: 'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'
+Fleming:
+  :preferred: 'http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL'
+  :default: ''
 

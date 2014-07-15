@@ -8,7 +8,9 @@ namespace :solr do
   end
 
   task 'update_part' => [:environment] do
-    SolrUpdate::Queue.run(:limit => 500)
+    count = 500
+    puts "#### processing #{count}"
+    SolrUpdate::Queue.run(:limit => count)
   end
 
   task 'update_all' => [:environment] do
@@ -499,78 +501,106 @@ namespace :solr do
   #  end
   #end
 
-  task 'update:mi_attempts_orders' => [:environment] do
-    pp SolrUpdate::IndexProxy::Allele.get_uri
-
-    ApplicationModel.transaction do
-      puts "#### enqueueing mi_attempts..."
-      enqueuer = SolrUpdate::Enqueuer.new
-      counter = 0
-
-      list = %W{
-        1700008O03Rik
-        Uri1
-        Col4a3bp
-        Kif13b
-        Ccdc127
-        Plscr2
-        Sult1c1
-        Serinc3
-        Il23r
-        Fam46c
-        1700001C02Rik
-        1700123O20Rik
-        Rbm33
-        Snx31
-        Bivm
-      }
-
- #     pp list
-
-      list.each do |item|
-        gene = Gene.find_by_marker_symbol item
-
-        gene.mi_attempts.each do |i|
-          enqueuer.mi_attempt_updated(i)
-          counter += 1
-          #break if counter > 10
-        end
-      end
-
-      puts "#### running mi_attempts (#{counter})..."
-      SolrUpdate::Queue.run(:limit => nil)
-    end
-  end
-
-  task 'update:mi_attempts_orders_fleming' => [:environment] do
-    pp SolrUpdate::IndexProxy::Allele.get_uri
-
-    ApplicationModel.transaction do
-      puts "#### enqueueing mi_attempts..."
-      enqueuer = SolrUpdate::Enqueuer.new
-      counter = 0
-
-      Gene.all.each do |gene|
-        gene.mi_attempts.each do |i|
-          found = false
-          i.distribution_centres.each do |distribution_centre|
-            if distribution_centre.centre.name == 'Fleming'
-              found = true
-              break
-            end
-          end
-
-          next if ! found
-
-          enqueuer.mi_attempt_updated(i)
-          counter += 1
-          #break if counter > 10
-        end
-      end
-
-      puts "#### running mi_attempts (#{counter})..."
-      SolrUpdate::Queue.run(:limit => nil)
-    end
-  end
-
+ # task 'update:mi_attempts_orders' => [:environment] do
+ #   pp SolrUpdate::IndexProxy::Allele.get_uri
+ #
+ #   ApplicationModel.transaction do
+ #     puts "#### enqueueing mi_attempts..."
+ #     enqueuer = SolrUpdate::Enqueuer.new
+ #     counter = 0
+ #
+ #     list = %W{
+ #       1700008O03Rik
+ #       Uri1
+ #       Col4a3bp
+ #       Kif13b
+ #       Ccdc127
+ #       Plscr2
+ #       Sult1c1
+ #       Serinc3
+ #       Il23r
+ #       Fam46c
+ #       1700001C02Rik
+ #       1700123O20Rik
+ #       Rbm33
+ #       Snx31
+ #       Bivm
+ #     }
+ #
+ ##     pp list
+ #
+ #     list.each do |item|
+ #       gene = Gene.find_by_marker_symbol item
+ #
+ #       gene.mi_attempts.each do |i|
+ #         enqueuer.mi_attempt_updated(i)
+ #         counter += 1
+ #         #break if counter > 10
+ #       end
+ #     end
+ #
+ #     puts "#### running mi_attempts (#{counter})..."
+ #     SolrUpdate::Queue.run(:limit => nil)
+ #   end
+ # end
+ #
+ # task 'update:mi_attempts_orders_1' => [:environment] do
+ #   pp SolrUpdate::IndexProxy::Allele.get_uri
+ #
+ #   ApplicationModel.transaction do
+ #     puts "#### enqueueing mi_attempts..."
+ #     enqueuer = SolrUpdate::Enqueuer.new
+ #     counter = 0
+ #
+ #     list = %W{
+ #       Il23r
+ #       1700001C02Rik
+ #     }
+ #
+ #     list.each do |item|
+ #       gene = Gene.find_by_marker_symbol item
+ #
+ #       gene.mi_attempts.each do |i|
+ #         enqueuer.mi_attempt_updated(i)
+ #         counter += 1
+ #         #break if counter > 10
+ #       end
+ #     end
+ #
+ #     puts "#### running mi_attempts (#{counter})..."
+ #     SolrUpdate::Queue.run(:limit => nil)
+ #   end
+ # end
+ #
+ # task 'update:mi_attempts_orders_fleming' => [:environment] do
+ #   pp SolrUpdate::IndexProxy::Allele.get_uri
+ #
+ #   ApplicationModel.transaction do
+ #     puts "#### enqueueing mi_attempts..."
+ #     enqueuer = SolrUpdate::Enqueuer.new
+ #     counter = 0
+ #
+ #     Gene.all.each do |gene|
+ #       gene.mi_attempts.each do |i|
+ #         found = false
+ #         i.distribution_centres.each do |distribution_centre|
+ #           if distribution_centre.centre.name == 'Fleming'
+ #             found = true
+ #             break
+ #           end
+ #         end
+ #
+ #         next if ! found
+ #
+ #         enqueuer.mi_attempt_updated(i)
+ #         counter += 1
+ #         #break if counter > 10
+ #       end
+ #     end
+ #
+ #     puts "#### running mi_attempts (#{counter})..."
+ #     SolrUpdate::Queue.run(:limit => nil)
+ #   end
+ # end
+ #
 end

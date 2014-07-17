@@ -30,7 +30,9 @@ class BuildProductCore
       genes.marker_symbol AS marker_symbol,
       genes.mgi_accession_id AS mgi_accession_id,
       targ_rep_ikmc_projects.name AS ikmc_project,
-      targ_rep_pipelines.name AS pipeline
+      targ_rep_pipelines.name AS pipeline,
+      targ_rep_alleles.project_design_id AS design_id,
+      ARRAY['critical:' || targ_rep_alleles.taqman_critical_del_assay_id, 'upstream:' || targ_rep_alleles.taqman_upstream_del_assay_id, 'downstream:' || targ_rep_alleles.taqman_downstream_del_assay_id] AS loa
     FROM targ_rep_es_cells
       JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
       JOIN genes ON genes.id = targ_rep_alleles.gene_id
@@ -92,6 +94,8 @@ class BuildProductCore
         mouse_colonies.list AS colonies,
         es_cells.pipeline AS pipeline,
         es_cells.ikmc_project_id AS ikmc_project,
+        es_cells.design_id AS design_id,
+        es_cells.loa AS loa,
         es_cells.created_at AS status_date,
         ARRAY[ES_CELL_QC_RESULTS] AS qc_data,
         distribution_qcs.distribution_qc_data AS distribution_qc
@@ -135,7 +139,9 @@ class BuildProductCore
              es_cell_names.allele_types AS allele_types,
              targ_rep_pipelines.name AS pipeline,
              targ_rep_ikmc_projects.name AS ikmc_project,
-             targ_rep_targeting_vectors.created_at AS status_date
+             targ_rep_targeting_vectors.created_at AS status_date,
+             targ_rep_alleles.project_design_id AS design_id,
+             ARRAY['critical:' || targ_rep_alleles.taqman_critical_del_assay_id, 'upstream:' || targ_rep_alleles.taqman_upstream_del_assay_id, 'downstream:' || targ_rep_alleles.taqman_downstream_del_assay_id] AS loa
       FROM targ_rep_targeting_vectors
         JOIN targ_rep_alleles ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
         LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
@@ -210,6 +216,8 @@ class BuildProductCore
         es_cells.name AS es_cell_name,
         es_cells.pipeline AS pipeline,
         es_cells.ikmc_project_id AS ikmc_project_id,
+        es_cells.design_id AS design_id,
+        es_cells.loa AS loa,
         es_cells.targeting_vector_name AS vector_name,
         es_cells.mutation_type AS mutation_type,
         es_cells.cassette AS cassette,
@@ -256,6 +264,8 @@ class BuildProductCore
         '' AS es_cell_name,
         es_cells.pipeline AS pipeline,
         es_cells.ikmc_project_id AS ikmc_project_id,
+        es_cells.design_id AS design_id,
+        ARRAY[NULL] AS loa,
         '' AS vector_name,
         '' AS mutation_type,
         '' AS cassette,
@@ -378,7 +388,7 @@ class BuildProductCore
 
     puts "#### step #{step_no} #{product_type} Products #{Time.now}"
     puts "#### step #{step_no}.1 Select #{Time.now}"
-puts product_sql
+
     rows = ActiveRecord::Base.connection.execute(product_sql)
     product_count = rows.count
 
@@ -491,7 +501,9 @@ puts product_sql
      "contact_links"                    => [@look_up_contact.has_key?(row["production_centre"]) ? "mailto:#{@look_up_contact[row['production_centre']]}?Subject=Mouse Line for #{row['marker_symbol']}" : ''],
      "contact_names"                    => [@look_up_contact.has_key?(row["production_centre"]) ? row["production_centre"] : ''],
      "other_links"                      => ["production_graph:#{production_graph_url(row['imits_gene_id'])}"],
-     "ikmc_project_id"                  => row["ikmc_project_id"]
+     "ikmc_project_id"                  => row["ikmc_project_id"],
+     "design_id"                        => row["design_id"],
+     "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
     }
 
     distribution_centres = self.class.get_distribution_centres(row)
@@ -523,7 +535,9 @@ puts product_sql
      "qc_data"                          => self.class.convert_to_array(row['qc_data']).keep_if{|qc| qc != 'NULL'} + self.class.convert_to_array(row['distribution_qc']).keep_if{|qc| qc != 'NULL'},
      "associated_products_colony_names" => self.class.convert_to_array(row['colonies']),
      "associated_product_vector_name"   => row['vector_name'],
-     "ikmc_project_id"                  => row["ikmc_project_id"]
+     "ikmc_project_id"                  => row["ikmc_project_id"],
+     "design_id"                        => row["design_id"],
+     "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
     }
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))
@@ -545,7 +559,9 @@ puts product_sql
      "status_date"                       => row['status_date'].to_date.to_s,
      "associated_products_es_cell_names" => row['es_cell_names'],
      "other_links"                       => ["genbank_file:#{self.class.targeting_vector_genbank_file_url(row['allele_id'])}", "allele_image:#{self.class.vector_image_url(row['allele_id'])}", "design_link:#{self.class.design_url(row['design_id'])}"],
-     "ikmc_project_id"                  => row["ikmc_project_id"]
+     "ikmc_project_id"                  => row["ikmc_project_id"],
+     "design_id"                        => row["design_id"],
+     "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
      }
 
     allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['allele_type'], row['pipeline'], row['cassette'])

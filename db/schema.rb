@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140710144500) do
+ActiveRecord::Schema.define(:version => 20140715152200) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -1213,17 +1213,17 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
 
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
-    t.string   "assembly",                           :default => "GRCm38",                  :null => false
-    t.string   "chromosome",          :limit => 2,                                          :null => false
-    t.string   "strand",              :limit => 1,                                          :null => false
+    t.string   "assembly",                                      :default => "GRCm38",                  :null => false
+    t.string   "chromosome",                     :limit => 2,                                          :null => false
+    t.string   "strand",                         :limit => 1,                                          :null => false
     t.integer  "homology_arm_start"
     t.integer  "homology_arm_end"
     t.integer  "loxp_start"
     t.integer  "loxp_end"
     t.integer  "cassette_start"
     t.integer  "cassette_end"
-    t.string   "cassette",            :limit => 100
-    t.string   "backbone",            :limit => 100
+    t.string   "cassette",                       :limit => 100
+    t.string   "backbone",                       :limit => 100
     t.string   "subtype_description"
     t.string   "floxed_start_exon"
     t.string   "floxed_end_exon"
@@ -1232,14 +1232,17 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
     t.integer  "mutation_method_id"
     t.integer  "mutation_type_id"
     t.integer  "mutation_subtype_id"
-    t.string   "cassette_type",       :limit => 50
-    t.datetime "created_at",                                                                :null => false
-    t.datetime "updated_at",                                                                :null => false
+    t.string   "cassette_type",                  :limit => 50
+    t.datetime "created_at",                                                                           :null => false
+    t.datetime "updated_at",                                                                           :null => false
     t.integer  "intron"
-    t.string   "type",                               :default => "TargRep::TargetedAllele"
-    t.boolean  "has_issue",                          :default => false,                     :null => false
+    t.string   "type",                                          :default => "TargRep::TargetedAllele"
+    t.boolean  "has_issue",                                     :default => false,                     :null => false
     t.text     "issue_description"
     t.text     "sequence"
+    t.string   "taqman_critical_del_assay_id"
+    t.string   "taqman_upstream_del_assay_id"
+    t.string   "taqman_downstream_del_assay_id"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|

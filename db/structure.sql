@@ -3046,7 +3046,10 @@ CREATE TABLE targ_rep_alleles (
     type character varying(255) DEFAULT 'TargRep::TargetedAllele'::character varying,
     has_issue boolean DEFAULT false NOT NULL,
     issue_description text,
-    sequence text
+    sequence text,
+    taqman_critical_del_assay_id character varying(255),
+    taqman_upstream_del_assay_id character varying(255),
+    taqman_downstream_del_assay_id character varying(255)
 );
 
 
@@ -6123,3 +6126,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140609121100');
 INSERT INTO schema_migrations (version) VALUES ('20140617141100');
 
 INSERT INTO schema_migrations (version) VALUES ('20140710144500');
+
+INSERT INTO schema_migrations (version) VALUES ('20140715152200');

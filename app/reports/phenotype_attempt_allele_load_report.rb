@@ -42,7 +42,7 @@ class PhenotypeAttemptAlleleLoadReport
       SELECT
         genes.marker_symbol AS marker_symbol,
         genes.mgi_accession_id AS mgi_accession_id,
-        mi_attempts.colony_name AS mi_attempt_colony_name,
+        mi_attempts.external_ref AS mi_attempt_colony_name,
         ma_colony_background_strain.name AS mi_attempt_colony_background_strain,
         ma_centres.name AS mi_attempt_production_centre,
         CASE

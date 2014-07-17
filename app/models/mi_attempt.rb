@@ -61,7 +61,7 @@ class MiAttempt < ApplicationModel
   protected :status=
 
   validates :status, :presence => true
-  validates :colony_name, :uniqueness => {:case_sensitive => false}, :allow_nil => true
+  validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
 
@@ -116,13 +116,13 @@ class MiAttempt < ApplicationModel
   end
 
   before_validation do |mi|
-    if ! mi.colony_name.nil?
-      mi.colony_name = mi.colony_name.to_s.strip || mi.colony_name
-      mi.colony_name = mi.colony_name.to_s.gsub(/\s+/, ' ')
+    if ! mi.external_ref.nil?
+      mi.external_ref = mi.external_ref.to_s.strip || mi.external_ref
+      mi.external_ref = mi.external_ref.to_s.gsub(/\s+/, ' ')
     end
   end
 
-  before_save :generate_colony_name_if_blank
+  before_save :generate_external_ref_if_blank
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
   after_save :add_default_distribution_centre
@@ -185,16 +185,16 @@ class MiAttempt < ApplicationModel
   end
   protected :set_cassette_transmission_verified
 
-  def generate_colony_name_if_blank
-    return unless self.colony_name.blank?
+  def generate_external_ref_if_blank
+    return unless self.external_ref.blank?
     product_prefix = self.es_cell.nil? ? 'Crisp' : self.es_cell.name
     i = 0
     begin
       i += 1
-      self.colony_name = "#{self.production_centre.name}-#{product_prefix}-#{i}"
-    end until self.class.find_by_colony_name(self.colony_name).blank?
+      self.external_ref = "#{self.production_centre.name}-#{product_prefix}-#{i}"
+    end until self.class.find_by_external_ref(self.external_ref).blank?
   end
-  protected :generate_colony_name_if_blank
+  protected :generate_external_ref_if_blank
 
   def make_mi_date_and_in_progress_status_consistent
     in_progress_status = self.status_stamps.find_by_status_id(1)
@@ -390,6 +390,16 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  def colony_name
+    return external_ref
+  end
+
+  def colony_name=(arg)
+    # Check colony_name has been set/changed. The rest API may return a blank colony_name or a colony_name set to the original value before the external_ref was set to a new value
+    return if arg.blank? || (changes.has_key?('external_ref') && changes['external_ref'][0] == arg)
+    self.external_ref = arg
+  end
+
   delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
 
   def self.translations
@@ -397,7 +407,8 @@ class MiAttempt < ApplicationModel
       'es_cell_marker_symbol'   => 'es_cell_allele_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
-      'production_centre_name'  => 'mi_plan_production_centre_name'
+      'production_centre_name'  => 'mi_plan_production_centre_name',
+      'colony_name'             => 'external_ref'
     }
   end
 
@@ -457,7 +468,7 @@ end
 #  es_cell_id                                      :integer
 #  mi_date                                         :date             not null
 #  status_id                                       :integer          not null
-#  colony_name                                     :string(125)
+#  external_ref                                    :string(125)
 #  updated_by_id                                   :integer
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
@@ -534,5 +545,5 @@ end
 #
 # Indexes
 #
-#  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
+#  index_mi_attempts_on_colony_name  (external_ref) UNIQUE
 #

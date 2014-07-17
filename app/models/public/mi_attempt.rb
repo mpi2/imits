@@ -82,6 +82,7 @@ class Public::MiAttempt < ::MiAttempt
     crsp_total_num_mutant_founders
     crsp_num_founders_selected_for_breading
     real_allele_id
+    external_ref
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -142,7 +143,7 @@ end
 #  es_cell_id                                      :integer
 #  mi_date                                         :date             not null
 #  status_id                                       :integer          not null
-#  colony_name                                     :string(125)
+#  external_ref                                    :string(125)
 #  updated_by_id                                   :integer
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
@@ -219,5 +220,5 @@ end
 #
 # Indexes
 #
-#  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
+#  index_mi_attempts_on_colony_name  (external_ref) UNIQUE
 #

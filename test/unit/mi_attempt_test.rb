@@ -486,10 +486,32 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context '#colony_name' do
+
+        should 'return the external_ref' do
+          default_mi_attempt.external_ref = 'NEW COLONY NAME'
+          assert_equal 'NEW COLONY NAME', default_mi_attempt.colony_name
+        end
+
+        should 'set the external_ref' do
+          external_ref = default_mi_attempt.external_ref
+          default_mi_attempt.colony_name = 'NEW COLONY NAME'
+
+          assert_equal 'NEW COLONY NAME', default_mi_attempt.external_ref
+        end
+
+        should 'not set the external_ref if the colony_name is equal to the old value when the external_ref is changed' do
+          external_ref = default_mi_attempt.external_ref
+          default_mi_attempt.external_ref = 'NEW COLONY NAME'
+          default_mi_attempt.colony_name = external_ref
+
+          assert_equal 'NEW COLONY NAME', default_mi_attempt.external_ref
+          assert_not_equal external_ref, default_mi_attempt.colony_name
+        end
+
         should 'be unique' do
           default_mi_attempt.update_attributes!(:colony_name => 'ABCD')
-          assert_should have_db_index(:colony_name).unique(true)
-          assert_should validate_uniqueness_of :colony_name
+          assert_should have_db_index(:external_ref).unique(true)
+          assert_should validate_uniqueness_of :external_ref
         end
 
         should 'be unique (case insensitive)' do
@@ -499,7 +521,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           :colony_name => 'abcd')
 
           mi_attempt2.valid?
-          assert ! mi_attempt2.errors[:colony_name].blank?
+          assert ! mi_attempt2.errors[:external_ref].blank?
         end
 
         should 'be auto-generated if not supplied' do
@@ -786,21 +808,25 @@ class MiAttemptTest < ActiveSupport::TestCase
         MiAttempt.translate_public_param('consortium_name_ci_in')
       end
 
+      should 'translate colony_name' do
+        assert_equal 'external_ref_eq',
+        MiAttempt.translate_public_param('colony_name_eq')
+      end
+
       should 'translate production_centre' do
         assert_equal 'mi_plan_production_centre_name_eq',
         MiAttempt.translate_public_param('production_centre_name_eq')
       end
 
       should 'leave other params untouched' do
-        assert_equal 'colony_name_not_in',
-        MiAttempt.translate_public_param('colony_name_not_in')
+        assert_equal 'id_not_in',
+        MiAttempt.translate_public_param('id_not_in')
       end
     end
 
     context '::public_search' do
       should 'pass on parameters not needing translation to ::search' do
-        assert_equal default_mi_attempt.id,
-        MiAttempt.public_search(:colony_name_eq => default_mi_attempt.colony_name).result.first.id
+        assert_equal default_mi_attempt.id, MiAttempt.public_search(:id_eq => default_mi_attempt.id).result.first.id
       end
 
       should 'translate searching predicates' do

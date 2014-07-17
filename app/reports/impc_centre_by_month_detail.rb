@@ -28,7 +28,7 @@ class ImpcCentreByMonthDetail
     def mi_rows_sql(insert_bit)
       <<-EOF
           select
-            consortia.name as consortium, centres.name as production_centre, genes.marker_symbol, mi_attempts.colony_name,
+            consortia.name as consortium, centres.name as production_centre, genes.marker_symbol, mi_attempts.external_ref AS colony_name,
             targ_rep_es_cells.name as clone, mi_attempt_statuses.name as current_status, mi_date as mi_date_asserted,
             (select to_char(created_at,'YYYY-MM-DD') from mi_attempt_status_stamps where mi_attempt_id = mi_attempts.id and status_id = 1) as mi_date_of_entry,
             (select to_char(created_at,'YYYY-MM-DD') from mi_attempt_status_stamps where mi_attempt_id = mi_attempts.id and status_id = 4) as chimerism_date,

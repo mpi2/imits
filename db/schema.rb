@@ -13,11 +13,6 @@
 
 ActiveRecord::Schema.define(:version => 20140710144500) do
 
-  create_table "assemblies", :id => false, :force => true do |t|
-    t.text "id",         :null => false
-    t.text "species_id", :null => false
-  end
-
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
     t.string   "auditable_type"
@@ -39,71 +34,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   add_index "audits", ["created_at"], :name => "index_audits_on_created_at"
   add_index "audits", ["user_id", "user_type"], :name => "user_index"
 
-  create_table "bac_clone_loci", :id => false, :force => true do |t|
-    t.integer "bac_clone_id", :null => false
-    t.text    "assembly_id",  :null => false
-    t.integer "chr_start",    :null => false
-    t.integer "chr_end",      :null => false
-    t.integer "chr_id",       :null => false
-  end
-
-  create_table "bac_clones", :force => true do |t|
-    t.text "name",           :null => false
-    t.text "bac_library_id", :null => false
-  end
-
-  add_index "bac_clones", ["name", "bac_library_id"], :name => "bac_clones_name_bac_library_id_key", :unique => true
-
-  create_table "bac_libraries", :id => false, :force => true do |t|
-    t.text "id",         :null => false
-    t.text "species_id", :null => false
-  end
-
-  create_table "backbones", :force => true do |t|
-    t.text "name",                           :null => false
-    t.text "description",    :default => "", :null => false
-    t.text "antibiotic_res", :default => "", :null => false
-    t.text "gateway_type",   :default => "", :null => false
-  end
-
-  add_index "backbones", ["name"], :name => "backbones_name_key", :unique => true
-
-  create_table "cached_reports", :id => false, :force => true do |t|
-    t.string   "id",           :limit => 36,                    :null => false
-    t.text     "report_class",                                  :null => false
-    t.text     "params",                                        :null => false
-    t.datetime "expires",                                       :null => false
-    t.boolean  "complete",                   :default => false, :null => false
-  end
-
-  add_index "cached_reports", ["report_class", "params"], :name => "cached_reports_report_class_params_idx"
-
-  create_table "cassette_function", :id => false, :force => true do |t|
-    t.text    "id",                      :null => false
-    t.boolean "promoter"
-    t.boolean "conditional"
-    t.boolean "cre"
-    t.boolean "well_has_cre"
-    t.boolean "well_has_no_recombinase"
-  end
-
-  create_table "cassettes", :force => true do |t|
-    t.text    "name",                                 :null => false
-    t.text    "description",       :default => "",    :null => false
-    t.boolean "promoter",                             :null => false
-    t.text    "phase_match_group"
-    t.integer "phase"
-    t.boolean "conditional",       :default => false, :null => false
-    t.boolean "cre",               :default => false, :null => false
-    t.text    "resistance"
-  end
-
-  add_index "cassettes", ["name"], :name => "cassettes_name_key", :unique => true
-
-  create_table "cell_lines", :force => true do |t|
-    t.text "name", :default => "", :null => false
-  end
-
   create_table "centres", :force => true do |t|
     t.string   "name",          :limit => 100, :null => false
     t.datetime "created_at"
@@ -113,17 +43,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   end
 
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
-
-  create_table "chromosomes", :force => true do |t|
-    t.text "species_id", :null => false
-    t.text "name",       :null => false
-  end
-
-  add_index "chromosomes", ["species_id", "name"], :name => "new_chromosomes_species_id_name_key", :unique => true
-
-  create_table "colony_count_types", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
 
   create_table "consortia", :force => true do |t|
     t.string   "name",         :null => false
@@ -145,116 +64,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
 
   add_index "contacts", ["email"], :name => "index_contacts_on_email", :unique => true
 
-  create_table "crispr_designs", :force => true do |t|
-    t.integer "crispr_id"
-    t.integer "crispr_pair_id"
-    t.integer "design_id",                         :null => false
-    t.boolean "plated",         :default => false, :null => false
-  end
-
-  add_index "crispr_designs", ["design_id", "crispr_id"], :name => "unique_crispr_design", :unique => true
-  add_index "crispr_designs", ["design_id", "crispr_pair_id"], :name => "unique_crispr_pair_design", :unique => true
-
-  create_table "crispr_es_qc_runs", :id => false, :force => true do |t|
-    t.string   "id",                 :limit => 36, :null => false
-    t.text     "sequencing_project",               :null => false
-    t.datetime "created_at",                       :null => false
-    t.integer  "created_by_id",                    :null => false
-    t.text     "species_id",                       :null => false
-    t.text     "sub_project"
-  end
-
-  create_table "crispr_es_qc_wells", :force => true do |t|
-    t.string  "crispr_es_qc_run_id", :limit => 36,                    :null => false
-    t.integer "well_id",                                              :null => false
-    t.text    "fwd_read"
-    t.text    "rev_read"
-    t.integer "crispr_chr_id",                                        :null => false
-    t.integer "crispr_start",                                         :null => false
-    t.integer "crispr_end",                                           :null => false
-    t.text    "comment"
-    t.text    "analysis_data",                                        :null => false
-    t.boolean "accepted",                          :default => false, :null => false
-    t.text    "vcf_file"
-  end
-
-  create_table "crispr_loci", :id => false, :force => true do |t|
-    t.integer "crispr_id",   :null => false
-    t.text    "assembly_id", :null => false
-    t.integer "chr_id",      :null => false
-    t.integer "chr_start",   :null => false
-    t.integer "chr_end",     :null => false
-    t.integer "chr_strand",  :null => false
-  end
-
-  create_table "crispr_loci_types", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
-
-  create_table "crispr_off_target_summaries", :force => true do |t|
-    t.integer "crispr_id", :null => false
-    t.boolean "outlier",   :null => false
-    t.text    "algorithm", :null => false
-    t.text    "summary"
-  end
-
-  create_table "crispr_off_targets", :force => true do |t|
-    t.integer "crispr_id",           :null => false
-    t.text    "crispr_loci_type_id", :null => false
-    t.text    "assembly_id",         :null => false
-    t.integer "build_id",            :null => false
-    t.integer "chr_start",           :null => false
-    t.integer "chr_end",             :null => false
-    t.integer "chr_strand",          :null => false
-    t.text    "chromosome"
-    t.text    "algorithm",           :null => false
-  end
-
-  create_table "crispr_pairs", :force => true do |t|
-    t.integer "left_crispr_id",     :null => false
-    t.integer "right_crispr_id",    :null => false
-    t.integer "spacer",             :null => false
-    t.text    "off_target_summary"
-  end
-
-  add_index "crispr_pairs", ["left_crispr_id", "right_crispr_id"], :name => "unique_pair", :unique => true
-
-  create_table "crispr_primer_types", :id => false, :force => true do |t|
-    t.text "primer_name", :null => false
-  end
-
-  create_table "crispr_primers", :primary_key => "crispr_oligo_id", :force => true do |t|
-    t.integer "crispr_pair_id"
-    t.integer "crispr_id"
-    t.text    "primer_name",                                  :null => false
-    t.text    "primer_seq",                                   :null => false
-    t.decimal "tm",             :precision => 5, :scale => 3
-    t.decimal "gc_content",     :precision => 5, :scale => 3
-  end
-
-  add_index "crispr_primers", ["crispr_id", "primer_name"], :name => "crispr_id and primer name must be unique", :unique => true
-  add_index "crispr_primers", ["crispr_pair_id", "primer_name"], :name => "crispr_pair_id and primer name must be unique", :unique => true
-
-  create_table "crispr_primers_loci", :id => false, :force => true do |t|
-    t.integer "crispr_oligo_id", :null => false
-    t.text    "assembly_id",     :null => false
-    t.integer "chr_id",          :null => false
-    t.integer "chr_start",       :null => false
-    t.integer "chr_end",         :null => false
-    t.integer "chr_strand",      :null => false
-  end
-
-  create_table "crisprs", :force => true do |t|
-    t.text    "seq",                 :null => false
-    t.text    "species_id",          :null => false
-    t.text    "crispr_loci_type_id", :null => false
-    t.text    "comment"
-    t.boolean "pam_right"
-    t.integer "wge_crispr_id"
-  end
-
-  add_index "crisprs", ["wge_crispr_id"], :name => "crisprs_wge_crispr_id_key", :unique => true
-
   create_table "deleter_strains", :force => true do |t|
     t.string   "name",       :limit => 100, :null => false
     t.datetime "created_at"
@@ -268,98 +77,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   end
 
   add_index "deposited_materials", ["name"], :name => "index_deposited_materials_on_name", :unique => true
-
-  create_table "design_attempts", :force => true do |t|
-    t.text     "design_parameters"
-    t.text     "gene_id"
-    t.text     "status"
-    t.text     "fail"
-    t.text     "error"
-    t.text     "design_ids"
-    t.text     "species_id",        :null => false
-    t.integer  "created_by",        :null => false
-    t.datetime "created_at",        :null => false
-    t.text     "comment"
-    t.text     "candidate_oligos"
-    t.text     "candidate_regions"
-  end
-
-  create_table "design_comment_categories", :force => true do |t|
-    t.text "name", :null => false
-  end
-
-  add_index "design_comment_categories", ["name"], :name => "design_comment_categories_name_key", :unique => true
-
-  create_table "design_comments", :force => true do |t|
-    t.integer  "design_comment_category_id",                    :null => false
-    t.integer  "design_id",                                     :null => false
-    t.text     "comment_text",               :default => "",    :null => false
-    t.boolean  "is_public",                  :default => false, :null => false
-    t.integer  "created_by",                                    :null => false
-    t.datetime "created_at",                                    :null => false
-  end
-
-  create_table "design_oligo_loci", :id => false, :force => true do |t|
-    t.integer "design_oligo_id", :null => false
-    t.text    "assembly_id",     :null => false
-    t.integer "chr_start",       :null => false
-    t.integer "chr_end",         :null => false
-    t.integer "chr_strand",      :null => false
-    t.integer "chr_id",          :null => false
-  end
-
-  create_table "design_oligo_types", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
-
-  create_table "design_oligos", :force => true do |t|
-    t.integer "design_id",            :null => false
-    t.text    "design_oligo_type_id", :null => false
-    t.text    "seq",                  :null => false
-  end
-
-  add_index "design_oligos", ["design_id", "design_oligo_type_id"], :name => "design_oligos_design_id_design_oligo_type_id_key", :unique => true
-
-  create_table "design_targets", :force => true do |t|
-    t.text    "marker_symbol"
-    t.text    "ensembl_gene_id",      :null => false
-    t.text    "ensembl_exon_id",      :null => false
-    t.integer "exon_size",            :null => false
-    t.integer "exon_rank"
-    t.text    "canonical_transcript"
-    t.text    "species_id",           :null => false
-    t.text    "assembly_id",          :null => false
-    t.integer "build_id",             :null => false
-    t.integer "chr_id",               :null => false
-    t.integer "chr_start",            :null => false
-    t.integer "chr_end",              :null => false
-    t.integer "chr_strand",           :null => false
-    t.boolean "automatically_picked", :null => false
-    t.text    "comment"
-    t.text    "gene_id"
-  end
-
-  add_index "design_targets", ["ensembl_exon_id", "build_id"], :name => "design_targets_unique_target", :unique => true
-
-  create_table "design_types", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
-
-  create_table "designs", :force => true do |t|
-    t.text     "name"
-    t.integer  "created_by",                                :null => false
-    t.datetime "created_at",                                :null => false
-    t.text     "design_type_id",                            :null => false
-    t.integer  "phase"
-    t.text     "validated_by_annotation",                   :null => false
-    t.text     "target_transcript"
-    t.text     "species_id",                                :null => false
-    t.text     "design_parameters"
-    t.boolean  "cassette_first",          :default => true, :null => false
-    t.integer  "global_arm_shortened"
-  end
-
-  add_index "designs", ["target_transcript"], :name => "designs_target_transcript_idx"
 
   create_table "email_templates", :force => true do |t|
     t.string   "status"
@@ -384,23 +101,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   end
 
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true
-
-  create_table "gene_design", :id => false, :force => true do |t|
-    t.text     "gene_id",      :null => false
-    t.integer  "design_id",    :null => false
-    t.integer  "created_by",   :null => false
-    t.datetime "created_at",   :null => false
-    t.text     "gene_type_id", :null => false
-  end
-
-  add_index "gene_design", ["design_id"], :name => "gene_design_design_id_idx"
-  add_index "gene_design", ["gene_id"], :name => "gene_design_gene_id_idx"
-
-  create_table "gene_types", :id => false, :force => true do |t|
-    t.text    "id",          :null => false
-    t.text    "description"
-    t.boolean "local",       :null => false
-  end
 
   create_table "genes", :force => true do |t|
     t.string   "marker_symbol",                      :limit => 75, :null => false
@@ -431,31 +131,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
   add_index "genes", ["mgi_accession_id"], :name => "index_genes_on_mgi_accession_id", :unique => true
-
-  create_table "genotyping_primer_types", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
-
-  create_table "genotyping_primers", :force => true do |t|
-    t.text    "genotyping_primer_type_id",                               :null => false
-    t.integer "design_id",                                               :null => false
-    t.text    "seq",                                                     :null => false
-    t.decimal "tm",                        :precision => 5, :scale => 3
-    t.decimal "gc_content",                :precision => 5, :scale => 3
-  end
-
-  create_table "genotyping_primers_loci", :id => false, :force => true do |t|
-    t.integer "genotyping_primer_id", :null => false
-    t.text    "assembly_id",          :null => false
-    t.integer "chr_id",               :null => false
-    t.integer "chr_start",            :null => false
-    t.integer "chr_end",              :null => false
-    t.integer "chr_strand",           :null => false
-  end
-
-  create_table "genotyping_result_types", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
 
   create_table "intermediate_report", :force => true do |t|
     t.string   "consortium",                                                  :null => false
@@ -762,11 +437,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
 
   create_table "mutagenesis_factors", :force => true do |t|
     t.integer "vector_id"
-  end
-
-  create_table "mutation_design_types", :id => false, :force => true do |t|
-    t.text "mutation_id", :null => false
-    t.text "design_type", :null => false
   end
 
   create_table "new_consortia_intermediate_report", :force => true do |t|
@@ -1265,11 +935,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
     t.datetime "updated_at"
   end
 
-  create_table "nucleases", :id => false, :force => true do |t|
-    t.integer "id",   :null => false
-    t.text    "name", :null => false
-  end
-
   create_table "phenotype_attempt_distribution_centres", :force => true do |t|
     t.date     "start_date"
     t.date     "end_date"
@@ -1384,104 +1049,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
 
   add_index "pipelines", ["name"], :name => "index_pipelines_on_name", :unique => true
 
-  create_table "plate_comments", :force => true do |t|
-    t.integer  "plate_id",      :null => false
-    t.text     "comment_text",  :null => false
-    t.integer  "created_by_id", :null => false
-    t.datetime "created_at",    :null => false
-  end
-
-  create_table "plate_types", :id => false, :force => true do |t|
-    t.text "id",                          :null => false
-    t.text "description", :default => "", :null => false
-  end
-
-  create_table "plates", :force => true do |t|
-    t.text     "name",                          :null => false
-    t.text     "description",   :default => "", :null => false
-    t.text     "type_id",                       :null => false
-    t.integer  "created_by_id",                 :null => false
-    t.datetime "created_at",                    :null => false
-    t.text     "species_id",                    :null => false
-    t.boolean  "is_virtual"
-    t.text     "barcode"
-    t.text     "sponsor_id"
-  end
-
-  add_index "plates", ["name"], :name => "plates_name_key", :unique => true
-
-  create_table "primer_band_types", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
-
-  create_table "process_bac", :id => false, :force => true do |t|
-    t.integer "process_id",   :null => false
-    t.text    "bac_plate",    :null => false
-    t.integer "bac_clone_id", :null => false
-  end
-
-  create_table "process_backbone", :id => false, :force => true do |t|
-    t.integer "process_id",  :null => false
-    t.integer "backbone_id", :null => false
-  end
-
-  create_table "process_cassette", :id => false, :force => true do |t|
-    t.integer "process_id",  :null => false
-    t.integer "cassette_id", :null => false
-  end
-
-  create_table "process_cell_line", :id => false, :force => true do |t|
-    t.integer "process_id",   :null => false
-    t.integer "cell_line_id"
-  end
-
-  create_table "process_crispr", :id => false, :force => true do |t|
-    t.integer "process_id", :null => false
-    t.integer "crispr_id",  :null => false
-  end
-
-  create_table "process_design", :id => false, :force => true do |t|
-    t.integer "process_id", :null => false
-    t.integer "design_id",  :null => false
-  end
-
-  create_table "process_global_arm_shortening_design", :id => false, :force => true do |t|
-    t.integer "process_id", :null => false
-    t.integer "design_id",  :null => false
-  end
-
-  create_table "process_input_well", :id => false, :force => true do |t|
-    t.integer "process_id", :null => false
-    t.integer "well_id",    :null => false
-  end
-
-  create_table "process_nuclease", :id => false, :force => true do |t|
-    t.integer "process_id",  :null => false
-    t.integer "nuclease_id", :null => false
-  end
-
-  create_table "process_output_well", :id => false, :force => true do |t|
-    t.integer "process_id", :null => false
-    t.integer "well_id",    :null => false
-  end
-
-  create_table "process_recombinase", :id => false, :force => true do |t|
-    t.integer "process_id",     :null => false
-    t.text    "recombinase_id", :null => false
-    t.integer "rank",           :null => false
-  end
-
-  add_index "process_recombinase", ["process_id", "recombinase_id"], :name => "process_recombinase_process_id_recombinase_id_key", :unique => true
-
-  create_table "process_types", :id => false, :force => true do |t|
-    t.text "id",                          :null => false
-    t.text "description", :default => "", :null => false
-  end
-
-  create_table "processes", :force => true do |t|
-    t.text "type_id", :null => false
-  end
-
   create_table "production_goals", :force => true do |t|
     t.integer  "consortium_id"
     t.integer  "year"
@@ -1494,60 +1061,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
 
   add_index "production_goals", ["consortium_id", "year", "month"], :name => "index_production_goals_on_consortium_id_and_year_and_month", :unique => true
 
-  create_table "project_alleles", :id => false, :force => true do |t|
-    t.integer "project_id",        :null => false
-    t.text    "allele_type",       :null => false
-    t.text    "cassette_function", :null => false
-    t.text    "mutation_type",     :null => false
-  end
-
-  create_table "projects", :force => true do |t|
-    t.text    "sponsor_id",                             :null => false
-    t.text    "allele_request",                         :null => false
-    t.text    "gene_id"
-    t.text    "targeting_type",  :default => "unknown", :null => false
-    t.text    "species_id"
-    t.integer "htgt_project_id"
-  end
-
-  add_index "projects", ["sponsor_id", "gene_id", "targeting_type", "species_id"], :name => "sponsor_gene_type_species_key", :unique => true
-
-  create_table "qc_alignment_regions", :id => false, :force => true do |t|
-    t.integer "qc_alignment_id",                    :null => false
-    t.text    "name",                               :null => false
-    t.integer "length",                             :null => false
-    t.integer "match_count",                        :null => false
-    t.text    "query_str",                          :null => false
-    t.text    "target_str",                         :null => false
-    t.text    "match_str",                          :null => false
-    t.boolean "pass",            :default => false, :null => false
-  end
-
-  create_table "qc_alignments", :force => true do |t|
-    t.text    "qc_seq_read_id",                                  :null => false
-    t.integer "qc_eng_seq_id",                                   :null => false
-    t.text    "primer_name",                                     :null => false
-    t.integer "query_start",                                     :null => false
-    t.integer "query_end",                                       :null => false
-    t.integer "query_strand",                                    :null => false
-    t.integer "target_start",                                    :null => false
-    t.integer "target_end",                                      :null => false
-    t.integer "target_strand",                                   :null => false
-    t.integer "score",                                           :null => false
-    t.boolean "pass",                         :default => false, :null => false
-    t.text    "features",                                        :null => false
-    t.text    "cigar",                                           :null => false
-    t.text    "op_str",                                          :null => false
-    t.string  "qc_run_id",      :limit => 36
-  end
-
-  create_table "qc_eng_seqs", :force => true do |t|
-    t.text "method", :null => false
-    t.text "params", :null => false
-  end
-
-  add_index "qc_eng_seqs", ["method", "params"], :name => "qc_eng_seqs_method_params_key", :unique => true
-
   create_table "qc_results", :force => true do |t|
     t.string   "description", :limit => 50, :null => false
     t.datetime "created_at"
@@ -1555,96 +1068,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   end
 
   add_index "qc_results", ["description"], :name => "index_qc_results_on_description", :unique => true
-
-  create_table "qc_run_seq_project", :id => false, :force => true do |t|
-    t.string "qc_run_id",         :limit => 36, :null => false
-    t.text   "qc_seq_project_id",               :null => false
-  end
-
-  create_table "qc_run_seq_well_qc_seq_read", :id => false, :force => true do |t|
-    t.integer "qc_run_seq_well_id", :null => false
-    t.text    "qc_seq_read_id",     :null => false
-  end
-
-  create_table "qc_run_seq_wells", :force => true do |t|
-    t.text "qc_run_id",  :null => false
-    t.text "plate_name", :null => false
-    t.text "well_name",  :null => false
-  end
-
-  add_index "qc_run_seq_wells", ["qc_run_id", "plate_name", "well_name"], :name => "qc_run_seq_wells_qc_run_id_plate_name_well_name_key", :unique => true
-
-  create_table "qc_runs", :id => false, :force => true do |t|
-    t.string   "id",               :limit => 36,                    :null => false
-    t.datetime "created_at",                                        :null => false
-    t.integer  "created_by_id",                                     :null => false
-    t.text     "profile",                                           :null => false
-    t.integer  "qc_template_id",                                    :null => false
-    t.text     "software_version",                                  :null => false
-    t.boolean  "upload_complete",                :default => false, :null => false
-  end
-
-  create_table "qc_seq_projects", :id => false, :force => true do |t|
-    t.text "id",         :null => false
-    t.text "species_id", :null => false
-  end
-
-  create_table "qc_seq_reads", :id => false, :force => true do |t|
-    t.text    "id",                                :null => false
-    t.text    "description",       :default => "", :null => false
-    t.text    "primer_name",                       :null => false
-    t.text    "seq",                               :null => false
-    t.integer "length",                            :null => false
-    t.text    "qc_seq_project_id",                 :null => false
-  end
-
-  create_table "qc_template_well_backbone", :id => false, :force => true do |t|
-    t.integer "qc_template_well_id", :null => false
-    t.integer "backbone_id",         :null => false
-  end
-
-  create_table "qc_template_well_cassette", :id => false, :force => true do |t|
-    t.integer "qc_template_well_id", :null => false
-    t.integer "cassette_id",         :null => false
-  end
-
-  create_table "qc_template_well_recombinase", :id => false, :force => true do |t|
-    t.integer "qc_template_well_id", :null => false
-    t.text    "recombinase_id",      :null => false
-  end
-
-  create_table "qc_template_wells", :force => true do |t|
-    t.integer "qc_template_id", :null => false
-    t.text    "name",           :null => false
-    t.integer "qc_eng_seq_id",  :null => false
-    t.integer "source_well_id"
-  end
-
-  add_index "qc_template_wells", ["qc_template_id", "name"], :name => "qc_template_wells_qc_template_id_name_key", :unique => true
-
-  create_table "qc_templates", :force => true do |t|
-    t.text     "name",       :null => false
-    t.datetime "created_at", :null => false
-    t.text     "species_id", :null => false
-  end
-
-  add_index "qc_templates", ["name", "created_at"], :name => "qc_templates_name_created_at_key", :unique => true
-
-  create_table "qc_test_results", :force => true do |t|
-    t.string  "qc_run_id",          :limit => 36,                    :null => false
-    t.integer "qc_eng_seq_id",                                       :null => false
-    t.integer "score",                            :default => 0,     :null => false
-    t.boolean "pass",                             :default => false, :null => false
-    t.integer "qc_run_seq_well_id",                                  :null => false
-  end
-
-  create_table "recombinases", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
-
-  create_table "recombineering_result_types", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
 
   create_table "report_caches", :force => true do |t|
     t.text     "name",       :null => false
@@ -1655,17 +1078,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   end
 
   add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
-
-  create_table "roles", :force => true do |t|
-    t.text "name", :null => false
-  end
-
-  add_index "roles", ["name"], :name => "roles_name_key", :unique => true
-
-  create_table "schema_versions", :id => false, :force => true do |t|
-    t.integer  "version",     :null => false
-    t.datetime "deployed_at", :null => false
-  end
 
   create_table "solr_alleles", :id => false, :force => true do |t|
     t.text    "type"
@@ -1789,20 +1201,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   add_index "solr_update_queue_items", ["mi_attempt_id"], :name => "index_solr_update_queue_items_on_mi_attempt_id", :unique => true
   add_index "solr_update_queue_items", ["phenotype_attempt_id"], :name => "index_solr_update_queue_items_on_phenotype_attempt_id", :unique => true
 
-  create_table "species", :id => false, :force => true do |t|
-    t.text "id", :null => false
-  end
-
-  create_table "species_default_assembly", :id => false, :force => true do |t|
-    t.text "species_id",  :null => false
-    t.text "assembly_id", :null => false
-  end
-
-  create_table "sponsors", :id => false, :force => true do |t|
-    t.text "id",                          :null => false
-    t.text "description", :default => "", :null => false
-  end
-
   create_table "strains", :force => true do |t|
     t.string   "name",                    :limit => 100, :null => false
     t.datetime "created_at"
@@ -1812,9 +1210,6 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   end
 
   add_index "strains", ["name"], :name => "index_strains_on_name", :unique => true
-
-# Could not dump table "summaries" because of following StandardError
-#   Unknown type 'name' for column 'final_well_name'
 
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
@@ -2056,235 +1451,24 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
     t.integer  "consortium_id"
   end
 
-  create_table "user_preferences", :id => false, :force => true do |t|
-    t.integer "user_id",            :null => false
-    t.text    "default_species_id", :null => false
-  end
-
-  create_table "user_role", :id => false, :force => true do |t|
-    t.integer "user_id", :null => false
-    t.integer "role_id", :null => false
-  end
-
   create_table "users", :force => true do |t|
-    t.text    "name",                       :null => false
-    t.text    "password"
-    t.boolean "active",   :default => true, :null => false
+    t.string   "email",                                         :default => "",    :null => false
+    t.string   "encrypted_password",             :limit => 128, :default => "",    :null => false
+    t.datetime "remember_created_at"
+    t.integer  "production_centre_id",                                             :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "name"
+    t.boolean  "is_contactable",                                :default => false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.integer  "es_cell_distribution_centre_id"
+    t.integer  "legacy_id"
+    t.boolean  "admin",                                         :default => false
+    t.boolean  "active",                                        :default => true
   end
 
-  add_index "users", ["name"], :name => "users_name_key", :unique => true
-
-  create_table "well_accepted_override", :id => false, :force => true do |t|
-    t.integer  "well_id",       :null => false
-    t.boolean  "accepted",      :null => false
-    t.integer  "created_by_id", :null => false
-    t.datetime "created_at",    :null => false
-  end
-
-  create_table "well_barcodes", :id => false, :force => true do |t|
-    t.integer "well_id",               :null => false
-    t.string  "barcode", :limit => 40, :null => false
-  end
-
-  add_index "well_barcodes", ["barcode"], :name => "well_barcodes_barcode_key", :unique => true
-
-  create_table "well_chromosome_fail", :id => false, :force => true do |t|
-    t.integer  "well_id",       :null => false
-    t.text     "result",        :null => false
-    t.datetime "created_at",    :null => false
-    t.integer  "created_by_id", :null => false
-  end
-
-  create_table "well_colony_counts", :id => false, :force => true do |t|
-    t.integer  "well_id",              :null => false
-    t.text     "colony_count_type_id", :null => false
-    t.integer  "colony_count",         :null => false
-    t.datetime "created_at",           :null => false
-    t.integer  "created_by_id",        :null => false
-  end
-
-  create_table "well_comments", :force => true do |t|
-    t.integer  "well_id",       :null => false
-    t.text     "comment_text",  :null => false
-    t.integer  "created_by_id", :null => false
-    t.datetime "created_at",    :null => false
-  end
-
-  create_table "well_dna_quality", :id => false, :force => true do |t|
-    t.integer  "well_id",                       :null => false
-    t.text     "quality"
-    t.text     "comment_text",  :default => "", :null => false
-    t.datetime "created_at",                    :null => false
-    t.integer  "created_by_id",                 :null => false
-    t.boolean  "egel_pass"
-  end
-
-  create_table "well_dna_status", :id => false, :force => true do |t|
-    t.integer  "well_id",                             :null => false
-    t.boolean  "pass",                                :null => false
-    t.text     "comment_text",        :default => "", :null => false
-    t.datetime "created_at",                          :null => false
-    t.integer  "created_by_id",                       :null => false
-    t.float    "concentration_ng_ul"
-  end
-
-  create_table "well_genotyping_results", :id => false, :force => true do |t|
-    t.integer  "well_id",                   :null => false
-    t.text     "genotyping_result_type_id", :null => false
-    t.text     "call",                      :null => false
-    t.float    "copy_number"
-    t.float    "copy_number_range"
-    t.text     "confidence"
-    t.datetime "created_at",                :null => false
-    t.integer  "created_by_id",             :null => false
-    t.float    "vic"
-  end
-
-  create_table "well_lab_number", :id => false, :force => true do |t|
-    t.integer "well_id",    :null => false
-    t.text    "lab_number", :null => false
-  end
-
-  add_index "well_lab_number", ["lab_number"], :name => "lab_number_unique", :unique => true
-
-  create_table "well_primer_bands", :id => false, :force => true do |t|
-    t.integer  "well_id",                           :null => false
-    t.text     "primer_band_type_id",               :null => false
-    t.string   "pass",                :limit => 16, :null => false
-    t.datetime "created_at",                        :null => false
-    t.integer  "created_by_id",                     :null => false
-  end
-
-  create_table "well_qc_sequencing_result", :id => false, :force => true do |t|
-    t.integer  "well_id",                            :null => false
-    t.text     "valid_primers",   :default => "",    :null => false
-    t.boolean  "mixed_reads",     :default => false, :null => false
-    t.boolean  "pass",            :default => false, :null => false
-    t.text     "test_result_url",                    :null => false
-    t.datetime "created_at",                         :null => false
-    t.integer  "created_by_id",                      :null => false
-  end
-
-  create_table "well_recombineering_results", :id => false, :force => true do |t|
-    t.integer  "well_id",                        :null => false
-    t.text     "result_type_id",                 :null => false
-    t.text     "result",                         :null => false
-    t.text     "comment_text",   :default => "", :null => false
-    t.datetime "created_at",                     :null => false
-    t.integer  "created_by_id",                  :null => false
-  end
-
-  create_table "well_targeting_neo_pass", :id => false, :force => true do |t|
-    t.integer  "well_id",       :null => false
-    t.text     "result",        :null => false
-    t.datetime "created_at",    :null => false
-    t.integer  "created_by_id", :null => false
-  end
-
-  create_table "well_targeting_pass", :id => false, :force => true do |t|
-    t.integer  "well_id",       :null => false
-    t.text     "result",        :null => false
-    t.datetime "created_at",    :null => false
-    t.integer  "created_by_id", :null => false
-  end
-
-  create_table "well_targeting_puro_pass", :id => false, :force => true do |t|
-    t.integer  "well_id",       :null => false
-    t.text     "result",        :null => false
-    t.datetime "created_at",    :null => false
-    t.integer  "created_by_id", :null => false
-  end
-
-  create_table "wells", :force => true do |t|
-    t.integer  "plate_id",                                  :null => false
-    t.text     "name",                                      :null => false
-    t.integer  "created_by_id",                             :null => false
-    t.datetime "created_at",                                :null => false
-    t.datetime "assay_pending"
-    t.datetime "assay_complete"
-    t.boolean  "accepted",               :default => false, :null => false
-    t.text     "accepted_rules_version"
-  end
-
-  add_index "wells", ["plate_id", "name"], :name => "wells_plate_id_name_key", :unique => true
-
-  add_foreign_key "assemblies", "species", :name => "assemblies_species_id_fkey"
-
-  add_foreign_key "bac_clone_loci", "assemblies", :name => "bac_clone_loci_assembly_id_fkey"
-  add_foreign_key "bac_clone_loci", "bac_clones", :name => "bac_clone_loci_bac_clone_id_fkey"
-  add_foreign_key "bac_clone_loci", "chromosomes", :name => "bac_clone_loci_chr_id_fkey1", :column => "chr_id"
-
-  add_foreign_key "bac_clones", "bac_libraries", :name => "bac_clones_bac_library_id_fkey"
-
-  add_foreign_key "bac_libraries", "species", :name => "bac_libraries_species_id_fkey"
-
-  add_foreign_key "chromosomes", "species", :name => "new_chromosomes_species_id_fkey"
-
-  add_foreign_key "crispr_designs", "crispr_pairs", :name => "crispr_designs_crispr_pair_id_fkey"
-  add_foreign_key "crispr_designs", "crisprs", :name => "crispr_designs_crispr_id_fkey"
-  add_foreign_key "crispr_designs", "designs", :name => "crispr_designs_design_id_fkey"
-
-  add_foreign_key "crispr_es_qc_runs", "species", :name => "crispr_es_qc_runs_species_id_fkey"
-  add_foreign_key "crispr_es_qc_runs", "users", :name => "crispr_es_qc_runs_created_by_id_fkey", :column => "created_by_id"
-
-  add_foreign_key "crispr_es_qc_wells", "chromosomes", :name => "crispr_es_qc_wells_crispr_chr_id_fkey", :column => "crispr_chr_id"
-  add_foreign_key "crispr_es_qc_wells", "crispr_es_qc_runs", :name => "crispr_es_qc_wells_crispr_es_qc_run_id_fkey"
-  add_foreign_key "crispr_es_qc_wells", "wells", :name => "crispr_es_qc_wells_well_id_fkey"
-
-  add_foreign_key "crispr_loci", "assemblies", :name => "crispr_loci_assembly_id_fkey"
-  add_foreign_key "crispr_loci", "chromosomes", :name => "crispr_loci_chr_id_fkey", :column => "chr_id"
-  add_foreign_key "crispr_loci", "crisprs", :name => "crispr_loci_crispr_id_fkey"
-
-  add_foreign_key "crispr_off_target_summaries", "crisprs", :name => "crispr_off_target_summaries_crispr_id_fkey"
-
-  add_foreign_key "crispr_off_targets", "assemblies", :name => "crispr_off_targets_assembly_id_fkey"
-  add_foreign_key "crispr_off_targets", "crispr_loci_types", :name => "crispr_off_targets_crispr_loci_type_id_fkey"
-  add_foreign_key "crispr_off_targets", "crisprs", :name => "crispr_off_targets_crispr_id_fkey"
-
-  add_foreign_key "crispr_pairs", "crisprs", :name => "crispr_pairs_left_crispr_fkey", :column => "left_crispr_id"
-  add_foreign_key "crispr_pairs", "crisprs", :name => "crispr_pairs_right_crispr_fkey", :column => "right_crispr_id"
-
-  add_foreign_key "crispr_primers", "crispr_pairs", :name => "crispr_primers_crispr_pair_id_fkey"
-  add_foreign_key "crispr_primers", "crispr_primer_types", :name => "crispr primer name must belong to allowed list", :column => "primer_name", :primary_key => "primer_name"
-  add_foreign_key "crispr_primers", "crisprs", :name => "crispr_primers_crispr_id_fkey"
-
-  add_foreign_key "crispr_primers_loci", "assemblies", :name => "crispr_primers_loci_assembly_id_fkey"
-  add_foreign_key "crispr_primers_loci", "chromosomes", :name => "crispr_primers_loci_chr_id_fkey", :column => "chr_id"
-
-  add_foreign_key "crisprs", "crispr_loci_types", :name => "crisprs_crispr_loci_type_id_fkey"
-  add_foreign_key "crisprs", "species", :name => "crisprs_species_id_fkey"
-
-  add_foreign_key "design_attempts", "species", :name => "design_attempts_species_id_fkey"
-  add_foreign_key "design_attempts", "users", :name => "design_attempts_created_by_fkey", :column => "created_by"
-
-  add_foreign_key "design_comments", "design_comment_categories", :name => "design_comments_design_comment_category_id_fkey"
-  add_foreign_key "design_comments", "designs", :name => "design_comments_design_id_fkey"
-  add_foreign_key "design_comments", "users", :name => "design_comments_created_by_fkey", :column => "created_by"
-
-  add_foreign_key "design_oligo_loci", "assemblies", :name => "design_oligo_loci_assembly_id_fkey"
-  add_foreign_key "design_oligo_loci", "chromosomes", :name => "design_oligo_loci_chr_id_fkey1", :column => "chr_id"
-  add_foreign_key "design_oligo_loci", "design_oligos", :name => "design_oligo_loci_design_oligo_id_fkey"
-
-  add_foreign_key "design_oligos", "design_oligo_types", :name => "design_oligos_design_oligo_type_id_fkey"
-  add_foreign_key "design_oligos", "designs", :name => "design_oligos_design_id_fkey"
-
-  add_foreign_key "design_targets", "assemblies", :name => "design_targets_assembly_id_fkey"
-  add_foreign_key "design_targets", "chromosomes", :name => "design_targets_chr_id_fkey", :column => "chr_id"
-  add_foreign_key "design_targets", "species", :name => "design_targets_species_id_fkey"
-
-  add_foreign_key "designs", "design_types", :name => "designs_design_type_id_fkey"
-  add_foreign_key "designs", "species", :name => "designs_species_id_fkey"
-  add_foreign_key "designs", "users", :name => "designs_created_by_fkey", :column => "created_by"
-
-  add_foreign_key "gene_design", "designs", :name => "gene_design_design_id_fkey"
-  add_foreign_key "gene_design", "gene_types", :name => "gene_design_gene_type_id_fkey"
-  add_foreign_key "gene_design", "users", :name => "gene_design_created_by_fkey", :column => "created_by"
-
-  add_foreign_key "genotyping_primers", "designs", :name => "genotyping_primers_design_id_fkey"
-  add_foreign_key "genotyping_primers", "genotyping_primer_types", :name => "genotyping_primers_genotyping_primer_type_id_fkey"
-
-  add_foreign_key "genotyping_primers_loci", "assemblies", :name => "genotyping_primers_loci_assembly_id_fkey"
-  add_foreign_key "genotyping_primers_loci", "chromosomes", :name => "genotyping_primers_loci_chr_id_fkey", :column => "chr_id"
+  add_index "users", ["email"], :name => "index_users_on_email", :unique => true
 
   add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
@@ -2314,6 +1498,7 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
   add_foreign_key "mi_attempts", "targ_rep_alleles", :name => "mi_attempts_targ_rep_allele_id_fk", :column => "allele_id"
   add_foreign_key "mi_attempts", "targ_rep_real_alleles", :name => "mi_attempts_targ_rep_real_allele_id_fk", :column => "real_allele_id"
+  add_foreign_key "mi_attempts", "users", :name => "mi_attempts_updated_by_id_fk", :column => "updated_by_id"
 
   add_foreign_key "mi_plan_es_cell_qcs", "mi_plans", :name => "mi_plan_es_cell_qcs_mi_plan_id_fk"
 
@@ -2397,156 +1582,11 @@ ActiveRecord::Schema.define(:version => 20140710144500) do
   add_foreign_key "phenotyping_productions", "phenotype_attempts", :name => "phenotyping_productions_phenotype_attempt_id_fk"
   add_foreign_key "phenotyping_productions", "phenotyping_production_statuses", :name => "phenotyping_productions_status_id_fk", :column => "status_id"
 
-  add_foreign_key "plate_comments", "plates", :name => "plate_comments_plate_id_fkey"
-  add_foreign_key "plate_comments", "users", :name => "plate_comments_created_by_id_fkey", :column => "created_by_id"
-
-  add_foreign_key "plates", "plate_types", :name => "plates_type_id_fkey", :column => "type_id"
-  add_foreign_key "plates", "species", :name => "plates_species_id_fkey"
-  add_foreign_key "plates", "sponsors", :name => "plates_sponsor_id_fkey"
-  add_foreign_key "plates", "users", :name => "plates_created_by_id_fkey", :column => "created_by_id"
-
-  add_foreign_key "process_bac", "bac_clones", :name => "process_bac_bac_clone_id_fkey"
-  add_foreign_key "process_bac", "processes", :name => "process_bac_process_id_fkey"
-
-  add_foreign_key "process_backbone", "backbones", :name => "process_backbone_backbone_id_fkey"
-  add_foreign_key "process_backbone", "processes", :name => "process_backbone_process_id_fkey"
-
-  add_foreign_key "process_cassette", "cassettes", :name => "process_cassette_cassette_id_fkey"
-  add_foreign_key "process_cassette", "processes", :name => "process_cassette_process_id_fkey"
-
-  add_foreign_key "process_cell_line", "cell_lines", :name => "process_cell_line_cell_line_id_fkey"
-  add_foreign_key "process_cell_line", "processes", :name => "process_cell_line_process_id_fkey"
-
-  add_foreign_key "process_crispr", "crisprs", :name => "process_crispr_crispr_id_fkey"
-  add_foreign_key "process_crispr", "processes", :name => "process_crispr_process_id_fkey"
-
-  add_foreign_key "process_design", "designs", :name => "process_design_design_id_fkey"
-  add_foreign_key "process_design", "processes", :name => "process_design_process_id_fkey"
-
-  add_foreign_key "process_global_arm_shortening_design", "designs", :name => "process_global_arm_shortening_design_design_id_fkey"
-  add_foreign_key "process_global_arm_shortening_design", "processes", :name => "process_global_arm_shortening_design_process_id_fkey"
-
-  add_foreign_key "process_input_well", "processes", :name => "process_input_well_process_id_fkey"
-  add_foreign_key "process_input_well", "wells", :name => "process_input_well_well_id_fkey"
-
-  add_foreign_key "process_nuclease", "nucleases", :name => "process_nuclease_nuclease_id_fkey"
-  add_foreign_key "process_nuclease", "processes", :name => "process_nuclease_process_id_fkey"
-
-  add_foreign_key "process_output_well", "processes", :name => "process_output_well_process_id_fkey"
-  add_foreign_key "process_output_well", "wells", :name => "process_output_well_well_id_fkey"
-
-  add_foreign_key "process_recombinase", "processes", :name => "process_recombinase_process_id_fkey"
-  add_foreign_key "process_recombinase", "recombinases", :name => "process_recombinase_recombinase_id_fkey"
-
-  add_foreign_key "processes", "process_types", :name => "processes_type_id_fkey", :column => "type_id"
-
-  add_foreign_key "project_alleles", "cassette_function", :name => "project_alleles_cassette_function_fkey", :column => "cassette_function"
-  add_foreign_key "project_alleles", "projects", :name => "project_alleles_project_id_fkey"
-
-  add_foreign_key "projects", "sponsors", :name => "projects_sponsor_id_fkey"
-
-  add_foreign_key "qc_alignment_regions", "qc_alignments", :name => "qc_alignment_regions_qc_alignment_id_fkey"
-
-  add_foreign_key "qc_alignments", "qc_eng_seqs", :name => "qc_alignments_qc_eng_seq_id_fkey"
-  add_foreign_key "qc_alignments", "qc_runs", :name => "qc_alignments_qc_run_id_fkey"
-  add_foreign_key "qc_alignments", "qc_seq_reads", :name => "qc_alignments_qc_seq_read_id_fkey"
-
-  add_foreign_key "qc_run_seq_project", "qc_runs", :name => "qc_run_seq_project_qc_run_id_fkey"
-  add_foreign_key "qc_run_seq_project", "qc_seq_projects", :name => "qc_run_seq_project_qc_seq_project_id_fkey"
-
-  add_foreign_key "qc_run_seq_well_qc_seq_read", "qc_run_seq_wells", :name => "qc_run_seq_well_qc_seq_read_qc_run_seq_well_id_fkey"
-  add_foreign_key "qc_run_seq_well_qc_seq_read", "qc_seq_reads", :name => "qc_run_seq_well_qc_seq_read_qc_seq_read_id_fkey"
-
-  add_foreign_key "qc_run_seq_wells", "qc_runs", :name => "qc_run_seq_wells_qc_run_id_fkey"
-
-  add_foreign_key "qc_runs", "qc_templates", :name => "qc_runs_qc_template_id_fkey"
-  add_foreign_key "qc_runs", "users", :name => "qc_runs_created_by_id_fkey", :column => "created_by_id"
-
-  add_foreign_key "qc_seq_projects", "species", :name => "qc_seq_projects_species_id_fkey"
-
-  add_foreign_key "qc_seq_reads", "qc_seq_projects", :name => "qc_seq_reads_qc_seq_project_id_fkey"
-
-  add_foreign_key "qc_template_well_backbone", "backbones", :name => "qc_template_well_backbone_backbone_id_fkey"
-  add_foreign_key "qc_template_well_backbone", "qc_template_wells", :name => "qc_template_well_backbone_qc_template_well_id_fkey"
-
-  add_foreign_key "qc_template_well_cassette", "cassettes", :name => "qc_template_well_cassette_cassette_id_fkey"
-  add_foreign_key "qc_template_well_cassette", "qc_template_wells", :name => "qc_template_well_cassette_qc_template_well_id_fkey"
-
-  add_foreign_key "qc_template_well_recombinase", "qc_template_wells", :name => "qc_template_well_recombinase_qc_template_well_id_fkey"
-  add_foreign_key "qc_template_well_recombinase", "recombinases", :name => "qc_template_well_recombinase_recombinase_id_fkey"
-
-  add_foreign_key "qc_template_wells", "qc_eng_seqs", :name => "qc_template_wells_qc_eng_seq_id_fkey"
-  add_foreign_key "qc_template_wells", "qc_templates", :name => "qc_template_wells_qc_template_id_fkey"
-  add_foreign_key "qc_template_wells", "wells", :name => "qc_template_wells_source_well_id_fkey", :column => "source_well_id"
-
-  add_foreign_key "qc_templates", "species", :name => "qc_templates_species_id_fkey"
-
-  add_foreign_key "qc_test_results", "qc_eng_seqs", :name => "qc_test_results_qc_eng_seq_id_fkey"
-  add_foreign_key "qc_test_results", "qc_run_seq_wells", :name => "qc_test_results_qc_run_seq_well_id_fkey"
-  add_foreign_key "qc_test_results", "qc_runs", :name => "qc_test_results_qc_run_id_fkey"
-
-  add_foreign_key "species_default_assembly", "assemblies", :name => "species_default_assembly_assembly_id_fkey"
-  add_foreign_key "species_default_assembly", "species", :name => "species_default_assembly_species_id_fkey"
-
   add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_qc_mouse_clinic_id_fk", :column => "user_qc_mouse_clinic_id"
   add_foreign_key "targ_rep_es_cells", "targ_rep_real_alleles", :name => "targ_rep_es_cells_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
   add_foreign_key "targ_rep_real_alleles", "genes", :name => "targ_rep_real_alleles_gene_id_fk"
 
-  add_foreign_key "user_preferences", "species", :name => "user_preferences_default_species_id_fkey", :column => "default_species_id"
-  add_foreign_key "user_preferences", "users", :name => "user_preferences_user_id_fkey"
-
-  add_foreign_key "user_role", "roles", :name => "user_role_role_id_fkey"
-  add_foreign_key "user_role", "users", :name => "user_role_user_id_fkey"
-
-  add_foreign_key "well_accepted_override", "users", :name => "well_accepted_override_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_accepted_override", "wells", :name => "well_accepted_override_well_id_fkey"
-
-  add_foreign_key "well_barcodes", "wells", :name => "well_barcodes_well_id_fkey"
-
-  add_foreign_key "well_chromosome_fail", "users", :name => "well_chromosome_fail_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_chromosome_fail", "wells", :name => "well_chromosome_fail_well_id_fkey"
-
-  add_foreign_key "well_colony_counts", "colony_count_types", :name => "well_colony_counts_colony_count_type_id_fkey"
-  add_foreign_key "well_colony_counts", "users", :name => "well_colony_counts_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_colony_counts", "wells", :name => "well_colony_counts_well_id_fkey"
-
-  add_foreign_key "well_comments", "users", :name => "well_comments_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_comments", "wells", :name => "well_comments_well_id_fkey"
-
-  add_foreign_key "well_dna_quality", "users", :name => "well_dna_quality_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_dna_quality", "wells", :name => "well_dna_quality_well_id_fkey"
-
-  add_foreign_key "well_dna_status", "users", :name => "well_dna_status_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_dna_status", "wells", :name => "well_dna_status_well_id_fkey"
-
-  add_foreign_key "well_genotyping_results", "genotyping_result_types", :name => "well_genotyping_results_genotyping_result_type_id_fkey"
-  add_foreign_key "well_genotyping_results", "users", :name => "well_genotyping_results_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_genotyping_results", "wells", :name => "well_genotyping_results_well_id_fkey"
-
-  add_foreign_key "well_lab_number", "wells", :name => "well_lab_number_well_id_fkey"
-
-  add_foreign_key "well_primer_bands", "primer_band_types", :name => "well_primer_bands_primer_band_type_id_fkey"
-  add_foreign_key "well_primer_bands", "users", :name => "well_primer_bands_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_primer_bands", "wells", :name => "well_primer_bands_well_id_fkey"
-
-  add_foreign_key "well_qc_sequencing_result", "users", :name => "well_qc_sequencing_result_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_qc_sequencing_result", "wells", :name => "well_qc_sequencing_result_well_id_fkey"
-
-  add_foreign_key "well_recombineering_results", "recombineering_result_types", :name => "well_recombineering_results_result_type_id_fkey", :column => "result_type_id"
-  add_foreign_key "well_recombineering_results", "users", :name => "well_recombineering_results_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_recombineering_results", "wells", :name => "well_recombineering_results_well_id_fkey"
-
-  add_foreign_key "well_targeting_neo_pass", "users", :name => "well_targeting_neo_pass_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_targeting_neo_pass", "wells", :name => "well_targeting_neo_pass_well_id_fkey"
-
-  add_foreign_key "well_targeting_pass", "users", :name => "well_targeting_pass_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_targeting_pass", "wells", :name => "well_targeting_pass_well_id_fkey"
-
-  add_foreign_key "well_targeting_puro_pass", "users", :name => "well_targeting_puro_pass_created_by_id_fkey", :column => "created_by_id"
-  add_foreign_key "well_targeting_puro_pass", "wells", :name => "well_targeting_puro_pass_well_id_fkey"
-
-  add_foreign_key "wells", "plates", :name => "wells_plate_id_fkey"
-  add_foreign_key "wells", "users", :name => "wells_created_by_id_fkey", :column => "created_by_id"
+  add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 
 end

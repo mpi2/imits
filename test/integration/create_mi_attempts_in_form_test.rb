@@ -43,7 +43,7 @@ class CreateMiAttemptsInFormTest < TarMits::JsIntegrationTest
       assert_match /\/mi_attempts\/\d+$/, current_url
 
       ApplicationModel.uncached do
-        mi_attempt = MiAttempt.find_by_colony_name!('MZSQ')
+        mi_attempt = MiAttempt.find_by_external_ref!('MZSQ')
         assert_equal mi_attempt.colony_name, page.find('input[name="mi_attempt[colony_name]"]').value
         assert page.has_content? mi_attempt.consortium.name
         assert_equal default_user.email, mi_attempt.updated_by.email

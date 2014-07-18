@@ -46,7 +46,7 @@ class ApplicationModel < ActiveRecord::Base
 
   def self.translate_public_param(param)
     translations.each do |tr_from, tr_to|
-      md = /^#{tr_from}(_| )(.+)$/.match(param)
+      md = /^#{tr_from}(_| |$)(.*)$/.match(param)
       if md
         return "#{tr_to}#{md[1]}#{md[2]}"
       end

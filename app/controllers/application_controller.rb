@@ -73,11 +73,10 @@ class ApplicationController < ActionController::Base
     params[:sorts] = default_sort if(params[:sorts].blank?)
     params.delete(:per_page) if params[:per_page].blank? or params[:per_page].to_i == 0
 
-
     search_object = model_class.send(search_method, params_cleaned_for_search(params))
+
     if search_object
       result = search_object.result(:distinct => select_distinct)
-      result = result.order(params_cleaned_for_sort(params[:sorts])) if params[:sorts]
       retval = result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
 
       if format == :json and params[:extended_response].to_s == 'true'

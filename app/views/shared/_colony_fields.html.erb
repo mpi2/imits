@@ -1,0 +1,23 @@
+<tr>
+    <td>
+        <%= f.text_field :name %>
+    </td>
+    <td>
+        <a>QC Data (click to edit)</a>
+    </td>
+    <td>
+        <a>Upload file</a>
+    </td>
+    <td>
+        <a>Allele</a>
+    </td>
+    <td>
+        <% if @new_object != nil %>
+            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+            <%= link_to "remove", '#', class: "remove-row" %>
+        <% else %>
+            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+            <%= link_to "remove", '#', class: "hide-row" %>
+        <% end %>
+    </td>
+</tr>

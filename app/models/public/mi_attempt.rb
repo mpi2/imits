@@ -3,6 +3,7 @@ class Public::MiAttempt < ::MiAttempt
   include ::Public::Serializable
   include ::Public::DistributionCentresAttributes
   include ::Public::MutagenesisFactorAttributes
+  include ::Public::ColonyAttributes
   include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
@@ -83,6 +84,7 @@ class Public::MiAttempt < ::MiAttempt
     crsp_num_founders_selected_for_breading
     real_allele_id
     external_ref
+    colonies_attributes
   }
 
   READABLE_ATTRIBUTES = %w{

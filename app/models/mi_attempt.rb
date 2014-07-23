@@ -44,6 +44,7 @@ class MiAttempt < ApplicationModel
   has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many   :phenotype_attempts
   has_many   :mouse_allele_mods
+  has_many   :colonies
   has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
   has_many   :crisprs, through: :mutagenesis_factor
 
@@ -57,6 +58,7 @@ class MiAttempt < ApplicationModel
   end
 
   accepts_nested_attributes_for :status_stamps, :mutagenesis_factor
+  accepts_nested_attributes_for :colonies, :allow_destroy => true
 
   protected :status=
 

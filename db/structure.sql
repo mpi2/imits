@@ -767,6 +767,36 @@ ALTER SEQUENCE centres_id_seq OWNED BY centres.id;
 
 
 --
+-- Name: colonies; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE colonies (
+    id integer NOT NULL,
+    name character varying(20) NOT NULL,
+    mi_attempt_id integer
+);
+
+
+--
+-- Name: colonies_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE colonies_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: colonies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE colonies_id_seq OWNED BY colonies.id;
+
+
+--
 -- Name: consortia; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -3402,6 +3432,13 @@ ALTER TABLE ONLY centres ALTER COLUMN id SET DEFAULT nextval('centres_id_seq'::r
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY colonies ALTER COLUMN id SET DEFAULT nextval('colonies_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY consortia ALTER COLUMN id SET DEFAULT nextval('consortia_id_seq'::regclass);
 
 
@@ -3818,6 +3855,14 @@ ALTER TABLE ONLY audits
 
 ALTER TABLE ONLY centres
     ADD CONSTRAINT centres_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: colonies_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY colonies
+    ADD CONSTRAINT colonies_pkey PRIMARY KEY (id);
 
 
 --
@@ -4299,6 +4344,13 @@ CREATE INDEX auditable_index ON audits USING btree (auditable_id, auditable_type
 
 
 --
+-- Name: colony_name_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX colony_name_index ON colonies USING btree (name);
+
+
+--
 -- Name: es_cells_allele_id_fk; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4583,6 +4635,14 @@ CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (v
 --
 
 CREATE INDEX user_index ON audits USING btree (user_id, user_type);
+
+
+--
+-- Name: colonies_mi_attempt_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY colonies
+    ADD CONSTRAINT colonies_mi_attempt_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
 
 
 --
@@ -5754,3 +5814,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140710144500');
 INSERT INTO schema_migrations (version) VALUES ('20140717000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20140717140000');
+
+INSERT INTO schema_migrations (version) VALUES ('20140718140000');

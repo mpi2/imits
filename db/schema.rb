@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140717140000) do
+ActiveRecord::Schema.define(:version => 20140718140000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -43,6 +43,13 @@ ActiveRecord::Schema.define(:version => 20140717140000) do
   end
 
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
+
+  create_table "colonies", :force => true do |t|
+    t.string  "name",          :limit => 20, :null => false
+    t.integer "mi_attempt_id"
+  end
+
+  add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
 
   create_table "consortia", :force => true do |t|
     t.string   "name",         :null => false
@@ -1216,6 +1223,8 @@ ActiveRecord::Schema.define(:version => 20140717140000) do
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
+
+  add_foreign_key "colonies", "mi_attempts", :name => "colonies_mi_attempt_fk"
 
   add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"

@@ -356,7 +356,9 @@ class BuildAllele2
 
         row['phenotyping_centre'] = row['phenotyping_centre_name']
         row['production_centre'] = row['pacentre_name']
-
+        if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
+          row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
+        end
         @processed_rows.push row
 
         mark row
@@ -381,6 +383,9 @@ class BuildAllele2
         row['phenotype_status'] = row['phenotyping_status']
         row['production_centre'] = row['miacentre_name']
         row['phenotyping_centre'] = row['phenotyping_centre_name']
+        if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
+          row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
+        end
 
         @processed_rows.push row
 
@@ -422,6 +427,9 @@ class BuildAllele2
         row['mouse_status'] = row['mi_attempt_status']
         row['phenotype_status'] = ''
         row['production_centre'] = row['miacentre_name']
+        if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
+          row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
+        end
 
         @processed_rows.push row
 
@@ -467,6 +475,9 @@ class BuildAllele2
       row['mouse_status'] = ''
       row['phenotype_status'] = ''
       row['production_centre'] = ''
+      if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
+        row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
+      end
 
       @processed_rows.push row
     end
@@ -509,6 +520,7 @@ class BuildAllele2
       hash['genbank_file'] = row['genbank_file_url']
       hash['allele_image'] = row['allele_image']
       hash['type'] = 'allele'
+      hash['links'] = row['links'].to_s
 
       digest = Digest::MD5.hexdigest(row['mgi_accession_id'].to_s + '-' + row['allele_symbol'].to_s)
 

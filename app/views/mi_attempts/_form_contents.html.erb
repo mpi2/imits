@@ -125,8 +125,8 @@
   <fieldset class="collapsible">
     <legend>F1 Colonies</legend>
     <div>
-      <% if ['fod'].include?(mi_attempt.status.try(:code)) %>
-        <table id="distribution_centres_table" class="report_table">
+      <% if ['fod', 'gtc'].include?(mi_attempt.status.try(:code)) %>
+        <table id="colonies_table" class="report_table">
           <thead class="title">
             <tr>
               <th>Colony Name</th>

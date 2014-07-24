@@ -183,7 +183,7 @@ class SolrUpdate::DocFactory
     object.distribution_centres.each do |distribution_centre|
       centre_name = distribution_centre.centre.name
 
-      next if ! ['UCD', 'KOMP Repo'].include?(centre_name) && !(config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
+      next if !['EMMA', 'KOMP', 'MMRRC', 'CMMR'].include?(distribution_centre.distribution_network) && ! ['UCD', 'KOMP Repo'].include?(centre_name) && !(config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
 
       current_time = Time.now
 

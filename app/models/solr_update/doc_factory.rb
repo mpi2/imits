@@ -174,8 +174,8 @@ class SolrUpdate::DocFactory
 
     raise "Expecting to find KOMP in distribution centre config" if ! config.has_key? 'KOMP'
     raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'EMMA'
-    raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'MMRRC'
-    raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'CMMR'
+    raise "Expecting to find MMRRC in distribution centre config" if ! config.has_key? 'MMRRC'
+    raise "Expecting to find CMMR in distribution centre config" if ! config.has_key? 'CMMR'
 
     solr_doc['order_from_names'] ||= []
     solr_doc['order_from_urls'] ||= []

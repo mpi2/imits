@@ -237,7 +237,7 @@ class BuildAllele2
     return if row1['targ_rep_alleles_id'].blank?
 
     transformation = @genbank_file_transformations[row1['allele_type']]
-    row1['genbank_file_url'] = "https://www.mousephenotype.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/escell-clone_#{!transformation.blank? ? transformation + '-' : ''}genbank_file"
+    row1['genbank_file_url'] = "https://www.mousephenotype.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/escell-clone-#{!transformation.blank? ? transformation + '-' : ''}genbank-file"
     row1['allele_image'] = "https://www.mousephenotype.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/allele-image#{!transformation.blank? ? '-' + transformation : ''}"
   end
 

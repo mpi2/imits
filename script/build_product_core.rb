@@ -686,7 +686,7 @@ class BuildProductCore
     order_from_url ||= []
 
     centre_name = distribution_centre[:centre_name]
-    return [] if ! ['UCD', 'KOMP Repo'].include?(centre_name) && ! (config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
+    return [] if !['EMMA', 'KOMP', 'MMRRC', 'CMMR'].include?(distribution_centre.distribution_network) && ! ['UCD', 'KOMP Repo'].include?(centre_name) && ! (config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
     current_time = Time.now
 
     if distribution_centre[:start_date]

@@ -174,6 +174,8 @@ class SolrUpdate::DocFactory
 
     raise "Expecting to find KOMP in distribution centre config" if ! config.has_key? 'KOMP'
     raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'EMMA'
+    raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'MMRRC'
+    raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'CMMR'
 
     solr_doc['order_from_names'] ||= []
     solr_doc['order_from_urls'] ||= []
@@ -181,7 +183,7 @@ class SolrUpdate::DocFactory
     object.distribution_centres.each do |distribution_centre|
       centre_name = distribution_centre.centre.name
 
-      next if ! ['UCD', 'KOMP Repo', 'EMMA'].include?(centre_name) && !(config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
+      next if ! ['UCD', 'KOMP Repo'].include?(centre_name) && !(config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
 
       current_time = Time.now
 
@@ -210,6 +212,7 @@ class SolrUpdate::DocFactory
       if config.has_key?(centre_name) && (!config[centre_name][:default].blank? || !config[centre_name][:preferred].blank?)
         # if blank then will default to order_from_url = details[:default]
         details = config[centre_name]
+        order_from_name = centre_name
         order_from_url = details[:default]
 
         if !config[centre_name][:preferred].blank?

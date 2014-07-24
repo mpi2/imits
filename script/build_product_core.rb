@@ -506,15 +506,20 @@ class BuildProductCore
      "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
     }
 
-    distribution_centres = self.class.get_distribution_centres(row)
 
-    distribution_centres.each do |dis_centre|
-      order_name, order_link = self.class.mice_order_links(dis_centre, row["ikmc_project_id"], row["marker_symbol"])
-      if order_name && order_link
-        doc["order_names"] << order_name
-        doc["order_links"] << order_link
+    if doc['production_completed'] == true
+
+      distribution_centres = self.class.get_distribution_centres(row)
+
+      distribution_centres.each do |dis_centre|
+        order_name, order_link = self.class.mice_order_links(dis_centre, row["ikmc_project_id"], row["marker_symbol"])
+        if order_name && order_link
+          doc["order_names"] << order_name
+          doc["order_links"] << order_link
+        end
       end
     end
+
     doc
   end
 
@@ -674,12 +679,14 @@ class BuildProductCore
 
     raise "Expecting to find KOMP in distribution centre config" if ! config.has_key? 'KOMP'
     raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'EMMA'
+    raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'MMRRC'
+    raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'CMMR'
 
     order_from_name ||= []
     order_from_url ||= []
 
     centre_name = distribution_centre[:centre_name]
-    return [] if ! ['UCD', 'KOMP Repo', 'EMMA'].include?(centre_name) && !(config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
+    return [] if ! ['UCD', 'KOMP Repo'].include?(centre_name) && ! (config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
     current_time = Time.now
 
     if distribution_centre[:start_date]
@@ -706,11 +713,11 @@ class BuildProductCore
       # if blank then will default to order_from_url = details[:default]
       details = config[centre_name]
       order_from_url = details[:default]
+      order_from_name = centre_name
 
       if !config[centre_name][:preferred].blank?
         project_id = project_id
         marker_symbol = marker_symbol
-        order_from_name = centre_name
 
         # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
 

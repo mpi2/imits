@@ -49,7 +49,7 @@ production:
   index_proxy:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://ikmc.vm.bytemark.co.uk:8983/solr/allele
-    allele2: http://ikmc.vm.bytemark.co.uk:8983/solr/allele2
+    allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
     product: http://ikmc.vm.bytemark.co.uk:8985/solr/product
 
 all:

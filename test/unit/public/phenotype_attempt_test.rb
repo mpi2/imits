@@ -93,7 +93,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'report_to_public',
         'phenotyping_experiments_started',
         'phenotyping_productions_attributes',
-        'ready_for_website'
+        'ready_for_website',
+        'real_allele_id'
       ]+
       %W{
         qc_southern_blot_result
@@ -154,7 +155,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'mgi_accession_id',
         'phenotyping_productions_attributes',
         'ready_for_website',
-        'real_allele-id'
+        'real_allele_id'
       ] +
       %W{
         qc_southern_blot_result

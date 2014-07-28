@@ -9,6 +9,88 @@ function splitString(prettyPrintDistributionCentres) {
     return distributionCentres;
 }
 
+// traps the selection of new column sets via the grid menu buttons
+function onItemClick(item){
+    function intensiveOperation() {
+        var columnsToShow = grid.views[item.text];
+
+        if (typeof columnsToShow == 'undefined') {
+            alert('Unrecognised column filter: ' + item.text);
+        } else {
+            // filter rows on cas9 flag
+            switch(item.text) {
+                case 'Everything':
+                case 'Summary':
+                    // filter cas9 inactivated
+                    grid.deactivateCrisprFilter();
+                    break;
+                case 'ES Cell Transfer Details':
+                case 'ES Cell Litter Details':
+                case 'ES Cell Chimera Mating Details':
+                case 'ES Cell QC Details':
+                    // filter cas9 off
+                    grid.activateCrisprFilterWithValue(false);
+                    break;
+                case 'Crispr Transfer Details':
+                case 'Crispr Founder Details':
+                case 'Crispr F1 Details':
+                case 'Crispr QC Details':
+                    // filter cas9 on
+                    grid.activateCrisprFilterWithValue(true);
+                    break;
+                default:
+                    break;
+            };
+
+            // select which columns to show
+            var columnsToShowHash = {};
+            Ext.each(columnsToShow, function(columnToShow) {
+                columnsToShowHash[columnToShow] = true;
+            });
+
+            // setVisible method is slow, so suspend layouts then do all the setVisibles then resume
+            Ext.suspendLayouts();
+            Ext.each(grid.columns, function(column) {
+                if(column.dataIndex in columnsToShowHash) {
+                    column.setVisible(true);
+                } else {
+                    column.setVisible(false);
+                }
+            });
+
+            // move columns arround if needed
+            switch(item.text) {
+                case 'ES Cell Transfer Details':
+                case 'ES Cell Litter Details':
+                case 'ES Cell Chimera Mating Details':
+                case 'ES Cell QC Details':
+                    grid.moveColumnToIndex("es_cell_name",6);
+                    grid.moveColumnToIndex("es_cell_allele_symbol",8);
+                    break;
+                default:
+                    break;
+            };
+
+            Ext.resumeLayouts(true);
+
+            grid.setTitle('Micro-Injection Attempts - ' + item.text);
+        }
+
+        mask.hide();
+        Ext.getBody().removeCls('wait');
+    }
+
+    var mask = new Ext.LoadMask(grid.getEl(),
+    {
+        msg: 'Please wait&hellip;',
+        removeMask: true
+    });
+
+    Ext.getBody().addCls('wait');
+    mask.show();
+    setTimeout(intensiveOperation, 100);
+}
+
 Ext.define('Imits.widget.MiGridCommon', {
     extend: 'Imits.widget.Grid',
 
@@ -20,10 +102,11 @@ Ext.define('Imits.widget.MiGridCommon', {
     'Imits.widget.grid.BoolGridColumn',
     'Imits.widget.grid.MiAttemptRansackFiltersFeature',
     'Imits.widget.grid.SimpleDateColumn',
-    'Imits.Util'
+    'Imits.Util',
+    'Ext.util.HashMap'
     ],
 
-    title: 'Micro-Injection Attempts',
+    title: 'Micro-Injection Attempts - Everything',
     store: {
         model: 'Imits.model.MiAttempt',
         autoLoad: true,
@@ -71,25 +154,47 @@ Ext.define('Imits.widget.MiGridCommon', {
     generateViews: function() {
         var views = {};
 
-        var commonColumns = Ext.pluck(this.groupedColumns.common, 'dataIndex');
-        var everythingView = Ext.Array.merge(commonColumns, []);
+        var commonColumns       = Ext.pluck(this.groupedColumns.common, 'dataIndex');
+        var esCellCommonColumns = Ext.pluck(this.groupedColumns.es_cell_common, 'dataIndex');
+        var crisprCommonColumns = Ext.pluck(this.groupedColumns.crispr_common, 'dataIndex');
+
+        var everythingView      = Ext.Array.merge(commonColumns, esCellCommonColumns, crisprCommonColumns, []);
 
         // First generate the groups from the groupedColumns
         Ext.Object.each(this.groupedColumns, function(viewName, viewColumnConfigs) {
-            if(viewName === 'common' || viewName === 'none') {
-                return;
+            // switch what columns are displayed based on view name
+            switch(viewName) {
+                case 'common':
+                case 'es_cell_common':
+                case 'crispr_common':
+                case 'none':
+                    return;
+                case 'ES Cell Transfer Details':
+                case 'ES Cell Litter Details':
+                case 'ES Cell Chimera Mating Details':
+                case 'ES Cell QC Details':
+                    var viewColumns = Ext.pluck(viewColumnConfigs, 'dataIndex');
+                    views[viewName] = Ext.Array.merge(commonColumns, esCellCommonColumns, viewColumns);
+                    everythingView = Ext.Array.merge(everythingView, viewColumns);
+                    break;
+                case 'Crispr Transfer Details':
+                case 'Crispr Founder Details':
+                case 'Crispr F1 Details':
+                case 'Crispr QC Details':
+                    var viewColumns = Ext.pluck(viewColumnConfigs, 'dataIndex');
+                    views[viewName] = Ext.Array.merge(commonColumns, crisprCommonColumns, viewColumns);
+                    everythingView = Ext.Array.merge(everythingView, viewColumns);
+                    break;
+                default:
+                    return;
             }
-
-            var viewColumns = Ext.pluck(viewColumnConfigs, 'dataIndex');
-            views[viewName] = Ext.Array.merge(commonColumns, viewColumns);
-            everythingView = Ext.Array.merge(everythingView, viewColumns);
         });
 
         views['Everything'] = everythingView;
 
         var grid = this;
         Ext.Object.each(this.additionalViewColumns, function(viewName) {
-            views[viewName] = Ext.Array.merge(commonColumns, grid.additionalViewColumns[viewName]);
+            views[viewName] = Ext.Array.merge(commonColumns, esCellCommonColumns, crisprCommonColumns, grid.additionalViewColumns[viewName]);
         });
         this.views = views;
     },
@@ -103,7 +208,7 @@ Ext.define('Imits.widget.MiGridCommon', {
         this.callParent([config]);
     },
 
-    switchViewButtonConfig: function(text, pressedByDefault) {
+    switchViewMenuButtonConfig: function(text, menuContent) {
         var grid = this;
         return {
             text: text,
@@ -111,35 +216,13 @@ Ext.define('Imits.widget.MiGridCommon', {
             allowDepress: false,
             toggleGroup: 'mi_grid_view_config',
             minWidth: 100,
-            pressed: (pressedByDefault === true),
+            pressed: false,
+            menu: menuContent,
             listeners: {
                 'toggle': function(button, pressed) {
                     if(!pressed) {
                         return;
                     }
-                    function intensiveOperation() {
-                        var columnsToShow = grid.views[text];
-                        Ext.each(grid.columns, function(column) {
-                            if(Ext.Array.indexOf(columnsToShow, column.dataIndex) == -1) {
-                                column.setVisible(false);
-                            } else {
-                                column.setVisible(true);
-                            }
-                        });
-
-                        mask.hide();
-                        Ext.getBody().removeCls('wait');
-                    }
-
-                    var mask = new Ext.LoadMask(grid.getEl(),
-                    {
-                        msg: 'Please wait&hellip;',
-                        removeMask: true
-                    });
-
-                    Ext.getBody().addCls('wait');
-                    mask.show();
-                    setTimeout(intensiveOperation, 100);
                 }
             }
         };
@@ -156,22 +239,83 @@ Ext.define('Imits.widget.MiGridCommon', {
             displayInfo: true
         }));
 
+        var everythingMenuConfig = [
+            { text:'Summary', handler: onItemClick },
+            { text:'Everything', handler: onItemClick }
+        ];
+
+        var esCellsMenuConfig = [
+            { text:'ES Cell Transfer Details', handler: onItemClick },
+            { text:'ES Cell Litter Details', handler: onItemClick },
+            { text:'ES Cell Chimera Mating Details', handler: onItemClick },
+            { text:'ES Cell QC Details', handler: onItemClick }
+        ];
+
+        var crisprsMenuConfig = [
+            { text:'Crispr Transfer Details', handler: onItemClick },
+            { text:'Crispr Founder Details', handler: onItemClick }//,
+            // { text:'Crispr F1 Details', handler: onItemClick },
+            // { text:'Crispr QC Details', handler: onItemClick }
+        ];
+
+        self.menuBtnEverything = self.switchViewMenuButtonConfig( 'Everything', everythingMenuConfig );
+        self.menuBtnESCells    = self.switchViewMenuButtonConfig( 'ES Cells', esCellsMenuConfig );
+        self.menuBtnCrisprs    = self.switchViewMenuButtonConfig( 'Crisprs', crisprsMenuConfig );
+
         self.addDocked(Ext.create('Ext.container.ButtonGroup', {
             layout: 'hbox',
             dock: 'top',
             items: [
-            self.switchViewButtonConfig('Everything', true),
-            self.switchViewButtonConfig('Transfer Details'),
-            self.switchViewButtonConfig('Litter Details'),
-            self.switchViewButtonConfig('Chimera Mating Details'),
-            self.switchViewButtonConfig('QC Details'),
-            self.switchViewButtonConfig('Summary')
+                self.menuBtnEverything,
+                self.menuBtnESCells,
+                self.menuBtnCrisprs
             ]
         }));
 
         self.addListener('afterrender', function () {
             self.filters.createFilters();
         });
+    },
+
+    activateCrisprFilterWithValue: function(value) {
+        var self = this;
+
+        var iA = self.filters.getFilter('mi_plan_mutagenesis_via_crispr_cas9').isActivatable();
+        self.filters.getFilter('mi_plan_mutagenesis_via_crispr_cas9').setValue(value);
+        self.filters.getFilter('mi_plan_mutagenesis_via_crispr_cas9').setActive(true);
+        if(iA === true) {
+            self.getStore().reload();
+        }
+    },
+
+    deactivateCrisprFilter: function() {
+        var self = this;
+
+        var iA = self.filters.getFilter('mi_plan_mutagenesis_via_crispr_cas9').isActivatable();
+        self.filters.getFilter('mi_plan_mutagenesis_via_crispr_cas9').setActive(false);
+        if(iA === true) {
+            self.getStore().reload();
+        }
+    },
+
+    findColumnIndex: function(columns, dataIndex) {
+        var index;
+        for (index = 0; index < columns.length; ++index) {
+            console.log("index " + index + " = " + columns[index].dataIndex);
+            if (columns[index].dataIndex == dataIndex) {
+                break;
+            }
+        }
+        return index == columns.length ? -1 : index;
+    },
+
+    moveColumnToIndex: function(columnName, newColumnIndex) {
+        var self = this;
+        var col_index = grid.findColumnIndex(self.headerCt.getGridColumns(), columnName);
+        console.log(columnName + " current index = " + col_index);
+        if (col_index != -1 && col_index != newColumnIndex) {
+            self.headerCt.move(col_index, newColumnIndex);
+        }
     },
 
     // BEGIN COLUMN DEFINITION
@@ -189,9 +333,8 @@ Ext.define('Imits.widget.MiGridCommon', {
             }
         }
         ],
+
         'common': [
-
-
         {
             header: 'Active Phenotype',
             dataIndex: 'phenotype_attempts_count',
@@ -234,36 +377,11 @@ Ext.define('Imits.widget.MiGridCommon', {
             sortable: false
         },
         {
-            dataIndex: 'mi_plan_mutagenesis_via_crispr_cas9',
-            header: 'CrispR Cas9',
-            readOnly: true,
-            sortable: false,
-            filter: {
-                type: 'boolean'
-            }
-        },
-        {
-            dataIndex: 'es_cell_name',
-            header: 'ES Cell',
-            readOnly: true,
-            sortable: false,
-            filter: {
-                type: 'string',
-                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'es_cell_name')
-            }
-        },
-        {
             dataIndex: 'marker_symbol',
             header: 'Marker Symbol',
             width: 105,
             readOnly: true,
             sortable: false,
-        },
-        {
-            dataIndex: 'es_cell_allele_symbol',
-            header: 'Allele symbol',
-            readOnly: true,
-            sortable: false
         },
         {
             xtype: 'simpledatecolumn',
@@ -293,7 +411,38 @@ Ext.define('Imits.widget.MiGridCommon', {
         }
         ],
 
-        'Transfer Details': [
+        'es_cell_common': [
+        {
+            dataIndex: 'es_cell_name',
+            header: 'ES Cell',
+            readOnly: true,
+            sortable: false,
+            filter: {
+                type: 'string',
+                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'es_cell_name')
+            }
+        },
+        {
+            dataIndex: 'es_cell_allele_symbol',
+            header: 'Allele symbol',
+            readOnly: true,
+            sortable: false
+        }
+        ],
+
+        'crispr_common': [
+         {
+            dataIndex: 'mi_plan_mutagenesis_via_crispr_cas9',
+            header: 'CrispR Cas9',
+            readOnly: true,
+            sortable: false,
+            filter: {
+                type: 'boolean'
+            }
+        }
+        ],
+
+        'ES Cell Transfer Details': [
         {
             dataIndex: 'blast_strain_name',
             header: 'Blast Strain',
@@ -326,7 +475,7 @@ Ext.define('Imits.widget.MiGridCommon', {
         }
         ],
 
-        'Litter Details': [
+        'ES Cell Litter Details': [
         {
             dataIndex: 'total_pups_born',
             header: 'Total Pups Born',
@@ -368,7 +517,8 @@ Ext.define('Imits.widget.MiGridCommon', {
             editor: 'simplenumberfield'
         }
         ],
-        'Chimera Mating Details': [
+
+        'ES Cell Chimera Mating Details': [
         {
             dataIndex: 'test_cross_strain_name',
             header: 'Test Cross Strain',
@@ -484,7 +634,7 @@ Ext.define('Imits.widget.MiGridCommon', {
         }
         ],
 
-        'QC Details': [
+        'ES Cell QC Details': [
         {
             dataIndex: 'qc_southern_blot_result',
             header: 'Southern Blot',
@@ -596,6 +746,88 @@ Ext.define('Imits.widget.MiGridCommon', {
             header: 'Released From Genotyping',
             xtype: 'boolgridcolumn'
         }
+        ],
+
+        'Crispr Transfer Details': [
+        {
+            dataIndex: 'crsp_total_embryos_injected',
+            header: '# Embryos Injected',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'crsp_total_embryos_survived',
+            header: '# Embryos Survived',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'crsp_total_transfered',
+            header: '# Transferred',
+            editor: 'simplenumberfield'
+        }
+        ],
+
+        'Crispr Founder Details': [
+        {
+            dataIndex: 'crsp_no_founder_pups',
+            header: '# No Pups',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'founder_pcr_num_assays',
+            header: '# PCR Assays',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'founder_pcr_num_positive_results',
+            header: '# PCR +ve Results',
+            editor: 'simplenumberfield'
+        },
+                {
+            dataIndex: 'founder_surveyor_num_assays',
+            header: '# Surveyor Assays',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'founder_surveyor_num_positive_results',
+            header: '# Surveyor +ve Results',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'founder_t7en1_num_assays',
+            header: '# T7EN1 Assays',
+            editor: 'simplenumberfield'
+        },
+                {
+            dataIndex: 'founder_t7en1_num_positive_results',
+            header: '# T7EN1 +ve Assays',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'founder_loa_num_assays',
+            header: '# LOA Assays',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'founder_loa_num_positive_results',
+            header: '# LOA +ve Results',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'crsp_total_num_mutant_founders',
+            header: '# Mutants',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'crsp_num_founders_selected_for_breading',
+            header: '# For Breeding',
+            editor: 'simplenumberfield'
+        }
+        ],
+
+        'Crispr F1 Details': [
+        ],
+
+        'Crispr QC Details': [
         ]
     },
 

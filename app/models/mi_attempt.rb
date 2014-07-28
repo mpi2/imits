@@ -44,7 +44,8 @@ class MiAttempt < ApplicationModel
   has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many   :phenotype_attempts
   has_many   :mouse_allele_mods
-  has_many   :colonies
+  has_one    :colony, inverse_of: :mi_attempt
+  has_many   :colonies, inverse_of: :mi_attempt
   has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
   has_many   :crisprs, through: :mutagenesis_factor
 
@@ -73,6 +74,7 @@ class MiAttempt < ApplicationModel
     end
   end
 
+
   # validate mi plan
   validate do |mi_attempt|
     if validate_plan #test whether to continue with validations
@@ -94,6 +96,12 @@ class MiAttempt < ApplicationModel
     if !mi_attempt.phenotype_attempts.blank? and
               mi_attempt.status != MiAttempt::Status.genotype_confirmed
       mi_attempt.errors.add(:status, 'cannot be changed - phenotype attempts exist')
+    end
+  end
+
+  validate do |mi|
+    if !mi.es_cell.blank? and mi.colonies.length > 1
+      mi.errors.add :base, 'Multiple Colonies are not allowed for Mi Attempts micro-injected with an ES Cell clone'
     end
   end
 
@@ -125,6 +133,7 @@ class MiAttempt < ApplicationModel
   end
 
   before_save :generate_external_ref_if_blank
+  before_save :manage_colony_if_blank_for_es_cell_micro_injections
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
   after_save :add_default_distribution_centre
@@ -132,6 +141,21 @@ class MiAttempt < ApplicationModel
   after_save :make_mi_date_and_in_progress_status_consistent
   after_save :reload_mi_plan_mi_attempts
 
+  def colony
+    if !es_cell.blank?
+      super
+    else
+      nil
+    end
+  end
+
+  def colonies
+    if !es_cell.blank?
+      []
+    else
+      super
+    end
+  end
 
   def set_blank_qc_fields_to_na
     QC_FIELDS.each do |qc_field|
@@ -197,6 +221,21 @@ class MiAttempt < ApplicationModel
     end until self.class.find_by_external_ref(self.external_ref).blank?
   end
   protected :generate_external_ref_if_blank
+
+
+  def manage_colony_if_blank_for_es_cell_micro_injections
+    return if es_cell.blank?
+    if !colony.blank?
+      if colony.name != external_ref
+        colony.name = external_ref
+      else
+        return
+      end
+    else
+      create_colony({:name => external_ref})
+    end
+  end
+  protected :manage_colony_if_blank_for_es_cell_micro_injections
 
   def make_mi_date_and_in_progress_status_consistent
     in_progress_status = self.status_stamps.find_by_status_id(1)

@@ -125,7 +125,7 @@
   <fieldset class="collapsible">
     <legend>F1 Colonies</legend>
     <div>
-      <% if ['fod', 'gtc'].include?(mi_attempt.status.try(:code)) %>
+      <% if mi_attempt.status_stamps.map{|status| status.code}.include?('fod')%>
         <table id="colonies_table" class="report_table">
           <thead class="title">
             <tr>

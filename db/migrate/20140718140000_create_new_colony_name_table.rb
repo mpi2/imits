@@ -1,7 +1,7 @@
 class CreateNewColonyNameTable < ActiveRecord::Migration
   def self.up
     create_table :colonies do |t|
-      t.string :name, :null => false, :limit => 20
+      t.string :name, :null => false
       t.integer :mi_attempt_id
     end
 

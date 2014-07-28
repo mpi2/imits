@@ -24,7 +24,7 @@ end
 # Table name: colonies
 #
 #  id            :integer          not null, primary key
-#  name          :string(20)       not null
+#  name          :string(255)      not null
 #  mi_attempt_id :integer
 #
 # Indexes

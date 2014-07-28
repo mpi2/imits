@@ -45,7 +45,7 @@ ActiveRecord::Schema.define(:version => 20140718140000) do
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string  "name",          :limit => 20, :null => false
+    t.string  "name",          :null => false
     t.integer "mi_attempt_id"
   end
 

@@ -772,7 +772,7 @@ ALTER SEQUENCE centres_id_seq OWNED BY centres.id;
 
 CREATE TABLE colonies (
     id integer NOT NULL,
-    name character varying(20) NOT NULL,
+    name character varying(255) NOT NULL,
     mi_attempt_id integer
 );
 

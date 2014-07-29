@@ -17,7 +17,7 @@ Ext.define('Imits.widget.MiGrid', {
                 dataIndex: 'distribution_centres_formatted_display',
                 readOnly: true,
                 sortable: false,
-                width: 225,
+                width: 230,
                 renderer: function(value, metaData, record){
                     var miId = record.getId();
                     var distribution_centres = record.get('distribution_centres_formatted_display');
@@ -30,16 +30,30 @@ Ext.define('Imits.widget.MiGrid', {
                 }
             },
             {'position' : 0, 'data' : {
-                header: 'Phenotype',
+                header: '# Active Phenotypes',
                 dataIndex: 'phenotype_attempt_new_link',
+                width: 110,
                 renderer: function(value, metaData, record){
                     var miId = record.getId();
                     var statusName = record.get('status_name');
+                    var phenotypeCount = record.get('phenotype_attempts_count');
+                    var geneSymbol = record.get('marker_symbol');
+                    var productionCentre = record.get('production_centre_name');
+
+                    var textToDisplay = ''
                     if (statusName == "Genotype confirmed") {
-                        return Ext.String.format('<a href="{0}/mi_attempts/{1}/phenotype_attempts/new">Create</a>', window.basePath, miId);
-                    } else {
-                        return Ext.String.format('', window.basePath, miId);
+
+                        if (phenotypeCount != 0) {
+                            textToDisplay = Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={1}&q[production_centre_name]={2}">({3})</a>', window.basePath, geneSymbol, productionCentre, phenotypeCount);
+                        } else {
+                            textToDisplay = '(0)';
+                        }
+                        textToDisplay +=  Ext.String.format(' / <a href="{0}/mi_attempts/{1}/phenotype_attempts/new">Create</a>', window.basePath, miId);
                     }
+                    else {
+
+                    }
+                    return textToDisplay
                 },
                 sortable: false
                 }

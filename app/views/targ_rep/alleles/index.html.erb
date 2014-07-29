@@ -24,6 +24,7 @@
       <tr>
         <th>Pipeline(s)</th>
         <th>MGI Accession ID</th>
+        <th>Marker Symbol</th>
         <th>Mutation Type</th>
         <th>Cassette</th>
         <th>Backbone</th>
@@ -40,6 +41,7 @@
         <tr class="<%= cycle("odd", "even") %>">
           <td><%= allele.pipeline_names %></td>
           <td><%= allele.mgi_accession_id %></td>
+          <td><%= allele.gene.marker_symbol %></td>
           <td><%= allele.mutation_type.name %></td>
           <td><%= allele.cassette %></td>
           <td><%= allele.backbone %></td>

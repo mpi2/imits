@@ -184,7 +184,7 @@ Ext.define('Imits.widget.MiGridCommon', {
                 case 'ES Cell Chimera Mating Details':
                 case 'ES Cell QC Details':
                     var viewColumns = Ext.pluck(viewColumnConfigs, 'dataIndex');
-                    views[viewName] = Ext.Array.merge(viewColumns);
+                    views[viewName] = Ext.Array.merge(commonColumns, esCellCommonColumns, viewColumns);
                     esCellAllDetailView = Ext.Array.merge(commonColumns, esCellCommonColumns, esCellAllDetailView, viewColumns);
                     break;
                 case 'Crispr Transfer Details':

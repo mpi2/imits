@@ -4,7 +4,7 @@ class SolrUpdate::Enqueuer
 
     reference = {'type' => 'mi_attempt', 'id' => mi.id}
 
-    if mi.has_status? :gtc and ! mi.has_status? :abt and mi.allele_id > 0 and mi.report_to_public and mi.consortium.name != "EUCOMMToolsCre"
+    if mi.has_status? :gtc and ! mi.has_status? :abt and mi.allele_id > 0 and mi.report_to_public and !mi.es_cell.try(:pipeline).blank? and mi.es_cell.try(:pipeline).try(:name) != "EUCOMMToolsCre"
       SolrUpdate::Queue.enqueue_for_update(reference)
     else
       SolrUpdate::Queue.enqueue_for_delete(reference)
@@ -31,8 +31,8 @@ class SolrUpdate::Enqueuer
     reference = {'type' => 'phenotype_attempt', 'id' => pa.id}
     reference2 = {'type' => 'mi_attempt', 'id' => pa.mi_attempt.id}
 
-    if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0 and pa.report_to_public and pa.consortium.name != "EUCOMMToolsCre"
-      if pa.mi_attempt.has_status? :gtc and ! pa.mi_attempt.has_status? :abt and pa.mi_attempt.allele_id > 0 and pa.mi_attempt.report_to_public and pa.mi_attempt.consortium.name != "EUCOMMToolsCre"
+    if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0 and pa.report_to_public and !pa.mi_attempt.es_cell.try(:pipeline).blank? and pa.mi_attempt.es_cell.try(:pipeline).try(:name) != "EUCOMMToolsCre"
+      if pa.mi_attempt.has_status? :gtc and ! pa.mi_attempt.has_status? :abt and pa.mi_attempt.allele_id > 0 and pa.mi_attempt.report_to_public
         SolrUpdate::Queue.enqueue_for_update(reference2)
       end
 

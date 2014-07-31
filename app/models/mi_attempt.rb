@@ -133,7 +133,7 @@ class MiAttempt < ApplicationModel
   end
 
   before_save :generate_external_ref_if_blank
-  before_save :manage_colony_if_blank_for_es_cell_micro_injections
+  before_save :manage_colony_for_es_cell_micro_injections
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
   after_save :add_default_distribution_centre
@@ -223,19 +223,24 @@ class MiAttempt < ApplicationModel
   protected :generate_external_ref_if_blank
 
 
-  def manage_colony_if_blank_for_es_cell_micro_injections
+  def manage_colony_for_es_cell_micro_injections
     return if es_cell.blank?
+
     if !colony.blank?
       if colony.name != external_ref
         colony.name = external_ref
-      else
-        return
       end
     else
       create_colony({:name => external_ref})
     end
+
+    if self.status.try(:code) == 'gtc' && colony.genotype_confirmed == false
+      colony.genotype_confirmed = true
+    elsif self.status.try(:code) != 'gtc' && colony.genotype_confirmed == true
+      colony.genotype_confirmed = false
+    end
   end
-  protected :manage_colony_if_blank_for_es_cell_micro_injections
+  protected :manage_colony_for_es_cell_micro_injections
 
   def make_mi_date_and_in_progress_status_consistent
     in_progress_status = self.status_stamps.find_by_status_id(1)

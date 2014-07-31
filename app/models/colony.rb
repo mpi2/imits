@@ -14,6 +14,17 @@ class Colony < ActiveRecord::Base
     end
   end
 
+  before_save :set_genotype_confirmed
+
+  def set_genotype_confirmed
+    if !mi_attempt_id.blank? && !mi_attempt.status.blank?
+      if !mi_attempt.es_cell.blank? && mi_attempt.status.code == 'gtc'
+        self.genotype_confirmed = true
+      end
+    end
+  end
+  protected :set_genotype_confirmed
+
   def self.readable_name
     return 'colony'
   end
@@ -23,9 +34,10 @@ end
 #
 # Table name: colonies
 #
-#  id            :integer          not null, primary key
-#  name          :string(255)      not null
-#  mi_attempt_id :integer
+#  id                 :integer          not null, primary key
+#  name               :string(255)      not null
+#  mi_attempt_id      :integer
+#  genotype_confirmed :boolean          default(FALSE)
 #
 # Indexes
 #

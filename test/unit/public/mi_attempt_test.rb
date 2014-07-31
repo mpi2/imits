@@ -20,6 +20,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         es_cell_name
         mi_date
         colony_name
+        colonies_attributes
         consortium_name
         production_centre_name
         distribution_centres_attributes
@@ -110,6 +111,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         status_name
         status_dates
         colony_name
+        colonies_attributes
         consortium_name
         production_centre_name
         distribution_centres_attributes

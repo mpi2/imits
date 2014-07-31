@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140718140000) do
+ActiveRecord::Schema.define(:version => 20140731090000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -45,8 +45,9 @@ ActiveRecord::Schema.define(:version => 20140718140000) do
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string  "name",          :null => false
+    t.string  "name",                                  :null => false
     t.integer "mi_attempt_id"
+    t.boolean "genotype_confirmed", :default => false
   end
 
   add_index "colonies", ["name"], :name => "colony_name_index", :unique => true

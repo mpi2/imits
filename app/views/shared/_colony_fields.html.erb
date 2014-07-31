@@ -12,6 +12,9 @@
         <a>Allele</a>
     </td>
     <td>
+        <%= f.check_box :genotype_confirmed %>
+    </td>
+    <td>
         <% if f.object.new_record? %>
             <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
             <%= link_to "remove", '#', class: "remove-row" %>

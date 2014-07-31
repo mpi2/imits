@@ -773,7 +773,8 @@ ALTER SEQUENCE centres_id_seq OWNED BY centres.id;
 CREATE TABLE colonies (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
-    mi_attempt_id integer
+    mi_attempt_id integer,
+    genotype_confirmed boolean DEFAULT false
 );
 
 
@@ -5816,3 +5817,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140717000000');
 INSERT INTO schema_migrations (version) VALUES ('20140717140000');
 
 INSERT INTO schema_migrations (version) VALUES ('20140718140000');
+
+INSERT INTO schema_migrations (version) VALUES ('20140731090000');

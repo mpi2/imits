@@ -1,12 +1,16 @@
 <tr>
     <td>
-        <%= f.text_field :name %>
+        <%= f.text_field :name, :maxlength => 20, :size => 40 %>
     </td>
     <td>
         <a>QC Data (click to edit)</a>
     </td>
     <td>
-        <a>Upload file</a>
+
+            <%= f.file_field :tfile %>
+
+            <!--<div id="fi-basic"></div>-->
+
     </td>
     <td>
         <a>Allele</a>
@@ -21,3 +25,5 @@
         <% end %>
     </td>
 </tr>
+
+<!--http://localhost:3000/mi_attempts/11832-->

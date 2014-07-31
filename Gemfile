@@ -53,3 +53,5 @@ group :development, :test do
 end
 
 gem 'zipruby', '~> 0.3.6'
+gem "paperclip", "~> 4.1"
+gem "paperclip_database", "~> 2.0"

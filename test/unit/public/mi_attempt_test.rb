@@ -262,6 +262,32 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+
+    context '#colonies_attributes' do
+      context 'for ES Cell mis' do
+        should 'return an error message' do
+          mi = Factory.create(:mi_attempt2)
+          mi.colonies_attributes = [{:name => 'A_NEW_COLONY'}]
+
+          assert_false mi.valid?
+          assert_equal "Multiple Colonies are not allowed for Mi Attempts micro-injected with an ES Cell clone", mi.errors.messages[:"colonies.base"][0]
+        end
+      end
+
+      context 'for Crispr mis' do
+        should 'allow colonies to be created' do
+          mi = Factory.create :mi_attempt_crispr
+
+          assert_equal 0, mi.colonies.length
+
+          mi.colonies_attributes = [{:name => 'A_NEW_COLONY'}, {:name => 'ANOTHER_NEW_COLONY'}]
+          mi.save
+
+          assert_equal 2, mi.colonies.length
+        end
+      end
+    end
+
     should 'have #phenotype_attempts_count' do
       set_mi_attempt_genotype_confirmed(default_mi_attempt)
       Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt

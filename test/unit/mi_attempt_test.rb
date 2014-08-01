@@ -59,8 +59,11 @@ class MiAttemptTest < ActiveSupport::TestCase
                             :status_stamps,
                             :phenotype_attempts,
                             :distribution_centres,
-                            :mouse_allele_mods
+                            :mouse_allele_mods,
+                            :colonies
                            ]
+
+      has_one_fields =     [:colony]
 
       belongs_to_fields.each do |field|
         should belong_to(field)
@@ -69,19 +72,40 @@ class MiAttemptTest < ActiveSupport::TestCase
       have_many_fields.each do |field|
         should have_many(field)
       end
+
+      has_one_fields.each do |field|
+        should have_one(field)
+      end
     end
 
     context 'Validation' do
       should validate_presence_of(:mi_date)
+
       should ensure_inclusion_of(:mouse_allele_type).in_array(MOUSE_ALLELE_OPTIONS.keys)
 
-#      context 'uniqueness' do
-#        setup do
-#          Factory.create()
-#        end
+      context 'uniqueness' do
+        setup do
+          Factory.create(:mi_attempt2)
+        end
 
-#        should validate_uniqueness_of(:colony_name).case_insensitive.allow_nil
-#      end
+        context 'external_ref' do
+          should 'be unique' do
+            default_mi_attempt.update_attributes!(:external_ref => 'ABCD')
+            assert_should have_db_index(:external_ref).unique(true)
+            assert_should validate_uniqueness_of :external_ref
+          end
+
+          should 'be unique (case insensitive)' do
+            mi_attempt = Factory.create(:mi_attempt2,
+            :external_ref => 'ABCD')
+            mi_attempt2 = Factory.build(:mi_attempt2,
+            :external_ref => 'abcd')
+
+            mi_attempt2.valid?
+            assert ! mi_attempt2.errors[:external_ref].blank?
+          end
+        end
+      end
 
       context 'require either an es_cell or mutagenesis factor' do
         setup do
@@ -149,6 +173,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_false mi.valid?
         assert_true mi.errors.messages[:status].include?('cannot be changed - phenotype attempts exist')
       end
+
     end
 
     context 'before filter' do
@@ -190,7 +215,8 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context 'Status' do
         should 'be set to "Micro-injection in progress" by default' do
-          assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt2).status.name
+          assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt2).status.name # Es Cell Mi Attempt
+          assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt_crispr).status.name # Crispr Mi Attempt
         end
 
         should ', when changed, add a status stamp' do
@@ -507,60 +533,133 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal 'NEW COLONY NAME', default_mi_attempt.external_ref
           assert_not_equal external_ref, default_mi_attempt.colony_name
         end
+      end
 
-        should 'be unique' do
-          default_mi_attempt.update_attributes!(:colony_name => 'ABCD')
-          assert_should have_db_index(:external_ref).unique(true)
-          assert_should validate_uniqueness_of :external_ref
-        end
-
-        should 'be unique (case insensitive)' do
-          mi_attempt = Factory.create(:mi_attempt2,
-          :colony_name => 'ABCD')
-          mi_attempt2 = Factory.build(:mi_attempt2,
-          :colony_name => 'abcd')
-
-          mi_attempt2.valid?
-          assert ! mi_attempt2.errors[:external_ref].blank?
-        end
-
+      context 'external_ref' do
         should 'be auto-generated if not supplied' do
           es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
           plan = TestDummy.mi_plan('EUCOMM-EUMODIC', 'ICS', :gene => es_cell.gene)
 
           attributes = {
             :es_cell => es_cell,
-            :colony_name => nil,
+            :external_ref => nil,
             :mi_plan => plan
           }
           mi_attempts = (1..3).to_a.map { Factory.create :mi_attempt2, attributes }
-          mi_attempt_last = Factory.create :mi_attempt2, attributes.merge(:colony_name => 'MABC')
+          mi_attempt_last = Factory.create :mi_attempt2, attributes.merge(:external_ref => 'MABC')
 
           assert_equal ['ICS-EPD0127_4_E01-1', 'ICS-EPD0127_4_E01-2', 'ICS-EPD0127_4_E01-3'],
-          mi_attempts.map(&:colony_name)
-          assert_equal 'MABC', mi_attempt_last.colony_name
+          mi_attempts.map(&:external_ref)
+          assert_equal 'MABC', mi_attempt_last.external_ref
         end
 
-        should 'not be auto-generated if es_cell was not assigned or found' do
-          mi_attempt = Factory.build :mi_attempt2, :es_cell => nil, :colony_name => nil
+        should 'not be auto-generated if es_cell was not assigned or found and mutagensis_factor is nil' do
+          mi_attempt = Factory.build :mi_attempt2, :es_cell => nil, :external_ref => nil
           assert_false mi_attempt.valid?
-          assert_nil mi_attempt.colony_name
+          assert_nil mi_attempt.external_ref
         end
 
         should 'manage trimming and spacing' do
-          colony_names = [
+          external_refs = [
             { :old => "a_dummy_colony_name_with_no_spaces", :new => "a_dummy_colony_name_with_no_spaces" },
             { :old => "a dummy colony name with no dodgy spaces", :new => "a dummy colony name with no dodgy spaces" },
             { :old => " a \t dummy   colony name with  dodgy  \t\t  spaces ", :new => "a dummy colony name with dodgy spaces" }
           ]
 
-          colony_names.each do |item|
-            mi_attempt = Factory.create(:mi_attempt2, :colony_name => item[:old])
+          external_refs.each do |item|
+            mi_attempt = Factory.create(:mi_attempt2, :external_ref => item[:old])
             mi_attempt.save!
-            assert_equal item[:new], mi_attempt.colony_name
+            assert_equal item[:new], mi_attempt.external_ref
           end
         end
 
+      end
+
+      context 'colony association' do
+        context 'for ES CELL mis' do
+          should 'be created by default based on the external_ref' do
+            mi = Factory.create :mi_attempt2
+
+            assert_not_nil mi.colony
+            assert_equal mi.external_ref, mi.colony.name
+          end
+          should 'have it\'s genotype_confirmed flag set to true if mi status changes to Genotype Confirmed' do
+            mi = Factory.create :mi_attempt2_status_chr
+
+            assert_false mi.colony.genotype_confirmed
+
+            mi.number_of_het_offspring = 1
+            mi.number_of_chimeras_with_glt_from_genotyping = 1
+            mi.save
+
+            assert_equal 'gtc', mi.status.code
+            assert_true mi.colony.genotype_confirmed
+
+          end
+          should 'have it\'s genotype_confirmed flag set to false if mi status changes from Genotype Confirmed to Founders obtained (a low status)' do
+            mi = Factory.create :mi_attempt2_status_gtc
+
+            assert_true mi.colony.genotype_confirmed
+
+            mi.number_of_het_offspring = 0
+            mi.number_of_chimeras_with_glt_from_genotyping = 0
+            mi.save
+
+            assert_equal 'chr', mi.status.code
+            assert_false mi.colony.genotype_confirmed
+          end
+        end
+
+        context 'for Crispr mis' do
+          should 'not exist' do
+            mi = Factory.create :mi_attempt_crispr
+
+            assert_nil mi.colony
+          end
+          should 'not exist even if there are multiple colonies' do
+            mi = Factory.create :mi_attempt_crispr
+
+            mi.colonies.new({:name => 'A_NEW_COLONY'})
+            mi.colonies.new({:name => 'ANOTHER_NEW_COLONY'})
+            mi.save
+
+            assert_equal 2, mi.colonies.length
+            assert_nil mi.colony
+          end
+        end
+      end
+
+      context 'colonies association' do
+        context 'for ES CELL mis' do
+          should 'not exist' do
+            mi = Factory.create :mi_attempt2
+
+            assert_not_nil mi.colony
+            assert_equal [], mi.colonies
+          end
+          should 'colonies should not have a new method' do
+            mi = Factory.create :mi_attempt2
+
+            assert_raise(NoMethodError) do
+              mi.colonies.new({:name => 'A_NEW_COLONY'})
+            end
+          end
+        end
+
+        context 'for Crisprs mis' do
+          should 'not be created by default' do
+            mi = Factory.create :mi_attempt_crispr
+            assert_equal 0, mi.colonies.length
+          end
+
+          should 'allow multiple colonies to be created for the mi' do
+            mi = Factory.create :mi_attempt_crispr
+            mi.colonies.new({:name => 'A_NEW_COLONY'})
+            mi.colonies.new({:name => 'ANOTHER_NEW_COLONY'})
+
+            assert_equal 2, mi.colonies.length
+          end
+        end
       end
 
       should 'have #comments' do

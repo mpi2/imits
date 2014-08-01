@@ -236,8 +236,10 @@ class MiAttempt < ApplicationModel
 
     if self.status.try(:code) == 'gtc' && colony.genotype_confirmed == false
       colony.genotype_confirmed = true
+      self.change_status
     elsif self.status.try(:code) != 'gtc' && colony.genotype_confirmed == true
       colony.genotype_confirmed = false
+      self.change_status
     end
   end
   protected :manage_colony_for_es_cell_micro_injections

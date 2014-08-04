@@ -249,6 +249,14 @@ class MiAttempt < ApplicationModel
     return output_string.strip
   end
 
+  def mutagenesis_factor_external_ref
+    if (self.mutagenesis_factor)
+      return self.mutagenesis_factor.external_ref
+    else
+      return nil
+    end
+  end
+
   def es_cell_name
     if(self.es_cell)
       return self.es_cell.name

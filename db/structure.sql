@@ -1475,7 +1475,8 @@ ALTER SEQUENCE mouse_allele_mods_id_seq OWNED BY mouse_allele_mods.id;
 
 CREATE TABLE mutagenesis_factors (
     id integer NOT NULL,
-    vector_id integer
+    vector_id integer,
+    external_ref character varying(255)
 );
 
 
@@ -5836,3 +5837,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140617141100');
 INSERT INTO schema_migrations (version) VALUES ('20140710144500');
 
 INSERT INTO schema_migrations (version) VALUES ('20140715152200');
+
+INSERT INTO schema_migrations (version) VALUES ('20140804112200');

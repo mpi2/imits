@@ -1,7 +1,7 @@
 class MutagenesisFactor < ActiveRecord::Base
   acts_as_audited
 
-  attr_accessible :vector_name, :crisprs_attributes
+  attr_accessible :vector_name, :crisprs_attributes, :external_ref
 
   # NOTE! make sure that the crispr association always appears above the mi_attempt association. Changing the order will prevent the mi_attempt from saving. This results from the implimention of the nested_attributes method
   has_many :crisprs, :class_name => 'TargRep::Crispr', :inverse_of => :mutagenesis_factor
@@ -12,17 +12,36 @@ class MutagenesisFactor < ActiveRecord::Base
 
   before_validation :set_vector_from_vector_name
 
+  validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
+
   validate do |m|
     if m.crisprs.length == 0
       m.errors.add :crisprs, "missing. Please input at least one crispr"
     end
   end
 
+  before_save :set_external_ref_if_blank
+
   def set_vector_from_vector_name
     if self.vector.nil? or self.vector.name != vector_name
       self.vector = TargRep::TargetingVector.find_by_name(self.vector_name)
     end
   end
+  protected :set_vector_from_vector_name
+
+
+  def set_external_ref_if_blank
+    if self.external_ref.blank?
+      prefix = 'MUT'
+      i = 0
+      begin
+        i += 1
+        self.external_ref = "#{prefix}-#{i}"
+      end until self.class.find_by_external_ref(self.external_ref).blank?
+    end
+
+  end
+  protected :set_external_ref_if_blank
 
 
   def vector_name
@@ -48,6 +67,7 @@ end
 #
 # Table name: mutagenesis_factors
 #
-#  id        :integer          not null, primary key
-#  vector_id :integer
+#  id           :integer          not null, primary key
+#  vector_id    :integer
+#  external_ref :string(255)
 #

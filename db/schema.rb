@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140715152200) do
+ActiveRecord::Schema.define(:version => 20140804112200) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -437,6 +437,7 @@ ActiveRecord::Schema.define(:version => 20140715152200) do
 
   create_table "mutagenesis_factors", :force => true do |t|
     t.integer "vector_id"
+    t.string  "external_ref"
   end
 
   create_table "new_consortia_intermediate_report", :force => true do |t|

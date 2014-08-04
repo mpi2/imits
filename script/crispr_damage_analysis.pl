@@ -15,7 +15,7 @@ use Data::UUID;
 use Try::Tiny;
 
 const my $EXTRACT_SEQ_CMD => $ENV{EXTRACT_SEQ_CMD}
-    // '/software/badger/bin/extract_seq';
+    // '/opt/t87/global/software/io_lib/bin/extract_seq';
 
 const my $DEFAULT_QC_DIR => $ENV{ DEFAULT_CRISPR_DAMAGE_QC_DIR }
     // '/lustre/scratch109/sanger/team87/imits_crispr_damage_qc';
@@ -24,7 +24,7 @@ my $log_level = $INFO;
 
 my ($seq_filename,  $scf_filename, $het_scf_filename,
     $target_start,  $target_end,   $target_chr,
-    $target_strand, $species,      $dir
+    $target_strand, $species, $dir_name,
 );
 GetOptions(
     'help'            => sub { pod2usage( -verbose => 1 ) },
@@ -38,6 +38,7 @@ GetOptions(
     'target-chr=s'    => \$target_chr,
     'target-strand=s' => \$target_strand,
     'species=s'       => \$species,
+    'dir=s'           => \$dir_name,
 ) or pod2usage(2);
 
 pod2usage('Must provide target location information')
@@ -45,7 +46,7 @@ pod2usage('Must provide target location information')
 
 Log::Log4perl->easy_init( { level => $log_level, layout => '%p %m%n' } );
 
-my $work_dir = dir( $DEFAULT_QC_DIR )->subdir( Data::UUID->new->create_str );
+my $work_dir = dir( $DEFAULT_QC_DIR )->subdir( $dir_name || Data::UUID->new->create_str );
 $work_dir->mkpath;
 INFO( "Created work directory $work_dir" );
 
@@ -97,7 +98,7 @@ containing the variant sequence.
 sub variant_scf_to_fasta {
     my $scf_file = shift;
 
-    my %params = (
+    my %variant_params = (
         scf_file      => $scf_file,
         species       => $species,
         base_dir      => $work_dir,
@@ -107,7 +108,7 @@ sub variant_scf_to_fasta {
         target_strand => $target_strand,
     );
 
-    my $scf_converter = HTGT::QC::Util::SCFVariationSeq->new( %params );
+    my $scf_converter = HTGT::QC::Util::SCFVariationSeq->new( %variant_params );
 
     return $scf_converter->get_seq_from_scf;
 }
@@ -160,6 +161,7 @@ crispr_damage_analysis.pl - Analyse crispr damage using one primer read
       --target-chr                * Chromosome name of target region
       --target-strand             * Strand of target region
       --species                   * Species, either Mouse or Human supported
+      --dir                       Set name of work directory
 
 The parameters marked with a * are required.
 You must specify a sequence-file or a scf-file.

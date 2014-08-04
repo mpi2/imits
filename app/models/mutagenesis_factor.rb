@@ -32,7 +32,7 @@ class MutagenesisFactor < ActiveRecord::Base
 
   def set_external_ref_if_blank
     if self.external_ref.blank?
-      prefix = 'MUT'
+      prefix = 'MF'
       i = 0
       begin
         i += 1

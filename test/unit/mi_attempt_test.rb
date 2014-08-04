@@ -872,7 +872,8 @@ class MiAttemptTest < ActiveSupport::TestCase
     context '#distribution_centre' do
       context 'when genotype confirmed' do
         should 'default to the production centre' do
-          mi_attempt = Factory.create :mi_attempt2_status_gtc
+          mi_plan = Factory.create(:mi_plan, :production_centre => Centre.find_by_name('BCM'))
+          mi_attempt = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
 
           assert_equal 1, mi_attempt.distribution_centres.count
 
@@ -912,6 +913,29 @@ class MiAttemptTest < ActiveSupport::TestCase
 
           distribution_centre = mi_attempt.distribution_centres.first
           assert_equal 'KOMP Repo', distribution_centre.centre.name
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
+
+        should 'default the distribution network to EMMA if production centre is WTSI and ES Cell pipeline is EUCOMM pr EUCOMMTolls' do
+          es_cell_eucomm = Factory.create(:es_cell)
+          es_cell_eucomm_tools = Factory.create(:es_cell, :pipeline => TargRep::Pipeline.find_by_name!('EUCOMMTools') )
+
+          mi_plan_eucomm = Factory.create(:mi_plan, :production_centre => Centre.find_by_name('WTSI'), :gene => es_cell_eucomm.gene)
+          mi_plan_eucomm_tools = Factory.create(:mi_plan, :production_centre => Centre.find_by_name('WTSI'), :gene => es_cell_eucomm_tools.gene)
+
+          mi_attempt_eucomm = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan_eucomm, :es_cell => es_cell_eucomm
+          mi_attempt_eucomm_tools = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan_eucomm_tools, :es_cell => es_cell_eucomm_tools
+
+          assert_equal 1, mi_attempt_eucomm.distribution_centres.count
+          distribution_centre = mi_attempt_eucomm.distribution_centres.first
+          assert_equal mi_attempt_eucomm.production_centre, distribution_centre.centre
+          assert_equal 'EMMA', distribution_centre.distribution_network
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+
+          assert_equal 1, mi_attempt_eucomm_tools.distribution_centres.count
+          distribution_centre = mi_attempt_eucomm_tools.distribution_centres.first
+          assert_equal mi_attempt_eucomm_tools.production_centre, distribution_centre.centre
+          assert_equal 'EMMA', distribution_centre.distribution_network
           assert_equal 'Live mice', distribution_centre.deposited_material.name
         end
       end

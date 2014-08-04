@@ -37,7 +37,8 @@ module TarMits
       'SolrUpdate::Observer::EsCell',
       'SolrUpdate::Observer::MiPlan',
       'SolrUpdate::Observer::Gene',
-      'SolrUpdate::Observer::IkmcProject'
+      'SolrUpdate::Observer::IkmcProject',
+      #'Colony::Observer'
     ]
 
     config.active_record.observers += ['SolrUpdate::Observer::PhenotypeAttempt'] if config.enable_solr_phenotype_attempt

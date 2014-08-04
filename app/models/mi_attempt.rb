@@ -163,6 +163,8 @@ class MiAttempt < ApplicationModel
         distribution_centre.distribution_network = 'CMMR'
       elsif centre == 'TCP' && ['UCD-KOMP', 'DTCC'].include?(consortium_name)
         distribution_centre.centre = Centre.find_by_name('KOMP Repo')
+      elsif centre == 'WTSI' and !es_cell.blank? and ['EUCOMM', 'EUCOMMTools'].include?(es_cell.pipeline.try(:name))
+        distribution_centre.distribution_network = 'EMMA'
       end
       raise "Could not save DEFAULT distribution Centre" if !distribution_centre.valid?
       distribution_centre.save

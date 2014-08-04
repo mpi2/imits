@@ -87,7 +87,7 @@
         <% end %>
       </p>
     <% end %>
-    <% if !@allele.class.hdr_allele? and !@allele.class.nhej_allele?%>
+    <% if !@allele.class.hdr_allele? and !@allele.class.nhej_allele? and !@allele.class.crispr_targeted_allele?%>
       <p>
         <strong>ES Cell Clone / Allele Genbank File: </strong>
         <% unless genbank_file.nil? or genbank_file.escell_clone.nil? %>
@@ -100,7 +100,7 @@
         <% end %>
       </p>
     <% end %>
-    <% if @allele.class.hdr_allele? or @allele.class.nhej_allele?%>
+    <% if @allele.class.hdr_allele? or @allele.class.nhej_allele? or @allele.class.crispr_targeted_allele?%>
       <strong>Allele Genbank File: </strong>
       <% unless genbank_file.nil? or genbank_file.allele_genbank_file.nil? %>
         <a href="<%= targ_rep_allele_genbank_file_url(:id => @allele.id) %>" target="_blank" class="ss_sprite ss_magnifier">view</a>

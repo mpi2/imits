@@ -178,6 +178,8 @@ class PhenotypeAttempt < ApplicationModel
         distribution_centre.distribution_network = 'CMMR'
       elsif centre == 'TCP' && ['UCD-KOMP', 'DTCC'].include?(consortium_name)
         distribution_centre.centre = Centre.find_by_name('KOMP Repo')
+      elsif centre == 'WTSI' and !mi_attempt.es_cell.blank? and ['EUCOMM', 'EUCOMMTools'].include?(mi_attempt.es_cell.pipeline.try(:name))
+        distribution_centre.distribution_network = 'EMMA'
       end
       raise "Could not save default distribution centre" if !distribution_centre.valid?
       distribution_centre.save

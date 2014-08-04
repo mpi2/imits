@@ -12,6 +12,13 @@ class MutagenesisFactor < ActiveRecord::Base
 
   before_validation :set_vector_from_vector_name
 
+  before_validation do |mi|
+    if ! mi.external_ref.nil?
+      mi.external_ref = mi.external_ref.to_s.strip || mi.external_ref
+      mi.external_ref = mi.external_ref.to_s.gsub(/\s+/, ' ')
+    end
+  end
+
   validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
 
   validate do |m|

@@ -46,6 +46,7 @@ class MiAttempt < ApplicationModel
   has_many   :mouse_allele_mods
   has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
   has_many   :crisprs, through: :mutagenesis_factor
+  has_many   :genotype_primers, through: :mutagenesis_factor
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :colony_background_strain, :name

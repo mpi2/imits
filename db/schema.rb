@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140804112200) do
+ActiveRecord::Schema.define(:version => 20140805121100) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -1316,6 +1316,15 @@ ActiveRecord::Schema.define(:version => 20140804112200) do
 
   add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
 
+  create_table "targ_rep_genotype_primers", :force => true do |t|
+    t.string  "sequence",                 :null => false
+    t.string  "name"
+    t.integer "genomic_start_coordinate"
+    t.integer "genomic_end_coordinate"
+    t.integer "mutagenesis_factor_id"
+    t.integer "allele_id"
+  end
+
   create_table "targ_rep_ikmc_project_statuses", :force => true do |t|
     t.string  "name"
     t.string  "product_type"
@@ -1540,6 +1549,9 @@ ActiveRecord::Schema.define(:version => 20140804112200) do
 
   add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_qc_mouse_clinic_id_fk", :column => "user_qc_mouse_clinic_id"
   add_foreign_key "targ_rep_es_cells", "targ_rep_real_alleles", :name => "targ_rep_es_cells_targ_rep_real_allele_id_fk", :column => "real_allele_id"
+
+  add_foreign_key "targ_rep_genotype_primers", "mutagenesis_factors", :name => "targ_rep_genotype_primers_mutagenesis_factor_id_fk"
+  add_foreign_key "targ_rep_genotype_primers", "targ_rep_alleles", :name => "targ_rep_genotype_primers_allele_id_fk", :column => "allele_id"
 
   add_foreign_key "targ_rep_real_alleles", "genes", :name => "targ_rep_real_alleles_gene_id_fk"
 

@@ -113,6 +113,38 @@
   </div>
 </fieldset>
 
+<fieldset id="genotype_primer_field_set" class="collapsible"
+  <% if @mi_attempt.mutagenesis_factor.blank? %>style="display: none;"<% end %>>
+  <legend>Genotype Primers</legend>
+  <div>
+    <table id="genotype_primers_table" class="report_table">
+      <thead class="title">
+        <tr>
+          <th>Name</th>
+          <th>Sequence</th>
+          <th>Coordinate Start</th>
+          <th>Coordinate End</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody class="distribution_centres">
+        <tr></tr>
+        <%= form.fields_for :mutagenesis_factor do |builder| %>
+          <%= builder.fields_for :genotype_primers do |builder2| %>
+            <%= render '/shared/genotype_primer_fields', f: builder2 %>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @mi_attempt.mutagenesis_factor.blank? %>
+      <% @mi_attempt.mutagenesis_factor = MutagenesisFactor.new %>
+    <% end %>
+    <%= form.fields_for :mutagenesis_factor do |builder| %>
+      <%= link_to_add_fields "Add Genotype Primer", builder, :genotype_primers %>
+    <% end %>
+  </div>
+</fieldset>
+
 <fieldset class="collapsible" id="distribution_centres">
   <legend>Distribution Centres</legend>
     <div class="distribution_centres">

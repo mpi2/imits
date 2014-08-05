@@ -199,6 +199,8 @@ GEM
     treetop (1.4.12)
       polyglot
       polyglot (>= 0.3.1)
+    trim_blobs (0.0.1)
+      activerecord (>= 3.2.0)
     tzinfo (0.3.37)
     unicorn (4.3.0)
       kgio (~> 2.6)
@@ -253,6 +255,7 @@ DEPENDENCIES
   simplecov-rcov (= 0.2.0)
   test-unit (= 2.5.3)
   thin (= 1.4.1)
+  trim_blobs
   unicorn (= 4.3.0)
   will_paginate (~> 3.0.pre2)
   zipruby (~> 0.3.6)

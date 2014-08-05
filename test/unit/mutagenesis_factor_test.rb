@@ -6,6 +6,7 @@ class MutagenesisFactorTest < ActiveSupport::TestCase
   context 'MutagenesisFactor' do
 
     should have_many(:crisprs)
+    should have_many(:genotype_primers)
     should have_one(:mi_attempt)
     should belong_to(:vector)
 

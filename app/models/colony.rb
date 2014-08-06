@@ -10,14 +10,14 @@ class Colony < ActiveRecord::Base
     end
 
     def after_save(c)
-      puts "#### Colony::Observer after_save"
+      puts "#### Colony::Observer after_save (#{c.id})"
       # TODO: get these params from somewhere
      # c.scf({ :start => 139237069, :end => 139237133, :chr => 1, :strand => -1})
     end
 
     def after_destroy(c)
-      puts "#### Colony::Observer after_destroy"
-   #   c.remove
+      puts "#### Colony::Observer after_destroy (#{c.id})"
+      c.remove
     end
 
     public_class_method :new
@@ -33,8 +33,6 @@ class Colony < ActiveRecord::Base
   has_attached_file :trace_file, :storage => :database
 
   do_not_validate_attachment_file_type :trace_file
-
-  belongs_to :mi_attempt
 
   validate do |colony|
     if !mi_attempt.blank? and !mi_attempt.es_cell.blank?
@@ -88,12 +86,25 @@ class Colony < ActiveRecord::Base
 
   def scf options = {}
 
+    if ! options[:force] && File.exists?("#{FOLDER_OUT}/#{self.id}")
+      puts "#### trace output already exists (#{self.id})!"
+      return
+    end
+
     if ! self.trace_file
       puts "#### no trace file!"
       return
     end
 
+    FileUtils.mkdir_p FOLDER_IN
+    FileUtils.mkdir_p FOLDER_TMP
+
+#      colony.scf({ :start => 139237069, :end => 139237133, :chr => 1, :strand => -1})
+
     options[:remote] = true
+    options[:chr] = mi_attempt.mi_plan.gene.chr if ! options[:chr]
+    # TODO: check me!
+    options[:strand] = "#{mi_attempt.mi_plan.gene.strand_name}1" if ! options[:strand]
     options[:species] = "Mouse"
     options[:dir] = self.id
 
@@ -102,9 +113,6 @@ class Colony < ActiveRecord::Base
     self.trace_file.copy_to_local_file('original', filename)
 
     options[:file] = filename
-
-    FileUtils.mkdir_p FOLDER_IN
-    FileUtils.mkdir_p FOLDER_TMP
 
     [:start, :end, :chr, :strand, :species, :file, :dir].each do |flag|
       raise "#### cannot find #{flag}!" if ! options.has_key? flag
@@ -124,28 +132,30 @@ class Colony < ActiveRecord::Base
       output = scriptout.read
     end
 
-    #output = output.gsub(/\\n/, "\n")
-    #error_output = error_output.gsub(/\\n/, "\n")
+    #output = output.to_s.gsub("\n", "\n")
+    #error_output = error_output.to_s.gsub("\n", "\n")
+
+  #  output = output.to_s.split("\n").join("\n")
+  #  error_output = error_output.to_s.split("\n").join("\n")
+
+    save_files
 
     if VERBOSE
       puts "#### error_output:"
-      pp error_output
+      puts error_output
       puts "#### exit_status:"
-      pp exit_status
+      puts exit_status
       puts "#### output:"
-      pp output
+      puts output
     end
 
   end
 
   def save_files
-
-    colony = self
-
-    folder_in = "#{FOLDER_IN}/#{colony.id}"
+    folder_in = "#{FOLDER_IN}/#{self.id}"
     FileUtils.mkdir_p folder_in
 
-    folder_out = "#{FOLDER_OUT}/#{colony.id}"
+    folder_out = "#{FOLDER_OUT}/#{self.id}"
     FileUtils.mkdir_p folder_out
 
     file_count = 0
@@ -159,7 +169,7 @@ class Colony < ActiveRecord::Base
       end
     end
 
-    FileUtils.mv(filename, "#{FOLDER_TMP}/#{colony.id}/#{colony.trace_file_file_name}")
+    FileUtils.mv("#{FOLDER_TMP}/tmp.scf", "#{folder_out}/#{self.trace_file_file_name}")
 
     puts "#### file_count: #{file_count}" if VERBOSE
   end

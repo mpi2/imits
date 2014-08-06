@@ -138,7 +138,7 @@ class Colony < ActiveRecord::Base
       raise "#### cannot find flag '#{flag}'!" if ! options.has_key? flag
     end
 
-    pp options
+   # pp options
 
     error_output = nil
     exit_status = nil

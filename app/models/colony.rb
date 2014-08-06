@@ -12,7 +12,7 @@ class Colony < ActiveRecord::Base
     def after_save(c)
       puts "#### Colony::Observer after_save (#{c.id})"
       # TODO: get these params from somewhere
-     # c.scf({ :start => 139237069, :end => 139237133, :chr => 1, :strand => -1})
+      # c.scf({ :start => 139237069, :end => 139237133, :chr => 1, :strand => -1})
     end
 
     def after_destroy(c)
@@ -50,7 +50,8 @@ class Colony < ActiveRecord::Base
 
   SCRIPT_RUNREMOTE = "#{Rails.root}/script/runremote.sh"
   SCRIPT_SCF = "#{Rails.root}/script/scf.sh"
-  FOLDER_IN = "#{Rails.root}/tmp/trace_files_output"
+#  FOLDER_IN = "#{Rails.root}/tmp/trace_files_output"
+  FOLDER_IN = '/nfs/team87/imits/trace_files_output'
   FOLDER_OUT = "#{Rails.root}/public/trace_files"
   FOLDER_TMP = "#{Rails.root}/tmp/trace_files"
   SCF_FILES = %W{
@@ -69,6 +70,8 @@ class Colony < ActiveRecord::Base
 
     SCF_FILES.each { |file| FileUtils.rm "#{folder_out}/#{file}", :force => true }
 
+    FileUtils.rm "#{folder_out}/*.scf", :force => true
+
     FileUtils.rmdir folder_out, :force => true
   end
 
@@ -77,14 +80,17 @@ class Colony < ActiveRecord::Base
     command = ""
     command += "#{SCRIPT_RUNREMOTE}" if options[:remote]
     command += " #{SCRIPT_SCF} bash re4 t87-dev " +
-      "-s #{options[:start]} -e #{options[:end]} -c #{options[:chr]} " +
-      "-t #{options[:strand]} -x #{options[:species]} -f #{options[:file]} -d #{options[:dir]}"
+    "-s #{options[:start]} -e #{options[:end]} -c #{options[:chr]} " +
+    "-t #{options[:strand]} -x #{options[:species]} -f #{options[:file]} -d #{options[:dir]}"
     command_post = ""
 
     "#{command_pre} #{command} #{command_post}"
   end
 
   def scf options = {}
+
+    # we only run this if there's no folder already there
+    # the observer above clears out the folder in after_destroy
 
     if ! options[:force] && File.exists?("#{FOLDER_OUT}/#{self.id}")
       puts "#### trace output already exists (#{self.id})!"
@@ -99,7 +105,7 @@ class Colony < ActiveRecord::Base
     FileUtils.mkdir_p FOLDER_IN
     FileUtils.mkdir_p FOLDER_TMP
 
-#      colony.scf({ :start => 139237069, :end => 139237133, :chr => 1, :strand => -1})
+    #      colony.scf({ :start => 139237069, :end => 139237133, :chr => 1, :strand => -1})
 
     options[:remote] = true
     options[:chr] = mi_attempt.mi_plan.gene.chr if ! options[:chr]
@@ -108,6 +114,20 @@ class Colony < ActiveRecord::Base
     options[:species] = "Mouse"
     options[:dir] = self.id
 
+   # pp self.mi_attempt.crisprs
+
+    if ! options[:start] || ! options[:end]
+      s = 0
+      e = 0
+      self.mi_attempt.crisprs.each do |crispr|
+        s = crispr.start.to_i if s == 0 || crispr.start.to_i < s.to_i
+        e = crispr.end.to_i if e == 0 || crispr.end.to_i > e.to_i
+      end
+
+      options[:start] = s
+      options[:end] = e
+    end
+
     folder = FOLDER_TMP
     filename = "#{folder}/tmp.scf"
     self.trace_file.copy_to_local_file('original', filename)
@@ -115,8 +135,10 @@ class Colony < ActiveRecord::Base
     options[:file] = filename
 
     [:start, :end, :chr, :strand, :species, :file, :dir].each do |flag|
-      raise "#### cannot find #{flag}!" if ! options.has_key? flag
+      raise "#### cannot find flag '#{flag}'!" if ! options.has_key? flag
     end
+
+    pp options
 
     error_output = nil
     exit_status = nil
@@ -124,21 +146,13 @@ class Colony < ActiveRecord::Base
 
     cmd = run_cmd options
 
-    puts "#### '#{cmd}'" if VERBOSE
+    #puts "#### '#{cmd}'" if VERBOSE
 
     Open3.popen3("#{cmd}") do |scriptin, scriptout, scripterr, wait_thr|
       error_output = scripterr.read
       exit_status = wait_thr.value.exitstatus
       output = scriptout.read
     end
-
-    #output = output.to_s.gsub("\n", "\n")
-    #error_output = error_output.to_s.gsub("\n", "\n")
-
-  #  output = output.to_s.split("\n").join("\n")
-  #  error_output = error_output.to_s.split("\n").join("\n")
-
-    save_files
 
     if VERBOSE
       puts "#### error_output:"
@@ -148,6 +162,8 @@ class Colony < ActiveRecord::Base
       puts "#### output:"
       puts output
     end
+
+    save_files
 
   end
 
@@ -171,41 +187,16 @@ class Colony < ActiveRecord::Base
 
     FileUtils.mv("#{FOLDER_TMP}/tmp.scf", "#{folder_out}/#{self.trace_file_file_name}")
 
+    puts "#### clearing out '#{folder_in}'" if VERBOSE
+
+    FileUtils.rm("#{folder_in}/merge_vcf/*.*", :force => true)
+    FileUtils.rmdir("#{folder_in}/merge_vcf")
+    #FileUtils.rm("#{folder_in}/*.*", :force => true)
+    FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
+    FileUtils.rmdir("#{folder_in}")
+
     puts "#### file_count: #{file_count}" if VERBOSE
   end
-
-  #def self.run
-  #
-  #  colony = self
-  #
-  #  folder = FOLDER_IN
-  #  FileUtils.mkdir_p folder
-  #
-  #  folder = FOLDER_TMP
-  #  FileUtils.mkdir_p folder
-  #
-  #  @colonies = Colony.all if colony == nil
-  #  @colonies = [colony] if colony != nil
-  #
-  #  @colonies.each do |colony|
-  #    if colony.trace_file
-  #      filename = "#{folder}/tmp.scf"
-  #      colony.trace_file.copy_to_local_file('original', filename)
-  #
-  #      if VERBOSE
-  #        s1 = colony.trace_file.size
-  #        s2 = File.size(filename)
-  #        puts "#### filename: #{filename}"
-  #        puts "#### size: (" + s1.to_s + "/" + s2.to_s + ")"
-  #      end
-  #
-  #      scf({ :start => 139237069, :end => 139237133, :chr => 1, :strand => -1, :species => "Mouse", :file => filename, :dir => colony.id})
-  #
-  #      save_files colony
-  #    end
-  #  end
-  #
-  #end
 
 end
 

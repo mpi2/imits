@@ -17,7 +17,7 @@ class Colony < ActiveRecord::Base
 
     def after_destroy(c)
       puts "#### Colony::Observer after_destroy (#{c.id})"
-      c.remove
+      c.remove_files
     end
 
     public_class_method :new
@@ -63,7 +63,7 @@ class Colony < ActiveRecord::Base
     mutated.fa
   }
 
-  def remove
+  def remove_files
     folder_out = "#{FOLDER_OUT}/#{self.id}"
 
     return if ! File.exists?(folder_out)
@@ -72,7 +72,7 @@ class Colony < ActiveRecord::Base
 
     FileUtils.rm "#{folder_out}/*.scf", :force => true
 
-    FileUtils.rmdir folder_out, :force => true
+    FileUtils.rmdir folder_out
   end
 
   def run_cmd options
@@ -205,7 +205,7 @@ end
 # Table name: colonies
 #
 #  id                      :integer          not null, primary key
-#  name                    :string(20)       not null
+#  name                    :string(255)      not null
 #  mi_attempt_id           :integer
 #  trace_file_file_name    :string(255)
 #  trace_file_content_type :string(255)

@@ -198,6 +198,12 @@
             <%= genbank_form.text_area :escell_clone, :class => :text %>
           </div>
         <% end %>
+        <%if @allele.class.crispr_targeted_allele? %>
+          <div class="grid_6">
+            <label>Allele's Genbank File</label><br />
+            <%= genbank_form.text_area :allele_genbank_file, :class => :text %>
+          </div>
+        <% end %>
       <% end -%>
     </fieldset>
   </div>

@@ -1475,7 +1475,8 @@ ALTER SEQUENCE mouse_allele_mods_id_seq OWNED BY mouse_allele_mods.id;
 
 CREATE TABLE mutagenesis_factors (
     id integer NOT NULL,
-    vector_id integer
+    vector_id integer,
+    external_ref character varying(255)
 );
 
 
@@ -3076,6 +3077,40 @@ ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
 
 
 --
+-- Name: targ_rep_genotype_primers; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_genotype_primers (
+    id integer NOT NULL,
+    sequence character varying(255) NOT NULL,
+    name character varying(255),
+    genomic_start_coordinate integer,
+    genomic_end_coordinate integer,
+    mutagenesis_factor_id integer,
+    allele_id integer
+);
+
+
+--
+-- Name: targ_rep_genotype_primers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_genotype_primers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_genotype_primers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_genotype_primers_id_seq OWNED BY targ_rep_genotype_primers.id;
+
+
+--
 -- Name: targ_rep_ikmc_project_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -3805,6 +3840,13 @@ ALTER TABLE ONLY targ_rep_genbank_files ALTER COLUMN id SET DEFAULT nextval('tar
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY targ_rep_genotype_primers ALTER COLUMN id SET DEFAULT nextval('targ_rep_genotype_primers_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY targ_rep_ikmc_project_statuses ALTER COLUMN id SET DEFAULT nextval('targ_rep_ikmc_project_statuses_id_seq'::regclass);
 
 
@@ -4292,6 +4334,14 @@ ALTER TABLE ONLY targ_rep_es_cells
 
 ALTER TABLE ONLY targ_rep_genbank_files
     ADD CONSTRAINT targ_rep_genbank_files_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_genotype_primers_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_genotype_primers
+    ADD CONSTRAINT targ_rep_genotype_primers_pkey PRIMARY KEY (id);
 
 
 --
@@ -5470,6 +5520,22 @@ ALTER TABLE ONLY targ_rep_es_cells
 
 
 --
+-- Name: targ_rep_genotype_primers_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_genotype_primers
+    ADD CONSTRAINT targ_rep_genotype_primers_allele_id_fk FOREIGN KEY (allele_id) REFERENCES targ_rep_alleles(id);
+
+
+--
+-- Name: targ_rep_genotype_primers_mutagenesis_factor_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_genotype_primers
+    ADD CONSTRAINT targ_rep_genotype_primers_mutagenesis_factor_id_fk FOREIGN KEY (mutagenesis_factor_id) REFERENCES mutagenesis_factors(id);
+
+
+--
 -- Name: targ_rep_real_alleles_gene_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5836,3 +5902,7 @@ INSERT INTO schema_migrations (version) VALUES ('20140617141100');
 INSERT INTO schema_migrations (version) VALUES ('20140710144500');
 
 INSERT INTO schema_migrations (version) VALUES ('20140715152200');
+
+INSERT INTO schema_migrations (version) VALUES ('20140804112200');
+
+INSERT INTO schema_migrations (version) VALUES ('20140805121100');

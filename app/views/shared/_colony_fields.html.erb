@@ -6,10 +6,20 @@
         <a>QC Data (click to edit)</a>
     </td>
     <td>
+        <%= f.file_field :trace_file %>
+    </td>
 
-            <%= f.file_field :trace_file %>
+    <td style="text-align:center">
+
+        <% if f.object.trace_data_available %>
+            Yes
+        <% else %>
+            No
+        <% end %>
 
     </td>
+
+
     <td>
         <a>Allele</a>
     </td>

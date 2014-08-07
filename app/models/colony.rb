@@ -11,8 +11,7 @@ class Colony < ActiveRecord::Base
 
     def after_save(c)
       puts "#### Colony::Observer after_save (#{c.id})"
-      # TODO: get these params from somewhere
-      # c.scf({ :start => 139237069, :end => 139237133, :chr => 1, :strand => -1})
+      c.scf if Colony::SYNC
     end
 
     def after_destroy(c)
@@ -46,6 +45,7 @@ class Colony < ActiveRecord::Base
     return 'colony'
   end
 
+  SYNC = false
   VERBOSE = true
 
   SCRIPT_RUNREMOTE = "#{Rails.root}/script/runremote.sh"
@@ -63,6 +63,10 @@ class Colony < ActiveRecord::Base
     mutated.fa
   }
 
+  def trace_data_available
+    File.exists?("#{FOLDER_OUT}/#{self.id}")
+  end
+
   def remove_files
     folder_out = "#{FOLDER_OUT}/#{self.id}"
 
@@ -70,7 +74,8 @@ class Colony < ActiveRecord::Base
 
     SCF_FILES.each { |file| FileUtils.rm "#{folder_out}/#{file}", :force => true }
 
-    FileUtils.rm "#{folder_out}/*.scf", :force => true
+   #FileUtils.rm "#{folder_out}/*.scf", :force => true
+    FileUtils.rm(Dir.glob("#{folder_out}/*.scf"), :force => true)
 
     FileUtils.rmdir folder_out
   end
@@ -97,7 +102,7 @@ class Colony < ActiveRecord::Base
       return
     end
 
-    if ! self.trace_file
+    if ! self.trace_file || self.trace_file_file_name.blank?
       puts "#### no trace file!"
       return
     end
@@ -189,7 +194,8 @@ class Colony < ActiveRecord::Base
 
     puts "#### clearing out '#{folder_in}'" if VERBOSE
 
-    FileUtils.rm("#{folder_in}/merge_vcf/*.*", :force => true)
+   #FileUtils.rm("#{folder_in}/merge_vcf/*.*", :force => true)
+    FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
     FileUtils.rmdir("#{folder_in}/merge_vcf")
     #FileUtils.rm("#{folder_in}/*.*", :force => true)
     FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)

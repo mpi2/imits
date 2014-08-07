@@ -71,8 +71,6 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'allele_name' => @mi_attempt.allele_symbol,
           'allele_image_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image",
           'genbank_file_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
-          'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1"],
-          'order_from_names' => ['WTSI'],
           'best_status_pa_cre_ex_not_required' => '',
           'best_status_pa_cre_ex_required' => 'Cre Excision Complete',
           'current_pa_status'=>'',
@@ -82,7 +80,9 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'es_cell_name' => 'EPD0027_2_A02',
           'marker_symbol' => 'Cbx1',
           'project_ids' => ['35505'],
-          "allele_has_issue" => false
+          "allele_has_issue" => false,
+          "order_from_names"=>["EMMA"],
+          "order_from_urls"=>["http://www.emmanet.org/mutant_types.php?keyword=Cbx1"]
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
@@ -157,8 +157,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'colony_name' => 'WTSI-EPD0027_2_A02-1-1',
           'parent_mi_attempt_colony_name' => 'WTSI-EPD0027_2_A02-1',
           'project_ids' => ['35505'],
-          'order_from_names'=>['WTSI'],
-          'order_from_urls'=> ['mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1']
+          "order_from_names"=>["EMMA"],
+          "order_from_urls"=>["http://www.emmanet.org/mutant_types.php?keyword=Cbx1"]
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

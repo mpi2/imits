@@ -392,18 +392,19 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
 
     context '#distribution_centres_formatted_display' do
-      should 'output a string of distribution centre and deposited material' do
+      should 'output a string of distribution network, distribution centre and deposited material' do
         pa = Factory.create :phenotype_attempt_status_pdc,
                 :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => bash_wtsi_cbx1_plan)
 
-        assert_equal "[WTSI, Live mice]", pa.distribution_centres_formatted_display
+        assert_equal "[EMMA, WTSI, Live mice]", pa.distribution_centres_formatted_display
       end
     end
 
     context '#distribution_centre' do
       context 'when cre excised complete' do
         should 'default to the production centre' do
-          phenotype_attempt = Factory.create :phenotype_attempt_status_cec
+          mi_plan = Factory.create(:mi_plan, :production_centre => Centre.find_by_name('BCM'))
+          phenotype_attempt = Factory.create :phenotype_attempt_status_cec, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => mi_plan)
 
           assert_equal 1, phenotype_attempt.distribution_centres.count
 
@@ -443,6 +444,32 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
           distribution_centre = phenotype_attempt.distribution_centres.first
           assert_equal 'KOMP Repo', distribution_centre.centre.name
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+        end
+
+        should 'default the distribution network to EMMA if production centre is WTSI and ES Cell pipeline is EUCOMM pr EUCOMMTools' do
+          mi_plan = Factory.create(:mi_plan, :production_centre => Centre.find_by_name('WTSI'))
+          es_cell_eucomm = Factory.create(:es_cell)
+          es_cell_eucomm_tools = Factory.create(:es_cell, :pipeline => TargRep::Pipeline.find_by_name!('EUCOMMTools') )
+
+          mi_plan_eucomm = Factory.create(:mi_plan, :production_centre => Centre.find_by_name('WTSI'), :gene => es_cell_eucomm.gene)
+          mi_plan_eucomm_tools = Factory.create(:mi_plan, :production_centre => Centre.find_by_name('WTSI'), :gene => es_cell_eucomm_tools.gene)
+
+          mi_attempt_eucomm = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan_eucomm, :es_cell => es_cell_eucomm
+          mi_attempt_eucomm_tools = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan_eucomm_tools, :es_cell => es_cell_eucomm_tools
+
+          pa = Factory.create :phenotype_attempt_status_cec, :mi_attempt => mi_attempt_eucomm
+          assert_equal 1, pa.distribution_centres.count
+          distribution_centre = pa.distribution_centres.first
+          assert_equal pa.production_centre, distribution_centre.centre
+          assert_equal 'EMMA', distribution_centre.distribution_network
+          assert_equal 'Live mice', distribution_centre.deposited_material.name
+
+          pa = Factory.create :phenotype_attempt_status_cec, :mi_attempt => mi_attempt_eucomm_tools
+          assert_equal 1, pa.distribution_centres.count
+          distribution_centre = pa.distribution_centres.first
+          assert_equal pa.production_centre, distribution_centre.centre
+          assert_equal 'EMMA', distribution_centre.distribution_network
           assert_equal 'Live mice', distribution_centre.deposited_material.name
         end
       end

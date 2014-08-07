@@ -199,6 +199,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         founder_loa_num_positive_results
         real_allele_id
         external_ref
+        mutagenesis_factor_external_ref
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

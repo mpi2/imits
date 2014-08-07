@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140731090000) do
+ActiveRecord::Schema.define(:version => 20140805121100) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -445,6 +445,7 @@ ActiveRecord::Schema.define(:version => 20140731090000) do
 
   create_table "mutagenesis_factors", :force => true do |t|
     t.integer "vector_id"
+    t.string  "external_ref"
   end
 
   create_table "new_intermediate_report_summary_by_centre_and_consortia", :force => true do |t|
@@ -968,17 +969,17 @@ ActiveRecord::Schema.define(:version => 20140731090000) do
 
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
-    t.string   "assembly",                           :default => "GRCm38",                  :null => false
-    t.string   "chromosome",          :limit => 2,                                          :null => false
-    t.string   "strand",              :limit => 1,                                          :null => false
+    t.string   "assembly",                                      :default => "GRCm38",                  :null => false
+    t.string   "chromosome",                     :limit => 2,                                          :null => false
+    t.string   "strand",                         :limit => 1,                                          :null => false
     t.integer  "homology_arm_start"
     t.integer  "homology_arm_end"
     t.integer  "loxp_start"
     t.integer  "loxp_end"
     t.integer  "cassette_start"
     t.integer  "cassette_end"
-    t.string   "cassette",            :limit => 100
-    t.string   "backbone",            :limit => 100
+    t.string   "cassette",                       :limit => 100
+    t.string   "backbone",                       :limit => 100
     t.string   "subtype_description"
     t.string   "floxed_start_exon"
     t.string   "floxed_end_exon"
@@ -987,14 +988,17 @@ ActiveRecord::Schema.define(:version => 20140731090000) do
     t.integer  "mutation_method_id"
     t.integer  "mutation_type_id"
     t.integer  "mutation_subtype_id"
-    t.string   "cassette_type",       :limit => 50
-    t.datetime "created_at",                                                                :null => false
-    t.datetime "updated_at",                                                                :null => false
+    t.string   "cassette_type",                  :limit => 50
+    t.datetime "created_at",                                                                           :null => false
+    t.datetime "updated_at",                                                                           :null => false
     t.integer  "intron"
-    t.string   "type",                               :default => "TargRep::TargetedAllele"
-    t.boolean  "has_issue",                          :default => false,                     :null => false
+    t.string   "type",                                          :default => "TargRep::TargetedAllele"
+    t.boolean  "has_issue",                                     :default => false,                     :null => false
     t.text     "issue_description"
     t.text     "sequence"
+    t.string   "taqman_critical_del_assay_id"
+    t.string   "taqman_upstream_del_assay_id"
+    t.string   "taqman_downstream_del_assay_id"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|
@@ -1114,6 +1118,15 @@ ActiveRecord::Schema.define(:version => 20140731090000) do
   end
 
   add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
+
+  create_table "targ_rep_genotype_primers", :force => true do |t|
+    t.string  "sequence",                 :null => false
+    t.string  "name"
+    t.integer "genomic_start_coordinate"
+    t.integer "genomic_end_coordinate"
+    t.integer "mutagenesis_factor_id"
+    t.integer "allele_id"
+  end
 
   create_table "targ_rep_ikmc_project_statuses", :force => true do |t|
     t.string  "name"
@@ -1341,6 +1354,9 @@ ActiveRecord::Schema.define(:version => 20140731090000) do
 
   add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_qc_mouse_clinic_id_fk", :column => "user_qc_mouse_clinic_id"
   add_foreign_key "targ_rep_es_cells", "targ_rep_real_alleles", :name => "targ_rep_es_cells_targ_rep_real_allele_id_fk", :column => "real_allele_id"
+
+  add_foreign_key "targ_rep_genotype_primers", "mutagenesis_factors", :name => "targ_rep_genotype_primers_mutagenesis_factor_id_fk"
+  add_foreign_key "targ_rep_genotype_primers", "targ_rep_alleles", :name => "targ_rep_genotype_primers_allele_id_fk", :column => "allele_id"
 
   add_foreign_key "targ_rep_real_alleles", "genes", :name => "targ_rep_real_alleles_gene_id_fk"
 

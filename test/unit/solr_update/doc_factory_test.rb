@@ -543,6 +543,8 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           "MARC"=>{:preferred=>"www.MARC.com?query=MARKER_SYMBOL", :default=>"www.MARC-default.com"},
           "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
           "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"},
+          "MMRRC"=>{:preferred=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', :default=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php'},
+          "CMMR"=>{:preferred=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', :default=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'}
         }
 
         mi_attempt_distribution_centre = []
@@ -667,11 +669,13 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           "Harwell"=> {:preferred=>"http://www.mousebook.org/searchmousebook.php?query=PROJECT_ID", :default=>"www.Harwell-default.com"},
           "HMGU"=>{:preferred=>"", :default=>"www.HMGU-default.com"},
           "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
-          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"}
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"},
+          "MMRRC"=>{:preferred=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', :default=>''},
+          "CMMR"=>{:preferred=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', :default=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'}
         }
 
         hash_check = check_order_details(@mi_attempt)
-        assert_equal 4, hash_check.keys.size
+        assert_equal 6, hash_check.keys.size
         @config = config
       end
 
@@ -682,12 +686,14 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           "Harwell"=> {:preferred=>"", :default=>""},
           "HMGU"=>{:preferred=>"", :default=>""},
           "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.KOMP-default.com"},
-          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
+          "MMRRC"=>{:preferred=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', :default=>''},
+          "CMMR"=>{:preferred=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', :default=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'}
         }
 
         hash_check = check_order_details(@mi_attempt)
 
-        assert_equal 2, hash_check.keys.size
+        assert_equal 4, hash_check.keys.size
 
         @config = config
       end
@@ -703,12 +709,14 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           "Harwell"=> {:preferred=>"", :default=>""},
           "HMGU"=>{:preferred=>"", :default=>""},
           "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.KOMP-default.com"},
-          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
+          "MMRRC"=>{:preferred=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', :default=>''},
+          "CMMR"=>{:preferred=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', :default=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'}
         }
 
         hash_check = check_order_details(@mi_attempt)
 
-        assert_equal 3, hash_check.keys.size
+        assert_equal 5, hash_check.keys.size
 
         @config = config
       end
@@ -718,7 +726,9 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
         @config = {
           "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"},
-          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
+          "MMRRC"=>{:preferred=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', :default=>''},
+          "CMMR"=>{:preferred=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', :default=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'}
         }
 
         allele = Factory.create(:allele, :gene => cbx1)
@@ -749,7 +759,9 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       should 'raise exception if config doesn\'t contain KOMP' do
         config = @config
         @config = {
-          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
+          "MMRRC"=>{:preferred=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', :default=>''},
+          "CMMR"=>{:preferred=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', :default=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'}
         }
 
         assert_raise RuntimeError do
@@ -762,7 +774,9 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       should 'raise exception if config doesn\'t contain EMMA' do
         config = @config
         @config = {
-          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"}
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"},
+          "MMRRC"=>{:preferred=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', :default=>''},
+          "CMMR"=>{:preferred=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', :default=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'}
         }
 
         assert_raise RuntimeError do

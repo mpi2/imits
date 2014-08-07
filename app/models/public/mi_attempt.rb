@@ -108,6 +108,7 @@ class Public::MiAttempt < ::MiAttempt
     test_cross_strain_mgi_accession
     test_cross_strain_mgi_name
     mgi_accession_id
+    mutagenesis_factor_external_ref
 
   } + FULL_ACCESS_ATTRIBUTES
 

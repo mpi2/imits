@@ -61,6 +61,9 @@ class Colony < ActiveRecord::Base
     variant_effect_output.txt
     variant_effect_output.txt_summary.html
     mutated.fa
+    vep.log
+    read_seq.fa
+    variant_effect_output.txt
   }
 
   def trace_data_available
@@ -193,6 +196,8 @@ class Colony < ActiveRecord::Base
     FileUtils.mv("#{FOLDER_TMP}/tmp.scf", "#{folder_out}/#{self.trace_file_file_name}")
 
     puts "#### clearing out '#{folder_in}'" if VERBOSE
+
+  #  return
 
    #FileUtils.rm("#{folder_in}/merge_vcf/*.*", :force => true)
     FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)

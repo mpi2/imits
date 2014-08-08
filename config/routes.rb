@@ -1,4 +1,8 @@
 TarMits::Application.routes.draw do
+  get "colony/show/:id" => 'colony#show'
+  get "colony/show/:id/:filename" => 'colony#show'
+  get "colony" => 'colony#index'
+
   root :to => "root#index"
 
   get 'admin' => 'Admin::Base#index', :as => :admin

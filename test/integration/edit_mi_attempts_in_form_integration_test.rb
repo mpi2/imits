@@ -82,7 +82,7 @@ class EditMiAttemptsInFormIntegrationTest < TarMits::JsIntegrationTest
     end
 
     should 'handle validation errors' do
-      assert MiAttempt.find_by_colony_name!('MBSS')
+      assert MiAttempt.find_by_external_ref!('MBSS')
       fill_in 'mi_attempt[colony_name]', :with => 'MBSS'
       assert_difference 'MiAttempt.count', 0 do
         click_button 'mi_attempt_submit'
@@ -90,8 +90,6 @@ class EditMiAttemptsInFormIntegrationTest < TarMits::JsIntegrationTest
       end
       assert_match /\/mi_attempts\/\d+$/, current_url
       assert page.has_css? '.message.alert'
-      assert page.has_css? '.field_with_errors'
-      assert page.has_css? '.error-message'
     end
 
     should 'not let production centre or consortium be edited' do

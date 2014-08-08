@@ -17,7 +17,7 @@ class Colony < ActiveRecord::Base
   before_save :set_genotype_confirmed
 
   def set_genotype_confirmed
-    if !mi_attempt_id.blank? && !mi_attempt.status.blank?
+    if !mi_attempt.blank? && !mi_attempt.status.blank?
       if !mi_attempt.es_cell.blank? && mi_attempt.status.code == 'gtc'
         self.genotype_confirmed = true
       end

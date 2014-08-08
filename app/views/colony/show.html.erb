@@ -1,0 +1,59 @@
+
+<style>
+  pre {
+    white-space: pre-wrap;       /* CSS 3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+</style>
+
+
+
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag 'colony/show' %>
+<% end %>
+
+
+<% if ! @ok || @files.empty? || @files.keys.length < 1 %>
+
+<h1><%= @title %></h1>
+<h4>Not Found!</h4>
+
+<% else %>
+
+<h1><%= @title %></h1>
+
+<% @files.keys.each do |key| %>
+
+<% if @files[key][:name] && @files[key][:show] && @files[key][:data] %>
+
+
+
+<h2 style="text-align:left;float:left;"><%= @files[key][:name] %></h2>&nbsp;&nbsp;
+  <a href="<%= "/colony/show/#{@id}/#{key}" %>">Download</a> &nbsp;&nbsp; <a data-name="<%= "#{key}" %>" class="toggle" href="<%= "#" %>">Toggle</a>
+<hr style="clear:both;"/>
+
+
+
+
+<div id="<%= "#{key}" %>" style="display:none">
+
+  <pre>
+<%= @files[key][:data] %>
+  </pre>
+
+</div>
+
+<% end %>
+
+<% end %>
+
+<% end %>
+
+
+
+<% if @debug %>
+<%= debug @colony %>
+<% end %>

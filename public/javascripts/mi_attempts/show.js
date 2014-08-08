@@ -4,6 +4,8 @@ function addHideRowLinks() {
       var parentEl = Ext.fly(table_name);
       if (parentEl) {
           parentEl.on('click', function(event, target, options) {
+              if(target.classList.length == 0) return;
+
               event.preventDefault();
               var inputField = Ext.get(target).prev('.destroy-field');
               inputField.set({value: true});

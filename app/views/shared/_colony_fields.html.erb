@@ -12,9 +12,9 @@
     <td style="text-align:center">
 
         <% if f.object.trace_data_available %>
-            Yes
-        <% else %>
-            No
+
+            <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
+
         <% end %>
 
     </td>

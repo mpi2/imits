@@ -545,7 +545,7 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
             params: urlParams,
             success: function(response) {
                 var data = Ext.decode(response.responseText);
-                mutagensisFactorPanel.window.crisprSearch.crisprselect.exonsList.getStore().loadData(data, false);
+                mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.exonSearch.exonsList.getStore().loadData(data, false);
                 mutagensisFactorPanel.window.hideLoadMask();
             },
             scope: this
@@ -744,19 +744,169 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
             ]
         });
 
-        this.crisprselect = Ext.create('Imits.MiAttempts.New.SelectCrisprList', {
-        });
+
+
+        this.crisprFindSelect = Ext.create('Imits.MiAttempts.New.FindSelectCrisprList', {});
 
         this.crisprSelectionList = Ext.create('Imits.MiAttempts.New.CrisprSelectionList', {
         });
 
-        this.add(this.crisprselect, this.crisprSelectionList, this.submitButtons);
+      this.add(this.crisprFindSelect, this.crisprSelectionList, this.submitButtons);
     }
 });
+
+Ext.define('Imits.MiAttempts.New.FindSelectCrisprList', {
+    extend: 'Ext.panel.Panel',
+    ui: 'plain',
+    layout: {
+        type: 'hbox',
+        align: 'stretch'
+    },
+
+    initComponent: function() {
+        this.callParent();
+
+        this.exonSearch = Ext.create('Imits.MiAttempts.New.SelectCrisprList', {
+        });
+
+        this.crisprSelectBySequence = Ext.create('Imits.MiAttempts.New.EnterGrnaSequenceList', {
+        });
+
+        this.searchTabPanel = Ext.create('Ext.tab.Panel', {
+            layout: 'fit',
+            ui: 'plain',
+            frame: true,
+            width: 270,
+            height: 285,
+            activeTab: 0,
+            items: [
+                this.crisprSelectBySequence,
+                this.exonSearch
+            ]
+        });
+
+        this.crisprList = Ext.create('Imits.MiAttempts.New.CrisprList', {
+        });
+
+        this.crisprpairList = Ext.create('Imits.MiAttempts.New.CrisprPairsList', {
+        });
+
+        this.crisprTabPanel = Ext.create('Ext.tab.Panel', {
+            layout: 'fit',
+            ui: 'plain',
+            activeTab: 0,
+            margin: {
+                top: 0,
+                bottom: 10,
+                left: 10,
+                right: 10
+            },
+            items: [
+                this.crisprList,
+                this.crisprpairList
+            ],
+            listeners: {
+                tabchange: function() {
+                  var exonselect = mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.exonSearch.exonsList
+                  if (exonselect.getSelectionModel().hasSelection()){
+                      var record = exonselect.getSelectionModel().getSelection()[0];
+                      exonselect.fireEvent('itemclick', exonselect, record);
+                  }
+                }
+            }
+        });
+
+
+      this.add([this.searchTabPanel, this.crisprTabPanel]);
+  }
+
+});
+
+
+Ext.define('Imits.MiAttempts.New.EnterGrnaSequenceList', {
+  extend: 'Ext.panel.Panel',
+  title: 'Search by gRNA Sequence',
+  ui: 'plain',
+  layout: {
+    type: 'vbox',
+    align: 'stretch'
+  },
+
+  performSearch: function(){
+      var urlParams = {};
+      urlParams['seq'] = mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprSelectBySequence.searchBySequenceTextField.getValue();
+      mutagensisFactorPanel.window.showLoadMask();
+      mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.exonSearch.exonsList.getSelectionModel().clearSelections(true);
+      mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprList.getStore().removeAll();
+      mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprpairList.getStore().removeAll();
+      mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprTabPanel.setActiveTab(0)
+      var url = mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprTabPanel.getActiveTab().url_search_by_sequence;
+      Ext.Ajax.request({
+        method: 'GET',
+        url: window.basePath + url,
+        params: urlParams,
+        success: function(response) {
+            var data = Ext.decode(response.responseText);
+            mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprList.getStore().loadData(data, false);
+            mutagensisFactorPanel.window.hideLoadMask();
+        },
+        scope: this
+      });
+  },
+
+  initComponent: function() {
+      this.callParent();
+
+      this.add(Ext.create('Ext.form.Label', {
+          text: 'Enter 20 base gRNA sequences',
+          margin: {
+              top: 25,
+              bottom: 10,
+              left: 10,
+              right: 10
+          }
+      }));
+
+      this.searchBySequenceTextField = (Ext.create('Ext.form.field.TextArea', {
+          name: 'grna-search-box',
+          selectOnFocus: true,
+          width      : 200,
+          height     : 170,
+          margin: {
+              left: 10,
+              right: 10
+          },
+          listeners: {
+              specialkey: function(field, e) {
+                  if(e.getKey() == e.TAB) {
+                      mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprSelectBySequence.performSearch();
+                  }
+              },
+              scope: this
+          }
+      })
+      );
+
+      this.add(this.searchBySequenceTextField);
+
+      this.add(Ext.create('Ext.Button', {
+        text    : 'Find Crisprs',
+        margin: {
+              left: 10,
+              right: 10
+        },
+        handler : function() {
+          mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprSelectBySequence.performSearch();
+        }
+      }));
+  }
+});
+
 
 Ext.define('Imits.MiAttempts.New.SelectCrisprList', {
   extend: 'Ext.panel.Panel',
   ui: 'plain',
+  title: 'Select by Exon',
   layout: {
     type: 'hbox',
     align: 'stretch'
@@ -765,34 +915,10 @@ Ext.define('Imits.MiAttempts.New.SelectCrisprList', {
   initComponent: function() {
       this.callParent();
 
-      this.crisprList = Ext.create('Imits.MiAttempts.New.CrisprList', {
-      });
-
-      this.crisprpairList = Ext.create('Imits.MiAttempts.New.CrisprPairsList', {
-      });
-
       this.exonsList = Ext.create('Imits.MiAttempts.New.ExonsList', {
       });
 
-      this.tabPanel = Ext.create('Ext.tab.Panel', {
-          layout: 'fit',
-          ui: 'plain',
-          activeTab: 0,
-          items: [
-              this.crisprList,
-              this.crisprpairList
-          ],
-          listeners: {
-              tabchange: function() {
-                var exonselect = mutagensisFactorPanel.window.crisprSearch.crisprselect.exonsList
-                if (exonselect.getSelectionModel().hasSelection()){
-                    var record = exonselect.getSelectionModel().getSelection()[0];
-                    exonselect.fireEvent('itemclick', exonselect, record);
-                }
-              }
-          }
-      });
-    this.add([this.exonsList, this.tabPanel]);
+      this.add([this.exonsList]);
   }
 
 });
@@ -800,13 +926,7 @@ Ext.define('Imits.MiAttempts.New.SelectCrisprList', {
 
 Ext.define('Imits.MiAttempts.New.ExonsList', {
     extend: 'Ext.grid.Panel',
-    height: 260,
-    margin: {
-        left: 10,
-        top: 25,
-        right: 5,
-        bottom: 0
-    },
+    width: 280,
     store: {
         fields: ['exon_id', 'value', 'rank'],
         data: {
@@ -829,7 +949,7 @@ Ext.define('Imits.MiAttempts.New.ExonsList', {
     {
         header: 'Exon',
         dataIndex: 'exon_id',
-        width: 180
+        width: 270
     }
     ],
 
@@ -840,14 +960,14 @@ Ext.define('Imits.MiAttempts.New.ExonsList', {
           var urlParams = {};
           urlParams['exon_id[]'] = record.data['value'];
           mutagensisFactorPanel.window.showLoadMask();
-          var url = mutagensisFactorPanel.window.crisprSearch.crisprselect.tabPanel.getActiveTab().url;
+          var url = mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprTabPanel.getActiveTab().url;
           Ext.Ajax.request({
             method: 'GET',
             url: window.basePath + url,
             params: urlParams,
             success: function(response) {
                 var data = Ext.decode(response.responseText);
-                mutagensisFactorPanel.window.crisprSearch.crisprselect.tabPanel.getActiveTab().getStore().loadData(data, false);
+                mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprTabPanel.getActiveTab().getStore().loadData(data, false);
                 mutagensisFactorPanel.window.hideLoadMask();
             },
             scope: this
@@ -907,6 +1027,7 @@ Ext.define('Imits.MiAttempts.New.CrisprList', {
     initComponent: function() {
         this.callParent();
         this.url = '/targ_rep/wge_searches/crispr_search.json';
+        this.url_search_by_sequence = '/targ_rep/wge_searches/crispr_search_by_grna_sequence.json';
         this.addListener('itemclick', function(theView, record) {
            if (mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.alreadySelected(record.data['seq'])) return;
            addCrispr = {}
@@ -1049,8 +1170,8 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
             handler: function(grid, rowIndex, colIndex) {
                 if(confirm("Remove crispr?"))
                     mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().removeAt(rowIndex)
-                    mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprList.view.refresh();
-                    mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprpairList.view.refresh();
+                    mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprList.view.refresh();
+                    mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprpairList.view.refresh();
             }
         }]
     }
@@ -1058,8 +1179,8 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
 
     createCrispr: function(addCrisprs) {
         mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().add(addCrisprs);
-        mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprList.view.refresh();
-        mutagensisFactorPanel.window.crisprSearch.crisprselect.crisprpairList.view.refresh();
+        mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprList.view.refresh();
+        mutagensisFactorPanel.window.crisprSearch.crisprFindSelect.crisprpairList.view.refresh();
     },
 
     alreadySelected: function(crispr) {

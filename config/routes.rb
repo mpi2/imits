@@ -233,6 +233,7 @@ TarMits::Application.routes.draw do
     get 'wge_searches/exon_search' => 'wge_searches#exon_search', :as => 'exon_search'
     get 'wge_searches/crispr_search' => 'wge_searches#crispr_search', :as => 'crispr_search'
     get 'wge_searches/crispr_pair_search' => 'wge_searches#crispr_pair_search', :as => 'crispr_pair_search'
+    get 'wge_searches/crispr_search_by_grna_sequence' => 'wge_searches#crispr_search_by_grna_sequence', :as => 'crispr_search_by_grna_sequence'
     #connect ':controller/:action/:id.:format'
     #connect ':controller/:action.:format'
 

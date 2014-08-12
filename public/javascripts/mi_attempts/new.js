@@ -780,8 +780,8 @@ Ext.define('Imits.MiAttempts.New.FindSelectCrisprList', {
             height: 285,
             activeTab: 0,
             items: [
-                this.crisprSelectBySequence,
-                this.exonSearch
+                this.exonSearch,
+                this.crisprSelectBySequence
             ]
         });
 

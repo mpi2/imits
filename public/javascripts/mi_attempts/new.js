@@ -500,7 +500,7 @@ Ext.define('Imits.MiAttempts.New.MutagenesisFactorSelectorWindow', {
     resizable: false,
     layout: 'fit',
     closable: false,
-    width: 800,
+    width: 845,
     height: 650,
     y: 175,
 
@@ -779,6 +779,10 @@ Ext.define('Imits.MiAttempts.New.FindSelectCrisprList', {
             width: 270,
             height: 285,
             activeTab: 0,
+            margin: {
+                left: 10,
+                right: 10
+            },
             items: [
                 this.exonSearch,
                 this.crisprSelectBySequence
@@ -871,7 +875,7 @@ Ext.define('Imits.MiAttempts.New.EnterGrnaSequenceList', {
           name: 'grna-search-box',
           selectOnFocus: true,
           width      : 200,
-          height     : 170,
+          height     : 195,
           margin: {
               left: 10,
               right: 10
@@ -979,7 +983,7 @@ Ext.define('Imits.MiAttempts.New.ExonsList', {
 Ext.define('Imits.MiAttempts.New.CrisprList', {
     extend: 'Ext.grid.Panel',
     height: 260,
-    width: 560,
+    width: 500,
     store: {
         fields: ['chr_name', 'chr_end', 'chr_start', 'seq' ],
         data: {
@@ -1045,7 +1049,7 @@ Ext.define('Imits.MiAttempts.New.CrisprList', {
 Ext.define('Imits.MiAttempts.New.CrisprPairsList', {
     extend: 'Ext.grid.Panel',
     height: 260,
-    width: 560,
+    width: 510,
     store: {
         fields: ['left_crispr', 'left_crispr_chr_start', 'left_crispr_chr_end', 'left_crispr_chr', 'right_crispr', 'right_crispr_chr_start', 'right_crispr_chr_end', 'right_crispr_chr' ],
         data: {

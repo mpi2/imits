@@ -1,6 +1,8 @@
 TarMits::Application.routes.draw do
   get "colony/show/:id" => 'colony#show'
   get "colony/show/:id/:filename" => 'colony#show'
+  #get "colony/:id" => 'colony#show'
+  #get "colony/:id/:filename" => 'colony#show'
   get "colony" => 'colony#index'
 
   root :to => "root#index"

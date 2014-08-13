@@ -11,7 +11,7 @@
 
     <td style="text-align:center">
 
-        <% if f.object.trace_data_available %>
+        <% if ! f.object.new_record? && f.object.trace_data_available %>
 
             <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
 

@@ -64,6 +64,8 @@ class Colony < ActiveRecord::Base
     vep.log
     read_seq.fa
     variant_effect_output.txt
+    primer_reads.fa
+    alignment_data.yaml
   }
 
   def trace_data_available
@@ -197,7 +199,7 @@ class Colony < ActiveRecord::Base
 
     puts "#### clearing out '#{folder_in}'" if VERBOSE
 
-  #  return
+    return
 
    #FileUtils.rm("#{folder_in}/merge_vcf/*.*", :force => true)
     FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)

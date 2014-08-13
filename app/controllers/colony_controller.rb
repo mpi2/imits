@@ -1,7 +1,12 @@
+require 'yaml'
+require 'pp'
+
 class ColonyController < ApplicationController
   def show
     @id = params[:id]
     debug = true
+
+  #  puts "#### show"
 
     return if ! @id
 
@@ -12,16 +17,20 @@ class ColonyController < ApplicationController
     return if @colony.nil?
 
     @title = "Colony #{@colony.name} (#{@colony.trace_file_file_name})"
+    marker_symbol = @colony.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
+    @title = "Gene #{marker_symbol} - Colony #{@colony.name} (#{@colony.trace_file_file_name})" if marker_symbol
 
     show = true
 
     @files[:alignment] = {:filename => 'alignment.txt', :name => 'Alignment', :data => nil, :show => show}
-    @files[:filtered_analysis_vcf] = {:filename => 'filtered_analysis.vcf', :name => 'filtered_analysis_vcf', :data => nil, :show => show}
-    @files[:vep_log] = {:filename => 'vep.log', :name => 'vep_log', :data => nil, :show => show}
-    @files[:mutant_fa] = {:filename => 'mutated.fa', :name => 'mutated_fa', :data => nil, :show => show}
-    @files[:read_seq_fa] = {:filename => 'read_seq.fa', :name => 'read_seq_fa', :data => nil, :show => show}
+    @files[:filtered_analysis_vcf] = {:filename => 'filtered_analysis.vcf', :name => 'Variant (filtered_analysis.vcf)', :data => nil, :show => show}
+    @files[:vep_log] = {:filename => 'vep.log', :name => 'Variant (vep.log)', :data => nil, :show => show}
+    @files[:mutant_fa] = {:filename => 'mutated.fa', :name => 'Protein Sequence (mutated.fa)', :data => nil, :show => show}
+    @files[:read_seq_fa] = {:filename => 'read_seq.fa', :name => 'read_seq.fa', :data => nil, :show => show}
     @files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'variant_effect_output.txt', :data => nil, :show => show}
     @files[:analysis_pileup] = {:filename => 'analysis.pileup', :name => 'analysis.pileup', :data => nil, :show => true}
+    @files[:primer_reads_fa] = {:filename => 'primer_reads.fa', :name => 'Reads (primer_reads.fa)', :data => nil, :show => true}
+    @files[:alignment_data_yaml] = {:filename => 'alignment_data.yaml', :name => 'alignment_data.yaml', :data => nil, :show => false}
 
     if params[:filename]
       key = params[:filename].to_sym
@@ -32,26 +41,80 @@ class ColonyController < ApplicationController
       return
     end
 
+   # puts "#### before start check"
 
     folder = "#{Colony::FOLDER_OUT}/#{@id}"
     if ! File.exists?(folder)
       return;
     end
 
+    yaml_file = "#{Colony::FOLDER_OUT}/#{@id}/#{@files[:alignment_data_yaml][:filename]}"
+    @alignment_data = {}
+    @alignment_data = YAML.load_file(yaml_file) if File.exists?(yaml_file) && File.size?(yaml_file)
+
+  #  pp @alignment_data
+
+    @deletions = []
+
+  #  puts "#### start check"
+
+    if @alignment_data.has_key? 'deletions'
+    #  puts "#### found deletions"
+      @alignment_data['deletions'].keys.each do |kk|
+        array = @alignment_data['deletions'][kk]
+    #  puts "#### found array"
+      pp array
+        array.each do |frame|
+          @deletions.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
+        end
+      end
+    end
+
+    @insertions = []
+
+    if @alignment_data.has_key? 'insertions'
+    #  puts "#### found insertions"
+      @alignment_data['insertions'].keys.each do |kk|
+        array = @alignment_data['insertions'][kk]
+        array.each do |frame|
+          @insertions.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
+        end
+      end
+    end
+
+    @target_sequence = "Target sequence start: #{@alignment_data['target_sequence_start']} - Target sequence end: #{@alignment_data['target_sequence_end']}"
+
+#    deletions:
+#  "270":
+#  - length: "1"
+#    read: reverse
+#    seq: G
+#  "530":
+#  - length: "1"
+#    read: reverse
+#    seq: T
+#insertions: {}
+#
+#target_sequence_end: 139237356
+#target_sequence_start: "139236816"
+
+
+
+
     @ok = false
 
-    @files.keys.each do |key|
+    @files.keys.each do |key2|
 
         data = nil
 
-        file = "#{folder}/#{@files[key][:filename]}"
+        file = "#{folder}/#{@files[key2][:filename]}"
         if File.exists?(file) && File.size?(file)
           file = File.open(file, "rb")
           data = file.read
 
           data = data.strip || data
 
-          @files[key][:data] = data
+          @files[key2][:data] = data
 
           @ok = true if data
         end

@@ -25,6 +25,8 @@
 
 <h1><%= @title %></h1>
 
+
+
 <% @files.keys.each do |key| %>
 
 <% if @files[key][:name] && @files[key][:show] && @files[key][:data] %>
@@ -50,9 +52,41 @@
 
 <% end %>
 
+
+<!--<p><%= @target_sequence %></p><br/>
+-->
+<%#= debug @insertions %>
+
+<% if ! @insertions.empty? %>
+  <h2>Insertions</h2>
+  <% @insertions.each do |i| %>
+  <p><%= i %></p>
+<% end %>
+<% else %>
+    <h2>Insertions</h2>
+<p>None</p>
+<% end %>
+
+<hr style="clear:both;"/>
+<%#= debug @deletions %>
+
+<% if ! @deletions.empty? %>
+  <h2>Deletions</h2>
+  <% @deletions.each do |d| %>
+  <p><%= d %></p>
+  <% end %>
+<% else %>
+    <h2>Deletions</h2>
+<p>None</p>
 <% end %>
 
 
+
+
+<% end %>
+
+
+<%#= debug @alignment_data %>
 
 <% if @debug %>
 <%= debug @colony %>

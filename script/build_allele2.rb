@@ -300,7 +300,7 @@ class BuildAllele2
 
         # B1
 
-    if (row['phenotype_attempt_status'] == 'Phenotyping Started') || (row['phenotype_attempt_status'] == 'Phenotyping Complete')
+        if (row['phenotype_attempt_status'] == 'Phenotyping Started') || (row['phenotype_attempt_status'] == 'Phenotyping Complete')
 
           row['mouse_status'] = @statuses['CRE_EXCISION_COMPLETE']
           row['phenotype_status'] = row['phenotype_attempt_status']
@@ -308,11 +308,11 @@ class BuildAllele2
       #this will be the modified allele
           prepare_allele_symbol row1, 'phenotype_attempt_mouse_allele_type'
 
-      if row1['allele_symbol'].to_s.empty?
-         row1['failed'] = 'pass 1'
-         @failures.push row1
-         next
-      end
+          if row1['allele_symbol'].to_s.empty?
+             row1['failed'] = 'pass 1'
+             @failures.push row1
+             next
+          end
       row['allele_symbol'] = row1['allele_symbol']
 
           row['allele_type'] = row['phenotype_attempt_mouse_allele_type'].to_s
@@ -650,14 +650,68 @@ class BuildAllele2
   #  return false if ! @marker_filters.include? row[@filter_target]
   #  return true
   #end
+  def self.convert_to_array psql_array
+    return [] if psql_array.blank?
+
+    psql_array[1, psql_array.length-2].gsub('"', '').split(',')
+  end
 
   def manage_genes2
     count = Gene.count
     counter = 0
 
-    rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes') if @marker_symbol.empty?
     marker_symbols = @marker_symbol.to_a.map {|ms| "'#{ms}'" }.join ','
-    rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol in (#{marker_symbols})") if ! @marker_symbol.empty?
+    gene_sql = <<-EOF
+      WITH mouse_production_centres AS (
+        SELECT distinct_plan_ids.gene_id, array_agg(distinct_plan_ids.centre_name) AS names
+        FROM
+          (
+           SELECT DISTINCT mi_plan_ids.gene_id AS gene_id, mi_plan_ids.centre_name AS centre_name
+           FROM
+             (
+              SELECT mi_plans.gene_id AS gene_id, centres.name AS centre_name
+              FROM mi_attempts
+                JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+                JOIN centres ON centres.id = mi_plans.production_centre_id
+              WHERE mi_attempts.status_id != 1 AND mi_attempts.report_to_public is true
+
+              UNION
+
+              SELECT mi_plans.gene_id AS gene_id, centres.name AS centre_name
+              FROM phenotype_attempts
+                JOIN mi_plans ON mi_plans.id = phenotype_attempts.mi_plan_id
+                JOIN centres ON centres.id = mi_plans.production_centre_id
+              WHERE phenotype_attempts.cre_excision_required = true AND phenotype_attempts.status_id != 1 AND phenotype_attempts.report_to_public is true
+             ) AS mi_plan_ids
+          ) AS distinct_plan_ids
+        GROUP BY distinct_plan_ids.gene_id
+      ),
+
+      phenotyping_centres AS (
+        SELECT distinct_centres.gene_id, array_agg(distinct_centres.centre_name) AS names
+        FROM
+          (
+           SELECT DISTINCT mi_plans.gene_id AS gene_id, centres.name AS centre_name
+           FROM phenotype_attempts
+             JOIN mi_plans ON mi_plans.id = phenotype_attempts.mi_plan_id
+             JOIN centres ON centres.id = mi_plans.production_centre_id
+           WHERE phenotype_attempts.report_to_public is true AND phenotype_attempts.status_id IN (7, 8)
+          ) AS distinct_centres
+        GROUP BY distinct_centres.gene_id
+      )
+
+      SELECT genes.marker_symbol, genes.mgi_accession_id, genes.marker_type, genes.feature_type, genes.synonyms, mouse_production_centres.names AS mouse_production_centres, phenotyping_centres.names AS phenotyping_centres
+      FROM genes
+        LEFT JOIN mouse_production_centres ON mouse_production_centres.gene_id = genes.id
+        LEFT JOIN phenotyping_centres ON phenotyping_centres.gene_id = genes.id
+    EOF
+
+    if !@marker_symbol.empty?
+      gene_sql << " WHERE genes.marker_symbol IN (#{marker_symbols})"
+    end
+
+    # select all genes. Also appends data of all the centres that are carring out mouse production or phenotyping to the gene records.
+    rows = ActiveRecord::Base.connection.execute(gene_sql)
 
     rows.each do |row1|
 
@@ -703,6 +757,9 @@ class BuildAllele2
 
         hash['marker_type'] = row1['marker_type']
         hash['feature_type'] = row1['feature_type']
+
+        hash['production_centres'] = self.class.convert_to_array(row1['mouse_production_centres'])
+        hash['phenotyping_centres'] = self.class.convert_to_array(row1['phenotyping_centres'])
 
         hash['latest_project_status'] = ''
         hash['latest_project_status'] = ''
@@ -806,6 +863,8 @@ class BuildAllele2
       row['latest_mouse_status'] = status_hash[:mouse_status]
       row['synonym'] = row1['synonyms'].to_s.split '|'
       row['feature_type'] = row1['feature_type']
+      row['production_centres'] = self.class.convert_to_array(row1['mouse_production_centres'])
+      row['phenotyping_centres'] = self.class.convert_to_array(row1['phenotyping_centres'])
 
       row['type'] = 'gene'
 

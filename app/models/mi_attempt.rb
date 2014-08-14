@@ -135,6 +135,7 @@ class MiAttempt < ApplicationModel
 
   before_save :generate_external_ref_if_blank
   before_save :manage_colony_for_es_cell_micro_injections
+  # before_save :do_stuff_all_colony_qc
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
   after_save :add_default_distribution_centre
@@ -235,6 +236,7 @@ class MiAttempt < ApplicationModel
       end
     else
       create_colony({:name => external_ref})
+      # TODO try colony.name = external_ref
     end
 
     if self.status.try(:code) == 'gtc' && colony.genotype_confirmed == false
@@ -516,6 +518,40 @@ class MiAttempt < ApplicationModel
 
     selected_status.empty? ? nil : selected_status
   end
+
+  # # qc_southern_blot_result
+  # def qc_southern_blot_result
+
+  #   return if es_cell.blank?
+
+  #   if self.colony.try( :colony_qc).try( :qc_southern_blot)
+  #     return self.colony.colony_qc.qc_southern_blot
+  #   else
+  #     return @qc_southern_blot
+  #   end
+  # end
+
+  # def qc_southern_blot_result=(arg)
+
+  #   return if es_cell.blank?
+
+  #   if (! self.colony.try( :colony_qc).try( :qc_southern_blot ) )
+  #     @qc_southern_blot = arg
+  #   end
+  # end
+
+  # def do_stuff_all_colony_qc
+
+  #   # should always be a colony by now
+  #   raise "Could not save due to missing colony" if self.colony.blank?
+
+  #   if @qc_southern_blot.nil?
+  #     return
+  #   end
+
+  #   self.colony.colony_qc.qc_southern_blot = @qc_southern_blot
+
+  # end
 
 end
 

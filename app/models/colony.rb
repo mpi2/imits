@@ -4,6 +4,10 @@ class Colony < ActiveRecord::Base
 
   belongs_to :mi_attempt
 
+  has_one :colony_qc, inverse_of: :colony
+
+  accepts_nested_attributes_for :colony_qc
+
   validates :name, :presence => true, :uniqueness => true
 
   validate do |colony|

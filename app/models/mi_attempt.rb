@@ -40,11 +40,11 @@ class MiAttempt < ApplicationModel
   belongs_to :test_cross_strain, :class_name => 'Strain'
   belongs_to :mutagenesis_factor, :inverse_of => :mi_attempt
 
+  has_one    :colony, inverse_of: :mi_attempt
 
   has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many   :phenotype_attempts
   has_many   :mouse_allele_mods
-  has_one    :colony, inverse_of: :mi_attempt
   has_many   :colonies, inverse_of: :mi_attempt
   has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
   has_many   :crisprs, through: :mutagenesis_factor
@@ -56,10 +56,23 @@ class MiAttempt < ApplicationModel
 
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
-    access_association_by_attribute qc_field, :description, :attribute_alias => :result
+
+    define_method("#{qc_field}_result=") do |arg|
+      instance_variable_set("@#{qc_field}_result",arg)
+    end
+
+    define_method("#{qc_field}_result") do
+      if !instance_variable_get("@#{qc_field}_result").blank?
+        return instance_variable_get("@#{qc_field}_result")
+      elsif !colony.blank? and !colony.try(:colony_qc).try(qc_field.to_sym).blank?
+        return colony.colony_qc.send(qc_field)
+      else
+        return 'na'
+      end
+    end
   end
 
-  accepts_nested_attributes_for :status_stamps, :mutagenesis_factor
+  accepts_nested_attributes_for :status_stamps, :mutagenesis_factor, :colony
   accepts_nested_attributes_for :colonies, :allow_destroy => true
 
   protected :status=
@@ -112,7 +125,6 @@ class MiAttempt < ApplicationModel
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_total_chimeras
   before_validation :set_es_cell_from_es_cell_name
-  before_validation :change_status
 
   before_validation do |mi|
     return true unless mi.qc_loxp_confirmation_id_changed?
@@ -133,9 +145,10 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  before_save :generate_external_ref_if_blank
-  before_save :manage_colony_for_es_cell_micro_injections
-  # before_save :do_stuff_all_colony_qc
+  before_validation :generate_external_ref_if_blank
+  before_validation :manage_colony_for_es_cell_micro_injections_qc_data
+  before_validation :change_status
+
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
   after_save :add_default_distribution_centre
@@ -227,27 +240,34 @@ class MiAttempt < ApplicationModel
   protected :generate_external_ref_if_blank
 
 
-  def manage_colony_for_es_cell_micro_injections
+  def manage_colony_for_es_cell_micro_injections_qc_data
     return if es_cell.blank?
 
-    if !colony.blank?
-      if colony.name != external_ref
-        colony.name = external_ref
-      end
-    else
-      create_colony({:name => external_ref})
-      # TODO try colony.name = external_ref
+    colony_attr_hash = colony.try(:attributes) || {}
+    if colony.blank? or (colony.try(:name) != external_ref)
+      colony_attr_hash[:name] = external_ref
     end
 
-    if self.status.try(:code) == 'gtc' && colony.genotype_confirmed == false
-      colony.genotype_confirmed = true
-      self.change_status
-    elsif self.status.try(:code) != 'gtc' && colony.genotype_confirmed == true
-      colony.genotype_confirmed = false
-      self.change_status
+    if self.status.try(:code) == 'gtc'
+      colony_attr_hash[:genotype_confirmed] = true
+    elsif self.status.try(:code) != 'gtc'
+      colony_attr_hash[:genotype_confirmed] = false
     end
+
+    colony_attr_hash[:id] = colony.id if !colony.blank?
+    colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
+    colony_attr_hash[:colony_qc_attributes][:id] = colony.colony_qc.id if !colony.blank? and !colony.try(:colony_qc).try(:id).blank?
+
+    QC_FIELDS.each do |qc_field|
+      if colony.try(:colony_qc).blank? or instance_variable_get("@#{qc_field}_result") != colony.colony_qc.send(qc_field)
+        colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = instance_variable_get("@#{qc_field}_result")
+      end
+    end
+
+    self.colony_attributes = colony_attr_hash
+
   end
-  protected :manage_colony_for_es_cell_micro_injections
+  protected :manage_colony_for_es_cell_micro_injections_qc_data
 
   def make_mi_date_and_in_progress_status_consistent
     in_progress_status = self.status_stamps.find_by_status_id(1)

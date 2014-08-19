@@ -3,10 +3,31 @@
         <%= f.text_field :name %>
     </td>
     <td>
-        <a>QC Data (click to edit)</a>
+
+        <div class="colony-qc-data">
+
+            <fieldset class="collapsible hide-by-default">
+                <legend>Expand to view and edit</legend>
+                <div>
+                    <table>
+                        <% if f.object.colony_qc.blank? %>
+                            <% f.object.build_colony_qc %>
+                        <% end %>
+                        <%= f.fields_for :colony_qc do |builder| %>
+                            <% MiAttempt::QC_FIELDS.each do |qc_field| %>
+                                <tr>
+                                    <td><%= builder.label(:post, qc_field) %></td>
+                                    <td><%= builder.select qc_field, ['na', 'pass', 'fail'] %></td>
+                                </tr>
+                            <% end %>
+                        <% end %>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
     </td>
     <td>
-        <a>Upload file</a>
+        <a>Upload</a>
     </td>
     <td>
         <a>Allele</a>
@@ -24,3 +45,5 @@
         <% end %>
     </td>
 </tr>
+
+

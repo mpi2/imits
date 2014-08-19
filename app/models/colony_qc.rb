@@ -23,7 +23,8 @@ class ColonyQc < ActiveRecord::Base
 
   belongs_to :colony
 
-  validates :colony_id, :presence => true, :uniqueness => true
+  # validates :colony_id, :presence => true, :uniqueness => true
+  validates :colony, :presence => true
 
   possible_qc_values = ['na', 'pass', 'fail']
   QC_FIELDS.each do |qc_field|

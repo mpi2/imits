@@ -15,16 +15,20 @@ function addHideRowLinks() {
     })
 }
 
-Ext.onReady(addHideRowLinks);
+Ext.onReady(function() {
+  addHideRowLinks();
+
+})
+
 
 Ext.select('form .add-row').on("click", function(event){
   event.preventDefault();
 
-  var data = Ext.get(this).getAttribute('data-fields');
-  var id = Ext.get(this).getAttribute('data-object-id');
+  var data     = Ext.get(this).getAttribute('data-fields');
+  var id       = Ext.get(this).getAttribute('data-object-id');
   var table_id = Ext.get(this).getAttribute('data-table-id');
-  var time = new Date().getTime();
-  regexp = new RegExp(id, 'g');
+  var time     = new Date().getTime();
+  regexp       = new RegExp(id, 'g');
 
   data = data.replace(regexp, time);
 
@@ -49,3 +53,4 @@ Ext.select('form .add-row').on("click", function(event){
         });
   });
 });
+

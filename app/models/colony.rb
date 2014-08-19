@@ -4,9 +4,9 @@ class Colony < ActiveRecord::Base
 
   belongs_to :mi_attempt
 
-  has_one :colony_qc, inverse_of: :colony
+  has_one :colony_qc, inverse_of: :colony, dependent: :destroy
 
-  accepts_nested_attributes_for :colony_qc
+  accepts_nested_attributes_for :colony_qc, :allow_destroy => true
 
   validates :name, :presence => true, :uniqueness => true
 
@@ -32,6 +32,17 @@ class Colony < ActiveRecord::Base
   def self.readable_name
     return 'colony'
   end
+
+  def add_default_colony_qc
+    if self.colony_qc.blank?
+      puts "Colony ID = #{self.id}"
+      colony_qc = Colony::ColonyQc.new({:colony_id => self.id})
+      raise "Could not validate a DEFAULT colony qc" if !colony_qc.valid?
+      colony_qc.save
+    end
+  end
+  # protected :add_default_colony_qc
+
 end
 
 # == Schema Information

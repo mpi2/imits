@@ -43,7 +43,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
   context 'MiAttempt' do
 
-    context 'accociations' do
+    context 'Associations' do
       belongs_to_fields = [:mi_plan,
                            :es_cell,
                            :status,

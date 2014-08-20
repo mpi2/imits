@@ -33,16 +33,6 @@ class Colony < ActiveRecord::Base
     return 'colony'
   end
 
-  def add_default_colony_qc
-    if self.colony_qc.blank?
-      puts "Colony ID = #{self.id}"
-      colony_qc = Colony::ColonyQc.new({:colony_id => self.id})
-      raise "Could not validate a DEFAULT colony qc" if !colony_qc.valid?
-      colony_qc.save
-    end
-  end
-  # protected :add_default_colony_qc
-
 end
 
 # == Schema Information

@@ -3,56 +3,109 @@ require 'test_helper'
 class ColonyQcTest < ActiveSupport::TestCase
 	context 'ColonyQc' do
 
-	  	context "Validations" do
-		    should "check for prescence of colony id during validation" do
+	  	context "validations" do
+		    should "have a colony id" do
 		    	validate_presence_of :colony_id
 		    end
 		end
 
-		context "Assocations" do
+		context "relationships" do
 		    should "belong to a colony" do
 	    		belong_to :colony
 	    	end
 	    end
 
-	 #    def default_mi_attempt
-		#     @default_mi_attempt ||= Factory.create(:mi_attempt2)
-		# end
 
-	    context "Model creation" do
+	    # MiAttempt::QC_FIELDS.each do |qc_field|
+
+     #      should "have #{qc_field}_result association accessor" do
+     #        default_mi_attempt.send("#{qc_field}_result=", 'pass')
+     #        assert_equal 'pass', default_mi_attempt.send("#{qc_field}_result")
+
+     #        default_mi_attempt.send("#{qc_field}_result=", 'na')
+     #        assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")
+     #      end
+
+     #      should "default to 'na' if #{qc_field} is assigned a blank" do
+     #        default_mi_attempt.send("#{qc_field}_result=", '')
+     #        assert default_mi_attempt.valid?
+     #        assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")
+     #        assert_equal 'na', default_mi_attempt.send(qc_field).try(:description)
+     #      end
+
+     #    end
+
+	    context "db columns" do
+
+	    	should 'have colony_id' do
+        		assert_should have_db_column(:colony_id).of_type(:integer).with_options(:null => false)
+      		end
+
+	    	MiAttempt::QC_FIELDS.each do |qc_field|
+	    		should "have #{qc_field} db column" do
+	        		assert_should have_db_column(qc_field).of_type(:string).with_options(:null => false)
+	      		end
+	    	end
+
+	    end
+
+	    context "model creation" do
 
 	    	setup do
-	          @mi = Factory.create(:mi_attempt2)
+	    		# create an mi_attempt with an es_cell
+	          	@mi_with_es_cell = Factory.create(:mi_attempt2)
 	        end
 
-	        # should "validate the mi_attempt" do
-	        # 	@mi.validate
-	        # end
-
-	        # should "save the mi_attempt" do
-	        # 	@mi.save
-	        # end
-
-		    # basic creation should work
-			should "create a default colony for the mi_attempt" do
-				assert_not_nil @mi.colony
+			should "create a default colony for an mi_attempt with an es_cell" do
+				assert_not_nil @mi_with_es_cell.colony
 			end
 
 			should "create a default colony qc for the colony" do
-				assert_not_nil @mi.colony.colony_qc
+				assert_not_nil @mi_with_es_cell.colony.colony_qc
 			end
 
-		    # basic creation should set qc fields to 'na'
-		    # assert_equal 'na',
+			should "set colony qc fields to na by default" do
+				MiAttempt::QC_FIELDS.each do |qc_field|
+					assert_true @mi_with_es_cell.colony.colony_qc.send(qc_field) == 'na'
+				end
+			end
 
-		    # creation with qc values of 'pass' or 'fail' or 'na' should work
+			should "allow update of qc field to only na, pass or fail" do
 
-		    # should_not allow_value("blah").for(:qc_field)
+				MiAttempt::QC_FIELDS.each do |qc_field|
+					@mi_with_es_cell.colony.colony_qc.send("#{qc_field}=", 'blah')
+					assert_false @mi_with_es_cell.colony.colony_qc.valid?
+			    	assert_false @mi_with_es_cell.colony.colony_qc.save
 
+			    	@mi_with_es_cell.colony.colony_qc.send("#{qc_field}=", 'pass')
+			    	assert_true @mi_with_es_cell.colony.colony_qc.valid?
+			    	assert_true @mi_with_es_cell.colony.colony_qc.save
+
+			    	@mi_with_es_cell.colony.colony_qc.send("#{qc_field}=", 'fail')
+			    	assert_true @mi_with_es_cell.colony.colony_qc.valid?
+			    	assert_true @mi_with_es_cell.colony.colony_qc.save
+
+			    	@mi_with_es_cell.colony.colony_qc.send("#{qc_field}=", 'na')
+			    	assert_true @mi_with_es_cell.colony.colony_qc.valid?
+			    	assert_true @mi_with_es_cell.colony.colony_qc.save
+				end
+			end
+
+			# should "allow access of qc fields via mi_attempt accessors" do
+
+			# 	# use setters
+			# 	MiAttempt::QC_FIELDS.each do |qc_field|
+			# 		@mi_with_es_cell.send("#{qc_field}_result=", 'pass')
+			# 	end
+
+			# 	assert_true @mi_with_es_cell.colony.colony_qc.save
+
+			# 	# test getters
+			# 	MiAttempt::QC_FIELDS.each do |qc_field|
+			# 		assert_equal 'pass', @mi_with_es_cell.send("#{qc_field}_result")
+			# 	end
+			# end
 		end
 
-	    # should "add two numbers for the sum" do
-	    #   assert_equal 4, @calculator.sum(2, 2)
-	    # end
   	end
 end

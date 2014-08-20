@@ -11,7 +11,7 @@ class Colony < ActiveRecord::Base
   validates :name, :presence => true, :uniqueness => true
 
   validate do |colony|
-    if !mi_attempt.blank? and !mi_attempt.es_cell.blank?
+    if !mi_attempt_id.blank? and !mi_attempt.es_cell_id.blank?
       if Colony.where("mi_attempt_id = #{colony.mi_attempt_id} #{if !colony.id.blank?; "and id != #{colony.id}"; end}").count == 1
         colony.errors.add :base, 'Multiple Colonies are not allowed for Mi Attempts micro-injected with an ES Cell clone'
       end
@@ -43,10 +43,6 @@ end
 #  name                    :string(255)      not null
 #  mi_attempt_id           :integer
 #  genotype_confirmed      :boolean          default(FALSE)
-#  trace_file_file_name    :string(255)
-#  trace_file_content_type :string(255)
-#  trace_file_file_size    :integer
-#  trace_file_updated_at   :datetime
 #
 # Indexes
 #

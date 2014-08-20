@@ -608,6 +608,23 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'chr', mi.status.code
             assert_false mi.colony.genotype_confirmed
           end
+
+          should "allow access of qc fields via mi_attempt accessors" do
+            mi_with_es_cell = Factory.create :mi_attempt2
+
+            # use setters
+            MiAttempt::QC_FIELDS.each do |qc_field|
+              mi_with_es_cell.send("#{qc_field}_result=", 'pass')
+            end
+
+            assert_true mi_with_es_cell.colony.colony_qc.save
+
+            # test getters
+            MiAttempt::QC_FIELDS.each do |qc_field|
+              assert_equal 'pass', mi_with_es_cell.send("#{qc_field}_result")
+            end
+          end
+
         end
 
         context 'for Crispr mis' do

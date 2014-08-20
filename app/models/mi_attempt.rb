@@ -230,6 +230,7 @@ class MiAttempt < ApplicationModel
 
   def generate_external_ref_if_blank
     return unless self.external_ref.blank?
+    return if self.production_centre.blank?
     product_prefix = self.es_cell.nil? ? 'Crisp' : self.es_cell.name
     i = 0
     begin
@@ -538,40 +539,6 @@ class MiAttempt < ApplicationModel
 
     selected_status.empty? ? nil : selected_status
   end
-
-  # # qc_southern_blot_result
-  # def qc_southern_blot_result
-
-  #   return if es_cell.blank?
-
-  #   if self.colony.try( :colony_qc).try( :qc_southern_blot)
-  #     return self.colony.colony_qc.qc_southern_blot
-  #   else
-  #     return @qc_southern_blot
-  #   end
-  # end
-
-  # def qc_southern_blot_result=(arg)
-
-  #   return if es_cell.blank?
-
-  #   if (! self.colony.try( :colony_qc).try( :qc_southern_blot ) )
-  #     @qc_southern_blot = arg
-  #   end
-  # end
-
-  # def do_stuff_all_colony_qc
-
-  #   # should always be a colony by now
-  #   raise "Could not save due to missing colony" if self.colony.blank?
-
-  #   if @qc_southern_blot.nil?
-  #     return
-  #   end
-
-  #   self.colony.colony_qc.qc_southern_blot = @qc_southern_blot
-
-  # end
 
 end
 

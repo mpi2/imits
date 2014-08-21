@@ -68,6 +68,10 @@ class Colony < ActiveRecord::Base
     alignment_data.yaml
   }
 
+  def trace_data_pending
+    ! File.exists?("#{FOLDER_OUT}/#{self.id}") && ! self.trace_file_file_name.blank?
+  end
+
   def trace_data_available
     File.exists?("#{FOLDER_OUT}/#{self.id}")
   end
@@ -199,7 +203,7 @@ class Colony < ActiveRecord::Base
 
     puts "#### clearing out '#{folder_in}'" if VERBOSE
 
-    return
+#    return
 
    #FileUtils.rm("#{folder_in}/merge_vcf/*.*", :force => true)
     FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)

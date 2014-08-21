@@ -479,7 +479,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             default_mi_attempt.send("#{qc_field}_result=", '')
             assert default_mi_attempt.valid?
             assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")
-            assert_equal 'na', default_mi_attempt.send(qc_field).try(:description)
+            # assert_equal 'na', default_mi_attempt.send(qc_field).try(:description)
           end
 
         end
@@ -633,6 +633,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
             assert_nil mi.colony
           end
+
           should 'not exist even if there are multiple colonies' do
             mi = Factory.create :mi_attempt_crispr
 
@@ -643,6 +644,14 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 2, mi.colonies.length
             assert_nil mi.colony
           end
+
+          should 'allow creation of a colony via attributes' do
+            # crisprs can have multiple colonies
+            mi = Factory.create :mi_attempt_crispr, :colonies_attributes => [{ :name => 'test_colony', :genotype_confirmed => true }]
+            assert_false mi.colonies.first.blank?
+            assert_equal 'test_colony', mi.colonies.first.name
+          end
+
         end
       end
 

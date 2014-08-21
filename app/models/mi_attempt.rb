@@ -126,8 +126,12 @@ class MiAttempt < ApplicationModel
   before_validation :set_total_chimeras
   before_validation :set_es_cell_from_es_cell_name
 
+  before_validation :generate_external_ref_if_blank
+  before_validation :change_status
+  before_validation :manage_colony_for_es_cell_micro_injections_qc_data
+
   before_validation do |mi|
-    return true unless mi.qc_loxp_confirmation_id_changed?
+    return true unless ( ! mi.colony.blank? ) && ( ! mi.colony.colony_qc.blank? ) && mi.colony.colony_qc.qc_loxp_confirmation_changed?
 
     if mi.qc_loxp_confirmation_result == 'fail'
       self.mouse_allele_type = 'e'
@@ -144,10 +148,6 @@ class MiAttempt < ApplicationModel
       mi.external_ref = mi.external_ref.to_s.gsub(/\s+/, ' ')
     end
   end
-
-  before_validation :generate_external_ref_if_blank
-  before_validation :manage_colony_for_es_cell_micro_injections_qc_data
-  before_validation :change_status
 
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
@@ -229,6 +229,7 @@ class MiAttempt < ApplicationModel
   protected :set_cassette_transmission_verified
 
   def generate_external_ref_if_blank
+    return if self.es_cell.blank? && self.mutagenesis_factor.blank?
     return unless self.external_ref.blank?
     return if self.production_centre.blank?
     product_prefix = self.es_cell.nil? ? 'Crisp' : self.es_cell.name

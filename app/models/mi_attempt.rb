@@ -261,8 +261,8 @@ class MiAttempt < ApplicationModel
     colony_attr_hash[:colony_qc_attributes][:id] = colony.colony_qc.id if !colony.blank? and !colony.try(:colony_qc).try(:id).blank?
 
     QC_FIELDS.each do |qc_field|
-      if colony.try(:colony_qc).blank? or instance_variable_get("@#{qc_field}_result") != colony.colony_qc.send(qc_field)
-        colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = instance_variable_get("@#{qc_field}_result")
+      if colony.try(:colony_qc).blank? or self.send("#{qc_field}_result") != colony.colony_qc.send(qc_field)
+        colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
       end
     end
 

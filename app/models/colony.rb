@@ -41,6 +41,17 @@ class Colony < ActiveRecord::Base
     end
   end
 
+  before_save :check_files
+
+  def check_files
+    if trace_file_file_name_changed?
+      puts "#### CHANGED!"
+      self.remove_files
+    else
+      puts "#### UN-CHANGED!"
+    end
+  end
+
   def self.readable_name
     return 'colony'
   end
@@ -66,6 +77,7 @@ class Colony < ActiveRecord::Base
     variant_effect_output.txt
     primer_reads.fa
     alignment_data.yaml
+    reference.fa
   }
 
   def trace_data_pending

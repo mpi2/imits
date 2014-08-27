@@ -6,7 +6,14 @@
         <a>QC Data (click to edit)</a>
     </td>
     <td>
-        <%= f.file_field :trace_file %>
+        <% if ! f.object.new_record? && (f.object.trace_data_available || f.object.trace_data_pending) %>
+            <button id="cbutton_<%= f.object.id %>" type="button" onclick="$(this).toggle();var id = '#cdiv_<%= f.object.id %>'; $(id).toggle();">Replace</button>
+            <div id="cdiv_<%= f.object.id %>" style="display:none;">
+                <%= f.file_field :trace_file %>
+            </div>
+        <% else %>
+            <%= f.file_field :trace_file %>
+        <% end %>
     </td>
 
     <td style="text-align:center">

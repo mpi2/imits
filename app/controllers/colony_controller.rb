@@ -26,11 +26,12 @@ class ColonyController < ApplicationController
 
     @files[:alignment] = {:filename => 'alignment.txt', :name => 'Alignment', :data => nil, :show => show}
     @files[:filtered_analysis_vcf] = {:filename => 'filtered_analysis.vcf', :name => 'Variant (vcf)', :data => nil, :show => show}
-    @files[:vep_log] = {:filename => 'vep.log', :name => 'Variant (vep)', :data => nil, :show => show}
+    #@files[:vep_log] = {:filename => 'vep.log', :name => 'Variant (vep)', :data => nil, :show => show}
+    @files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'Variant (vep)', :data => nil, :show => true}
     @files[:reference] = {:filename => 'reference.fa', :name => 'Protein Sequence (reference)', :data => nil, :show => true}
     @files[:mutant_fa] = {:filename => 'mutated.fa', :name => 'Protein Sequence (mutated)', :data => nil, :show => show}
     @files[:read_seq_fa] = {:filename => 'read_seq.fa', :name => 'read_seq.fa', :data => nil, :show => false}
-    @files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'variant_effect_output.txt', :data => nil, :show => false}
+    #@files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'variant_effect_output.txt', :data => nil, :show => false}
     @files[:analysis_pileup] = {:filename => 'analysis.pileup', :name => 'analysis.pileup', :data => nil, :show => false}
     @files[:primer_reads_fa] = {:filename => 'primer_reads.fa', :name => 'Reads', :data => nil, :show => true}
     @files[:alignment_data_yaml] = {:filename => 'alignment_data.yaml', :name => 'alignment_data.yaml', :data => nil, :show => false}

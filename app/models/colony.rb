@@ -105,11 +105,14 @@ class Colony < ActiveRecord::Base
     command_pre = ""
     command = ""
     command += "#{SCRIPT_RUNREMOTE}" if options[:remote]
-    command += " #{SCRIPT_SCF} bash re4 t87-dev " +
+    #command += " #{SCRIPT_SCF} bash re4 t87-dev " +
+    command += " #{SCRIPT_SCF} bash $USER t87-dev " +
     "-s #{options[:start]} -e #{options[:end]} -c #{options[:chr]} " +
     "-t #{options[:strand]} -x #{options[:species]} -f #{options[:file]} -d #{options[:dir]}"
     command_post = ""
 
+    puts "#### #{command_pre} #{command} #{command_post}"
+    
     "#{command_pre} #{command} #{command_post}"
   end
 

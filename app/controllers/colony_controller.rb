@@ -24,12 +24,12 @@ class ColonyController < ApplicationController
 
     # TODO: move this into Colony.rb
 
-    @files[:alignment] = {:filename => 'alignment.txt', :name => 'Alignment', :data => nil, :show => show}
+    @files[:alignment] = {:filename => 'alignment.txt', :name => 'Alignment', :data => nil, :show => show, :split => true, :titles=> ['Reference Sequence', 'Mutated Sequence'], :ids => ['ref_seq', 'seq_1']}
     @files[:filtered_analysis_vcf] = {:filename => 'filtered_analysis.vcf', :name => 'Variant (vcf)', :data => nil, :show => show}
     #@files[:vep_log] = {:filename => 'vep.log', :name => 'Variant (vep)', :data => nil, :show => show}
     @files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'Variant (vep)', :data => nil, :show => true}
-    @files[:reference] = {:filename => 'reference.fa', :name => 'Protein Sequence (reference)', :data => nil, :show => true}
-    @files[:mutant_fa] = {:filename => 'mutated.fa', :name => 'Protein Sequence (mutated)', :data => nil, :show => show}
+    @files[:reference] = {:filename => 'reference.fa', :name => 'Protein Sequence (reference)', :data => nil, :show => true, :id => 'ref_protein'}
+    @files[:mutant_fa] = {:filename => 'mutated.fa', :name => 'Protein Sequence (mutated)', :data => nil, :show => true, :id => 'protein_seq'}
     @files[:read_seq_fa] = {:filename => 'read_seq.fa', :name => 'read_seq.fa', :data => nil, :show => false}
     #@files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'variant_effect_output.txt', :data => nil, :show => false}
     @files[:analysis_pileup] = {:filename => 'analysis.pileup', :name => 'analysis.pileup', :data => nil, :show => false}
@@ -114,9 +114,17 @@ class ColonyController < ApplicationController
         file = "#{folder}/#{@files[key2][:filename]}"
         if File.exists?(file) && File.size?(file)
           file = File.open(file, "rb")
-          data = file.read
 
-          data = data.strip || data
+
+          if @files[key2][:split] == true
+            data  = []
+            file.each_line do |line|
+              data << line.strip
+            end
+          else
+            data = file.read
+            data = data.strip || data
+          end
 
           @files[key2][:data] = data
 

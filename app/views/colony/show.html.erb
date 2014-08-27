@@ -13,6 +13,7 @@
 
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag 'colony/show' %>
+  <%= javascript_include_tag 'alignment_highlighting' %>
 <% end %>
 
 
@@ -42,9 +43,22 @@
 
 <div id="<%= "#{key}" %>" style="display:none">
 
+
+
+  <% if @files[key][:data].class.name == "Array"%>
+    <% i = 0 %>
+    <% @files[key][:data].each do |line| %>
+      <pre><p><b><%=@files[key][:titles][i] %></b></p><div id=<%= @files[key][:ids][i] %>><%= line %></div></pre>
+      <% i += 1 %>
+    <% end %>
+
+  <% else %>
   <pre>
-<%= @files[key][:data] %>
+    <div <%= if @files[key].has_key?(:id) then "id = #{@files[key][:id]}" else "" end%>><%= @files[key][:data] %></div>
   </pre>
+  <% end %>
+
+
 
 </div>
 

@@ -48,6 +48,7 @@ class MiAttempt < ApplicationModel
   has_many   :colonies, inverse_of: :mi_attempt
   has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
   has_many   :crisprs, through: :mutagenesis_factor
+  has_many   :genotype_primers, through: :mutagenesis_factor
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :colony_background_strain, :name
@@ -133,7 +134,7 @@ class MiAttempt < ApplicationModel
   end
 
   before_save :generate_external_ref_if_blank
-  before_save :manage_colony_if_blank_for_es_cell_micro_injections
+  before_save :manage_colony_for_es_cell_micro_injections
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
   after_save :add_default_distribution_centre
@@ -189,6 +190,8 @@ class MiAttempt < ApplicationModel
         distribution_centre.distribution_network = 'CMMR'
       elsif centre == 'TCP' && ['UCD-KOMP', 'DTCC'].include?(consortium_name)
         distribution_centre.centre = Centre.find_by_name('KOMP Repo')
+      elsif centre == 'WTSI' and !es_cell.blank? and ['EUCOMM', 'EUCOMMTools'].include?(es_cell.pipeline.try(:name))
+        distribution_centre.distribution_network = 'EMMA'
       end
       raise "Could not save DEFAULT distribution Centre" if !distribution_centre.valid?
       distribution_centre.save
@@ -223,19 +226,26 @@ class MiAttempt < ApplicationModel
   protected :generate_external_ref_if_blank
 
 
-  def manage_colony_if_blank_for_es_cell_micro_injections
+  def manage_colony_for_es_cell_micro_injections
     return if es_cell.blank?
+
     if !colony.blank?
       if colony.name != external_ref
         colony.name = external_ref
-      else
-        return
       end
     else
       create_colony({:name => external_ref})
     end
+
+    if self.status.try(:code) == 'gtc' && colony.genotype_confirmed == false
+      colony.genotype_confirmed = true
+      self.change_status
+    elsif self.status.try(:code) != 'gtc' && colony.genotype_confirmed == true
+      colony.genotype_confirmed = false
+      self.change_status
+    end
   end
-  protected :manage_colony_if_blank_for_es_cell_micro_injections
+  protected :manage_colony_for_es_cell_micro_injections
 
   def make_mi_date_and_in_progress_status_consistent
     in_progress_status = self.status_stamps.find_by_status_id(1)
@@ -286,6 +296,14 @@ class MiAttempt < ApplicationModel
       output_string << "[#{output_array.join(', ')}] "
     end
     return output_string.strip
+  end
+
+  def mutagenesis_factor_external_ref
+    if (self.mutagenesis_factor)
+      return self.mutagenesis_factor.external_ref
+    else
+      return nil
+    end
   end
 
   def es_cell_name

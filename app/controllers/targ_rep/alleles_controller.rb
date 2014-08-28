@@ -202,7 +202,7 @@ class TargRep::AllelesController < TargRep::BaseController
     json_qry = { :q => 'id:"' + doc_id + '" allele_id:"' + allele_id + '" product_type:"' + product_type + '"' }
     docs = proxy.search(json_qry)
 
-    # check for one element in docs array    
+    # check for one element in docs array
     if ( docs.nil? || docs.empty? )
       Rails.logger.info "Unable to fetch information for doc id #{doc_id}, allele id #{allele_id} and product type #{product_type} from Solr for allele with an issue"
     elsif ( docs.length > 1 )
@@ -235,7 +235,7 @@ class TargRep::AllelesController < TargRep::BaseController
     find_allele
     return if check_for_genbank_file
     return if check_for_allele_genbank_file
-    send_genbank_file(@allele.genbank_file.allele)
+    send_genbank_file(@allele.genbank_file.allele_genbank_file)
   end
 
   # GET /alleles/1/targeting-vector-genbank-file/

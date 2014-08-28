@@ -1,5 +1,5 @@
 function addHideRowLinks() {
-    var addDeleteRowArray = ['distribution_centres_table', 'colonies_table']
+    var addDeleteRowArray = ['distribution_centres_table', 'colonies_table', 'genotype_primers_table']
     addDeleteRowArray.forEach(function(table_name) {
       var parentEl = Ext.fly(table_name);
       if (parentEl) {

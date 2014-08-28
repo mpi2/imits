@@ -44,13 +44,20 @@ class Colony < ActiveRecord::Base
   before_save :check_files
 
   def check_files
-    if trace_file_file_name_changed?
-      puts "#### CHANGED!"
-      self.remove_files
-    else
-      puts "#### UN-CHANGED!"
+    self.remove_files if trace_file_file_name_changed?
+  end
+  protected :check_files
+
+  before_save :set_genotype_confirmed
+
+  def set_genotype_confirmed
+    if !mi_attempt.blank? && !mi_attempt.status.blank?
+      if !mi_attempt.es_cell.blank? && mi_attempt.status.code == 'gtc'
+        self.genotype_confirmed = true
+      end
     end
   end
+  protected :set_genotype_confirmed
 
   def self.readable_name
     return 'colony'
@@ -58,10 +65,10 @@ class Colony < ActiveRecord::Base
 
   SYNC = false
   VERBOSE = true
+  KEEP_GENERATED_FILES = false
 
   SCRIPT_RUNREMOTE = "#{Rails.root}/script/runremote.sh"
   SCRIPT_SCF = "#{Rails.root}/script/scf.sh"
-#  FOLDER_IN = "#{Rails.root}/tmp/trace_files_output"
   FOLDER_IN = '/nfs/team87/imits/trace_files_output'
   FOLDER_OUT = "#{Rails.root}/public/trace_files"
   FOLDER_TMP = "#{Rails.root}/tmp/trace_files"
@@ -95,7 +102,6 @@ class Colony < ActiveRecord::Base
 
     SCF_FILES.each { |file| FileUtils.rm "#{folder_out}/#{file}", :force => true }
 
-   #FileUtils.rm "#{folder_out}/*.scf", :force => true
     FileUtils.rm(Dir.glob("#{folder_out}/*.scf"), :force => true)
 
     FileUtils.rmdir folder_out
@@ -105,7 +111,6 @@ class Colony < ActiveRecord::Base
     command_pre = ""
     command = ""
     command += "#{SCRIPT_RUNREMOTE}" if options[:remote]
-    #command += " #{SCRIPT_SCF} bash re4 t87-dev " +
     command += " #{SCRIPT_SCF} bash " + ENV['USER'] + " t87-dev " +
     "-s #{options[:start]} -e #{options[:end]} -c #{options[:chr]} " +
     "-t #{options[:strand]} -x #{options[:species]} -f #{options[:file]} -d #{options[:dir]}"
@@ -134,16 +139,12 @@ class Colony < ActiveRecord::Base
     FileUtils.mkdir_p FOLDER_IN
     FileUtils.mkdir_p FOLDER_TMP
 
-    #      colony.scf({ :start => 139237069, :end => 139237133, :chr => 1, :strand => -1})
-
     options[:remote] = true
     options[:chr] = mi_attempt.mi_plan.gene.chr if ! options[:chr]
     # TODO: check me!
     options[:strand] = "#{mi_attempt.mi_plan.gene.strand_name}1" if ! options[:strand]
     options[:species] = "Mouse"
     options[:dir] = self.id
-
-   # pp self.mi_attempt.crisprs
 
     if ! options[:start] || ! options[:end]
       s = 0
@@ -167,15 +168,11 @@ class Colony < ActiveRecord::Base
       raise "#### cannot find flag '#{flag}'!" if ! options.has_key? flag
     end
 
-   # pp options
-
     error_output = nil
     exit_status = nil
     output = nil
 
     cmd = run_cmd options
-
-    #puts "#### '#{cmd}'" if VERBOSE
 
     Open3.popen3("#{cmd}") do |scriptin, scriptout, scripterr, wait_thr|
       error_output = scripterr.read
@@ -218,12 +215,10 @@ class Colony < ActiveRecord::Base
 
     puts "#### clearing out '#{folder_in}'" if VERBOSE
 
-#    return
+    return if KEEP_GENERATED_FILES
 
-   #FileUtils.rm("#{folder_in}/merge_vcf/*.*", :force => true)
     FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
     FileUtils.rmdir("#{folder_in}/merge_vcf")
-    #FileUtils.rm("#{folder_in}/*.*", :force => true)
     FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
     FileUtils.rmdir("#{folder_in}")
 
@@ -243,6 +238,7 @@ end
 #  trace_file_content_type :string(255)
 #  trace_file_file_size    :integer
 #  trace_file_updated_at   :datetime
+#  genotype_confirmed      :boolean          default(FALSE)
 #
 # Indexes
 #

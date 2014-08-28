@@ -3,6 +3,7 @@
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag('mi_attempts/shared') %>
   <%= javascript_include_tag('mi_attempts/new') %>
+  <%= javascript_include_tag('mi_attempts/show') %>
 <% end %>
 
 <% if !@mi_attempt.warnings.blank? %>

@@ -46,30 +46,41 @@
       <div id="mutagenesis-factor-fields"></div>
       <label for="marker_symbol">Marker Symbol</label>
       <input id="marker_symbol" name="marker_symbol" value="<%= @marker_symbol %>" readonly>
+      <%= form.fields_for :mutagenesis_factor do |builder| %>
+        <div>
+          <% if !builder.object.new_record? %>
+            <label for="mi_attempt_mutagenesis_factor_attributes_external_ref">Mutagenesis External Ref</label>
+            <%= builder.text_field :external_ref%>
+          <% end %>
+        </div>
+      <% end %>
       <div id="vector-container">
         <%= form.fields_for :mutagenesis_factor do |builder| %>
+          <%= builder.label :vector_name%>
           <%= builder.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: @vector_options[:selected]) %>
         <% end %>
       </div>
-      <label for="mi_attempts_mutagenesis_factor_crisprs">Crisprs</label>
-      <table id="mutagenesis_factor_table" class="report_table">
-        <thead class="title">
-          <tr>
-            <th>Sequence</th>
-            <th>Chr</th>
-            <th>Chr Start</th>
-            <th>Chr End</th>
-          </tr>
-        </thead>
-        <tbody class="distribution_centres"  id="crispr-table">
-            <%= form.fields_for :mutagenesis_factor do |builder| %>
-              <%= builder.fields_for :crisprs do |builder2| %>
-                <%= render '/shared/crisprs_fields', f: builder2 %>
+      <div>
+        <label for="mi_attempts_mutagenesis_factor_crisprs">Crisprs</label>
+        <table id="mutagenesis_factor_table" class="report_table">
+          <thead class="title">
+            <tr>
+              <th>Sequence</th>
+              <th>Chr</th>
+              <th>Chr Start</th>
+              <th>Chr End</th>
+            </tr>
+          </thead>
+          <tbody class="distribution_centres"  id="crispr-table">
+              <%= form.fields_for :mutagenesis_factor do |builder| %>
+                <%= builder.fields_for :crisprs do |builder2| %>
+                 <%= render '/shared/crisprs_fields', f: builder2 %>
+                <% end %>
               <% end %>
-          <% end %>
-        </tbody>
-      </table>
-      <div id="crispr_edit_button"></div>
+          </tbody>
+        </table>
+        <div id="crispr_edit_button"></div>
+      </div>
     </div>
   </fieldset>
 </div>
@@ -100,6 +111,55 @@
     </div>
   </div>
 </fieldset>
+
+
+<fieldset id="genotype_primer_field_set" class="collapsible"
+  <% if @mi_attempt.mutagenesis_factor.blank? %>style="display: none;"<% end %>>
+  <legend>Genotype Primers</legend>
+  <div>
+    <table id="genotype_primers_table" class="report_table">
+      <thead class="title">
+        <tr>
+          <th>Name</th>
+          <th>Sequence</th>
+          <th>Coordinate Start</th>
+          <th>Coordinate End</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody class="distribution_centres">
+        <tr></tr>
+        <%= form.fields_for :mutagenesis_factor do |builder| %>
+          <%= builder.fields_for :genotype_primers do |builder2| %>
+            <%= render '/shared/genotype_primer_fields', f: builder2 %>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @mi_attempt.mutagenesis_factor.blank? %>
+      <% @mi_attempt.mutagenesis_factor = MutagenesisFactor.new %>
+    <% end %>
+    <%= form.fields_for :mutagenesis_factor do |builder| %>
+      <%= link_to_add_fields "Add Genotype Primer", builder, :genotype_primers %>
+    <% end %>
+  </div>
+</fieldset>
+
+
+<% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
+  <%= render 'status_change_history', :mi_attempt => mi_attempt %>
+<% end %>
+
+<div class="object-crispr">
+  <fieldset class="collapsible">
+    <legend>Crispr Injection Details</legend>
+    <div>
+      <%= generator.number_field :crsp_total_embryos_injected, {:label => 'Number of Embryos Injected'}%>
+      <%= generator.number_field :crsp_total_embryos_survived, {:label => 'Number of Embryos Survived'} %>
+      <%= generator.number_field :crsp_total_transfered, {:label => 'Number Transfered'} %>
+    </div>
+  </fieldset>
+</div>
 
 
 <div class="object-crispr">
@@ -134,6 +194,7 @@
               <th>Trace File</th>
               <th>Trace File Analysis</th>
               <th>Allele</th>
+              <th>Genotype Confirmed?</th>
               <th>Action</th>
             </tr>
           </thead>

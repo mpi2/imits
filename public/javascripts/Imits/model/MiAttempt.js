@@ -36,19 +36,25 @@ Ext.define('Imits.model.MiAttempt', {
         name: 'mi_plan_mutagenesis_via_crispr_cas9',
         persist: false
     },
-    'colony_name',
+    {
+        name: 'colony_name'
+    },
     {
         name: 'consortium_name'
     },
     {
         name: 'production_centre_name'
     },
-    'distribution_centres_attributes',
+    {
+        name: 'distribution_centres_attributes'
+    },
     {
         name: 'distribution_centres_formatted_display',
         readOnly: true
     },
-    'blast_strain_name',
+    {
+        name: 'blast_strain_name'
+    },
     {
         name: 'total_blasts_injected',
         type: 'int'
@@ -167,22 +173,54 @@ Ext.define('Imits.model.MiAttempt', {
     },
 
     // QC Details
-    'qc_southern_blot_result',
-    'qc_five_prime_lr_pcr_result',
-    'qc_five_prime_cassette_integrity_result',
-    'qc_tv_backbone_assay_result',
-    'qc_neo_count_qpcr_result',
-    'qc_lacz_count_qpcr_result',
-    'qc_neo_sr_pcr_result',
-    'qc_loa_qpcr_result',
-    'qc_homozygous_loa_sr_pcr_result',
-    'qc_lacz_sr_pcr_result',
-    'qc_mutant_specific_sr_pcr_result',
-    'qc_loxp_confirmation_result',
-    'qc_three_prime_lr_pcr_result',
-    'qc_critical_region_qpcr_result',
-    'qc_loxp_srpcr_result',
-    'qc_loxp_srpcr_and_sequencing_result',
+    {
+        name: 'qc_southern_blot_result'
+    },
+    {
+        name: 'qc_five_prime_lr_pcr_result'
+    },
+    {
+        name: 'qc_five_prime_cassette_integrity_result'
+    },
+    {
+        name: 'qc_tv_backbone_assay_result'
+    },
+    {
+        name: 'qc_neo_count_qpcr_result'
+    },
+    {
+        name: 'qc_lacz_count_qpcr_result'
+    },
+    {
+        name: 'qc_neo_sr_pcr_result'
+    },
+    {
+        name: 'qc_loa_qpcr_result'
+    },
+    {
+        name: 'qc_homozygous_loa_sr_pcr_result'
+    },
+    {
+        name: 'qc_lacz_sr_pcr_result'
+    },
+    {
+        name: 'qc_mutant_specific_sr_pcr_result'
+    },
+    {
+        name: 'qc_loxp_confirmation_result'
+    },
+    {
+        name: 'qc_three_prime_lr_pcr_result'
+    },
+    {
+        name: 'qc_critical_region_qpcr_result'
+    },
+    {
+        name: 'qc_loxp_srpcr_result'
+    },
+    {
+        name: 'qc_loxp_srpcr_and_sequencing_result'
+    },
     {
         name: 'report_to_public',
         type: 'boolean'
@@ -206,6 +244,66 @@ Ext.define('Imits.model.MiAttempt', {
     },
     {
         name: 'mgi_accession_id'
+    },
+
+    // Crispr transfer details
+    {
+        name: 'crsp_total_embryos_injected',
+        type: 'int'
+    },
+    {
+        name: 'crsp_total_embryos_survived',
+        type: 'int'
+    },
+    {
+        name: 'crsp_total_transfered',
+        type: 'int'
+    },
+
+    // Crispr Founder Details
+    {
+        name: 'crsp_no_founder_pups',
+        type: 'int'
+    },
+    {
+        name: 'founder_pcr_num_assays',
+        type: 'int'
+    },
+    {
+        name: 'founder_pcr_num_positive_results',
+        type: 'int'
+    },
+    {
+        name: 'founder_surveyor_num_assays',
+        type: 'int'
+    },
+    {
+        name: 'founder_surveyor_num_positive_results',
+        type: 'int'
+    },
+    {
+        name: 'founder_t7en1_num_assays',
+        type: 'int'
+    },
+    {
+        name: 'founder_t7en1_num_positive_results',
+        type: 'int'
+    },
+    {
+        name: 'founder_loa_num_assays',
+        type: 'int'
+    },
+    {
+        name: 'founder_loa_num_positive_results',
+        type: 'int'
+    },
+    {
+        name: 'crsp_total_num_mutant_founders',
+        type: 'int'
+    },
+    {
+        name: 'crsp_num_founders_selected_for_breading',
+        type: 'int'
     },
 
     ],

@@ -149,6 +149,11 @@ class BuildAllele2
                                      'd'   => 'flp_cre'
                                      }
 
+    @mutation_types = {
+                      'a' => 'Conditional Ready',
+                      'e' => 'Targeted Non Conditional',
+                      '' => 'Deletion'
+                      }
     puts "#### #{@solr_url}/admin/"
   end
 
@@ -230,14 +235,41 @@ class BuildAllele2
     end
   end
 
+  def try_to_find_correct_allele(row1)
+    sql = <<-EOF
+      SELECT a2.*
+      FROM targ_rep_alleles AS a1
+        JOIN targ_rep_alleles AS a2 ON
+          a1.cassette = a2.cassette AND
+          a1.homology_arm_start = a2.homology_arm_start AND
+          a1.homology_arm_end = a2.homology_arm_end AND
+          a1.cassette_start = a2.cassette_start AND
+          a1.cassette_end = a2.cassette_end AND
+          a1.id != a2.id
+        JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = a2.mutation_type_id
+      WHERE a1.id = #{row1['targ_rep_alleles_id']} AND targ_rep_mutation_types.name = '#{@mutation_types[row1['mi_mouse_allele_type']]}'
+    EOF
+
+    rows = ActiveRecord::Base.connection.execute(sql)
+    if rows.count > 0
+      row1['targ_rep_alleles_id'] = rows[0]['id']
+      return false
+    else
+      return true
+    end
+  end
+
   def genbank_file row1
     row1['genbank_file_url'] = ""
     row1['allele_image'] = ""
 
     return if row1['targ_rep_alleles_id'].blank?
 
+    if !row1['mi_mouse_allele_type'].blank? and row1['es_cell_allele_type'] != row1['mi_mouse_allele_type']
+      return if try_to_find_correct_allele(row1)
+    end
     transformation = @genbank_file_transformations[row1['allele_type']]
-    row1['genbank_file_url'] = "https://www.mousephenotype.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/escell-clone_#{!transformation.blank? ? transformation + '-' : ''}genbank_file"
+    row1['genbank_file_url'] = "https://www.mousephenotype.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/escell-clone-#{!transformation.blank? ? transformation + '-' : ''}genbank-file"
     row1['allele_image'] = "https://www.mousephenotype.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/allele-image#{!transformation.blank? ? '-' + transformation : ''}"
   end
 
@@ -356,7 +388,9 @@ class BuildAllele2
 
         row['phenotyping_centre'] = row['phenotyping_centre_name']
         row['production_centre'] = row['pacentre_name']
-
+        if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
+          row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
+        end
         @processed_rows.push row
 
         mark row
@@ -381,6 +415,9 @@ class BuildAllele2
         row['phenotype_status'] = row['phenotyping_status']
         row['production_centre'] = row['miacentre_name']
         row['phenotyping_centre'] = row['phenotyping_centre_name']
+        if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
+          row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
+        end
 
         @processed_rows.push row
 
@@ -422,6 +459,9 @@ class BuildAllele2
         row['mouse_status'] = row['mi_attempt_status']
         row['phenotype_status'] = ''
         row['production_centre'] = row['miacentre_name']
+        if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
+          row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
+        end
 
         @processed_rows.push row
 
@@ -467,6 +507,9 @@ class BuildAllele2
       row['mouse_status'] = ''
       row['phenotype_status'] = ''
       row['production_centre'] = ''
+      if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
+        row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
+      end
 
       @processed_rows.push row
     end
@@ -509,6 +552,7 @@ class BuildAllele2
       hash['genbank_file'] = row['genbank_file_url']
       hash['allele_image'] = row['allele_image']
       hash['type'] = 'allele'
+      hash['links'] = row['links'].to_s
 
       digest = Digest::MD5.hexdigest(row['mgi_accession_id'].to_s + '-' + row['allele_symbol'].to_s)
 

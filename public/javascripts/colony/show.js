@@ -6,18 +6,14 @@ jQuery(document).ready(	function() {
                $( this ).on({'click':function(event){
 
                var name = $( this ).data( "name" );
+               var text = $( this ).text();
 
-              // alert(name);
+               if(text == "View")
+                 $( this ).text("Hide");
+               else
+                 $( this ).text("View");
 
                $( "#" + name ).toggle();
-
-             //   alert("hello!");
-
-             //jQuery(this).parent().children("div").toggle();
-
-             //jQuery("div", this).toggle();
-
-               //$( "div" ).toggle();
 
                event.preventDefault();
 

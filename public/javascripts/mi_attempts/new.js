@@ -717,6 +717,7 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
 
                         $('.object-es-cell').hide();
                         $('.object-crispr').show();
+                        $('#genotype_primer_field_set').show();
 
                         Imits.MiAttempts.New.restOfForm.showIfHidden();
                         mutagensisFactorPanel.window.hide();

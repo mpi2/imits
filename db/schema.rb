@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140805121100) do
+ActiveRecord::Schema.define(:version => 20140818161100) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -1080,10 +1080,58 @@ ActiveRecord::Schema.define(:version => 20140805121100) do
 
   add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
 
+  create_table "solr_alleles", :id => false, :force => true do |t|
+    t.text    "type"
+    t.integer "id"
+    t.text    "product_type"
+    t.integer "allele_id"
+    t.text    "order_from_names"
+    t.text    "order_from_urls"
+    t.text    "simple_allele_image_url"
+    t.text    "allele_image_url"
+    t.text    "genbank_file_url"
+    t.string  "mgi_accession_id",        :limit => 40
+    t.string  "marker_symbol",           :limit => 75
+    t.string  "allele_type",             :limit => 100
+    t.string  "strain",                  :limit => 25
+    t.text    "allele_name"
+    t.string  "project_ids"
+  end
+
+  add_index "solr_alleles", ["id"], :name => "solr_alleles_idx"
+
   create_table "solr_centre_map", :id => false, :force => true do |t|
     t.string "centre_name", :limit => 40
     t.string "pref"
     t.string "def"
+  end
+
+  create_table "solr_genes", :id => false, :force => true do |t|
+    t.integer  "id"
+    t.text     "type"
+    t.text     "allele_id"
+    t.string   "consortium"
+    t.string   "production_centre",       :limit => 100
+    t.string   "status",                  :limit => 50
+    t.datetime "effective_date"
+    t.string   "mgi_accession_id",        :limit => nil
+    t.text     "project_ids"
+    t.text     "project_statuses"
+    t.text     "project_pipelines"
+    t.text     "vector_project_ids"
+    t.text     "vector_project_statuses"
+    t.string   "marker_symbol",           :limit => 75
+    t.string   "marker_type"
+  end
+
+  add_index "solr_genes", ["id"], :name => "solr_genes_idx"
+
+  create_table "solr_ikmc_projects_details_agg", :id => false, :force => true do |t|
+    t.text    "projects"
+    t.text    "pipelines"
+    t.text    "statuses"
+    t.integer "gene_id"
+    t.text    "type"
   end
 
   create_table "solr_mi_attempts", :id => false, :force => true do |t|
@@ -1164,6 +1212,19 @@ ActiveRecord::Schema.define(:version => 20140805121100) do
 
   add_index "strains", ["name"], :name => "index_strains_on_name", :unique => true
 
+  create_table "targ_rep_allele_sequence_annotations", :force => true do |t|
+    t.string  "mutation_type"
+    t.string  "expected"
+    t.string  "actual"
+    t.text    "comment"
+    t.integer "oligos_start_coordinate"
+    t.integer "oligos_end_coordinate"
+    t.integer "mutation_length"
+    t.integer "genomic_start_coordinate"
+    t.integer "genomic_end_coordinate"
+    t.integer "allele_id"
+  end
+
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
     t.string   "assembly",                                      :default => "GRCm38",                  :null => false
@@ -1190,12 +1251,13 @@ ActiveRecord::Schema.define(:version => 20140805121100) do
     t.datetime "updated_at",                                                                           :null => false
     t.integer  "intron"
     t.string   "type",                                          :default => "TargRep::TargetedAllele"
-    t.text     "sequence"
     t.boolean  "has_issue",                                     :default => false,                     :null => false
     t.text     "issue_description"
+    t.text     "sequence"
     t.string   "taqman_critical_del_assay_id"
     t.string   "taqman_upstream_del_assay_id"
     t.string   "taqman_downstream_del_assay_id"
+    t.string   "wildtype_oligos_sequence"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|
@@ -1546,6 +1608,8 @@ ActiveRecord::Schema.define(:version => 20140805121100) do
   add_foreign_key "phenotyping_productions", "mouse_allele_mods", :name => "phenotyping_productions_mouse_allele_mod_id_fk"
   add_foreign_key "phenotyping_productions", "phenotype_attempts", :name => "phenotyping_productions_phenotype_attempt_id_fk"
   add_foreign_key "phenotyping_productions", "phenotyping_production_statuses", :name => "phenotyping_productions_status_id_fk", :column => "status_id"
+
+  add_foreign_key "targ_rep_allele_sequence_annotations", "targ_rep_alleles", :name => "targ_rep_allele_sequence_annotations_allele_id_fk", :column => "allele_id"
 
   add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_qc_mouse_clinic_id_fk", :column => "user_qc_mouse_clinic_id"
   add_foreign_key "targ_rep_es_cells", "targ_rep_real_alleles", :name => "targ_rep_es_cells_targ_rep_real_allele_id_fk", :column => "real_allele_id"

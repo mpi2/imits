@@ -27,6 +27,10 @@ class Colony < ActiveRecord::Base
 
   belongs_to :mi_attempt
 
+  has_one :colony_qc, inverse_of: :colony, dependent: :destroy
+
+  accepts_nested_attributes_for :colony_qc, :allow_destroy => true
+
   validates :name, :presence => true, :uniqueness => true
 
   has_attached_file :trace_file, :storage => :database
@@ -34,8 +38,8 @@ class Colony < ActiveRecord::Base
   do_not_validate_attachment_file_type :trace_file
 
   validate do |colony|
-    if !mi_attempt.blank? and !mi_attempt.es_cell.blank?
-      if Colony.where("mi_attempt_id = #{colony.mi_attempt_id} #{if !colony.id.blank?; "and id = #{colony.id}"; end}").count == 1
+    if !mi_attempt_id.blank? and !mi_attempt.es_cell_id.blank?
+      if Colony.where("mi_attempt_id = #{colony.mi_attempt_id} #{if !colony.id.blank?; "and id != #{colony.id}"; end}").count == 1
         colony.errors.add :base, 'Multiple Colonies are not allowed for Mi Attempts micro-injected with an ES Cell clone'
       end
     end

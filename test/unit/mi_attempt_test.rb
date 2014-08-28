@@ -43,7 +43,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
   context 'MiAttempt' do
 
-    context 'accociations' do
+    context 'Associations' do
       belongs_to_fields = [:mi_plan,
                            :es_cell,
                            :status,
@@ -479,7 +479,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             default_mi_attempt.send("#{qc_field}_result=", '')
             assert default_mi_attempt.valid?
             assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")
-            assert_equal 'na', default_mi_attempt.send(qc_field).try(:description)
+            # assert_equal 'na', default_mi_attempt.send(qc_field).try(:description)
           end
 
         end
@@ -608,6 +608,23 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'chr', mi.status.code
             assert_false mi.colony.genotype_confirmed
           end
+
+          should "allow access of qc fields via mi_attempt accessors" do
+            mi_with_es_cell = Factory.create :mi_attempt2
+
+            # use setters
+            MiAttempt::QC_FIELDS.each do |qc_field|
+              mi_with_es_cell.send("#{qc_field}_result=", 'pass')
+            end
+
+            assert_true mi_with_es_cell.colony.colony_qc.save
+
+            # test getters
+            MiAttempt::QC_FIELDS.each do |qc_field|
+              assert_equal 'pass', mi_with_es_cell.send("#{qc_field}_result")
+            end
+          end
+
         end
 
         context 'for Crispr mis' do
@@ -616,6 +633,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
             assert_nil mi.colony
           end
+
           should 'not exist even if there are multiple colonies' do
             mi = Factory.create :mi_attempt_crispr
 
@@ -626,6 +644,14 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 2, mi.colonies.length
             assert_nil mi.colony
           end
+
+          should 'allow creation of a colony via attributes' do
+            # crisprs can have multiple colonies
+            mi = Factory.create :mi_attempt_crispr, :colonies_attributes => [{ :name => 'test_colony', :genotype_confirmed => true }]
+            assert_false mi.colonies.first.blank?
+            assert_equal 'test_colony', mi.colonies.first.name
+          end
+
         end
       end
 

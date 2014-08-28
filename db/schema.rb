@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140805121100) do
+ActiveRecord::Schema.define(:version => 20140812142200) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -51,6 +51,28 @@ ActiveRecord::Schema.define(:version => 20140805121100) do
   end
 
   add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
+
+  create_table "colony_qcs", :force => true do |t|
+    t.integer "colony_id",                        :null => false
+    t.string  "qc_southern_blot",                 :null => false
+    t.string  "qc_five_prime_lr_pcr",             :null => false
+    t.string  "qc_five_prime_cassette_integrity", :null => false
+    t.string  "qc_tv_backbone_assay",             :null => false
+    t.string  "qc_neo_count_qpcr",                :null => false
+    t.string  "qc_lacz_count_qpcr",               :null => false
+    t.string  "qc_neo_sr_pcr",                    :null => false
+    t.string  "qc_loa_qpcr",                      :null => false
+    t.string  "qc_homozygous_loa_sr_pcr",         :null => false
+    t.string  "qc_lacz_sr_pcr",                   :null => false
+    t.string  "qc_mutant_specific_sr_pcr",        :null => false
+    t.string  "qc_loxp_confirmation",             :null => false
+    t.string  "qc_three_prime_lr_pcr",            :null => false
+    t.string  "qc_critical_region_qpcr",          :null => false
+    t.string  "qc_loxp_srpcr",                    :null => false
+    t.string  "qc_loxp_srpcr_and_sequencing",     :null => false
+  end
+
+  add_index "colony_qcs", ["colony_id"], :name => "index_colony_qcs_on_colony_id", :unique => true
 
   create_table "consortia", :force => true do |t|
     t.string   "name",         :null => false
@@ -1239,6 +1261,8 @@ ActiveRecord::Schema.define(:version => 20140805121100) do
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
 
   add_foreign_key "colonies", "mi_attempts", :name => "colonies_mi_attempt_fk"
+
+  add_foreign_key "colony_qcs", "colonies", :name => "colony_qcs_colonies_fk"
 
   add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"

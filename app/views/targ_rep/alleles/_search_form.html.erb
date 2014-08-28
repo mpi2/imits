@@ -21,8 +21,19 @@
     backbone_options = options_for_select [['All','']] + backbone_array, params[:backbone_eq]
   end
 %>
-
-<%= form_tag (gene_trap? ? [:targ_rep, :gene_traps] : [:targ_rep, :targeted_alleles]), :method => 'get', :id => 'search_form' do %>
+<% if @klass.hdr_allele?
+     allele_type = [:targ_rep, :hdr_alleles]
+   elsif @klass.nhej_allele?
+     allele_type = [:targ_rep, :nhej_alleles]
+   elsif @klass.crispr_targeted_allele?
+     allele_type = [:targ_rep, :crispr_targeted_alleles]
+   elsif gene_trap?
+     allele_type = [:targ_rep, :gene_traps]
+   else
+     allele_type = [:targ_rep, :targeted_alleles]
+   end
+%>
+<%= form_tag (allele_type), :method => 'get', :id => 'search_form' do %>
   <table class="no-border">
     <tr>
       <td><%= label_tag :gene_marker_symbol_cont, "Marker Symbol" %>:</td>
@@ -32,7 +43,7 @@
       <td><%= label_tag :project_design_id_eq, "Project Design ID" %>:</td>
       <td><%= text_field_tag :project_design_id_eq, params[:project_design_id_eq] %></td>
     </tr>
-  
+
     <tr>
       <% unless gene_trap? %>
         <td><%= label_tag :targeting_vectors_pipeline_id_eq, 'TV Pipeline' %>:</td>

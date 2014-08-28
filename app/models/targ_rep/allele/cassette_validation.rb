@@ -4,8 +4,6 @@ module TargRep::Allele::CassetteValidation
 
     validates :cassette_start, :numericality => {:only_integer => true, :greater_than => 0, :allow_nil => true}
     validates :cassette_end, :numericality => {:only_integer => true, :greater_than => 0, :allow_nil => true}
-    validates :cassette,           :presence => true
-    validates :cassette_type,      :presence => true
 
     validates_inclusion_of :cassette_type,
       :in => ['Promotorless','Promotor Driven'],

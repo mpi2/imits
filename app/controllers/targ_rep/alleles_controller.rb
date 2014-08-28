@@ -588,6 +588,17 @@ class TargRep::AllelesController < TargRep::BaseController
       end
 
       ##
+      ##  Allele Sequence Anotation
+      ##
+
+      if allele_params.include?(:allele_sequence_annotations) && !allele_params.include?(:allele_sequence_annotations_attributes)
+        allele_params[:allele_sequence_annotations].each { |attrs| attrs[:nested] = true }
+        allele_params[:allele_sequence_annotations_attributes] = allele_params.delete(:allele_sequence_annotations)
+      elsif not allele_params.include? :allele_sequence_annotations_attributes
+        allele_params[:allele_sequence_annotations_attributes] = []
+      end
+
+      ##
       ##  Genbank Files
       ##
 

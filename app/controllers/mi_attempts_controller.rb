@@ -139,7 +139,7 @@ class MiAttemptsController < ApplicationController
     gene.vectors.each do |tv|
       if tv.type =='TargRep::CrisprTargetedAllele'
         values[2] << tv.name
-      elsif tv.type =='TargRep::HrdAllele'
+      elsif tv.type =='TargRep::HdrAllele'
         values[3] << tv.name
       elsif tv.type =='TargRep::TargetedAllele'
         values[5] << tv.name

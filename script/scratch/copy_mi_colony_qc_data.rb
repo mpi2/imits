@@ -40,7 +40,8 @@ def initialise
   @count_mi_attempts_processed             = 0
   @count_mi_attempts_with_es_cells         = 0
   @count_mi_attempts_failed_save           = 0
-  @count_mi_plans_failed_save              = 0
+  @count_mi_plans_failed_activate_save              = 0
+  @count_mi_plans_failed_deactivation_save   = 0
   @count_mi_attempts_with_no_colony        = 0
   @count_mi_attempts_with_no_colony_qc     = 0
   @count_mi_attempts_with_colony_qc        = 0
@@ -62,52 +63,39 @@ def process_es_cell_mi_attempts()
 
 		# next unless mi.id == 3902
 
-		puts "mi_attempt ID = #{mi.id}"
+		puts "======================================================"
+		puts "process_es_cell_mi_attempts : mi_attempt ID = #{mi.id}"
 
 		@count_mi_attempts_processed += 1
 
 		# ignore if mi does not have an es cell
 		if mi.es_cell.blank?
-			puts "no es cell, skipping"
+			puts "process_es_cell_mi_attempts : no es cell, skipping"
 			next
 		end
 
 		@count_mi_attempts_with_es_cells += 1
 
-		# use_validation = true
+		activated_mi_plan = false
 
-		deactivate_plan = false
-
+		# check for inactive plans blocking update of mi attempts
 		unless mi.valid?
-			puts "Mi Attempt is invalid, checking status"
+			puts "process_es_cell_mi_attempts : Mi Attempt is invalid, checking status"
 			puts "#{mi.errors.messages}"
-			puts "plan id = #{mi.mi_plan.id}"
+			puts "process_es_cell_mi_attempts : Mi Plan ID = #{mi.mi_plan.id}"
 
 			if mi.mi_plan.status.name == 'Inactive'
 				@count_mi_attempts_inactive += 1
 
-				puts "changing mi_plan status to active"
-				mi.mi_plan.is_active = true
-				if mi.mi_plan.valid?
-					puts "plan valid"
-				else
-					puts "plan invalid"
-				end
-
-				begin
-					mi.mi_plan.save
-				rescue Exception=>e
-					puts "process_es_cell_mi_attempts : ERROR : failed to save activated MI plan for Mi Attempt with ID #{mi.id}"
-		      		puts "process_es_cell_mi_attempts : message : #{e.message}"
-		      		@count_mi_plans_failed_save += 1
-		      		next
+				unless activate_mi_plan?(mi)
+					next
 				end
 
 				mi.reload
 
-				deactivate_plan = true
+				activated_mi_plan = true
 			else
-				puts "ERROR : Mi Attempt is invalid and not in state Inactive or Withdrawn, skipping"
+				puts "process_es_cell_mi_attempts : ERROR : Mi Attempt is invalid and not in state Inactive or Withdrawn, skipping"
 				@count_mi_attempts_invalid += 1
 				next
 			end
@@ -115,27 +103,54 @@ def process_es_cell_mi_attempts()
 
 		begin
 			# save mi_attempt to auto-create a colony and colony_qc
-			puts "plan status before save : #{mi.mi_plan.status.name}"
-			mi.save
-			puts "#{mi.errors.messages}"
-			puts "Mi values after initial mi save:"
+			puts "process_es_cell_mi_attempts : plan status before save : #{mi.mi_plan.status.name}"
+			unless mi.save
+				puts "process_es_cell_mi_attempts : ERROR : failed to save MI attempt with ID #{mi.id}"
+				puts "#{mi.errors.messages}"
+				if activated_mi_plan == true
+					deactivate_mi_plan(mi)
+				end
+				next
+			end
+			puts "process_es_cell_mi_attempts : Mi values after initial mi save:"
 			display_mi_qc_values(mi)
 		rescue Exception=>e
 			puts "process_es_cell_mi_attempts : ERROR : failed to save MI attempt with ID #{mi.id}"
-      		puts "process_es_cell_mi_attempts : message : #{e.message}"
+      		puts "process_es_cell_mi_attempts : exception message : #{e.message}"
       		@count_mi_attempts_failed_save += 1
+      		if activated_mi_plan == true
+				deactivate_mi_plan(mi)
+			end
       		next
 		end
 
+		mi.reload
+
+		unless mi.valid?
+			puts "process_es_cell_mi_attempts : Mi Attempt is invalid after initial save, skipping"
+			puts "#{mi.errors.messages}"
+			@count_mi_attempts_invalid += 1
+			if activated_mi_plan == true
+				deactivate_mi_plan(mi)
+			end
+			next
+		end
+
 		if mi.colony.blank?
-			puts "WARN: no colony for this mi attempt, skipping"
+			puts "process_es_cell_mi_attempts : WARN: no colony for this mi attempt, skipping"
 			@count_mi_attempts_with_no_colony += 1
+			if activated_mi_plan == true
+				deactivate_mi_plan(mi)
+			end
 			next
 		end
 
 		if mi.colony.colony_qc.blank?
-			puts "WARN: no colony qc for this mi attempt, skipping"
+			puts "process_es_cell_mi_attempts : WARN: no colony qc for this mi attempt, skipping"
 			@count_mi_attempts_with_no_colony_qc += 1
+			if activated_mi_plan == true
+				deactivate_mi_plan(mi)
+			end
 			next
 		end
 
@@ -147,81 +162,131 @@ def process_es_cell_mi_attempts()
 			current_field_value_via_model = mi.send("#{qc_field}_result")
 			current_field_id = mi.send("#{qc_field}_id")
 
-			# puts "#{qc_field}: current value <#{current_field_value_via_model}> and id <#{current_field_id}>"
+			# puts "process_es_cell_mi_attempts : #{qc_field}: current value <#{current_field_value_via_model}> and id <#{current_field_id}>"
 
 			case current_field_id
 			when 1
 			  if current_field_value_via_model.blank? or current_field_value_via_model != 'na'
 			  	mi.send("#{qc_field}_result=", 'na')
-			  	# puts "updating to: na"
+			  	# puts "process_es_cell_mi_attempts : updating to: na"
 			  	changes_made += 1
 			  end
 			when 2
               if current_field_value_via_model.blank? or current_field_value_via_model != 'fail'
 			  	mi.send("#{qc_field}_result=", 'fail')
-			  	# puts "updating to: fail"
+			  	# puts "process_es_cell_mi_attempts : updating to: fail"
 			  	changes_made += 1
 			  end
 			when 3
               if current_field_value_via_model.blank? or current_field_value_via_model != 'pass'
 			    mi.send("#{qc_field}_result=", 'pass')
-			    # puts "updating to: pass"
+			    # puts "process_es_cell_mi_attempts : updating to: pass"
 			    changes_made += 1
 			  end
 			else
-			  puts "WARN: unrecognised field id for #{qc_field}, no change made"
+			  puts "process_es_cell_mi_attempts : WARN: unrecognised field id for #{qc_field}, no change made"
 			end
 		end
 
 		unless changes_made > 0
-			puts "no changes made - skipping"
+			puts "process_es_cell_mi_attempts : no changes made - skipping"
 			@count_mi_attempts_no_changes_made += 1
 
-			if deactivate_plan == true
-				mi.mi_plan.is_active = false
-				begin
-					mi.mi_plan.save
-				rescue Exception=>e
-					puts "process_es_cell_mi_attempts : ERROR : failed to save de-activated MI plan for Mi Attempt with ID #{mi.id}"
-			    	puts "process_es_cell_mi_attempts : message : #{e.message}"
-			      	@count_mi_plans_failed_save += 1
-			    	next
-				end
+			if activated_mi_plan == true
+				deactivate_mi_plan(mi)
 			end
-
-			next
+ 			next
 		end
 
-		puts "number of changes made = #{changes_made}, saving updates"
+		puts "process_es_cell_mi_attempts : number of changes made = #{changes_made}, saving updates"
 
 		begin
 			# save mi_attempt with data saved in colony_qc table
-			mi.save
-			puts "#{mi.errors.messages}"
+			unless mi.save
+				puts "process_es_cell_mi_attempts : ERROR : failed to save MI attempt with ID #{mi.id}"
+				puts "#{mi.errors.messages}"
+				if activated_mi_plan == true
+					deactivate_mi_plan(mi)
+				end
+				next
+			end
 			@count_mi_attempts_successful_data_save += 1
 			# mi.reload
 			display_mi_qc_values(mi)
 		rescue Exception=>e
 			puts "process_es_cell_mi_attempts : ERROR : failed to save MI attempt with new data with ID #{mi.id}"
-      		puts "process_es_cell_mi_attempts : message : #{e.message}"
+      		puts "process_es_cell_mi_attempts : exception message : #{e.message}"
       		@count_mi_attempts_failed_data_save += 1
+      		if activated_mi_plan == true
+				deactivate_mi_plan(mi)
+			end
       		next
 		end
 
-		if deactivate_plan == true
-			mi.mi_plan.is_active = false
-			begin
-				mi.mi_plan.save
-			rescue Exception=>e
-				puts "process_es_cell_mi_attempts : ERROR : failed to save de-activated MI plan for Mi Attempt with ID #{mi.id}"
-		    	puts "process_es_cell_mi_attempts : message : #{e.message}"
-		      	@count_mi_plans_failed_save += 1
-		    	next
-			end
+		if activated_mi_plan == true
+			deactivate_mi_plan(mi)
 		end
 
-	end
+	end # mi loop
 	puts "process_es_cell_mi_attempts : end"
+end
+
+def activate_mi_plan?(mi)
+	puts "activate_mi_plan : changing mi_plan status to active"
+
+	mi.mi_plan.is_active = true
+
+	if mi.mi_plan.valid?
+		puts "activate_mi_plan : plan valid"
+	else
+		puts "activate_mi_plan : plan invalid"
+	end
+
+	begin
+		unless mi.mi_plan.save
+			puts "activate_mi_plan : ERROR : failed to save Mi Plan for Mi Attempt with ID #{mi.id}"
+			@count_mi_plans_failed_activate_save += 1
+			return false
+		end
+	rescue Exception=>e
+		puts "activate_mi_plan : ERROR : failed to save activated MI plan for Mi Attempt with ID #{mi.id}"
+  		puts "activate_mi_plan : exception message : #{e.message}"
+  		@count_mi_plans_failed_activate_save += 1
+  		return false
+	end
+
+	puts "activate_mi_plan : plan activated"
+
+	return true
+end
+
+def deactivate_mi_plan(mi)
+	puts "deactivate_mi_plan : changing mi_plan status to inactive"
+
+	mi.mi_plan.is_active = false
+
+	if mi.mi_plan.valid?
+		puts "deactivate_mi_plan : plan valid"
+	else
+		puts "deactivate_mi_plan : plan invalid"
+	end
+
+	begin
+		unless mi.mi_plan.save
+			puts "deactivate_mi_plan : ERROR : failed to save Mi Plan for Mi Attempt with ID #{mi.id}"
+			@count_mi_plans_failed_deactivation_save += 1
+			return
+		end
+	rescue Exception=>e
+		puts "deactivate_mi_plan : ERROR : failed to save de-activated MI plan for Mi Attempt with ID #{mi.id}"
+    	puts "deactivate_mi_plan : exception message : #{e.message}"
+      	@count_mi_plans_failed_deactivation_save += 1
+    	return
+	end
+
+	puts "deactivate_mi_plan : plan deactivated"
+
+	return
 end
 
 def display_mi_qc_values(mi)
@@ -244,9 +309,12 @@ def display_mi_qc_values(mi)
 		puts "#{qc_field} = #{current_field_value_via_model}"
 	end
 	puts "-----------------------------------------------------"
+
+	return
 end
 
 def cleanup()
+	puts "======================================================"
 	puts "Counters:"
 	puts "---------"
 	puts "MI attempts processed                  = #{@count_mi_attempts_processed}"
@@ -262,15 +330,13 @@ def cleanup()
 	puts "MI attempts inactive                   = #{@count_mi_attempts_inactive}"
 	puts "MI attempts invalid                    = #{@count_mi_attempts_invalid}"
 	puts "MI attempts with FAILED initial saves  = #{@count_mi_attempts_failed_save}"
-	puts "MI plans with FAILED saves             = #{@count_mi_plans_failed_save}"
+	puts "MI plans with FAILED saves             = #{@count_mi_plans_failed_activate_save}"
+	puts "MI plans with FAILED reactivate saves  = #{@count_mi_plans_failed_deactivation_save}"
 	puts "MI attempts with FAILED data saves     = #{@count_mi_attempts_failed_data_save}"
+	puts "======================================================"
+
+	return
 end
-
-
-# def method_name( parameters )
-
-
-# end
 
 # any initialisation here
 initialise

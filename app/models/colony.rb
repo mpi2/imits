@@ -39,10 +39,10 @@ end
 #
 # Table name: colonies
 #
-#  id                      :integer          not null, primary key
-#  name                    :string(255)      not null
-#  mi_attempt_id           :integer
-#  genotype_confirmed      :boolean          default(FALSE)
+#  id                 :integer          not null, primary key
+#  name               :string(255)      not null
+#  mi_attempt_id      :integer
+#  genotype_confirmed :boolean          default(FALSE)
 #
 # Indexes
 #

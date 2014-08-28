@@ -45,13 +45,9 @@ ActiveRecord::Schema.define(:version => 20140812142200) do
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string   "name",                                       :null => false
-    t.integer  "mi_attempt_id"
-    t.boolean  "genotype_confirmed",      :default => false
-    t.string   "trace_file_file_name"
-    t.string   "trace_file_content_type"
-    t.integer  "trace_file_file_size"
-    t.datetime "trace_file_updated_at"
+    t.string  "name",                                  :null => false
+    t.integer "mi_attempt_id"
+    t.boolean "genotype_confirmed", :default => false
   end
 
   add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
@@ -1234,14 +1230,6 @@ ActiveRecord::Schema.define(:version => 20140812142200) do
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"
   add_index "targ_rep_targeting_vectors", ["name"], :name => "index_targvec", :unique => true
   add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
-
-  create_table "trace_files", :force => true do |t|
-    t.integer  "colony_id"
-    t.string   "style"
-    t.binary   "file_contents"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
-  end
 
   create_table "tracking_goals", :force => true do |t|
     t.integer  "production_centre_id"

@@ -92,7 +92,9 @@ class MiAttemptsController < ApplicationController
         if ! @mi_attempt.valid?
           flash.now[:alert] = 'Micro-injection could not be updated - please check the values you entered'
         end
+        # temp fix for when update fails silently (mi_plan status change problem eg. mi_attempt 12165)
         if ! @mi_attempt.mi_plan.valid?
+          flash.now[:notice] = nil
           flash.now[:alert] = @mi_attempt.mi_plan.errors.full_messages.first
         end
         set_centres_and_consortia

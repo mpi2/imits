@@ -74,8 +74,13 @@ class Colony < ActiveRecord::Base
   SCRIPT_RUNREMOTE = "#{Rails.root}/script/runremote.sh"
   SCRIPT_SCF = "#{Rails.root}/script/scf.sh"
   FOLDER_IN = '/nfs/team87/imits/trace_files_output'
-  FOLDER_OUT = "#{Rails.root}/public/trace_files"
-  FOLDER_TMP = "#{Rails.root}/tmp/trace_files"
+
+  # TODO: fix for production
+  #FOLDER_OUT = "#{Rails.root}/public/trace_files"
+  #FOLDER_TMP = "#{Rails.root}/tmp/trace_files"
+  FOLDER_OUT = "/nfs/team87/imits/trace_files"
+  FOLDER_TMP = "/nfs/team87/imits/trace_files_tmp"
+
   SCF_FILES = %W{
     alignment.txt
     filtered_analysis.vcf

@@ -470,6 +470,18 @@ class MiAttemptTest < ActiveSupport::TestCase
 
           assert_equal 'pass', default_mi_attempt.qc_loxp_confirmation_result
           assert_equal nil, default_mi_attempt.mouse_allele_type
+
+          allele = default_mi_attempt.allele
+          allele.mutation_type_id = 4
+          allele.save
+
+          default_mi_attempt.reload
+          default_mi_attempt.qc_loxp_confirmation_result = 'fail'
+          default_mi_attempt.save
+
+          assert_equal 'fail', default_mi_attempt.qc_loxp_confirmation_result
+          assert_not_equal 'e', default_mi_attempt.mouse_allele_type
+          assert_equal nil, default_mi_attempt.mouse_allele_type
         end
       end
 

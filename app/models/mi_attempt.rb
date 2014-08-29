@@ -29,7 +29,6 @@ class MiAttempt < ApplicationModel
     :qc_loxp_srpcr_and_sequencing
   ].freeze
 
-  belongs_to :allele
   belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :es_cell, :class_name => 'TargRep::EsCell'
@@ -105,11 +104,11 @@ class MiAttempt < ApplicationModel
   before_validation :change_status
 
   before_validation do |mi|
-    return true unless mi.qc_loxp_confirmation_id_changed?
+    return true if !mi.allele.blank? and mi.allele.mutation_type.try(:code) == 'cki'
 
     if mi.qc_loxp_confirmation_result == 'fail'
       self.mouse_allele_type = 'e'
-    elsif mi.qc_loxp_confirmation_result == 'pass'
+    elsif self.mouse_allele_type == 'e' and (mi.qc_loxp_confirmation_result == 'pass' or mi.qc_loxp_confirmation_result == 'na')
       self.mouse_allele_type = nil
     end
 
@@ -337,6 +336,13 @@ class MiAttempt < ApplicationModel
     else
       return nil
     end
+  end
+
+  def allele
+    if !es_cell.blank?
+      return es_cell.allele
+    end
+    return nil
   end
 
   def mgi_accession_id

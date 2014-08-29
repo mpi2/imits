@@ -685,7 +685,7 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                                         if (item.type =='TargRep::CrisprTargetedAllele'){
                                             crisprtv += '<option value="' + item.name + '">' + item.name + '</option>';
                                         }
-                                        else if (item.type =='TargRep::HrdAllele'){
+                                        else if (item.type =='TargRep::HdrAllele'){
                                             oligo += '<option value="' + item.name + '">' + item.name + '</option>';
                                         }
                                         else if (item.type =='TargRep::TargetedAllele'){

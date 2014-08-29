@@ -45,7 +45,7 @@ $(function() {
 
 $(function() {
   var annotation_table = $('#allele_sequence_annotations_table');
-  if (annotation_table){
+  if (annotation_table.length != 1){
     return
   }
 

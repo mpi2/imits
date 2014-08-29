@@ -1,3 +1,83 @@
+$(function() {
+    var addDeleteRowArray = ['allele_sequence_annotations_table tbody']
+    addDeleteRowArray.forEach(function(table_name) {
+      var parentEl = $('#' + table_name );
+
+      if (parentEl) {
+
+           $( parentEl ).on("click", function(event) {
+              event.preventDefault();
+              if (event.target && event.target.className == "hide-row"){
+                target = $(event.target);
+                var inputField = target.siblings('.destroy-field');
+                $( inputField ).val(true);
+                row = target.parent().parent();
+                row.hide();
+                create_alignment_from_annotations();
+              }
+          });
+          $( parentEl ).on("change", function(event) {
+              event.preventDefault();
+              classNamesToActOn = ["annotation_oligos_start_coordinate",
+                                   "annotation_oligos_end_coordinate",
+                                   "annotation_length"];
+              if (event.target && $.inArray(event.target.className, classNamesToActOn) != -1 ){
+                row = $(event.target).parent().parent();
+
+                mutation_type = row.find(".annotation_mutation_type");
+                start = row.find(".annotation_oligos_start_coordinate");
+                end = row.find(".annotation_oligos_end_coordinate");
+                if (mutation_type.val() == 'Deletion'){
+                  if (event.target.className == 'annotation_oligos_start_coordinate'){
+                    end.val(start.val());
+                  } else if (event.target.className == 'annotation_oligos_end_coordinate'){
+                    start.val(end.val());
+                  }
+                }
+                update_mutation_details(row);
+              }
+              create_alignment_from_annotations();
+          });
+      }
+    });
+})
+
+
+$(function() {
+  var annotation_table = $('#allele_sequence_annotations_table');
+  if (annotation_table){
+    return
+  }
+
+  button = $('#generate_annotations');
+
+  button.on('click', function(){
+
+    align_and_annotate( $('#targ_rep_hdr_allele_sequence').val(), $('#targ_rep_hdr_allele_wildtype_oligos_sequence').val());
+
+    $('#allele_sequence_annotations_table tbody tr:not(:hidden)').each(function() {
+      el = $(this).find("a");
+      if (el){
+        el.click();
+      }
+    });
+
+    annotations.forEach(function(element){
+      $('#annotation_add_link').click();
+      row = $('#allele_sequence_annotations_table tbody tr:last');
+      row.find(".annotation_mutation_type").val(element[0]);
+      row.find(".annotation_oligos_start_coordinate").val(element[1]);
+      row.find(".annotation_oligos_end_coordinate").val(element[2]);
+      row.find(".annotation_actual").val(element[3]);
+      row.find(".annotation_expected").val(element[4]);
+      row.find(".annotation_length").val(Math.max(element[3].length, element[4].length));
+    })
+    create_alignment_from_annotations();
+  });
+
+  create_alignment_from_annotations();
+});
+
 function update_mutation_details(row){
     seq = $('#targ_rep_hdr_allele_sequence').val();
     wild_seq = $('#targ_rep_hdr_allele_wildtype_oligos_sequence').val();

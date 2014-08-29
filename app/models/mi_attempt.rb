@@ -126,9 +126,9 @@ class MiAttempt < ApplicationModel
   before_save :generate_colony_name_if_blank
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
+  before_save :make_mi_date_and_in_progress_status_consistent
   after_save :add_default_distribution_centre
   after_save :manage_status_stamps
-  after_save :make_mi_date_and_in_progress_status_consistent
   after_save :reload_mi_plan_mi_attempts
 
 
@@ -204,8 +204,7 @@ class MiAttempt < ApplicationModel
 
     if in_progress_status
       if self.mi_date.to_date != in_progress_status.created_at.to_date
-        in_progress_status.created_at = self.mi_date.to_datetime
-        in_progress_status.save
+        in_progress_status.update_column(:created_at, self.mi_date.to_datetime)
       end
     end
   end

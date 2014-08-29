@@ -30,22 +30,43 @@ class MiAttempt::StatusStamp < ActiveRecord::Base
   def set_cassette_transmission_verified
     if self.status_id == 2 # genotype_confirmed
       mi_attempt = MiAttempt.find(self.mi_attempt.id)
-      if mi_attempt.cassette_transmission_verified_auto_complete == true
+      if self.destroyed? && mi_attempt.cassette_transmission_verified_auto_complete == true
         #genotype_confirmed status stamp destroyed
-        mi_attempt = MiAttempt.find(self.mi_attempt.id)
-        mi_attempt.cassette_transmission_verified = nil
-        mi_attempt.cassette_transmission_verified_auto_complete = false
-        mi_attempt.save
+        #update attibutes without carringout validation and callbacks
+        mi_attempt.update_column(:cassette_transmission_verified, nil)
+        mi_attempt.update_column(:cassette_transmission_verified_auto_complete, false)
       elsif mi_attempt.cassette_transmission_verified.blank?
-        mi_attempt.cassette_transmission_verified = self.created_at
-        mi_attempt.cassette_transmission_verified_auto_complete = true
-        mi_attempt.save
+        #update attibutes without carringout validation and callbacks
+        mi_attempt.update_column(:cassette_transmission_verified, self.created_at)
+        mi_attempt.update_column(:cassette_transmission_verified_auto_complete, true)
         #genotype_confirmed status stamp created
       end
     end
     true
   end
   protected :set_cassette_transmission_verified
+
+
+
+#  def set_cassette_transmission_verified
+#    if self.status_id == 2 # genotype_confirmed
+#      mi_attempt = MiAttempt.find(self.mi_attempt.id)
+#      if mi_attempt.cassette_transmission_verified_auto_complete == true
+#        #genotype_confirmed status stamp destroyed
+#        mi_attempt = MiAttempt.find(self.mi_attempt.id)
+#        mi_attempt.cassette_transmission_verified = nil
+#        mi_attempt.cassette_transmission_verified_auto_complete = false
+#        mi_attempt.save
+#      elsif mi_attempt.cassette_transmission_verified.blank?
+#        mi_attempt.cassette_transmission_verified = self.created_at
+#        mi_attempt.cassette_transmission_verified_auto_complete = true
+#        mi_attempt.save
+        #genotype_confirmed status stamp created
+#      end
+#    end
+#    true
+#  end
+#  protected :set_cassette_transmission_verified
 end
 
 # == Schema Information

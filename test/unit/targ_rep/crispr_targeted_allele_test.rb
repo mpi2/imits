@@ -12,8 +12,6 @@ class TargRep::CrisprTargetedAlleleTest < ActiveSupport::TestCase
   end
 
   # test validation
-  should validate_presence_of :cassette
-  should validate_presence_of :cassette_type
 
   should allow_value(nil).for(:homology_arm_start)
   should allow_value(nil).for(:homology_arm_end)

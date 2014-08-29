@@ -27,6 +27,7 @@ class BuildProductCore
       targ_rep_alleles.cassette AS cassette,
       targ_rep_alleles.cassette_type AS cassette_type,
       targ_rep_alleles.backbone AS backbone,
+      targ_rep_alleles.has_issue AS has_issue,
       genes.marker_symbol AS marker_symbol,
       genes.mgi_accession_id AS mgi_accession_id,
       targ_rep_ikmc_projects.name AS ikmc_project,
@@ -77,7 +78,8 @@ class BuildProductCore
         ) AS grouped_distribution_qc
       )
 
-      SELECT es_cells.name AS es_cell_name,
+      SELECT es_cells.id AS es_cell_id,
+        es_cells.name AS es_cell_name,
         es_cells.targeting_vector_name AS vector_name,
         es_cells.mutation_type AS mutation_type,
         es_cells.parental_cell_line AS parental_cell_line,
@@ -87,6 +89,7 @@ class BuildProductCore
         es_cells.marker_symbol AS marker_symbol,
         es_cells.mgi_accession_id AS mgi_accession_id,
         es_cells.allele_id AS allele_id,
+        es_cells.has_issue AS has_issue,
         es_cells.allele_symbol_superscript_template AS allele_symbol_superscript_template,
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         es_cells.allele_type AS es_cell_allele_type,
@@ -124,10 +127,13 @@ class BuildProductCore
         GROUP BY es_cells.targeting_vector_id
       )
 
-      SELECT genes.marker_symbol AS marker_symbol,
+      SELECT targ_rep_targeting_vectors.id AS targeting_vector_id,
+             targ_rep_alleles.id AS allele_id,
+             genes.marker_symbol AS marker_symbol,
              genes.mgi_accession_id AS mgi_accession_id,
              targ_rep_mutation_types.code AS allele_type,
              targ_rep_alleles.id AS allele_id,
+             targ_rep_alleles.has_issue AS has_issue,
              targ_rep_alleles.cassette AS cassette,
              targ_rep_alleles.cassette_type AS cassette_type,
              targ_rep_alleles.backbone AS backbone,
@@ -199,7 +205,9 @@ class BuildProductCore
       WITH plans AS (#{PLAN_SQL}), es_cells AS (#{ES_CELL_SQL}),
       distribution_centres AS (#{DISTRIBUTION_CENTRES_SQL})
 
-      SELECT 'MiAttempt' AS type,
+      SELECT 'M' || mi_attempts.id AS product_id,
+        es_cells.allele_id AS allele_id,
+        'MiAttempt' AS type,
         '' AS mouse_allele_mod_allele_type,
         mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
         es_cells.allele_type AS es_cell_allele_type,
@@ -214,6 +222,7 @@ class BuildProductCore
         mi_attempt_statuses.name AS mouse_status,
         mi_attempt_status_stamps.created_at AS mouse_status_date,
         es_cells.name AS es_cell_name,
+        es_cells.has_issue AS has_issue,
         es_cells.pipeline AS pipeline,
         es_cells.ikmc_project_id AS ikmc_project_id,
         es_cells.design_id AS design_id,
@@ -247,7 +256,9 @@ class BuildProductCore
 
       UNION ALL
 
-      SELECT 'MouseAlleleModification' AS type,
+      SELECT 'P' || mouse_allele_mods.id AS product_id,
+        es_cells.allele_id AS allele_id,
+        'MouseAlleleModification' AS type,
         mouse_allele_mods.mouse_allele_type AS mouse_allele_mod_allele_type,
         mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
         es_cells.allele_type AS es_cell_allele_type,
@@ -262,6 +273,7 @@ class BuildProductCore
         mouse_allele_mod_statuses.name AS mouse_status,
         mouse_allele_mod_status_stamps.created_at AS mouse_status_date,
         '' AS es_cell_name,
+        es_cells.has_issue AS has_issue,
         es_cells.pipeline AS pipeline,
         es_cells.ikmc_project_id AS ikmc_project_id,
         es_cells.design_id AS design_id,
@@ -480,10 +492,13 @@ class BuildProductCore
   def create_mouse_doc row
     process_allele_type(row, row['type'])
 
-    doc = {"marker_symbol"              => row["marker_symbol"],
+    doc = {"product_id"                 => row["product_id"],
+     "allele_id"                        => row["allele_id"],
+     "marker_symbol"                    => row["marker_symbol"],
      "mgi_accession_id"                 => row["mgi_accession_id"],
      "allele_type"                      => row['allele_type'],
      "allele_name"                      => row['allele_symbol'],
+     "allele_has_issues"                => row['has_issue'],
      "type"                             => 'mouse',
      "name"                             => row["colony_name"],
      "genetic_info"                     => ["background_colony_strain:#{row['background_colony_strain_name']}", "deleter_strain:#{row['deleter_strain_name']}", "test_strain:#{row['test_strain_name']}"],
@@ -526,10 +541,13 @@ class BuildProductCore
   def create_es_cell_doc row
     process_allele_type(row, 'Allele')
 
-    doc = {"marker_symbol"              => row['marker_symbol'],
+    doc = {"product_id"                 => 'E' + row["es_cell_id"],
+     "allele_id"                        => row["allele_id"],
+     "marker_symbol"                    => row['marker_symbol'],
      "mgi_accession_id"                 => row['mgi_accession_id'],
      "allele_type"                      => row['allele_type'],
      "allele_name"                      => row['allele_symbol'],
+     "allele_has_issues"                => row['has_issue'],
      "genetic_info"                     => ["strain:#{row['strain']}", "cassette:#{row['cassette']}","cassette_type:#{row['cassette_type']}","parent_es_cell_line:#{row['parental_cell_line']}"],
      "type"                             => 'es_cell',
      "name"                             => row['es_cell_name'],
@@ -551,10 +569,13 @@ class BuildProductCore
   end
 
   def create_targeting_vector_doc row
-    doc = {"marker_symbol"               => row['marker_symbol'],
+    doc = {"product_id"                  => 'T' + row["targeting_vector_id"],
+     "allele_id"                         => row["allele_id"],
+     "marker_symbol"                     => row['marker_symbol'],
      "mgi_accession_id"                  => row['mgi_accession_id'],
      "allele_type"                       => '',
      "allele_name"                       => '',
+     "allele_has_issues"                 => row['has_issue'],
      "genetic_info"                      => ["cassette:#{row['cassette']}","cassette_type:#{row['cassette_type']}", "backbone:#{row['backbone']}"],
      "type"                              => 'targeting_vector',
      "name"                              => row['vector_name'],
@@ -580,11 +601,14 @@ class BuildProductCore
   end
 
   def create_intermediate_vector_doc row
-    doc = {"marker_symbol"             => row['marker_symbol'],
+    doc = {"product_id"                => 'I' + row["vector_name"],
+     "allele_id"                       => row["allele_id"],
+     "marker_symbol"                   => row['marker_symbol'],
      "mgi_accession_id"                => row['mgi_accession_id'],
      "allele_type"                     => '',
      "allele_name"                     => '',
      "type"                            => 'intermediate_vector',
+     "name"                            => row['vector_name'],
      "production_pipeline"             => row['pipeline'],
      "production_completed"            => true,
      "status"                          => 'Intermediate Vector Produced',

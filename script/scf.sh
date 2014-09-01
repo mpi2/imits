@@ -6,9 +6,7 @@ use lims2-devel
 
 cd /opt/t87/global/software/perl/bin/
 
-export DEFAULT_CRISPR_DAMAGE_QC_DIR=/nfs/team87/imits/trace_files_output
-
-while getopts s:e:c:t:x:f:d: option
+while getopts s:e:c:t:x:f:d:q: option
 do
         case "${option}"
         in
@@ -19,8 +17,13 @@ do
                 x) SPEC=$OPTARG;;
                 f) FILE=$OPTARG;;
                 d) DIR=$OPTARG;;
+                q) QCDIR=$OPTARG;;
         esac
 done
+
+echo $QCDIR
+
+export DEFAULT_CRISPR_DAMAGE_QC_DIR=$QCDIR
 
 echo perl -I ../lib ./crispr_damage_analysis.pl --target-start $TSTART --target-end $TEND --target-chr $CHR --target-strand $STR --species $SPEC --dir $DIR --scf-file $FILE
 

@@ -17,61 +17,28 @@ class ColonyController < ApplicationController
     marker_symbol = @colony.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
     @title = "Gene #{marker_symbol} - Colony #{@colony.name} (#{@colony.trace_file_file_name})" if marker_symbol
 
-    show = true
-
-    # TODO: move this into Colony.rb
-
-    @files[:alignment] = {:filename => 'alignment.txt', :name => 'Alignment', :data => nil, :show => show, :split => true, :titles=> ['Reference Sequence', 'Mutated Sequence'], :ids => ['ref_seq', 'seq_1']}
-    @files[:filtered_analysis_vcf] = {:filename => 'filtered_analysis.vcf', :name => 'Variant (vcf)', :data => nil, :show => show}
-    @files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'Variant (vep)', :data => nil, :show => true}
-    @files[:reference] = {:filename => 'reference.fa', :name => 'Protein Sequence (reference)', :data => nil, :show => true, :id => 'ref_protein'}
-    @files[:mutant_fa] = {:filename => 'mutated.fa', :name => 'Protein Sequence (mutated)', :data => nil, :show => true, :id => 'protein_seq'}
-    @files[:read_seq_fa] = {:filename => 'read_seq.fa', :name => 'read_seq.fa', :data => nil, :show => false}
-    @files[:analysis_pileup] = {:filename => 'analysis.pileup', :name => 'analysis.pileup', :data => nil, :show => false}
-    @files[:primer_reads_fa] = {:filename => 'primer_reads.fa', :name => 'Reads', :data => nil, :show => true}
-    @files[:alignment_data_yaml] = {:filename => 'alignment_data.yaml', :name => 'alignment_data.yaml', :data => nil, :show => false}
+    @files[:alignment] = {:name => 'Alignment', :data => @colony.file_alignment, :show => true, :split => true,
+      :titles=> ['Reference Sequence', 'Mutated Sequence'], :ids => ['ref_seq', 'seq_1']}
+    @files[:filtered_analysis_vcf] = {:name => 'Variant (vcf)', :data => @colony.file_filtered_analysis_vcf, :show => true}
+    @files[:variant_effect_output_txt] = {:name => 'Variant (vep)', :data => @colony.file_variant_effect_output_txt, :show => true}
+    @files[:reference] = {:name => 'Protein Sequence (reference)', :data => @colony.file_reference_fa, :show => true, :id => 'ref_protein'}
+    @files[:mutant_fa] = {:name => 'Protein Sequence (mutated)', :data => @colony.file_mutant_fa, :show => true, :id => 'protein_seq'}
+    @files[:primer_reads_fa] = {:name => 'Reads', :data => @colony.file_primer_reads_fa, :show => true}
 
     if params[:filename]
       key = params[:filename].to_sym
       if @files.has_key? key
-        send_file "#{Rails.root}/public/trace_files/#{@id}/#{@files[key][:filename]}", :disposition => 'attachment'
+        send_data @files[key][:data], :disposition => 'attachment'
       end
 
       return
     end
 
-    folder = "#{Colony::FOLDER_OUT}/#{@id}"
-    if ! File.exists?(folder)
-      return;
-    end
+    @deletions = @colony.deletions
 
-    yaml_file = "#{Colony::FOLDER_OUT}/#{@id}/#{@files[:alignment_data_yaml][:filename]}"
-    @alignment_data = {}
-    @alignment_data = YAML.load_file(yaml_file) if File.exists?(yaml_file) && File.size?(yaml_file)
+    @insertions = @colony.insertions
 
-    @deletions = []
-
-    if @alignment_data.has_key? 'deletions'
-      @alignment_data['deletions'].keys.each do |kk|
-        array = @alignment_data['deletions'][kk]
-        array.each do |frame|
-          @deletions.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
-        end
-      end
-    end
-
-    @insertions = []
-
-    if @alignment_data.has_key? 'insertions'
-      @alignment_data['insertions'].keys.each do |kk|
-        array = @alignment_data['insertions'][kk]
-        array.each do |frame|
-          @insertions.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
-        end
-      end
-    end
-
-    @target_sequence = "Target sequence start: #{@alignment_data['target_sequence_start']} - Target sequence end: #{@alignment_data['target_sequence_end']}"
+   # @target_sequence = "Target sequence start: #{@alignment_data['target_sequence_start']} - Target sequence end: #{@alignment_data['target_sequence_end']}"
 
     @ok = false
 
@@ -79,18 +46,15 @@ class ColonyController < ApplicationController
 
         data = nil
 
-        file = "#{folder}/#{@files[key2][:filename]}"
-        if File.exists?(file) && File.size?(file)
-          file = File.open(file, "rb")
-
+        if @files[key2][:data]
 
           if @files[key2][:split] == true
             data  = []
-            file.each_line do |line|
+            @files[key2][:data].each_line do |line|
               data << line.strip
             end
           else
-            data = file.read
+            data = @files[key2][:data]
             data = data.strip || data
           end
 
@@ -99,6 +63,8 @@ class ColonyController < ApplicationController
           @ok = true if data
         end
     end
+
+    # TODO: move to colony.rb
 
     # get rid of first line (file name)
     # remove line breaks

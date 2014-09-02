@@ -7,9 +7,6 @@ namespace :scf do
     options = {}
     options = { :force => true } if ! args[:force].blank?
 
-    #puts "#### options:"
-    #pp options
-
     Colony.all.each do |colony|
       colony.scf options
     end

@@ -1,4 +1,3 @@
-require 'yaml'
 
 class ColonyController < ApplicationController
   def show

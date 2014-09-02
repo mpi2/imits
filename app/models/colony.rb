@@ -26,6 +26,13 @@ class Colony < ActiveRecord::Base
     end
   end
 
+  before_save :check_changed
+
+  def check_changed
+    self.file_alignment = nil if trace_file_file_name_changed?
+  end
+  protected :check_changed
+
   before_save :set_genotype_confirmed
 
   def set_genotype_confirmed
@@ -41,25 +48,16 @@ class Colony < ActiveRecord::Base
     return 'colony'
   end
 
-  #TARGET_MAP = {
-  #  :alignment => 'alignment.txt',
-  #  :filtered_analysis_vcf => 'filtered_analysis.vcf',
-  #  :variant_effect_output_txt => 'variant_effect_output.txt',
-  #  :reference_fa => 'reference.fa',
-  #  :mutant_fa => 'mutated.fa',
-  #  :primer_reads_fa => 'primer_reads.fa'
-  #}
-
-  TARGET_TYPES = [
-    :alignment,
-    :filtered_analysis_vcf,
-    :variant_effect_output_txt,
-    :reference,
-    :mutant_fa,
-    :primer_reads_fa,
-    :insertions,
-    :deletions
-  ]
+  #TARGET_TYPES = [
+  #  :alignment,
+  #  :filtered_analysis_vcf,
+  #  :variant_effect_output_txt,
+  #  :reference,
+  #  :mutant_fa,
+  #  :primer_reads_fa,
+  #  :insertions,
+  #  :deletions
+  #]
 
   SYNC = false
   VERBOSE = true
@@ -69,64 +67,16 @@ class Colony < ActiveRecord::Base
   SCRIPT_SCF = "#{Rails.root}/script/scf.sh"
 
   FOLDER_IN = "/nfs/team87/imits/trace_files_output/#{Rails.env}/#{ENV['USER']}"
-  #FOLDER_TMP = "/nfs/team87/imits/trace_files_tmp/#{Rails.env}/#{ENV['USER']}"
 
-  SCF_FILES = %W{
-    alignment.txt
-    filtered_analysis.vcf
-    variant_effect_output.txt
-    reference.fa
-    mutated.fa
-    primer_reads.fa
-    alignment_data.yaml
-  }
-
-  #def get_text(type)
-  #
-  #  raise "#### Colony::get_file - expecting symbol!" if type.class != Symbol
-  #  raise "#### Colony::get_file - illegal target detected (#{type})!" if ! TARGET_TYPES.include? type
-  #
-  #  return self.file_alignment if type == :alignment
-  #  return self.file_filtered_analysis_vcf if type == :filtered_analysis_vcf
-  #  return self.file_variant_effect_output_txt if type == :variant_effect_output_txt
-  #  return self.file_reference if type == :reference
-  #  return self.file_mutant_fa if type == :mutant_fa
-  #  return self.file_primer_reads_fa if type == :primer_reads_fa
-  #
-  #  @alignment_data = {}
-  #  @alignment_data = YAML.load(self.file_alignment_data_yaml) if ! self.file_alignment_data_yaml.blank?
-  #
-  #  if type == :insertions
-  #    @insertions = []
-  #
-  #    if @alignment_data.has_key? 'insertions'
-  #      @alignment_data['insertions'].keys.each do |kk|
-  #        array = @alignment_data['insertions'][kk]
-  #        array.each do |frame|
-  #          @insertions.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
-  #        end
-  #      end
-  #    end
-  #
-  #    return @insertions.join('<br/>') # TODO: fix me!
-  #  end
-  #
-  #  if type == :deletions
-  #    @deletions = []
-  #
-  #    if @alignment_data.has_key? 'deletions'
-  #      @alignment_data['deletions'].keys.each do |kk|
-  #        array = @alignment_data['deletions'][kk]
-  #        array.each do |frame|
-  #          @deletions.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
-  #        end
-  #      end
-  #    end
-  #
-  #    return @deletions.join('<br/>') # TODO: fix me!
-  #  end
-  #
-  #end
+  #SCF_FILES = %W{
+  #  alignment.txt
+  #  filtered_analysis.vcf
+  #  variant_effect_output.txt
+  #  reference.fa
+  #  mutated.fa
+  #  primer_reads.fa
+  #  alignment_data.yaml
+  #}
 
   def trace_data_pending
     file_alignment.blank? && ! self.trace_file_file_name.blank?
@@ -154,10 +104,10 @@ class Colony < ActiveRecord::Base
 
     # we only run this if it's not already been processed
 
-    #if ! self.file_alignment.blank?
-    #  puts "#### trace output already exists (#{self.id})!"
-    #  return
-    #end
+    if ! options[:force] && ! self.file_alignment.blank?
+      puts "#### trace output already exists (#{self.id})!"
+      return
+    end
 
     if ! self.trace_file || self.trace_file_file_name.blank?
       puts "#### no trace file!"
@@ -165,7 +115,6 @@ class Colony < ActiveRecord::Base
     end
 
     FileUtils.mkdir_p FOLDER_IN
-    #FileUtils.mkdir_p FOLDER_TMP
 
     options[:remote] = true
     options[:chr] = mi_attempt.mi_plan.gene.chr if ! options[:chr]
@@ -186,8 +135,6 @@ class Colony < ActiveRecord::Base
       options[:end] = e
     end
 
-    #folder = FOLDER_TMP
-    #filename = "#{folder}/tmp.scf"
     filename = Dir::Tmpname.make_tmpname "#{FOLDER_IN}/", nil
     self.trace_file.copy_to_local_file('original', filename)
 
@@ -211,6 +158,8 @@ class Colony < ActiveRecord::Base
       output = scriptout.read
     end
 
+    FileUtils.rm(filename, :force => true)
+
     if VERBOSE
       puts "#### error_output:"
       puts error_output
@@ -223,54 +172,151 @@ class Colony < ActiveRecord::Base
     save_files
   end
 
-  def save_files
-    folder_in = "#{FOLDER_IN}/#{self.id}"
-   # FileUtils.mkdir_p folder_in
+  def save_files_1
+    Colony.transaction do
+      folder_in = "#{FOLDER_IN}/#{self.id}"
+      # FileUtils.mkdir_p folder_in
 
-    filename = "#{folder_in}/alignment.txt"
-    if File.exists?(filename)
-      self.file_alignment = File.open(filename).read
+      filename = "#{folder_in}/alignment.txt"
+      if File.exists?(filename)
+        self.file_alignment = File.open(filename).read
+      end
+
+      filename = "#{folder_in}/filtered_analysis.vcf"
+      if File.exists?(filename)
+        self.file_filtered_analysis_vcf = File.open(filename).read
+      end
+
+      filename = "#{folder_in}/variant_effect_output.txt"
+      if File.exists?(filename)
+        self.file_variant_effect_output_txt = File.open(filename).read
+      end
+
+      filename = "#{folder_in}/reference.fa"
+      if File.exists?(filename)
+        self.file_reference_fa = File.open(filename).read
+      end
+
+      filename = "#{folder_in}/mutated.fa"
+      if File.exists?(filename)
+        self.file_mutant_fa = File.open(filename).read
+      end
+
+      filename = "#{folder_in}/primer_reads.fa"
+      if File.exists?(filename)
+        contents = File.open(filename).read
+        data = contents.lines.to_a[1..-1].join
+        data.gsub!(/\s+/, "")
+        self.file_primer_reads_fa = data
+      end
+
+      filename = "#{folder_in}/alignment_data.yaml"
+      if File.exists?(filename)
+        self.file_alignment_data_yaml = File.open(filename).read
+      end
+
+      self.save!
+
+      return if KEEP_GENERATED_FILES
+
+      FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
+      FileUtils.rmdir("#{folder_in}/merge_vcf")
+      FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
+      FileUtils.rmdir("#{folder_in}", :verbose => true)
     end
-
-    filename = "#{folder_in}/filtered_analysis.vcf"
-    if File.exists?(filename)
-      self.file_filtered_analysis_vcf = File.open(filename).read
-    end
-
-    filename = "#{folder_in}/variant_effect_output.txt"
-    if File.exists?(filename)
-      self.file_variant_effect_output_txt = File.open(filename).read
-    end
-
-    filename = "#{folder_in}/reference.fa"
-    if File.exists?(filename)
-      self.file_reference_fa = File.open(filename).read
-    end
-
-    filename = "#{folder_in}/mutated.fa"
-    if File.exists?(filename)
-      self.file_mutant_fa = File.open(filename).read
-    end
-
-    filename = "#{folder_in}/primer_reads.fa"
-    if File.exists?(filename)
-      self.file_primer_reads_fa = File.open(filename).read
-    end
-
-    filename = "#{folder_in}/alignment_data.yaml"
-    if File.exists?(filename)
-      self.file_alignment_data_yaml = File.open(filename).read
-    end
-
-    self.save!
-
-    return if KEEP_GENERATED_FILES
-
-    FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
-    FileUtils.rmdir("#{folder_in}/merge_vcf")
-    FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
-    FileUtils.rmdir("#{folder_in}")
   end
+
+  def save_files
+    Colony.transaction do
+      folder_in = "#{FOLDER_IN}/#{self.id}"
+
+      self.file_alignment = save_file "#{folder_in}/alignment.txt"
+      self.file_filtered_analysis_vcf = save_file "#{folder_in}/filtered_analysis.vcf"
+      self.file_variant_effect_output_txt = save_file "#{folder_in}/variant_effect_output.txt"
+      self.file_reference_fa = save_file "#{folder_in}/reference.fa"
+      self.file_mutant_fa = save_file "#{folder_in}/mutated.fa"
+      self.file_alignment_data_yaml = save_file "#{folder_in}/alignment_data.yaml"
+
+      filename = "#{folder_in}/primer_reads.fa"
+      if File.exists?(filename)
+        contents = File.open(filename).read
+        data = contents.lines.to_a[1..-1].join
+        data.gsub!(/\s+/, "")
+        self.file_primer_reads_fa = data
+      end
+
+      self.save!
+
+      return if KEEP_GENERATED_FILES
+
+      FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
+      FileUtils.rmdir("#{folder_in}/merge_vcf")
+      FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
+      FileUtils.rmdir("#{folder_in}", :verbose => true)
+    end
+  end
+
+  def save_file(filename)
+    return File.open(filename).read if File.exists?(filename)
+
+    nil
+  end
+
+  #def save_file(filename, attribute)
+  #  puts "#### save_file: '#{filename}'" if VERBOSE
+  #  if File.exists?(filename)
+  #    puts "#### save_file: processing '#{filename}'" if VERBOSE
+  #    attribute = File.open(filename).read
+  #  end
+  #end
+  #
+  #def save_files_new
+  #
+  #  Colony.transaction do
+  #    folder_in = "#{FOLDER_IN}/#{self.id}"
+  #
+  #    save_file "#{folder_in}/alignment.txt", self.file_alignment
+  #    save_file "#{folder_in}/filtered_analysis.vcf", self.file_filtered_analysis_vcf
+  #    save_file "#{folder_in}/variant_effect_output.txt", self.file_variant_effect_output_txt
+  #    save_file "#{folder_in}/reference.fa", self.file_reference_fa
+  #    save_file "#{folder_in}/mutated.fa", self.file_mutant_fa
+  #    save_file "#{folder_in}/primer_reads.fa", self.file_primer_reads_fa
+  #    save_file "#{folder_in}/alignment_data.yaml", self.file_alignment_data_yaml
+  #
+  #    #if @files[:primer_reads_fa][:data]
+  #    #  @files[:primer_reads_fa][:data] = @files[:primer_reads_fa][:data].lines.to_a[1..-1].join
+  #    #  @files[:primer_reads_fa][:data].gsub!(/\s+/, "")
+  #    #end
+  #
+  #    puts "#### begin file_primer_reads_fa!" if VERBOSE
+  #    pp self.file_primer_reads_fa
+  #
+  #    if ! self.file_primer_reads_fa.blank?
+  #      puts "#### start file_primer_reads_fa!" if VERBOSE
+  #      data = self.file_primer_reads_fa.lines.to_a[1..-1].join
+  #      data.gsub!(/\s+/, "")
+  #      self.file_primer_reads_fa = data
+  #    end
+  #
+  #    self.save!
+  #
+  #    return if KEEP_GENERATED_FILES
+  #
+  #    puts "#### remove folders!" if VERBOSE
+  #
+  #    puts "#### remove #{folder_in}/merge_vcf/*.*" if VERBOSE
+  #    FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
+  #
+  #    puts "#### remove #{folder_in}/merge_vcf" if VERBOSE
+  #    FileUtils.rmdir("#{folder_in}/merge_vcf")
+  #
+  #    puts "#### remove #{folder_in}/*.*" if VERBOSE
+  #    FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
+  #
+  #    puts "#### remove #{folder_in}" if VERBOSE
+  #    FileUtils.rmdir("#{folder_in}", :verbose => true)
+  #  end
+  #end
 
   def insertions
     @alignment_data = {}

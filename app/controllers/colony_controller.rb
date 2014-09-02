@@ -17,18 +17,17 @@ class ColonyController < ApplicationController
     marker_symbol = @colony.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
     @title = "Gene #{marker_symbol} - Colony #{@colony.name} (#{@colony.trace_file_file_name})" if marker_symbol
 
-    @files[:alignment] = {:name => 'Alignment', :data => @colony.file_alignment, :show => true, :split => true,
-      :titles=> ['Reference Sequence', 'Mutated Sequence'], :ids => ['ref_seq', 'seq_1']}
-    @files[:filtered_analysis_vcf] = {:name => 'Variant (vcf)', :data => @colony.file_filtered_analysis_vcf, :show => true}
-    @files[:variant_effect_output_txt] = {:name => 'Variant (vep)', :data => @colony.file_variant_effect_output_txt, :show => true}
-    @files[:reference] = {:name => 'Protein Sequence (reference)', :data => @colony.file_reference_fa, :show => true, :id => 'ref_protein'}
-    @files[:mutant_fa] = {:name => 'Protein Sequence (mutated)', :data => @colony.file_mutant_fa, :show => true, :id => 'protein_seq'}
-    @files[:primer_reads_fa] = {:name => 'Reads', :data => @colony.file_primer_reads_fa, :show => true}
+    @files[:alignment] = {:filename => 'alignment.txt', :name => 'Alignment', :data => @colony.file_alignment, :show => true, :split => true, :titles=> ['Reference Sequence', 'Mutated Sequence'], :ids => ['ref_seq', 'seq_1']}
+    @files[:filtered_analysis_vcf] = {:filename => 'filtered_analysis.vcf', :name => 'Variant (vcf)', :data => @colony.file_filtered_analysis_vcf, :show => true}
+    @files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'Variant (vep)', :data => @colony.file_variant_effect_output_txt, :show => true}
+    @files[:reference] = {:filename => 'reference.fa', :name => 'Protein Sequence (reference)', :data => @colony.file_reference_fa, :show => true, :id => 'ref_protein'}
+    @files[:mutant_fa] = {:filename => 'mutated.fa', :name => 'Protein Sequence (mutated)', :data => @colony.file_mutant_fa, :show => true, :id => 'protein_seq'}
+    @files[:primer_reads_fa] = {:filename => 'primer_reads.fa', :name => 'Reads', :data => @colony.file_primer_reads_fa, :show => true}
 
     if params[:filename]
       key = params[:filename].to_sym
       if @files.has_key? key
-        send_data @files[key][:data], :disposition => 'attachment'
+        send_data @files[key][:data], :filename => @files[key][:filename], :disposition => 'attachment'
       end
 
       return
@@ -37,8 +36,6 @@ class ColonyController < ApplicationController
     @deletions = @colony.deletions
 
     @insertions = @colony.insertions
-
-   # @target_sequence = "Target sequence start: #{@alignment_data['target_sequence_start']} - Target sequence end: #{@alignment_data['target_sequence_end']}"
 
     @ok = false
 
@@ -62,16 +59,6 @@ class ColonyController < ApplicationController
 
           @ok = true if data
         end
-    end
-
-    # TODO: move to colony.rb
-
-    # get rid of first line (file name)
-    # remove line breaks
-
-    if @files[:primer_reads_fa][:data]
-      @files[:primer_reads_fa][:data] = @files[:primer_reads_fa][:data].lines.to_a[1..-1].join
-      @files[:primer_reads_fa][:data].gsub!(/\s+/, "")
     end
 
   end

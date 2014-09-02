@@ -5,7 +5,7 @@ namespace :scf do
   task 'run', [:force] => :environment do |t, args|
     args.with_defaults(:force => false)
     options = {}
-    options = { :force => true } if args[:force]
+    options = { :force => true } if ! args[:force].blank?
 
     #puts "#### options:"
     #pp options

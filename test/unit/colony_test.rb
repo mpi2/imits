@@ -23,16 +23,21 @@ class ColonyTest < ActiveSupport::TestCase
         end
 
         context "db columns" do
-            should 'have' do
-                should have_db_column(:name).of_type(:string).with_options(:null => false)
-                should have_db_column(:mi_attempt_id).of_type(:integer)
-                should have_db_column(:genotype_confirmed).of_type(:boolean).with_options(:default => false)
-                should have_db_column(:trace_file_file_name).of_type(:string)
-                should have_db_column(:trace_file_content_type).of_type(:string)
-                should have_db_column(:trace_file_file_size).of_type(:integer)
-                should have_db_column(:trace_file_updated_at).of_type(:datetime)
-                should have_db_column(:genotype_confirmed).of_type(:boolean)
-            end
+          should have_db_column(:name).of_type(:string).with_options(:null => false)
+          should have_db_column(:mi_attempt_id).of_type(:integer)
+          should have_db_column(:genotype_confirmed).of_type(:boolean).with_options(:default => false)
+          should have_db_column(:trace_file_file_name).of_type(:string)
+          should have_db_column(:trace_file_content_type).of_type(:string)
+          should have_db_column(:trace_file_file_size).of_type(:integer)
+          should have_db_column(:trace_file_updated_at).of_type(:datetime)
+          should have_db_column(:genotype_confirmed).of_type(:boolean)
+          should have_db_column(:file_alignment).of_type(:text)
+          should have_db_column(:file_filtered_analysis_vcf).of_type(:text)
+          should have_db_column(:file_variant_effect_output_txt).of_type(:text)
+          should have_db_column(:file_reference_fa).of_type(:text)
+          should have_db_column(:file_mutant_fa).of_type(:text)
+          should have_db_column(:file_primer_reads_fa).of_type(:text)
+          should have_db_column(:file_alignment_data_yaml).of_type(:text)
         end
 
         context 'creation of qc' do

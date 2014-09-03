@@ -190,7 +190,7 @@ class TargRep::AllelesController < TargRep::BaseController
   end
 
   def show_issue
-    core = params[:core].blank? ? "product" : params[:core]
+    core = params[:core].blank? ? "allele" : params[:core]
 
     if core == "allele"
       show_issue_allele_core

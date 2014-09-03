@@ -105,6 +105,27 @@ class NotificationTest < ActiveSupport::TestCase
         assert_equal 0, notification.check_statuses.size
       end
 
+      should '#check_statuses when report_to_public is set to false' do
+        mi_attempt = Factory.create(:mi_attempt2_status_gtc)
+
+        assert_equal 'gtc', mi_attempt.status.code
+
+        gene = mi_attempt.gene
+
+        notification = Factory.create :notification, {:gene => gene}
+
+        assert_equal 1, notification.check_statuses.size
+        assert_equal "genotype_confirmed", notification.check_statuses[0][:status]
+
+        mi_attempt.report_to_public = false
+        mi_attempt.save
+
+        notification.reload
+
+        assert_equal 1, notification.check_statuses.size
+        assert_equal "chimeras_obtained", notification.check_statuses[0][:status]
+      end
+
       should '#send_welcome_email' do
         contact_email = 'fred@example.com'
         assert_nil Contact.find_by_email contact_email

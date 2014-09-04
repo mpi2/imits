@@ -1,4 +1,3 @@
-require 'pp'
 require 'tempfile'
 
 class Colony < ActiveRecord::Base
@@ -55,10 +54,6 @@ class Colony < ActiveRecord::Base
   SYNC = false
   VERBOSE = true
   KEEP_GENERATED_FILES = true
-
-  SCRIPT_RUNREMOTE = "#{Rails.root}/script/runremote.sh"
-  SCRIPT_SCF = "#{Rails.root}/script/scf.sh"
-
   FOLDER_IN = "/nfs/team87/imits/trace_files_output/#{Rails.env}/#{ENV['USER']}"
 
   def trace_data_pending
@@ -70,36 +65,16 @@ class Colony < ActiveRecord::Base
   end
 
   def trace_data_error
-    #! file_exception_details.blank?
-    #! file_return_code.blank? && file_return_code != 0
     file_return_code.to_i != 0
   end
 
   def file_error
     return nil if file_return_code.to_i == 0
-    #file_trace_error.
+
     data = file_trace_error.to_s.lines.to_a[-1..-1].join
-  #  pp data
     data.gsub!(/\s+at\s+.+/, "")
-  #  pp data
     data.chomp
   end
-
-  #def run_cmd_old options
-  #  command_pre = ""
-  #  command = ""
-  #  command += "#{SCRIPT_RUNREMOTE}" if options[:remote]
-  #  command += " #{SCRIPT_SCF} bash " + ENV['USER'] + " t87-dev " +
-  #  "-s #{options[:start]} -e #{options[:end]} -c #{options[:chr]} " +
-  #  "-t #{options[:strand]} -x #{options[:species]} -f #{options[:file]} -d #{options[:dir]} -q #{FOLDER_IN}"
-  #  command_post = ""
-  #
-  #  puts "#### #{command_pre} #{command} #{command_post}"
-  #
-  #  "#{command_pre} #{command} #{command_post}"
-  #end
-
-  #ssh -o CheckHostIP=no t87-dev 'source /opt/t87/global/conf/bashrc;use lims2-devel;export DEFAULT_CRISPR_DAMAGE_QC_DIR=~/scratch/test; crispr_damage_analysis.pl --het-scf-file ~/scratch/test/Pup_#3_F1_population_10_Geno_Crbi_R1.scf --target-start 139236822 --target-end 139237728 --target-chr 1 --target-strand -1 --species Mouse'
 
   def run_cmd options
 
@@ -120,10 +95,6 @@ class Colony < ActiveRecord::Base
 
   def crispr_damage_analysis options = {}
 
-   # @counter ||= 0;
-
-    # we only run this if it's not already been processed
-
     if ! options[:force] && ! self.file_alignment.blank?
       puts "#### trace output already exists (#{self.id})!"
       return
@@ -137,11 +108,6 @@ class Colony < ActiveRecord::Base
     output = error_output = exception = nil
 
     begin
-      #if @counter == 0
-      #  @counter += 1
-      #  raise "hello!"
-      #end
-
       FileUtils.mkdir_p FOLDER_IN
 
       options[:remote] = true
@@ -179,8 +145,6 @@ class Colony < ActiveRecord::Base
       output = nil
 
       cmd = run_cmd options
-
-      # return
 
       Open3.popen3("#{cmd}") do |scriptin, scriptout, scripterr, wait_thr|
         error_output = scripterr.read
@@ -236,41 +200,6 @@ class Colony < ActiveRecord::Base
     FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
     FileUtils.rmdir("#{folder_in}", :verbose => true)
   end
-
-  #def save_files output, error, exception = nil
-  #  Colony.transaction do
-  #    folder_in = "#{FOLDER_IN}/#{self.id}"
-  #
-  #    self.file_trace_output = output
-  #    self.file_trace_error = error
-  #    self.file_exception_details = exception
-  #    self.file_return_code = JJJJJJ
-  #
-  #    self.file_alignment = save_file "#{folder_in}/alignment.txt"
-  #    self.file_filtered_analysis_vcf = save_file "#{folder_in}/filtered_analysis.vcf"
-  #    self.file_variant_effect_output_txt = save_file "#{folder_in}/variant_effect_output.txt"
-  #    self.file_reference_fa = save_file "#{folder_in}/reference.fa"
-  #    self.file_mutant_fa = save_file "#{folder_in}/mutated.fa"
-  #    self.file_alignment_data_yaml = save_file "#{folder_in}/alignment_data.yaml"
-  #
-  #    filename = "#{folder_in}/primer_reads.fa"
-  #    if File.exists?(filename)
-  #      contents = File.open(filename).read
-  #      data = contents.lines.to_a[1..-1].join
-  #      data.gsub!(/\s+/, "")
-  #      self.file_primer_reads_fa = data
-  #    end
-  #
-  #    self.save!
-  #
-  #    return if KEEP_GENERATED_FILES
-  #
-  #    FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
-  #    FileUtils.rmdir("#{folder_in}/merge_vcf")
-  #    FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
-  #    FileUtils.rmdir("#{folder_in}", :verbose => true)
-  #  end
-  #end
 
   def save_file(filename)
     return File.open(filename).read if File.exists?(filename)

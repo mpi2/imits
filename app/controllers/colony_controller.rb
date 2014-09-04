@@ -23,6 +23,10 @@ class ColonyController < ApplicationController
     @files[:mutant_fa] = {:filename => 'mutated.fa', :name => 'Protein Sequence (mutated)', :data => @colony.file_mutant_fa, :show => true, :id => 'protein_seq'}
     @files[:primer_reads_fa] = {:filename => 'primer_reads.fa', :name => 'Reads', :data => @colony.file_primer_reads_fa, :show => true}
 
+    @files[:debug_output] = {:filename => 'debug_output.txt', :name => 'crispr_damage_analysis output (debug)', :data => @colony.file_trace_output, :show => ! Rails.env.production?}
+    @files[:debug_errors] = {:filename => 'debug_errors.txt', :name => 'crispr_damage_analysis errors (debug)', :data => @colony.file_trace_error, :show => ! Rails.env.production?}
+    @files[:debug_exception] = {:filename => 'debug_exception.txt', :name => 'crispr_damage_analysis exception (debug)', :data => @colony.file_exception_details, :show => ! Rails.env.production?}
+
     if params[:filename]
       key = params[:filename].to_sym
       if @files.has_key? key

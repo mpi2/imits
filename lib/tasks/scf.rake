@@ -8,7 +8,7 @@ namespace :scf do
     options = { :force => true } if ! args[:force].blank?
 
     Colony.all.each do |colony|
-      colony.scf options
+      colony.crispr_damage_analysis options
     end
 
   end

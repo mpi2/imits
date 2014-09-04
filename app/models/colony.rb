@@ -29,7 +29,11 @@ class Colony < ActiveRecord::Base
   before_save :check_changed
 
   def check_changed
-    self.file_alignment = nil if trace_file_file_name_changed?
+    if trace_file_file_name_changed?
+      self.file_alignment = nil
+      self.file_return_code = nil
+      self.file_exception_details = nil
+    end
   end
   protected :check_changed
 
@@ -65,21 +69,58 @@ class Colony < ActiveRecord::Base
     ! file_alignment.blank?
   end
 
-  def run_cmd options
-    command_pre = ""
-    command = ""
-    command += "#{SCRIPT_RUNREMOTE}" if options[:remote]
-    command += " #{SCRIPT_SCF} bash " + ENV['USER'] + " t87-dev " +
-    "-s #{options[:start]} -e #{options[:end]} -c #{options[:chr]} " +
-    "-t #{options[:strand]} -x #{options[:species]} -f #{options[:file]} -d #{options[:dir]} -q #{FOLDER_IN}"
-    command_post = ""
-
-    puts "#### #{command_pre} #{command} #{command_post}"
-
-    "#{command_pre} #{command} #{command_post}"
+  def trace_data_error
+    #! file_exception_details.blank?
+    #! file_return_code.blank? && file_return_code != 0
+    file_return_code.to_i != 0
   end
 
-  def scf options = {}
+  def file_error
+    return nil if file_return_code.to_i == 0
+    #file_trace_error.
+    data = file_trace_error.to_s.lines.to_a[-1..-1].join
+  #  pp data
+    data.gsub!(/\s+at\s+.+/, "")
+  #  pp data
+    data.chomp
+  end
+
+  #def run_cmd_old options
+  #  command_pre = ""
+  #  command = ""
+  #  command += "#{SCRIPT_RUNREMOTE}" if options[:remote]
+  #  command += " #{SCRIPT_SCF} bash " + ENV['USER'] + " t87-dev " +
+  #  "-s #{options[:start]} -e #{options[:end]} -c #{options[:chr]} " +
+  #  "-t #{options[:strand]} -x #{options[:species]} -f #{options[:file]} -d #{options[:dir]} -q #{FOLDER_IN}"
+  #  command_post = ""
+  #
+  #  puts "#### #{command_pre} #{command} #{command_post}"
+  #
+  #  "#{command_pre} #{command} #{command_post}"
+  #end
+
+  #ssh -o CheckHostIP=no t87-dev 'source /opt/t87/global/conf/bashrc;use lims2-devel;export DEFAULT_CRISPR_DAMAGE_QC_DIR=~/scratch/test; crispr_damage_analysis.pl --het-scf-file ~/scratch/test/Pup_#3_F1_population_10_Geno_Crbi_R1.scf --target-start 139236822 --target-end 139237728 --target-chr 1 --target-strand -1 --species Mouse'
+
+  def run_cmd options
+
+    file_flag = "--scf-file"
+    file_flag = "--het-scf-file" if self.is_het?
+
+    command = "ssh -o CheckHostIP=no t87-dev /bin/bash << EOF\n" +
+      "source /opt/t87/global/conf/bashrc;\n" +
+      "use lims2-devel;\n" +
+      "export DEFAULT_CRISPR_DAMAGE_QC_DIR=#{FOLDER_IN};\n" +
+      "crispr_damage_analysis.pl #{file_flag} #{options[:file]} --target-start #{options[:start]} --target-end #{options[:end]} --target-chr #{options[:chr]} --target-strand #{options[:strand]} --species #{options[:species]} --dir #{options[:dir]}\n" +
+      "EOF\n"
+
+   # puts "#### #{command}"
+
+     command
+  end
+
+  def crispr_damage_analysis options = {}
+
+   # @counter ||= 0;
 
     # we only run this if it's not already been processed
 
@@ -93,147 +134,143 @@ class Colony < ActiveRecord::Base
       return
     end
 
-    FileUtils.mkdir_p FOLDER_IN
+    output = error_output = exception = nil
 
-    options[:remote] = true
-    options[:chr] = mi_attempt.mi_plan.gene.chr if ! options[:chr]
-    # TODO: check me!
-    options[:strand] = "#{mi_attempt.mi_plan.gene.strand_name}1" if ! options[:strand]
-    options[:species] = "Mouse"
-    options[:dir] = self.id
+    begin
+      #if @counter == 0
+      #  @counter += 1
+      #  raise "hello!"
+      #end
 
-    if ! options[:start] || ! options[:end]
-      s = 0
-      e = 0
-      self.mi_attempt.crisprs.each do |crispr|
-        s = crispr.start.to_i if s == 0 || crispr.start.to_i < s.to_i
-        e = crispr.end.to_i if e == 0 || crispr.end.to_i > e  .to_i
+      FileUtils.mkdir_p FOLDER_IN
+
+      options[:remote] = true
+      options[:chr] = mi_attempt.mi_plan.gene.chr if ! options[:chr]
+      # TODO: check me!
+      options[:strand] = "#{mi_attempt.mi_plan.gene.strand_name}1" if ! options[:strand]
+      options[:species] = "Mouse"
+      options[:dir] = self.id
+
+      if ! options[:start] || ! options[:end]
+        s = 0
+        e = 0
+        self.mi_attempt.crisprs.each do |crispr|
+          s = crispr.start.to_i if s == 0 || crispr.start.to_i < s.to_i
+          e = crispr.end.to_i if e == 0 || crispr.end.to_i > e  .to_i
+        end
+
+        options[:start] = s
+        options[:end] = e
       end
 
-      options[:start] = s
-      options[:end] = e
+      filename = Dir::Tmpname.make_tmpname "#{FOLDER_IN}/", nil
+      self.trace_file.copy_to_local_file('original', filename)
+
+      puts "#### filename: #{filename}"
+
+      options[:file] = filename
+
+      [:start, :end, :chr, :strand, :species, :file, :dir].each do |flag|
+        raise "#### cannot find flag '#{flag}'!" if ! options.has_key? flag
+      end
+
+      error_output = nil
+      exit_status = nil
+      output = nil
+
+      cmd = run_cmd options
+
+      # return
+
+      Open3.popen3("#{cmd}") do |scriptin, scriptout, scripterr, wait_thr|
+        error_output = scripterr.read
+        exit_status = wait_thr.value.exitstatus
+        output = scriptout.read
+      end
+
+      FileUtils.rm(filename, :force => true)
+
+      if VERBOSE
+        puts "#### error_output:"
+        puts error_output
+        puts "#### exit_status:"
+        puts exit_status
+        puts "#### output:"
+        puts output
+      end
+
+    rescue => e
+      exception = e
+      Rails.logger.error("#### crispr_damage_analysis: exception: #{e}")
+      puts("#### crispr_damage_analysis: exception: #{e}")
     end
 
-    filename = Dir::Tmpname.make_tmpname "#{FOLDER_IN}/", nil
-    self.trace_file.copy_to_local_file('original', filename)
+    folder_in = "#{FOLDER_IN}/#{self.id}"
 
-    puts "#### filename: #{filename}"
+    self.file_trace_output = output
+    self.file_trace_error = error_output
+    self.file_exception_details = exception
+    self.file_return_code = exit_status
 
-    options[:file] = filename
+    self.file_alignment = save_file "#{folder_in}/alignment.txt"
+    self.file_filtered_analysis_vcf = save_file "#{folder_in}/filtered_analysis.vcf"
+    self.file_variant_effect_output_txt = save_file "#{folder_in}/variant_effect_output.txt"
+    self.file_reference_fa = save_file "#{folder_in}/reference.fa"
+    self.file_mutant_fa = save_file "#{folder_in}/mutated.fa"
+    self.file_alignment_data_yaml = save_file "#{folder_in}/alignment_data.yaml"
 
-    [:start, :end, :chr, :strand, :species, :file, :dir].each do |flag|
-      raise "#### cannot find flag '#{flag}'!" if ! options.has_key? flag
+    filename = "#{folder_in}/primer_reads.fa"
+    if File.exists?(filename)
+      contents = File.open(filename).read
+      data = contents.lines.to_a[1..-1].join
+      data.gsub!(/\s+/, "")
+      self.file_primer_reads_fa = data
     end
 
-    error_output = nil
-    exit_status = nil
-    output = nil
+    self.save!
 
-    cmd = run_cmd options
+    return if KEEP_GENERATED_FILES
 
-    Open3.popen3("#{cmd}") do |scriptin, scriptout, scripterr, wait_thr|
-      error_output = scripterr.read
-      exit_status = wait_thr.value.exitstatus
-      output = scriptout.read
-    end
-
-    FileUtils.rm(filename, :force => true)
-
-    if VERBOSE
-      puts "#### error_output:"
-      puts error_output
-      puts "#### exit_status:"
-      puts exit_status
-      puts "#### output:"
-      puts output
-    end
-
-    save_files
+    FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
+    FileUtils.rmdir("#{folder_in}/merge_vcf")
+    FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
+    FileUtils.rmdir("#{folder_in}", :verbose => true)
   end
 
-  def save_files_1
-    Colony.transaction do
-      folder_in = "#{FOLDER_IN}/#{self.id}"
-      # FileUtils.mkdir_p folder_in
-
-      filename = "#{folder_in}/alignment.txt"
-      if File.exists?(filename)
-        self.file_alignment = File.open(filename).read
-      end
-
-      filename = "#{folder_in}/filtered_analysis.vcf"
-      if File.exists?(filename)
-        self.file_filtered_analysis_vcf = File.open(filename).read
-      end
-
-      filename = "#{folder_in}/variant_effect_output.txt"
-      if File.exists?(filename)
-        self.file_variant_effect_output_txt = File.open(filename).read
-      end
-
-      filename = "#{folder_in}/reference.fa"
-      if File.exists?(filename)
-        self.file_reference_fa = File.open(filename).read
-      end
-
-      filename = "#{folder_in}/mutated.fa"
-      if File.exists?(filename)
-        self.file_mutant_fa = File.open(filename).read
-      end
-
-      filename = "#{folder_in}/primer_reads.fa"
-      if File.exists?(filename)
-        contents = File.open(filename).read
-        data = contents.lines.to_a[1..-1].join
-        data.gsub!(/\s+/, "")
-        self.file_primer_reads_fa = data
-      end
-
-      filename = "#{folder_in}/alignment_data.yaml"
-      if File.exists?(filename)
-        self.file_alignment_data_yaml = File.open(filename).read
-      end
-
-      self.save!
-
-      return if KEEP_GENERATED_FILES
-
-      FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
-      FileUtils.rmdir("#{folder_in}/merge_vcf")
-      FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
-      FileUtils.rmdir("#{folder_in}", :verbose => true)
-    end
-  end
-
-  def save_files
-    Colony.transaction do
-      folder_in = "#{FOLDER_IN}/#{self.id}"
-
-      self.file_alignment = save_file "#{folder_in}/alignment.txt"
-      self.file_filtered_analysis_vcf = save_file "#{folder_in}/filtered_analysis.vcf"
-      self.file_variant_effect_output_txt = save_file "#{folder_in}/variant_effect_output.txt"
-      self.file_reference_fa = save_file "#{folder_in}/reference.fa"
-      self.file_mutant_fa = save_file "#{folder_in}/mutated.fa"
-      self.file_alignment_data_yaml = save_file "#{folder_in}/alignment_data.yaml"
-
-      filename = "#{folder_in}/primer_reads.fa"
-      if File.exists?(filename)
-        contents = File.open(filename).read
-        data = contents.lines.to_a[1..-1].join
-        data.gsub!(/\s+/, "")
-        self.file_primer_reads_fa = data
-      end
-
-      self.save!
-
-      return if KEEP_GENERATED_FILES
-
-      FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
-      FileUtils.rmdir("#{folder_in}/merge_vcf")
-      FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
-      FileUtils.rmdir("#{folder_in}", :verbose => true)
-    end
-  end
+  #def save_files output, error, exception = nil
+  #  Colony.transaction do
+  #    folder_in = "#{FOLDER_IN}/#{self.id}"
+  #
+  #    self.file_trace_output = output
+  #    self.file_trace_error = error
+  #    self.file_exception_details = exception
+  #    self.file_return_code = JJJJJJ
+  #
+  #    self.file_alignment = save_file "#{folder_in}/alignment.txt"
+  #    self.file_filtered_analysis_vcf = save_file "#{folder_in}/filtered_analysis.vcf"
+  #    self.file_variant_effect_output_txt = save_file "#{folder_in}/variant_effect_output.txt"
+  #    self.file_reference_fa = save_file "#{folder_in}/reference.fa"
+  #    self.file_mutant_fa = save_file "#{folder_in}/mutated.fa"
+  #    self.file_alignment_data_yaml = save_file "#{folder_in}/alignment_data.yaml"
+  #
+  #    filename = "#{folder_in}/primer_reads.fa"
+  #    if File.exists?(filename)
+  #      contents = File.open(filename).read
+  #      data = contents.lines.to_a[1..-1].join
+  #      data.gsub!(/\s+/, "")
+  #      self.file_primer_reads_fa = data
+  #    end
+  #
+  #    self.save!
+  #
+  #    return if KEEP_GENERATED_FILES
+  #
+  #    FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
+  #    FileUtils.rmdir("#{folder_in}/merge_vcf")
+  #    FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
+  #    FileUtils.rmdir("#{folder_in}", :verbose => true)
+  #  end
+  #end
 
   def save_file(filename)
     return File.open(filename).read if File.exists?(filename)
@@ -241,43 +278,30 @@ class Colony < ActiveRecord::Base
     nil
   end
 
-  def insertions
-    @alignment_data = {}
-    @alignment_data = YAML.load(self.file_alignment_data_yaml) if ! self.file_alignment_data_yaml.blank?
+  def insertions_deletions type
+    alignment_data = {}
+    alignment_data = YAML.load(self.file_alignment_data_yaml) if ! self.file_alignment_data_yaml.blank?
 
-    @insertions = []
+    list = []
 
-    if @alignment_data.has_key? 'insertions'
-      @alignment_data['insertions'].keys.each do |kk|
-        array = @alignment_data['insertions'][kk]
+    if alignment_data.has_key? type
+      alignment_data[type].keys.each do |kk|
+        array = alignment_data[type][kk]
         array.each do |frame|
-          @insertions.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
+          list.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
         end
       end
     end
 
-    return @insertions
+    list
+  end
+
+  def insertions
+    insertions_deletions 'insertions'
   end
 
   def deletions
-    @alignment_data = {}
-    @alignment_data = YAML.load(self.file_alignment_data_yaml) if ! self.file_alignment_data_yaml.blank?
-
-    puts "#### @alignment_data:"
-    pp @alignment_data
-
-    @deletions = []
-
-    if @alignment_data.has_key? 'deletions'
-      @alignment_data['deletions'].keys.each do |kk|
-        array = @alignment_data['deletions'][kk]
-        array.each do |frame|
-          @deletions.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
-        end
-      end
-    end
-
-    return @deletions
+    insertions_deletions 'deletions'
   end
 
 end
@@ -301,6 +325,11 @@ end
 #  file_mutant_fa                 :text
 #  file_primer_reads_fa           :text
 #  file_alignment_data_yaml       :text
+#  file_trace_output              :text
+#  file_trace_error               :text
+#  file_exception_details         :text
+#  file_return_code               :integer
+#  is_het                         :boolean          default(FALSE)
 #
 # Indexes
 #

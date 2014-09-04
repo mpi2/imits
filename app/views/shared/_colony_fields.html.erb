@@ -39,20 +39,27 @@
 
     <td style="text-align:center">
 
-        <% if ! f.object.new_record? && f.object.trace_data_available %>
-
-            <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
-
+        <% if f.object.trace_data_error %>
+            <% if f.object.file_error.to_s.length > 0 %>
+                <p>Error: <%= f.object.file_error %></p>
+            <% else %>
+                <p>error</p>
+            <% end %>
         <% elsif f.object.trace_data_pending %>
             <p>pending</p>
+        <% elsif ! f.object.new_record? && f.object.trace_data_available %>
+            <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
         <% end %>
 
     </td>
     <td>
         <a>Allele</a>
     </td>
-    <td>
+    <td style="text-align: center;vertical-align: middle;">
         <%= f.check_box :genotype_confirmed %>
+    </td>
+    <td style="text-align: center;vertical-align: middle;">
+        <%= f.check_box :is_het %>
     </td>
     <td>
         <% if f.object.new_record? %>

@@ -53,7 +53,7 @@ class Colony < ActiveRecord::Base
 
   SYNC = false
   VERBOSE = true
-  KEEP_GENERATED_FILES = true
+  KEEP_GENERATED_FILES = false
   FOLDER_IN = "/nfs/team87/imits/trace_files_output/#{Rails.env}/#{ENV['USER']}"
 
   def trace_data_pending
@@ -116,9 +116,6 @@ class Colony < ActiveRecord::Base
 
       strand_name = mi_attempt.mi_plan.gene.strand_name == '-' ? '-' : ''
       options[:strand] = "#{strand_name}1" if ! options[:strand]
-
-      #TODO: remove me!
-     # options[:strand] = "1"
 
       options[:species] = "Mouse"
       options[:dir] = self.id
@@ -264,6 +261,12 @@ end
 #  file_mutant_fa                 :text
 #  file_primer_reads_fa           :text
 #  file_alignment_data_yaml       :text
+#  file_trace_output              :text
+#  file_trace_error               :text
+#  file_exception_details         :text
+#  file_return_code               :integer
+#  file_merged_variants_vcf       :integer
+#  is_het                         :boolean          default(FALSE)
 #
 # Indexes
 #

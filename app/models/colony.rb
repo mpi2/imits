@@ -88,7 +88,8 @@ class Colony < ActiveRecord::Base
       "crispr_damage_analysis.pl #{file_flag} #{options[:file]} --target-start #{options[:start]} --target-end #{options[:end]} --target-chr #{options[:chr]} --target-strand #{options[:strand]} --species #{options[:species]} --dir #{options[:dir]}\n" +
       "EOF\n"
 
-   # puts "#### #{command}"
+    puts "#### COMMAND:"
+    puts command
 
      command
   end
@@ -112,8 +113,13 @@ class Colony < ActiveRecord::Base
 
       options[:remote] = true
       options[:chr] = mi_attempt.mi_plan.gene.chr if ! options[:chr]
-      # TODO: check me!
-      options[:strand] = "#{mi_attempt.mi_plan.gene.strand_name}1" if ! options[:strand]
+
+      strand_name = mi_attempt.mi_plan.gene.strand_name == '-' ? '-' : ''
+      options[:strand] = "#{strand_name}1" if ! options[:strand]
+
+      #TODO: remove me!
+     # options[:strand] = "1"
+
       options[:species] = "Mouse"
       options[:dir] = self.id
 
@@ -124,6 +130,9 @@ class Colony < ActiveRecord::Base
           s = crispr.start.to_i if s == 0 || crispr.start.to_i < s.to_i
           e = crispr.end.to_i if e == 0 || crispr.end.to_i > e  .to_i
         end
+
+        s -= 10
+        e += 10
 
         options[:start] = s
         options[:end] = e
@@ -182,6 +191,7 @@ class Colony < ActiveRecord::Base
     self.file_reference_fa = save_file "#{folder_in}/reference.fa"
     self.file_mutant_fa = save_file "#{folder_in}/mutated.fa"
     self.file_alignment_data_yaml = save_file "#{folder_in}/alignment_data.yaml"
+    self.file_merged_variants_vcf = save_file "#{folder_in}/merge_vcf/merged_variants.vcf"
 
     filename = "#{folder_in}/primer_reads.fa"
     if File.exists?(filename)
@@ -254,11 +264,6 @@ end
 #  file_mutant_fa                 :text
 #  file_primer_reads_fa           :text
 #  file_alignment_data_yaml       :text
-#  file_trace_output              :text
-#  file_trace_error               :text
-#  file_exception_details         :text
-#  file_return_code               :integer
-#  is_het                         :boolean          default(FALSE)
 #
 # Indexes
 #

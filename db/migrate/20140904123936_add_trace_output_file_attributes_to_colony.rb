@@ -5,5 +5,7 @@ class AddTraceOutputFileAttributesToColony < ActiveRecord::Migration
     add_column :colonies, :file_exception_details, :text
     add_column :colonies, :file_return_code, :integer
     add_column :colonies, :is_het, :boolean, :default => false
+    add_column :colonies, :file_merged_variants_vcf, :integer
+    add_column :colonies, :is_het, :boolean, :default => false
   end
 end

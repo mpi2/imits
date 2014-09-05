@@ -7,5 +7,11 @@ class AddFileAttributesToColony < ActiveRecord::Migration
     add_column :colonies, :file_mutant_fa, :text
     add_column :colonies, :file_primer_reads_fa, :text
     add_column :colonies, :file_alignment_data_yaml, :text
+    #add_column :colonies, :file_trace_output, :text
+    #add_column :colonies, :file_trace_error, :text
+   # add_column :colonies, :file_exception_details, :text
+    #add_column :colonies, :file_return_code, :integer
+   # add_column :colonies, :file_merged_variants_vcf, :integer
+   # add_column :colonies, :is_het, :boolean, :default => false
   end
 end

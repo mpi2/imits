@@ -42,6 +42,10 @@
         <% if f.object.trace_data_error %>
             <% if f.object.file_error.to_s.length > 0 %>
                 <p>Error: <%= f.object.file_error %></p>
+                <p>debug stderr:</p>
+                <p><%= f.object.file_trace_error %></p>
+                <p>debug stdout:</p>
+                <p><%= f.object.file_trace_output %></p>
             <% else %>
                 <p>error</p>
             <% end %>

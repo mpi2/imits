@@ -38,6 +38,8 @@ class ColonyTest < ActiveSupport::TestCase
           should have_db_column(:file_mutant_fa).of_type(:text)
           should have_db_column(:file_primer_reads_fa).of_type(:text)
           should have_db_column(:file_alignment_data_yaml).of_type(:text)
+          should have_db_column(:file_merged_variants_vcf).of_type(:text)
+          should have_db_column(:is_het).of_type(:boolean)
         end
 
         context 'creation of qc' do

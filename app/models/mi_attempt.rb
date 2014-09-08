@@ -308,9 +308,6 @@ class MiAttempt < ApplicationModel
     if es_cell.blank?
       return nil
 
-    elsif !mi_plan.allele_symbol_superscript.blank?
-      return "#{es_cell.marker_symbol}<sup>#{mi_plan.allele_symbol_superscript}</sup>"
-
     elsif mouse_allele_symbol_superscript
       return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
 

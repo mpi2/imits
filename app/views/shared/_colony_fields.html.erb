@@ -37,6 +37,10 @@
     <% end %>
     </td>
 
+    <td style="text-align: center;vertical-align: middle;">
+        <%= f.check_box :is_het %>
+    </td>
+
     <td style="text-align:center">
 
         <% if f.object.trace_data_error %>
@@ -65,9 +69,6 @@
     </td>
     <td style="text-align: center;vertical-align: middle;">
         <%= f.check_box :genotype_confirmed %>
-    </td>
-    <td style="text-align: center;vertical-align: middle;">
-        <%= f.check_box :is_het %>
     </td>
     <td>
         <% if f.object.new_record? %>

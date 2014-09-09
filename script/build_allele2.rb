@@ -673,7 +673,7 @@ class BuildAllele2
               FROM mi_attempts
                 JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
                 JOIN centres ON centres.id = mi_plans.production_centre_id
-              WHERE mi_attempts.status_id != 1 AND mi_attempts.report_to_public is true
+              WHERE mi_attempts.status_id != 3 AND mi_attempts.report_to_public is true
 
               UNION
 

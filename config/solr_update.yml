@@ -9,7 +9,7 @@ development:
     product1: http://ikmc.vm.bytemark.co.uk:8985/solr/product
     product: http://localhost:8983/solr/product
     allele22: http://ikmc.vm.bytemark.co.uk:8986/solr/allele2
-    allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
+    allele2x: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
     allele24: http://ikmc.vm.bytemark.co.uk:8984/solr/allele2
     allele25: http://ikmc.vm.bytemark.co.uk:8983/solr/allele2
 

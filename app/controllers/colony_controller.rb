@@ -16,7 +16,7 @@ class ColonyController < ApplicationController
     marker_symbol = @colony.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
     @title = "Gene #{marker_symbol} - Colony #{@colony.name} (#{@colony.trace_file_file_name})" if marker_symbol
 
-    @files[:alignment] = {:filename => 'alignment.txt', :name => 'Alignment', :data => @colony.file_alignment, :show => true, :split => true, :titles=> ['Reference Sequence', 'Mutated Sequence'], :ids => ['ref_seq', 'seq_1']}
+    @files[:alignment] = {:filename => 'alignment.txt', :name => 'Alignment', :data => @colony.targeted_file_alignment, :show => true, :split => true, :titles=> ['Reference Sequence', 'Mutated Sequence'], :ids => ['ref_seq', 'seq_1']}
     @files[:filtered_analysis_vcf] = {:filename => 'filtered_analysis.vcf', :name => 'Variant (vcf)', :data => @colony.file_filtered_analysis_vcf, :show => true}
     @files[:merged_variants_vcf] = {:filename => 'merged_variants.vcf', :name => 'Variant (merged vcf)', :data => @colony.file_merged_variants_vcf, :show => true}
     @files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'Variant (vep)', :data => @colony.file_variant_effect_output_txt, :show => true}

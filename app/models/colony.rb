@@ -94,6 +94,21 @@ class Colony < ActiveRecord::Base
      command
   end
 
+
+  def target_region
+    s = 0
+    e = 0
+    self.mi_attempt.crisprs.each do |crispr|
+      s = crispr.start.to_i if s == 0 || crispr.start.to_i < s.to_i
+      e = crispr.end.to_i if e == 0 || crispr.end.to_i > e  .to_i
+    end
+
+    s -= 10
+    e += 10
+
+    return [s, e]
+  end
+
   def crispr_damage_analysis options = {}
 
     if ! options[:force] && ! self.file_alignment.blank?
@@ -121,18 +136,7 @@ class Colony < ActiveRecord::Base
       options[:dir] = self.id
 
       if ! options[:start] || ! options[:end]
-        s = 0
-        e = 0
-        self.mi_attempt.crisprs.each do |crispr|
-          s = crispr.start.to_i if s == 0 || crispr.start.to_i < s.to_i
-          e = crispr.end.to_i if e == 0 || crispr.end.to_i > e  .to_i
-        end
-
-        s -= 10
-        e += 10
-
-        options[:start] = s
-        options[:end] = e
+        options[:start], options[:end] = self.target_region
       end
 
       filename = Dir::Tmpname.make_tmpname "#{FOLDER_IN}/", nil
@@ -221,16 +225,34 @@ class Colony < ActiveRecord::Base
     list = []
 
     if alignment_data.has_key? type
-      alignment_data[type].keys.each do |kk|
-        array = alignment_data[type][kk]
-        array.each do |frame|
-          list.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
+      if ['deletions', 'insertions'].include?(type)
+        alignment_data[type].keys.each do |kk|
+          array = alignment_data[type][kk]
+          array.each do |frame|
+            list.push "#{kk}: length: #{frame['length']} - read: #{frame['read']} - seq: #{frame['seq']}"
+          end
         end
+      else
+        return alignment_data[type].to_i
       end
     end
 
     list
   end
+
+  def only_select_target_region(seq_type)
+    if seq_type == 'reference'
+      seq = self.file_alignment.split("\n")[0]
+    else
+      seq = self.file_alignment.split("\n")[1]
+    end
+    target_start, target_end = self.target_region
+    alignment_start = target_start - self.target_sequence_start
+    alignment_length = target_end - target_start
+
+    return seq[alignment_start, alignment_length]
+  end
+
 
   def insertions
     insertions_deletions 'insertions'
@@ -238,6 +260,26 @@ class Colony < ActiveRecord::Base
 
   def deletions
     insertions_deletions 'deletions'
+  end
+
+  def target_sequence_start
+    insertions_deletions 'target_sequence_start'
+  end
+
+  def target_sequence_end
+    insertions_deletions  'target_sequence_end'
+  end
+
+  def targeted_reference_sequence
+    only_select_target_region('reference')
+  end
+
+  def targeted_mutated_sequence
+    only_select_target_region('mutated')
+  end
+
+  def targeted_file_alignment
+    return "#{targeted_reference_sequence}\n#{targeted_mutated_sequence}"
   end
 
 end

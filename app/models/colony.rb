@@ -54,7 +54,8 @@ class Colony < ActiveRecord::Base
   SYNC = false
   VERBOSE = true
   KEEP_GENERATED_FILES = false
-  FOLDER_IN = "/nfs/team87/imits/trace_files_output/#{Rails.env}/#{ENV['USER']}"
+  USER = (ENV['USER'] || `whoami`).chomp
+  FOLDER_IN = "/nfs/team87/imits/trace_files_output/#{Rails.env}/#{USER}"
 
   def trace_data_pending
     file_alignment.blank? && ! self.trace_file_file_name.blank?
@@ -77,6 +78,32 @@ class Colony < ActiveRecord::Base
   end
 
   def run_cmd options
+    puts "#### whoami"
+    puts `whoami`
+
+    run_cmd_old options
+  end
+
+  def run_cmd_new options
+
+    file_flag = "--scf-file"
+    file_flag = "--het-scf-file" if self.is_het?
+
+    command = "source /opt/t87/global/conf/bashrc;" +
+      "use lims2-devel;" +
+      "export DEFAULT_CRISPR_DAMAGE_QC_DIR=#{FOLDER_IN};" +
+      "crispr_damage_analysis.pl #{file_flag} #{options[:file]} --target-start #{options[:start]} --target-end #{options[:end]} --target-chr #{options[:chr]} --target-strand #{options[:strand]} --species #{options[:species]} --dir #{options[:dir]}";
+
+    puts "#### COMMAND:"
+    puts command
+    puts "#### USER: '#{USER}'"
+
+    puts "#### mi_attempt_id: #{mi_attempt_id}"
+
+     command
+  end
+
+  def run_cmd_old options
 
     file_flag = "--scf-file"
     file_flag = "--het-scf-file" if self.is_het?
@@ -90,6 +117,7 @@ class Colony < ActiveRecord::Base
 
     puts "#### COMMAND:"
     puts command
+    puts "#### USER: '#{USER}'"
 
      command
   end
@@ -102,7 +130,7 @@ class Colony < ActiveRecord::Base
     end
 
     if ! self.trace_file || self.trace_file_file_name.blank?
-      puts "#### no trace file!"
+      #puts "#### no trace file!" if VERBOSE
       return
     end
 
@@ -127,6 +155,8 @@ class Colony < ActiveRecord::Base
           s = crispr.start.to_i if s == 0 || crispr.start.to_i < s.to_i
           e = crispr.end.to_i if e == 0 || crispr.end.to_i > e  .to_i
         end
+
+        # as per vvi's instructions 5/9/14
 
         s -= 10
         e += 10
@@ -201,6 +231,9 @@ class Colony < ActiveRecord::Base
     self.save!
 
     return if KEEP_GENERATED_FILES
+
+    FileUtils.rm(Dir.glob("#{folder_in}/scf_to_seq/*.*"), :force => true)
+    FileUtils.rmdir("#{folder_in}/scf_to_seq")
 
     FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
     FileUtils.rmdir("#{folder_in}/merge_vcf")

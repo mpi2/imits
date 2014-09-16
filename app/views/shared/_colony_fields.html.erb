@@ -32,6 +32,7 @@
             <div id="cdiv_<%= f.object.id %>" style="display:none;">
                 <%= f.file_field :trace_file %>
             </div>
+            <!-- see http://stackoverflow.com/questions/2187008/styling-an-anchor-tag-to-look-like-a-submit-button for download button -->
     <% else %>
             <%= f.file_field :trace_file %>
     <% end %>

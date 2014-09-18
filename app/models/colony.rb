@@ -78,8 +78,8 @@ class Colony < ActiveRecord::Base
   end
 
   def run_cmd options
-    puts "#### whoami"
-    puts `whoami`
+    #puts "#### whoami"
+    #puts `whoami`
 
     run_cmd_old options
   end
@@ -121,7 +121,6 @@ class Colony < ActiveRecord::Base
 
      command
   end
-
 
   def target_region
     s = 0
@@ -338,7 +337,7 @@ end
 #  file_trace_error               :text
 #  file_exception_details         :text
 #  file_return_code               :integer
-#  file_merged_variants_vcf       :integer
+#  file_merged_variants_vcf       :text
 #  is_het                         :boolean          default(FALSE)
 #
 # Indexes

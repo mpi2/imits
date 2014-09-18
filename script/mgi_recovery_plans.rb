@@ -93,6 +93,10 @@ mgis = %W{
   MGI:1923257
 }
 
+STDOUT.sync = true
+
+raise "#### expecting 88 (#{mgis.length})!" if mgis.length != 88
+
 #Currently LIMS2 records 88 mouse genes in the “MGP Recovery” basket.
 #I need you two to cooperate to
 #
@@ -135,7 +139,7 @@ ApplicationModel.audited_transaction do
     plan = MiPlan.where(plan_params).first
 
     if plan
-      puts "#### exists '#{mgi}'"
+     # puts "#### exists '#{mgi}'"
       plan_ids_old.push plan.id
       plans_old.push plan
       #puts plan.to_json(:include => {:gene => {}})

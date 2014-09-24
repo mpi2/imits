@@ -33,6 +33,7 @@ class MiAttemptsController < ApplicationController
   end
 
   def create
+    use_crispr_group_id
     #puts "PARAMS: #{params}"
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
@@ -166,4 +167,19 @@ class MiAttemptsController < ApplicationController
     end
   end
   private :get_marker_symbol
+
+  def use_crispr_group_id
+    if params.has_key?(:create_from_cripr_group_id) and params[:create_from_cripr_group_id] == true
+      grab_crispr_group_data
+    end
+  end
+  private :use_crispr_group_id
+
+  def grab_crispr_group_data
+
+return true
+#    params[:mi_attempt]
+  end
+  private :grab_crispr_group_data
+
 end

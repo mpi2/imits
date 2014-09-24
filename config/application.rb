@@ -78,6 +78,7 @@ module TarMits
 
     config.htgt_root = "http://www.sanger.ac.uk/htgt/htgt2"
     config.wge_root = "http://www.sanger.ac.uk/htgt/wge"
+    config.lims2_root = "http://t87-apache.internal.sanger.ac.uk:8002/htgt/lims2"
   end
 
   def self.git_revision

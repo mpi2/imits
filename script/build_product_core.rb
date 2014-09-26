@@ -515,7 +515,7 @@ class BuildProductCore
      "order_names"                      => [],
      "contact_links"                    => [@look_up_contact.has_key?(row["production_centre"]) ? "mailto:#{@look_up_contact[row['production_centre']]}?Subject=Mouse Line for #{row['marker_symbol']}" : ''],
      "contact_names"                    => [@look_up_contact.has_key?(row["production_centre"]) ? row["production_centre"] : ''],
-     "other_links"                      => ["production_graph:#{production_graph_url(row['imits_gene_id'])}"],
+     "other_links"                      => ["production_graph:#{production_graph_url(row['imits_gene_id'])}", "genbank_file:#{self.class.allele_genbank_file_url(row['allele_id'], row['mouse_allele_mod_allele_type'])}", "allele_image:#{self.class.allele_image_url(row['allele_id'], row['mouse_allele_mod_allele_type'])}"],
      "ikmc_project_id"                  => row["ikmc_project_id"],
      "design_id"                        => row["design_id"],
      "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
@@ -558,7 +558,8 @@ class BuildProductCore
      "qc_data"                          => self.class.convert_to_array(row['qc_data']).keep_if{|qc| qc != 'NULL'} + self.class.convert_to_array(row['distribution_qc']).keep_if{|qc| qc != 'NULL'},
      "associated_products_colony_names" => self.class.convert_to_array(row['colonies']),
      "associated_product_vector_name"   => row['vector_name'],
-     "ikmc_project_id"                  => row["ikmc_project_id"],
+     "other_links"                       => ["genbank_file:#{self.class.allele_genbank_file_url(row['allele_id'])}", "allele_image:#{self.class.allele_image_url(row['allele_id'])}"],
+     "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
      "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
     }
@@ -585,7 +586,7 @@ class BuildProductCore
      "status_date"                       => row['status_date'].to_date.to_s,
      "associated_products_es_cell_names" => row['es_cell_names'],
      "other_links"                       => ["genbank_file:#{self.class.targeting_vector_genbank_file_url(row['allele_id'])}", "allele_image:#{self.class.vector_image_url(row['allele_id'])}", "design_link:#{self.class.design_url(row['design_id'])}"],
-     "ikmc_project_id"                  => row["ikmc_project_id"],
+     "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
      "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
      }
@@ -633,7 +634,25 @@ class BuildProductCore
 
   def self.vector_image_url allele_id
     return "" if allele_id.blank?
-    return "http://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/vector-image"
+    return "https://www.mousephenotype.org/imits/targ_rep/alleles/#{allele_id}/vector-image"
+  end
+
+  def self.allele_genbank_file_url allele_id, allele_type = ''
+    transform = self.allele_modification(allele_type)
+    return "" if allele_id.blank?
+    return "https://www.mousephenotype.org/imits/targ_rep/alleles/#{allele_id}/escell-clone#{transform}-genbank-file"
+  end
+
+  def self.allele_image_url allele_id, allele_type = ''
+    transform = self.allele_modification(allele_type)
+    return "" if allele_id.blank?
+    return "https://www.mousephenotype.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{transform}"
+  end
+
+  def self.allele_simple_image_url allele_id, allele_type = ''
+    transform = self.allele_modification(allele_type)
+    return "" if allele_id.blank?
+    return "https://www.mousephenotype.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{transform}?simple=true"
   end
 
   def self.design_url design_id
@@ -644,6 +663,24 @@ class BuildProductCore
   def production_graph_url gene_id
     return "" if gene_id.blank?
     return "https://www.mousephenotype.org/imits/open/genes/#{gene_id}/network_graph"
+  end
+
+  def self.allele_modification allele_type
+    return '' if allele_type.blank?
+
+    if allele_type == 'b'
+      return '-cre'
+    elsif allele_type == '.1'
+      return '-cre'
+    elsif allele_type == 'e.1'
+      return '-cre'
+    elsif allele_type == 'c'
+      return '-flp'
+    elsif allele_type == 'd'
+      return '-flp-cre'
+    else
+      return ''
+    end
   end
 
   def self.get_distribution_centres row

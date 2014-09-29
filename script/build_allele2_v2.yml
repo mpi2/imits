@@ -51,6 +51,8 @@ sql: |
   )
   select distinct
   targ_rep_alleles.id as targ_rep_alleles_id,
+  targ_rep_alleles.cassette AS cassette,
+  targ_rep_alleles.project_design_id AS design_id,
   targ_rep_mutation_types.name mutation_type,
   genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,
   genes.chr AS gene_chromosome,

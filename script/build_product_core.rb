@@ -156,6 +156,7 @@ class BuildProductCore
         LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_targeting_vectors.ikmc_project_foreign_id
         LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
       WHERE targ_rep_targeting_vectors.report_to_public = true AND targ_rep_alleles.type = 'TargRep::TargetedAllele'
+            AND targ_rep_alleles.project_design_id IS NOT NULL AND targ_rep_alleles.cassette IS NOT NULL
       ORDER BY targ_rep_targeting_vectors.name
     EOF
   end
@@ -325,10 +326,10 @@ class BuildProductCore
     @solr_user = @config['options']['SOLR_USER']
     @solr_password = @config['options']['SOLR_PASSWORD']
     @dataset_max_size = 80000
-    @process_mice = true
-    @process_es_cells = true
+    @process_mice = false
+    @process_es_cells = false
     @process_targeting_vectors = true
-    @process_intermediate_vectors = true
+    @process_intermediate_vectors = false
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',
@@ -463,7 +464,7 @@ class BuildProductCore
   def prepare_allele_symbol row, type
     row['allele_symbol'] = 'None'
     row['allele_symbol'] = 'DUMMY_' + row['targ_rep_alleles_id'] if ! row['targ_rep_alleles_id'].to_s.empty?
-    row['allele_symbol'] = 'tm1' + row['allele_type'] if ! row['allele_type'].blank? && row['allele_type'] != 'None'
+    row['allele_symbol'] = 'tm1' + row['allele_type'] if row['allele_type'] != 'None'
     row['allele_symbol'] = row['allele_symbol_superscript'] if ! row['allele_symbol_superscript'].to_s.empty?
     row['allele_symbol'] = row['allele_symbol_superscript_template'].to_s.gsub(/\@/, row['allele_type'].to_s) if ! row['allele_type'].nil? && ! row['allele_symbol_superscript_template'].to_s.empty?
 
@@ -588,13 +589,13 @@ class BuildProductCore
      "other_links"                       => ["genbank_file:#{self.class.targeting_vector_genbank_file_url(row['allele_id'])}", "allele_image:#{self.class.vector_image_url(row['allele_id'])}", "design_link:#{self.class.design_url(row['design_id'])}"],
      "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
+     "cassette"                         => row["cassette"],
      "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
      }
 
     allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['allele_type'], row['pipeline'], row['cassette'])
     if allele_name
       doc["allele_type"] = allele_type
-      doc["allele_name"] = allele_name
     end
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))

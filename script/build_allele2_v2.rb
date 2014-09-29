@@ -158,14 +158,20 @@ class BuildAllele2
   end
 
   def mark row
-    pp row if row['allele_symbol'].to_s.empty?
-    raise "#### Must have allele_symbol!" if row['allele_symbol'].to_s.empty?
-    @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] = true
+    pp row if row['allele_symbol'].to_s.empty? && (row['cassette'].to_s.empty? || row['design_id'].to_s.empty?)
+    raise "#### Must have allele_symbol! or cassette and design_id" if row['allele_symbol'].to_s.empty? && (row['cassette'].to_s.empty? || row['design_id'].to_s.empty?)
+    @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] = true if ! row['allele_symbol'].to_s.empty?
+    @mark_hash[row['mgi_accession_id'].to_s + row['cassette'].to_s + row['design_id'].to_s] = true if (!row['cassette'].to_s.empty? && !row['design_id'].to_s.empty?)
   end
 
   def mark? row
-    @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_symbol'].to_s) &&
-    @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] == true
+    if @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_symbol'].to_s) && @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] == true
+      return true
+    elsif @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['cassette'].to_s + row['design_id'].to_s) && @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['cassette'].to_s + row['design_id'].to_s) == true
+      return true
+    else
+      return false
+    end
   end
 
   def save_csv filename, data
@@ -210,7 +216,7 @@ class BuildAllele2
   def prepare_allele_symbol row1, type
     row1['allele_symbol'] = 'None'
     row1['allele_symbol'] = 'DUMMY_' + row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
-    row1['allele_symbol'] = 'tm1' + row1['allele_type'] if ! row1['allele_type'].blank? && row1['allele_type'] != 'None'
+    row1['allele_symbol'] = 'tm1' + row1['allele_type'] if row1['allele_type'] != 'None'
     row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
     row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['allele_type'].to_s) if ! row1['allele_type'].nil? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
@@ -388,6 +394,8 @@ class BuildAllele2
 
         row['phenotyping_centre'] = row['phenotyping_centre_name']
         row['production_centre'] = row['pacentre_name']
+        row['cassette'] = ''
+        row['design_id'] = ''
         if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
           row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
         end
@@ -499,6 +507,7 @@ class BuildAllele2
         row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
       elsif row['does_a_targ_vec_exist'] == 't'
         row['es_cell_status'] = @statuses['ES_CELL_PRODUCTION_IN_PROGRESS']
+        row['allele_symbol'] = 'None'
       else
         row['es_cell_status'] = @statuses['NO_ES_CELL_PRODUCTION']
       end
@@ -551,6 +560,8 @@ class BuildAllele2
       hash['allele_type'] = row['allele_type']
       hash['genbank_file'] = row['genbank_file_url']
       hash['allele_image'] = row['allele_image']
+      hash['cassette'] = row['allele_type'] != 'e' ? row['cassette'] : ''
+      hash['design_id'] = row['allele_type'] != 'e' ? row['design_id'] : ''
       hash['type'] = 'allele'
       hash['links'] = row['links'].to_s
 

@@ -25,6 +25,22 @@ class Centre < ActiveRecord::Base
   def self.readable_name
     return 'centre'
   end
+
+  def get_all_gtc_mi_attempt_distribution_centres
+
+    mi_distribution_centres_filtered = []
+
+    mi_distribution_centres = self.mi_attempt_distribution_centres
+    mi_distribution_centres.each do |mi_distribution_centre|
+      mi_attempt = mi_distribution_centre.mi_attempt
+      unless mi_attempt.status.name == 'Genotype confirmed'
+        next
+      end
+      mi_distribution_centres_filtered.push(mi_distribution_centre)
+    end
+
+    return mi_distribution_centres_filtered
+  end
 end
 
 # == Schema Information

@@ -73,8 +73,15 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
     return 'phenotype attempt distribution centre'
   end
 
-end
+  def fetch_list_of_phenotype_attempts
+    # Fetch a list of all Phenotype Attempts for this distribution centre
+    # Look at mouse allele mod here
+    # Fields to return in hash are : Consortium, production_centre, marker_symbol, phenotype_attempt_id
+    ??
+    return
+  end
 
+end
 
 # == Schema Information
 #
@@ -91,4 +98,5 @@ end
 #  updated_at             :datetime
 #  distribution_network   :string(255)
 #  mouse_allele_mod_id    :integer
+#  reconciled             :string(255)      default("not checked"), not null
 #

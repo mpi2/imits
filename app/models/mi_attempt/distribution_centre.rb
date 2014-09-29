@@ -72,6 +72,69 @@ class MiAttempt::DistributionCentre < ApplicationModel
     return 'mi attempt distribution centre'
   end
 
+  def reconcile_with_repo( repository_name, reposcraper )
+    # instantiate reposcraper if nil (TODO : and fetch gene list until geneid stored on gene table)
+    if ( reposcraper.nil? )
+      reposcraper = RepositoryGeneDetailsScraper.new()
+      reposcraper.fetch_komp_catalog_gene_list()
+    end
+
+    # get marker symbol from gene
+    gene = self.mi_attempt.mi_plan.gene
+    marker_symbol = gene.marker_symbol
+
+    # use marker symbol to fetch gene details hash
+    gene_repo_details = reposcraper.fetch_komp_allele_details_by_marker_symbol( marker_symbol )
+
+    # we now have a hash containing potentially 0-many alleles with flags, or nil if no details found
+    unless ( gene_repo_details.nil? || gene_repo_details.count == 0 )
+      # pp gene_repo_details
+
+      mi_attempt_allele_symbol_unsplit = self.mi_attempt.allele_symbol
+
+      if ( mi_attempt_allele_symbol_unsplit.nil? )
+        puts "WARN : Allele name #{mi_attempt_allele_symbol_unsplit} format not understood for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
+        return
+      end
+
+      # strip out the superscript part of the allele symbol
+      split_array = mi_attempt_allele_symbol_unsplit.match(/\w*<sup>(\S*)<\/sup>/)
+
+      if ( split_array.nil? || split_array.length < 1 )
+        puts "WARN : Allele name #{mi_attempt_allele_symbol_unsplit} format not understood for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
+        return
+      end
+
+      mi_attempt_allele_symbol = split_array[1]
+
+      if ( mi_attempt_allele_symbol.nil? )
+        puts "WARN : No allele name found for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
+        return
+      end
+
+      if gene_repo_details['alleles'].has_key?(mi_attempt_allele_symbol)
+        if (( gene_repo_details['alleles'][mi_attempt_allele_symbol]['is_live_mice']     == 1 ) ||
+          ( gene_repo_details['alleles'][mi_attempt_allele_symbol]['is_cryo_recovery'] == 1 ) ||
+          ( gene_repo_details['alleles'][mi_attempt_allele_symbol]['is_germ_plasm']    == 1 ) ||
+          ( gene_repo_details['alleles'][mi_attempt_allele_symbol]['is_embryos']       == 1 ))
+          puts "Allele reconciled TRUE"
+          self.reconciled = 'true'
+        else
+          puts "Allele reconciled FALSE"
+          self.reconciled = 'false'
+        end
+
+        begin
+          self.save
+        rescue => e
+          "ERROR : Failed to save mi attempt distribution centre for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
+        end
+      else
+        puts "WARN : No repository allele found to match to Mi Attempt allele #{mi_attempt_allele_symbol}, cannot reconcile"
+      end
+    end
+  end
+
 end
 
 # == Schema Information
@@ -88,4 +151,5 @@ end
 #  created_at             :datetime
 #  updated_at             :datetime
 #  distribution_network   :string(255)
+#  reconciled             :string(255)      default("not checked"), not null
 #

@@ -173,6 +173,7 @@ class MiAttemptsController < ApplicationController
   private :get_marker_symbol
 
   def use_crispr_group_id
+    return if ! params.has_key?(:mi_attempt)
     if params.has_key?(:create_from_cripr_group_id) and params[:create_from_cripr_group_id] == true
       grab_crispr_group_data
       return true
@@ -190,6 +191,7 @@ class MiAttemptsController < ApplicationController
       if !crispr_group.errors.blank?
         params[:crispr_group_load_error] = crispr_group.errors
       else
+        params[:mi_attempt][:mutagenesis_factor_attributes] = {}
         i=0
         params[:mi_attempt][:mutagenesis_factor_attributes][:crisprs_attributes] = {}
         crispr_group.crispr_list.each do |crispr|

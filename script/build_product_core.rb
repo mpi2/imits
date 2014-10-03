@@ -235,7 +235,7 @@ class BuildProductCore
         es_cells.backbone AS backbone,
         es_cells.mutation_type AS mutation_type,
         cb_strain.name AS background_colony_strain_name,
-        del_strain.name AS deleter_strain_name,
+        NULL AS deleter_strain_name,
         test_strain.name AS test_strain_name,
         distribution_centres.centre_names AS distribution_centre_names,
         distribution_centres.distribution_networks AS distribution_networks,
@@ -249,8 +249,7 @@ class BuildProductCore
         JOIN plans ON plans.id = mi_attempts.mi_plan_id
         )
         LEFT JOIN strains AS cb_strain ON cb_strain.id = mi_attempts.colony_background_strain_id
-        LEFT JOIN deleter_strains AS del_strain ON del_strain.id = mi_attempts.colony_background_strain_id
-        LEFT JOIN strains AS test_strain ON test_strain.id = mi_attempts.colony_background_strain_id
+        LEFT JOIN strains AS test_strain ON test_strain.id = mi_attempts.test_cross_strain_id
         LEFT JOIN es_cells ON es_cells.id = mi_attempts.es_cell_id
         LEFT JOIN distribution_centres ON distribution_centres.mi_attempt_id = mi_attempts.id
       WHERE mi_attempts.report_to_public = true
@@ -301,7 +300,7 @@ class BuildProductCore
         JOIN mi_attempts ON mi_attempts.id = mouse_allele_mods.mi_attempt_id
         LEFT JOIN es_cells ON mi_attempts.es_cell_id = es_cells.id)
         LEFT JOIN strains AS cb_strain ON cb_strain.id = mouse_allele_mods.colony_background_strain_id
-        LEFT JOIN deleter_strains AS del_strain ON del_strain.id = mouse_allele_mods.colony_background_strain_id
+        LEFT JOIN deleter_strains AS del_strain ON del_strain.id = mouse_allele_mods.deleter_strain_id
         LEFT JOIN distribution_centres ON distribution_centres.phenotype_attempt_id = mouse_allele_mods.phenotype_attempt_id
       WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.cre_excision = true
     EOF
@@ -326,10 +325,10 @@ class BuildProductCore
     @solr_user = @config['options']['SOLR_USER']
     @solr_password = @config['options']['SOLR_PASSWORD']
     @dataset_max_size = 80000
-    @process_mice = false
-    @process_es_cells = false
+    @process_mice = true
+    @process_es_cells = true
     @process_targeting_vectors = true
-    @process_intermediate_vectors = false
+    @process_intermediate_vectors = true
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',
@@ -695,8 +694,8 @@ class BuildProductCore
     count = centres.count
     return [] if count == 0
     (0...count).each do |i|
-      distribution_centres << {:centre_name          => centres[i],
-                               :distribution_network => networks[i],
+      distribution_centres << {:centre_name          => centres[i] == 'NULL' ?  nil : centres[i],
+                               :distribution_network => networks[i] == 'NULL' ?  nil : networks[i],
                                :start_date           => starts[i] == 'NULL' ? nil : starts[i].to_time,
                                :end_date             => ends[i] == 'NULL' ? nil : ends[i].to_time
                                }
@@ -768,9 +767,8 @@ class BuildProductCore
     return [] if ! range.cover?(current_time)
     centre = Centre.where("contact_email IS NOT NULL AND name = '#{centre_name}'").first
     centre_name = 'KOMP' if ['UCD', 'KOMP Repo'].include?(centre_name)
-    centre_name = distribution_centre[:distribution_network] if distribution_centre[:distribution_network]
+    centre_name = distribution_centre[:distribution_network] if !distribution_centre[:distribution_network].blank?
     details = ''
-
     if config.has_key?(centre_name) && (!config[centre_name][:default].blank? || !config[centre_name][:preferred].blank?)
       # if blank then will default to order_from_url = details[:default]
       details = config[centre_name]

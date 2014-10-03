@@ -108,7 +108,7 @@ class MiAttempt < ApplicationModel
 
     if mi.qc_loxp_confirmation_result == 'fail'
       self.mouse_allele_type = 'e'
-    elsif self.mouse_allele_type == 'e' and (mi.qc_loxp_confirmation_result == 'pass' or mi.qc_loxp_confirmation_result == 'na')
+    elsif self.mouse_allele_type == 'e' and (mi.qc_loxp_confirmation_result == 'pass')
       self.mouse_allele_type = nil
     end
 

@@ -34,14 +34,17 @@ class MiAttemptsController < ApplicationController
 
   def create
     use_crispr_group_id
-    #puts "PARAMS: #{params}"
+
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])
     get_marker_symbol
     @vector_options = get_vector_options(@marker_symbol)
-    if ! @mi_attempt.valid?
+    if params.has_key?(:crispr_group_load_error) && ! params[:crispr_group_load_error].blank?
+      flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
+      flash.now[:alert] += "<br/> #{params[:crispr_group_load_error]}"
+    elsif ! @mi_attempt.valid?
       flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
 
       if ! @mi_attempt.errors[:base].blank?
@@ -171,14 +174,25 @@ class MiAttemptsController < ApplicationController
   def use_crispr_group_id
     if params.has_key?(:create_from_cripr_group_id) and params[:create_from_cripr_group_id] == true
       grab_crispr_group_data
+      return true
     end
+    return false
   end
   private :use_crispr_group_id
 
   def grab_crispr_group_data
+    params[:crispr_group_load_error] = "group_id required" if params.has_key?(:group_id)
+    params[:crispr_group_load_error] = "Invalid group_id. Must be an integer" if params[:group_id].to_i != 0
 
-return true
-#    params[:mi_attempt]
+    if !params.has_key?(:crispr_group_load_error)
+      crispr_group = TargRep::Lims2CrisprGroup.find_by_group_id(params[:group_id].to_i)
+      if !crispr_group.errors.blank?
+        params[:crispr_group_load_error] = crispr_group.errors
+      else
+        params[:mi_attempt][:mutagensis_factor][:crisprs] = crispr_group.crispr_list
+        params[:mi_attempt][:mutagensis_factor][:genotype_primers] = crispr_group.genotype_primer_list
+      end
+    end
   end
   private :grab_crispr_group_data
 

@@ -19,7 +19,7 @@ attr_accessor :mgi_accession_id, :group_id, :crispr_ids, :crispr_primers, :crisp
 
   def crispr_list
     self.crisprs.map{|crispr| {:sequence => crispr['seq'],
-                               :chr      => crispr['locus']['chr'],
+                               :chr      => crispr['locus']['chr_name'],
                                :start    => crispr['locus']['chr_start'],
                                :end      => crispr['locus']['chr_end']
                                }}
@@ -29,7 +29,7 @@ attr_accessor :mgi_accession_id, :group_id, :crispr_ids, :crispr_primers, :crisp
   def genotype_primer_list
     self.crispr_primers.map{|primer| {:name                     => primer['primer_name'],
                                       :sequence                 => primer['primer_seq'],
-                                      :chr                      => primer['locus']['chr'],
+                                      :chr                      => primer['locus']['chr_name'],
                                       :genomic_start_coordinate => primer['locus']['chr_start'],
                                       :genomic_end_coordinate   => primer['locus']['chr_end']
                                       }}

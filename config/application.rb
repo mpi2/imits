@@ -77,7 +77,7 @@ module TarMits
     #config.maintenance_mode.response = Proc.new { |env| [503, {'Content-Type' => 'text/html'}, [Rails.root.join("public/maintenance.html").read]] }
 
     config.htgt_root = "http://www.sanger.ac.uk/htgt/htgt2"
-    config.wge_root = "http://www.sanger.ac.uk/htgt/wge"
+    config.wge_root = "http://t87-apache.internal.sanger.ac.uk:8004/htgt/wge"
     config.lims2_root = "http://t87-apache.internal.sanger.ac.uk:8002/htgt/lims2"
   end
 

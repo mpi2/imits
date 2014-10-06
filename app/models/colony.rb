@@ -52,7 +52,7 @@ class Colony < ActiveRecord::Base
   end
 
   SYNC = false
-  VERBOSE = true
+  VERBOSE = false
   KEEP_GENERATED_FILES = false
   USER = (ENV['USER'] || `whoami`).chomp
   FOLDER_IN = "/nfs/team87/imits/trace_files_output/#{Rails.env}/#{USER}"
@@ -94,11 +94,13 @@ class Colony < ActiveRecord::Base
       "export DEFAULT_CRISPR_DAMAGE_QC_DIR=#{FOLDER_IN};" +
       "crispr_damage_analysis.pl #{file_flag} #{options[:file]} --target-start #{options[:start]} --target-end #{options[:end]} --target-chr #{options[:chr]} --target-strand #{options[:strand]} --species #{options[:species]} --dir #{options[:dir]}";
 
-    puts "#### COMMAND:"
-    puts command
-    puts "#### USER: '#{USER}'"
+      if VERBOSE
+        puts "#### COMMAND:"
+        puts command
+        puts "#### USER: '#{USER}'"
+      end
 
-    puts "#### mi_attempt_id: #{mi_attempt_id}"
+    puts "#### mi_attempt_id: #{mi_attempt_id}" if VERBOSE
 
      command
   end
@@ -115,9 +117,11 @@ class Colony < ActiveRecord::Base
       "crispr_damage_analysis.pl #{file_flag} #{options[:file]} --target-start #{options[:start]} --target-end #{options[:end]} --target-chr #{options[:chr]} --target-strand #{options[:strand]} --species #{options[:species]} --dir #{options[:dir]}\n" +
       "EOF\n"
 
-    puts "#### COMMAND:"
-    puts command
-    puts "#### USER: '#{USER}'"
+      if VERBOSE
+        puts "#### COMMAND:"
+        puts command
+        puts "#### USER: '#{USER}'"
+      end
 
      command
   end
@@ -139,12 +143,12 @@ class Colony < ActiveRecord::Base
   def crispr_damage_analysis options = {}
 
     if ! options[:force] && ! self.file_alignment.blank?
-      puts "#### trace output already exists (#{self.id})!"
+      puts "#### trace output already exists (#{self.id})!" if VERBOSE
       return
     end
 
     if ! self.trace_file || self.trace_file_file_name.blank?
-      #puts "#### no trace file!" if VERBOSE
+      puts "#### no trace file!" if VERBOSE
       return
     end
 
@@ -169,7 +173,7 @@ class Colony < ActiveRecord::Base
       filename = Dir::Tmpname.make_tmpname "#{FOLDER_IN}/", nil
       self.trace_file.copy_to_local_file('original', filename)
 
-      puts "#### filename: #{filename}"
+      puts "#### filename: #{filename}" if VERBOSE
 
       options[:file] = filename
 

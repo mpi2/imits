@@ -36,6 +36,12 @@ class Centre < ActiveRecord::Base
       unless mi_attempt.status.name == 'Genotype confirmed'
         next
       end
+      #TODO remove - limits selection to specific consortia
+      # BaSH, JAX, DTCC
+      unless mi_attempt.mi_plan.consortium.name == 'DTCC'
+        next
+      end # end filter
+
       mi_distribution_centres_filtered.push(mi_distribution_centre)
     end
 

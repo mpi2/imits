@@ -483,7 +483,7 @@ end
 #  es_cell_id                                      :integer
 #  mi_date                                         :date             not null
 #  status_id                                       :integer          not null
-#  external_ref                                    :string(125)
+#  colony_name                                     :string(125)
 #  updated_by_id                                   :integer
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
@@ -560,5 +560,5 @@ end
 #
 # Indexes
 #
-#  index_mi_attempts_on_colony_name  (external_ref) UNIQUE
+#  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #

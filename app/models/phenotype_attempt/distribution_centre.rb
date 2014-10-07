@@ -99,4 +99,5 @@ end
 #  distribution_network   :string(255)
 #  mouse_allele_mod_id    :integer
 #  reconciled             :string(255)      default("not checked"), not null
+#  reconciled_at          :datetime
 #

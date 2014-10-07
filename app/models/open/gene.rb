@@ -102,7 +102,6 @@ class Open::Gene < ::Gene
 
 end
 
-
 # == Schema Information
 #
 # Table name: genes
@@ -132,6 +131,7 @@ end
 #  marker_type                        :string(255)
 #  feature_type                       :string(255)
 #  synonyms                           :string(255)
+#  komp_repo_geneid                   :integer
 #
 # Indexes
 #

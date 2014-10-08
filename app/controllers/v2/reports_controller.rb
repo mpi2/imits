@@ -1,3 +1,5 @@
+require 'pp' #TODO remove
+
 class V2::ReportsController < ApplicationController
 
   helper :reports
@@ -79,6 +81,20 @@ class V2::ReportsController < ApplicationController
     respond_to do |format|
       format.tsv
     end
+  end
+
+  def komp_mi_reconciled_summary
+    report = MiAttemptKompReconciledSummaryReport.new
+    @komp_summary_list = report.komp_summary_list
+    # respond_to do |format|
+    #   format.tsv
+    # end
+  end
+
+  def komp_mi_reconciled_list
+    puts "====== In komp_mi_reconciled_list ======"
+    report = MiAttemptKompReconciledListReport.new
+    #
   end
 
 end

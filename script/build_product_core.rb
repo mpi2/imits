@@ -518,6 +518,7 @@ class BuildProductCore
      "other_links"                      => ["production_graph:#{production_graph_url(row['imits_gene_id'])}", "genbank_file:#{self.class.allele_genbank_file_url(row['allele_id'], row['mouse_allele_mod_allele_type'])}", "allele_image:#{self.class.allele_image_url(row['allele_id'], row['mouse_allele_mod_allele_type'])}"],
      "ikmc_project_id"                  => row["ikmc_project_id"],
      "design_id"                        => row["design_id"],
+     "cassette"                         => row["cassette"],
      "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
     }
 
@@ -561,6 +562,7 @@ class BuildProductCore
      "other_links"                       => ["genbank_file:#{self.class.allele_genbank_file_url(row['allele_id'])}", "allele_image:#{self.class.allele_image_url(row['allele_id'])}"],
      "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
+     "cassette"                         => row["cassette"],
      "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
     }
 

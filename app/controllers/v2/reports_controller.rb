@@ -1,5 +1,3 @@
-require 'pp' #TODO remove
-
 class V2::ReportsController < ApplicationController
 
   helper :reports
@@ -86,15 +84,36 @@ class V2::ReportsController < ApplicationController
   def komp_mi_reconciled_summary
     report = MiAttemptKompReconciledSummaryReport.new
     @komp_summary_list = report.komp_summary_list
-    # respond_to do |format|
-    #   format.tsv
-    # end
+  end
+
+  def komp_mi_unreconciled_list
+    @consortium = params[:consortium]
+    if @consortium.blank?
+      flash[:alert] = "Missing Consortium Name"
+    end
+
+    @prod_centre = params[:prod_centre]
+    if @prod_centre.blank?
+      flash[:alert] = "Missing Production Centre"
+    end
+
+    report = MiAttemptKompUnreconciledListReport.new(@consortium, @prod_centre)
+    @komp_unreconciled_list = report.komp_unreconciled_list
   end
 
   def komp_mi_reconciled_list
-    puts "====== In komp_mi_reconciled_list ======"
-    report = MiAttemptKompReconciledListReport.new
-    #
+    @consortium = params[:consortium]
+    if @consortium.blank?
+      flash[:alert] = "Missing Consortium Name"
+    end
+
+    @prod_centre = params[:prod_centre]
+    if @prod_centre.blank?
+      flash[:alert] = "Missing Production Centre"
+    end
+
+    report = MiAttemptKompReconciledListReport.new(@consortium, @prod_centre)
+    @komp_reconciled_list = report.komp_reconciled_list
   end
 
 end

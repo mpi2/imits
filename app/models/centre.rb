@@ -38,7 +38,7 @@ class Centre < ActiveRecord::Base
       end
       #TODO remove - limits selection to specific consortia
       # BaSH, JAX, DTCC
-      # unless mi_attempt.mi_plan.consortium.name == 'DTCC'
+      # unless mi_attempt.mi_plan.consortium.name == 'JAX'
       #   next
       # end # end filter
 

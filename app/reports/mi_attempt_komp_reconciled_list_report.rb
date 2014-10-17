@@ -1,3 +1,5 @@
+require 'pp'
+
 class MiAttemptKompReconciledListReport
 
     ##
@@ -15,6 +17,26 @@ class MiAttemptKompReconciledListReport
 
     def komp_reconciled_list
         @komp_reconciled_list ||= ActiveRecord::Base.connection.execute(self.class.select_list_sql(self.consortium, self.prod_centre))
+
+        # @komp_reconciled_list_base ||= ActiveRecord::Base.connection.execute(self.class.select_list_sql(self.consortium, self.prod_centre))
+
+        # @komp_reconciled_list = []
+
+        # @komp_reconciled_list_base.each do |row|
+        #   mi_id = row['mi_attempt_id']
+        #   mi = MiAttempt.find_by_id(mi_id)
+        #   mi_symbol = mi.allele_symbol.to_s if mi
+        #   if mi_symbol
+        #     regex = /(?<=<sup>)(.*)(?=<\/sup>)/
+        #     row['allele_symbol'] = mi_symbol.match(regex)[1]
+        #   else
+        #     row['allele_symbol'] = ""
+        #   end
+        #   @komp_reconciled_list.push row
+        #   pp row
+        # end
+
+        # @komp_reconciled_list
     end
 
     class << self
@@ -32,6 +54,7 @@ class MiAttemptKompReconciledListReport
               mi_attempts.colony_name AS mi_attempt_colony_name,
               mi_attempts.mouse_allele_type,
               targ_rep_es_cells.allele_type,
+              targ_rep_mutation_types.name AS es_cell_allele_mutation_type,
               mi_attempt_distribution_centres.reconciled,
               date(mi_attempt_distribution_centres.reconciled_at) AS reconciled_date
               FROM mi_attempt_distribution_centres
@@ -42,6 +65,8 @@ class MiAttemptKompReconciledListReport
               JOIN genes ON genes.id = mi_plans.gene_id
               JOIN consortia ON mi_plans.consortium_id = consortia.id
               JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+              JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
+              LEFT OUTER JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
               WHERE mi_attempt_statuses.name = 'Genotype confirmed'
               AND mi_attempt_distribution_centres.centre_id = 35
               AND reconciled = 'true'

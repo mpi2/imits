@@ -32,6 +32,7 @@ class MiAttemptKompUnreconciledListReport
               mi_attempts.colony_name AS mi_attempt_colony_name,
               mi_attempts.mouse_allele_type,
               targ_rep_es_cells.allele_type,
+              targ_rep_mutation_types.name AS es_cell_allele_mutation_type,
               mi_attempt_distribution_centres.reconciled,
               date(mi_attempt_distribution_centres.reconciled_at) AS reconciled_date
               FROM mi_attempt_distribution_centres
@@ -42,6 +43,8 @@ class MiAttemptKompUnreconciledListReport
               JOIN genes ON genes.id = mi_plans.gene_id
               JOIN consortia ON mi_plans.consortium_id = consortia.id
               JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+              JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
+              LEFT OUTER JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
               WHERE mi_attempt_statuses.name = 'Genotype confirmed'
               AND mi_attempt_distribution_centres.centre_id = 35
               AND reconciled = 'false'

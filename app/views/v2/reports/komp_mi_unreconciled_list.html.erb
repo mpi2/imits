@@ -13,6 +13,7 @@
           <th>Gene Marker Symbol</th>
           <th>Mi Attempt Colony Name</th>
           <th>Allele Type</th>
+          <th>Mutation Type</th>
           <th>Reconciled Date</th>
         </tr>
       </thead>
@@ -28,6 +29,7 @@
                 <% else %>
                   <td><%= report_row['mouse_allele_type'] %></td>
                 <% end %>
+                <td><%= report_row['es_cell_allele_mutation_type'] %></td>
                 <td><%= report_row['reconciled_date'] %></td>
             </tr>
         <% end %>

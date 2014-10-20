@@ -1,4 +1,6 @@
 <%= javascript_include_tag 'dynamic_esc_qc_conflict_selects' %>
+<%= javascript_include_tag 'targ_rep/smith_walterman_aligner' %>
+<%= javascript_include_tag 'targ_rep/display_alignment_with_highlighting' %>
 
 <div class="grid_12">
   <h2><%= @allele.mgi_accession_id %><% if @allele.project_design_id.blank? %> | Project Design ID: <%= @allele.project_design_id %><% end %></h2>

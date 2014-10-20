@@ -329,6 +329,13 @@ class PhenotypeAttempt < ApplicationModel
     return status_stamps.all.find {|ss| ss.status_id == 2}.created_at.utc.to_date   #Phenotype Attempt Registered
   end
 
+  def public_status
+    if self.status.code == 'cec' and self.report_to_public == false
+      return PhenotypeAttempt::Status.find_by_code('ces')
+    end
+    return self.status
+  end
+
   def earliest_relevant_status_stamp
     self.status_stamps.find_by_status_id(self.status_id)
   end

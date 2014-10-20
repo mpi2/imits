@@ -189,8 +189,41 @@ class TargRep::AllelesController < TargRep::BaseController
     end
   end
 
-  # for displaying allele issue screen to warn user about the issue before they place an order
   def show_issue
+    core = params[:core].blank? ? "allele" : params[:core]
+
+    if core == "allele"
+      show_issue_allele_core
+    else
+      show_issue_product_core
+    end
+
+  end
+
+  def show_issue_product_core
+    @allele       = @klass.find(params[:allele_id])
+    product_id    = params[:product_id]
+
+    solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
+    proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['product'])
+    json_qry = { :q => 'product_id:' + product_id }
+    docs = proxy.search(json_qry)
+
+    if ( docs.nil? || docs.empty? )
+      Rails.logger.info "#### Unable to fetch information for product_id #{product_id} from Solr for allele with an issue"
+    elsif ( docs.length > 1 )
+      Rails.logger.info "#### Multiple docs (#{docs.length}) returned for product_id #{product_id} from Solr for allele with an issue"
+    else
+      @order_from_names = docs[0].has_key?('order_names') ? docs[0]["order_names"] : nil
+      @order_from_urls = docs[0].has_key?('order_links') ? docs[0]["order_links"] : nil
+
+      @order_from_names = @order_from_names.blank? && docs[0].has_key?('contact_names') ? docs[0]["contact_names"] : nil
+      @order_from_urls = @order_from_urls.blank? && docs[0].has_key?('contact_links') ? docs[0]["contact_links"] : nil
+    end
+  end
+
+  # for displaying allele issue screen to warn user about the issue before they place an order
+  def show_issue_allele_core
     @allele       = @klass.find(params[:allele_id])
     allele_id     = params[:allele_id]
     doc_id        = params[:doc_id]
@@ -585,6 +618,17 @@ class TargRep::AllelesController < TargRep::BaseController
         end
 
         allele_params[:targeting_vectors_attributes] = allele_params.delete(:targeting_vectors)
+      end
+
+      ##
+      ##  Allele Sequence Anotation
+      ##
+
+      if allele_params.include?(:allele_sequence_annotations) && !allele_params.include?(:allele_sequence_annotations_attributes)
+        allele_params[:allele_sequence_annotations].each { |attrs| attrs[:nested] = true }
+        allele_params[:allele_sequence_annotations_attributes] = allele_params.delete(:allele_sequence_annotations)
+      elsif not allele_params.include? :allele_sequence_annotations_attributes
+        allele_params[:allele_sequence_annotations_attributes] = []
       end
 
       ##

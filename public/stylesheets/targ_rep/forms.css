@@ -22,6 +22,10 @@ form.inline p {margin-bottom:0;}
 .notice a {color:#514721;}
 .success a {color:#264409;}
 
+textarea.oligos {width:390px;height:150px;padding:5px;}
+textarea.annotation_comment {width:150px;height:80px;padding:5px;}
+
+
 ul#gene_autocomplete {
   position:absolute;
   margin:-28px 0 0 0;

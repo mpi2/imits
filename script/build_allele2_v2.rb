@@ -158,14 +158,20 @@ class BuildAllele2
   end
 
   def mark row
-    pp row if row['allele_symbol'].to_s.empty?
-    raise "#### Must have allele_symbol!" if row['allele_symbol'].to_s.empty?
-    @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] = true
+    pp row if row['allele_symbol'].to_s.empty? && (row['cassette'].to_s.empty? || row['design_id'].to_s.empty?)
+    raise "#### Must have allele_symbol! or cassette and design_id" if row['allele_symbol'].to_s.empty? && (row['cassette'].to_s.empty? || row['design_id'].to_s.empty?)
+    @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] = true if ! row['allele_symbol'].to_s.empty?
+    @mark_hash[row['mgi_accession_id'].to_s + row['cassette'].to_s + row['design_id'].to_s] = true if (!row['cassette'].to_s.empty? && !row['design_id'].to_s.empty?)
   end
 
   def mark? row
-    @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_symbol'].to_s) &&
-    @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] == true
+    if @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_symbol'].to_s) && @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] == true
+      return true
+    elsif @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['cassette'].to_s + row['design_id'].to_s) && @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['cassette'].to_s + row['design_id'].to_s) == true
+      return true
+    else
+      return false
+    end
   end
 
   def save_csv filename, data
@@ -210,7 +216,7 @@ class BuildAllele2
   def prepare_allele_symbol row1, type
     row1['allele_symbol'] = 'None'
     row1['allele_symbol'] = 'DUMMY_' + row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
-    row1['allele_symbol'] = 'tm1' + row1['allele_type'] if ! row1['allele_type'].blank? && row1['allele_type'] != 'None'
+    row1['allele_symbol'] = 'tm1' + row1['allele_type'] if row1['allele_type'] != 'None'
     row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
     row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['allele_type'].to_s) if ! row1['allele_type'].nil? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
@@ -348,7 +354,6 @@ class BuildAllele2
     end
 
     puts "#### select..."
-
     rows = ActiveRecord::Base.connection.execute(@sql)
 
     puts "#### step 1..."
@@ -388,6 +393,8 @@ class BuildAllele2
 
         row['phenotyping_centre'] = row['phenotyping_centre_name']
         row['production_centre'] = row['pacentre_name']
+        row['cassette'] = ''
+        row['design_id'] = ''
         if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
           row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
         end
@@ -499,6 +506,7 @@ class BuildAllele2
         row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
       elsif row['does_a_targ_vec_exist'] == 't'
         row['es_cell_status'] = @statuses['ES_CELL_PRODUCTION_IN_PROGRESS']
+        row['allele_symbol'] = 'None'
       else
         row['es_cell_status'] = @statuses['NO_ES_CELL_PRODUCTION']
       end
@@ -551,6 +559,8 @@ class BuildAllele2
       hash['allele_type'] = row['allele_type']
       hash['genbank_file'] = row['genbank_file_url']
       hash['allele_image'] = row['allele_image']
+      hash['cassette'] = row['allele_type'] != 'e' ? row['cassette'] : ''
+      hash['design_id'] = row['allele_type'] != 'e' ? row['design_id'] : ''
       hash['type'] = 'allele'
       hash['links'] = row['links'].to_s
 
@@ -673,13 +683,67 @@ class BuildAllele2
   #  return true
   #end
 
+  def self.convert_to_array psql_array
+    return [] if psql_array.blank?
+
+    psql_array[1, psql_array.length-2].gsub('"', '').split(',')
+  end
+
   def manage_genes2
     count = Gene.count
     counter = 0
 
-    rows = ActiveRecord::Base.connection.execute('select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes') if @marker_symbol.empty?
     marker_symbols = @marker_symbol.to_a.map {|ms| "'#{ms}'" }.join ','
-    rows = ActiveRecord::Base.connection.execute("select marker_symbol, mgi_accession_id, marker_type, feature_type, synonyms from genes where marker_symbol in (#{marker_symbols})") if ! @marker_symbol.empty?
+    gene_sql = <<-EOF
+      WITH mouse_production_centres AS (
+        SELECT distinct_plan_ids.gene_id, array_agg(distinct_plan_ids.centre_name) AS names
+        FROM
+          (
+           SELECT DISTINCT mi_plan_ids.gene_id AS gene_id, mi_plan_ids.centre_name AS centre_name
+           FROM
+             (
+              SELECT mi_plans.gene_id AS gene_id, centres.name AS centre_name
+              FROM mi_attempts
+                JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+                JOIN centres ON centres.id = mi_plans.production_centre_id
+              WHERE mi_attempts.status_id != 3 AND mi_attempts.report_to_public is true
+
+              UNION
+
+              SELECT mi_plans.gene_id AS gene_id, centres.name AS centre_name
+              FROM mouse_allele_mods
+                JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id
+                JOIN centres ON centres.id = mi_plans.production_centre_id
+              WHERE mouse_allele_mods.cre_excision = true AND mouse_allele_mods.status_id != 1 AND mouse_allele_mods.report_to_public is true
+             ) AS mi_plan_ids
+          ) AS distinct_plan_ids
+        GROUP BY distinct_plan_ids.gene_id
+      ),
+
+      phenotyping_centres AS (
+        SELECT distinct_centres.gene_id, array_agg(distinct_centres.centre_name) AS names
+        FROM
+          (
+           SELECT DISTINCT mi_plans.gene_id AS gene_id, centres.name AS centre_name
+           FROM phenotyping_productions
+             JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
+             JOIN centres ON centres.id = mi_plans.production_centre_id
+           WHERE phenotyping_productions.report_to_public is true AND phenotyping_productions.status_id != 5
+          ) AS distinct_centres
+        GROUP BY distinct_centres.gene_id
+      )
+
+      SELECT genes.marker_symbol, genes.mgi_accession_id, genes.marker_type, genes.feature_type, genes.synonyms, mouse_production_centres.names AS mouse_production_centres, phenotyping_centres.names AS phenotyping_centres
+      FROM genes
+        LEFT JOIN mouse_production_centres ON mouse_production_centres.gene_id = genes.id
+        LEFT JOIN phenotyping_centres ON phenotyping_centres.gene_id = genes.id
+    EOF
+
+    if !@marker_symbol.empty?
+      gene_sql << " WHERE genes.marker_symbol IN (#{marker_symbols})"
+    end
+
+    rows = ActiveRecord::Base.connection.execute(gene_sql)
 
     rows.each do |row1|
 
@@ -725,6 +789,9 @@ class BuildAllele2
 
         hash['marker_type'] = row1['marker_type']
         hash['feature_type'] = row1['feature_type']
+
+        hash['production_centres'] = self.class.convert_to_array(row1['mouse_production_centres'])
+        hash['phenotyping_centres'] = self.class.convert_to_array(row1['phenotyping_centres'])
 
         hash['latest_project_status'] = ''
         hash['latest_project_status'] = ''
@@ -828,6 +895,8 @@ class BuildAllele2
       row['latest_mouse_status'] = status_hash[:mouse_status]
       row['synonym'] = row1['synonyms'].to_s.split '|'
       row['feature_type'] = row1['feature_type']
+      row['production_centres'] = self.class.convert_to_array(row1['mouse_production_centres'])
+      row['phenotyping_centres'] = self.class.convert_to_array(row1['phenotyping_centres'])
 
       row['type'] = 'gene'
 

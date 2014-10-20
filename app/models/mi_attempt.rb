@@ -29,7 +29,6 @@ class MiAttempt < ApplicationModel
     :qc_loxp_srpcr_and_sequencing
   ].freeze
 
-  belongs_to :allele
   belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :es_cell, :class_name => 'TargRep::EsCell'
@@ -132,10 +131,11 @@ class MiAttempt < ApplicationModel
 
   before_validation do |mi|
     return true unless ( ! mi.colony.blank? ) && ( ! mi.colony.colony_qc.blank? ) && mi.colony.colony_qc.qc_loxp_confirmation_changed?
+    return true if !mi.allele.blank? and mi.allele.mutation_type.try(:code) == 'cki'
 
     if mi.qc_loxp_confirmation_result == 'fail'
       self.mouse_allele_type = 'e'
-    elsif mi.qc_loxp_confirmation_result == 'pass'
+    elsif self.mouse_allele_type == 'e' and (mi.qc_loxp_confirmation_result == 'pass')
       self.mouse_allele_type = nil
     end
 
@@ -151,9 +151,9 @@ class MiAttempt < ApplicationModel
 
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
+  before_save :make_mi_date_and_in_progress_status_consistent
   after_save :add_default_distribution_centre
   after_save :manage_status_stamps
-  after_save :make_mi_date_and_in_progress_status_consistent
   after_save :reload_mi_plan_mi_attempts
 
   def colony
@@ -276,8 +276,7 @@ class MiAttempt < ApplicationModel
 
     if in_progress_status
       if self.mi_date.to_date != in_progress_status.created_at.to_date
-        in_progress_status.created_at = self.mi_date.to_datetime
-        in_progress_status.save
+        in_progress_status.update_column(:created_at, self.mi_date.to_datetime)
       end
     end
   end
@@ -382,9 +381,6 @@ class MiAttempt < ApplicationModel
     if es_cell.blank?
       return nil
 
-    elsif !mi_plan.allele_symbol_superscript.blank?
-      return "#{es_cell.marker_symbol}<sup>#{mi_plan.allele_symbol_superscript}</sup>"
-
     elsif mouse_allele_symbol_superscript
       return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
 
@@ -410,6 +406,13 @@ class MiAttempt < ApplicationModel
     else
       return nil
     end
+  end
+
+  def allele
+    if !es_cell.blank?
+      return es_cell.allele
+    end
+    return nil
   end
 
   def mgi_accession_id
@@ -481,6 +484,19 @@ class MiAttempt < ApplicationModel
     # Check colony_name has been set/changed. The rest API may return a blank colony_name or a colony_name set to the original value before the external_ref was set to a new value
     return if arg.blank? || (changes.has_key?('external_ref') && changes['external_ref'][0] == arg)
     self.external_ref = arg
+  end
+
+  def public_status
+    if self.status.code == 'gtc' and self.report_to_public == false
+      if !es_cell_id.blank?
+        return MiAttempt::Status.find_by_code('chr')
+      elsif !mutagensis_factor_id.blank?
+        return MiAttempt::Status.find_by_code('fod')
+      else
+        return MiAttempt::Status.find_by_code('abt')
+      end
+    end
+    return self.status
   end
 
   delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true

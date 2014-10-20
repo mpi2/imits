@@ -158,4 +158,5 @@ end
 #  created_at                                    :datetime
 #  sub_project                                   :string(255)
 #  mutation_sub_type                             :string(100)
+#  mi_attempt_external_ref                       :string(255)
 #

@@ -1,3 +1,6 @@
+<%= javascript_include_tag 'targ_rep/smith_walterman_aligner' %>
+<%= javascript_include_tag 'targ_rep/display_alignment_with_highlighting' %>
+
 <div class="grid_12">
   <h2><% if !@allele.gene.marker_symbol.blank? %>Marker Symbol: <%= @allele.gene.marker_symbol %> | <% end%><%= @allele.mgi_accession_id %><% if !@allele.project_design_id.blank? %> | Project Design ID: <%= @allele.project_design_id %> <% end%></h2>
 </div>
@@ -135,9 +138,17 @@
     <legend>Oligos Details</legend>
     <div class="grid_6">
       <legend>Sequence</legend>
-      <p style="font-family:Courier">
+      <p id="targ_rep_hdr_allele_sequence" style="font-family:Courier" data-value="<%= @allele.sequence unless @allele.sequence.blank? %>">
         <% unless @allele.sequence.blank? %>
           <% @allele.sequence.scan(/.{0,50}/).each do |line|%>
+            <%= line %></br>
+          <% end %>
+        <% end %>
+      </p>
+      <legend>Wildtype Oligos Sequence</legend>
+      <p id="targ_rep_hdr_allele_wildtype_oligos_sequence" style="font-family:Courier" data-value="<%= @allele.wildtype_oligos_sequence unless @allele.wildtype_oligos_sequence.blank? %>">
+        <% unless @allele.wildtype_oligos_sequence.blank? %>
+          <% @allele.wildtype_oligos_sequence.scan(/.{0,50}/).each do |line|%>
             <%= line %></br>
           <% end %>
         <% end %>
@@ -145,20 +156,34 @@
     </div>
     <div class="grid_6">
     <legend>Sequence Annotation</legend>
-    <table>
+    <div id="alignment_image"></div>
+    <table id="allele_sequence_annotations_table">
       <thead>
         <tr>
-          <th>Start Coord</th>
-          <th>End Coord</th>
-          <th>Expected</th>
-          <th>Actual</th>
+            <th>Type</th>
+            <th>Comment</th>
+            <th>Oligos Coordinate</th>
+            <th>Mutation Length</th>
+            <th>Mutation</th>
         </tr>
       </thead>
-      <tbody>
-      </tbody>
+        <tbody id="annotations_body">
+          <% @allele.allele_sequence_annotations.each do |annotation| %>
+            <tr>
+              <td class="annotation_mutation_type" data-value=<%="#{annotation.mutation_type}"%> ><%= annotation.mutation_type %></td>
+              <td class="annotation_comment" data-value=<%="#{annotation.comment}"%> ><%= annotation.comment %></td>
+              <td><div class="annotation_oligos_start_coordinate" data-value=<%="#{annotation.oligos_start_coordinate}"%> >Start: <%= annotation.oligos_start_coordinate %></div>
+                  <div class="annotation_oligos_end_coordinate" data-value=<%="#{annotation.oligos_end_coordinate}"%> >End:   <%= annotation.oligos_end_coordinate %></div></td>
+              <td class="annotation_length" data-value=<%="#{annotation.mutation_length}"%> ><%= annotation.mutation_length %></td>
+              <td><div class="annotation_expected" data-value=<%="#{annotation.expected}"%> >Expected: <%= annotation.expected %></div>
+                  <div class="annotation_actual" data-value=<%="#{annotation.actual}"%> >Actual:   <%= annotation.actual %></div></td>
+            </tr>
+          <% end %>
+        </tbody>
     </table>
     </div>
   </fieldset>
+
 
   <fieldset id="allele_issues">
     <legend>Allele Issues</legend>

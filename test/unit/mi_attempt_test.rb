@@ -350,29 +350,23 @@ class MiAttemptTest < ActiveSupport::TestCase
           @es_cell.save
         end
 
-        should 'override if allele_superscript is set on mi_plan' do
-          @mi_attempt.mi_plan.allele_symbol_superscript = 'override_text'
-          assert_equal 'Myo1c<sup>override_text</sup>', @mi_attempt.mouse_allele_symbol
+
+        should 'be nil if mouse_allele_type is nil, even if es_cell.allele_symbol_superscript is sets' do
+          @mi_attempt.mouse_allele_type = nil
+          assert_equal nil, @mi_attempt.mouse_allele_symbol
         end
 
-        context 'if not overridden' do
-          should 'be nil if mouse_allele_type is nil, even if es_cell.allele_symbol_superscript is sets' do
-            @mi_attempt.mouse_allele_type = nil
-            assert_equal nil, @mi_attempt.mouse_allele_symbol
-          end
+        should 'work if mouse_allele_type is present' do
+          @mi_attempt.mouse_allele_type = 'e'
+          assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
+        end
 
-          should 'work if mouse_allele_type is present' do
-            @mi_attempt.mouse_allele_type = 'e'
-            assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
-          end
-
-          should 'be nil if es_cell.allele_symbol_superscript is nil, even if mouse_allele_type is set' do
-            @es_cell.allele_symbol_superscript = nil
-            @es_cell.save!
-            @mi_attempt.es_cell.reload
-            @mi_attempt.mouse_allele_type = 'e'
-            assert_nil @mi_attempt.mouse_allele_symbol
-          end
+        should 'be nil if es_cell.allele_symbol_superscript is nil, even if mouse_allele_type is set' do
+          @es_cell.allele_symbol_superscript = nil
+          @es_cell.save!
+          @mi_attempt.es_cell.reload
+          @mi_attempt.mouse_allele_type = 'e'
+          assert_nil @mi_attempt.mouse_allele_symbol
         end
       end
 
@@ -495,6 +489,18 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.save!
 
           assert_equal 'pass', default_mi_attempt.qc_loxp_confirmation_result
+          assert_equal nil, default_mi_attempt.mouse_allele_type
+
+          allele = default_mi_attempt.allele
+          allele.mutation_type_id = 4
+          allele.save
+
+          default_mi_attempt.reload
+          default_mi_attempt.qc_loxp_confirmation_result = 'fail'
+          default_mi_attempt.save
+
+          assert_equal 'fail', default_mi_attempt.qc_loxp_confirmation_result
+          assert_not_equal 'e', default_mi_attempt.mouse_allele_type
           assert_equal nil, default_mi_attempt.mouse_allele_type
         end
       end

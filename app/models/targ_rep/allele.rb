@@ -18,6 +18,7 @@ class TargRep::Allele < ActiveRecord::Base
 
   has_one    :genbank_file,      :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :targeting_vectors, :dependent => :destroy, :foreign_key => 'allele_id'
+  has_many   :allele_sequence_annotations, :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :es_cells,          :dependent => :destroy, :foreign_key => 'allele_id' do
     def unique_public_info
       info_map = ActiveSupport::OrderedHash.new
@@ -55,6 +56,7 @@ class TargRep::Allele < ActiveRecord::Base
   accepts_nested_attributes_for :genbank_file,      :allow_destroy  => true
   accepts_nested_attributes_for :targeting_vectors, :allow_destroy  => true
   accepts_nested_attributes_for :es_cells,          :allow_destroy  => true
+  accepts_nested_attributes_for :allele_sequence_annotations, :allow_destroy => true
 
   delegate :mgi_accession_id, :to => :gene
   delegate :marker_symbol, :to => :gene
@@ -80,6 +82,9 @@ class TargRep::Allele < ActiveRecord::Base
             :created_at, :updated_at,
             :creator, :updater
         ]},
+        :allele_sequence_annotations => { :except => [
+            :allele_id
+        ]},
     },
     :methods => [
         :mutation_method_name,
@@ -88,7 +93,9 @@ class TargRep::Allele < ActiveRecord::Base
         :marker_symbol
     ]}
 
+  before_validation :set_chr_and_strand
   before_validation :set_empty_fields_to_nil
+  before_validation :upper_case_sequence
 
   ##
   ## Validations
@@ -124,6 +131,16 @@ class TargRep::Allele < ActiveRecord::Base
 
   validates :gene, :presence => true
 
+  validates_format_of :sequence,
+      :with        => /^[ACGT]+$/i,
+      :message     => "must consist of a sequence of 'A', 'C', 'G' or 'T'",
+      :allow_blank => true
+
+  validates_format_of :wildtype_oligos_sequence,
+      :with        => /^[ACGT]+$/i,
+      :message     => "must consist of a sequence of 'A', 'C', 'G' or 'T'",
+      :allow_blank => true
+
 
   # fix for error where form tries to insert empty strings when there are no floxed exons
   def set_empty_fields_to_nil
@@ -131,6 +148,18 @@ class TargRep::Allele < ActiveRecord::Base
     self.floxed_end_exon   = nil if self.floxed_end_exon.to_s.empty?
   end
 
+  def set_chr_and_strand
+    return if gene.blank?
+
+    self.chromosome = gene.chr if !gene.chr.blank?
+    self.strand = gene.strand_name if !gene.strand_name.blank?
+  end
+
+  def upper_case_sequence
+    self.sequence = self.sequence.upcase if !self.sequence.blank?
+    self.wildtype_oligos_sequence = self.wildtype_oligos_sequence.upcase if !self.wildtype_oligos_sequence.blank?
+  end
+  protected :upper_case_sequence
   ##
   ## Methods
   ##

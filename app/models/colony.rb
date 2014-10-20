@@ -341,7 +341,7 @@ end
 #  file_trace_error               :text
 #  file_exception_details         :text
 #  file_return_code               :integer
-#  file_merged_variants_vcf       :text
+#  file_merged_variants_vcf       :integer
 #  is_het                         :boolean          default(FALSE)
 #
 # Indexes

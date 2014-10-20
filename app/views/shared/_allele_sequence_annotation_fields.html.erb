@@ -1,0 +1,18 @@
+<tr>
+    <td><%= f.select :mutation_type, TargRep::AlleleSequenceAnnotation::TYPE, {:include_blank => true} , {:class => "annotation_mutation_type"}%></td>
+    <td><%= f.text_area :comment, :class => "annotation_comment" %></td>
+    <td>Start: <%= f.text_field :oligos_start_coordinate, :class => "annotation_oligos_start_coordinate"%>
+        End:   <%= f.text_field :oligos_end_coordinate, :class => "annotation_oligos_end_coordinate"%>
+    <td><%= f.text_field :mutation_length, :class => "annotation_length"%></td>
+    <td>Expected: <%= f.text_field :expected, :class => "annotation_expected"%>
+        Actual:   <%= f.text_field :actual, :class => "annotation_actual"%></td>
+    <td>
+        <% if @new_object != nil %>
+            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+            <%= link_to "remove", '#', class: "remove-row" %>
+        <% else %>
+            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+            <%= link_to "remove", '#', class: "hide-row" %>
+        <% end %>
+    </td>
+</tr>

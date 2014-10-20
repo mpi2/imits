@@ -4,6 +4,8 @@ class TargRep::TargetedAllele < TargRep::Allele
 
   validates :homology_arm_start, :presence => true
   validates :homology_arm_end,   :presence => true
+  validates :cassette,           :presence => true
+  validates :cassette_type,      :presence => true
   validates :cassette_start,     :presence => true
   validates :cassette_end,       :presence => true
 

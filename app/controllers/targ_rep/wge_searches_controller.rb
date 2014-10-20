@@ -75,6 +75,30 @@ class TargRep::WgeSearchesController < TargRep::BaseController
     end
   end
 
+  def crispr_search_by_grna_sequence
+    error = ""
+    seqs = params[:seq]
+
+    data = []
+    seqs.lines.each do |seq|
+      seq = seq.strip
+      next if seq.length != 20 or seq =~ /[^ACGTacgt]/
+      response = wge_call("api/search_by_seq?seq=#{seq}&pam_right=2&get_db_data=1&species=Mouse")
+      JSON.parse(response.body).each do |crispr|
+        puts "DATA: #{crispr}"
+        data << {'seq' => crispr['seq'], 'chr_name' => crispr['chr_name'], 'chr_start' => crispr['chr_start'], 'chr_end' => crispr['chr_end']}
+      end
+    end
+
+    respond_to do |format|
+      if error.blank?
+        format.json { render :json => data.to_json}
+      else
+        format.json { render :json => error.to_json}
+      end
+    end
+  end
+
 
   def crispr_pair_search
     exon_ids = params[:exon_id]

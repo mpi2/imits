@@ -32,4 +32,13 @@ module TargRep::AllelesHelper
     @klass == TargRep::GeneTrap
   end
 
+  def link_to_add_fields(name, f, association, options = {})
+    html_id = options[:id] || ""
+    @new_object = f.object.send(association).new
+    id = @new_object.object_id
+    fields = f.fields_for(association, @new_object, child_index: id) do |builder|
+      render('/shared/' + association.to_s.singularize + "_fields", f: builder)
+    end
+    link_to(name, '#', class: "add-row", :"data-fields" => fields.gsub("\n", ""), :"data-object-id" => @new_object.object_id, :"data-table-id" => association.to_s + '_table', :id => html_id)
+  end
 end

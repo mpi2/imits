@@ -171,10 +171,39 @@
   <div class="grid_6">
   <fieldset>
   <legend>Oligos Details</legend>
-      <p>
-        <%= f.label :sequence, "Sequence" %><br />
-        <%= f.text_area :sequence, :class => :text %>
-      </p>
+    <p>
+      <%= f.label :sequence, "Sequence" %><br />
+      <%= f.text_area :sequence, :class => :oligos %>
+    </p>
+
+    <p>
+      <%= f.label :wildtype_oligos_sequence, "Wild Type Sequence" %><br />
+      <%= f.text_area :wildtype_oligos_sequence, :class => :oligos %>
+    </p>
+    <div><button type="button" id="generate_annotations">Generate / Regenerate Annotations</button></div>
+    <div style="clear:both"></div>
+    <div id="alignment_image"></div>
+    <div class="annotations">
+      <table id="allele_sequence_annotations_table" class="list" style="width:400px">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Comment</th>
+            <th>Oligos Coordinate</th>
+            <th>Mutation Length</th>
+            <th>Mutation</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="annotations_body">
+          <tr></tr>
+          <%= f.fields_for :allele_sequence_annotations do |annotations_form| %>
+            <%= render :partial => '/shared/allele_sequence_annotation_fields', :locals => { :f => annotations_form } %>
+          <% end -%>
+        </tbody>
+      </table>
+      <%= link_to_add_fields "Add Annotation", f, :allele_sequence_annotations, {:id => "annotation_add_link"} %>
+    </div>
   </fieldset>
   </div>
 <% end %>

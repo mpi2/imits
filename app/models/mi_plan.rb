@@ -253,8 +253,8 @@ class MiPlan < ApplicationModel
     status_sort_order =  MiAttempt::Status.status_order
 
     ordered_mis = mi_attempts.all.sort do |mi1, mi2|
-      [status_sort_order[mi1.status], mi2.in_progress_date] <=>
-              [status_sort_order[mi2.status], mi1.in_progress_date]
+      [status_sort_order[mi1.public_status], mi2.in_progress_date] <=>
+              [status_sort_order[mi2.public_status], mi1.in_progress_date]
     end
     if ordered_mis.empty?
       return nil
@@ -278,8 +278,8 @@ class MiPlan < ApplicationModel
     status_sort_order =  PhenotypeAttempt::Status.status_order
 
     ordered_pas = phenotype_attempts.all.sort do |pi1, pi2|
-      [status_sort_order[pi1.status], pi2.in_progress_date] <=>
-              [status_sort_order[pi2.status], pi1.in_progress_date]
+      [status_sort_order[pi1.public_status], pi2.in_progress_date] <=>
+              [status_sort_order[pi2.public_status], pi1.in_progress_date]
     end
     if ordered_pas.empty?
       return nil
@@ -435,12 +435,12 @@ class MiPlan < ApplicationModel
 
     mi = latest_relevant_mi_attempt
     if mi
-      status_stamp = mi.status_stamps.find_by_status_id!(mi.status_id)
+      status_stamp = mi.status_stamps.find_by_status_id!(mi.public_status.id)
     end
 
     pa = latest_relevant_phenotype_attempt
     if pa
-      status_stamp = pa.status_stamps.find_by_status_id!(pa.status_id)
+      status_stamp = pa.status_stamps.find_by_status_id!(pa.public_status.id)
     end
 
     retval = {}

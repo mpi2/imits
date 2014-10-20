@@ -81,9 +81,9 @@ class V2::ReportsController < ApplicationController
     end
   end
 
-  def komp_mi_reconciled_summary
-    report = MiAttemptKompReconciledSummaryReport.new
-    @komp_summary_list = report.komp_summary_list
+  def mi_attempt_repository_reconciled_summary
+    report = MiAttemptRepositoryReconciledSummaryReport.new
+    @mi_reconciled_summary_list = report.mi_reconciled_summary_list
   end
 
   def komp_mi_unreconciled_list
@@ -113,6 +113,41 @@ class V2::ReportsController < ApplicationController
     end
 
     report = MiAttemptKompReconciledListReport.new(@consortium, @prod_centre)
+    @komp_reconciled_list = report.komp_reconciled_list
+  end
+
+  def phenotype_attempt_repository_reconciled_summary
+    report = PhenotypeAttemptRepositoryReconciledSummaryReport.new
+    @phenotype_reconciled_summary_list = report.phenotype_reconciled_summary_list
+  end
+
+  def komp_phenotype_unreconciled_list
+    @consortium = params[:consortium]
+    if @consortium.blank?
+      flash[:alert] = "Missing Consortium Name"
+    end
+
+    @prod_centre = params[:prod_centre]
+    if @prod_centre.blank?
+      flash[:alert] = "Missing Production Centre"
+    end
+
+    report = PhenotypeAttemptKompUnreconciledListReport.new(@consortium, @prod_centre)
+    @komp_unreconciled_list = report.komp_unreconciled_list
+  end
+
+  def komp_phenotype_reconciled_list
+    @consortium = params[:consortium]
+    if @consortium.blank?
+      flash[:alert] = "Missing Consortium Name"
+    end
+
+    @prod_centre = params[:prod_centre]
+    if @prod_centre.blank?
+      flash[:alert] = "Missing Production Centre"
+    end
+
+    report = PhenotypeAttemptKompReconciledListReport.new(@consortium, @prod_centre)
     @komp_reconciled_list = report.komp_reconciled_list
   end
 

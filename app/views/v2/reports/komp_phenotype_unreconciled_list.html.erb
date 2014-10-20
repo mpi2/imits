@@ -1,7 +1,7 @@
-<% @title = 'Mi Attempt Distribution centres Komp Repository Unreconciled Report' %>
-<h3># KOMP Unreconciled Mi Attempt Distribution Centres</h3>
+<% @title = 'Phenotype Attempt Distribution centres Komp Repository Unreconciled Report' %>
+<h3># KOMP Unreconciled Phenotype Attempt Distribution Centres</h3>
 <h4>Consortium: <%= @consortium %> and Production Centre: <%= @prod_centre %></h4>
-<p>These are the clones that are NOT available to order at Komp.<br>The MI attempt must be in 'Genotype Confirmed' status to be included here.<br>To be reconciled against KOMP the repository must have the MI attempt allele orderable as one of 'Mice', 'Cryo Recovery', 'Sperm' or 'Embryos'.</p>
+<p>These are the clones that are NOT available at Komp.<br>The Phenotype attempt must be in 'Cre Excision Complete' status to be included here.<br>To be reconciled against KOMP the repository must have the Phenotype attempt allele orderable as one of 'Mice', 'Cryo Recovery', 'Sperm' or 'Embryos'.</p>
 <p><%= link_to 'Download as CSV', report_csv_path %></p>
 <div class='report'>
 
@@ -11,7 +11,7 @@
           <th>Consortium</th>
           <th>Production Centre</th>
           <th>Gene Marker Symbol</th>
-          <th>Mi Attempt Colony Name</th>
+          <th>Phenotype Attempt Colony Name</th>
           <th>Mutation Type</th>
           <th>Allele Type</th>
           <th>Reconciled Date</th>
@@ -23,7 +23,7 @@
                 <td><%= @consortium %></td>
                 <td><%= @prod_centre %></td>
                 <td><%= report_row['marker_symbol'] %></td>
-                <td><%= report_row['mi_attempt_colony_name'] %></td>
+                <td><%= report_row['phenotype_attempt_colony_name'] %></td>
                 <td><%= report_row['es_cell_allele_mutation_type'] %></td>
                 <% if report_row['mouse_allele_type'].blank? %>
                   <td><%= report_row['allele_type'] %></td>

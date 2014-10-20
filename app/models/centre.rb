@@ -47,6 +47,31 @@ class Centre < ActiveRecord::Base
 
     return mi_distribution_centres_filtered
   end
+
+  def get_all_cre_excised_phenotype_attempt_distribution_centres
+
+    phenotype_distribution_centres_filtered = []
+
+    phenotype_distribution_centres = self.phenotype_attempt_distribution_centres
+    phenotype_distribution_centres.each do |phenotype_distribution_centre|
+      mouse_allele_mod = phenotype_distribution_centre.mouse_allele_mod
+      if mouse_allele_mod.nil?
+        next
+      end
+      unless mouse_allele_mod.status.name == 'Cre Excision Complete'
+        next
+      end
+      #TODO remove - limits selection to specific consortia
+      # BaSH, JAX, DTCC
+      unless mouse_allele_mod.mi_plan.consortium.name == 'BaSH'
+        next
+      end # end filter
+
+      phenotype_distribution_centres_filtered.push(phenotype_distribution_centre)
+    end
+
+    return phenotype_distribution_centres_filtered
+  end
 end
 
 # == Schema Information

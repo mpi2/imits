@@ -1,8 +1,10 @@
-<% @title = 'Mi Attempt Distribution centres Komp Repository Reconciled Summary Report' %>
-<h3># KOMP Reconciled Mi Attempt Distribution Centres Summary</h3>
-<p>This is the summary of KOMP repository reconciled MI attempt distribution centre entries.<br>The MI attempt must be in 'Genotype Confirmed' status to be included here.<br>To be reconciled against KOMP the repository must have the MI attempt allele orderable as one of 'Mice', 'Cryo Recovery', 'Sperm' or 'Embryos'.</p>
+<% @title = 'Mi Attempt Distribution centres Repository Reconciled Summary Report' %>
+<h3># Repository Reconciled Mi Attempt Distribution Centres Summary</h3>
+<p>This is the summary of repository reconciled MI attempt distribution centre entries. The MI attempt must be in 'Genotype Confirmed' status to be included here.</p>
+<br>
+<h4>KOMP repository summary</h4>
+<p>To be reconciled against KOMP the repository must have the MI attempt allele orderable as one of 'Mice', 'Cryo Recovery', 'Sperm' or 'Embryos'.</p>
 <div class='report'>
-
     <table>
       <thead>
         <tr>
@@ -15,7 +17,7 @@
         </tr>
       </thead>
       <tbody>
-        <% @komp_summary_list.each do |report_row| %>
+        <% @mi_reconciled_summary_list.each do |report_row| %>
             <tr>
                 <td><%= report_row['consortium_name'] %></td>
                 <td><%= report_row['production_centre_name'] %></td>

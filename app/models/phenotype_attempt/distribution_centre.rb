@@ -29,6 +29,8 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
   WRITABLE_ATTRIBUTES = %w{
   } + FULL_ACCESS_ATTRIBUTES + ['phenotype_attempt_id']
 
+  KOMP_CENTRE_NAME = 'KOMP Repo'
+
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
   belongs_to :phenotype_attempt
@@ -73,12 +75,107 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
     return 'phenotype attempt distribution centre'
   end
 
-  def fetch_list_of_phenotype_attempts
-    # Fetch a list of all Phenotype Attempts for this distribution centre
-    # Look at mouse allele mod here
-    # Fields to return in hash are : Consortium, production_centre, marker_symbol, phenotype_attempt_id
-    ??
-    return
+  def reconcile_with_repo( repository_name, reposcraper )
+    # instantiate reposcraper if nil
+    if ( reposcraper.nil? )
+      reposcraper = RepositoryGeneDetailsScraper.new()
+    end
+
+    # get marker symbol from gene
+    gene          = self.mouse_allele_mod.mi_plan.gene
+    marker_symbol = gene.marker_symbol
+
+    # use geneid or marker symbol to fetch gene details hash
+    case repository_name
+      when KOMP_CENTRE_NAME
+        geneid            = gene.komp_repo_geneid
+        gene_repo_details = reposcraper.fetch_komp_allele_details( marker_symbol, geneid )
+      else
+        puts "ERROR : repository name #{repository_name} not recognised for Mouse Allele Mod id #{self.mouse_allele_mod.id}, cannot reconcile"
+        return
+    end
+
+    production_centre = self.mouse_allele_mod.mi_plan.production_centre.name
+    puts "Production centre = #{production_centre}"
+
+    # possible results here:
+    # nil -> means no geneid was found at all
+    # hash containing geneid and empty alleles hash -> means gene checked but no products
+    # hash containing geneid and alleles hash containing 1 or more alleles -> has products but need to check flags
+    if ( gene_repo_details.nil? )
+      puts "WARN : No gene details found for this gene on repository, reconciled set to not found"
+      self.reconciled = 'not found'
+    elsif ( gene_repo_details['alleles'].count == 0 )
+      puts "WARN : No product details found for this gene in repository, reconciled set to false"
+      self.reconciled = 'false'
+    else
+      mouse_allele_mod_allele_symbol = self.mouse_allele_mod.allele_symbol
+
+      if ( mouse_allele_mod_allele_symbol.nil? )
+        puts "WARN : No allele name found for Mouse Allele Mod id #{self.mouse_allele_mod.id}, cannot reconcile"
+        return
+      end
+
+      if mouse_allele_mod_allele_symbol.include? '<sup>'
+        mouse_allele_mod_allele_symbol_unsplit = mouse_allele_mod_allele_symbol
+
+        # strip out the superscript part of the allele symbol
+        split_array = mouse_allele_mod_allele_symbol_unsplit.match(/\w*<sup>(\S*)<\/sup>/)
+
+        if ( split_array.nil? || split_array.length < 1 )
+          puts "WARN : Allele name #{mouse_allele_mod_allele_symbol_unsplit} format split length not correct for Mouse Allele Mod id #{self.mouse_allele_mod.id}, cannot reconcile"
+          return
+        end
+
+        mouse_allele_mod_allele_symbol = split_array[1]
+
+        if ( mouse_allele_mod_allele_symbol.nil? )
+          puts "WARN : Allele name #{mouse_allele_mod_allele_symbol} format not understood for Mouse Allele Mod id #{self.mouse_allele_mod.id}, cannot reconcile"
+          return
+        end
+      end
+
+      puts "Sanger Mouse Allele Mod allele : #{mouse_allele_mod_allele_symbol}"
+
+      if gene_repo_details['alleles'].has_key?(mouse_allele_mod_allele_symbol)
+
+        matching_allele = gene_repo_details['alleles'][mouse_allele_mod_allele_symbol]
+        if ( matching_allele['is_live_mice'] == 1 )
+          puts "repo has live mice"
+        end
+
+        if ( matching_allele['is_cryo_recovery'] == 1 )
+          puts "repo has cryo recovery mice"
+        end
+
+        if ( matching_allele['is_germ_plasm'] == 1 )
+          puts "repo has germ plasm"
+        end
+
+        if ( matching_allele['is_embryos'] == 1 )
+          puts "repo has embryos"
+        end
+        # any match counts as reconciled
+        if (( matching_allele['is_live_mice']     == 1 ) || ( matching_allele['is_cryo_recovery'] == 1 ) ||
+          ( matching_allele['is_germ_plasm']    == 1 ) || ( matching_allele['is_embryos']       == 1 ))
+          self.reconciled = 'true'
+        else
+          self.reconciled = 'false'
+        end # check for allele flags
+      else
+        puts "WARN : No repository allele found to match to Mouse Allele Mod allele #{mouse_allele_mod_allele_symbol}, reconciled set to false"
+        self.reconciled = 'false'
+      end # check for allele details
+    end # check for gene details
+
+    begin
+      self.reconciled_at = Time.now # UTC time
+      self.save
+      puts "Allele reconciled to #{self.reconciled} at time #{self.reconciled_at}"
+    rescue => e
+      "ERROR : Failed to save phenotype attempt distribution centre for Mouse Allele Mod id #{self.mouse_allele_mod.id}, cannot reconcile"
+    end
+
   end
 
 end

@@ -1,13 +1,13 @@
-class MiAttemptKompReconciledSummaryReport
+class MiAttemptRepositoryReconciledSummaryReport
 
     ##
-    ## Report to display the Komp repository mi attempt distribution centre summary
+    ## Report to display the repository mi attempt distribution centre summary
     ##
 
-    attr_accessor :komp_summary_list
+    attr_accessor :mi_reconciled_summary_list
 
-    def komp_summary_list
-        @komp_summary_list ||= ActiveRecord::Base.connection.execute(self.class.select_summary_sql)
+    def mi_reconciled_summary_list
+        @mi_reconciled_summary_list ||= ActiveRecord::Base.connection.execute(self.class.select_summary_sql)
     end
 
     class << self

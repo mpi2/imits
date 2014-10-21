@@ -63,9 +63,9 @@ class Centre < ActiveRecord::Base
       end
       #TODO remove - limits selection to specific consortia
       # BaSH, JAX, DTCC
-      unless mouse_allele_mod.mi_plan.consortium.name == 'BaSH'
-        next
-      end # end filter
+      # unless mouse_allele_mod.mi_plan.consortium.name == 'DTCC'
+      #   next
+      # end # end filter
 
       phenotype_distribution_centres_filtered.push(phenotype_distribution_centre)
     end

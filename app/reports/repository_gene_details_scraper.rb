@@ -3,7 +3,6 @@
 # Select the gene list from the Komp website
 # ruby -r "./app/helpers/repository_gene_details_scraper.rb" -e "RepositoryGeneDetailsScraper.new.fetch_komp_catalog_gene_list"
 
-require 'pp'
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
@@ -203,6 +202,8 @@ class RepositoryGeneDetailsScraper
             end
         end
 
+        puts "Repo Scraper geneid = #{geneid}"
+
         gene_table = nil
 
         # now use geneid to pull the subpage from Komp
@@ -356,6 +357,7 @@ class RepositoryGeneDetailsScraper
         # cycle through rows in table
         gene_table_rows = gene_table.css('tr')
         gene_table_rows.each do |row|
+
             # identify allele rows
             allele = row.css('td small sup').text.to_s
             if ( allele.nil? || allele.empty? )
@@ -365,25 +367,35 @@ class RepositoryGeneDetailsScraper
             puts "Komp allele found : #{allele}"
 
             # cycle through cells in this row to look for order buttons
-            is_live_mice      = 0
-            is_cryo_recovery  = 0
+            is_mice           = 0
             is_germ_plasm     = 0
             is_embryos        = 0
 
             row_cells = row.css('td')
+
             row_cells.each do |cell|
-                anchor_node = cell.css('a')
+
+                anchor_node = cell.css('a').first
+
+                if anchor_node.nil?
+                    next
+                end
+
                 anchor_text = anchor_node.text.to_s
+
                 if ( anchor_text.nil? || anchor_text.empty? )
                     next
                 end
+
+                # puts "anchor node anchor text = #{anchor_text}"
+
                 if ( anchor_text == 'Order' )
                     # this cell represents an order button, now check if of type we want to flag
-                    href_text = cell.css('a/@href').text.to_s
                     # example=    orders.php?project=VG15514&mutation=tm1.1(KOMP)Vlcg&product=mice
-                    href_nodeset = anchor_node.xpath('@href')
-                    href_node = href_nodeset.first.value
-                    split_href = href_node.match(/([^\?]*)\&product=(\w*)/)
+                    href_nodeset    = anchor_node.xpath('@href')
+                    href_node       = href_nodeset.first
+                    href_node_text  = href_node.value
+                    split_href      = href_node_text.match(/([^\?]*)\&product=(\w*)/)
 
                     # filter out cells that do not have product buttons
                     if ( split_href.nil? )
@@ -399,9 +411,7 @@ class RepositoryGeneDetailsScraper
                     product = split_href[2].to_s
                     case product
                         when 'mice'
-                            is_live_mice     = 1
-                        when 'recovery'
-                            is_cryo_recovery = 1
+                            is_mice          = 1
                         when 'sperm'
                             is_germ_plasm    = 1
                         when 'embryos'
@@ -414,11 +424,8 @@ class RepositoryGeneDetailsScraper
 
             # sometimes the allele is listed twice, do not overwrite positives
             if ( @komp_gene_details[marker_symbol]['alleles'].has_key?(allele) )
-                if ( is_live_mice == 1 )
-                    @komp_gene_details[marker_symbol]['alleles'][allele]['is_live_mice'] = 1
-                end
-                if ( is_cryo_recovery == 1 )
-                    @komp_gene_details[marker_symbol]['alleles'][allele]['is_cryo_recovery'] = 1
+                if ( is_mice == 1 )
+                    @komp_gene_details[marker_symbol]['alleles'][allele]['is_mice'] = 1
                 end
                 if ( is_germ_plasm == 1 )
                     @komp_gene_details[marker_symbol]['alleles'][allele]['is_germ_plasm'] = 1
@@ -428,8 +435,7 @@ class RepositoryGeneDetailsScraper
                 end
             else
                 @komp_gene_details[marker_symbol]['alleles'][allele] = {
-                    'is_live_mice'         => is_live_mice,
-                    'is_cryo_recovery'     => is_cryo_recovery,
+                    'is_mice'              => is_mice,
                     'is_germ_plasm'        => is_germ_plasm,
                     'is_embryos'           => is_embryos
                 }

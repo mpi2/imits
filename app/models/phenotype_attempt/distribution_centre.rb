@@ -140,12 +140,9 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
       if gene_repo_details['alleles'].has_key?(mouse_allele_mod_allele_symbol)
 
         matching_allele = gene_repo_details['alleles'][mouse_allele_mod_allele_symbol]
-        if ( matching_allele['is_live_mice'] == 1 )
-          puts "repo has live mice"
-        end
 
-        if ( matching_allele['is_cryo_recovery'] == 1 )
-          puts "repo has cryo recovery mice"
+        if ( matching_allele['is_mice'] == 1 )
+          puts "repo has live mice"
         end
 
         if ( matching_allele['is_germ_plasm'] == 1 )
@@ -156,8 +153,7 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
           puts "repo has embryos"
         end
         # any match counts as reconciled
-        if (( matching_allele['is_live_mice']     == 1 ) || ( matching_allele['is_cryo_recovery'] == 1 ) ||
-          ( matching_allele['is_germ_plasm']    == 1 ) || ( matching_allele['is_embryos']       == 1 ))
+        if (( matching_allele['is_mice'] == 1 ) || ( matching_allele['is_germ_plasm'] == 1 ) || ( matching_allele['is_embryos']       == 1 ))
           self.reconciled = 'true'
         else
           self.reconciled = 'false'

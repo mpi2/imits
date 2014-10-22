@@ -3,8 +3,8 @@
         <div style="padding:30px 0px 0px 0px">
         <%= f.text_field :name, :maxlength => 20 %>
     </td>
-    <td style="text-align: left;vertical-align: top;">
-        <div style="padding:30px 0px 0px 20px">
+    <td style="text-align: left;vertical-align: top">
+        <div style="padding:30px 0px 0px 20px; width:220px">
 
         <% if f.object.trace_data_error %>
             <% if f.object.file_error.to_s.length > 0 %>

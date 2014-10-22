@@ -72,14 +72,9 @@ class Public::MiAttempt < ::MiAttempt
     crsp_total_embryos_survived
     crsp_total_transfered
     crsp_no_founder_pups
-    founder_pcr_num_assays
-    founder_pcr_num_positive_results
-    founder_surveyor_num_assays
-    founder_surveyor_num_positive_results
-    founder_t7en1_num_assays
-    founder_t7en1_num_positive_results
-    founder_loa_num_assays
-    founder_loa_num_positive_results
+    founder_num_assays
+    assay_type
+    founder_num_positive_results
     crsp_total_num_mutant_founders
     crsp_num_founders_selected_for_breading
     real_allele_id
@@ -220,6 +215,9 @@ end
 #  founder_loa_num_positive_results                :integer
 #  allele_id                                       :integer
 #  real_allele_id                                  :integer
+#  founder_num_assays                              :integer
+#  founder_num_positive_results                    :integer
+#  assay_type                                      :text
 #
 # Indexes
 #

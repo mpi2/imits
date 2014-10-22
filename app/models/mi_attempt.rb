@@ -29,6 +29,8 @@ class MiAttempt < ApplicationModel
     :qc_loxp_srpcr_and_sequencing
   ].freeze
 
+  CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze
+
   belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :es_cell, :class_name => 'TargRep::EsCell'
@@ -80,6 +82,7 @@ class MiAttempt < ApplicationModel
   validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
+  validates :assay_type, :inclusion => { :in => CRISPR_ASSAY_TYPES}, :allow_nil => true
 
   validate do |mi|
     if (mi.mutagenesis_factor.blank? and mi.es_cell.blank?) or (!mi.mutagenesis_factor.blank? and !mi.es_cell.blank?)
@@ -641,6 +644,9 @@ end
 #  founder_loa_num_positive_results                :integer
 #  allele_id                                       :integer
 #  real_allele_id                                  :integer
+#  founder_num_assays                              :integer
+#  founder_num_positive_results                    :integer
+#  assay_type                                      :text
 #
 # Indexes
 #

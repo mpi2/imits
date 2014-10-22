@@ -25,6 +25,13 @@ class Colony < ActiveRecord::Base
     end
   end
 
+  validate do |colony|
+    if colony.unwanted_allele and colony.genotype_confirmed
+      colony.errors.add :base, ": Colony '#{name}' cannot be marked as both 'Genotype Confirmed' and 'Unwanted Allele'"
+    end
+  end
+
+
   before_save :check_changed
 
   def check_changed
@@ -343,6 +350,9 @@ end
 #  file_return_code               :integer
 #  file_merged_variants_vcf       :integer
 #  is_het                         :boolean          default(FALSE)
+#  report_to_public               :boolean          default(FALSE)
+#  unwanted_allele                :boolean          default(FALSE)
+#  unwanted_allele_description    :text
 #
 # Indexes
 #

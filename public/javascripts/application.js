@@ -107,7 +107,7 @@ Ext.onReady(function() {
 
     // Find all divs with the data-remoteurl attribute. This should be set to the page you want to load.
     var frames=Ext.select('div[data-remoteurl]');
-    
+
     // Loop through all the divs
     for(var i=0; i<frames.elements.length; i++) {
         populateDiv(frames, i);
@@ -266,7 +266,7 @@ $.fn.efficiencyGraph = function() {
 
         var $lineFrame = $(this);
         var id = $lineFrame.attr('id');
-        
+
         var $bars = $('.bar');
 
         var y = [];

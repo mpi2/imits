@@ -99,7 +99,7 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
         });
 
         this.esCellLable =Ext.create('Ext.form.Label', {
-            text: 'Select an ES cell clone',
+            text: 'Create ES Cell MI',
             margins: {
                 left: 5,
                 right: 0,
@@ -143,7 +143,7 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
                     top: 0,
                     bottom: 0
                 },
-                text: 'Select',
+                text: 'Select Clone',
                 listeners: {
                     click: function() {
                         this.window.show();
@@ -414,7 +414,7 @@ Ext.define('Imits.MiAttempts.New.MutagenesisFactorSelectorForm', {
         this.callParent();
 
         this.MutagenesisFactorField = this.add(Ext.create('Ext.form.Label', {
-            text: 'Create a Mutagenesis Factor',
+            text: 'Create Crispr MI',
             padding: '0 0 5 0',
             margins: {
                     left: 5,
@@ -439,7 +439,7 @@ Ext.define('Imits.MiAttempts.New.MutagenesisFactorSelectorForm', {
                     top: 0,
                     bottom: 0
                 },
-                text: 'Select',
+                text: 'Select Crisprs',
                 listeners: {
                     click: function() {
                         this.window.show();

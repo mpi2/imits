@@ -60,6 +60,13 @@
           <%= builder.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: @vector_options[:selected]) %>
         <% end %>
       </div>
+     <div id="nuclease-container">
+        <%= form.fields_for :mutagenesis_factor do |builder| %>
+          <%= builder.label :nuclease%>
+          <%= builder.select :nuclease , MutagenesisFactor::NUCLEASES, :include_blank => true%>
+        <% end %>
+      </div>
+
       <div>
         <label for="mi_attempts_mutagenesis_factor_crisprs">Crisprs</label>
         <table id="mutagenesis_factor_table" class="report_table">
@@ -166,15 +173,11 @@
   <fieldset class="collapsible">
     <legend>Founder Litter Details</legend>
     <div>
-      <%= generator.number_field :crsp_no_founder_pups, {:label => 'Number of Founder Pups Born'} %>
-      <%= generator.number_field :founder_pcr_num_assays, {:label => 'Number of Founders Assayed With PCR'} %>
-      <%= generator.number_field :founder_pcr_num_positive_results, {:label => 'Number of Founders with confirmed mutation with PCR'} %>
-      <%= generator.number_field :founder_surveyor_num_assays, {:label => 'Number of Founders Assayed With Surveyor'} %>
-      <%= generator.number_field :founder_surveyor_num_positive_results, {:label => 'Number of Founders with confirmed mutation with Surveyor'} %>
-      <%= generator.number_field :founder_t7en1_num_assays, {:label => 'Number of Founders Assayed With t7en1'} %>
-      <%= generator.number_field :founder_t7en1_num_positive_results, {:label => 'Number of Founders with confirmed mutation with t7en1'} %>
-      <%= generator.number_field :founder_loa_num_assays, {:label => 'Number of Founders Assayed With LOA'} %>
-      <%= generator.number_field :founder_loa_num_positive_results, {:label => 'Number of Founders with confirmed mutation with LOA'} %>
+      <%= generator.number_field :crsp_no_founder_pups, {:label => 'Number of Founder Pups Born'} %></br>
+      <%= form.label :assay_type%>
+      <%= form.select :assay_type, MiAttempt::CRISPR_ASSAY_TYPES, :include_blank => true %>
+      <%= generator.number_field :founder_num_assays, {:label => 'Number of Founders Assayed'} %>
+      <%= generator.number_field :founder_num_positive_results, {:label => 'Number of Founders with confirmed mutation'} %>
       <%= generator.number_field :crsp_total_num_mutant_founders, {:label => 'Number of Mutant Founders'} %>
       <%= generator.number_field :crsp_num_founders_selected_for_breading, {:label => 'Number of Founders Selected For Breading'} %>
     </div>
@@ -190,12 +193,10 @@
           <thead class="title">
             <tr>
               <th>Colony Name</th>
-              <th width='30%'>QC results</th>
               <th>Trace File (*.scf)</th>
-              <th>Heterozygous Trace?</th>
-              <th>Trace File Analysis</th>
-              <th>Allele</th>
-              <th>Genotype Confirmed?</th>
+              <th>Colony Status</th>
+              <th>QC results</th>
+              <th>Report To Public?</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -339,16 +340,6 @@
   <%= render 'status_change_history', :mi_attempt => mi_attempt %>
 <% end %>
 
-<div class="object-crispr">
-  <fieldset class="collapsible">
-    <legend>Crispr Injection Details</legend>
-    <div>
-      <%= generator.number_field :crsp_total_embryos_injected, {:label => 'Number of Embryos Injected'}%>
-      <%= generator.number_field :crsp_total_embryos_survived, {:label => 'Number of Embryos Survived'} %>
-      <%= generator.number_field :crsp_total_transfered, {:label => 'Number Transfered'} %>
-    </div>
-  </fieldset>
-</div>
 
 <fieldset class="collapsible">
   <legend>Other</legend>

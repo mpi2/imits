@@ -792,7 +792,10 @@ CREATE TABLE colonies (
     file_exception_details text,
     file_return_code integer,
     file_merged_variants_vcf integer,
-    is_het boolean DEFAULT false
+    is_het boolean DEFAULT false,
+    report_to_public boolean DEFAULT false,
+    unwanted_allele boolean DEFAULT false,
+    unwanted_allele_description text
 );
 
 
@@ -1577,7 +1580,10 @@ CREATE TABLE mi_attempts (
     founder_loa_num_assays integer,
     founder_loa_num_positive_results integer,
     allele_id integer,
-    real_allele_id integer
+    real_allele_id integer,
+    founder_num_assays integer,
+    founder_num_positive_results integer,
+    assay_type text
 );
 
 
@@ -1992,7 +1998,8 @@ ALTER SEQUENCE mouse_allele_mods_id_seq OWNED BY mouse_allele_mods.id;
 CREATE TABLE mutagenesis_factors (
     id integer NOT NULL,
     vector_id integer,
-    external_ref character varying(255)
+    external_ref character varying(255),
+    nuclease text
 );
 
 
@@ -6557,3 +6564,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140904123936');
 INSERT INTO schema_migrations (version) VALUES ('20140908114401');
 
 INSERT INTO schema_migrations (version) VALUES ('20141008115302');
+
+INSERT INTO schema_migrations (version) VALUES ('20141022103936');

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141008115302) do
+ActiveRecord::Schema.define(:version => 20141022103936) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -65,6 +65,9 @@ ActiveRecord::Schema.define(:version => 20141008115302) do
     t.integer  "file_return_code"
     t.integer  "file_merged_variants_vcf"
     t.boolean  "is_het",                         :default => false
+    t.boolean  "report_to_public",               :default => false
+    t.boolean  "unwanted_allele",                :default => false
+    t.text     "unwanted_allele_description"
   end
 
   add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
@@ -481,6 +484,9 @@ ActiveRecord::Schema.define(:version => 20141008115302) do
     t.integer  "founder_loa_num_positive_results"
     t.integer  "allele_id"
     t.integer  "real_allele_id"
+    t.integer  "founder_num_assays"
+    t.integer  "founder_num_positive_results"
+    t.text     "assay_type"
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -633,6 +639,7 @@ ActiveRecord::Schema.define(:version => 20141008115302) do
   create_table "mutagenesis_factors", :force => true do |t|
     t.integer "vector_id"
     t.string  "external_ref"
+    t.text    "nuclease"
   end
 
   create_table "new_intermediate_report_summary_by_centre_and_consortia", :force => true do |t|

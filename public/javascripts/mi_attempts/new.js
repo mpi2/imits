@@ -704,6 +704,25 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                             scope: this
                         });
 
+                        var nucleaseAttribute = Ext.get('mi_attempt_mutagenesis_factor_attributes_nuclease');
+                        var nucleaseValue = undefined;
+                        if (nucleaseAttribute) {nucleaseValue = nucleaseAttribute.getValue()};
+                        Ext.get('nuclease-container').dom.innerHTML = '';
+                        Ext.create('Ext.form.Label', {
+                            renderTo: 'nuclease-container',
+                            text: 'Nuclease',
+                            margin: '0 0 2 0'
+                        });
+                        nucleaseOptions = ''
+                        if (nucleaseValue){nucleaseOptions += '<option value="' + nucleaseValue + '">' + nucleaseValue + '</option>'};
+                        nucleaseOptions += '<option value=""></option><option value="CASP9">CASP9</option><option value="D10A">D10A</option>';
+                        nucleaseHtml = '<select id="mi_attempt_mutagenesis_factor_attributes_nuclease" name="mi_attempt[mutagenesis_factor_attributes][nuclease]">' + nucleaseOptions;
+                        Ext.create('Ext.Component', {
+                            renderTo: 'nuclease-container',
+                            html: nucleaseHtml,
+                            margin: '0 0 5 0'
+                        });
+
                         mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().removeAll()
 
                         EsCellPanel.esCellNameTextField.disable();

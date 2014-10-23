@@ -63,7 +63,7 @@
      <div id="nuclease-container">
         <%= form.fields_for :mutagenesis_factor do |builder| %>
           <%= builder.label :nuclease%>
-          <%= builder.select :nuclease , MutagenesisFactor::NUCLEASES, :include_blank => true%>
+          <%= builder.select :nuclease , MutagenesisFactor::NUCLEASES%>
         <% end %>
       </div>
 

@@ -135,8 +135,13 @@ class MiAttempt::DistributionCentre < ApplicationModel
       if gene_repo_details['alleles'].has_key?(mi_attempt_allele_symbol)
 
         matching_allele = gene_repo_details['alleles'][mi_attempt_allele_symbol]
+
         if ( matching_allele['is_mice'] == 1 )
           puts "repo has mice"
+        end
+
+        if ( matching_allele['is_recovery'] == 1 )
+          puts "repo has recovery mice"
         end
 
         if ( matching_allele['is_germ_plasm'] == 1 )
@@ -147,7 +152,8 @@ class MiAttempt::DistributionCentre < ApplicationModel
           puts "repo has embryos"
         end
         # any match counts as reconciled
-        if (( matching_allele['is_mice'] == 1 ) || ( matching_allele['is_germ_plasm'] == 1 ) || ( matching_allele['is_embryos'] == 1 ))
+        if (( matching_allele['is_mice'] == 1 ) || ( matching_allele['is_recovery'] == 1 ) ||
+            ( matching_allele['is_germ_plasm'] == 1 ) || ( matching_allele['is_embryos'] == 1 ))
           self.reconciled = 'true'
         else
           self.reconciled = 'false'

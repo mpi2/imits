@@ -36,13 +36,11 @@ class Centre < ActiveRecord::Base
       unless mi_attempt.status.name == 'Genotype confirmed'
         next
       end
-      #TODO remove - limits selection to specific consortia
-      # BaSH, JAX, DTCC
-      # unless mi_attempt.mi_plan.consortium.name == 'JAX'
-      #   next
-      # end # end filter
-
-      mi_distribution_centres_filtered.push(mi_distribution_centre)
+      # limit selection to specific consortia
+      mi_consortium_name = mi_attempt.mi_plan.consortium.name
+      if [ 'BaSH', 'JAX', 'DTCC' ].include? mi_consortium_name
+        mi_distribution_centres_filtered.push(mi_distribution_centre)
+      end
     end
 
     return mi_distribution_centres_filtered
@@ -61,13 +59,11 @@ class Centre < ActiveRecord::Base
       unless mouse_allele_mod.status.name == 'Cre Excision Complete'
         next
       end
-      #TODO remove - limits selection to specific consortia
-      # BaSH, JAX, DTCC
-      # unless mouse_allele_mod.mi_plan.consortium.name == 'DTCC'
-      #   next
-      # end # end filter
-
-      phenotype_distribution_centres_filtered.push(phenotype_distribution_centre)
+      # limit selection to specific consortia
+      ph_consortium_name = mouse_allele_mod.mi_plan.consortium.name
+      if [ 'BaSH', 'JAX', 'DTCC' ].include? ph_consortium_name
+        phenotype_distribution_centres_filtered.push(phenotype_distribution_centre)
+      end
     end
 
     return phenotype_distribution_centres_filtered

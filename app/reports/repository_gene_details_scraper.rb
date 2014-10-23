@@ -9,6 +9,14 @@ require 'open-uri'
 
 class RepositoryGeneDetailsScraper
 
+    attr_accessor :komp_gene_details
+    attr_accessor :count_is_mice
+    attr_accessor :count_is_recovery
+    attr_accessor :count_is_germ_plasm
+    attr_accessor :count_is_embryos
+    attr_accessor :count_unique_alleles_found
+    attr_accessor :count_unique_alleles_with_products
+
     # URLs for scraping KOMP websites
     KOMP_REPO = 'KOMP Repo'
     KOMP_GENES_CATALOG_PAGE_URL = 'https://www.komp.org/catalog.php?available=&mutation=&gname=&project=&origin=&'
@@ -17,7 +25,13 @@ class RepositoryGeneDetailsScraper
 
     def initialize
         # instance variables
-         @komp_gene_details = {}
+         @komp_gene_details                  = {}
+         @count_is_mice                      = 0
+         @count_is_recovery                  = 0
+         @count_is_germ_plasm                = 0
+         @count_is_embryos                   = 0
+         @count_unique_alleles_found         = 0
+         @count_unique_alleles_with_products = 0
     end
 
     ##
@@ -368,6 +382,7 @@ class RepositoryGeneDetailsScraper
 
             # cycle through cells in this row to look for order buttons
             is_mice           = 0
+            is_recovery       = 0
             is_germ_plasm     = 0
             is_embryos        = 0
 
@@ -412,6 +427,8 @@ class RepositoryGeneDetailsScraper
                     case product
                         when 'mice'
                             is_mice          = 1
+                        when 'mice'
+                            is_recovery      = 1
                         when 'sperm'
                             is_germ_plasm    = 1
                         when 'embryos'
@@ -427,6 +444,9 @@ class RepositoryGeneDetailsScraper
                 if ( is_mice == 1 )
                     @komp_gene_details[marker_symbol]['alleles'][allele]['is_mice'] = 1
                 end
+                if ( is_recovery == 1 )
+                    @komp_gene_details[marker_symbol]['alleles'][allele]['is_recovery'] = 1
+                end
                 if ( is_germ_plasm == 1 )
                     @komp_gene_details[marker_symbol]['alleles'][allele]['is_germ_plasm'] = 1
                 end
@@ -434,8 +454,20 @@ class RepositoryGeneDetailsScraper
                     @komp_gene_details[marker_symbol]['alleles'][allele]['is_embryos'] = 1
                 end
             else
+                @count_unique_alleles_found += 1
+
+                @count_is_mice += 1       if ( is_mice == 1 )
+                @count_is_recovery += 1   if ( is_recovery == 1 )
+                @count_is_germ_plasm += 1 if ( is_germ_plasm == 1 )
+                @count_is_embryos += 1    if ( is_embryos == 1 )
+
+                if ( ( is_mice == 1 ) || ( is_recovery == 1 ) || ( is_germ_plasm == 1 ) || ( is_embryos == 1 ) )
+                    @count_unique_alleles_with_products += 1
+                end
+
                 @komp_gene_details[marker_symbol]['alleles'][allele] = {
                     'is_mice'              => is_mice,
+                    'is_recovery'          => is_recovery,
                     'is_germ_plasm'        => is_germ_plasm,
                     'is_embryos'           => is_embryos
                 }

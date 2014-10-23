@@ -22,12 +22,19 @@ module MiAttempt::StatusManagement
 
 
   ss.add('Genotype confirmed', 'Chimeras/Founder obtained') do |mi|
-    if !mi.es_cell?
+
+    if !mi.crispr? && !mi.es_cell?
       false
-    elsif mi.production_centre.try(:name) == 'WTSI'
-      mi.is_released_from_genotyping?
-    else
-      mi.number_of_het_offspring.to_i != 0 or mi.number_of_chimeras_with_glt_from_genotyping.to_i != 0
+    elsif mi.es_cell?
+      if mi.production_centre.try(:name) == 'WTSI'
+        mi.is_released_from_genotyping?
+      else
+        mi.number_of_het_offspring.to_i != 0 or mi.number_of_chimeras_with_glt_from_genotyping.to_i != 0
+      end
+    else mi.crispr?
+      genotype_confirmed = false
+      mi.colonies.each{|m| if m.genotype_confirmed == true; genotype_confirmed=true; break; end}
+      genotype_confirmed
     end
   end
 

@@ -78,7 +78,7 @@ class QualityOverview
   def populate_related_data
     return false if ! self.colony_prefix
     if self.colony_prefix
-      mi_attempt = MiAttempt.find_by_colony_name(self.colony_prefix)
+      mi_attempt = MiAttempt.find_by_external_ref(self.colony_prefix)
       puts "#### populate_related_data: cannot find '#{self.colony_prefix}'" if ! mi_attempt
       return false if ! mi_attempt
       self.mi_attempt_id = mi_attempt.id

@@ -74,7 +74,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
   accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
 
-  access_association_by_attribute :mi_attempt, :colony_name
+  access_association_by_attribute :mi_attempt, :external_ref, :attribute_alias => :colony_name
   access_association_by_attribute :deleter_strain, :name
 
   validates :mi_attempt_colony_name, :presence => true

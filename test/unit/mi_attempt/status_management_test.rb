@@ -122,19 +122,25 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
                 :crsp_total_num_mutant_founders => nil
       end
 
-      should 'be Micro-injection in progress if the two fields are nil' do
+      should 'be Micro-injection in progress by default' do
         assert_equal MiAttempt::Status.micro_injection_in_progress, @mi_attempt.status
       end
 
-      should 'be Founder obtained if crsp_total_num_mutant_founders > 0' do
+      should 'be Founder obtained if crsp_total_num_mutant_founders greater than 0' do
         @mi_attempt.crsp_total_num_mutant_founders = 1
         @mi_attempt.save!
         assert_equal MiAttempt::Status.founder_obtained, @mi_attempt.status
       end
 
-      should_eventually 'transition MI status to Genotype confirmed if something' do
+      should 'transition MI status to Genotype confirmed if a colony is set ot genotype_confirmed equal to true' do
         @mi_attempt.crsp_total_num_mutant_founders = 1
+        @mi_attempt.colonies.new({:name => 'I AM A NEW COLONY', :genotype_confirmed => false})
         @mi_attempt.save!
+        assert_equal MiAttempt::Status.founder_obtained, @mi_attempt.status
+
+        @mi_attempt.colonies.new({:name => 'I AM A SECOND NEW COLONY', :genotype_confirmed => true})
+        @mi_attempt.save!
+        @mi_attempt.reload
         assert_equal MiAttempt::Status.genotype_confirmed, @mi_attempt.status
       end
 
@@ -146,7 +152,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
         assert_equal MiAttempt::Status.micro_injection_aborted, @mi_attempt.status
       end
 
-      should 'transition back from Founder obtained to Micro-injection in progress is crsp_total_num_mutant_founders is set back to 0' do
+      should 'transition back from Founder obtained to Micro-injection in progress if crsp_total_num_mutant_founders is set back to 0' do
         @mi_attempt.crsp_total_num_mutant_founders = 1
         @mi_attempt.save!
         assert_equal MiAttempt::Status.founder_obtained, @mi_attempt.status
@@ -154,6 +160,17 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
         @mi_attempt.crsp_total_num_mutant_founders = 0
         @mi_attempt.save!
         assert_equal MiAttempt::Status.micro_injection_in_progress, @mi_attempt.status
+      end
+
+      should 'transition back from Genotype confirmed to Founder obtained if colony is set back to 0' do
+        @mi_attempt.crsp_total_num_mutant_founders = 1
+        @mi_attempt.colonies.new({:name => 'I AM A NEW COLONY', :genotype_confirmed => true})
+        @mi_attempt.save!
+        assert_equal MiAttempt::Status.genotype_confirmed, @mi_attempt.status
+
+        @mi_attempt.colonies.first.genotype_confirmed = false
+        @mi_attempt.save!
+        assert_equal MiAttempt::Status.founder_obtained, @mi_attempt.status
       end
 
       should 'not add the same status twice' do
@@ -222,7 +239,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
       mi.save!
       mi.update_attributes!(:number_of_het_offspring => 1)
       mi.save!
-      mi.update_attributes!(:is_active => false)
+      mi.update_attributes(:is_active => false)
       mi.save!
 
       expected_statuses = [

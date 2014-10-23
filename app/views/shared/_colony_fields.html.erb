@@ -1,0 +1,89 @@
+<tr>
+    <td style="text-align: center;vertical-align: top;">
+        <div style="padding:30px 0px 0px 0px">
+        <%= f.text_field :name, :maxlength => 20 %>
+    </td>
+    <td style="text-align: left;vertical-align: top">
+        <div style="padding:30px 0px 0px 20px; width:220px">
+
+        <% if f.object.trace_data_error %>
+            <% if f.object.file_error.to_s.length > 0 %>
+                <p>Error: <%= f.object.file_error %></p>
+
+                <% if ! Rails.env.production? %>
+                    <p>debug stderr:</p>
+                    <p><%= f.object.file_trace_error %></p>
+                    <p>debug stdout:</p>
+                    <p><%= f.object.file_trace_output %></p>
+                <% end %>
+
+            <% else %>
+                <p>error</p>
+            <% end %>
+        <% elsif f.object.trace_data_pending %>
+            <p>Analysis pending</p>
+        <% elsif ! f.object.new_record? && f.object.trace_data_available %>
+            <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
+        <% end %>
+        <% if ! f.object.new_record? && (f.object.trace_data_available || f.object.trace_data_pending) %>
+            <button id="cbutton_<%= f.object.id %>" type="button" onclick="$(this).toggle();var id = '#cdiv_<%= f.object.id %>'; $(id).toggle();">Replace</button>
+                <div id="cdiv_<%= f.object.id %>" style="display:none;">
+                    <%= f.file_field :trace_file %>
+                </div>
+                <div>Heterozygous Trace? <%= f.check_box :is_het %></div>
+                <!-- see http://stackoverflow.com/questions/2187008/styling-an-anchor-tag-to-look-like-a-submit-button for download button -->
+        <% else %>
+            <%= f.file_field :trace_file %></br>
+            <div>Heterozygous Trace? <%= f.check_box :is_het %></div>
+        <% end %>
+
+
+    </td>
+    <td style="text-align: left;vertical-align: top;">
+        <div style="padding:30px 0px 0px 20px">Genotype Confirmed? <%= f.check_box :genotype_confirmed %></div>
+
+        <fieldset>
+            <legend>Unwanted Allele</legend>
+            Obtained? <%= f.check_box :unwanted_allele %></br></br>
+            Allele Description<%= f.text_area :unwanted_allele_description %>
+        </fieldset>
+    </td>
+    <td  style="text-align: left;vertical-align: top;">
+
+        <div class="colony-qc-data" style="width:320px">
+
+            <fieldset class="collapsible hide-by-default">
+                <legend>Expand to view and edit</legend>
+                <div>
+                    <table>
+                        <% if f.object.colony_qc.blank? %>
+                            <% f.object.build_colony_qc %>
+                        <% end %>
+                        <%= f.fields_for :colony_qc do |builder| %>
+                            <% MiAttempt::QC_FIELDS.each do |qc_field| %>
+                                <tr>
+                                    <td><%= builder.label(:post, qc_field) %></td>
+                                    <td><%= builder.select qc_field, ['na', 'pass', 'fail'] %></td>
+                                </tr>
+                            <% end %>
+                        <% end %>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+    </td>
+    <td style="text-align: center;vertical-align: top;">
+        <div style="padding:30px 0px 0px 0px">
+            <%= f.check_box :report_to_public %>
+        </div>
+    </td>
+    <td style="text-align: center;vertical-align: top; padding:30px 0px 0px 0px">
+        <% if f.object.new_record? %>
+            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+            <%= link_to "remove", '#', class: "remove-row" %>
+        <% else %>
+            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+            <%= link_to "remove", '#', class: "hide-row" %>
+        <% end %>
+    </td>
+</tr>

@@ -3,6 +3,7 @@ class Public::MiAttempt < ::MiAttempt
   include ::Public::Serializable
   include ::Public::DistributionCentresAttributes
   include ::Public::MutagenesisFactorAttributes
+  include ::Public::ColonyAttributes
   include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
@@ -71,17 +72,14 @@ class Public::MiAttempt < ::MiAttempt
     crsp_total_embryos_survived
     crsp_total_transfered
     crsp_no_founder_pups
-    founder_pcr_num_assays
-    founder_pcr_num_positive_results
-    founder_surveyor_num_assays
-    founder_surveyor_num_positive_results
-    founder_t7en1_num_assays
-    founder_t7en1_num_positive_results
-    founder_loa_num_assays
-    founder_loa_num_positive_results
+    founder_num_assays
+    assay_type
+    founder_num_positive_results
     crsp_total_num_mutant_founders
     crsp_num_founders_selected_for_breading
     real_allele_id
+    external_ref
+    colonies_attributes
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -143,7 +141,7 @@ end
 #  es_cell_id                                      :integer
 #  mi_date                                         :date             not null
 #  status_id                                       :integer          not null
-#  colony_name                                     :string(125)
+#  external_ref                                    :string(125)
 #  updated_by_id                                   :integer
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
@@ -217,8 +215,11 @@ end
 #  founder_loa_num_positive_results                :integer
 #  allele_id                                       :integer
 #  real_allele_id                                  :integer
+#  founder_num_assays                              :integer
+#  founder_num_positive_results                    :integer
+#  assay_type                                      :text
 #
 # Indexes
 #
-#  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
+#  index_mi_attempts_on_colony_name  (external_ref) UNIQUE
 #

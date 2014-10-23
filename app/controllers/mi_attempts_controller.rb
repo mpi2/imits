@@ -33,14 +33,19 @@ class MiAttemptsController < ApplicationController
   end
 
   def create
-    #puts "PARAMS: #{params}"
+    use_crispr_group_id
+
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])
     get_marker_symbol
     @vector_options = get_vector_options(@marker_symbol)
-    if ! @mi_attempt.valid?
+    if params.has_key?(:crispr_group_load_error) && ! params[:crispr_group_load_error].blank?
+      flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
+      flash.now[:alert] += "<br/> #{params[:crispr_group_load_error]}"
+      @mi_attempt.errors.add(:group, params[:crispr_group_load_error])
+    elsif ! @mi_attempt.valid?
       flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
 
       if ! @mi_attempt.errors[:base].blank?
@@ -73,6 +78,9 @@ class MiAttemptsController < ApplicationController
   end
 
   def update
+    # TODO: put this somewhere more sensible
+    Paperclip.options[:content_type_mappings] = { scf: 'application/octet-stream' }
+
     @mi_attempt = Public::MiAttempt.find(params[:id])
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])
@@ -166,4 +174,42 @@ class MiAttemptsController < ApplicationController
     end
   end
   private :get_marker_symbol
+
+  def use_crispr_group_id
+    return if ! params.has_key?(:mi_attempt)
+    if params.has_key?(:create_from_cripr_group_id) and params[:create_from_cripr_group_id] == true
+      grab_crispr_group_data
+      return true
+    end
+    return false
+  end
+  private :use_crispr_group_id
+
+  def grab_crispr_group_data
+    params[:crispr_group_load_error] = "group_id required" if !params.has_key?(:group_id)
+    params[:crispr_group_load_error] = "Invalid group_id. Must be an integer" if params[:group_id].to_i == 0
+
+    if !params.has_key?(:crispr_group_load_error)
+      crispr_group = TargRep::Lims2CrisprGroup.find_by_group_id(params[:group_id].to_i)
+      if !crispr_group.errors.blank?
+        params[:crispr_group_load_error] = crispr_group.errors
+      else
+        params[:mi_attempt][:mutagenesis_factor_attributes] = {}
+        i=0
+        params[:mi_attempt][:mutagenesis_factor_attributes][:crisprs_attributes] = {}
+        crispr_group.crispr_list.each do |crispr|
+          params[:mi_attempt][:mutagenesis_factor_attributes][:crisprs_attributes][i] = crispr
+          i += 1
+        end
+        i=0
+        params[:mi_attempt][:mutagenesis_factor_attributes][:genotype_primers_attributes] = {}
+        crispr_group.genotype_primer_list.each do |genotype_primer|
+          params[:mi_attempt][:mutagenesis_factor_attributes][:genotype_primers_attributes][i] = genotype_primer
+          i += 1
+        end
+      end
+    end
+  end
+  private :grab_crispr_group_data
+
 end

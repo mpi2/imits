@@ -221,7 +221,7 @@ class QcGridReport
         consortia.name AS consortium,
         centres.name AS production_centre,
         genes.marker_symbol AS gene,
-        mi_attempts.colony_name,
+        mi_attempts.external_ref AS colony_name,
         targ_rep_es_cells.name AS es_cell,
         targ_rep_mutation_types.name AS mutation_type,
         targ_rep_es_cells.user_qc_map_test,

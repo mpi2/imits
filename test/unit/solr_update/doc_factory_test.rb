@@ -90,7 +90,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         @es_cell = Factory.create :es_cell,
         :allele => @allele,
         :mutation_subtype => 'conditional_ready'
-        @mi_attempt = Factory.create :mi_attempt2, :id => 43,
+        @mi_attempt = Factory.create :mi_attempt2,
         :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
         :es_cell => @es_cell,
         :mi_plan => bash_wtsi_cbx1_plan
@@ -102,7 +102,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set id and type' do
-        assert_equal ['mi_attempt', 43], @doc.values_at('type', 'id')
+        assert_equal ['mi_attempt', @mi_attempt.id], @doc.values_at('type', 'id')
       end
 
       should 'set product_type' do
@@ -519,7 +519,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         :allele => allele,
         :mutation_subtype => 'conditional_ready'
 
-        @mi_attempt = Factory.create :mi_attempt2, :id => 43,
+        @mi_attempt = Factory.create :mi_attempt2,
         :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
         :es_cell => es_cell,
         :mi_plan => bash_wtsi_cbx1_plan
@@ -738,7 +738,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         :mutation_subtype => 'conditional_ready',
         :ikmc_project_id => 'VG10003'
 
-        mi_attempt = Factory.create :mi_attempt2, :id => 433,
+        mi_attempt = Factory.create :mi_attempt2,
         :colony_background_strain => Strain.create!(:name => 'TEST STRAIN 2'),
         :es_cell => es_cell, :mi_plan => bash_wtsi_cbx1_plan
 

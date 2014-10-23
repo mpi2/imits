@@ -51,50 +51,61 @@ sql: |
   )
   select distinct
   targ_rep_alleles.id as targ_rep_alleles_id,
+  targ_rep_alleles.cassette AS cassette,
+  targ_rep_alleles.project_design_id AS design_id,
   targ_rep_mutation_types.name mutation_type,
-  genes.marker_symbol, genes.marker_type, genes.mgi_accession_id,
+  genes.marker_symbol, genes.marker_type, genes.mgi_accession_id, genes.feature_type as feature_type,
   genes.chr AS gene_chromosome,
   genes.start_coordinates AS gene_start_coordinates,
   genes.end_coordinates AS gene_end_coordinates,
-  CASE WHEN (targ_rep_targeting_vectors.allele_id IS NOT NULL) THEN true else false END AS does_a_targ_vec_exist,
-  CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL) THEN true else false END AS does_an_es_cell_exist,
   targ_rep_es_cells.mgi_allele_symbol_superscript,
   targ_rep_es_cells.allele_symbol_superscript_template,
-  miapc.name miacentre_name,
-  mi_attempt_statuses.name as mi_attempt_status,
-  mi_attempt_statuses.order_by as mi_attempt_status_order_by,
   targ_rep_es_cells.allele_type AS es_cell_allele_type,
-  mi_attempts.mouse_allele_type as mi_mouse_allele_type,
-  mouse_allele_mods.mouse_allele_type as mouse_allele_mod_mouse_allele_type,
-  mouse_allele_mods.cre_excision AS cre_excision_required,
-  pacentres.name as pacentre_name,
-  mouse_allele_mod_statuses.name as mouse_allele_mod_status,
-  mouse_allele_mod_statuses.order_by as mouse_allele_mod_status_order_by,
-  phenotyping.phenotyping_centre as phenotyping_centre_name,
-  phenotyping.phenotyping_status as phenotyping_status,
-  phenotyping.phenotyping_status_order_by,
-  genes.feature_type as feature_type
+
+  CASE WHEN (targ_rep_targeting_vectors.allele_id IS NOT NULL) THEN true else false END AS does_a_targ_vec_exist,
+  CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL) THEN true else false END AS does_an_es_cell_exist,
+
+  CASE WHEN (mi_attempts.report_to_public = true) THEN miapc.name END AS miacentre_name,
+  CASE WHEN (mi_attempts.report_to_public = true) THEN mi_attempt_statuses.name END AS mi_attempt_status,
+  CASE WHEN (mi_attempts.report_to_public = true) THEN mi_attempt_statuses.order_by END AS mi_attempt_status_order_by,
+  CASE WHEN (mi_attempts.report_to_public = true) THEN mi_attempts.mouse_allele_type END AS mi_mouse_allele_type,
+
+  CASE WHEN (mouse_allele_mods.report_to_public = true) THEN mouse_allele_mods.mouse_allele_type END AS mouse_allele_mod_mouse_allele_type,
+  CASE WHEN (mouse_allele_mods.report_to_public = true) THEN mouse_allele_mods.cre_excision END AS cre_excision_required,
+  CASE WHEN (mouse_allele_mods.report_to_public = true) THEN pacentres.name END AS pacentre_name,
+  CASE WHEN (mouse_allele_mods.report_to_public = true) THEN mouse_allele_mod_statuses.name END AS mouse_allele_mod_status,
+  CASE WHEN (mouse_allele_mods.report_to_public = true) THEN mouse_allele_mod_statuses.order_by END AS mouse_allele_mod_status_order_by,
+
+  CASE WHEN (phenotyping.report_to_public = true) THEN phenotyping.phenotyping_centre END AS phenotyping_centre_name,
+  CASE WHEN (phenotyping.report_to_public = true) THEN phenotyping.phenotyping_status END AS phenotyping_status,
+  CASE WHEN (phenotyping.report_to_public = true) THEN phenotyping.phenotyping_status_order_by END AS phenotyping_status_order_by,
+
+  mi_attempts.report_to_public,
+  mouse_allele_mods.report_to_public,
+  phenotyping.report_to_public,
+  targ_rep_es_cells.report_to_public,
+  targ_rep_targeting_vectors.report_to_public
   from genes
   left outer join targ_rep_alleles on genes.id = targ_rep_alleles.gene_id
   left outer join targ_rep_mutation_types on targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
-  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id SUBS_TEMPLATE2 and targ_rep_targeting_vectors.report_to_public is true
-  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id SUBS_TEMPLATE2 and targ_rep_es_cells.report_to_public is true
+  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
+  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id
   left outer join (mi_attempts
                    join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id SUBS_TEMPLATE2 and mi_attempt_plan.report_to_public is true
                    join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id
                    join consortia miconsortium ON miconsortium.id = mi_attempt_plan.consortium_id and miconsortium.name != 'EUCOMMToolsCre'
-                  ) on mi_attempts.es_cell_id = targ_rep_es_cells.id SUBS_TEMPLATE2 and mi_attempts.report_to_public is true
+                  ) on mi_attempts.es_cell_id = targ_rep_es_cells.id
   left outer join centres miapc on mi_attempt_plan.production_centre_id = miapc.id
   left outer join (mouse_allele_mods
                    join mi_plans paplan on mouse_allele_mods.mi_plan_id = paplan.id SUBS_TEMPLATE2 and paplan.report_to_public is true
                    join mouse_allele_mod_statuses on mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
                    join consortia paconsortium ON paconsortium.id = paplan.consortium_id and paconsortium.name != 'EUCOMMToolsCre'
-                  ) on mouse_allele_mods.mi_attempt_id = mi_attempts.id SUBS_TEMPLATE2 and mouse_allele_mods.report_to_public is true
+                  ) on mouse_allele_mods.mi_attempt_id = mi_attempts.id
   left outer join centres pacentres on pacentres.id = paplan.production_centre_id
   left outer join phenotyping ON phenotyping.mouse_allele_mod_id = mouse_allele_mods.id
 
   SUBS_TEMPLATE3
-  order by mi_attempt_status_order_by desc, mouse_allele_mod_status_order_by desc, phenotyping.phenotyping_status_order_by desc
+  order by mi_attempts.report_to_public desc, mi_attempt_status_order_by desc, mouse_allele_mods.report_to_public, mouse_allele_mod_status_order_by desc, phenotyping.report_to_public, phenotyping_status_order_by desc, targ_rep_es_cells.report_to_public desc, targ_rep_targeting_vectors.report_to_public desc
 
 sql_template: |
   genes.id as genes_id,
@@ -107,10 +118,10 @@ options:
   USE_ID: false
   USE_IDS: false
   USE_ORDER: false
-  USE_REPORT_TO_PUBLIC: false
+  USE_REPORT_TO_PUBLIC: true
   USE_ALLELES: true
   USE_GENES: true
-  MARKER_SYMBOL: #Lrrc20 #Podxl2 # "Cbx4" #"Tmod2"  # "3110035E14Rik"   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
+  MARKER_SYMBOL: Prdm14 #Lrrc20 #Podxl2 # "Cbx4" #"Tmod2"  # "3110035E14Rik"   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
   DETECT_GENE_DUPS: true
   USE_REPLACEMENT: true
   FILTER_TARGET: ""   #"feature_type"    #"marker_type"

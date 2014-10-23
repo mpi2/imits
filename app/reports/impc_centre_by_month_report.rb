@@ -578,7 +578,7 @@ class ImpcCentreByMonthReport
               gene_id,
               production_centre,
               mam_date AS series_date,
-              SUM( CASE WHEN mams_id = 5 THEN 1 ELSE 0 END) AS cre_count
+              SUM( CASE WHEN mams_id = 6 THEN 1 ELSE 0 END) AS cre_count
             FROM
             (
               SELECT DISTINCT

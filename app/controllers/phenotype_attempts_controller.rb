@@ -44,7 +44,7 @@ class PhenotypeAttemptsController < ApplicationController
   def create
     set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
-    @mi_attempt = MiAttempt.find_by_colony_name(@phenotype_attempt.mi_attempt_colony_name)
+    @mi_attempt = MiAttempt.find_by_external_ref(@phenotype_attempt.mi_attempt_colony_name)
     @phenotype_attempt.mi_attempt = @mi_attempt
 
     return unless authorize_user_production_centre(@phenotype_attempt)

@@ -20,6 +20,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         es_cell_name
         mi_date
         colony_name
+        colonies_attributes
         consortium_name
         production_centre_name
         distribution_centres_attributes
@@ -93,6 +94,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         founder_loa_num_assays
         founder_loa_num_positive_results
         real_allele_id
+        external_ref
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -109,6 +111,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         status_name
         status_dates
         colony_name
+        colonies_attributes
         consortium_name
         production_centre_name
         distribution_centres_attributes
@@ -195,6 +198,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         founder_loa_num_assays
         founder_loa_num_positive_results
         real_allele_id
+        external_ref
         mutagenesis_factor_external_ref
       }
       got = default_mi_attempt.as_json.keys
@@ -256,6 +260,32 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         assert_nil MiAttempt::DistributionCentre.find_by_id(ds3.id)
         ds2.reload
         assert_equal 'ICS', ds2.centre_name
+      end
+    end
+
+
+    context '#colonies_attributes' do
+      context 'for ES Cell mis' do
+        should 'return an error message' do
+          mi = Factory.create(:mi_attempt2)
+          mi.colonies_attributes = [{:name => 'A_NEW_COLONY'}]
+
+          assert_false mi.valid?
+          assert_equal "Multiple Colonies are not allowed for Mi Attempts micro-injected with an ES Cell clone", mi.errors.messages[:"colonies.base"][0]
+        end
+      end
+
+      context 'for Crispr mis' do
+        should 'allow colonies to be created' do
+          mi = Factory.create :mi_attempt_crispr
+
+          assert_equal 0, mi.colonies.length
+
+          mi.colonies_attributes = [{:name => 'A_NEW_COLONY'}, {:name => 'ANOTHER_NEW_COLONY'}]
+          mi.save
+
+          assert_equal 2, mi.colonies.length
+        end
       end
     end
 

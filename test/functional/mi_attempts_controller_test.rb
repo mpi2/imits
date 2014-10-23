@@ -260,7 +260,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         }
         assert_equal 1, MiAttempt.count
 
-        assert ! assigns[:mi_attempt].errors[:colony_name].blank?
+        assert ! assigns[:mi_attempt].errors[:external_ref].blank?
         assert ! flash[:alert].blank?
       end
 
@@ -325,7 +325,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'return errors with invalid params for JSON' do
         bad_update_for_format(:json)
         data = JSON.parse(response.body)
-        assert_include data['errors']['colony_name'], 'has already been taken'
+        assert_include data['errors']['external_ref'], 'has already been taken'
       end
 
       #should 'return errors with invalid params for XML' do

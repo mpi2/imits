@@ -73,7 +73,7 @@ class EditMiAttemptsInFormIntegrationTest < TarMits::JsIntegrationTest
       assert_equal 'ABCD', @mi_attempt.colony_name
       assert_equal 22, @mi_attempt.total_blasts_injected
       assert_equal 'C57BL/6N', @mi_attempt.test_cross_strain.name
-      assert_equal 'pass', @mi_attempt.qc_southern_blot.description
+      assert_equal 'pass', @mi_attempt.colony.colony_qc.qc_southern_blot
       assert_equal true, @mi_attempt.report_to_public?
       assert_equal default_user.email, @mi_attempt.updated_by.email
 

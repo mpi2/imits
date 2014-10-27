@@ -162,5 +162,4 @@ end
 #  gc_old_pipeline_efficiency_gene_count         :integer
 #  created_at                                    :datetime
 #  mutagenesis_via_crispr_cas9                   :boolean          default(FALSE)
-#  mi_attempt_external_ref                       :string(255)
 #

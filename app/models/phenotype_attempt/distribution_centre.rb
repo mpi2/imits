@@ -1,8 +1,9 @@
 # encoding: utf-8
 
-class PhenotypeAttempt::DistributionCentre < DistributionCentre
+class PhenotypeAttempt::DistributionCentre
   extend AccessAssociationByAttribute
   include Public::Serializable
+  include ApplicationModel::DistributionCentre
 
   acts_as_audited
 
@@ -33,26 +34,26 @@ class PhenotypeAttempt::DistributionCentre < DistributionCentre
 
   belongs_to :phenotype_attempt
   belongs_to :mouse_allele_mod
-  # belongs_to :centre
-  # belongs_to :deposited_material
+  belongs_to :centre
+  belongs_to :deposited_material
 
   validates :phenotype_attempt_id, :presence => true
-  # validates :centre_id, :presence => true
-  # validates :deposited_material_id, :presence => true
+  validates :centre_id, :presence => true
+  validates :deposited_material_id, :presence => true
 
-  # access_association_by_attribute :deposited_material, :name
-  # access_association_by_attribute :centre, :name
+  access_association_by_attribute :deposited_material, :name
+  access_association_by_attribute :centre, :name
 
-  # before_save do
-  #   ## TODO: Update martbuilder so we don't need to continue updating the boolean.
-  #   self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
+  before_save do
+    ## TODO: Update martbuilder so we don't need to continue updating the boolean.
+    self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
 
-  #   if (!self.distribution_network.blank?) && self.centre.name == 'KOMP Repo'
-  #     self.centre = self.phenotype_attempt.mi_plan.production_centre
-  #   end
+    if (!self.distribution_network.blank?) && self.centre.name == 'KOMP Repo'
+      self.centre = self.phenotype_attempt.mi_plan.production_centre
+    end
 
-  #   true # Rails doesn't save if you return false.
-  # end
+    true # Rails doesn't save if you return false.
+  end
 
   # ## This is for backwards compatibility with portal.
   # def is_distributed_by_emma

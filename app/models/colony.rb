@@ -348,7 +348,7 @@ end
 #  file_trace_error               :text
 #  file_exception_details         :text
 #  file_return_code               :integer
-#  file_merged_variants_vcf       :integer
+#  file_merged_variants_vcf       :text
 #  is_het                         :boolean          default(FALSE)
 #  report_to_public               :boolean          default(FALSE)
 #  unwanted_allele                :boolean          default(FALSE)

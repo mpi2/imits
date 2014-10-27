@@ -147,10 +147,22 @@
       <p>Matrix showing MiAttempts by distribution centre. Easily find MiAttempts missing distribution centres.</p>
     </a>
   </div>
-    <div class="report-links">
+  <div class="report-links">
     <a href="<%= phenotype_attempts_distribution_centres_path %>">
       <h4>Phenotype Attempt Distribution centre report</h4>
       <p>Matrix showing Phenotype attempts by distribution centre. Easily find Phenotype attempts missing distribution centres.</p>
+    </a>
+  </div>
+  <div class="report-links">
+    <a href="<%= url_for(:controller => 'v2/reports', :action => :mi_attempt_repository_reconciled_summary) %>">
+      <h4>Mi Attempt Distribution Centres Repository Reconciled Summary</h4>
+      <p>Summary showing proportion of repository reconciled Mi Attempt Distribution Centres.</p>
+    </a>
+  </div>
+  <div class="report-links">
+    <a href="<%= url_for(:controller => 'v2/reports', :action => :phenotype_attempt_repository_reconciled_summary) %>">
+      <h4>Phenotype Attempt Distribution Centres Repository Reconciled Summary</h4>
+      <p>Summary showing proportion of repository reconciled Phenotype Attempt Distribution Centres.</p>
     </a>
   </div>
 

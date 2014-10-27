@@ -14,6 +14,12 @@
     <td>
         <%= f.text_field :end_date, :label => 'End Date', :class => 'date-field' %>
     </td>
+    <td><%= f.object.reconciled %></td>
+    <% if f.object.reconciled_at.nil? %>
+        <td></td>
+    <% else %>
+        <td><%= f.object.reconciled_at.strftime('%d/%m/%Y') %></td>
+    <% end %>
     <td>
         <% if @new_object != nil %>
             <%= f.hidden_field :_destroy, :class => 'destroy-field' %>

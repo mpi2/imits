@@ -493,7 +493,7 @@ class MiAttempt < ApplicationModel
     if self.status.code == 'gtc' and self.report_to_public == false
       if !es_cell_id.blank?
         return MiAttempt::Status.find_by_code('chr')
-      elsif !mutagensis_factor_id.blank?
+      elsif !mutagenesis_factor_id.blank?
         return MiAttempt::Status.find_by_code('fod')
       else
         return MiAttempt::Status.find_by_code('abt')

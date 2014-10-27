@@ -193,6 +193,35 @@ class MouseAlleleMod < ApplicationModel
     end
   end
 
+  def mouse_allele_symbol_superscript
+    if mouse_allele_type.nil? or self.mi_attempt.es_cell.allele_symbol_superscript_template.nil?
+      return nil
+    else
+      return self.mi_attempt.es_cell.allele_symbol_superscript_template.sub(
+        TargRep::EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
+    end
+  end
+
+  def mouse_allele_symbol
+    if mouse_allele_symbol_superscript
+      return "#{self.gene.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
+    else
+      return nil
+    end
+  end
+
+  def allele_symbol
+    if allele_name.nil?
+      if has_status?(:cec)
+        return mouse_allele_symbol
+      else
+        return self.mi_attempt.allele_symbol
+      end
+    else
+      return allele_name
+    end
+  end
+
   def self.readable_name
     'mouse allele modification'
   end

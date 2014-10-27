@@ -152,7 +152,6 @@
   </div>
 </fieldset>
 
-
 <% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
   <%= render 'status_change_history', :mi_attempt => mi_attempt %>
 <% end %>
@@ -283,6 +282,8 @@
             <th>Deposited material</th>
             <th>Start date</th>
             <th>End date</th>
+            <th>Reconciled</th>
+            <th>Reconciled date</th>
             <th>Action</th>
           </tr>
         </thead>

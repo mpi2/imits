@@ -25,6 +25,49 @@ class Centre < ActiveRecord::Base
   def self.readable_name
     return 'centre'
   end
+
+  def get_all_gtc_mi_attempt_distribution_centres
+
+    mi_distribution_centres_filtered = []
+
+    mi_distribution_centres = self.mi_attempt_distribution_centres
+    mi_distribution_centres.each do |mi_distribution_centre|
+      mi_attempt = mi_distribution_centre.mi_attempt
+      unless mi_attempt.status.name == 'Genotype confirmed'
+        next
+      end
+      # limit selection to specific consortia
+      mi_consortium_name = mi_attempt.mi_plan.consortium.name
+      if [ 'BaSH', 'JAX', 'DTCC' ].include? mi_consortium_name
+        mi_distribution_centres_filtered.push(mi_distribution_centre)
+      end
+    end
+
+    return mi_distribution_centres_filtered
+  end
+
+  def get_all_cre_excised_phenotype_attempt_distribution_centres
+
+    phenotype_distribution_centres_filtered = []
+
+    phenotype_distribution_centres = self.phenotype_attempt_distribution_centres
+    phenotype_distribution_centres.each do |phenotype_distribution_centre|
+      mouse_allele_mod = phenotype_distribution_centre.mouse_allele_mod
+      if mouse_allele_mod.nil?
+        next
+      end
+      unless mouse_allele_mod.status.name == 'Cre Excision Complete'
+        next
+      end
+      # limit selection to specific consortia
+      ph_consortium_name = mouse_allele_mod.mi_plan.consortium.name
+      if [ 'BaSH', 'JAX', 'DTCC' ].include? ph_consortium_name
+        phenotype_distribution_centres_filtered.push(phenotype_distribution_centre)
+      end
+    end
+
+    return phenotype_distribution_centres_filtered
+  end
 end
 
 # == Schema Information

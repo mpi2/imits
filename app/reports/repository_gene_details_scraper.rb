@@ -50,7 +50,8 @@ class RepositoryGeneDetailsScraper
                 repo_url = KOMP_GENES_CATALOG_PAGE_URL
             end
 
-            page = Nokogiri::HTML(open(repo_url))
+            page = Nokogiri::HTML(open(repo_url, :proxy => nil))
+
             catalog_rows = page.css("#catalog tbody tr")
             catalog_rows.each do |row|
                 # gene id
@@ -223,7 +224,7 @@ class RepositoryGeneDetailsScraper
         # now use geneid to pull the subpage from Komp
         begin
             gene_specific_url = "#{KOMP_GENE_PAGE_URL_STUB}#{geneid}"
-            page = Nokogiri::HTML(open( gene_specific_url ))
+            page = Nokogiri::HTML(open( gene_specific_url, :proxy => nil))
 
             # identify the correct table
             page_tables = page.css('#main_body_td table')
@@ -282,10 +283,10 @@ class RepositoryGeneDetailsScraper
     def search_komp_for_marker_symbol( marker_symbol )
 
         search_url = KOMP_GENE_SEARCH_STUB + "#{marker_symbol}"
-        puts "Search URL : #{search_url}"
-        page = Nokogiri::HTML(open(search_url))
+        page = Nokogiri::HTML(open(search_url, :proxy => nil))
+
         page_title = page.css("head title").text
-        puts "Page title = #{page_title}"
+        # puts "Page title = #{page_title}"
 
         # search outcome one of three types:
         if ( page_title == 'Search Result' )

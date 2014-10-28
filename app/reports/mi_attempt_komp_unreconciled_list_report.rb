@@ -29,7 +29,7 @@ class MiAttemptKompUnreconciledListReport
             sql = <<-EOF
               SELECT genes.marker_symbol,
               mi_attempt_distribution_centres.mi_attempt_id,
-              mi_attempts.colony_name AS mi_attempt_colony_name,
+              mi_attempts.external_ref AS mi_attempt_colony_name,
               mi_attempts.mouse_allele_type,
               targ_rep_es_cells.allele_type,
               targ_rep_mutation_types.name AS es_cell_allele_mutation_type,

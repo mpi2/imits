@@ -1,31 +1,11 @@
 # encoding: utf-8
 
-class PhenotypeAttempt::DistributionCentre
+class PhenotypeAttempt::DistributionCentre < ApplicationModel
   extend AccessAssociationByAttribute
   include Public::Serializable
   include ApplicationModel::DistributionCentre
 
   acts_as_audited
-
-  # DISTRIBUTION_NETWORKS = %w{
-  #   CMMR
-  #   EMMA
-  #   MMRRC
-  # }
-
-  # FULL_ACCESS_ATTRIBUTES = %w{
-  #   start_date
-  #   end_date
-  #   deposited_material_name
-  #   centre_name
-  #   is_distributed_by_emma
-  #   distribution_network
-  #   _destroy
-  # }
-
-  # READABLE_ATTRIBUTES = %w{
-  #   id
-  # } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
   } + FULL_ACCESS_ATTRIBUTES + ['phenotype_attempt_id']
@@ -180,6 +160,23 @@ class PhenotypeAttempt::DistributionCentre
 
   end
 
+  def calculate_order_link()
+
+    puts "In Pa instance method"
+
+    params = {
+      :centre_name          => self.centre_name,
+      :distribution_network => self[:distribution_network],
+      :dc_start_date        => self[:start_date],
+      :dc_end_date          => self[:end_date],
+      :ikmc_project_id      => self.try(:mouse_allele_mod).try(:mi_attempt).try(:es_cell).try(:ikmc_project_id),
+      :marker_symbol        => self.try(:mouse_allele_mod).try(:mi_plan).try(:gene).try(:marker_symbol)
+    }
+
+    # call class method
+    return ApplicationModel::DistributionCentre.calculate_order_link( params )
+  end
+
 end
 
 # == Schema Information
@@ -199,4 +196,5 @@ end
 #  mouse_allele_mod_id    :integer
 #  reconciled             :string(255)      default("not checked"), not null
 #  reconciled_at          :datetime
+#  available              :boolean          default(FALSE)
 #

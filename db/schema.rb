@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141023111500) do
+ActiveRecord::Schema.define(:version => 20141031141000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -240,6 +240,7 @@ ActiveRecord::Schema.define(:version => 20141023111500) do
     t.string   "distribution_network"
     t.string   "reconciled",             :default => "not checked", :null => false
     t.datetime "reconciled_at"
+    t.boolean  "available",              :default => false
   end
 
   create_table "mi_attempt_status_stamps", :force => true do |t|
@@ -753,6 +754,7 @@ ActiveRecord::Schema.define(:version => 20141023111500) do
     t.integer  "mouse_allele_mod_id"
     t.string   "reconciled",             :default => "not checked", :null => false
     t.datetime "reconciled_at"
+    t.boolean  "available",              :default => false
   end
 
   create_table "phenotype_attempt_status_stamps", :force => true do |t|

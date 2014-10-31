@@ -1202,7 +1202,8 @@ CREATE TABLE mi_attempt_distribution_centres (
     updated_at timestamp without time zone,
     distribution_network character varying(255),
     reconciled character varying(255) DEFAULT 'not checked'::character varying NOT NULL,
-    reconciled_at timestamp without time zone
+    reconciled_at timestamp without time zone,
+    available boolean DEFAULT false
 );
 
 
@@ -2174,7 +2175,8 @@ CREATE TABLE phenotype_attempt_distribution_centres (
     distribution_network character varying(255),
     mouse_allele_mod_id integer,
     reconciled character varying(255) DEFAULT 'not checked'::character varying NOT NULL,
-    reconciled_at timestamp without time zone
+    reconciled_at timestamp without time zone,
+    available boolean DEFAULT false
 );
 
 
@@ -6181,3 +6183,5 @@ INSERT INTO schema_migrations (version) VALUES ('20140904123936');
 INSERT INTO schema_migrations (version) VALUES ('20141022103936');
 
 INSERT INTO schema_migrations (version) VALUES ('20141023111500');
+
+INSERT INTO schema_migrations (version) VALUES ('20141031141000');

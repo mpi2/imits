@@ -9,6 +9,7 @@ class PhenotypeAttempt::DistributionCentreTest < ActiveSupport::TestCase
     should have_db_column :start_date
     should have_db_column :end_date
     should have_db_column :is_distributed_by_emma
+    should have_db_column :available
 
     should belong_to :phenotype_attempt
     should belong_to :centre

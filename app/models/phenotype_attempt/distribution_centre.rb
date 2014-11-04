@@ -37,21 +37,6 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
     true # Rails doesn't save if you return false.
   end
 
-  # ## This is for backwards compatibility with portal.
-  # def is_distributed_by_emma
-  #   self.distribution_network == 'EMMA'
-  # end
-
-  # def is_distributed_by_emma=(bool)
-  #   ## Set distribution_network to EMMA if `bool` is true
-  #   if bool
-  #     self.distribution_network = 'EMMA'
-  #   ## Set distribution_network to nothing if `bool` is false and already set to EMMA, or leave as previous value.
-  #   elsif is_distributed_by_emma
-  #     self.distribution_network = nil
-  #   end
-  # end
-
   def self.readable_name
     return 'phenotype attempt distribution centre'
   end
@@ -160,21 +145,19 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
   end
 
-  def calculate_order_link()
-
-    puts "In Pa instance method"
+  def calculate_order_link( config = nil )
 
     params = {
-      :centre_name          => self.centre_name,
-      :distribution_network => self[:distribution_network],
-      :dc_start_date        => self[:start_date],
-      :dc_end_date          => self[:end_date],
-      :ikmc_project_id      => self.try(:mouse_allele_mod).try(:mi_attempt).try(:es_cell).try(:ikmc_project_id),
-      :marker_symbol        => self.try(:mouse_allele_mod).try(:mi_plan).try(:gene).try(:marker_symbol)
+      :distribution_network_name      => self[:distribution_network],
+      :distribution_centre_name       => self.centre_name,
+      :dc_start_date                  => self[:start_date],
+      :dc_end_date                    => self[:end_date],
+      :ikmc_project_id                => self.try(:mouse_allele_mod).try(:mi_attempt).try(:es_cell).try(:ikmc_project_id),
+      :marker_symbol                  => self.try(:mouse_allele_mod).try(:mi_plan).try(:gene).try(:marker_symbol)
     }
 
     # call class method
-    return ApplicationModel::DistributionCentre.calculate_order_link( params )
+    return ApplicationModel::DistributionCentre.calculate_order_link( params, config )
   end
 
 end

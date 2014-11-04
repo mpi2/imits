@@ -155,20 +155,19 @@ class MiAttempt::DistributionCentre < ApplicationModel
 
   end
 
-  def calculate_order_link()
-    puts "In Mi instance method"
+  def calculate_order_link( config = nil )
 
     params = {
-      :centre_name          => self.centre_name,
-      :distribution_network => self[:distribution_network],
-      :dc_start_date        => self[:start_date],
-      :dc_end_date          => self[:end_date],
-      :ikmc_project_id      => self.try(:mi_attempt).try(:es_cell).try(:ikmc_project_id),
-      :marker_symbol        => self.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
+      :distribution_network_name      => self[:distribution_network],
+      :distribution_centre_name       => self.centre_name,
+      :dc_start_date                  => self[:start_date],
+      :dc_end_date                    => self[:end_date],
+      :ikmc_project_id                => self.try(:mi_attempt).try(:es_cell).try(:ikmc_project_id),
+      :marker_symbol                  => self.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
     }
 
     # call class method
-    return ApplicationModel::DistributionCentre.calculate_order_link( params )
+    return ApplicationModel::DistributionCentre.calculate_order_link( params, config )
   end
 
 end

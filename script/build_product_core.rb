@@ -6,6 +6,8 @@ require "#{Rails.root}/script/solr_connect"
 
 class BuildProductCore
 
+  include ApplicationModel::DistributionCentre
+
   PLAN_SQL= <<-EOF
     SELECT mi_plans.id AS id,
        mi_plans.mutagenesis_via_crispr_cas9 AS crispr_plan,
@@ -738,72 +740,91 @@ class BuildProductCore
 
 
   def self.mice_order_links(distribution_centre, project_id, marker_symbol, config = nil)
-    config ||= YAML.load_file("#{Rails.root}/config/dist_centre_urls.yml")
+    params = {
+      :distribution_network_name      => distribution_centre[:distribution_network],
+      :distribution_centre_name       => distribution_centre[:centre_name],
+      :dc_start_date                  => distribution_centre[:start_date],
+      :dc_end_date                    => distribution_centre[:end_date],
+      :ikmc_project_id                => project_id,
+      :marker_symbol                  => marker_symbol
+    }
 
-    raise "Expecting to find KOMP in distribution centre config" if ! config.has_key? 'KOMP'
-    raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'EMMA'
-    raise "Expecting to find MMRRC in distribution centre config" if ! config.has_key? 'MMRRC'
-    raise "Expecting to find CMMR in distribution centre config" if ! config.has_key? 'CMMR'
-
-    order_from_name ||= []
-    order_from_url ||= []
-
-    centre_name = distribution_centre[:centre_name]
-    return [] if !['EMMA', 'KOMP', 'MMRRC', 'CMMR'].include?(distribution_centre[:distribution_network]) && ! ['UCD', 'KOMP Repo'].include?(centre_name) && ! (config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
-    current_time = Time.now
-
-    if distribution_centre[:start_date]
-      start_date = distribution_centre[:start_date]
-    else
-      start_date = current_time
-    end
-
-    if distribution_centre[:end_date]
-      end_date = distribution_centre[:end_date]
-    else
-      end_date = current_time
-    end
-
-    range = start_date.to_time..end_date.to_time
-
-    return [] if ! range.cover?(current_time)
-    centre = Centre.where("contact_email IS NOT NULL AND name = '#{centre_name}'").first
-    centre_name = 'KOMP' if ['UCD', 'KOMP Repo'].include?(centre_name)
-    centre_name = distribution_centre[:distribution_network] if !distribution_centre[:distribution_network].blank?
-    details = ''
-    if config.has_key?(centre_name) && (!config[centre_name][:default].blank? || !config[centre_name][:preferred].blank?)
-      # if blank then will default to order_from_url = details[:default]
-      details = config[centre_name]
-      order_from_url = details[:default]
-      order_from_name = centre_name
-
-      if !config[centre_name][:preferred].blank?
-        project_id = project_id
-        marker_symbol = marker_symbol
-
-        # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
-
-        if project_id &&  details[:preferred] =~ /PROJECT_ID/
-          order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
-        end
-
-        if marker_symbol && details[:preferred] =~ /MARKER_SYMBOL/
-          order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
-        end
-      end
-    elsif centre
-      details = centre
-      order_from_url = "mailto:#{details.contact_email}?subject=Mutant mouse enquiry"
-      order_from_name = centre_name
-    end
-
-    return [] if details.blank?
-
-    if order_from_url
-      return [order_from_name, order_from_url]
-    else
+    # create the order link
+    begin
+      return ApplicationModel::DistributionCentre.calculate_order_link( params, config )
+    rescue => e
+      puts "Error fetching order link. Exception details:"
+      puts e.inspect
+      puts e.backtrace.join("\n")
       return []
     end
+
+    # config ||= YAML.load_file("#{Rails.root}/config/dist_centre_urls.yml")
+
+    # raise "Expecting to find KOMP in distribution centre config" if ! config.has_key? 'KOMP'
+    # raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'EMMA'
+    # raise "Expecting to find MMRRC in distribution centre config" if ! config.has_key? 'MMRRC'
+    # raise "Expecting to find CMMR in distribution centre config" if ! config.has_key? 'CMMR'
+
+    # order_from_name ||= []
+    # order_from_url ||= []
+
+    # centre_name = distribution_centre[:centre_name]
+    # return [] if !['EMMA', 'KOMP', 'MMRRC', 'CMMR'].include?(distribution_centre[:distribution_network]) && ! ['UCD', 'KOMP Repo'].include?(centre_name) && ! (config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
+    # current_time = Time.now
+
+    # if distribution_centre[:start_date]
+    #   start_date = distribution_centre[:start_date]
+    # else
+    #   start_date = current_time
+    # end
+
+    # if distribution_centre[:end_date]
+    #   end_date = distribution_centre[:end_date]
+    # else
+    #   end_date = current_time
+    # end
+
+    # range = start_date.to_time..end_date.to_time
+
+    # return [] if ! range.cover?(current_time)
+    # centre = Centre.where("contact_email IS NOT NULL AND name = '#{centre_name}'").first
+    # centre_name = 'KOMP' if ['UCD', 'KOMP Repo'].include?(centre_name)
+    # centre_name = distribution_centre[:distribution_network] if !distribution_centre[:distribution_network].blank?
+    # details = ''
+    # if config.has_key?(centre_name) && (!config[centre_name][:default].blank? || !config[centre_name][:preferred].blank?)
+    #   # if blank then will default to order_from_url = details[:default]
+    #   details = config[centre_name]
+    #   order_from_url = details[:default]
+    #   order_from_name = centre_name
+
+    #   if !config[centre_name][:preferred].blank?
+    #     project_id = project_id
+    #     marker_symbol = marker_symbol
+
+    #     # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
+
+    #     if project_id &&  details[:preferred] =~ /PROJECT_ID/
+    #       order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
+    #     end
+
+    #     if marker_symbol && details[:preferred] =~ /MARKER_SYMBOL/
+    #       order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
+    #     end
+    #   end
+    # elsif centre
+    #   details = centre
+    #   order_from_url = "mailto:#{details.contact_email}?subject=Mutant mouse enquiry"
+    #   order_from_name = centre_name
+    # end
+
+    # return [] if details.blank?
+
+    # if order_from_url
+    #   return [order_from_name, order_from_url]
+    # else
+    #   return []
+    # end
   end
 
   def self.es_cell_and_targeting_vector_order_links(mgi_accession_id, marker_symbol, pipeline, ikmc_project_id)

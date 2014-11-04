@@ -63,15 +63,15 @@ module ApplicationModel::DistributionCentre
       puts "distribution_network_name recognised"
     else
       puts "distribution_network_name NOT recognised"
-      if ( ['UCD', 'KOMP Repo'].include?(params[:distribution_centre_name]) )
+      if ( ['UCD', 'KOMP Repo'].include?(config_name) )
         puts "distribution_centre_name is set to KOMP Repo or UCD"
       else
         puts "distribution_centre_name is NOT set to KOMP Repo or UCD"
-        if ( config.has_key?(params[:distribution_centre_name]) )
+        if ( config.has_key?(config_name) && (!config[config_name][:default].blank? || !config[config_name][:preferred].blank?) )
           puts "distribution_centre_name is in config so likely has contact details"
         else
           puts "distribution_centre_name is NOT in config"
-          if ( Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(params[:distribution_centre_name]))
+          if ( Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(config_name))
             puts "distribution_centre_name has a contact email address"
           else
             puts "distribution_centre_name does not have an contact email address"

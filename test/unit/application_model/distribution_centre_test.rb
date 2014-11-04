@@ -131,7 +131,7 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 should 'error if the distribution centre email contact is blank and neither default or preferred config links are supplied' do
                     midc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil )
                     exception = assert_raises(RuntimeError) { midc.calculate_order_link( @config ) }
-                    assert_equal( "Failed to select a centre with name <CNB> and a contact email address", exception.message )
+                    assert_equal( "Unrecognised or missing distribution network and unrecognised centre with no contact email address", exception.message )
                 end
 
             end
@@ -254,7 +254,7 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 should 'error if the distribution centre email contact is blank and neither default or preferred config links are supplied' do
                     padc = create_pa_dist_centre( nil, 'CNB', '2014-01-01', nil )
                     exception = assert_raises(RuntimeError) { padc.calculate_order_link( @config ) }
-                    assert_equal( "Failed to select a centre with name <CNB> and a contact email address", exception.message )
+                    assert_equal( "Unrecognised or missing distribution network and unrecognised centre with no contact email address", exception.message )
                 end
 
             end

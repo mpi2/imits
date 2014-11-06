@@ -150,6 +150,9 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
     params = {
       :distribution_network_name      => self[:distribution_network],
       :distribution_centre_name       => self.centre_name,
+      :production_centre_name         => self.try(:mouse_allele_mod).try(:mi_plan).try(:production_centre).try(:name),
+      :reconciled                     => self[:reconciled],
+      :available                      => self[:available],
       :dc_start_date                  => self[:start_date],
       :dc_end_date                    => self[:end_date],
       :ikmc_project_id                => self.try(:mouse_allele_mod).try(:mi_attempt).try(:es_cell).try(:ikmc_project_id),

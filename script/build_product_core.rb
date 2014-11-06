@@ -64,7 +64,7 @@ class BuildProductCore
     sql = <<-EOF
       WITH es_cells AS (#{ES_CELL_SQL}),
       mouse_colonies AS (
-        SELECT mi_attempts.es_cell_id AS es_cell_id, array_agg(mi_attempts.colony_name) AS list
+        SELECT mi_attempts.es_cell_id AS es_cell_id, array_agg(mi_attempts.external_ref) AS list
         FROM mi_attempts
         GROUP BY mi_attempts.es_cell_id
       ),
@@ -220,7 +220,7 @@ class BuildProductCore
         es_cells.allele_symbol_superscript_template AS allele_symbol_superscript_template,
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         plans.crispr_plan AS crispr_plan,
-        mi_attempts.colony_name AS colony_name,
+        mi_attempts.external_ref AS colony_name,
         '' AS parent_colony_name,
         mi_attempt_statuses.name AS mouse_status,
         mi_attempt_status_stamps.created_at AS mouse_status_date,
@@ -271,7 +271,7 @@ class BuildProductCore
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         false AS crispr_plan,
         mouse_allele_mods.colony_name AS colony_name,
-        mi_attempts.colony_name AS parent_colony_name,
+        mi_attempts.external_ref AS parent_colony_name,
         mouse_allele_mod_statuses.name AS mouse_status,
         mouse_allele_mod_status_stamps.created_at AS mouse_status_date,
         '' AS es_cell_name,

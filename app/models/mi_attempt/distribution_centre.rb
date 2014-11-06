@@ -36,21 +36,6 @@ class MiAttempt::DistributionCentre < ApplicationModel
     true # Rails doesn't save if you return false.
   end
 
-  # ## This is for backwards compatibility with portal.
-  # def is_distributed_by_emma
-  #   self.distribution_network == 'EMMA'
-  # end
-
-  # def is_distributed_by_emma=(bool)
-  #   ## Set distribution_network to EMMA if `bool` is true
-  #   if bool
-  #     self.distribution_network = 'EMMA'
-  #   ## Set distribution_network to nothing if `bool` is false and already set to EMMA, or leave as previous value.
-  #   elsif is_distributed_by_emma
-  #     self.distribution_network = nil
-  #   end
-  # end
-
   def self.readable_name
     return 'mi attempt distribution centre'
   end
@@ -160,6 +145,9 @@ class MiAttempt::DistributionCentre < ApplicationModel
     params = {
       :distribution_network_name      => self[:distribution_network],
       :distribution_centre_name       => self.centre_name,
+      :production_centre_name         => self.try(:mi_attempt).try(:mi_plan).try(:production_centre).try(:name),
+      :reconciled                     => self[:reconciled],
+      :available                      => self[:available],
       :dc_start_date                  => self[:start_date],
       :dc_end_date                    => self[:end_date],
       :ikmc_project_id                => self.try(:mi_attempt).try(:es_cell).try(:ikmc_project_id),

@@ -246,15 +246,17 @@
 
 <div class="clear"></div>
 
-    <% @mmrrc_reports.keys.each do |key| %>
-<div class="grid_4">
-        <h3>MMRRC - <%= key %></h3>
-        <% @mmrrc_reports[key].keys.each do |key2| %>
-          <div class="report-links">
-            <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :mmrrc, :centre => key, :type => key2) %>">
-              <h4><%= key2 %></h4>
-            </a>
-          </div>
-        <% end %>
-</div>
+<% if @mmrrc_reports %>
+  <% @mmrrc_reports.keys.each do |key| %>
+    <div class="grid_4">
+    <h3>MMRRC - <%= key %></h3>
+    <% @mmrrc_reports[key].keys.each do |key2| %>
+      <div class="report-links">
+        <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :mmrrc, :centre => key, :type => key2) %>">
+        <h4><%= key2 %></h4>
+        </a>
+      </div>
     <% end %>
+    </div>
+  <% end %>
+<% end %>

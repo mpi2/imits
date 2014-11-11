@@ -262,6 +262,8 @@ class MmrrcNew
   end
 
   def get_files
+    return {} if ! File.exists?(FOLDER)
+
     folders = {}
     Dir.foreach(FOLDER) do |dir|
       next if dir == '.' || dir == '..'

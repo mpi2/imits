@@ -9,9 +9,13 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
             :centre                 => Centre.find_by_name!(centre_name),
             :start_date             => start_date,
             :end_date               => end_date,
-            :reconciled             => reconciled,
-            :available              => available
+            :reconciled             => reconciled
         )
+        # set available after saving midc to avoid before_save method overrides
+        midc.available = available
+        midc.save!
+        midc.reload
+
         return midc
     end
 
@@ -69,20 +73,20 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 end
 
                 should 'use the preferred distribution network config link when it requires a marker symbol and one is supplied' do
-                    midc = create_mi_dist_centre( 'EMMA', 'BCM', '2014-01-01', nil, 'not checked', nil )
+                    midc = create_mi_dist_centre( 'EMMA', 'BCM', '2014-01-01', nil, 'not checked', true )
                     marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal ['EMMA', "http://www.emmanet.org/mutant_types.php?keyword=#{marker_symbol}"], midc.calculate_order_link( @config )
                 end
 
                 should 'error if distribution network is not recognised' do
-                    midc = create_mi_dist_centre( 'TEST', 'HMGU', '2014-01-01', nil, 'not checked', nil )
+                    midc = create_mi_dist_centre( 'TEST', 'HMGU', '2014-01-01', nil, 'not checked', true )
                     exception = assert_raises(RuntimeError) { midc.calculate_order_link( @config ) }
                     assert_equal( "Distribution network name <TEST> not recognised, cannot generate order link", exception.message )
                 end
 
                 should 'error if neither distribution network or distribution centre or production centre has suitable contact' do
-                    midc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', nil )
+                    midc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', true )
                     production_centre_name = midc.try(:mi_attempt).try(:mi_plan).try(:production_centre).try(:name)
                     assert_false production_centre_name.nil?
                     exception = assert_raises(RuntimeError) { midc.calculate_order_link( @config ) }
@@ -90,7 +94,7 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 end
 
                 should 'error if the current time is outside of the start and end date range' do
-                    midc = create_mi_dist_centre( 'CMMR', 'HMGU', '2014-01-01', '2014-02-01', 'not checked', nil )
+                    midc = create_mi_dist_centre( 'CMMR', 'HMGU', '2014-01-01', '2014-02-01', 'not checked', true )
                     exception = assert_raises(RuntimeError) { midc.calculate_order_link( @config ) }
                     assert_equal( "Distribution Centre date range not current, cannot create order link", exception.message )
                 end
@@ -116,26 +120,26 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 end
 
                 should 'use the preferred distribution centre config link when it requires a project id and one is supplied' do
-                    midc = create_mi_dist_centre( nil, 'Monterotondo', '2014-01-01', nil, 'not checked', nil )
+                    midc = create_mi_dist_centre( nil, 'Monterotondo', '2014-01-01', nil, 'not checked', true )
                     project_id = midc.try(:mi_attempt).try(:es_cell).try(:ikmc_project_id)
                     assert_false project_id.nil?
                     assert_equal [ 'Monterotondo', "www.Monterotondo.com?query=#{project_id}"], midc.calculate_order_link( @config )
                 end
 
                 should 'use the preferred distribution centre config link when it requires a marker symbol and one is supplied' do
-                    midc = create_mi_dist_centre( nil, 'BCM', '2014-01-01', nil, 'not checked', nil )
+                    midc = create_mi_dist_centre( nil, 'BCM', '2014-01-01', nil, 'not checked', true )
                     marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal [ 'BCM', "mailto:kompgroup@bcm.edu?subject=Mutant mouse for #{marker_symbol}"], midc.calculate_order_link( @config )
                 end
 
                 should 'use the distribution centre email contact for the link when neither default or preferred config links are supplied' do
-                    midc = create_mi_dist_centre( nil, 'JAX', '2014-01-01', nil, 'not checked', nil )
+                    midc = create_mi_dist_centre( nil, 'JAX', '2014-01-01', nil, 'not checked', true )
                     assert_equal [ 'JAX', "mailto:komp2@jax.org?subject=Mutant mouse enquiry"], midc.calculate_order_link( @config )
                 end
 
                 should 'use the production centre email contact when neither default or preferred config links are supplied' do
-                    midc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', nil )
+                    midc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', true )
                     production_centre = midc.try(:mi_attempt).try(:mi_plan).try(:production_centre)
                     production_centre.name          = 'TEST'
                     production_centre.contact_name  = 'test'
@@ -148,7 +152,7 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 end
 
                 should 'error if the production centre email contact is blank' do
-                    midc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', nil )
+                    midc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', true )
                     production_centre_name = midc.try(:mi_attempt).try(:mi_plan).try(:production_centre).try(:name)
                     assert_false production_centre_name.nil?
                     exception = assert_raises(RuntimeError) { midc.calculate_order_link( @config ) }
@@ -158,13 +162,6 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
             end
 
             context 'For Mi Attempt KOMP-specific tests' do
-
-                should 'set the network to KOMP and return a KOMP link when the centre is UCD and both reconciled and available flags true' do
-                    midc = create_mi_dist_centre( nil, 'UCD', '2014-01-01', nil, 'true', true )
-                    project_id = midc.try(:mi_attempt).try(:es_cell).try(:ikmc_project_id)
-                    assert_false project_id.nil?
-                    assert_equal [ 'KOMP', "http://www.komp.org/geneinfo.php?project=#{project_id}"], midc.calculate_order_link( @config )
-                end
 
                 should 'set the network to KOMP and return a KOMP link when the centre is KOMP Repo and both reconciled and available flags true' do
                     midc = create_mi_dist_centre( nil, 'KOMP Repo', '2014-01-01', nil, 'true', true )
@@ -179,14 +176,6 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                     assert_false marker_symbol.nil?
                     assert_equal [ 'MMRRC', "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"], midc.calculate_order_link( @config )
                 end
-
-                # should 'not allow other than KOMP or MMRRC as the distribution network when the centre is KOMP Repo or UCD and both reconciled and available flags true' do
-                #     midc = create_mi_dist_centre( 'CMMR', 'KOMP Repo', '2014-01-01', nil, 'true', true )
-                #     marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
-                #     assert_false marker_symbol.nil?
-                #     # TODO: this test is incorrect, should throw exception
-                #     assert_equal [ 'CMMR', "mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for #{marker_symbol}"], midc.calculate_order_link( @config )
-                # end
 
                 should 'return blank order link if the reconciled flag is not set to true' do
                     midc = create_mi_dist_centre( 'MMRRC', 'KOMP Repo', '2014-01-01', nil, 'false', true )
@@ -221,20 +210,20 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 end
 
                 should 'use the preferred distribution network config link when it requires a marker symbol and one is supplied' do
-                    padc = create_mi_dist_centre( 'EMMA', 'BCM', '2014-01-01', nil, 'not checked', nil )
+                    padc = create_mi_dist_centre( 'EMMA', 'BCM', '2014-01-01', nil, 'not checked', true )
                     marker_symbol = padc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal ['EMMA', "http://www.emmanet.org/mutant_types.php?keyword=#{marker_symbol}"], padc.calculate_order_link( @config )
                 end
 
                 should 'error if distribution network is not recognised' do
-                    padc = create_mi_dist_centre( 'TEST', 'HMGU', '2014-01-01', nil, 'not checked', nil )
+                    padc = create_mi_dist_centre( 'TEST', 'HMGU', '2014-01-01', nil, 'not checked', true )
                     exception = assert_raises(RuntimeError) { padc.calculate_order_link( @config ) }
                     assert_equal( "Distribution network name <TEST> not recognised, cannot generate order link", exception.message )
                 end
 
                 should 'error if neither distribution network or distribution centre or production centre has suitable contact' do
-                    padc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', nil )
+                    padc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', true )
                     production_centre_name = padc.try(:mi_attempt).try(:mi_plan).try(:production_centre).try(:name)
                     assert_false production_centre_name.nil?
                     exception = assert_raises(RuntimeError) { padc.calculate_order_link( @config ) }
@@ -242,7 +231,7 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 end
 
                 should 'error if the current time is outside of the start and end date range' do
-                    padc = create_mi_dist_centre( 'CMMR', 'HMGU', '2014-01-01', '2014-02-01', 'not checked', nil )
+                    padc = create_mi_dist_centre( 'CMMR', 'HMGU', '2014-01-01', '2014-02-01', 'not checked', true )
                     exception = assert_raises(RuntimeError) { padc.calculate_order_link( @config ) }
                     assert_equal( "Distribution Centre date range not current, cannot create order link", exception.message )
                 end
@@ -268,26 +257,26 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 end
 
                 should 'use the preferred distribution centre config link when it requires a project id and one is supplied' do
-                    padc = create_mi_dist_centre( nil, 'Monterotondo', '2014-01-01', nil, 'not checked', nil )
+                    padc = create_mi_dist_centre( nil, 'Monterotondo', '2014-01-01', nil, 'not checked', true )
                     project_id = padc.try(:mi_attempt).try(:es_cell).try(:ikmc_project_id)
                     assert_false project_id.nil?
                     assert_equal [ 'Monterotondo', "www.Monterotondo.com?query=#{project_id}"], padc.calculate_order_link( @config )
                 end
 
                 should 'use the preferred distribution centre config link when it requires a marker symbol and one is supplied' do
-                    padc = create_mi_dist_centre( nil, 'BCM', '2014-01-01', nil, 'not checked', nil )
+                    padc = create_mi_dist_centre( nil, 'BCM', '2014-01-01', nil, 'not checked', true )
                     marker_symbol = padc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal [ 'BCM', "mailto:kompgroup@bcm.edu?subject=Mutant mouse for #{marker_symbol}"], padc.calculate_order_link( @config )
                 end
 
                 should 'use the distribution centre email contact for the link when neither default or preferred config links are supplied' do
-                    padc = create_mi_dist_centre( nil, 'JAX', '2014-01-01', nil, 'not checked', nil )
+                    padc = create_mi_dist_centre( nil, 'JAX', '2014-01-01', nil, 'not checked', true )
                     assert_equal [ 'JAX', "mailto:komp2@jax.org?subject=Mutant mouse enquiry"], padc.calculate_order_link( @config )
                 end
 
                 should 'use the production centre email contact when neither default or preferred config links are supplied' do
-                    padc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', nil )
+                    padc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', true )
                     production_centre = padc.try(:mi_attempt).try(:mi_plan).try(:production_centre)
                     production_centre.name          = 'TEST'
                     production_centre.contact_name  = 'test'
@@ -300,7 +289,7 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                 end
 
                 should 'error if the production centre email contact is blank' do
-                    padc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', nil )
+                    padc = create_mi_dist_centre( nil, 'CNB', '2014-01-01', nil, 'not checked', true )
                     production_centre_name = padc.try(:mi_attempt).try(:mi_plan).try(:production_centre).try(:name)
                     assert_false production_centre_name.nil?
                     exception = assert_raises(RuntimeError) { padc.calculate_order_link( @config ) }
@@ -310,13 +299,6 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
             end
 
             context 'For Phenotype Attempt KOMP-specific tests' do
-
-                should 'set the network to KOMP and return a KOMP link when the centre is UCD and both reconciled and available flags true' do
-                    padc = create_mi_dist_centre( nil, 'UCD', '2014-01-01', nil, 'true', true )
-                    project_id = padc.try(:mi_attempt).try(:es_cell).try(:ikmc_project_id)
-                    assert_false project_id.nil?
-                    assert_equal [ 'KOMP', "http://www.komp.org/geneinfo.php?project=#{project_id}"], padc.calculate_order_link( @config )
-                end
 
                 should 'set the network to KOMP and return a KOMP link when the centre is KOMP Repo and both reconciled and available flags true' do
                     padc = create_mi_dist_centre( nil, 'KOMP Repo', '2014-01-01', nil, 'true', true )
@@ -331,14 +313,6 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                     assert_false marker_symbol.nil?
                     assert_equal [ 'MMRRC', "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"], padc.calculate_order_link( @config )
                 end
-
-                # should 'not allow other than KOMP or MMRRC as the distribution network when the centre is KOMP Repo or UCD and both reconciled and available flags true' do
-                #     padc = create_mi_dist_centre( 'CMMR', 'KOMP Repo', '2014-01-01', nil, 'true', true )
-                #     marker_symbol = padc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
-                #     assert_false marker_symbol.nil?
-                #     # TODO: this test is incorrect, should throw exception
-                #     assert_equal [ 'CMMR', "mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for #{marker_symbol}"], padc.calculate_order_link( @config )
-                # end
 
                 should 'return blank order link if the reconciled flag is not set to true' do
                     padc = create_mi_dist_centre( 'MMRRC', 'KOMP Repo', '2014-01-01', nil, 'false', true )

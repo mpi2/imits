@@ -1203,7 +1203,7 @@ CREATE TABLE mi_attempt_distribution_centres (
     distribution_network character varying(255),
     reconciled character varying(255) DEFAULT 'not checked'::character varying NOT NULL,
     reconciled_at timestamp without time zone,
-    available boolean DEFAULT false
+    available boolean DEFAULT true NOT NULL
 );
 
 
@@ -2176,7 +2176,7 @@ CREATE TABLE phenotype_attempt_distribution_centres (
     mouse_allele_mod_id integer,
     reconciled character varying(255) DEFAULT 'not checked'::character varying NOT NULL,
     reconciled_at timestamp without time zone,
-    available boolean DEFAULT false
+    available boolean DEFAULT true NOT NULL
 );
 
 

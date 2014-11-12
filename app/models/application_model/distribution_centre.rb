@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require 'pp'
+
 module ApplicationModel::DistributionCentre
 
   DISTRIBUTION_NETWORKS = %w{
@@ -37,6 +39,26 @@ module ApplicationModel::DistributionCentre
     end
   end
 
+  def update_whether_distribution_centre_available
+    # TODO remove puts
+    puts "update_whether_distribution_centre_available: CHECKING IF AVAILABLE"
+    puts "update_whether_distribution_centre_available: Current centre name = #{self.centre.name}"
+
+    if ( ['KOMP Repo', 'UCD'].include?( self.centre.name ) )
+      puts "update_whether_distribution_centre_available: Centre name is KOMP Repo or UCD"
+
+      if self.changed? && self.changed_attributes.has_key?('centre_id')
+        puts "update_whether_distribution_centre_available: Centre has changed to KOMP Repo or UCD, set available false"
+        self.available = false
+      end
+    else
+      if ( self.available == false )
+        self.available = true
+        puts "update_whether_distribution_centre_available: Updating available to true from false"
+      end
+    end
+  end
+
   ##
   # class method to calculate an order link
   ##
@@ -49,11 +71,11 @@ module ApplicationModel::DistributionCentre
     available                 = params[:available]
 
     # attempt to use network contact (preferred or default) to make order link
-    if ( ['MMRRC'].include?( distribution_network_name ) )
+    if ( ['KOMP', 'MMRRC'].include?( distribution_network_name ) )
       if ( ( reconciled == 'true' ) && ( available == true ) )
         return self.compile_order_link( distribution_network_name, params, config )
       else
-        puts "Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
+        # puts "Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
         return []
       end
 
@@ -68,18 +90,28 @@ module ApplicationModel::DistributionCentre
         if ( ( reconciled == 'true' ) && ( available == true ) )
           return self.compile_order_link( 'KOMP', params, config )
         else
-          puts "Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
+          # puts "Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
           return []
         end
       else
         # at this point we have no network, and distribution centre is not KOMP Repo or UCD
         # check if we have config or centre contact details for the distribution centre
-        if ( config.has_key?( distribution_centre_name ) && ( ( ( !config[distribution_centre_name][:default].blank? ) || ( !config[distribution_centre_name][:preferred].blank? ) ) || ( Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?( distribution_centre_name ) ) ) )
+        if (
+            (
+                config.has_key?( distribution_centre_name ) && (
+                  ( !config[distribution_centre_name][:default].blank? ) ||
+                  ( !config[distribution_centre_name][:preferred].blank? ))
+            ) \
+            || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?( distribution_centre_name )
+          )
           return self.compile_order_link( distribution_centre_name, params, config )
         end
 
         # cannot use the distribution centre, attempt to use the production centre
-        if ( !production_centre_name.nil? && ( Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?( production_centre_name ) ) )
+        if ( !production_centre_name.nil? && (
+              Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?( production_centre_name )
+            )
+        )
           return self.compile_order_link( production_centre_name, params, config )
         else
           raise "No contact details available for production centre <#{production_centre_name}>, cannot generate order link"

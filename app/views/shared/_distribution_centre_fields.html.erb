@@ -14,6 +14,7 @@
     <td>
         <%= f.text_field :end_date, :label => 'End Date', :class => 'date-field' %>
     </td>
+    <td><%= f.object.available %></td>
     <td><%= f.object.reconciled %></td>
     <% if f.object.reconciled_at.nil? %>
         <td></td>

@@ -240,7 +240,7 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
     t.string   "distribution_network"
     t.string   "reconciled",             :default => "not checked", :null => false
     t.datetime "reconciled_at"
-    t.boolean  "available",              :default => false
+    t.boolean  "available",              :default => true,          :null => false
   end
 
   create_table "mi_attempt_status_stamps", :force => true do |t|
@@ -754,7 +754,7 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
     t.integer  "mouse_allele_mod_id"
     t.string   "reconciled",             :default => "not checked", :null => false
     t.datetime "reconciled_at"
-    t.boolean  "available",              :default => false
+    t.boolean  "available",              :default => true,          :null => false
   end
 
   create_table "phenotype_attempt_status_stamps", :force => true do |t|

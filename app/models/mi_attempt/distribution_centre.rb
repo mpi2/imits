@@ -5,6 +5,10 @@ class MiAttempt::DistributionCentre < ApplicationModel
   include Public::Serializable
   include ApplicationModel::DistributionCentre
 
+  class Error <  ApplicationModel::ValidationError; end
+  class UnsuitableDistributionNetworkError < Error; end
+  class UnsuitableDistributionCentreError < Error; end
+
   acts_as_audited
 
   WRITABLE_ATTRIBUTES = %w{
@@ -29,9 +33,38 @@ class MiAttempt::DistributionCentre < ApplicationModel
     ## TODO: Update martbuilder so we don't need to continue updating the boolean.
     self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
 
-    if (!self.distribution_network.blank?) && self.centre.name == 'KOMP Repo'
-      self.centre = self.mi_attempt.mi_plan.production_centre
+    if self.distribution_network.blank?
+      # puts 'before_save: network blank'
+      if self.centre.name == 'UCD'
+        # puts 'before_save: centre UCD, error because should be KOMP Repo'
+        raise UnsuitableDistributionCentreError, "When the distribution network is blank use distribution centre KOMP Repo rather than UCD."
+      end
+
+    # TODO remove ? will loop
+    elsif self.distribution_network == 'MMRRC'
+      # puts 'before_save: network MMRRC, no action'
+
+      # if self.centre.name == 'KOMP Repo'
+      #   puts "before_save: centre KOMP Repo, set centre to production centre #{self.mi_attempt.mi_plan.production_centre.name}"
+      #   self.centre = self.mi_attempt.mi_plan.production_centre
+      # elsif self.centre.name == 'UCD'
+      #   puts 'before_save: centre UCD'
+      #   if ( ! self.mi_attempt.mi_plan.production_centre.name == 'UCD' )
+      #     puts "before_save: production centre #{self.mi_attempt.mi_plan.production_centre.name}, change centre to KOMP Repo"
+      #     self.centre = Centre.find_by_name('KOMP Repo')
+      #   end
+      # end
+
+    else
+      # network is EMMA or CMMR
+      # puts "before_save: network = #{self.distribution_network}"
+      if ( self.centre.name == 'KOMP Repo' ) # TODO remove this ? || ( self.centre.name == 'UCD' && ( ! self.mi_attempt.mi_plan.production_centre.name == 'UCD' ) )
+        # puts "before_save: centre = self.centre.name, prod centre = #{self.mi_attempt.mi_plan.production_centre.name}"
+        raise UnsuitableDistributionNetworkError, "The distribution network cannot be set to anything other than MMRRC for distribution centres KOMP Repo or UCD. If you want to indicate that you're distributing to another network then you need to create another distribution centre for your production centre and then select the new network."
+      end
     end
+
+    self.update_whether_distribution_centre_available # this method in module mi_attempt_distribution_centre
 
     true # Rails doesn't save if you return false.
   end
@@ -176,5 +209,5 @@ end
 #  distribution_network   :string(255)
 #  reconciled             :string(255)      default("not checked"), not null
 #  reconciled_at          :datetime
-#  available              :boolean          default(FALSE)
+#  available              :boolean          default(TRUE), not null
 #

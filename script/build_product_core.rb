@@ -46,14 +46,15 @@ class BuildProductCore
   EOF
 
   DISTRIBUTION_CENTRES_SQL= <<-EOF
-    SELECT all_dis_centres.mi_attempt_id, all_dis_centres.phenotype_attempt_id, array_agg(all_dis_centres.centre_name) AS centre_names, array_agg(all_dis_centres.distribution_network) AS distribution_networks, array_agg(all_dis_centres.start_date) AS start_dates, array_agg(all_dis_centres.end_date) AS end_dates
+    SELECT all_dis_centres.mi_attempt_id, all_dis_centres.phenotype_attempt_id, array_agg(all_dis_centres.centre_name) AS centre_names, array_agg(all_dis_centres.distribution_network) AS distribution_networks,
+           array_agg(all_dis_centres.start_date) AS start_dates, array_agg(all_dis_centres.end_date) AS end_dates, array_agg(all_dis_centres.reconciled) AS reconciled, array_agg(all_dis_centres.available) AS available
     FROM
     (
-      SELECT mi_attempt_id AS mi_attempt_id, NULL AS phenotype_attempt_id, centres.name AS centre_name, distribution_network, start_date, end_date
+      SELECT mi_attempt_id AS mi_attempt_id, NULL AS phenotype_attempt_id, centres.name AS centre_name, distribution_network, start_date, end_date, reconciled, available
       FROM mi_attempt_distribution_centres
       LEFT JOIN centres ON centres.id = mi_attempt_distribution_centres.centre_id
       UNION ALL
-      SELECT NULL AS mi_attempt_id, phenotype_attempt_id AS phenotype_attempt_id, centres.name AS centre_name, distribution_network, start_date, end_date
+      SELECT NULL AS mi_attempt_id, phenotype_attempt_id AS phenotype_attempt_id, centres.name AS centre_name, distribution_network, start_date, end_date, reconciled, available
       FROM phenotype_attempt_distribution_centres
       LEFT JOIN centres ON centres.id = phenotype_attempt_distribution_centres.centre_id
     ) AS all_dis_centres
@@ -243,6 +244,8 @@ class BuildProductCore
         distribution_centres.distribution_networks AS distribution_networks,
         distribution_centres.start_dates AS distribution_start_dates,
         distribution_centres.end_dates AS distribution_end_dates,
+        distribution_centres.reconciled AS distribution_reconciled,
+        distribution_centres.available AS distribution_available,
         plans.gene_id AS imits_gene_id,
         ARRAY[MI_ATTEMPT_QC_RESULTS] AS qc_data
       FROM (mi_attempts
@@ -293,6 +296,8 @@ class BuildProductCore
         distribution_centres.distribution_networks AS distribution_networks,
         distribution_centres.start_dates AS distribution_start_dates,
         distribution_centres.end_dates AS distribution_end_dates,
+        distribution_centres.reconciled AS distribution_reconciled,
+        distribution_centres.available AS distribution_available,
         plans.gene_id AS imits_gene_id,
         ARRAY[PHENOTYPE_ATTEMPT_QC_RESULTS] AS qc_data
       FROM (mouse_allele_mods
@@ -328,9 +333,9 @@ class BuildProductCore
     @solr_password = @config['options']['SOLR_PASSWORD']
     @dataset_max_size = 80000
     @process_mice = true
-    @process_es_cells = true
-    @process_targeting_vectors = true
-    @process_intermediate_vectors = true
+    @process_es_cells = false
+    @process_targeting_vectors = false
+    @process_intermediate_vectors = false
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',
@@ -689,19 +694,26 @@ class BuildProductCore
 
   def self.get_distribution_centres row
     return [] if row['distribution_centre_names'].blank?
-    centres  = convert_to_array(row['distribution_centre_names'])
-    networks = convert_to_array(row['distribution_networks'])
-    starts   = convert_to_array(row['distribution_start_dates'])
-    ends     = convert_to_array(row['distribution_end_dates'])
+
+    dist_centres      = convert_to_array(row['distribution_centre_names'])
+    networks          = convert_to_array(row['distribution_networks'])
+    starts            = convert_to_array(row['distribution_start_dates'])
+    ends              = convert_to_array(row['distribution_end_dates'])
+    reconcileds       = convert_to_array(row['distribution_reconciled'])
+    availables        = convert_to_array(row['distribution_available'])
+    prod_centre_name  = row['production_centre']
 
     distribution_centres = []
-    count = centres.count
+    count = dist_centres.count
     return [] if count == 0
     (0...count).each do |i|
-      distribution_centres << {:centre_name          => centres[i] == 'NULL' ?  nil : centres[i],
-                               :distribution_network => networks[i] == 'NULL' ?  nil : networks[i],
-                               :start_date           => starts[i] == 'NULL' ? nil : starts[i].to_time,
-                               :end_date             => ends[i] == 'NULL' ? nil : ends[i].to_time
+      distribution_centres << {:distribution_centre_name => dist_centres[i] == 'NULL' ?  nil : dist_centres[i],
+                               :distribution_network     => networks[i] == 'NULL' ?  nil : networks[i],
+                               :start_date               => starts[i] == 'NULL' ? nil : starts[i].to_time,
+                               :end_date                 => ends[i] == 'NULL' ? nil : ends[i].to_time,
+                               :reconciled               => reconcileds[i] == 'NULL' ? nil : reconcileds[i],
+                               :available                => availables[i] == 'NULL' ? nil : availables[i],
+                               :production_centre_name   => prod_centre_name
                                }
     end
     return distribution_centres
@@ -738,13 +750,15 @@ class BuildProductCore
     doc['order_links'] = order_link[:urls]
   end
 
-
   def self.mice_order_links(distribution_centre, project_id, marker_symbol, config = nil)
     params = {
       :distribution_network_name      => distribution_centre[:distribution_network],
-      :distribution_centre_name       => distribution_centre[:centre_name],
+      :distribution_centre_name       => distribution_centre[:distribution_centre_name],
+      :production_centre_name         => distribution_centre[:production_centre_name],
       :dc_start_date                  => distribution_centre[:start_date],
       :dc_end_date                    => distribution_centre[:end_date],
+      :reconciled                     => distribution_centre[:reconciled],
+      :available                      => distribution_centre[:available],
       :ikmc_project_id                => project_id,
       :marker_symbol                  => marker_symbol
     }
@@ -758,73 +772,6 @@ class BuildProductCore
       puts e.backtrace.join("\n")
       return []
     end
-
-    # config ||= YAML.load_file("#{Rails.root}/config/dist_centre_urls.yml")
-
-    # raise "Expecting to find KOMP in distribution centre config" if ! config.has_key? 'KOMP'
-    # raise "Expecting to find EMMA in distribution centre config" if ! config.has_key? 'EMMA'
-    # raise "Expecting to find MMRRC in distribution centre config" if ! config.has_key? 'MMRRC'
-    # raise "Expecting to find CMMR in distribution centre config" if ! config.has_key? 'CMMR'
-
-    # order_from_name ||= []
-    # order_from_url ||= []
-
-    # centre_name = distribution_centre[:centre_name]
-    # return [] if !['EMMA', 'KOMP', 'MMRRC', 'CMMR'].include?(distribution_centre[:distribution_network]) && ! ['UCD', 'KOMP Repo'].include?(centre_name) && ! (config.has_key?(centre_name) || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?(centre_name))
-    # current_time = Time.now
-
-    # if distribution_centre[:start_date]
-    #   start_date = distribution_centre[:start_date]
-    # else
-    #   start_date = current_time
-    # end
-
-    # if distribution_centre[:end_date]
-    #   end_date = distribution_centre[:end_date]
-    # else
-    #   end_date = current_time
-    # end
-
-    # range = start_date.to_time..end_date.to_time
-
-    # return [] if ! range.cover?(current_time)
-    # centre = Centre.where("contact_email IS NOT NULL AND name = '#{centre_name}'").first
-    # centre_name = 'KOMP' if ['UCD', 'KOMP Repo'].include?(centre_name)
-    # centre_name = distribution_centre[:distribution_network] if !distribution_centre[:distribution_network].blank?
-    # details = ''
-    # if config.has_key?(centre_name) && (!config[centre_name][:default].blank? || !config[centre_name][:preferred].blank?)
-    #   # if blank then will default to order_from_url = details[:default]
-    #   details = config[centre_name]
-    #   order_from_url = details[:default]
-    #   order_from_name = centre_name
-
-    #   if !config[centre_name][:preferred].blank?
-    #     project_id = project_id
-    #     marker_symbol = marker_symbol
-
-    #     # order of regex expression doesn't matter: http://stackoverflow.com/questions/5781362/ruby-operator
-
-    #     if project_id &&  details[:preferred] =~ /PROJECT_ID/
-    #       order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
-    #     end
-
-    #     if marker_symbol && details[:preferred] =~ /MARKER_SYMBOL/
-    #       order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
-    #     end
-    #   end
-    # elsif centre
-    #   details = centre
-    #   order_from_url = "mailto:#{details.contact_email}?subject=Mutant mouse enquiry"
-    #   order_from_name = centre_name
-    # end
-
-    # return [] if details.blank?
-
-    # if order_from_url
-    #   return [order_from_name, order_from_url]
-    # else
-    #   return []
-    # end
   end
 
   def self.es_cell_and_targeting_vector_order_links(mgi_accession_id, marker_symbol, pipeline, ikmc_project_id)

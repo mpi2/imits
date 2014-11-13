@@ -64,33 +64,52 @@ module ApplicationModel::DistributionCentre
   ##
   def self.calculate_order_link( params, config = nil )
 
+    require 'pp'
+    puts "------------------------------------------------------------------"
+    pp params
+
     distribution_centre_name  = params[:distribution_centre_name]
     distribution_network_name = params[:distribution_network_name]
     production_centre_name    = params[:production_centre_name]
     reconciled                = params[:reconciled]
     available                 = params[:available]
 
+    config ||= YAML.load_file("#{Rails.root}/config/dist_centre_urls.yml")
+
+    # check the config contains the main repositories
+    raise "Expecting to find KOMP in distribution centre config"  if ! config.has_key? 'KOMP'
+    raise "Expecting to find EMMA in distribution centre config"  if ! config.has_key? 'EMMA'
+    raise "Expecting to find MMRRC in distribution centre config" if ! config.has_key? 'MMRRC'
+    raise "Expecting to find CMMR in distribution centre config"  if ! config.has_key? 'CMMR'
+
     # attempt to use network contact (preferred or default) to make order link
     if ( ['KOMP', 'MMRRC'].include?( distribution_network_name ) )
-      if ( ( reconciled == 'true' ) && ( available == true ) )
+      puts "calculate_order_link: network KOMP or MMRRC"
+      if reconciled == 'true' && available
+        puts "calculate_order_link: reconciled and available"
         return self.compile_order_link( distribution_network_name, params, config )
       else
-        # puts "Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
+        puts "calculate_order_link: Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
         return []
       end
 
     elsif ( ['EMMA', 'CMMR'].include?( distribution_network_name ) )
+      puts "calculate_order_link: network EMMA or CMMR"
       return self.compile_order_link( distribution_network_name, params, config )
 
     elsif ( ( distribution_network_name.nil? ) || ( distribution_network_name == '' ) )
+      puts "calculate_order_link: network nil"
       # attempt to use distribution centre contact to make order link
       if ( ['UCD', 'KOMP Repo'].include?( distribution_centre_name ) )
 
+        puts "calculate_order_link: centre KOMP Repo or UCD"
+
         # use KOMP to create order link
-        if ( ( reconciled == 'true' ) && ( available == true ) )
+        if reconciled == 'true' && available
+          puts "calculate_order_link: reconciled and available"
           return self.compile_order_link( 'KOMP', params, config )
         else
-          # puts "Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
+          puts "calculate_order_link: Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
           return []
         end
       else
@@ -104,6 +123,7 @@ module ApplicationModel::DistributionCentre
             ) \
             || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?( distribution_centre_name )
           )
+          puts "calculate_order_link: have config or centre contact details"
           return self.compile_order_link( distribution_centre_name, params, config )
         end
 
@@ -112,6 +132,7 @@ module ApplicationModel::DistributionCentre
               Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?( production_centre_name )
             )
         )
+          puts "calculate_order_link: can use production centre"
           return self.compile_order_link( production_centre_name, params, config )
         else
           raise "No contact details available for production centre <#{production_centre_name}>, cannot generate order link"
@@ -129,17 +150,11 @@ module ApplicationModel::DistributionCentre
   # Compiles an order link given a config name (network, distribution or production centre name), parameters
   # and a configuration
   ##
-  def self.compile_order_link( config_name, params, config = nil )
+  def self.compile_order_link( config_name, params, config )
 
     raise "Expecting to find config key name to compile order link" if config_name.nil?
 
-    config ||= YAML.load_file("#{Rails.root}/config/dist_centre_urls.yml")
-
-    # check the config contains the main repositories
-    raise "Expecting to find KOMP in distribution centre config"  if ! config.has_key? 'KOMP'
-    raise "Expecting to find EMMA in distribution centre config"  if ! config.has_key? 'EMMA'
-    raise "Expecting to find MMRRC in distribution centre config" if ! config.has_key? 'MMRRC'
-    raise "Expecting to find CMMR in distribution centre config"  if ! config.has_key? 'CMMR'
+    raise "Distribution centre config cannot be nil"  if config.nil?
 
     order_from_name ||= []
     order_from_url  ||= []
@@ -197,6 +212,7 @@ module ApplicationModel::DistributionCentre
     if ( order_from_name.blank? || order_from_url.blank? )
       raise "Order from name or url blank, failed to create order link"
     else
+      puts "compile_order_link: order_fron_name = #{order_from_name}, order_from_url = #{order_from_url}"
       return [ order_from_name, order_from_url ]
     end
   end

@@ -39,25 +39,45 @@ module ApplicationModel::DistributionCentre
     end
   end
 
-  def update_whether_distribution_centre_available
-    # TODO remove puts
-    puts "update_whether_distribution_centre_available: CHECKING IF AVAILABLE"
-    puts "update_whether_distribution_centre_available: Current centre name = #{self.centre.name}"
-
-    if ( ['KOMP Repo', 'UCD'].include?( self.centre.name ) )
-      puts "update_whether_distribution_centre_available: Centre name is KOMP Repo or UCD"
-
-      if self.changed? && self.changed_attributes.has_key?('centre_id')
-        puts "update_whether_distribution_centre_available: Centre has changed to KOMP Repo or UCD, set available false"
-        self.available = false
+  def validate_distribution_centre_entry( dc )
+    if dc.distribution_network.blank?
+      if dc.centre.name == 'UCD'
+        dc.errors.add(:base, 'When the distribution network is blank use distribution centre KOMP Repo rather than UCD.')
       end
-    else
-      if ( self.available == false )
-        self.available = true
-        puts "update_whether_distribution_centre_available: Updating available to true from false"
+    end
+
+    if dc.distribution_network == 'MMRRC'
+      if dc.centre.name != 'UCD'
+        dc.errors.add(:base, 'When distribution network is set to MMRRC you must set the distribution centre to UCD.')
+      end
+    end
+
+    if ['EMMA', 'CMMR'].include?( dc.distribution_network )
+      if ( dc.centre.name == 'KOMP Repo' )
+        dc.errors.add(:base, 'The distribution network cannot be set to anything other than MMRRC for distribution centres KOMP Repo or UCD. If you want to indicate that you are distributing to another network then you need to create another distribution centre for your production centre and then select the new network.')
       end
     end
   end
+
+  # TODO: excluded for simplicity Nov 2014
+  # def update_whether_distribution_centre_available
+  #   puts "update_whether_distribution_centre_available: CHECKING IF AVAILABLE"
+  #   puts "update_whether_distribution_centre_available: Current centre name = #{self.centre.name}"
+
+  #   if ( ['KOMP Repo', 'UCD'].include?( self.centre.name ) )
+  #     puts "update_whether_distribution_centre_available: Centre name is KOMP Repo or UCD"
+
+  #     if self.changed? && self.changed_attributes.has_key?('centre_id')
+  #       puts "update_whether_distribution_centre_available: Centre has changed to KOMP Repo or UCD, set available false"
+  #       self.available = false
+  #     end
+  #   else
+  #     if ( self.available == false )
+  #       self.available = true
+  #       puts "update_whether_distribution_centre_available: Updating available to true from false"
+  #     end
+  #   end
+  # end
 
   ##
   # class method to calculate an order link

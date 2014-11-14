@@ -535,7 +535,7 @@ class BuildProductCore
       distribution_centres = self.class.get_distribution_centres(row)
 
       distribution_centres.each do |dis_centre|
-        order_name, order_link = self.class.mice_order_links(dis_centre, row["ikmc_project_id"], row["marker_symbol"])
+        order_name, order_link = self.class.mice_order_links(dis_centre)
         if order_name && order_link
           doc["order_names"] << order_name
           doc["order_links"] << order_link
@@ -702,6 +702,8 @@ class BuildProductCore
     reconcileds       = convert_to_array(row['distribution_reconciled'])
     availables        = convert_to_array(row['distribution_available'])
     prod_centre_name  = row['production_centre']
+    ikmc_project_id   = row["ikmc_project_id"]
+    marker_symbol     = row["marker_symbol"]
 
     distribution_centres = []
     count = dist_centres.count
@@ -713,8 +715,10 @@ class BuildProductCore
                                :end_date                 => ends[i] == 'NULL' ? nil : ends[i].to_time,
                                :reconciled               => reconcileds[i] == 'NULL' ? nil : reconcileds[i],
                                :available                => availables[i] == 'NULL' ? nil : availables[i],
-                               :production_centre_name   => prod_centre_name
-                               }
+                               :production_centre_name   => prod_centre_name,
+                               :ikmc_project_id          => ikmc_project_id,
+                               :marker_symbol            => marker_symbol
+                                }
     end
     return distribution_centres
   end
@@ -750,7 +754,7 @@ class BuildProductCore
     doc['order_links'] = order_link[:urls]
   end
 
-  def self.mice_order_links(distribution_centre, project_id, marker_symbol, config = nil)
+  def self.mice_order_links(distribution_centre, config = nil)
     params = {
       :distribution_network_name      => distribution_centre[:distribution_network],
       :distribution_centre_name       => distribution_centre[:distribution_centre_name],
@@ -759,8 +763,8 @@ class BuildProductCore
       :dc_end_date                    => distribution_centre[:end_date],
       :reconciled                     => distribution_centre[:reconciled],
       :available                      => distribution_centre[:available],
-      :ikmc_project_id                => project_id,
-      :marker_symbol                  => marker_symbol
+      :ikmc_project_id                => distribution_centre[:ikmc_project_id],
+      :marker_symbol                  => distribution_centre[:marker_symbol]
     }
 
     # create the order link

@@ -27,6 +27,10 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
   validates :centre_id, :presence => true
   validates :deposited_material_id, :presence => true
 
+  validate do |dc|
+    validate_distribution_centre_entry( dc )
+  end
+
   access_association_by_attribute :deposited_material, :name
   access_association_by_attribute :centre, :name
 
@@ -34,19 +38,8 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
     ## TODO: Update martbuilder so we don't need to continue updating the boolean.
     self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
 
-    if self.distribution_network.blank?
-      if self.centre.name == 'UCD'
-        raise UnsuitableDistributionCentreError, "When the distribution network is blank use distribution centre KOMP Repo rather than UCD."
-      end
-    elsif self.distribution_network == 'MMRRC'
-    else
-      # network is EMMA or CMMR
-      if ( self.centre.name == 'KOMP Repo' )
-        raise UnsuitableDistributionNetworkError, "The distribution network cannot be set to anything other than MMRRC for distribution centres KOMP Repo or UCD. If you want to indicate that you're distributing to another network then you need to create another distribution centre for your production centre and then select the new network."
-      end
-    end
-
-    self.update_whether_distribution_centre_available # this method in module mi_attempt_distribution_centre
+    # TODO: excluded for simplicity Nov 2014
+    # self.update_whether_distribution_centre_available # this method in module mi_attempt_distribution_centre
 
     true # Rails doesn't save if you return false.
   end

@@ -73,6 +73,8 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
 
       should "set is_distributed_by_emma to false if #distribution_network is not 'EMMA'" do
         @dc.distribution_network = 'MMRRC'
+        ucd_centre               = Centre.find_by_name('UCD')
+        @dc.centre               = ucd_centre
         @dc.save!
         assert_equal "MMRRC", @dc.distribution_network
         assert_equal false, @dc[:is_distributed_by_emma]
@@ -93,18 +95,6 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
         assert_equal true, @dc.available
       end
 
-      should 'set available flag to false if distribution centre changes to KOMP Repo' do
-        wtsi_centre      = Centre.find_by_name('WTSI')
-        @dc.centre       = wtsi_centre
-        @dc.save!
-        assert_equal true, @dc.available
-
-        komp_repo_centre = Centre.find_by_name('KOMP Repo')
-        @dc.centre       = komp_repo_centre
-        @dc.save!
-        assert_equal false, @dc.available
-      end
-
     end
 
     context '#distribution centre before save checks' do
@@ -119,8 +109,8 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
         @dc.centre               = ucd_centre
         @dc.distribution_network = nil
 
-        exception = assert_raises(MiAttempt::DistributionCentre::UnsuitableDistributionCentreError) { @dc.save! }
-        assert_equal( "When the distribution network is blank use distribution centre KOMP Repo rather than UCD.", exception.message )
+        exception = assert_raises(ActiveRecord::RecordInvalid) { @dc.save! }
+        assert_equal( "Validation failed: When the distribution network is blank use distribution centre KOMP Repo rather than UCD.", exception.message )
       end
 
       should 'save normally for blank network and centre KOMP Repo' do
@@ -147,9 +137,9 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
         assert_equal 'TCP', @dc.centre.name
       end
 
-      should 'save normally for network MMRRC and centre KOMP Repo' do
-        komp_repo_centre         = Centre.find_by_name('KOMP Repo')
-        @dc.centre               = komp_repo_centre
+      should 'save normally for network MMRRC and centre UCD' do
+        ucd_centre               = Centre.find_by_name('UCD')
+        @dc.centre               = ucd_centre
         @dc.distribution_network = 'MMRRC'
         assert_nothing_raised do
           @dc.save!
@@ -157,7 +147,7 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
         @dc.reload
 
         assert_equal 'MMRRC', @dc.distribution_network
-        assert_equal 'KOMP Repo', @dc.centre.name
+        assert_equal 'UCD', @dc.centre.name
       end
 
       should 'error for network CMMR and centre KOMP Repo' do
@@ -165,8 +155,9 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
         @dc.centre               = komp_repo_centre
         @dc.distribution_network = 'CMMR'
 
-        exception = assert_raises(MiAttempt::DistributionCentre::UnsuitableDistributionNetworkError) { @dc.save! }
-        assert_equal( "The distribution network cannot be set to anything other than MMRRC for distribution centres KOMP Repo or UCD. If you want to indicate that you're distributing to another network then you need to create another distribution centre for your production centre and then select the new network.", exception.message )
+        exception = assert_raises(ActiveRecord::RecordInvalid) { @dc.save! }
+        assert_equal( "Validation failed: The distribution network cannot be set to anything other than MMRRC for distribution centres KOMP Repo or UCD. If you want to indicate that you are distributing to another network then you need to create another distribution centre for your production centre and then select the new network.", exception.message )
+
       end
 
       should 'error for network EMMA and centre KOMP Repo' do
@@ -174,8 +165,8 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
         @dc.centre               = komp_repo_centre
         @dc.distribution_network = 'EMMA'
 
-        exception = assert_raises(MiAttempt::DistributionCentre::UnsuitableDistributionNetworkError) { @dc.save! }
-        assert_equal( "The distribution network cannot be set to anything other than MMRRC for distribution centres KOMP Repo or UCD. If you want to indicate that you're distributing to another network then you need to create another distribution centre for your production centre and then select the new network.", exception.message )
+        exception = assert_raises(ActiveRecord::RecordInvalid) { @dc.save! }
+        assert_equal( "Validation failed: The distribution network cannot be set to anything other than MMRRC for distribution centres KOMP Repo or UCD. If you want to indicate that you are distributing to another network then you need to create another distribution centre for your production centre and then select the new network.", exception.message )
       end
 
     end

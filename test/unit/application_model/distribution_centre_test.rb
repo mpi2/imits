@@ -170,22 +170,22 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                     assert_equal [ 'KOMP', "http://www.komp.org/geneinfo.php?project=#{project_id}"], midc.calculate_order_link( @config )
                 end
 
-                should 'allow MMRRC as the distribution network when not blank and the centre is KOMP Repo or UCD and both reconciled and available flags true' do
-                    midc = create_mi_dist_centre( 'MMRRC', 'KOMP Repo', '2014-01-01', nil, 'true', true )
+                should 'allow MMRRC as the distribution network when the centre is UCD and both reconciled and available flags true' do
+                    midc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'true', true )
                     marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal [ 'MMRRC', "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"], midc.calculate_order_link( @config )
                 end
 
                 should 'return blank order link if the reconciled flag is not set to true' do
-                    midc = create_mi_dist_centre( 'MMRRC', 'KOMP Repo', '2014-01-01', nil, 'false', true )
+                    midc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'false', true )
                     marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal [], midc.calculate_order_link( @config )
                 end
 
                 should 'return blank order link if the available flag is not set to true' do
-                    midc = create_mi_dist_centre( 'MMRRC', 'KOMP Repo', '2014-01-01', nil, 'true', false )
+                    midc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'true', false )
                     marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal [], midc.calculate_order_link( @config )
@@ -307,22 +307,22 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                     assert_equal [ 'KOMP', "http://www.komp.org/geneinfo.php?project=#{project_id}"], padc.calculate_order_link( @config )
                 end
 
-                should 'allow MMRRC as the distribution network when not blank and the centre is KOMP Repo or UCD and both reconciled and available flags true' do
-                    padc = create_mi_dist_centre( 'MMRRC', 'KOMP Repo', '2014-01-01', nil, 'true', true )
+                should 'allow MMRRC as the distribution network when the centre is UCD and both reconciled and available flags true' do
+                    padc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'true', true )
                     marker_symbol = padc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal [ 'MMRRC', "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"], padc.calculate_order_link( @config )
                 end
 
                 should 'return blank order link if the reconciled flag is not set to true' do
-                    padc = create_mi_dist_centre( 'MMRRC', 'KOMP Repo', '2014-01-01', nil, 'false', true )
+                    padc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'false', true )
                     marker_symbol = padc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal [], padc.calculate_order_link( @config )
                 end
 
                 should 'return blank order link if the available flag is not set to true' do
-                    padc = create_mi_dist_centre( 'MMRRC', 'KOMP Repo', '2014-01-01', nil, 'true', false )
+                    padc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'true', false )
                     marker_symbol = padc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
                     assert_equal [], padc.calculate_order_link( @config )

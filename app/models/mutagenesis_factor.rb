@@ -1,7 +1,7 @@
 class MutagenesisFactor < ActiveRecord::Base
   acts_as_audited
 
-  NUCLEASES = [nil, 'CAS9 mRNA', 'Cas9 Protein', 'D10A mRNA', 'D10A Protein'].freeze
+  NUCLEASES = [nil, 'CAS9 mRNA', 'CAS9 Protein', 'D10A mRNA', 'D10A Protein'].freeze
 
   attr_accessible :vector_name, :crisprs_attributes, :genotype_primers_attributes, :external_ref, :nuclease
 

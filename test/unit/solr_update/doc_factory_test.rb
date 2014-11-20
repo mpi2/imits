@@ -721,7 +721,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         @config = config
       end
 
-      should 'flip to KOMP if UCD found' do
+      should 'raise validation exception if UCD found and network blank' do
         config = @config
 
         @config = {
@@ -742,8 +742,15 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         :colony_background_strain => Strain.create!(:name => 'TEST STRAIN 2'),
         :es_cell => es_cell, :mi_plan => bash_wtsi_cbx1_plan
 
+        exception = assert_raises(ActiveRecord::RecordInvalid) {
+            dist_centre = Factory.create :mi_attempt_distribution_centre,
+            :centre => Centre.find_by_name!('UCD'),
+            :is_distributed_by_emma => false, :mi_attempt => mi_attempt
+        }
+        assert_equal( "Validation failed: When the distribution network is blank use distribution centre KOMP Repo rather than UCD.", exception.message )
+
         dist_centre = Factory.create :mi_attempt_distribution_centre,
-        :centre => Centre.find_by_name!('UCD'),
+        :centre => Centre.find_by_name!('KOMP Repo'),
         :is_distributed_by_emma => false, :mi_attempt => mi_attempt
 
         mi_attempt.distribution_centres = [dist_centre]

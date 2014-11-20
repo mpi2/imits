@@ -159,6 +159,8 @@ class Colony < ActiveRecord::Base
       return
     end
 
+    options[:keep_generated_files] ||= KEEP_GENERATED_FILES
+
     output = error_output = exception = nil
 
     begin
@@ -242,7 +244,10 @@ class Colony < ActiveRecord::Base
 
     self.save!
 
-    return if KEEP_GENERATED_FILES
+    if options[:keep_generated_files]
+      puts "#### check folder #{folder_in}"
+      return
+    end
 
     FileUtils.rm(Dir.glob("#{folder_in}/scf_to_seq/*.*"), :force => true)
     FileUtils.rmdir("#{folder_in}/scf_to_seq")

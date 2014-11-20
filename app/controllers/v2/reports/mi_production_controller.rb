@@ -808,4 +808,29 @@ class V2::Reports::MiProductionController < ApplicationController
     end
   end
 
+  public
+
+  def mmrrc
+    centre = params[:centre]
+    type = params[:type]
+
+    #puts "#### centre: '#{centre}' - type: '#{type}'"
+
+    mmrrc_reports = MmrrcNew.new.get_files
+
+    filename = mmrrc_reports[centre][type]
+
+    data = File.read(filename)
+
+    response.headers['Content-Length'] = data.size.to_s
+
+    ofilename = "#{centre.gsub(/\s+/, '-')}-#{type.gsub(/\s+/, '-')}-#{Time.now.strftime('%d-%m-%y--%H-%M')}.tsv".downcase
+
+    #puts "#### ofilename: '#{ofilename}'"
+
+    send_data data,
+      :type => 'text/tsv; charset=iso-8859-1; header=present',
+      :disposition => "attachment; filename=#{ofilename}"
+  end
+
 end

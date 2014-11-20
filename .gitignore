@@ -13,3 +13,4 @@ db/dump.*.sql
 .DS_Store
 *.log
 public/trace_files
+*.tsv

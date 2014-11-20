@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require "#{Rails.root}/script/make_mmrrc_reports2.rb"
+
 class ReportsController < ApplicationController
   respond_to :html, :csv
 
@@ -11,6 +13,7 @@ class ReportsController < ApplicationController
   include Reports::Helper
 
   def index
+    @mmrrc_reports = MmrrcNew.new.get_files
   end
 
   def double_assigned_plans_matrix

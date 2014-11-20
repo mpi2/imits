@@ -38,7 +38,8 @@ class Centre < ActiveRecord::Base
       end
       # limit selection to specific consortia
       mi_consortium_name = mi_attempt.mi_plan.consortium.name
-      if [ 'BaSH', 'JAX', 'DTCC', 'UCD-KOMP', 'DTCC-Legacy' ].include? mi_consortium_name
+      if [ 'BaSH', 'JAX', 'DTCC' ].include? mi_consortium_name
+      # if [ 'UCD-KOMP', 'DTCC-Legacy', 'MGP', 'MGP Legacy', 'EUCOMM-EUMODIC', 'MRC' ].include? mi_consortium_name
         mi_distribution_centres_filtered.push(mi_distribution_centre)
       end
     end
@@ -61,7 +62,8 @@ class Centre < ActiveRecord::Base
       end
       # limit selection to specific consortia
       ph_consortium_name = mouse_allele_mod.mi_plan.consortium.name
-      if [ 'BaSH', 'JAX', 'DTCC', 'UCD-KOMP', 'DTCC-Legacy' ].include? ph_consortium_name
+      if [ 'BaSH', 'JAX', 'DTCC' ].include? ph_consortium_name
+      # if [ 'UCD-KOMP', 'DTCC-Legacy', 'MGP', 'MGP Legacy', 'EUCOMM-EUMODIC', 'MRC' ].include? ph_consortium_name
         phenotype_distribution_centres_filtered.push(phenotype_distribution_centre)
       end
     end

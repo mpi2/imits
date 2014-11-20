@@ -65,8 +65,8 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                     assert_equal ['CMMR', 'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'], ApplicationModel::DistributionCentre.calculate_order_link( params, @config )
                 end
 
-                should 'use the preferred distribution network config link when it requires a project id and one is supplied' do
-                    midc = create_mi_dist_centre( 'KOMP', 'UCD', '2014-01-01', nil, 'true', true )
+                should 'use the preferred config link when it requires a project id and one is supplied' do
+                    midc = create_mi_dist_centre( nil, 'KOMP Repo', '2014-01-01', nil, 'true', true )
                     project_id = midc.try(:mi_attempt).try(:es_cell).try(:ikmc_project_id)
                     assert_false project_id.nil?
                     assert_equal ['KOMP', "http://www.komp.org/geneinfo.php?project=#{project_id}"], midc.calculate_order_link( @config )
@@ -177,18 +177,48 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
                     assert_equal [ 'MMRRC', "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"], midc.calculate_order_link( @config )
                 end
 
-                should 'return blank order link if the reconciled flag is not set to true' do
+                should 'return production centre order link if the reconciled flag is not set to true' do
                     midc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'false', true )
+
+                    # TODO: redmine ticket 11984 reactivate check on available and reconciled flags once MMRRC repository data is reconciled
+                    # production_centre = midc.try(:mi_attempt).try(:mi_plan).try(:production_centre)
+                    # production_centre.name          = 'TEST'
+                    # production_centre.contact_name  = 'test'
+                    # production_centre.contact_email = 'test@somemail.uk'
+                    # production_centre.save!
+
+                    # production_centre_name = midc.try(:mi_attempt).try(:mi_plan).try(:production_centre).try(:name)
+                    # assert_false production_centre_name.nil?
+
+                    # marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
+                    # assert_false marker_symbol.nil?
+                    # assert_equal [ 'TEST', "mailto:test@somemail.uk?subject=Mutant mouse for #{marker_symbol}"], midc.calculate_order_link( @config )
+
                     marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
-                    assert_equal [], midc.calculate_order_link( @config )
+                    assert_equal [ 'MMRRC', "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"], midc.calculate_order_link( @config )
                 end
 
                 should 'return blank order link if the available flag is not set to true' do
                     midc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'true', false )
+
+                    # TODO: redmine ticket 11984 reactivate check on available and reconciled flags once MMRRC repository data is reconciled
+                    # production_centre = midc.try(:mi_attempt).try(:mi_plan).try(:production_centre)
+                    # production_centre.name          = 'TEST'
+                    # production_centre.contact_name  = 'test'
+                    # production_centre.contact_email = 'test@somemail.uk'
+                    # production_centre.save!
+
+                    # production_centre_name = midc.try(:mi_attempt).try(:mi_plan).try(:production_centre).try(:name)
+                    # assert_false production_centre_name.nil?
+
+                    # marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
+                    # assert_false marker_symbol.nil?
+                    # assert_equal [ 'TEST', "mailto:test@somemail.uk?subject=Mutant mouse for #{marker_symbol}"], midc.calculate_order_link( @config )
+
                     marker_symbol = midc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
-                    assert_equal [], midc.calculate_order_link( @config )
+                    assert_equal [ 'MMRRC', "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"], midc.calculate_order_link( @config )
                 end
 
             end
@@ -202,8 +232,8 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
 
             context 'Where Phenotype Attempt distribution network is provided' do
 
-                should 'use the preferred distribution network config link when it requires a project id and one is supplied' do
-                    padc = create_mi_dist_centre( 'KOMP', 'UCD', '2014-01-01', nil, 'true', true )
+                should 'use the preferred config link when it requires a project id and one is supplied' do
+                    padc = create_mi_dist_centre( nil, 'KOMP Repo', '2014-01-01', nil, 'true', true )
                     project_id = padc.try(:mi_attempt).try(:es_cell).try(:ikmc_project_id)
                     assert_false project_id.nil?
                     assert_equal ['KOMP', "http://www.komp.org/geneinfo.php?project=#{project_id}"], padc.calculate_order_link( @config )
@@ -316,16 +346,40 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
 
                 should 'return blank order link if the reconciled flag is not set to true' do
                     padc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'false', true )
+
+                    # TODO: redmine ticket 11984 reactivate check on available and reconciled flags once MMRRC repository data is reconciled
+                    # production_centre = padc.try(:mi_attempt).try(:mi_plan).try(:production_centre)
+                    # production_centre.name          = 'TEST'
+                    # production_centre.contact_name  = 'test'
+                    # production_centre.contact_email = 'test@somemail.uk'
+                    # production_centre.save!
+
+                    # production_centre_name = padc.try(:mi_attempt).try(:mi_plan).try(:production_centre).try(:name)
+                    # assert_false production_centre_name.nil?
+                    # assert_equal [ 'TEST', "mailto:test@somemail.uk?subject=Mutant mouse enquiry"], padc.calculate_order_link( @config )
+
                     marker_symbol = padc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
-                    assert_equal [], padc.calculate_order_link( @config )
+                    assert_equal [ 'MMRRC', "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}" ], padc.calculate_order_link( @config )
                 end
 
                 should 'return blank order link if the available flag is not set to true' do
                     padc = create_mi_dist_centre( 'MMRRC', 'UCD', '2014-01-01', nil, 'true', false )
+
+                    # TODO: redmine ticket 11984 reactivate check on available and reconciled flags once MMRRC repository data is reconciled
+                    # production_centre = padc.try(:mi_attempt).try(:mi_plan).try(:production_centre)
+                    # production_centre.name          = 'TEST'
+                    # production_centre.contact_name  = 'test'
+                    # production_centre.contact_email = 'test@somemail.uk'
+                    # production_centre.save!
+
+                    # production_centre_name = padc.try(:mi_attempt).try(:mi_plan).try(:production_centre).try(:name)
+                    # assert_false production_centre_name.nil?
+                    # assert_equal [ 'TEST', "mailto:test@somemail.uk?subject=Mutant mouse enquiry"], padc.calculate_order_link( @config )
+
                     marker_symbol = padc.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
                     assert_false marker_symbol.nil?
-                    assert_equal [], padc.calculate_order_link( @config )
+                    assert_equal [ 'MMRRC', "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}" ], padc.calculate_order_link( @config )
                 end
             end
         end

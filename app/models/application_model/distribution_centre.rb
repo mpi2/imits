@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-require 'pp'
-
 module ApplicationModel::DistributionCentre
 
   DISTRIBUTION_NETWORKS = %w{
@@ -84,10 +82,6 @@ module ApplicationModel::DistributionCentre
   ##
   def self.calculate_order_link( params, config = nil )
 
-    require 'pp'
-    puts "------------------------------------------------------------------"
-    pp params
-
     distribution_centre_name  = params[:distribution_centre_name]
     distribution_network_name = params[:distribution_network_name]
     production_centre_name    = params[:production_centre_name]
@@ -103,38 +97,30 @@ module ApplicationModel::DistributionCentre
     raise "Expecting to find CMMR in distribution centre config"  if ! config.has_key? 'CMMR'
 
     # attempt to use network contact (preferred or default) to make order link
-    if ( ['KOMP', 'MMRRC'].include?( distribution_network_name ) )
-      puts "calculate_order_link: network KOMP or MMRRC"
-      if reconciled == 'true' && available
-        puts "calculate_order_link: reconciled and available"
-        return self.compile_order_link( distribution_network_name, params, config )
-      else
-        puts "calculate_order_link: Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
-        return []
-      end
+    if ( ['MMRRC'].include?( distribution_network_name ) )
+      # TODO: redmine ticket 11984 reactivate check on available and reconciled flags once MMRRC repository data is reconciled
+      # if reconciled == 'true' && available
+      return self.compile_order_link( distribution_network_name, params, config )
+      # else
+      #   return self.calculate_order_link_for_production_centre( production_centre_name, params, config )
+      # end
 
     elsif ( ['EMMA', 'CMMR'].include?( distribution_network_name ) )
-      puts "calculate_order_link: network EMMA or CMMR"
       return self.compile_order_link( distribution_network_name, params, config )
 
     elsif ( ( distribution_network_name.nil? ) || ( distribution_network_name == '' ) )
-      puts "calculate_order_link: network nil"
       # attempt to use distribution centre contact to make order link
       if ( ['UCD', 'KOMP Repo'].include?( distribution_centre_name ) )
-
-        puts "calculate_order_link: centre KOMP Repo or UCD"
-
-        # use KOMP to create order link
         if reconciled == 'true' && available
-          puts "calculate_order_link: reconciled and available"
+          # use KOMP to create order link
           return self.compile_order_link( 'KOMP', params, config )
         else
-          puts "calculate_order_link: Order link not generated as available = <#{available}> and reconciled = <#{reconciled}>"
-          return []
+          # attempt to use production centre to create the link here
+          return self.calculate_order_link_for_production_centre( production_centre_name, params, config )
         end
       else
         # at this point we have no network, and distribution centre is not KOMP Repo or UCD
-        # check if we have config or centre contact details for the distribution centre
+        # check if we can use the distribution centre contact
         if (
             (
                 config.has_key?( distribution_centre_name ) && (
@@ -143,25 +129,28 @@ module ApplicationModel::DistributionCentre
             ) \
             || Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?( distribution_centre_name )
           )
-          puts "calculate_order_link: have config or centre contact details"
           return self.compile_order_link( distribution_centre_name, params, config )
         end
 
         # cannot use the distribution centre, attempt to use the production centre
-        if ( !production_centre_name.nil? && (
-              Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?( production_centre_name )
-            )
-        )
-          puts "calculate_order_link: can use production centre"
-          return self.compile_order_link( production_centre_name, params, config )
-        else
-          raise "No contact details available for production centre <#{production_centre_name}>, cannot generate order link"
-        end
+        return self.calculate_order_link_for_production_centre( production_centre_name, params, config )
       end
 
     else
-      # network not recognised
       raise "Distribution network name <#{distribution_network_name}> not recognised, cannot generate order link"
+    end
+
+  end
+
+  def self.calculate_order_link_for_production_centre( production_centre_name, params, config )
+
+    if ( !production_centre_name.nil? && (
+          Centre.where("contact_email IS NOT NULL").map{|c| c.name}.include?( production_centre_name )
+        )
+    )
+      return self.compile_order_link( production_centre_name, params, config )
+    else
+      raise "No contact details available for production centre <#{production_centre_name}>, cannot generate order link"
     end
 
   end
@@ -232,7 +221,6 @@ module ApplicationModel::DistributionCentre
     if ( order_from_name.blank? || order_from_url.blank? )
       raise "Order from name or url blank, failed to create order link"
     else
-      puts "compile_order_link: order_fron_name = #{order_from_name}, order_from_url = #{order_from_url}"
       return [ order_from_name, order_from_url ]
     end
   end

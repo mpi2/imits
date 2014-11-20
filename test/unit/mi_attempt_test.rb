@@ -1097,35 +1097,35 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      context 'centre' do
-        context 'when set to KOMP Repo' do
-          should 'default back to production centre if distribution network is given' do
-            mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('TCP'))
-            mi_attempt = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
+      # context 'centre' do
+      #   context 'when set to KOMP Repo' do
+      #     should 'default back to production centre if distribution network is given' do
+      #       mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('TCP'))
+      #       mi_attempt = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
 
-            mi_plan2 = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('UCD'))
-            mi_attempt2 = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
+      #       mi_plan2 = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('UCD'))
+      #       mi_attempt2 = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan
 
-            assert_equal 'KOMP Repo', mi_attempt.distribution_centres.first.centre.name
-            assert_equal 'KOMP Repo', mi_attempt2.distribution_centres.first.centre.name
+      #       assert_equal 'KOMP Repo', mi_attempt.distribution_centres.first.centre.name
+      #       assert_equal 'KOMP Repo', mi_attempt2.distribution_centres.first.centre.name
 
-            distribution_centre =mi_attempt.distribution_centres.first
-            distribution_centre.distribution_network = 'CMMR'
-            distribution_centre.save
+      #       distribution_centre =mi_attempt.distribution_centres.first
+      #       distribution_centre.distribution_network = 'CMMR'
+      #       distribution_centre.save
 
-            mi_attempt.reload
-            assert_equal mi_attempt.production_centre, mi_attempt.distribution_centres.first.centre
+      #       mi_attempt.reload
+      #       assert_equal mi_attempt.production_centre, mi_attempt.distribution_centres.first.centre
 
-            distribution_centre =mi_attempt2.distribution_centres.first
-            distribution_centre.distribution_network = 'EMMRRC'
-            distribution_centre.save
-            mi_attempt2.reload
+      #       distribution_centre =mi_attempt2.distribution_centres.first
+      #       distribution_centre.distribution_network = 'EMMRRC'
+      #       distribution_centre.save
+      #       mi_attempt2.reload
 
-            mi_attempt2.reload
-            assert_equal mi_attempt2.production_centre, mi_attempt2.distribution_centres.first.centre
-          end
-        end
-      end
+      #       mi_attempt2.reload
+      #       assert_equal mi_attempt2.production_centre, mi_attempt2.distribution_centres.first.centre
+      #     end
+      #   end
+      # end
     end
 
     context '#allele_id' do

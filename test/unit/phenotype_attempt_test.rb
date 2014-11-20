@@ -474,35 +474,35 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      context 'centre' do
-        context 'when set to KOMP Repo' do
-          should 'default back to production centre if distribution network is given' do
-            mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('TCP'))
-            phenotype_attempt = Factory.create :phenotype_attempt_status_cec, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => mi_plan)
+      # context 'centre' do
+      #   context 'when set to KOMP Repo' do
+      #     should 'default back to production centre if distribution network is given' do
+      #       mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('TCP'))
+      #       phenotype_attempt = Factory.create :phenotype_attempt_status_cec, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => mi_plan)
 
-            mi_plan2 = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('UCD'))
-            phenotype_attempt2 = Factory.create :phenotype_attempt_status_cec, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => mi_plan)
+      #       mi_plan2 = Factory.create(:mi_plan, :consortium => Consortium.find_by_name('DTCC'), :production_centre => Centre.find_by_name('UCD'))
+      #       phenotype_attempt2 = Factory.create :phenotype_attempt_status_cec, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => mi_plan)
 
-            assert_equal 'KOMP Repo', phenotype_attempt.distribution_centres.first.centre.name
-            assert_equal 'KOMP Repo', phenotype_attempt2.distribution_centres.first.centre.name
+      #       assert_equal 'KOMP Repo', phenotype_attempt.distribution_centres.first.centre.name
+      #       assert_equal 'KOMP Repo', phenotype_attempt2.distribution_centres.first.centre.name
 
-            distribution_centre = phenotype_attempt.distribution_centres.first
-            distribution_centre.distribution_network = 'CMMR'
-            distribution_centre.save!
+      #       distribution_centre = phenotype_attempt.distribution_centres.first
+      #       distribution_centre.distribution_network = 'CMMR'
+      #       distribution_centre.save!
 
-            phenotype_attempt.reload
-            assert_equal phenotype_attempt.production_centre, phenotype_attempt.distribution_centres.first.centre
+      #       phenotype_attempt.reload
+      #       assert_equal phenotype_attempt.production_centre, phenotype_attempt.distribution_centres.first.centre
 
 
-            distribution_centre = phenotype_attempt2.distribution_centres.first
-            distribution_centre.distribution_network = 'EMMRRC'
-            distribution_centre.save!
+      #       distribution_centre = phenotype_attempt2.distribution_centres.first
+      #       distribution_centre.distribution_network = 'EMMRRC'
+      #       distribution_centre.save!
 
-            phenotype_attempt2.reload
-            assert_equal phenotype_attempt2.production_centre, phenotype_attempt2.distribution_centres.first.centre
-          end
-        end
-      end
+      #       phenotype_attempt2.reload
+      #       assert_equal phenotype_attempt2.production_centre, phenotype_attempt2.distribution_centres.first.centre
+      #     end
+      #   end
+      # end
     end
 
     context 'before filter' do

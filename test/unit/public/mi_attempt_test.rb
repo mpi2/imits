@@ -83,17 +83,12 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         crsp_total_embryos_survived
         crsp_total_transfered
         crsp_no_founder_pups
-        founder_pcr_num_assays
-        founder_pcr_num_positive_results
-        founder_surveyor_num_assays
-        founder_surveyor_num_positive_results
-        founder_t7en1_num_assays
-        founder_t7en1_num_positive_results
         crsp_total_num_mutant_founders
         crsp_num_founders_selected_for_breading
-        founder_loa_num_assays
-        founder_loa_num_positive_results
         real_allele_id
+        assay_type
+        founder_num_assays
+        founder_num_positive_results
         external_ref
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
@@ -187,18 +182,13 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         crsp_total_embryos_survived
         crsp_total_transfered
         crsp_no_founder_pups
-        founder_pcr_num_assays
-        founder_pcr_num_positive_results
-        founder_surveyor_num_assays
-        founder_surveyor_num_positive_results
-        founder_t7en1_num_assays
-        founder_t7en1_num_positive_results
         crsp_total_num_mutant_founders
         crsp_num_founders_selected_for_breading
-        founder_loa_num_assays
-        founder_loa_num_positive_results
         real_allele_id
         external_ref
+        assay_type
+        founder_num_assays
+        founder_num_positive_results
         mutagenesis_factor_external_ref
       }
       got = default_mi_attempt.as_json.keys

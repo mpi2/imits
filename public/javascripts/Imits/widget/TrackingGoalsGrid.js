@@ -44,6 +44,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
         var yearValue      = self.yearText.getSubmitValue();
         var monthValue     = self.monthText.getSubmitValue();
         var goalValue      = self.goalText.getSubmitValue();
+        var crisprgoalValue = self.crisprgoalText.getSubmitValue();
         var typeValue      = self.typeText.getSubmitValue();
 
         if(!centreName || centreName && !centreName.length) {
@@ -73,6 +74,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
             'year'      : yearValue,
             'month'     : monthValue,
             'goal'      : goalValue,
+            'crispr_goal' : crisprgoalValue,
             'goal_type' : typeValue
         });
 
@@ -86,6 +88,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
                 self.yearText.setValue()
                 self.monthText.setValue()
                 self.goalText.setValue()
+                self.crisprgoalText.setValue()
                 self.typeText.setValue()
             }
         })
@@ -139,6 +142,14 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
             regex: /[1-9-]*/
         });
 
+        self.crisprgoalText = Ext.create('Ext.form.field.Number', {
+            fieldLabel: 'Crispr Goal',
+            name: 'crispr_goal',
+            labelWidth: 50,
+            labelAlign: 'right',
+            regex: /[1-9-]*/
+        });
+
         self.typeText = Ext.create('Imits.widget.SimpleCombo', {
             fieldLabel: 'Goal type',
             store: window.GOAL_TYPES,
@@ -157,6 +168,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
             self.yearText,
             self.monthText,
             self.goalText,
+            self.crisprgoalText,
             self.typeText,
             '  ',
             {
@@ -187,7 +199,6 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
         {
             dataIndex: 'production_centre_name',
             header: 'Production centre',
-            sortable: false,
             editor: {
                 xtype: 'simplecombo',
                 store: Ext.Array.merge([''], window.CENTRE_OPTIONS),
@@ -205,17 +216,20 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
             dataIndex: 'year',
             header: 'Year',
             editor: 'simplenumberfield',
-           sortable: false
         },
         {
             dataIndex: 'month',
             header: 'Month',
             editor: 'simplenumberfield',
-           sortable: false
         },
         {
             dataIndex: 'goal',
             header: 'Goal',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'crispr_goal',
+            header: 'Crispr Goal',
             editor: 'simplenumberfield'
         },
         {

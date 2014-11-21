@@ -3,6 +3,7 @@
 --
 
 SET statement_timeout = 0;
+SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -48,6 +49,88 @@ BEGIN
             order_by_const := tmp.order_by;
             result := tmp.name;
         end if;
+    END LOOP;
+    RETURN result;
+END;
+$_$;
+
+
+--
+-- Name: solr_get_allele_order_from_names(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_allele_order_from_names(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+    tmp RECORD; result text;
+BEGIN
+    result := '';
+    FOR tmp IN SELECT distinct targ_rep_pipelines.name, targ_rep_es_cells.ikmc_project_id, (targ_rep_es_cells.ikmc_project_id like '^VG') as ikmc_project_id_vg
+    from targ_rep_pipelines, targ_rep_es_cells
+    where targ_rep_es_cells.pipeline_id = targ_rep_pipelines.id and targ_rep_es_cells.id = $1
+    LOOP
+
+        if tmp.name = 'EUCOMM' or tmp.name = 'EUCOMMTools' or tmp.name = 'EUCOMMToolsCre' then
+          result := result || 'EUMMCR' || ';';
+        elsif tmp.name = 'KOMP-CSD' or tmp.name = 'KOMP-Regeneron' then
+            result := result || 'KOMP' || ';';
+        elsif tmp.name = 'mirKO' or tmp.name = 'Sanger MGP' then
+            result := result || 'Wtsi' || ';';
+        elsif tmp.name = 'NorCOMM' then
+            result := result || 'NorCOMM' || ';';
+        end if;
+
+    END LOOP;
+    RETURN result;
+END;
+$_$;
+
+
+--
+-- Name: solr_get_allele_order_from_urls(integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_get_allele_order_from_urls(integer) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+    tmp RECORD; result text; project text; marker_symbol text; mgi_accession_id text;
+BEGIN
+    result := '';
+
+    select genes.marker_symbol into marker_symbol from genes, targ_rep_alleles, targ_rep_es_cells
+    where targ_rep_alleles.gene_id = genes.id and targ_rep_es_cells.id = $1
+    and targ_rep_alleles.id = targ_rep_es_cells.allele_id;
+
+    select genes.mgi_accession_id into mgi_accession_id from genes, targ_rep_alleles, targ_rep_es_cells
+    where targ_rep_alleles.gene_id = genes.id and targ_rep_es_cells.id = $1
+    and targ_rep_alleles.id = targ_rep_es_cells.allele_id;
+
+    FOR tmp IN SELECT distinct targ_rep_pipelines.name, targ_rep_es_cells.ikmc_project_id, (targ_rep_es_cells.ikmc_project_id like 'VG%') as ikmc_project_id_vg
+    from targ_rep_pipelines, targ_rep_es_cells
+    where targ_rep_es_cells.pipeline_id = targ_rep_pipelines.id and targ_rep_es_cells.id = $1
+    LOOP
+
+        if tmp.name = 'EUCOMM' or tmp.name = 'EUCOMMTools' or tmp.name = 'EUCOMMToolsCre' then
+          result := result || 'http://www.eummcr.org/order?add=' || mgi_accession_id || '&material=es_cells' || ';';
+        elsif tmp.name = 'KOMP-CSD' or tmp.name = 'KOMP-Regeneron' then
+            if char_length(tmp.ikmc_project_id) > 0 then
+              if tmp.ikmc_project_id_vg then
+                project := tmp.ikmc_project_id;
+              else
+                project := 'CSD' || tmp.ikmc_project_id;
+              end if;
+              result := result || 'http://www.komp.org/geneinfo.php?project=' || project || ';';
+            else
+              result := result || 'http://www.komp.org/' || ';';
+            end if;
+        elsif tmp.name = 'mirKO' or tmp.name = 'Sanger MGP' then
+            result := result || 'mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for ' || marker_symbol || ';';
+        elsif tmp.name = 'NorCOMM' then
+            result := result || 'http://www.phenogenomics.ca/services/cmmr/escell_services.html' || ';';
+        end if;
+
     END LOOP;
     RETURN result;
 END;
@@ -477,6 +560,135 @@ CREATE FUNCTION solr_get_pa_order_from_names(integer) RETURNS text
 $_$;
 
 
+--
+-- Name: solr_ikmc_projects_details_builder(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION solr_ikmc_projects_details_builder() RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    result int;
+BEGIN
+    CREATE temp table solr_ikmc_projects_details_es_cells ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_vectors ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+--    CREATE temp table solr_ikmc_projects_details_vectors ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_es_cells_intermediate ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table solr_ikmc_projects_details_all ( gene_id int, id int, project text, type text, marker_symbol text, pipeline text, status text ) ;
+    CREATE temp table allele_with_es_count_tmp ( id int, gene_id int , es_cell_count int ) ;
+
+    INSERT INTO
+    solr_ikmc_projects_details_es_cells
+      SELECT genes.id AS gene_id,
+      targ_rep_ikmc_projects.id AS id,
+      targ_rep_ikmc_projects.name AS project,
+      CAST( 'es_cell' AS text ) AS type,
+      genes.marker_symbol,
+      targ_rep_pipelines.name AS pipeline,
+      targ_rep_ikmc_project_statuses.name AS status
+        --,(targ_rep_es_cells.report_to_public and targ_rep_pipelines.report_to_public) AS report_to_public
+      FROM targ_rep_es_cells
+      JOIN targ_rep_ikmc_projects on targ_rep_es_cells.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+      JOIN targ_rep_alleles on targ_rep_alleles.id = targ_rep_es_cells.allele_id
+      JOIN genes on targ_rep_alleles.gene_id = genes.id
+      JOIN targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
+      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id;
+
+    INSERT INTO
+    solr_ikmc_projects_details_es_cells
+      SELECT genes.id AS gene_id,
+      targ_rep_ikmc_projects.id AS id,
+      targ_rep_ikmc_projects.name AS project,
+      CAST( 'es_cell' AS text ) AS type,
+      genes.marker_symbol,
+      targ_rep_pipelines.name AS pipeline,
+      targ_rep_ikmc_project_statuses.name AS status
+        --,(targ_rep_targeting_vectors.report_to_public and targ_rep_pipelines.report_to_public) AS report_to_public
+      FROM targ_rep_targeting_vectors
+      JOIN targ_rep_ikmc_projects on targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+      JOIN targ_rep_alleles on targ_rep_alleles.id = targ_rep_targeting_vectors.allele_id
+      JOIN genes on targ_rep_alleles.gene_id = genes.id
+      JOIN targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
+      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id;
+
+      INSERT INTO allele_with_es_count_tmp
+      WITH allele_with_es_count AS (
+        SELECT alleles1.id AS allele_id, COALESCE(targ_rep_es_cells.count, 0) AS es_cell_count
+        FROM targ_rep_alleles AS alleles1
+          JOIN targ_rep_alleles AS alleles2 ON alleles1.gene_id = alleles2.gene_id AND alleles1.mutation_type_id = alleles2.mutation_type_id AND alleles1.cassette = alleles2.cassette
+          LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.allele_id = alleles2.id
+        GROUP BY alleles1.id having targ_rep_es_cells.count = 0)
+      SELECT targ_rep_alleles.id as id, targ_rep_alleles.gene_id as gene_id, allele_with_es_count.es_cell_count as es_cell_count
+      FROM targ_rep_alleles JOIN allele_with_es_count ON allele_with_es_count.allele_id = targ_rep_alleles.id
+      ;
+
+    INSERT INTO
+    solr_ikmc_projects_details_vectors
+      SELECT genes.id AS gene_id,
+      targ_rep_ikmc_projects.id AS id,
+      targ_rep_ikmc_projects.name AS project,
+      CAST( 'vector' AS text ) AS type,
+      genes.marker_symbol,
+      targ_rep_pipelines.name AS pipeline,
+      targ_rep_ikmc_project_statuses.name AS status
+        --,(targ_rep_targeting_vectors.report_to_public and targ_rep_pipelines.report_to_public) AS report_to_public
+      FROM targ_rep_targeting_vectors
+      JOIN targ_rep_ikmc_projects on targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+      JOIN allele_with_es_count_tmp on allele_with_es_count_tmp.id = targ_rep_targeting_vectors.allele_id
+      JOIN genes on allele_with_es_count_tmp.gene_id = genes.id
+      JOIN targ_rep_pipelines on targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
+      JOIN targ_rep_ikmc_project_statuses on targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id;
+
+    --INSERT INTO
+    --solr_ikmc_projects_details_vectors
+    --SELECT * FROM solr_ikmc_projects_details_vectors
+
+    INSERT INTO
+    solr_ikmc_projects_details_es_cells_intermediate
+    SELECT * FROM solr_ikmc_projects_details_es_cells
+    UNION
+    SELECT
+      gene_id,
+      id,
+      project,
+      CAST( 'es_cell' AS text ) AS type,
+      marker_symbol,
+      pipeline,
+      status
+    FROM solr_ikmc_projects_details_vectors;
+
+    INSERT INTO
+    solr_ikmc_projects_details_all
+    SELECT
+    DISTINCT
+    * FROM
+    solr_ikmc_projects_details_es_cells_intermediate
+    UNION
+    SELECT
+    DISTINCT
+    *
+    FROM solr_ikmc_projects_details_vectors;
+
+    INSERT INTO
+    solr_ikmc_projects_details_agg
+    SELECT
+        string_agg(project, ';') AS projects,
+        string_agg(pipeline, ';') AS pipelines,
+        string_agg(status, ';') AS statuses,
+        gene_id,
+        type
+    FROM
+    solr_ikmc_projects_details_all
+    GROUP BY gene_id, type;
+
+    SELECT count(*) INTO result FROM solr_ikmc_projects_details_agg;
+
+    --select count(*) INTO result from solr_ikmc_projects_details_vectors where gene_id = 1;
+    RETURN result;
+END;
+$$;
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -567,7 +779,23 @@ CREATE TABLE colonies (
     trace_file_content_type character varying(255),
     trace_file_file_size integer,
     trace_file_updated_at timestamp without time zone,
-    genotype_confirmed boolean DEFAULT false
+    genotype_confirmed boolean DEFAULT false,
+    file_alignment text,
+    file_filtered_analysis_vcf text,
+    file_variant_effect_output_txt text,
+    file_reference_fa text,
+    file_mutant_fa text,
+    file_primer_reads_fa text,
+    file_alignment_data_yaml text,
+    file_trace_output text,
+    file_trace_error text,
+    file_exception_details text,
+    file_return_code integer,
+    file_merged_variants_vcf text,
+    is_het boolean DEFAULT false,
+    report_to_public boolean DEFAULT false,
+    unwanted_allele boolean DEFAULT false,
+    unwanted_allele_description text
 );
 
 
@@ -864,7 +1092,8 @@ CREATE TABLE genes (
     ccds_ids character varying(255),
     marker_type character varying(255),
     feature_type character varying(255),
-    synonyms character varying(255)
+    synonyms character varying(255),
+    komp_repo_geneid integer
 );
 
 
@@ -958,6 +1187,217 @@ ALTER SEQUENCE intermediate_report_id_seq OWNED BY intermediate_report.id;
 
 
 --
+-- Name: intermediate_report_summary_by_centre_and_consortia; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE intermediate_report_summary_by_centre_and_consortia (
+    id integer NOT NULL,
+    catagory character varying(255) NOT NULL,
+    approach character varying(255) NOT NULL,
+    allele_type character varying(255) NOT NULL,
+    mi_plan_id integer,
+    mi_attempt_id integer,
+    modified_mouse_allele_mod_id integer,
+    mouse_allele_mod_id integer,
+    phenotyping_production_id integer,
+    consortium character varying(255),
+    production_centre character varying(255),
+    gene character varying(255),
+    mgi_accession_id character varying(255),
+    mi_attempt_external_ref character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mouse_allele_mod_colony_name character varying(255),
+    phenotyping_production_colony_name character varying(255),
+    mi_plan_status character varying(255),
+    gene_interest_date date,
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
+    mi_attempt_status character varying(255),
+    micro_injection_aborted_date date,
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    founder_obtained_date date,
+    genotype_confirmed_date date,
+    mouse_allele_mod_status character varying(255),
+    mouse_allele_mod_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_status character varying(255),
+    phenotype_attempt_registered_date date,
+    phenotyping_experiments_started_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    created_at date
+);
+
+
+--
+-- Name: intermediate_report_summary_by_centre_and_consortia_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE intermediate_report_summary_by_centre_and_consortia_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: intermediate_report_summary_by_centre_and_consortia_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE intermediate_report_summary_by_centre_and_consortia_id_seq OWNED BY intermediate_report_summary_by_centre_and_consortia.id;
+
+
+--
+-- Name: intermediate_report_summary_by_consortia; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE intermediate_report_summary_by_consortia (
+    id integer NOT NULL,
+    catagory character varying(255) NOT NULL,
+    approach character varying(255) NOT NULL,
+    allele_type character varying(255) NOT NULL,
+    mi_plan_id integer,
+    mi_attempt_id integer,
+    modified_mouse_allele_mod_id integer,
+    mouse_allele_mod_id integer,
+    phenotyping_production_id integer,
+    consortium character varying(255),
+    gene character varying(255),
+    mgi_accession_id character varying(255),
+    mi_attempt_external_ref character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mouse_allele_mod_colony_name character varying(255),
+    phenotyping_production_colony_name character varying(255),
+    mi_plan_status character varying(255),
+    gene_interest_date date,
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
+    mi_attempt_status character varying(255),
+    micro_injection_aborted_date date,
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    founder_obtained_date date,
+    genotype_confirmed_date date,
+    mouse_allele_mod_status character varying(255),
+    mouse_allele_mod_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_status character varying(255),
+    phenotype_attempt_registered_date date,
+    phenotyping_experiments_started_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    created_at date
+);
+
+
+--
+-- Name: intermediate_report_summary_by_consortia_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE intermediate_report_summary_by_consortia_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: intermediate_report_summary_by_consortia_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE intermediate_report_summary_by_consortia_id_seq OWNED BY intermediate_report_summary_by_consortia.id;
+
+
+--
+-- Name: intermediate_report_summary_by_mi_plan; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE intermediate_report_summary_by_mi_plan (
+    id integer NOT NULL,
+    catagory character varying(255) NOT NULL,
+    approach character varying(255) NOT NULL,
+    allele_type character varying(255) NOT NULL,
+    mi_plan_id integer,
+    mi_attempt_id integer,
+    modified_mouse_allele_mod_id integer,
+    mouse_allele_mod_id integer,
+    phenotyping_production_id integer,
+    consortium character varying(255),
+    production_centre character varying(255),
+    sub_project character varying(255),
+    priority character varying(255),
+    gene character varying(255),
+    mgi_accession_id character varying(255),
+    mi_attempt_external_ref character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mouse_allele_mod_colony_name character varying(255),
+    phenotyping_production_colony_name character varying(255),
+    mi_plan_status character varying(255),
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
+    mi_attempt_status character varying(255),
+    micro_injection_aborted_date date,
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    founder_obtained_date date,
+    genotype_confirmed_date date,
+    mouse_allele_mod_status character varying(255),
+    mouse_allele_mod_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_status character varying(255),
+    phenotype_attempt_registered_date date,
+    phenotyping_experiments_started_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    mi_aborted_count integer,
+    mi_aborted_max_date date,
+    allele_mod_aborted_count integer,
+    allele_mod_aborted_max_date date,
+    created_at date
+);
+
+
+--
+-- Name: intermediate_report_summary_by_mi_plan_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE intermediate_report_summary_by_mi_plan_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: intermediate_report_summary_by_mi_plan_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE intermediate_report_summary_by_mi_plan_id_seq OWNED BY intermediate_report_summary_by_mi_plan.id;
+
+
+--
 -- Name: mi_attempt_distribution_centres; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -971,7 +1411,9 @@ CREATE TABLE mi_attempt_distribution_centres (
     is_distributed_by_emma boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
-    distribution_network character varying(255)
+    distribution_network character varying(255),
+    reconciled character varying(255) DEFAULT 'not checked'::character varying NOT NULL,
+    reconciled_at timestamp without time zone
 );
 
 
@@ -1141,7 +1583,10 @@ CREATE TABLE mi_attempts (
     founder_loa_num_assays integer,
     founder_loa_num_positive_results integer,
     allele_id integer,
-    real_allele_id integer
+    real_allele_id integer,
+    founder_num_assays integer,
+    founder_num_positive_results integer,
+    assay_type text
 );
 
 
@@ -1556,7 +2001,8 @@ ALTER SEQUENCE mouse_allele_mods_id_seq OWNED BY mouse_allele_mods.id;
 CREATE TABLE mutagenesis_factors (
     id integer NOT NULL,
     vector_id integer,
-    external_ref character varying(255)
+    external_ref character varying(255),
+    nuclease text
 );
 
 
@@ -1658,7 +2104,8 @@ CREATE TABLE new_intermediate_report_summary_by_centre_and_consortia (
     gc_old_pipeline_efficiency_gene_count integer,
     created_at timestamp without time zone,
     sub_project character varying(255),
-    mutation_sub_type character varying(100)
+    mutation_sub_type character varying(100),
+    mi_attempt_external_ref character varying(255)
 );
 
 
@@ -1759,7 +2206,8 @@ CREATE TABLE new_intermediate_report_summary_by_consortia (
     gc_old_pipeline_efficiency_gene_count integer,
     created_at timestamp without time zone,
     sub_project character varying(255),
-    mutation_sub_type character varying(100)
+    mutation_sub_type character varying(100),
+    mi_attempt_external_ref character varying(255)
 );
 
 
@@ -1863,7 +2311,8 @@ CREATE TABLE new_intermediate_report_summary_by_mi_plan (
     gc_pipeline_efficiency_gene_count integer,
     gc_old_pipeline_efficiency_gene_count integer,
     created_at timestamp without time zone,
-    mutagenesis_via_crispr_cas9 boolean DEFAULT false
+    mutagenesis_via_crispr_cas9 boolean DEFAULT false,
+    mi_attempt_external_ref character varying(255)
 );
 
 
@@ -1937,7 +2386,9 @@ CREATE TABLE phenotype_attempt_distribution_centres (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     distribution_network character varying(255),
-    mouse_allele_mod_id integer
+    mouse_allele_mod_id integer,
+    reconciled character varying(255) DEFAULT 'not checked'::character varying NOT NULL,
+    reconciled_at timestamp without time zone
 );
 
 
@@ -2242,7 +2693,11 @@ CREATE TABLE production_goals (
     mi_goal integer,
     gc_goal integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    crispr_mi_goal integer DEFAULT 0,
+    crispr_gc_goal integer DEFAULT 0,
+    total_mi_goal integer DEFAULT 0,
+    total_gc_goal integer DEFAULT 0
 );
 
 
@@ -2339,6 +2794,29 @@ CREATE TABLE schema_migrations (
 
 
 --
+-- Name: solr_alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_alleles (
+    type text,
+    id integer,
+    product_type text,
+    allele_id integer,
+    order_from_names text,
+    order_from_urls text,
+    simple_allele_image_url text,
+    allele_image_url text,
+    genbank_file_url text,
+    mgi_accession_id character varying(40),
+    marker_symbol character varying(75),
+    allele_type character varying(100),
+    strain character varying(25),
+    allele_name text,
+    project_ids character varying(255)
+);
+
+
+--
 -- Name: solr_centre_map; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2346,6 +2824,50 @@ CREATE TABLE solr_centre_map (
     centre_name character varying(40),
     pref character varying(255),
     def character varying(255)
+);
+
+
+--
+-- Name: solr_gene_statuses; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW solr_gene_statuses AS
+SELECT most_advanced.mi_plan_id, most_advanced.marker_symbol, most_advanced.status_name, most_advanced.consortium, most_advanced.created_at, most_advanced.production_centre_name FROM (SELECT all_statuses.mi_plan_id, genes.marker_symbol, all_statuses.status_name, all_statuses.id, all_statuses.created_at, first_value(all_statuses.id) OVER (PARTITION BY all_statuses.gene_id ORDER BY all_statuses.order_by DESC, all_statuses.created_at) AS most_advanced_id, consortia.name AS consortium, centres.name AS production_centre_name FROM ((((((SELECT ('mi_plan'::text || mi_plan_status_stamps.id) AS id, mi_plans_1.id AS mi_plan_id, mi_plans_1.gene_id, mi_plan_statuses.name AS status_name, mi_plan_statuses.order_by, mi_plan_status_stamps.created_at FROM ((mi_plans mi_plans_1 JOIN mi_plan_statuses ON ((mi_plan_statuses.id = mi_plans_1.status_id))) JOIN mi_plan_status_stamps ON (((mi_plans_1.id = mi_plan_status_stamps.mi_plan_id) AND (mi_plan_statuses.id = mi_plan_status_stamps.status_id)))) UNION SELECT ('mi_attempt'::text || mi_attempt_status_stamps.id) AS id, mi_plans_1.id AS mi_plan_id, mi_plans_1.gene_id, mi_attempt_statuses.name AS status_name, (1000 + mi_attempt_statuses.order_by) AS order_by, mi_attempt_status_stamps.created_at FROM (((mi_attempts JOIN mi_attempt_statuses ON ((mi_attempt_statuses.id = mi_attempts.status_id))) JOIN mi_attempt_status_stamps ON (((mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id) AND (mi_attempt_statuses.id = mi_attempt_status_stamps.status_id)))) JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = mi_attempts.mi_plan_id)))) UNION SELECT ('phenotype_attempt'::text || phenotype_attempt_status_stamps.id) AS id, mi_plans_1.id AS mi_plan_id, mi_plans_1.gene_id, phenotype_attempt_statuses.name AS status_name, (2000 + phenotype_attempt_statuses.order_by) AS order_by, phenotype_attempt_status_stamps.created_at FROM (((phenotype_attempts JOIN phenotype_attempt_statuses ON ((phenotype_attempt_statuses.id = phenotype_attempts.status_id))) JOIN phenotype_attempt_status_stamps ON (((phenotype_attempts.id = phenotype_attempt_status_stamps.phenotype_attempt_id) AND (phenotype_attempt_statuses.id = phenotype_attempt_status_stamps.status_id)))) JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = phenotype_attempts.mi_plan_id)))) all_statuses JOIN genes ON ((genes.id = all_statuses.gene_id))) JOIN mi_plans ON ((mi_plans.id = all_statuses.mi_plan_id))) JOIN consortia ON ((mi_plans.consortium_id = consortia.id))) LEFT JOIN centres ON ((mi_plans.production_centre_id = centres.id))) ORDER BY all_statuses.order_by DESC) most_advanced WHERE (most_advanced.id = most_advanced.most_advanced_id);
+
+
+--
+-- Name: solr_genes; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_genes (
+    id integer,
+    type text,
+    allele_id text,
+    consortium character varying(255),
+    production_centre character varying(100),
+    status character varying(50),
+    effective_date timestamp without time zone,
+    mgi_accession_id character varying,
+    project_ids text,
+    project_statuses text,
+    project_pipelines text,
+    vector_project_ids text,
+    vector_project_statuses text,
+    marker_symbol character varying(75),
+    marker_type character varying(255)
+);
+
+
+--
+-- Name: solr_ikmc_projects_details_agg; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE solr_ikmc_projects_details_agg (
+    projects text,
+    pipelines text,
+    statuses text,
+    gene_id integer,
+    type text
 );
 
 
@@ -2489,6 +3011,44 @@ ALTER SEQUENCE strains_id_seq OWNED BY strains.id;
 
 
 --
+-- Name: targ_rep_allele_sequence_annotations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_allele_sequence_annotations (
+    id integer NOT NULL,
+    mutation_type character varying(255),
+    expected character varying(255),
+    actual character varying(255),
+    comment text,
+    oligos_start_coordinate integer,
+    oligos_end_coordinate integer,
+    mutation_length integer,
+    genomic_start_coordinate integer,
+    genomic_end_coordinate integer,
+    allele_id integer
+);
+
+
+--
+-- Name: targ_rep_allele_sequence_annotations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_allele_sequence_annotations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_allele_sequence_annotations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_allele_sequence_annotations_id_seq OWNED BY targ_rep_allele_sequence_annotations.id;
+
+
+--
 -- Name: targ_rep_alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2519,12 +3079,13 @@ CREATE TABLE targ_rep_alleles (
     updated_at timestamp without time zone NOT NULL,
     intron integer,
     type character varying(255) DEFAULT 'TargRep::TargetedAllele'::character varying,
-    sequence text,
     has_issue boolean DEFAULT false NOT NULL,
     issue_description text,
+    sequence text,
     taqman_critical_del_assay_id character varying(255),
     taqman_upstream_del_assay_id character varying(255),
-    taqman_downstream_del_assay_id character varying(255)
+    taqman_downstream_del_assay_id character varying(255),
+    wildtype_oligos_sequence character varying(255)
 );
 
 
@@ -2772,7 +3333,7 @@ CREATE TABLE targ_rep_mutation_types (
 --
 
 CREATE VIEW targ_rep_es_cell_mutation_types AS
-    SELECT es.id AS es_cell_id, types.name AS mutation_type FROM ((targ_rep_es_cells es LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id))) LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
+SELECT es.id AS es_cell_id, types.name AS mutation_type FROM ((targ_rep_es_cells es LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id))) LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
 
 
 --
@@ -3192,7 +3753,9 @@ CREATE TABLE tracking_goals (
     goal integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    consortium_id integer
+    consortium_id integer,
+    crispr_goal integer DEFAULT 0,
+    total_goal integer DEFAULT 0
 );
 
 
@@ -3339,6 +3902,27 @@ ALTER TABLE ONLY genes ALTER COLUMN id SET DEFAULT nextval('genes_id_seq'::regcl
 --
 
 ALTER TABLE ONLY intermediate_report ALTER COLUMN id SET DEFAULT nextval('intermediate_report_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_centre_and_consortia_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_consortia ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_consortia_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_mi_plan ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_mi_plan_id_seq'::regclass);
 
 
 --
@@ -3563,6 +4147,13 @@ ALTER TABLE ONLY solr_update_queue_items ALTER COLUMN id SET DEFAULT nextval('so
 --
 
 ALTER TABLE ONLY strains ALTER COLUMN id SET DEFAULT nextval('strains_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_allele_sequence_annotations ALTER COLUMN id SET DEFAULT nextval('targ_rep_allele_sequence_annotations_id_seq'::regclass);
 
 
 --
@@ -3799,6 +4390,30 @@ ALTER TABLE ONLY genes
 
 ALTER TABLE ONLY intermediate_report
     ADD CONSTRAINT intermediate_report_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: intermediate_report_summary_by_centre_and_consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
+    ADD CONSTRAINT intermediate_report_summary_by_centre_and_consortia_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: intermediate_report_summary_by_consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_consortia
+    ADD CONSTRAINT intermediate_report_summary_by_consortia_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: intermediate_report_summary_by_mi_plan_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
+    ADD CONSTRAINT intermediate_report_summary_by_mi_plan_pkey PRIMARY KEY (id);
 
 
 --
@@ -4055,6 +4670,14 @@ ALTER TABLE ONLY solr_update_queue_items
 
 ALTER TABLE ONLY strains
     ADD CONSTRAINT strains_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_allele_sequence_annotations_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_allele_sequence_annotations
+    ADD CONSTRAINT targ_rep_allele_sequence_annotations_pkey PRIMARY KEY (id);
 
 
 --
@@ -4470,6 +5093,69 @@ CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
 
 
 --
+-- Name: irsc_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsc_allele_type ON intermediate_report_summary_by_consortia USING btree (allele_type);
+
+
+--
+-- Name: irsc_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsc_approach ON intermediate_report_summary_by_consortia USING btree (approach);
+
+
+--
+-- Name: irsc_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsc_catagory ON intermediate_report_summary_by_consortia USING btree (catagory);
+
+
+--
+-- Name: irscc_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscc_allele_type ON intermediate_report_summary_by_centre_and_consortia USING btree (allele_type);
+
+
+--
+-- Name: irscc_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscc_approach ON intermediate_report_summary_by_centre_and_consortia USING btree (approach);
+
+
+--
+-- Name: irscc_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscc_catagory ON intermediate_report_summary_by_centre_and_consortia USING btree (catagory);
+
+
+--
+-- Name: irsmp_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsmp_allele_type ON intermediate_report_summary_by_mi_plan USING btree (allele_type);
+
+
+--
+-- Name: irsmp_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsmp_approach ON intermediate_report_summary_by_mi_plan USING btree (approach);
+
+
+--
+-- Name: irsmp_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsmp_catagory ON intermediate_report_summary_by_mi_plan USING btree (catagory);
+
+
+--
 -- Name: mi_plan_logical_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4481,6 +5167,20 @@ CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consor
 --
 
 CREATE UNIQUE INDEX real_allele_logical_key ON targ_rep_real_alleles USING btree (gene_id, allele_name);
+
+
+--
+-- Name: solr_alleles_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX solr_alleles_idx ON solr_alleles USING btree (id);
+
+
+--
+-- Name: solr_genes_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX solr_genes_idx ON solr_genes USING btree (id);
 
 
 --
@@ -4556,6 +5256,126 @@ ALTER TABLE ONLY mouse_allele_mod_status_stamps
 
 ALTER TABLE ONLY phenotyping_production_status_stamps
     ADD CONSTRAINT fk_phenotyping_productions FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
+
+
+--
+-- Name: irsc_mi_attempts_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_consortia
+    ADD CONSTRAINT irsc_mi_attempts_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
+
+
+--
+-- Name: irsc_mi_plans_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_consortia
+    ADD CONSTRAINT irsc_mi_plans_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
+
+
+--
+-- Name: irsc_modified_mouse_allele_mod_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_consortia
+    ADD CONSTRAINT irsc_modified_mouse_allele_mod_fk FOREIGN KEY (modified_mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
+
+
+--
+-- Name: irsc_mouse_allele_mods_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_consortia
+    ADD CONSTRAINT irsc_mouse_allele_mods_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
+
+
+--
+-- Name: irsc_phenotyping_productions_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_consortia
+    ADD CONSTRAINT irsc_phenotyping_productions_fk FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
+
+
+--
+-- Name: irscc_mi_attempts_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
+    ADD CONSTRAINT irscc_mi_attempts_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
+
+
+--
+-- Name: irscc_mi_plans_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
+    ADD CONSTRAINT irscc_mi_plans_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
+
+
+--
+-- Name: irscc_modified_mouse_allele_mod_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
+    ADD CONSTRAINT irscc_modified_mouse_allele_mod_fk FOREIGN KEY (modified_mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
+
+
+--
+-- Name: irscc_mouse_allele_mods_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
+    ADD CONSTRAINT irscc_mouse_allele_mods_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
+
+
+--
+-- Name: irscc_phenotyping_productions_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
+    ADD CONSTRAINT irscc_phenotyping_productions_fk FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
+
+
+--
+-- Name: irsmp_mi_attempts_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
+    ADD CONSTRAINT irsmp_mi_attempts_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
+
+
+--
+-- Name: irsmp_mi_plans_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
+    ADD CONSTRAINT irsmp_mi_plans_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
+
+
+--
+-- Name: irsmp_modified_mouse_allele_mod_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
+    ADD CONSTRAINT irsmp_modified_mouse_allele_mod_fk FOREIGN KEY (modified_mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
+
+
+--
+-- Name: irsmp_mouse_allele_mods_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
+    ADD CONSTRAINT irsmp_mouse_allele_mods_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
+
+
+--
+-- Name: irsmp_phenotyping_productions_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
+    ADD CONSTRAINT irsmp_phenotyping_productions_fk FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
 
 
 --
@@ -5319,6 +6139,14 @@ ALTER TABLE ONLY phenotyping_productions
 
 
 --
+-- Name: targ_rep_allele_sequence_annotations_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_allele_sequence_annotations
+    ADD CONSTRAINT targ_rep_allele_sequence_annotations_allele_id_fk FOREIGN KEY (allele_id) REFERENCES targ_rep_alleles(id);
+
+
+--
 -- Name: targ_rep_es_cells_targ_rep_real_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5735,3 +6563,21 @@ INSERT INTO schema_migrations (version) VALUES ('20140804112200');
 INSERT INTO schema_migrations (version) VALUES ('20140805121100');
 
 INSERT INTO schema_migrations (version) VALUES ('20140812142200');
+
+INSERT INTO schema_migrations (version) VALUES ('20140815152200');
+
+INSERT INTO schema_migrations (version) VALUES ('20140818161100');
+
+INSERT INTO schema_migrations (version) VALUES ('20140901093510');
+
+INSERT INTO schema_migrations (version) VALUES ('20140904123936');
+
+INSERT INTO schema_migrations (version) VALUES ('20140908114401');
+
+INSERT INTO schema_migrations (version) VALUES ('20141008115302');
+
+INSERT INTO schema_migrations (version) VALUES ('20141022103936');
+
+INSERT INTO schema_migrations (version) VALUES ('20141023111500');
+
+INSERT INTO schema_migrations (version) VALUES ('20141028115302');

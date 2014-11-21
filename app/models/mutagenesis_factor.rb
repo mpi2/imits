@@ -80,4 +80,5 @@ end
 #  id           :integer          not null, primary key
 #  vector_id    :integer
 #  external_ref :string(255)
+#  nuclease     :text
 #

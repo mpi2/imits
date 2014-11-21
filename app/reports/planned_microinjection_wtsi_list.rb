@@ -66,19 +66,29 @@ class PlannedMicroinjectionWtsiList     #< PlannedMicroinjectionList
   def _mi_plan_summary(production_centre = nil)
 
     sql = <<-EOF
+    WITH plan_summary AS (#{IntermediateReportSummaryByMiPlan.es_cell_and_crsipr_sql})
+
     SELECT
-    new_intermediate_report_summary_by_mi_plan.gene AS marker_symbol,
-    new_intermediate_report_summary_by_mi_plan.mgi_accession_id AS mgi_accession_id,
-    string_agg(new_intermediate_report_summary_by_mi_plan.consortium, '|') AS consortium_name,
-    string_agg(new_intermediate_report_summary_by_mi_plan.production_centre, '|') AS centre_name,
-    string_agg(new_intermediate_report_summary_by_mi_plan.mi_plan_status, '|') AS mi_plan_status,
-    string_agg(new_intermediate_report_summary_by_mi_plan.overall_status, '|') AS overall_status,
-    string_agg(new_intermediate_report_summary_by_mi_plan.mi_attempt_status, '|') AS mi_attempt_status,
-    string_agg(new_intermediate_report_summary_by_mi_plan.phenotype_attempt_status, '|') AS phenotype_attempt_status
-    FROM new_intermediate_report_summary_by_mi_plan
-    where new_intermediate_report_summary_by_mi_plan.production_centre = '#{production_centre}'
-    group by new_intermediate_report_summary_by_mi_plan.gene, new_intermediate_report_summary_by_mi_plan.mgi_accession_id
-    order by new_intermediate_report_summary_by_mi_plan.gene
+    plan_summary.gene AS marker_symbol,
+    plan_summary.mgi_accession_id AS mgi_accession_id,
+    string_agg(plan_summary.consortium, '|') AS consortium_name,
+    string_agg(plan_summary.production_centre, '|') AS centre_name,
+    string_agg(plan_summary.mi_plan_status, '|') AS mi_plan_status,
+    string_agg(plan_summary.mi_attempt_status, '|') AS mi_attempt_status,
+    string_agg(plan_summary.mouse_allele_mod_status, '|') AS mouse_allele_mod_status,
+    string_agg(plan_summary.phenotyping_status, '|') AS phenotyping_status,
+    string_agg(
+      CASE WHEN plan_summary.mouse_allele_mod_status IS NOT NULL AND plan_summary.mouse_allele_mod_status != 'Mouse Allele Modification Aborted'
+        THEN
+          plan_summary.mouse_allele_mod_status
+        ELSE
+          (CASE WHEN plan_summary.phenotyping_status = 'Phenotype Production Aborted' THEN 'Phenotype Attempt Aborted' ELSE plan_summary.phenotyping_status END )
+      END
+    , '|') AS phenotype_attempt_status
+    FROM plan_summary
+    where plan_summary.production_centre = '#{production_centre}'
+    group by plan_summary.gene, plan_summary.mgi_accession_id
+    order by plan_summary.gene
     EOF
 
     sql

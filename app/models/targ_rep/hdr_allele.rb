@@ -65,4 +65,5 @@ end
 #  taqman_critical_del_assay_id   :string(255)
 #  taqman_upstream_del_assay_id   :string(255)
 #  taqman_downstream_del_assay_id :string(255)
+#  wildtype_oligos_sequence       :string(255)
 #

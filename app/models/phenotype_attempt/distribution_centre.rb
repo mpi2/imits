@@ -75,7 +75,6 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
 end
 
-
 # == Schema Information
 #
 # Table name: phenotype_attempt_distribution_centres
@@ -91,4 +90,6 @@ end
 #  updated_at             :datetime
 #  distribution_network   :string(255)
 #  mouse_allele_mod_id    :integer
+#  reconciled             :string(255)      default("not checked"), not null
+#  reconciled_at          :datetime
 #

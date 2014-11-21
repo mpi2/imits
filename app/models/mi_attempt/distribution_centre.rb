@@ -88,4 +88,6 @@ end
 #  created_at             :datetime
 #  updated_at             :datetime
 #  distribution_network   :string(255)
+#  reconciled             :string(255)      default("not checked"), not null
+#  reconciled_at          :datetime
 #

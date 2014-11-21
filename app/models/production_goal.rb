@@ -1,19 +1,25 @@
 class ProductionGoal < ActiveRecord::Base
-  
+
   ## Gems/Plugins
   acts_as_audited
   extend AccessAssociationByAttribute
   include ::Public::Serializable
-  
+
   READABLE_ATTRIBUTES = %w(
     id
     year
     month
     mi_goal
     gc_goal
+    crispr_mi_goal
+    crispr_gc_goal
+    total_mi_goal
+    total_gc_goal
     consortium_name
     consortium_id
   )
+
+  before_save :calculate_totals
 
   ## Validations
   validates :consortium_id, :presence => true, :uniqueness => {:scope => [:year, :month]}
@@ -29,6 +35,11 @@ class ProductionGoal < ActiveRecord::Base
 
   attr_accessible *READABLE_ATTRIBUTES
 
+  def calculate_totals
+    self.total_mi_goal = self.mi_goal + self.crispr_gc_goal
+    self.total_gc_goal = self.gc_goal + self.crispr_gc_goal
+  end
+
   def self.readable_name
     return 'production goal'
   end
@@ -39,14 +50,18 @@ end
 #
 # Table name: production_goals
 #
-#  id            :integer          not null, primary key
-#  consortium_id :integer
-#  year          :integer
-#  month         :integer
-#  mi_goal       :integer
-#  gc_goal       :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
+#  id             :integer          not null, primary key
+#  consortium_id  :integer
+#  year           :integer
+#  month          :integer
+#  mi_goal        :integer
+#  gc_goal        :integer
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  crispr_mi_goal :integer          default(0)
+#  crispr_gc_goal :integer          default(0)
+#  total_mi_goal  :integer          default(0)
+#  total_gc_goal  :integer          default(0)
 #
 # Indexes
 #

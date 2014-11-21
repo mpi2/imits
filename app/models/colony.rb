@@ -240,6 +240,17 @@ class Colony < ActiveRecord::Base
     insertions_deletions 'deletions'
   end
 
+  def self.group_colonies_by_mi_attempt_sql
+    return <<-EOF
+                SELECT ordered_colonies.mi_attempt_id, string_agg(ordered_colonies.colony_name, ', ') AS colony_name
+                FROM (
+                    SELECT colonies.mi_attempt_id AS mi_attempt_id, colonies.name AS colony_name
+                    FROM colonies
+                    ORDER BY colonies.mi_attempt_id, colonies.genotype_confirmed
+                    ) AS ordered_colonies
+                GROUP BY ordered_colonies.mi_attempt_id
+            EOF
+  end
 end
 
 # == Schema Information
@@ -265,8 +276,11 @@ end
 #  file_trace_error               :text
 #  file_exception_details         :text
 #  file_return_code               :integer
-#  file_merged_variants_vcf       :integer
+#  file_merged_variants_vcf       :text
 #  is_het                         :boolean          default(FALSE)
+#  report_to_public               :boolean          default(FALSE)
+#  unwanted_allele                :boolean          default(FALSE)
+#  unwanted_allele_description    :text
 #
 # Indexes
 #

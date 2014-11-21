@@ -220,6 +220,9 @@ end
 #  founder_loa_num_positive_results                :integer
 #  allele_id                                       :integer
 #  real_allele_id                                  :integer
+#  founder_num_assays                              :integer
+#  founder_num_positive_results                    :integer
+#  assay_type                                      :text
 #
 # Indexes
 #

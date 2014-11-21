@@ -1,42 +1,13 @@
 $(function(){
 
 $('#seq_1').html(colour_alignment($('#seq_1').html()));
-protein_ref = $('#ref_protein').html().split('\n')[1];
-protein_seq = $('#protein_seq').html().split('\n')[1];
 
-for (i = 0; i < (protein_seq.length); i++) {
-  if (protein_ref[i] != protein_seq[i]){
-    protein_seq = protein_seq.substring(0, i-1) + protein_seq[i].toLowerCase() + protein_seq.substring(i+1, protein_seq.length);
-  }
-}
+function colour_alignment(seq){
 
-protein_ref = protein_ref.substring(0, protein_seq.length) + protein_ref.substring(protein_seq.length, protein_ref.length).toLowerCase()
-
-mapping = {};
-mapping['match_char'] = /[]/;
-mapping['mismatch_char'] = /[a-z]/;
-mapping['delete_char'] = /[]/;
-mapping['insert_char'] = /[]/;
-
-$('#protein_seq').html(colour_alignment(protein_seq, mapping));
-
-mapping = {};
-mapping['match_char'] = /[]/;
-mapping['mismatch_char'] = /[]/;
-mapping['delete_char'] = /[a-z]/;
-mapping['insert_char'] = /[]/;
-
-$('#ref_protein').html(colour_alignment(protein_ref, mapping, true));
-})
-
-function colour_alignment(seq, mapping, upper){
-    var mapping = mapping || {};
-    var upper = upper || false;
-
-    var match_char    = mapping['match_char'] || /[ACTGN]/;
-    var mismatch_char = mapping['mismatch_char'] || /[actgn]/;
-    var delete_char   = mapping['delete_char'] || /-/;
-    var insert_char   = mapping['insert_char'] || /[JLPYZ]/;
+    var match_char    =  /[ACTGN]/;
+    var mismatch_char =  /[actgn]/;
+    var delete_char   =  /-/;
+    var insert_char   =  /[JLPYZ]/;
 
 
     //a span to hold all the other spans
@@ -114,9 +85,6 @@ function colour_alignment(seq, mapping, upper){
     }
 
     //add anything remaining on the buffer (there will always be at least 1 base)
-    if (upper){
-    base.append( make_span(buf.toUpperCase(), current_colour) );
-    } else {
-    base.append( make_span(buf, current_colour) );}
+    base.append( make_span(buf, current_colour) );
     return base;
 }

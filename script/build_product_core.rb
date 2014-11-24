@@ -17,8 +17,9 @@ class BuildProductCore
        mi_plans.ignore_available_mice AS ignore_available_mice
     FROM mi_plans
       JOIN centres ON centres.id = mi_plans.production_centre_id
+      JOIN consortia ON consortia.id = mi_plans.consortium_id
       JOIN genes ON genes.id = mi_plans.gene_id
-    WHERE mi_plans.report_to_public = true AND mi_plans.ignore_available_mice = false
+    WHERE mi_plans.report_to_public = true AND mi_plans.ignore_available_mice = false AND consortia.name != 'EUCOMMToolsCre'
   EOF
 
 
@@ -43,6 +44,7 @@ class BuildProductCore
       LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
       LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
       LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = targ_rep_es_cells.targeting_vector_id
+    WHERE targ_rep_pipelines.name != 'EUCOMMToolsCre'
   EOF
 
   DISTRIBUTION_CENTRES_SQL= <<-EOF
@@ -159,7 +161,7 @@ class BuildProductCore
         LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_targeting_vectors.ikmc_project_foreign_id
         LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
       WHERE targ_rep_targeting_vectors.report_to_public = true AND targ_rep_alleles.type = 'TargRep::TargetedAllele'
-            AND targ_rep_alleles.project_design_id IS NOT NULL AND targ_rep_alleles.cassette IS NOT NULL
+            AND targ_rep_alleles.project_design_id IS NOT NULL AND targ_rep_alleles.cassette IS NOT NULL AND targ_rep_pipelines.name != 'EUCOMMToolsCre'
       ORDER BY targ_rep_targeting_vectors.name
     EOF
   end
@@ -333,9 +335,9 @@ class BuildProductCore
     @solr_password = @config['options']['SOLR_PASSWORD']
     @dataset_max_size = 80000
     @process_mice = true
-    @process_es_cells = false
-    @process_targeting_vectors = false
-    @process_intermediate_vectors = false
+    @process_es_cells = true
+    @process_targeting_vectors = true
+    @process_intermediate_vectors = true
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',

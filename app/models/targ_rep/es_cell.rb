@@ -270,6 +270,7 @@ class TargRep::EsCell < ActiveRecord::Base
       when /^AB2/    then '129S7'
       when /^SI/     then '129S7'
       when 'VGB6'    then 'C57BL/6N'
+      when 'WCW'     then 'C57BL/6N'
       else
         errors.add( :parental_cell_line, "The parental cell line '#{self.parental_cell_line}' is not recognised" )
       end

@@ -10,7 +10,7 @@ class Strain < ActiveRecord::Base
 
   def pretty_drop_down
     if !self.mgi_strain_accession_id.blank?
-      return "#{self.mgi_strain_accession_id}:#{self.name}"
+      return "#{self.name}:#{self.mgi_strain_accession_id}"
     else
       return self.name
     end

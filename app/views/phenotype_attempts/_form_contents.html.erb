@@ -92,7 +92,7 @@
           <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
         </div>
         <div>
-          <%= form.collection_select :deleter_strain_name, @deleter_strain,:name, :name, :include_blank => true %>
+          <%= generator.strains_field :deleter_strain %>
         </div>
         <div>
           <%= generator.number_field :number_of_cre_matings_successful %>
@@ -106,7 +106,7 @@
      <%= form.label :colony_background_strain_name, 'Colony Background Strain' %>
     </div>
     <div>
-      <%= form.collection_select :colony_background_strain_name, Strain.all, :name, :pretty_drop_down, :include_blank => true %>
+      <%= generator.strains_field :colony_background_strain %>
     </div>
   </div>
 </fieldset>

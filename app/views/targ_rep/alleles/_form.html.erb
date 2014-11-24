@@ -265,9 +265,11 @@
         <% end %>
       </thead>
       <tbody id="targeting_vectors">
+<!-- redmine ticket 11978 - removed initial row
         <%= f.fields_for :targeting_vectors do |targ_vec_form| %>
           <%= render :partial => 'targ_rep/alleles/targ_vec_form', :locals => { :f => targ_vec_form } %>
         <% end -%>
+-->
       </tbody>
     </table>
     <p><%= add_targ_vec_link(f) %></p>
@@ -297,9 +299,11 @@
         </tr>
       </thead>
       <tbody id="es_cells">
+<!-- redmine ticket 11978 - removed initial row
         <%= f.fields_for :es_cells do |es_cell_form| %>
           <%= render :partial => 'targ_rep/alleles/es_cell_form', :locals => { :f => es_cell_form } %>
         <% end -%>
+-->
       </tbody>
     </table>
     <p><%= add_es_cell_link(f) %></p>

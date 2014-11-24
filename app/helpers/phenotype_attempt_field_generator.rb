@@ -10,4 +10,10 @@ class PhenotypeAttemptFieldGenerator < FieldGenerator
       @form.collection_select("#{qc_field}_result", collection, key, value, options))
   end
 
+  def strains_field(name)
+    name = name.to_s
+    field_html = @form.collection_select(name+'_name', Strain.order(:name), :name, :pretty_drop_down, :include_blank => true)
+    form_field(name+'_name', nil, field_html)
+  end
+
 end

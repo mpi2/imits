@@ -25,6 +25,9 @@ module TargRep::Allele::FeatureValidation
   def has_right_features
     return unless self.errors.empty?
 
+    # redmine ticket 11979 - Ignoring feature validation for NARLabs alleles
+    return if pipeline_names =~ /NARLabs/
+
     error_msg = "cannot be greater than %s position on this strand (#{strand})"
 
     case strand

@@ -529,6 +529,7 @@ class BuildAllele2
       hash['allele_name'] = row['allele_symbol'] if row['allele_symbol'].to_s !~ /DUMMY_/
       hash['allele_type'] = row['allele_type']
 
+
       hash['type'] = 'allele'
 
       digest = Digest::MD5.hexdigest(row['mgi_accession_id'].to_s + '-' + row['allele_symbol'].to_s)

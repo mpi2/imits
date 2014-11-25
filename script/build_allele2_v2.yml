@@ -88,8 +88,8 @@ sql: |
   from genes
   left outer join targ_rep_alleles on genes.id = targ_rep_alleles.gene_id
   left outer join targ_rep_mutation_types on targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
-  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
-  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id
+  left outer join targ_rep_targeting_vectors on targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id AND targ_rep_targeting_vectors.pipeline_id != 8
+  left outer join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id AND targ_rep_es_cells.pipeline_id != 8
   left outer join (mi_attempts
                    join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id SUBS_TEMPLATE2 and mi_attempt_plan.report_to_public is true
                    join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id

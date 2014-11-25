@@ -16,4 +16,10 @@ class PhenotypeAttemptFieldGenerator < FieldGenerator
     form_field(name+'_name', nil, field_html)
   end
 
+  def deleter_strains_field(name)
+    name = name.to_s
+    field_html = @form.collection_select(name+'_name', DeleterStrain.order(:name), :name, :name, :include_blank => true)
+    form_field(name+'_name', nil, field_html)
+  end
+
 end

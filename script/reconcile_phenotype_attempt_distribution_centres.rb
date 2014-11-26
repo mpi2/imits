@@ -57,7 +57,7 @@ class ReconcilePhenotypeAttemptDistributionCentres
         marker_symbol = mi_plan.gene.marker_symbol
         puts "Marker symbol = #{marker_symbol}"
         geneid = mi_plan.gene.komp_repo_geneid
-        puts "Komp Repo geneid = #{geneid}"
+        puts "Komp Repo geneid in gene DB = #{geneid}"
 
         if ( @reposcraper.nil? )
             @reposcraper = RepositoryGeneDetailsScraper.new()

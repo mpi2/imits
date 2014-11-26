@@ -7,6 +7,8 @@ require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
 
+STDOUT.sync = true
+
 class RepositoryGeneDetailsScraper
 
     attr_accessor :komp_gene_details
@@ -20,8 +22,8 @@ class RepositoryGeneDetailsScraper
     # URLs for scraping KOMP websites
     KOMP_REPO = 'KOMP Repo'
     KOMP_GENES_CATALOG_PAGE_URL = 'https://www.komp.org/catalog.php?available=&mutation=&gname=&project=&origin=&'
-    KOMP_GENE_PAGE_URL_STUB = 'https://www.komp.org/geneinfo.php?geneid='
-    KOMP_GENE_SEARCH_STUB = 'https://www.komp.org/searchresult.php?query='
+    KOMP_GENE_PAGE_URL_STUB     = 'https://www.komp.org/geneinfo.php?geneid='
+    KOMP_GENE_SEARCH_STUB       = 'https://www.komp.org/searchresult.php?query='
 
     def initialize
         # instance variables
@@ -39,7 +41,6 @@ class RepositoryGeneDetailsScraper
     ##
     def fetch_komp_catalog_gene_list( repo_url )
 
-        puts "Fetching Komp gene list"
         @komp_gene_details = {}
 
         # process catalog table from Komp website
@@ -47,10 +48,15 @@ class RepositoryGeneDetailsScraper
         count_unchanged = 0
         begin
             if ( repo_url.nil? )
-                repo_url = KOMP_GENES_CATALOG_PAGE_URL
+                page = get_page(KOMP_GENES_CATALOG_PAGE_URL)
+            else
+                page = get_page(repo_url)
             end
 
-            page = Nokogiri::HTML(open(repo_url, :proxy => nil))
+            if page.nil?
+              puts "ERROR: nil returned from get_page"
+              return
+            end
 
             catalog_rows = page.css("#catalog tbody tr")
             catalog_rows.each do |row|
@@ -89,7 +95,7 @@ class RepositoryGeneDetailsScraper
 
                 # store it on the genes table matching on marker symbol
                 if ( save_komp_geneid_for_marker_symbol( marker_symbol, geneid ) )
-                    puts "Found gene #{marker_symbol} with geneid #{geneid}"
+                    puts "Recorded geneid #{geneid} for gene #{marker_symbol}"
                     count_updates += 1
                 else
                     count_unchanged += 1
@@ -100,8 +106,6 @@ class RepositoryGeneDetailsScraper
           puts "Exception message : #{e.message}"
         end
 
-        # puts "Gene details:"
-        # pp @komp_gene_details
         puts "Count of updates to Komp geneid on genes table = #{count_updates}"
         puts "Count of unchanged Komp geneids on genes table = #{count_updates}"
     end
@@ -217,14 +221,18 @@ class RepositoryGeneDetailsScraper
             end
         end
 
-        puts "Repo Scraper geneid = #{geneid}"
-
         gene_table = nil
 
         # now use geneid to pull the subpage from Komp
         begin
             gene_specific_url = "#{KOMP_GENE_PAGE_URL_STUB}#{geneid}"
-            page = Nokogiri::HTML(open( gene_specific_url, :proxy => nil))
+            #page = Nokogiri::HTML(open( gene_specific_url, :proxy => nil))
+
+            page = get_page(gene_specific_url)
+            if page.nil?
+              puts "ERROR: nil returned from get_page"
+              return
+            end
 
             # identify the correct table
             page_tables = page.css('#main_body_td table')
@@ -256,9 +264,8 @@ class RepositoryGeneDetailsScraper
 
         if ( @komp_gene_details.nil? || @komp_gene_details.count() == 0 )
             # try selecting a limited catalog listing and extracting the gene id
-            repo_url = KOMP_GENES_CATALOG_PAGE_URL
+            repo_url = KOMP_GENES_CATALOG_PAGE_URL.dup
             repo_url["gname="] = "gname=#{marker_symbol}"
-            puts "Repo URL : #{repo_url}"
             self.fetch_komp_catalog_gene_list( repo_url )
         end
 
@@ -282,11 +289,15 @@ class RepositoryGeneDetailsScraper
     # some genes are not displayed in the catalog listing but do exist in komp, so use search
     def search_komp_for_marker_symbol( marker_symbol )
 
-        search_url = KOMP_GENE_SEARCH_STUB + "#{marker_symbol}"
-        page = Nokogiri::HTML(open(search_url, :proxy => nil))
+        search_url = KOMP_GENE_SEARCH_STUB.dup + "#{marker_symbol}"
+
+        page = get_page search_url
+        if page.nil?
+          puts "ERROR: nil returned from get_page"
+          return
+        end
 
         page_title = page.css("head title").text
-        # puts "Page title = #{page_title}"
 
         # search outcome one of three types:
         if ( page_title == 'Search Result' )
@@ -312,7 +323,6 @@ class RepositoryGeneDetailsScraper
                         gene_id_url = gene_id_href_nodeset.first.value
                         split_url = gene_id_url.match(/([^\?]*)\?geneid=(\d*)/)
                         geneid = split_url[2].to_s
-                        puts "geneid extracted from search sub-page : #{geneid}"
 
                         # save geneid into genes
                         save_komp_geneid_for_marker_symbol( marker_symbol, geneid )
@@ -491,6 +501,21 @@ class RepositoryGeneDetailsScraper
 
         return false
     end
+
+    def get_page url
+        begin
+            command = "curl -o /tmp/trash.html #{url}"
+            system command
+            # grep the code to find out how to manage return code
+            file = File.open("/tmp/trash.html", "rb")
+            page = Nokogiri::HTML(file.read)
+            return page
+        rescue => e
+            puts "ERROR : failed to get_page"
+            puts "Exception message : #{e.message}"
+        end
+    end
+
 end
 
 if __FILE__ == $0

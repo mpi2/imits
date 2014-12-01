@@ -34,7 +34,7 @@ class PlannedMicroinjectionList #< Reports::Base
   end
 
   def gene_pretty_prints
-    @gene_pretty_prints ||= Gene.gene_production_summary nil, nil, nil, @crisprs
+    @gene_pretty_prints ||= Gene.gene_production_summary({:crispr => @crisprs, :show_eucommtoolscre_data => false})
   end
 
 ## Class Methods
@@ -105,10 +105,10 @@ class PlannedMicroinjectionList #< Reports::Base
       JOIN mi_plans ON mi_plans.id = mi_attempt_counts.plan_id -- #{crisprs ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : ''}
       JOIN new_intermediate_report_summary_by_mi_plan ON new_intermediate_report_summary_by_mi_plan.mi_plan_id = mi_attempt_counts.plan_id #{crisprs ? 'and new_intermediate_report_summary_by_mi_plan.mutagenesis_via_crispr_cas9 is true' : ''}
       JOIN mi_plan_statuses ON mi_plan_statuses.name = new_intermediate_report_summary_by_mi_plan.mi_plan_status
-      JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report_summary_by_mi_plan.mi_plan_id 
+      JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report_summary_by_mi_plan.mi_plan_id
         AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
-      LEFT JOIN status_conflict_options ON new_intermediate_report_summary_by_mi_plan.mi_plan_id != status_conflict_options.mi_plan_id 
-        AND mi_plan_statuses.name = status_conflict_options.possible_conflict 
+      LEFT JOIN status_conflict_options ON new_intermediate_report_summary_by_mi_plan.mi_plan_id != status_conflict_options.mi_plan_id
+        AND mi_plan_statuses.name = status_conflict_options.possible_conflict
         AND new_intermediate_report_summary_by_mi_plan.gene = status_conflict_options.marker_symbol
     GROUP BY
       new_intermediate_report_summary_by_mi_plan.mi_plan_id,

@@ -3,7 +3,7 @@ class Open::Gene < ::Gene
   # BEGIN Helper functions for clean reporting
 
 
-  def self.gene_production_summary(gene_ids = nil, return_value = nil, statuses = nil)
+  def self.gene_production_summary()
 
     sql = <<-EOF
 

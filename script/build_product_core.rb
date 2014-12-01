@@ -19,7 +19,7 @@ class BuildProductCore
       JOIN centres ON centres.id = mi_plans.production_centre_id
       JOIN consortia ON consortia.id = mi_plans.consortium_id
       JOIN genes ON genes.id = mi_plans.gene_id
-    WHERE mi_plans.report_to_public = true AND mi_plans.ignore_available_mice = false AND consortia.name != 'EUCOMMToolsCre'
+    WHERE mi_plans.report_to_public = true AND consortia.name != 'EUCOMMToolsCre'
   EOF
 
 

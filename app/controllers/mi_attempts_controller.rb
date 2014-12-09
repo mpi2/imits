@@ -81,6 +81,11 @@ class MiAttemptsController < ApplicationController
     # TODO: put this somewhere more sensible
     Paperclip.options[:content_type_mappings] = { scf: 'application/octet-stream' }
 
+    require 'pp'
+    puts "================== update params ===================="
+    pp params
+    puts "====================================================="
+
     @mi_attempt = Public::MiAttempt.find(params[:id])
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])

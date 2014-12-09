@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141031141000) do
+ActiveRecord::Schema.define(:version => 20141103165100) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -45,29 +45,12 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string   "name",                                              :null => false
-    t.integer  "mi_attempt_id"
-    t.string   "trace_file_file_name"
-    t.string   "trace_file_content_type"
-    t.integer  "trace_file_file_size"
-    t.datetime "trace_file_updated_at"
-    t.boolean  "genotype_confirmed",             :default => false
-    t.text     "file_alignment"
-    t.text     "file_filtered_analysis_vcf"
-    t.text     "file_variant_effect_output_txt"
-    t.text     "file_reference_fa"
-    t.text     "file_mutant_fa"
-    t.text     "file_primer_reads_fa"
-    t.text     "file_alignment_data_yaml"
-    t.text     "file_trace_output"
-    t.text     "file_trace_error"
-    t.text     "file_exception_details"
-    t.integer  "file_return_code"
-    t.text     "file_merged_variants_vcf"
-    t.boolean  "is_het",                         :default => false
-    t.boolean  "report_to_public",               :default => false
-    t.boolean  "unwanted_allele",                :default => false
-    t.text     "unwanted_allele_description"
+    t.string  "name",                                           :null => false
+    t.integer "mi_attempt_id"
+    t.boolean "genotype_confirmed",          :default => false
+    t.boolean "report_to_public",            :default => false
+    t.boolean "unwanted_allele",             :default => false
+    t.text    "unwanted_allele_description"
   end
 
   add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
@@ -1276,12 +1259,33 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
   add_index "targ_rep_targeting_vectors", ["name"], :name => "index_targvec", :unique => true
   add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
 
+  create_table "trace_calls", :force => true do |t|
+    t.integer  "colony_id",                                         :null => false
+    t.text     "file_alignment"
+    t.text     "file_filtered_analysis_vcf"
+    t.text     "file_variant_effect_output_txt"
+    t.text     "file_reference_fa"
+    t.text     "file_mutant_fa"
+    t.text     "file_primer_reads_fa"
+    t.text     "file_alignment_data_yaml"
+    t.text     "file_trace_output"
+    t.text     "file_trace_error"
+    t.text     "file_exception_details"
+    t.integer  "file_return_code"
+    t.text     "file_merged_variants_vcf"
+    t.boolean  "is_het",                         :default => false, :null => false
+    t.string   "trace_file_file_name"
+    t.string   "trace_file_content_type"
+    t.integer  "trace_file_file_size"
+    t.datetime "trace_file_updated_at"
+  end
+
   create_table "trace_files", :force => true do |t|
-    t.integer  "colony_id"
     t.string   "style"
     t.binary   "file_contents"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+    t.integer  "trace_call_id", :null => false
   end
 
   create_table "tracking_goals", :force => true do |t|
@@ -1438,6 +1442,8 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
   add_foreign_key "targ_rep_genotype_primers", "targ_rep_alleles", :name => "targ_rep_genotype_primers_allele_id_fk", :column => "allele_id"
 
   add_foreign_key "targ_rep_real_alleles", "genes", :name => "targ_rep_real_alleles_gene_id_fk"
+
+  add_foreign_key "trace_calls", "colonies", :name => "trace_calls_colonies_fk"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

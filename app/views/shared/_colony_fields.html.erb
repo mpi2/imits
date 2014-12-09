@@ -1,4 +1,8 @@
-<tr>
+<% if f.object.trace_call.nil? then f.object.trace_call = TraceCall.new end %>
+
+<%= f.fields_for :trace_call do |ftc| %>
+
+  <tr>
     <td style="text-align: center;vertical-align: top;">
         <div style="padding:30px 0px 0px 0px">
         <%= f.text_field :name, :maxlength => 20 %>
@@ -6,35 +10,35 @@
     <td style="text-align: left;vertical-align: top">
         <div style="padding:30px 0px 0px 20px; width:220px">
 
-        <% if f.object.trace_data_error %>
-            <% if f.object.file_error.to_s.length > 0 %>
-                <p>Error: <%= f.object.file_error %></p>
+        <% if ftc.object.trace_data_error %>
+            <% if ftc.object.file_error.to_s.length > 0 %>
+                <p>Error: <%= ftc.object.file_error %></p>
 
                 <% if ! Rails.env.production? %>
                     <p>debug stderr:</p>
-                    <p><%= f.object.file_trace_error %></p>
+                    <p><%= ftc.object.file_trace_error %></p>
                     <p>debug stdout:</p>
-                    <p><%= f.object.file_trace_output %></p>
+                    <p><%= ftc.object.file_trace_output %></p>
                 <% end %>
 
             <% else %>
                 <p>error</p>
             <% end %>
-        <% elsif f.object.trace_data_pending %>
+        <% elsif ftc.object.trace_data_pending %>
             <p>Analysis pending</p>
-        <% elsif ! f.object.new_record? && f.object.trace_data_available %>
+        <% elsif ! f.object.new_record? && ftc.object.trace_data_available %>
             <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
         <% end %>
-        <% if ! f.object.new_record? && (f.object.trace_data_available || f.object.trace_data_pending) %>
+        <% if ! f.object.new_record? && (ftc.object.trace_data_available || ftc.object.trace_data_pending) %>
             <button id="cbutton_<%= f.object.id %>" type="button" onclick="$(this).toggle();var id = '#cdiv_<%= f.object.id %>'; $(id).toggle();">Replace</button>
                 <div id="cdiv_<%= f.object.id %>" style="display:none;">
-                    <%= f.file_field :trace_file %>
+                    <%= ftc.file_field :trace_file %>
                 </div>
-                <div>Heterozygous Trace? <%= f.check_box :is_het %></div>
+                <div>Heterozygous Trace? <%= ftc.check_box :is_het %></div>
                 <!-- see http://stackoverflow.com/questions/2187008/styling-an-anchor-tag-to-look-like-a-submit-button for download button -->
         <% else %>
-            <%= f.file_field :trace_file %></br>
-            <div>Heterozygous Trace? <%= f.check_box :is_het %></div>
+            <%= ftc.file_field :trace_file %></br>
+            <div>Heterozygous Trace? <%= ftc.check_box :is_het %></div>
         <% end %>
 
 
@@ -86,4 +90,5 @@
             <%= link_to "remove", '#', class: "hide-row" %>
         <% end %>
     </td>
-</tr>
+  </tr>
+<% end %>

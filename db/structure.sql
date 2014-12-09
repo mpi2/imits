@@ -775,24 +775,7 @@ CREATE TABLE colonies (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     mi_attempt_id integer,
-    trace_file_file_name character varying(255),
-    trace_file_content_type character varying(255),
-    trace_file_file_size integer,
-    trace_file_updated_at timestamp without time zone,
     genotype_confirmed boolean DEFAULT false,
-    file_alignment text,
-    file_filtered_analysis_vcf text,
-    file_variant_effect_output_txt text,
-    file_reference_fa text,
-    file_mutant_fa text,
-    file_primer_reads_fa text,
-    file_alignment_data_yaml text,
-    file_trace_output text,
-    file_trace_error text,
-    file_exception_details text,
-    file_return_code integer,
-    file_merged_variants_vcf text,
-    is_het boolean DEFAULT false,
     report_to_public boolean DEFAULT false,
     unwanted_allele boolean DEFAULT false,
     unwanted_allele_description text
@@ -3547,16 +3530,62 @@ ALTER SEQUENCE targ_rep_targeting_vectors_id_seq OWNED BY targ_rep_targeting_vec
 
 
 --
+-- Name: trace_calls; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE trace_calls (
+    id integer NOT NULL,
+    colony_id integer NOT NULL,
+    file_alignment text,
+    file_filtered_analysis_vcf text,
+    file_variant_effect_output_txt text,
+    file_reference_fa text,
+    file_mutant_fa text,
+    file_primer_reads_fa text,
+    file_alignment_data_yaml text,
+    file_trace_output text,
+    file_trace_error text,
+    file_exception_details text,
+    file_return_code integer,
+    file_merged_variants_vcf text,
+    is_het boolean DEFAULT false NOT NULL,
+    trace_file_file_name character varying(255),
+    trace_file_content_type character varying(255),
+    trace_file_file_size integer,
+    trace_file_updated_at timestamp without time zone
+);
+
+
+--
+-- Name: trace_calls_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE trace_calls_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: trace_calls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE trace_calls_id_seq OWNED BY trace_calls.id;
+
+
+--
 -- Name: trace_files; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE trace_files (
     id integer NOT NULL,
-    colony_id integer,
     style character varying(255),
     file_contents bytea,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    trace_call_id integer NOT NULL
 );
 
 
@@ -4094,6 +4123,13 @@ ALTER TABLE ONLY targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval(
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY trace_calls ALTER COLUMN id SET DEFAULT nextval('trace_calls_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY trace_files ALTER COLUMN id SET DEFAULT nextval('trace_files_id_seq'::regclass);
 
 
@@ -4605,6 +4641,14 @@ ALTER TABLE ONLY targ_rep_sequence_annotation
 
 ALTER TABLE ONLY targ_rep_targeting_vectors
     ADD CONSTRAINT targ_rep_targeting_vectors_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: trace_calls_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY trace_calls
+    ADD CONSTRAINT trace_calls_pkey PRIMARY KEY (id);
 
 
 --
@@ -5795,6 +5839,14 @@ ALTER TABLE ONLY targ_rep_real_alleles
 
 
 --
+-- Name: trace_calls_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY trace_calls
+    ADD CONSTRAINT trace_calls_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
+
+
+--
 -- Name: users_es_cell_distribution_centre_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6185,3 +6237,5 @@ INSERT INTO schema_migrations (version) VALUES ('20141022103936');
 INSERT INTO schema_migrations (version) VALUES ('20141023111500');
 
 INSERT INTO schema_migrations (version) VALUES ('20141031141000');
+
+INSERT INTO schema_migrations (version) VALUES ('20141103165100');

@@ -21,15 +21,12 @@ class TraceCall < ActiveRecord::Base
   end
   protected :check_changed
 
-  SYNC = false
-  VERBOSE = false
+  SYNC                 = false
+  VERBOSE              = false
   KEEP_GENERATED_FILES = false
-  USER = (ENV['USER'] || `whoami`).chomp
-
-  puts "USER is #{USER}"
+  USER                 = (ENV['USER'] || `whoami`).chomp
 
   FOLDER_IN = "/nfs/team87/imits/trace_files_output/#{Rails.env}/#{USER}"
-  # TODO remove: FOLDER_IN = "/Users/as28/tmp/trace_files_output/#{Rails.env}/#{USER}"
 
   def trace_data_pending
     file_alignment.blank? && ! self.trace_file_file_name.blank?
@@ -112,7 +109,7 @@ class TraceCall < ActiveRecord::Base
       options[:strand] = "#{strand_name}1" if ! options[:strand]
 
       options[:species] = "Mouse"
-      options[:dir] = self.colony.id
+      options[:dir] = "#{self.colony.id}/#{self.id}"
 
       if ! options[:start] || ! options[:end]
         options[:start], options[:end] = self.target_region
@@ -160,22 +157,24 @@ class TraceCall < ActiveRecord::Base
       puts("#### crispr_damage_analysis: exception: #{e}")
     end
 
-    folder_in                           = "#{FOLDER_IN}/#{self.colony.id}/#{self.id}"
+    output_colony_dir                   = "#{FOLDER_IN}/#{self.colony.id}"
+    output_trace_call_dir               = "#{FOLDER_IN}/#{self.colony.id}/#{self.id}"
 
     self.file_trace_output              = output
     self.file_trace_error               = error_output
     self.file_exception_details         = exception
     self.file_return_code               = exit_status
 
-    self.file_alignment                 = save_file "#{folder_in}/alignment.txt"
-    self.file_filtered_analysis_vcf     = save_file "#{folder_in}/filtered_analysis.vcf"
-    self.file_variant_effect_output_txt = save_file "#{folder_in}/variant_effect_output.txt"
-    self.file_reference_fa              = save_file "#{folder_in}/reference.fa"
-    self.file_mutant_fa                 = save_file "#{folder_in}/mutated.fa"
-    self.file_alignment_data_yaml       = save_file "#{folder_in}/alignment_data.yaml"
-    self.file_merged_variants_vcf       = save_file "#{folder_in}/merge_vcf/merged_variants.vcf"
+    self.file_alignment                 = save_file "#{output_trace_call_dir}/alignment.txt"
+    self.file_filtered_analysis_vcf     = save_file "#{output_trace_call_dir}/filtered_analysis.vcf"
+    self.file_variant_effect_output_txt = save_file "#{output_trace_call_dir}/variant_effect_output.txt"
+    self.file_reference_fa              = save_file "#{output_trace_call_dir}/reference.fa"
+    self.file_mutant_fa                 = save_file "#{output_trace_call_dir}/mutated.fa"
+    self.file_alignment_data_yaml       = save_file "#{output_trace_call_dir}/alignment_data.yaml"
+    self.file_merged_variants_vcf       = save_file "#{output_trace_call_dir}/merge_vcf/merged_variants.vcf"
 
-    filename                            = "#{folder_in}/primer_reads.fa"
+    filename                            = "#{output_trace_call_dir}/primer_reads.fa"
+
     if File.exists?(filename)
       contents = File.open(filename).read
       data     = contents.lines.to_a[1..-1].join
@@ -186,17 +185,18 @@ class TraceCall < ActiveRecord::Base
     self.save!
 
     if options[:keep_generated_files]
-      puts "#### check folder #{folder_in}"
+      puts "#### check folder #{output_trace_call_dir}"
       return
     end
 
-    FileUtils.rm(Dir.glob("#{folder_in}/scf_to_seq/*.*"), :force => true)
-    FileUtils.rmdir("#{folder_in}/scf_to_seq")
+    FileUtils.rm(Dir.glob("#{output_trace_call_dir}/scf_to_seq/*.*"), :force => true)
+    FileUtils.rmdir("#{output_trace_call_dir}/scf_to_seq")
 
-    FileUtils.rm(Dir.glob("#{folder_in}/merge_vcf/*.*"), :force => true)
-    FileUtils.rmdir("#{folder_in}/merge_vcf")
-    FileUtils.rm(Dir.glob("#{folder_in}/*.*"), :force => true)
-    FileUtils.rmdir("#{folder_in}", :verbose => true)
+    FileUtils.rm(Dir.glob("#{output_trace_call_dir}/merge_vcf/*.*"), :force => true)
+    FileUtils.rmdir("#{output_trace_call_dir}/merge_vcf")
+    FileUtils.rm(Dir.glob("#{output_trace_call_dir}/*.*"), :force => true)
+    FileUtils.rmdir("#{output_trace_call_dir}", :verbose => true)
+    FileUtils.rmdir("#{output_colony_dir}", :verbose => true)
   end
 
   def save_file(filename)
@@ -252,10 +252,6 @@ class TraceCall < ActiveRecord::Base
     insertions_deletions 'target_sequence_start'
   end
 
-  def target_sequence_end
-    insertions_deletions  'target_sequence_end'
-  end
-
   def targeted_reference_sequence
     only_select_target_region('reference')
   end
@@ -267,22 +263,6 @@ class TraceCall < ActiveRecord::Base
   def targeted_file_alignment
     return "#{targeted_reference_sequence}\n#{targeted_mutated_sequence}"
   end
-
-  #TODO remove
-  # this in shared/_colony_fields.html.erb <% ftc.object.save_trace_file_to_filepath('/Users/as28/tmp') %>
-  # def save_trace_file_to_filepath( directory )
-  #   return if self.trace_file_file_name.nil?
-
-  #   begin
-  #     puts "Saving trace file for colony #{self.colony.name} with id #{self.colony.id} and trace call #{self.id}"
-  #     filename = Dir::Tmpname.make_tmpname "#{directory}/", nil
-  #     self.trace_file.copy_to_local_file('original', filename)
-  #   rescue => e
-  #     puts "Exception:"
-  #     puts e.inspect
-  #     puts e.backtrace.join("\n")
-  #   end
-  # end
 
 end
 

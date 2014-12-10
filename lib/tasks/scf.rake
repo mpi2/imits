@@ -8,7 +8,7 @@ namespace :scf do
     options = { :force => true } if ! args[:force].blank?
 
     Colony.all.each do |colony|
-      colony.crispr_damage_analysis options
+      colony.trace_call.crispr_damage_analysis options unless colony.trace_call.nil?
     end
   end
 
@@ -25,7 +25,7 @@ namespace :scf do
     mi = MiAttempt.find args[:mi_attempt_id]
 
     mi.colonies.each do |colony|
-      colony.crispr_damage_analysis options
+      colony.trace_call.crispr_damage_analysis options unless colony.trace_call.nil?
     end
   end
 
@@ -50,7 +50,7 @@ namespace :scf do
     colonies.each do |colony|
       filename = "#{folder}/#{args[:mi_attempt_id]}__#{colony.name}.scf"
       puts "#### creating '#{filename}'"
-      colony.trace_file.copy_to_local_file('original', filename)
+      colony.trace_call.trace_file.copy_to_local_file('original', filename) unless colony.trace_call.nil?
     end
   end
 

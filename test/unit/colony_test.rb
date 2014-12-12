@@ -20,26 +20,23 @@ class ColonyTest < ActiveSupport::TestCase
             should "allow nested attributes for colony_qc" do
                 accept_nested_attributes_for(:colony_qc)
             end
+
+            should "have one trace call" do
+              have_one(:trace_call)
+            end
+
+            should "allow nested attributes for trace_call" do
+              accept_nested_attributes_for(:trace_call)
+            end
         end
 
         context "db columns" do
           should have_db_column(:name).of_type(:string).with_options(:null => false)
           should have_db_column(:mi_attempt_id).of_type(:integer)
           should have_db_column(:genotype_confirmed).of_type(:boolean).with_options(:default => false)
-          should have_db_column(:trace_file_file_name).of_type(:string)
-          should have_db_column(:trace_file_content_type).of_type(:string)
-          should have_db_column(:trace_file_file_size).of_type(:integer)
-          should have_db_column(:trace_file_updated_at).of_type(:datetime)
-          should have_db_column(:genotype_confirmed).of_type(:boolean)
-          should have_db_column(:file_alignment).of_type(:text)
-          should have_db_column(:file_filtered_analysis_vcf).of_type(:text)
-          should have_db_column(:file_variant_effect_output_txt).of_type(:text)
-          should have_db_column(:file_reference_fa).of_type(:text)
-          should have_db_column(:file_mutant_fa).of_type(:text)
-          should have_db_column(:file_primer_reads_fa).of_type(:text)
-          should have_db_column(:file_alignment_data_yaml).of_type(:text)
-          should have_db_column(:file_merged_variants_vcf).of_type(:text)
-          should have_db_column(:is_het).of_type(:boolean)
+          should have_db_column(:report_to_public).of_type(:boolean).with_options(:default => false)
+          should have_db_column(:unwanted_allele).of_type(:boolean).with_options(:default => false)
+          should have_db_column(:unwanted_allele_description).of_type(:text)
         end
 
         context 'creation of qc' do

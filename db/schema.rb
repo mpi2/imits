@@ -1274,6 +1274,8 @@ ActiveRecord::Schema.define(:version => 20141103165100) do
     t.integer  "file_return_code"
     t.text     "file_merged_variants_vcf"
     t.boolean  "is_het",                         :default => false, :null => false
+    t.datetime "created_at",                                        :null => false
+    t.datetime "updated_at",                                        :null => false
     t.string   "trace_file_file_name"
     t.string   "trace_file_content_type"
     t.integer  "trace_file_file_size"

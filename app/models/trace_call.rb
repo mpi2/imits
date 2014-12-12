@@ -136,8 +136,8 @@ class TraceCall < ActiveRecord::Base
 
       Open3.popen3("#{cmd}") do |scriptin, scriptout, scripterr, wait_thr|
         error_output = scripterr.read
-        exit_status = wait_thr.value.exitstatus
-        output = scriptout.read
+        exit_status  = wait_thr.value.exitstatus
+        output       = scriptout.read
       end
 
       FileUtils.rm(filename, :force => true)
@@ -176,17 +176,17 @@ class TraceCall < ActiveRecord::Base
     filename                            = "#{output_trace_call_dir}/primer_reads.fa"
 
     if File.exists?(filename)
-      contents = File.open(filename).read
-      data     = contents.lines.to_a[1..-1].join
+      contents                  = File.open(filename).read
+      data                      = contents.lines.to_a[1..-1].join
       data.gsub!(/\s+/, "")
       self.file_primer_reads_fa = data
     end
 
-    self.save!
+    updated = self.save!
 
     if options[:keep_generated_files]
       puts "#### check folder #{output_trace_call_dir}"
-      return
+      return updated
     end
 
     FileUtils.rm(Dir.glob("#{output_trace_call_dir}/scf_to_seq/*.*"), :force => true)
@@ -197,6 +197,10 @@ class TraceCall < ActiveRecord::Base
     FileUtils.rm(Dir.glob("#{output_trace_call_dir}/*.*"), :force => true)
     FileUtils.rmdir("#{output_trace_call_dir}", :verbose => true)
     FileUtils.rmdir("#{output_colony_dir}", :verbose => true)
+
+    cmd = nil
+
+    return updated
   end
 
   def save_file(filename)
@@ -285,6 +289,8 @@ end
 #  file_return_code               :integer
 #  file_merged_variants_vcf       :text
 #  is_het                         :boolean          default(FALSE), not null
+#  created_at                     :datetime         not null
+#  updated_at                     :datetime         not null
 #  trace_file_file_name           :string(255)
 #  trace_file_content_type        :string(255)
 #  trace_file_file_size           :integer

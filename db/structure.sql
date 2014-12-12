@@ -3549,6 +3549,8 @@ CREATE TABLE trace_calls (
     file_return_code integer,
     file_merged_variants_vcf text,
     is_het boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     trace_file_file_name character varying(255),
     trace_file_content_type character varying(255),
     trace_file_file_size integer,

@@ -274,19 +274,19 @@ class Gene < ActiveRecord::Base
 # CLASS METHODS
 # mi_plan summarys for a list of genes
   def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_ids = nil)
-    return pretty_print_mi_attempts_in_bulk_helper({:active => true, :statuses => [MiAttempt::Status.micro_injection_in_progress, MiAttempt::Status.chimeras_obtained], :gene_ids => gene_id})
+    return pretty_print_mi_attempts_in_bulk_helper({:active => true, :statuses => [MiAttempt::Status.micro_injection_in_progress, MiAttempt::Status.chimeras_obtained], :gene_ids => gene_ids})
   end
 
   def self.pretty_print_mi_attempts_genotype_confirmed_in_bulk(gene_ids = nil)
-    return pretty_print_mi_attempts_in_bulk_helper({:active => true, :statuses => [MiAttempt::Status.genotype_confirmed], :gene_ids => gene_id})
+    return pretty_print_mi_attempts_in_bulk_helper({:active => true, :statuses => [MiAttempt::Status.genotype_confirmed], :gene_ids => gene_ids})
   end
 
   def self.pretty_print_aborted_mi_attempts_in_bulk(gene_ids = nil)
-    return pretty_print_mi_attempts_in_bulk_helper({:active => false, :gene_ids => gene_id})
+    return pretty_print_mi_attempts_in_bulk_helper({:active => false, :gene_ids => gene_ids})
   end
 
   def self.pretty_print_phenotype_attempts_in_bulk(gene_ids = nil)
-    return pretty_print_phenotype_attempts_in_bulk_helper({:gene_ids => gene_id})
+    return pretty_print_phenotype_attempts_in_bulk_helper({:gene_ids => gene_ids})
   end
 
 # mi_plan summary formatting

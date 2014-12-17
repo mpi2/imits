@@ -1,14 +1,35 @@
 
 namespace :scf do
 
+  BWA_SLEEPTIME_SECS = 30
+  MAX_NUM_TO_PROCESS = 3
+
   desc 'run the scf process'
   task 'run', [:force] => :environment do |t, args|
     args.with_defaults(:force => false)
     options = {}
     options = { :force => true } if ! args[:force].blank?
 
-    Colony.all.each do |colony|
-      colony.crispr_damage_analysis options
+    # process a maximum number in one session, irrespective of force flag
+    counter = 0
+    Colony.joins(:trace_call).order('trace_calls.updated_at, colonies.id').each do |colony|
+      next if colony.trace_call.nil?
+
+      if counter >= MAX_NUM_TO_PROCESS
+        puts "#### counter above max of #{MAX_NUM_TO_PROCESS}, exit updates"
+        exit
+      end
+
+      if counter > 0
+        # delay between runs to give memory time to clear (BWA) - NB. DOES NOT WORK for t87-dev
+        sleep(BWA_SLEEPTIME_SECS)
+      end
+
+      # puts "checking colony id #{colony.id} with update timestamp #{colony.trace_call.updated_at}"
+      if ( colony.trace_call.crispr_damage_analysis options )
+        # puts "colony id #{colony.id} processed"
+        counter += 1
+      end
     end
   end
 
@@ -25,7 +46,15 @@ namespace :scf do
     mi = MiAttempt.find args[:mi_attempt_id]
 
     mi.colonies.each do |colony|
-      colony.crispr_damage_analysis options
+      if colony.trace_call.nil?
+        puts "#### colony id #{colony.id} has no trace calls"
+      end
+
+      if ( colony.trace_call.crispr_damage_analysis options )
+        puts "#### colony id #{colony.id} trace call updated"
+      else
+        puts "#### colony id #{colony.id} trace call NOT updated"
+      end
     end
   end
 
@@ -50,7 +79,7 @@ namespace :scf do
     colonies.each do |colony|
       filename = "#{folder}/#{args[:mi_attempt_id]}__#{colony.name}.scf"
       puts "#### creating '#{filename}'"
-      colony.trace_file.copy_to_local_file('original', filename)
+      colony.trace_call.trace_file.copy_to_local_file('original', filename) unless colony.trace_call.nil?
     end
   end
 

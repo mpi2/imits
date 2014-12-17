@@ -259,8 +259,8 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def planned_crispr_microinjection_list
-    @report = PlannedMicroinjectionList.new
-    @mi_plan_summary = @report.mi_plan_summary(nil, true)
+    @report = PlannedMicroinjectionList.new({:crisprs => true, :show_eucommtoolscre_data => false})
+    @mi_plan_summary = @report.mi_plan_summary(nil)
     @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
     @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
     @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
@@ -303,10 +303,12 @@ class V2::Reports::MiProductionController < ApplicationController
   def notifications_by_gene_live
     if !params[:commit].blank?
       consortium = Consortium.find_by_name(params[:consortium]).try(:name)
+      show_eucommtoolscre_data = false
+      show_eucommtoolscre_data = true if consortium == 'EUCOMMToolsCre'
       production_centre = Centre.find_by_name(params[:production_centre]).try(:name)
       consortium = params[:consortium] if ! consortium
 
-      @report = NotificationsByGene.new
+      @report = NotificationsByGene.new({:show_eucommtoolscre_data => show_eucommtoolscre_data})
       @mi_plan_summary = @report.mi_plan_summary(production_centre, consortium)
       @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
       @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
@@ -321,7 +323,7 @@ class V2::Reports::MiProductionController < ApplicationController
       @blurb += "#{production_centre}" if ! production_centre.blank?
       @blurb = "All" if consortium.blank? && production_centre.blank?
       @count = @report.blank? ? 0 : @mi_plan_summary.count
-      @pretty_print_statuses = @report.pretty_print_statuses
+#      @pretty_print_statuses = @report.pretty_print_statuses
     end
     @title = 'Notification interest by gene'
     render :template => 'v2/reports/mi_production/notifications_by_gene_live'
@@ -334,10 +336,12 @@ class V2::Reports::MiProductionController < ApplicationController
 
   def notifications_by_gene_for_idg_live
     consortium = Consortium.find_by_name(params[:consortium]).try(:name)
+    show_eucommtoolscre_data = false
+    show_eucommtoolscre_data = true if consortium == 'EUCOMMToolsCre'
     production_centre = Centre.find_by_name(params[:production_centre]).try(:name)
 
-    @report = NotificationsByGene.new
-    @mi_plan_summary = @report.mi_plan_summary(production_centre, consortium, true)
+    @report = NotificationsByGene.new({:crispr => true, :show_eucommtoolscre_data => show_eucommtoolscre_data})
+    @mi_plan_summary = @report.mi_plan_summary(production_centre, consortium)
     @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
     @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
     @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
@@ -351,7 +355,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @blurb += "#{production_centre}" if ! production_centre.blank?
     @blurb = "All" if consortium.blank? && production_centre.blank?
     @count = @report.blank? ? 0 : @mi_plan_summary.count
-    @pretty_print_statuses = @report.pretty_print_statuses
+#    @pretty_print_statuses = @report.pretty_print_statuses
     params[:commit] = true
 
     @title = 'IDG Gene List Activity'

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141031141000) do
+ActiveRecord::Schema.define(:version => 20141206144401) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -45,29 +45,12 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string   "name",                                              :null => false
-    t.integer  "mi_attempt_id"
-    t.string   "trace_file_file_name"
-    t.string   "trace_file_content_type"
-    t.integer  "trace_file_file_size"
-    t.datetime "trace_file_updated_at"
-    t.boolean  "genotype_confirmed",             :default => false
-    t.text     "file_alignment"
-    t.text     "file_filtered_analysis_vcf"
-    t.text     "file_variant_effect_output_txt"
-    t.text     "file_reference_fa"
-    t.text     "file_mutant_fa"
-    t.text     "file_primer_reads_fa"
-    t.text     "file_alignment_data_yaml"
-    t.text     "file_trace_output"
-    t.text     "file_trace_error"
-    t.text     "file_exception_details"
-    t.integer  "file_return_code"
-    t.text     "file_merged_variants_vcf"
-    t.boolean  "is_het",                         :default => false
-    t.boolean  "report_to_public",               :default => false
-    t.boolean  "unwanted_allele",                :default => false
-    t.text     "unwanted_allele_description"
+    t.string  "name",                                           :null => false
+    t.integer "mi_attempt_id"
+    t.boolean "genotype_confirmed",          :default => false
+    t.boolean "report_to_public",            :default => false
+    t.boolean "unwanted_allele",             :default => false
+    t.text    "unwanted_allele_description"
   end
 
   add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
@@ -498,6 +481,80 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
     t.text    "nuclease"
   end
 
+  create_table "new_intermediate_report_summary_by_centre", :force => true do |t|
+    t.integer  "mi_plan_id"
+    t.integer  "mi_attempt_id"
+    t.integer  "mouse_allele_mod_id"
+    t.integer  "phenotyping_production_id"
+    t.string   "overall_status",                                :limit => 50
+    t.string   "mi_plan_status",                                :limit => 50
+    t.string   "mi_attempt_status",                             :limit => 50
+    t.string   "phenotype_attempt_status",                      :limit => 50
+    t.string   "production_centre",                                           :null => false
+    t.string   "gene",                                          :limit => 75, :null => false
+    t.string   "mgi_accession_id",                              :limit => 40
+    t.date     "gene_interest_date"
+    t.string   "mi_attempt_colony_name"
+    t.string   "mouse_allele_mod_colony_name"
+    t.string   "production_colony_name"
+    t.date     "assigned_date"
+    t.date     "assigned_es_cell_qc_in_progress_date"
+    t.date     "assigned_es_cell_qc_complete_date"
+    t.date     "aborted_es_cell_qc_failed_date"
+    t.date     "micro_injection_in_progress_date"
+    t.date     "chimeras_obtained_date"
+    t.date     "genotype_confirmed_date"
+    t.date     "micro_injection_aborted_date"
+    t.date     "phenotype_attempt_registered_date"
+    t.date     "rederivation_started_date"
+    t.date     "rederivation_complete_date"
+    t.date     "cre_excision_started_date"
+    t.date     "cre_excision_complete_date"
+    t.date     "phenotyping_started_date"
+    t.date     "phenotyping_experiments_started_date"
+    t.date     "phenotyping_complete_date"
+    t.date     "phenotype_attempt_aborted_date"
+    t.string   "phenotyping_mi_attempt_consortium"
+    t.string   "phenotyping_mi_attempt_production_centre"
+    t.string   "tm1b_phenotype_attempt_status"
+    t.date     "tm1b_phenotype_attempt_registered_date"
+    t.date     "tm1b_rederivation_started_date"
+    t.date     "tm1b_rederivation_complete_date"
+    t.date     "tm1b_cre_excision_started_date"
+    t.date     "tm1b_cre_excision_complete_date"
+    t.date     "tm1b_phenotyping_started_date"
+    t.date     "tm1b_phenotyping_experiments_started_date"
+    t.date     "tm1b_phenotyping_complete_date"
+    t.date     "tm1b_phenotype_attempt_aborted_date"
+    t.string   "tm1b_colony_name"
+    t.string   "tm1b_phenotyping_production_colony_name"
+    t.string   "tm1b_phenotyping_mi_attempt_consortium"
+    t.string   "tm1b_phenotyping_mi_attempt_production_centre"
+    t.string   "tm1a_phenotype_attempt_status"
+    t.date     "tm1a_phenotype_attempt_registered_date"
+    t.date     "tm1a_rederivation_started_date"
+    t.date     "tm1a_rederivation_complete_date"
+    t.date     "tm1a_cre_excision_started_date"
+    t.date     "tm1a_cre_excision_complete_date"
+    t.date     "tm1a_phenotyping_started_date"
+    t.date     "tm1a_phenotyping_experiments_started_date"
+    t.date     "tm1a_phenotyping_complete_date"
+    t.date     "tm1a_phenotype_attempt_aborted_date"
+    t.string   "tm1a_colony_name"
+    t.string   "tm1a_phenotyping_production_colony_name"
+    t.string   "tm1a_phenotyping_mi_attempt_consortium"
+    t.string   "tm1a_phenotyping_mi_attempt_production_centre"
+    t.integer  "distinct_genotype_confirmed_es_cells"
+    t.integer  "distinct_old_genotype_confirmed_es_cells"
+    t.integer  "distinct_non_genotype_confirmed_es_cells"
+    t.integer  "distinct_old_non_genotype_confirmed_es_cells"
+    t.integer  "total_pipeline_efficiency_gene_count"
+    t.integer  "total_old_pipeline_efficiency_gene_count"
+    t.integer  "gc_pipeline_efficiency_gene_count"
+    t.integer  "gc_old_pipeline_efficiency_gene_count"
+    t.datetime "created_at"
+  end
+
   create_table "new_intermediate_report_summary_by_centre_and_consortia", :force => true do |t|
     t.integer  "mi_plan_id"
     t.integer  "mi_attempt_id"
@@ -649,6 +706,79 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
     t.datetime "created_at"
     t.string   "sub_project"
     t.string   "mutation_sub_type",                             :limit => 100
+  end
+
+  create_table "new_intermediate_report_summary_by_gene", :force => true do |t|
+    t.integer  "mi_plan_id"
+    t.integer  "mi_attempt_id"
+    t.integer  "mouse_allele_mod_id"
+    t.integer  "phenotyping_production_id"
+    t.string   "overall_status",                                :limit => 50
+    t.string   "mi_plan_status",                                :limit => 50
+    t.string   "mi_attempt_status",                             :limit => 50
+    t.string   "phenotype_attempt_status",                      :limit => 50
+    t.string   "gene",                                          :limit => 75, :null => false
+    t.string   "mgi_accession_id",                              :limit => 40
+    t.date     "gene_interest_date"
+    t.string   "mi_attempt_colony_name"
+    t.string   "mouse_allele_mod_colony_name"
+    t.string   "production_colony_name"
+    t.date     "assigned_date"
+    t.date     "assigned_es_cell_qc_in_progress_date"
+    t.date     "assigned_es_cell_qc_complete_date"
+    t.date     "aborted_es_cell_qc_failed_date"
+    t.date     "micro_injection_in_progress_date"
+    t.date     "chimeras_obtained_date"
+    t.date     "genotype_confirmed_date"
+    t.date     "micro_injection_aborted_date"
+    t.date     "phenotype_attempt_registered_date"
+    t.date     "rederivation_started_date"
+    t.date     "rederivation_complete_date"
+    t.date     "cre_excision_started_date"
+    t.date     "cre_excision_complete_date"
+    t.date     "phenotyping_started_date"
+    t.date     "phenotyping_experiments_started_date"
+    t.date     "phenotyping_complete_date"
+    t.date     "phenotype_attempt_aborted_date"
+    t.string   "phenotyping_mi_attempt_consortium"
+    t.string   "phenotyping_mi_attempt_production_centre"
+    t.string   "tm1b_phenotype_attempt_status"
+    t.date     "tm1b_phenotype_attempt_registered_date"
+    t.date     "tm1b_rederivation_started_date"
+    t.date     "tm1b_rederivation_complete_date"
+    t.date     "tm1b_cre_excision_started_date"
+    t.date     "tm1b_cre_excision_complete_date"
+    t.date     "tm1b_phenotyping_started_date"
+    t.date     "tm1b_phenotyping_experiments_started_date"
+    t.date     "tm1b_phenotyping_complete_date"
+    t.date     "tm1b_phenotype_attempt_aborted_date"
+    t.string   "tm1b_colony_name"
+    t.string   "tm1b_phenotyping_production_colony_name"
+    t.string   "tm1b_phenotyping_mi_attempt_consortium"
+    t.string   "tm1b_phenotyping_mi_attempt_production_centre"
+    t.string   "tm1a_phenotype_attempt_status"
+    t.date     "tm1a_phenotype_attempt_registered_date"
+    t.date     "tm1a_rederivation_started_date"
+    t.date     "tm1a_rederivation_complete_date"
+    t.date     "tm1a_cre_excision_started_date"
+    t.date     "tm1a_cre_excision_complete_date"
+    t.date     "tm1a_phenotyping_started_date"
+    t.date     "tm1a_phenotyping_experiments_started_date"
+    t.date     "tm1a_phenotyping_complete_date"
+    t.date     "tm1a_phenotype_attempt_aborted_date"
+    t.string   "tm1a_colony_name"
+    t.string   "tm1a_phenotyping_production_colony_name"
+    t.string   "tm1a_phenotyping_mi_attempt_consortium"
+    t.string   "tm1a_phenotyping_mi_attempt_production_centre"
+    t.integer  "distinct_genotype_confirmed_es_cells"
+    t.integer  "distinct_old_genotype_confirmed_es_cells"
+    t.integer  "distinct_non_genotype_confirmed_es_cells"
+    t.integer  "distinct_old_non_genotype_confirmed_es_cells"
+    t.integer  "total_pipeline_efficiency_gene_count"
+    t.integer  "total_old_pipeline_efficiency_gene_count"
+    t.integer  "gc_pipeline_efficiency_gene_count"
+    t.integer  "gc_old_pipeline_efficiency_gene_count"
+    t.datetime "created_at"
   end
 
   create_table "new_intermediate_report_summary_by_mi_plan", :force => true do |t|
@@ -1276,12 +1406,35 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
   add_index "targ_rep_targeting_vectors", ["name"], :name => "index_targvec", :unique => true
   add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
 
+  create_table "trace_calls", :force => true do |t|
+    t.integer  "colony_id",                                         :null => false
+    t.text     "file_alignment"
+    t.text     "file_filtered_analysis_vcf"
+    t.text     "file_variant_effect_output_txt"
+    t.text     "file_reference_fa"
+    t.text     "file_mutant_fa"
+    t.text     "file_primer_reads_fa"
+    t.text     "file_alignment_data_yaml"
+    t.text     "file_trace_output"
+    t.text     "file_trace_error"
+    t.text     "file_exception_details"
+    t.integer  "file_return_code"
+    t.text     "file_merged_variants_vcf"
+    t.boolean  "is_het",                         :default => false, :null => false
+    t.datetime "created_at",                                        :null => false
+    t.datetime "updated_at",                                        :null => false
+    t.string   "trace_file_file_name"
+    t.string   "trace_file_content_type"
+    t.integer  "trace_file_file_size"
+    t.datetime "trace_file_updated_at"
+  end
+
   create_table "trace_files", :force => true do |t|
-    t.integer  "colony_id"
     t.string   "style"
     t.binary   "file_contents"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+    t.integer  "trace_call_id", :null => false
   end
 
   create_table "tracking_goals", :force => true do |t|
@@ -1438,6 +1591,8 @@ ActiveRecord::Schema.define(:version => 20141031141000) do
   add_foreign_key "targ_rep_genotype_primers", "targ_rep_alleles", :name => "targ_rep_genotype_primers_allele_id_fk", :column => "allele_id"
 
   add_foreign_key "targ_rep_real_alleles", "genes", :name => "targ_rep_real_alleles_gene_id_fk"
+
+  add_foreign_key "trace_calls", "colonies", :name => "trace_calls_colonies_fk"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

@@ -282,7 +282,7 @@ class NotificationMailer < ActionMailer::Base
   end
 
   def get_production_centre_report(production_centre = nil)
-    @report = ::NotificationsByGene.new
+    @report = ::NotificationsByGene.new({:show_eucommtoolscre_data => false})
     @mi_plan_summary = @report.mi_plan_summary(production_centre)
     @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
     @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans

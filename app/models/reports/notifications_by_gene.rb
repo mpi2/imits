@@ -40,8 +40,10 @@ class Reports::NotificationsByGene < Reports::Base
 
   def initialize_idg(consortium = nil)
     production_centre = nil
+    show_eucommtoolscre_data = false
+    show_eucommtoolscre_data = true if consortium == 'EUCOMMToolsCre'
 
-    @report = ::NotificationsByGene.new
+    @report = ::NotificationsByGene.new({:show_eucommtoolscre_data => show_eucommtoolscre_data})
     @mi_plan_summary = @report.mi_plan_summary(production_centre, consortium, true)
 
     @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
@@ -58,7 +60,7 @@ class Reports::NotificationsByGene < Reports::Base
     @blurb = "All" if (consortium.blank? && production_centre.blank?) || consortium =~ /all/
     @blurb = "no consortium" if consortium =~ /none/
     @count = @report.blank? ? 0 : @mi_plan_summary.count
-    @pretty_print_statuses = @report.pretty_print_statuses
+#    @pretty_print_statuses = @report.pretty_print_statuses
     @cached = true
 
     @html = ERB.new(File.read("#{Rails.root}/app/views/v2/reports/mi_production/_report_with_counts3.html.erb")).result(binding) #rescue nil
@@ -68,8 +70,10 @@ class Reports::NotificationsByGene < Reports::Base
 
   def initialize_default(consortium = nil)
     production_centre = nil
+    show_eucommtoolscre_data = false
+    show_eucommtoolscre_data = true if consortium == 'EUCOMMToolsCre'
 
-    @report = ::NotificationsByGene.new
+    @report = ::NotificationsByGene.new({:show_eucommtoolscre_data => show_eucommtoolscre_data})
     @mi_plan_summary = @report.mi_plan_summary(production_centre, consortium)
     @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
     @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
@@ -87,7 +91,7 @@ class Reports::NotificationsByGene < Reports::Base
     @blurb = "no consortium" if consortium =~ /none/
 
     @count = @report.blank? ? 0 : @mi_plan_summary.count
-    @pretty_print_statuses = @report.pretty_print_statuses
+#    @pretty_print_statuses = @report.pretty_print_statuses
     @cached = true
 
     @html = ERB.new(File.read("#{Rails.root}/app/views/v2/reports/mi_production/_report_with_counts3.html.erb")).result(binding) #rescue nil

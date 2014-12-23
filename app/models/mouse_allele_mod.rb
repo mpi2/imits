@@ -9,87 +9,95 @@ class MouseAlleleMod < ApplicationModel
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
 
+  belongs_to :parent_colony, :class_name => 'Colony'
   belongs_to :allele
   belongs_to :real_allele
   belongs_to :mi_plan
-  belongs_to :mi_attempt
-  belongs_to :phenotype_attempt
   belongs_to :status
   belongs_to :deleter_strain
   belongs_to :colony_background_strain, :class_name => 'Strain'
 
+
   has_many   :status_stamps, :order => "#{MouseAlleleMod::StatusStamp.table_name}.created_at ASC", dependent: :destroy
-  has_many   :phenotyping_productions
   has_many   :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
+
+  has_one    :colony, dependent: :destroy
 
   access_association_by_attribute :colony_background_strain, :name
   access_association_by_attribute :deleter_strain, :name
 
-  accepts_nested_attributes_for :status_stamps
+
+  ColonyQc::QC_FIELDS.each do |qc_field|
+    belongs_to qc_field, :class_name => 'QcResult'
+
+    define_method("#{qc_field}_result=") do |arg|
+      instance_variable_set("@#{qc_field}_result",arg)
+    end
+
+    define_method("#{qc_field}_result") do
+      if !instance_variable_get("@#{qc_field}_result").blank?
+        return instance_variable_get("@#{qc_field}_result")
+      elsif !colony.blank? and !colony.try(:colony_qc).try(qc_field.to_sym).blank?
+        return colony.colony_qc.send(qc_field)
+      else
+        return 'na'
+      end
+    end
+  end
+
+  accepts_nested_attributes_for :status_stamps, :colony
 
   protected :status=
 
+  before_validation :set_blank_qc_fields_to_na
   before_validation :allow_override_of_plan
-  before_validation :set_allele_category
   before_validation :change_status
+  before_validation :manage_colony_and_qc_data
 
   before_destroy :remove_links_to_distribution_centres
   after_save :set_distribution_centre
   after_save :manage_status_stamps
 
-#  validates :mi_attempt, :presence => true
-#  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
-#  validates :colony_name, :uniqueness => {:case_sensitive => false}
-
-  # validate mi_plan
-#  validate do |me|
-#    if validate_plan
-
-#      if !me.mi_plan.phenotype_only and me.mi_attempt and me.mi_attempt.mi_plan != me.mi_plan
-#        me.errors.add(:mi_plan, 'must be either the same as the mi_attempt OR phenotype_only')
-#      end
-
-#    end
-#  end
-
-
-#  validate do |me|
-#    if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
-#      me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.try(:name)}')")
-#    end
-#  end
-
-  # BEGIN Callbacks
-#  before_validation do |pa|
-#    if ! pa.colony_name.nil?
-#      pa.colony_name = pa.colony_name.to_s.strip || pa.colony_name
-#      pa.colony_name = pa.colony_name.to_s.gsub(/\s+/, ' ')
-#    end
-#  end
-
-#  after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
-
-#  before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
-#  before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
-#  before_save :generate_colony_name_if_blank
-
 ## METHODS
   def gene
     if mi_plan.try(:gene)
       return mi_plan.gene
-    elsif phenotype_attempt.try(:gene)
-      return phenotype_attempt.gene
+    elsif parent_colony.try(:gene)
+      return parent_colony.gene
     else
       return nil
     end
   end
 
+  def colony_name
+    if !@colony_name.blank?
+      @colony_name
+    elsif !colony.blank?
+      colony.name
+    else
+      nil
+    end
+  end
+
+  def colony_name=(arg)
+    @colony_name = arg
+  end
+
 
 ## BEFORE VALIDATION FUNCTIONS
+  def set_blank_qc_fields_to_na
+    ColonyQc::QC_FIELDS.each do |qc_field|
+      if self.send("#{qc_field}_result").blank?
+        self.send("#{qc_field}_result=", 'na')
+      end
+    end
+  end
+  protected :set_blank_qc_fields_to_na
+
   def allow_override_of_plan
     return if self.consortium_name.blank? or self.production_centre_name.blank? or self.gene.blank?
     set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
-      plan = pa.mi_attempt.mi_plan
+      plan = pa.parent_colony.mi_plan
       if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
         plan = [plan]
       else
@@ -99,26 +107,50 @@ class MouseAlleleMod < ApplicationModel
 
     self.mi_plan = set_plan
   end
+  protected :allow_override_of_plan
 
-  def set_allele_category
-    if self.cre_excision
-      self.allele_category = 'tm1b'
-    else
-      self.allele_category = 'tm1a'
+  def manage_colony_and_qc_data
+
+    colony_attr_hash = colony.try(:attributes) || {}
+    if colony.blank? or (colony.try(:name) != colony_name)
+      colony_attr_hash[:name] = colony_name
     end
-  end
 
+    colony_attr_hash[:id] = colony.id if !colony.blank?
+
+    if self.status.try(:code) == 'cec'
+      colony_attr_hash[:genotype_confirmed] = true
+    elsif self.status.try(:code) != 'cec'
+      colony_attr_hash[:genotype_confirmed] = false
+    end
+
+    colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
+    colony_attr_hash[:colony_qc_attributes][:id] = colony.colony_qc.id if !colony.blank? and !colony.try(:colony_qc).try(:id).blank?
+
+    ColonyQc::QC_FIELDS.each do |qc_field|
+      if colony.try(:colony_qc).blank? or self.send("#{qc_field}_result") != colony.colony_qc.send(qc_field)
+        colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
+      end
+    end
+
+    self.colony_attributes = colony_attr_hash
+
+  end
+  protected :manage_colony_and_qc_data
+
+
+## TO DO WHEN removing phenotype_attempt table
 
 ## AFTER SAVE FUNCTIONS
-  def set_distribution_centre
-    phenotype_attempt = self.phenotype_attempt
+#  def set_distribution_centre
+#    phenotype_attempt = self.phenotype_attempt
 
-    phenotype_attempt.distribution_centres.where("mouse_allele_mod_id != #{self.id} OR mouse_allele_mod_id IS NULL").each do |distribution_centre|
-      distribution_centre.mouse_allele_mod_id = self.id if distribution_centre.mouse_allele_mod_id.blank?
-      distribution_centre.save
-    end
-  end
-
+#    phenotype_attempt.distribution_centres.where("mouse_allele_mod_id != #{self.id} OR mouse_allele_mod_id IS NULL").each do |distribution_centre|
+#      distribution_centre.mouse_allele_mod_id = self.id if distribution_centre.mouse_allele_mod_id.blank?
+#      distribution_centre.save
+#    end
+#  end
+#  protected :set_distribution_centre
 
 ## BEFORE DELETION
   def remove_links_to_distribution_centres
@@ -128,14 +160,14 @@ class MouseAlleleMod < ApplicationModel
       distribution_centre.save
     end
   end
+  protected :remove_links_to_distribution_centres
 
 ## CLASS METHODS
   def self.create_or_update_from_phenotype_attempt(phenotype_attempt)
     raise PhenotypeAttemptError, "Must pass phenotype_attempt as a parameter." if phenotype_attempt.blank?
 
     params = {:mi_plan_id                       => phenotype_attempt.mi_plan_id,
-              :mi_attempt_id                    => phenotype_attempt.mi_attempt_id,
-              :phenotype_attempt_id             => phenotype_attempt.id,
+              :parent_colony                    => phenotype_attempt.parent_colony,
               :rederivation_started             => phenotype_attempt.rederivation_started,
               :rederivation_complete            => phenotype_attempt.rederivation_complete,
               :number_of_cre_matings_started    => phenotype_attempt.number_of_cre_matings_started,
@@ -143,7 +175,7 @@ class MouseAlleleMod < ApplicationModel
               :mouse_allele_type                => phenotype_attempt.mouse_allele_type,
               :deleter_strain_id                => phenotype_attempt.deleter_strain_id,
               :colony_background_strain_id      => phenotype_attempt.colony_background_strain_id,
-              :cre_excision                     => phenotype_attempt.cre_excision_required,
+              :excision                         => phenotype_attempt.cre_excision_required,
               :tat_cre                          => phenotype_attempt.tat_cre,
               :colony_name                      => phenotype_attempt.colony_name,
               :is_active                        => phenotype_attempt.is_active,
@@ -151,22 +183,22 @@ class MouseAlleleMod < ApplicationModel
               :consortium_name                  => phenotype_attempt.consortium_name,
               :production_centre_name           => phenotype_attempt.production_centre_name,
               :no_modification_required         => ! phenotype_attempt.cre_excision_required,
-              :qc_southern_blot_id              => phenotype_attempt.qc_southern_blot_id,
-              :qc_five_prime_lr_pcr_id          => phenotype_attempt.qc_five_prime_lr_pcr_id,
-              :qc_five_prime_cassette_integrity_id => phenotype_attempt.qc_five_prime_cassette_integrity_id,
-              :qc_tv_backbone_assay_id          => phenotype_attempt.qc_tv_backbone_assay_id,
-              :qc_neo_count_qpcr_id             => phenotype_attempt.qc_neo_count_qpcr_id,
-              :qc_neo_sr_pcr_id                 => phenotype_attempt.qc_neo_sr_pcr_id,
-              :qc_loa_qpcr_id                   => phenotype_attempt.qc_loa_qpcr_id,
-              :qc_homozygous_loa_sr_pcr_id      => phenotype_attempt.qc_homozygous_loa_sr_pcr_id,
-              :qc_lacz_sr_pcr_id                => phenotype_attempt.qc_lacz_sr_pcr_id,
-              :qc_mutant_specific_sr_pcr_id     => phenotype_attempt.qc_mutant_specific_sr_pcr_id,
-              :qc_loxp_confirmation_id          => phenotype_attempt.qc_loxp_confirmation_id,
-              :qc_three_prime_lr_pcr_id         => phenotype_attempt.qc_three_prime_lr_pcr_id,
-              :qc_lacz_count_qpcr_id            => phenotype_attempt.qc_lacz_count_qpcr_id,
-              :qc_critical_region_qpcr_id       => phenotype_attempt.qc_critical_region_qpcr_id,
-              :qc_loxp_srpcr_id                 => phenotype_attempt.qc_loxp_srpcr_id,
-              :qc_loxp_srpcr_and_sequencing_id  => phenotype_attempt.qc_loxp_srpcr_and_sequencing_id,
+              :qc_southern_blot_result          => phenotype_attempt.qc_southern_blot_result,
+              :qc_five_prime_lr_pcr_result      => phenotype_attempt.qc_five_prime_lr_pcr_result,
+              :qc_five_prime_cassette_integrity_result => phenotype_attempt.qc_five_prime_cassette_integrity_result,
+              :qc_tv_backbone_assay_result      => phenotype_attempt.qc_tv_backbone_assay_result,
+              :qc_neo_count_qpcr_result         => phenotype_attempt.qc_neo_count_qpcr_result,
+              :qc_neo_sr_pcr_result             => phenotype_attempt.qc_neo_sr_pcr_result,
+              :qc_loa_qpcr_result               => phenotype_attempt.qc_loa_qpcr_result,
+              :qc_homozygous_loa_sr_pcr_result  => phenotype_attempt.qc_homozygous_loa_sr_pcr_result,
+              :qc_lacz_sr_pcr_result            => phenotype_attempt.qc_lacz_sr_pcr_result,
+              :qc_mutant_specific_sr_pcr_result => phenotype_attempt.qc_mutant_specific_sr_pcr_result,
+              :qc_loxp_confirmation_result      => phenotype_attempt.qc_loxp_confirmation_result,
+              :qc_three_prime_lr_pcr_result     => phenotype_attempt.qc_three_prime_lr_pcr_result,
+              :qc_lacz_count_qpcr_result        => phenotype_attempt.qc_lacz_count_qpcr_result,
+              :qc_critical_region_qpcr_result   => phenotype_attempt.qc_critical_region_qpcr_result,
+              :qc_loxp_srpcr_result             => phenotype_attempt.qc_loxp_srpcr_result,
+              :qc_loxp_srpcr_and_sequencing_result => phenotype_attempt.qc_loxp_srpcr_and_sequencing_result,
               :allele_name                      => phenotype_attempt.allele_name,
               :allele_mgi_accession_id          => phenotype_attempt.jax_mgi_accession_id,
               :allele_id                        => phenotype_attempt.allele_id,
@@ -194,33 +226,26 @@ class MouseAlleleMod < ApplicationModel
   end
 
   def mouse_allele_symbol_superscript
-    if mouse_allele_type.nil? or self.mi_attempt.es_cell.allele_symbol_superscript_template.nil?
-      return nil
-    else
-      return self.mi_attempt.es_cell.allele_symbol_superscript_template.sub(
-        TargRep::EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
-    end
+    return nil unless colony
+    return colony.allele_symbol_superscript
   end
 
   def mouse_allele_symbol
-    if mouse_allele_symbol_superscript
-      return "#{self.gene.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
-    else
-      return nil
-    end
+    return nil unless colony
+    return colony.allele_symbol
   end
 
-  def allele_symbol
-    if allele_name.nil?
-      if has_status?(:cec)
-        return mouse_allele_symbol
-      else
-        return self.mi_attempt.allele_symbol
-      end
-    else
-      return allele_name
+
+  def mi_attempt
+    col = parent_colony
+
+    while col.mi_attempt_id.blank? && !col.mouse_allele_mod_id.blank?
+      col = col.mouse_allele_mod.parent_colony
     end
+
+    return col.mi_attempt
   end
+
 
   def self.readable_name
     'mouse allele modification'
@@ -272,4 +297,5 @@ end
 #  real_allele_id                      :integer
 #  allele_name                         :string(255)
 #  allele_mgi_accession_id             :string(255)
+#  parent_colony_id                    :integer
 #

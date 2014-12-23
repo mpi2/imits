@@ -10,25 +10,6 @@ class MiAttempt < ApplicationModel
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
 
-  QC_FIELDS = [
-    :qc_southern_blot,
-    :qc_five_prime_lr_pcr,
-    :qc_five_prime_cassette_integrity,
-    :qc_tv_backbone_assay,
-    :qc_neo_count_qpcr,
-    :qc_lacz_count_qpcr,
-    :qc_neo_sr_pcr,
-    :qc_loa_qpcr,
-    :qc_homozygous_loa_sr_pcr,
-    :qc_lacz_sr_pcr,
-    :qc_mutant_specific_sr_pcr,
-    :qc_loxp_confirmation,
-    :qc_three_prime_lr_pcr,
-    :qc_critical_region_qpcr,
-    :qc_loxp_srpcr,
-    :qc_loxp_srpcr_and_sequencing
-  ].freeze
-
   CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze
 
   belongs_to :real_allele
@@ -39,15 +20,15 @@ class MiAttempt < ApplicationModel
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
-  belongs_to :mutagenesis_factor, :inverse_of => :mi_attempt
+  belongs_to :mutagenesis_factor, :inverse_of => :mi_attempt, dependent: :destroy
 
-  has_one    :colony, inverse_of: :mi_attempt
+  has_one    :colony, inverse_of: :mi_attempt, dependent: :destroy
 
-  has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
+  has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC", dependent: :destroy
   has_many   :phenotype_attempts
   has_many   :mouse_allele_mods
-  has_many   :colonies, inverse_of: :mi_attempt
-  has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
+  has_many   :colonies, inverse_of: :mi_attempt, dependent: :destroy
+  has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre', dependent: :destroy
   has_many   :crisprs, through: :mutagenesis_factor
   has_many   :genotype_primers, through: :mutagenesis_factor
 
@@ -55,7 +36,7 @@ class MiAttempt < ApplicationModel
   access_association_by_attribute :colony_background_strain, :name
   access_association_by_attribute :test_cross_strain, :name
 
-  QC_FIELDS.each do |qc_field|
+  ColonyQc::QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
 
     define_method("#{qc_field}_result=") do |arg|
@@ -176,7 +157,7 @@ class MiAttempt < ApplicationModel
   end
 
   def set_blank_qc_fields_to_na
-    QC_FIELDS.each do |qc_field|
+    ColonyQc::QC_FIELDS.each do |qc_field|
       if self.send("#{qc_field}_result").blank?
         self.send("#{qc_field}_result=", 'na')
       end
@@ -263,7 +244,7 @@ class MiAttempt < ApplicationModel
     colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
     colony_attr_hash[:colony_qc_attributes][:id] = colony.colony_qc.id if !colony.blank? and !colony.try(:colony_qc).try(:id).blank?
 
-    QC_FIELDS.each do |qc_field|
+    ColonyQc::QC_FIELDS.each do |qc_field|
       if colony.try(:colony_qc).blank? or self.send("#{qc_field}_result") != colony.colony_qc.send(qc_field)
         colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
       end
@@ -372,33 +353,13 @@ class MiAttempt < ApplicationModel
   end
 
   def mouse_allele_symbol_superscript
-    if mouse_allele_type.nil? or es_cell.nil? or es_cell.allele_symbol_superscript_template.nil?
-      return nil
-    else
-      return es_cell.allele_symbol_superscript_template.sub(
-        TargRep::EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
-    end
+    return nil unless colony
+    return colony.allele_symbol_superscript
   end
 
   def mouse_allele_symbol
-    if es_cell.blank?
-      return nil
-
-    elsif mouse_allele_symbol_superscript
-      return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
-
-    else
-      return nil
-    end
-  end
-
-  def allele_symbol
-    mi_attempt_allele_symbol_override = mouse_allele_symbol
-    if mi_attempt_allele_symbol_override
-      return mi_attempt_allele_symbol_override
-    else
-      return es_cell.allele_symbol unless es_cell.blank?
-    end
+    return nil unless colony
+    return colony.allele_symbol
   end
 
   def gene

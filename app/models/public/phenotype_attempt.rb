@@ -69,18 +69,19 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   WRITABLE_ATTRIBUTES = %w{
   } + FULL_ACCESS_ATTRIBUTES
 
+
   attr_accessible(*WRITABLE_ATTRIBUTES)
+
 
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
   accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
 
-  access_association_by_attribute :mi_attempt, :external_ref, :attribute_alias => :colony_name
   access_association_by_attribute :deleter_strain, :name
 
   validates :mi_attempt_colony_name, :presence => true
 
   validate do |me|
-    if me.changed.include?('mi_attempt_id') and ! me.new_record?
+    if me.changed.include?('parent_colony_id') and ! me.new_record?
       me.errors.add :mi_attempt_colony_name, 'cannot be changed'
     end
   end
@@ -95,6 +96,19 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   # END Callbacks
 
+  def mi_attempt_colony_name
+    if !mi_attempt.blank?
+      parent_colony_name
+    end
+  end
+
+  def mi_attempt_colony_name=(arg)
+    colonies = Colony.where("name = '#{arg}' and mi_attempt_id IS NOT NULL")
+    if colonies.length == 1
+      puts 'HELLO'
+      self.parent_colony = colonies.first
+    end
+  end
 
   def status_name; status.name; end
 
@@ -165,6 +179,7 @@ end
 #  ready_for_website                   :date
 #  allele_id                           :integer
 #  real_allele_id                      :integer
+#  parent_colony_id                    :integer
 #
 # Indexes
 #

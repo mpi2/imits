@@ -10,7 +10,6 @@ class TargRep::EsCell < ActiveRecord::Base
   class Error < RuntimeError; end
   class SyncError < Error; end
 
-  TEMPLATE_CHARACTER = '@'
   JSON_OPTIONS = {
       :include => {
         :allele => { :except => [:created_at, :updated_at, :gene_id, :id, :mutation_method_id, :mutation_type_id, :mutation_subtype_id],
@@ -182,7 +181,7 @@ class TargRep::EsCell < ActiveRecord::Base
 
     def allele_symbol_superscript
       return if allele_symbol_superscript_template.blank?
-      allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, allele_type.to_s)
+      allele_symbol_superscript_template.sub(TargRep::Allele::TEMPLATE_CHARACTER, allele_type.to_s)
     end
 
     def allele_symbol_superscript=(text)
@@ -198,19 +197,10 @@ class TargRep::EsCell < ActiveRecord::Base
         return
       end
 
-      md = /\A(tm\d+)([a-e]|.\d+)?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
+      self.allele_symbol_superscript_template, self.allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
 
-      if md
-        self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
-        self.allele_type = md[2]
-      else
-        md = /\AGt\(\w+\)\w+\Z/.match(mgi_allele_symbol_superscript)
-        if md
-          self.allele_symbol_superscript_template = mgi_allele_symbol_superscript
-          self.allele_type = nil
-        else
-          self.errors.add :allele_symbol_superscript, "Bad allele symbol superscript '#{mgi_allele_symbol_superscript}'"
-        end
+      if errors.count > 0
+        self.errors.add errors.first[0], errors.first[1]
       end
     end
 

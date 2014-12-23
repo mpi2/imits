@@ -23,7 +23,6 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
   READABLE_ATTRIBUTES = %w{
     id
     status_name
-    mouse_allele_mod_status_name
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -45,7 +44,6 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
 
   def status_name; status.name; end
 
-  def mouse_allele_mod_status_name; mouse_allele_mod.status.name; end
 end
 
 # == Schema Information
@@ -66,4 +64,8 @@ end
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
 #  ready_for_website               :date
+#  parent_colony_id                :integer
+#  colony_background_strain_id     :integer
+#  rederivation_started            :boolean
+#  rederivation_complete           :boolean
 #

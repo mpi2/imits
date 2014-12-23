@@ -36,12 +36,13 @@ class Public::MouseAlleleMod < ::MouseAlleleMod
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
+  belongs_to   :mi_attempt_colony, :class_name => 'Colony', :foreign_key => 'parent_colony_id'
 #  accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
 
-  access_association_by_attribute :mi_attempt, :colony_name
   access_association_by_attribute :deleter_strain, :name
+  access_association_by_attribute :mi_attempt_colony, :name
 
-  validates :mi_attempt_colony_name, :presence => true
+#  validates :mi_attempt_colony_name, :presence => true
 
   validate do |me|
     if me.changed.include?('mi_attempt_id') and ! me.new_record?
@@ -123,4 +124,5 @@ end
 #  real_allele_id                      :integer
 #  allele_name                         :string(255)
 #  allele_mgi_accession_id             :string(255)
+#  parent_colony_id                    :integer
 #

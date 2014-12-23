@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141206144401) do
+ActiveRecord::Schema.define(:version => 20141218120401) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -40,20 +40,26 @@ ActiveRecord::Schema.define(:version => 20141206144401) do
     t.datetime "updated_at"
     t.string   "contact_name",  :limit => 100
     t.string   "contact_email", :limit => 100
+    t.string   "superscript"
   end
 
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string  "name",                                           :null => false
+    t.string  "name",                                                  :null => false
     t.integer "mi_attempt_id"
-    t.boolean "genotype_confirmed",          :default => false
-    t.boolean "report_to_public",            :default => false
-    t.boolean "unwanted_allele",             :default => false
+    t.boolean "genotype_confirmed",                 :default => false
+    t.boolean "report_to_public",                   :default => false
+    t.boolean "unwanted_allele",                    :default => false
     t.text    "unwanted_allele_description"
+    t.integer "mouse_allele_mod_id"
+    t.string  "mgi_allele_symbol_superscript"
+    t.string  "mgi_allele_id"
+    t.string  "allele_symbol_superscript_template"
+    t.string  "allele_type"
   end
 
-  add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
+  add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true
 
   create_table "colony_qcs", :force => true do |t|
     t.integer "colony_id",                        :null => false
@@ -473,6 +479,7 @@ ActiveRecord::Schema.define(:version => 20141206144401) do
     t.integer  "real_allele_id"
     t.string   "allele_name"
     t.string   "allele_mgi_accession_id"
+    t.integer  "parent_colony_id"
   end
 
   create_table "mutagenesis_factors", :force => true do |t|
@@ -946,6 +953,7 @@ ActiveRecord::Schema.define(:version => 20141206144401) do
     t.date     "ready_for_website"
     t.integer  "allele_id"
     t.integer  "real_allele_id"
+    t.integer  "parent_colony_id"
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true
@@ -977,6 +985,10 @@ ActiveRecord::Schema.define(:version => 20141206144401) do
     t.datetime "created_at",                                         :null => false
     t.datetime "updated_at",                                         :null => false
     t.date     "ready_for_website"
+    t.integer  "parent_colony_id"
+    t.integer  "colony_background_strain_id"
+    t.boolean  "rederivation_started"
+    t.boolean  "rederivation_complete"
   end
 
   create_table "pipelines", :force => true do |t|
@@ -1467,6 +1479,7 @@ ActiveRecord::Schema.define(:version => 20141206144401) do
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
 
   add_foreign_key "colonies", "mi_attempts", :name => "colonies_mi_attempt_fk"
+  add_foreign_key "colonies", "mouse_allele_mods", :name => "colonies_mouse_allele_mod_fk"
 
   add_foreign_key "colony_qcs", "colonies", :name => "colony_qcs_colonies_fk"
 

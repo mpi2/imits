@@ -9,9 +9,8 @@ class PhenotypingProduction < ApplicationModel
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
 
-  belongs_to :mouse_allele_mod
   belongs_to :mi_plan
-  belongs_to :phenotype_attempt
+  belongs_to :parent_colony, :class_name => 'Colony'
   belongs_to :status
   has_many   :status_stamps, :order => "#{PhenotypingProduction::StatusStamp.table_name}.created_at ASC", dependent: :destroy
 
@@ -20,7 +19,6 @@ class PhenotypingProduction < ApplicationModel
   protected :status=
 
   before_validation :allow_override_of_plan
-  before_validation :set_mouse_allele_mod_if_blank
   before_validation :change_status
 
   after_save :manage_status_stamps
@@ -37,7 +35,7 @@ class PhenotypingProduction < ApplicationModel
     other_ids = PhenotypingProduction.includes(:mi_plan).where("
       mi_plans.consortium_id = #{pp.mi_plan.consortium_id} AND
       mi_plans.production_centre_id = #{pp.mi_plan.production_centre_id} AND
-      mouse_allele_mod_id = #{pp.mouse_allele_mod_id}").map{|a| a.id}
+      parent_colony_id = #{pp.parent_colony_id}").map{|a| a.id}
 
     other_ids -= [self.id]
     if(other_ids.count != 0)
@@ -45,52 +43,16 @@ class PhenotypingProduction < ApplicationModel
     end
   end
 
-  validates :mouse_allele_mod, :presence => true
-  validates :phenotype_attempt, :presence => true
+  validates :parent_colony, :presence => true
   validates :colony_name, :presence => true, :uniqueness => {:case_sensitive => false}, :allow_nil => false
 
-
-#  validates :mouse_allele_modification, :presence => true
-#  validates :colony_name, :uniqueness => {:case_sensitive => false}
-
-  # validate mi_plan
-#  validate do |me|
-#    if validate_plan
-
-#      if !me.mi_plan.phenotype_only and me.mi_attempt and me.mi_attempt.mi_plan != me.mi_plan
-#        me.errors.add(:mi_plan, 'must be either the same as the mi_attempt OR phenotype_only')
-#      end
-
-#    end
-#  end
-
-
-#  validate do |me|
-#    if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
-#      me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.try(:name)}')")
-#    end
-#  end
-
-  # BEGIN Callbacks
-#  before_validation do |pa|
-#    if ! pa.colony_name.nil?
-#      pa.colony_name = pa.colony_name.to_s.strip || pa.colony_name
-#      pa.colony_name = pa.colony_name.to_s.gsub(/\s+/, ' ')
-#    end
-#  end
-
-#  after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
-#  before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
-#  before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
-#  before_save :generate_colony_name_if_blank
-#  after_save :set_phenotyping_experiments_started_if_blank
 
 ## METHODS
   def gene
     if mi_plan.try(:gene)
       return mi_plan.gene
-    elsif phenotype_attempt.try(:gene)
-      return phenotype_attempt.gene
+    elsif parent_colony.try(:gene)
+      return parent_colony.gene
     else
       return nil
     end
@@ -100,7 +62,7 @@ class PhenotypingProduction < ApplicationModel
   def allow_override_of_plan
     return if self.consortium_name.blank? or self.production_centre_name.blank? or self.gene.blank?
     set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
-      plan = pa.phenotype_attempt.mi_plan
+      plan = pa.parent_colony.mi_plan
       if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
         plan = [plan]
       else
@@ -110,24 +72,14 @@ class PhenotypingProduction < ApplicationModel
     self.mi_plan = set_plan
   end
 
-  def set_mouse_allele_mod_if_blank
-    if self.mouse_allele_mod_id.blank?
-      return if self.phenotype_attempt_id.blank? or self.phenotype_attempt.mouse_allele_mod.blank?
-      self.mouse_allele_mod_id = phenotype_attempt.mouse_allele_mod.id
-    end
-  end
-
   def status_name; status.name; end
-
-  def mouse_allele_mod_status_name; mouse_allele_mod.status.name; end
 
 ## CLASS METHODS
 
   def self.create_or_update_from_phenotype_attempt(phenotype_attempt)
     raise PhenotypeAttemptError, "Must pass phenotype_attempt as a parameter." if phenotype_attempt.blank?
     params = {:mi_plan_id                       => phenotype_attempt.mi_plan_id,
-              :phenotype_attempt_id             => phenotype_attempt.id,
-              :mouse_allele_mod_id              => phenotype_attempt.mouse_allele_mod.id,
+              :parent_colony                    => phenotype_attempt.parent_colony,
               :phenotyping_experiments_started  => phenotype_attempt.phenotyping_experiments_started,
               :ready_for_website                => phenotype_attempt.ready_for_website,
               :phenotyping_started              => phenotype_attempt.phenotyping_started,
@@ -190,4 +142,8 @@ end
 #  created_at                      :datetime         not null
 #  updated_at                      :datetime         not null
 #  ready_for_website               :date
+#  parent_colony_id                :integer
+#  colony_background_strain_id     :integer
+#  rederivation_started            :boolean
+#  rederivation_complete           :boolean
 #

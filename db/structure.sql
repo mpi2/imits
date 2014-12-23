@@ -744,7 +744,8 @@ CREATE TABLE centres (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     contact_name character varying(100),
-    contact_email character varying(100)
+    contact_email character varying(100),
+    superscript character varying(255)
 );
 
 
@@ -778,7 +779,12 @@ CREATE TABLE colonies (
     genotype_confirmed boolean DEFAULT false,
     report_to_public boolean DEFAULT false,
     unwanted_allele boolean DEFAULT false,
-    unwanted_allele_description text
+    unwanted_allele_description text,
+    mouse_allele_mod_id integer,
+    mgi_allele_symbol_superscript character varying(255),
+    mgi_allele_id character varying(255),
+    allele_symbol_superscript_template character varying(255),
+    allele_type character varying(255)
 );
 
 
@@ -1744,7 +1750,8 @@ CREATE TABLE mouse_allele_mods (
     allele_id integer,
     real_allele_id integer,
     allele_name character varying(255),
-    allele_mgi_accession_id character varying(255)
+    allele_mgi_accession_id character varying(255),
+    parent_colony_id integer
 );
 
 
@@ -2490,7 +2497,8 @@ CREATE TABLE phenotype_attempts (
     jax_mgi_accession_id character varying(255),
     ready_for_website date,
     allele_id integer,
-    real_allele_id integer
+    real_allele_id integer,
+    parent_colony_id integer
 );
 
 
@@ -2594,7 +2602,11 @@ CREATE TABLE phenotyping_productions (
     phenotype_attempt_id integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    ready_for_website date
+    ready_for_website date,
+    parent_colony_id integer,
+    colony_background_strain_id integer,
+    rederivation_started boolean,
+    rederivation_complete boolean
 );
 
 
@@ -4865,13 +4877,6 @@ CREATE INDEX auditable_index ON audits USING btree (auditable_id, auditable_type
 
 
 --
--- Name: colony_name_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX colony_name_index ON colonies USING btree (name);
-
-
---
 -- Name: es_cells_allele_id_fk; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -5110,6 +5115,13 @@ CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consor
 
 
 --
+-- Name: mouse_allele_mod_colony_name_uniqueness_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX mouse_allele_mod_colony_name_uniqueness_index ON colonies USING btree (name, mi_attempt_id, mouse_allele_mod_id);
+
+
+--
 -- Name: real_allele_logical_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -5171,6 +5183,14 @@ CREATE INDEX user_index ON audits USING btree (user_id, user_type);
 
 ALTER TABLE ONLY colonies
     ADD CONSTRAINT colonies_mi_attempt_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
+
+
+--
+-- Name: colonies_mouse_allele_mod_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY colonies
+    ADD CONSTRAINT colonies_mouse_allele_mod_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
 
 
 --
@@ -6416,3 +6436,5 @@ INSERT INTO schema_migrations (version) VALUES ('20141031141000');
 INSERT INTO schema_migrations (version) VALUES ('20141103165100');
 
 INSERT INTO schema_migrations (version) VALUES ('20141206144401');
+
+INSERT INTO schema_migrations (version) VALUES ('20141218120401');

@@ -45,24 +45,26 @@ class PhenotypeAttempt < ApplicationModel
   belongs_to :allele
   belongs_to :real_allele
   belongs_to :mi_plan
-  belongs_to :mi_attempt
+  belongs_to :parent_colony, :class_name => 'Colony'
   belongs_to :status
   belongs_to :deleter_strain
   belongs_to :colony_background_strain, :class_name => 'Strain'
 
-  has_many   :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC", :dependent => :destroy
+  has_many   :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC", dependent: :destroy
   has_many   :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
-  has_many   :phenotyping_productions, :dependent => :destroy
+  has_many   :phenotyping_productions, dependent: :destroy
 
-  has_one    :mouse_allele_mod, :dependent => :destroy
+  has_one    :mouse_allele_mod, dependent: :destroy
+  has_one    :mi_attempt, through: :parent_colony
 
+  access_association_by_attribute :parent_colony, :name
   access_association_by_attribute :colony_background_strain, :name
 
   accepts_nested_attributes_for :status_stamps
 
   protected :status=
 
-  validates :mi_attempt, :presence => true
+  validates :parent_colony, :presence => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
 
@@ -84,21 +86,6 @@ class PhenotypeAttempt < ApplicationModel
     end
   end
 
-#  validate :validate_plan # this method is in belongs_to_mi_plan
-
-
-
-#  validate do |me|
-#    if me.mi_attempt and me.mi_plan and me.mi_attempt.gene != me.mi_plan.gene
-#      me.errors.add(:mi_plan, 'must have same gene as mi_attempt')
-#    end
-#  end
-
-#  validate do |me|
-#    if me.mi_plan and (!me.mi_plan.phenotype_only or (me.mi_attempt and me.mi_attempt.mi_plan != me.mi_plan))
-#      me.errors.add(:mi_plan, 'must be either the same as the mi_attempt OR phenotype_only')
-#    end
-#  end
 
   # BEGIN Callbacks
   before_validation do |pa|
@@ -109,14 +96,16 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
+
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
   before_validation :allow_override_of_plan
   before_validation :check_phenotyping_production_for_update
   before_validation :change_status
-#  before_save :ensure_plan_exists # this method is in belongs_to_mi_plan
+
   before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
+
   after_save :manage_status_stamps
   after_save :add_default_distribution_centre
   after_save :set_phenotyping_experiments_started_if_blank
@@ -391,6 +380,7 @@ end
 #  ready_for_website                   :date
 #  allele_id                           :integer
 #  real_allele_id                      :integer
+#  parent_colony_id                    :integer
 #
 # Indexes
 #

@@ -136,6 +136,57 @@ class TargRep::WgeSearchesController < TargRep::BaseController
     end
   end
 
+  def protein_translation_for_region
+    species   = params[:species]
+    chr_name  = params[:chr_name]
+    chr_start = params[:chr_start]
+    chr_end   = params[:chr_end]
+
+    response = wge_call("api/translation_for_region?species=#{species}&chr_name=#{chr_name}&chr_start=#{chr_start}&chr_end=#{chr_end}")
+
+    data = []
+
+    if response.message != 'Bad Request'
+      JSON.parse(response.body).each do |feature|
+        require 'pp'
+        pp feature
+        # data << {'seq' => crispr['seq'], 'chr_name' => crispr['chr_name'], 'chr_start' => crispr['chr_start'], 'chr_end' => crispr['chr_end']}
+
+        data << feature
+        # {
+        #   "start_phase"=>"-1",
+        #   "sequence"=>"???",
+        #   "nucleotides"=>"???",
+        #   "gene"=>"ENSMUSG00000037172",
+        #   "start_index"=>1,
+        #   "transcript"=>"ENSMUST00000039008",
+        #   "end_base"=>nil,
+        #   "strand"=>"-1",
+        #   "id"=>"ENSMUSE00000341663",
+        #   "chr_name"=>"6",
+        #   "start_base"=>{"len"=>"1", "codon"=>"GGA", "aa"=>"G"},
+        #   "end"=>40436125,
+        #   "protein"=>"ENSMUSP00000045103",
+        #   "num_amino_acids"=>89,
+        #   "end_phase"=>"1",
+        #   "rank"=>1,
+        #   "start"=>40435859
+        # }
+
+      end
+     else
+      error = "No protein translation available for this region"
+    end
+
+    respond_to do |format|
+      if error.blank?
+        format.json { render :json => data.to_json}
+      else
+        format.json { render :json => error.to_json}
+      end
+    end
+
+  end
 
 private
   def wge_call(request_url_str)

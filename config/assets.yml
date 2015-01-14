@@ -31,9 +31,10 @@ javascripts:
     - public/javascripts/targ_rep/jquery.min.js
     - public/javascripts/application.js
     - public/javascripts/extjs_hacky_monkey_patches.js
+    - public/genoverse/js/genoverse.combined.js
   targ_rep:
     - public/javascripts/targ_rep/jquery.min.js
     - public/javascripts/targ_rep/rails.js
     - public/javascripts/targ_rep/application.js
-    
+
   extjs_autodep: <%= ExtjsAutodep.as_yaml %>

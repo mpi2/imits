@@ -11,6 +11,7 @@
     <thead>
       <th>Version</th>
       <th>Date</th>
+      <th>Action</th>
       <th colspan="2">Changes</th>
     </thead>
     <tbody>
@@ -18,19 +19,30 @@
         <tr>
           <td><%=h revision.version %></td>
           <td><%=h revision.created_at.to_s(:long) %></td>
+          <td>
           <% if revision.action == "create" %>
-            <td colspan="2">Creation of the object</td>
+            Creation of the object
           <% else %>
-            <td class="key"><%= revision.changes.keys.join('<br />') %></td>
-            <td>
-              <%
-                values = revision.changes.values.collect do |val|
-                  "'#{val[0] ||= 'null'}' => '#{val[1]}'"
-                end
-              %>
-              <%= values.join('<br />') %>
-            </td>
+            Update of the object
           <% end %>
+          </td>
+          <td>
+            <table>
+              <% revision.audited_changes.keys.each do |key| %>
+                <tr>
+                  <td class="key" style="width:150px"><%= key %></td>
+                  <td>
+                    <% if revision.audited_changes[key].is_a?(Array)
+                         val = revision.audited_changes[key]
+                         vals = "'#{val[0] ||= 'null'}' => '#{val[1]}'"
+                       end
+                    %>
+                    <%= vals %>
+                  </td>
+                </tr>
+              <% end%>
+            </table>
+          </td>
         </tr>
       <% end %>
     </tbody>

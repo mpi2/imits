@@ -22,6 +22,7 @@ class Reports::MiProduction::Detail
         'Phenotype Attempt Registered Date',
         'Cre Excision Started Date',
         'Cre Excision Complete Date',
+        'Phenotyping Started Date',
         'Phenotyping Complete Date',
         'Phenotype Attempt Aborted Date'
     ]

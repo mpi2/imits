@@ -35,6 +35,9 @@
                     <% if revision.audited_changes[key].is_a?(Array)
                          val = revision.audited_changes[key]
                          vals = "'#{val[0] ||= 'null'}' => '#{val[1]}'"
+                       else
+                         val = revision.audited_changes[key]
+                         vals = "null => '#{val}'"
                        end
                     %>
                     <%= vals %>

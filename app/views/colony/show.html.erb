@@ -28,20 +28,22 @@
   <% chr_strand            = @colony.mi_attempt.mi_plan.gene.strand_name %>
   <% mutagenesis_factor_id = @colony.mi_attempt.mutagenesis_factor_id %>
 
-  <% if chr_strand == '-' then %>
-    <% seq_start = @colony.mi_attempt.mi_plan.gene.end_coordinates - 2000 %>
-    <% seq_end   = @colony.mi_attempt.mi_plan.gene.start_coordinates + 2000 %>
+  <% if chr_strand == '+' then %>
+    <% seq_start = @colony.mi_attempt.mi_plan.gene.start_coordinates %>
+    <% seq_end   = @colony.mi_attempt.mi_plan.gene.end_coordinates %>
   <% else %>
-    <% seq_start = @colony.mi_attempt.mi_plan.gene.start_coordinates - 2000 %>
-    <% seq_end   = @colony.mi_attempt.mi_plan.gene.end_coordinates + 2000 %>
+    <% seq_start = @colony.mi_attempt.mi_plan.gene.end_coordinates %>
+    <% seq_end   = @colony.mi_attempt.mi_plan.gene.start_coordinates %>
   <% end %>
 
   <script type="text/javascript">
-    var chr_num   = <%= chr_num %>;
-    var seq_start = <%= seq_start %>;
-    var seq_end   = <%= seq_end %>;
+    var chr_num               = <%= chr_num %>;
+    var seq_start             = <%= seq_start %>;
+    var seq_end               = <%= seq_end %>;
     var mutagenesis_factor_id = <%= mutagenesis_factor_id %>;
-    var root_url  = '<%= root_url %>';
+    var root_url              = '<%= root_url %>';
+    var colony_id             = <%= @colony.id %>;
+    // var chr_strand            = '<%= chr_strand %>';
   </script>
 
   <h2>Genoverse Interface</h2>

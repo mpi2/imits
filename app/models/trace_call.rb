@@ -182,6 +182,19 @@ class TraceCall < ActiveRecord::Base
       self.file_primer_reads_fa = data
     end
 
+    # parse some details from the filtered_analysis file
+    if self.file_filtered_analysis_vcf
+      vcf_data = parse_filtered_vcf_file
+      if vcf_data && vcf_data.length >= 6
+        self.alignment_chr     = vcf_data['chr']
+        self.alignment_start   = vcf_data['start']
+        self.alignment_end     = vcf_data['end']
+        self.alignment_ref_seq = vcf_data['ref_seq']
+        self.alignment_alt_seq = vcf_data['alt_seq']
+        self.alignment_type    = vcf_data['mod_type']
+      end
+    end
+
     updated = self.save!
 
     if options[:keep_generated_files]
@@ -268,6 +281,57 @@ class TraceCall < ActiveRecord::Base
     return "#{targeted_reference_sequence}\n#{targeted_mutated_sequence}"
   end
 
+  def parse_filtered_vcf_file
+    parsed_fields = {}
+
+    self.file_filtered_analysis_vcf.each_line do |line|
+        stripped_line = line.strip
+        next if stripped_line[0] == '#'
+
+        parsed_fields = stripped_line.split("\t")
+        break
+    end
+
+    # example (deletion):
+    # ["6",
+    # "136781533",
+    # ".",
+    # "TGAGAGGCCCAGAACACCATCAGCGCG",
+    # "TG",
+    # "22.4955",
+    # ".",
+    # "INDEL;IDV=1;IMF=1;DP=1;SGB=-0.379885;MQ0F=0;AF1=1;AC1=2;DP4=0,0,0,1;MQ=60;FQ=-37.5258",
+    # "GT:PL",
+    # "1/1:60,3,0"]
+
+    if parsed_fields.length >= 4
+      ref_seq = parsed_fields[3]
+      alt_seq = parsed_fields[4]
+
+      # compare sequences to determine whether insertion or deletion
+      if alt_seq.length > ref_seq.length
+        mod_type   = 'insertion'
+        seq_length = alt_seq.length
+      elsif ref_seq.length > alt_seq.length
+        mod_type = 'deletion'
+        seq_length = ref_seq.length
+      else
+        mod_type = 'unknown'
+        seq_length = ref_seq.length
+      end
+
+      vcf_data = {
+        'chr'      => parsed_fields[0],
+        'start'    => parsed_fields[1].to_i,
+        'end'      => parsed_fields[1].to_i + seq_length,
+        'ref_seq'  => ref_seq,
+        'alt_seq'  => alt_seq,
+        'mod_type' => mod_type
+      }
+    end
+
+    return vcf_data
+  end
 end
 
 # == Schema Information

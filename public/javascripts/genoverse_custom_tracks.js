@@ -6,8 +6,14 @@ Genoverse.Track.Vector = Genoverse.Track.extend({
     }
 });
 
-Genoverse.Track.Crispr = Genoverse.Track.extend({
+Genoverse.Track.Crisprs = Genoverse.Track.extend({
+    populateMenu: function ( feature ) {
+        var deferred = $.Deferred();
+        return( deferred );
+    }
+});
 
+Genoverse.Track.MutantSeq = Genoverse.Track.extend({
     populateMenu: function ( feature ) {
         var deferred = $.Deferred();
         return( deferred );
@@ -15,7 +21,6 @@ Genoverse.Track.Crispr = Genoverse.Track.extend({
 });
 
 Genoverse.Track.Protein = Genoverse.Track.extend({
-
     populateMenu: function ( feature ) {
         var deferred = $.Deferred();
         return( deferred );

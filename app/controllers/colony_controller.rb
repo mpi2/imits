@@ -1,5 +1,9 @@
-
 class ColonyController < ApplicationController
+
+  respond_to :json
+
+  before_filter :authenticate_user!
+
   def show
     @id = params[:id]
     debug = true
@@ -75,5 +79,18 @@ class ColonyController < ApplicationController
 
   def index
     @colonies = Colony.all
+  end
+
+  def mut_nucleotide_sequence
+    @colony = Colony.find_by_id(params[:id])
+
+    @mutsequences = @colony.get_mutant_nucleotide_sequence_feature
+
+    respond_with @mutsequences do |format|
+      format.json do
+        render :json => @mutsequences
+      end
+    end
+
   end
 end

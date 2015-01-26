@@ -46,7 +46,6 @@ var genoverseConfig = {
       resizable : 'auto',
       100000    : false
     }),
-    // mutant sequence track (red boxes for deletions, blue for insertions)
 
     // Gene structure track
     Genoverse.Track.extend({
@@ -125,40 +124,40 @@ var genoverseConfig = {
       setFeatureColor : function (f) { f.color = '#008000'; }
     }),
 
-    // wildtype protein track
-    Genoverse.Track.Protein.extend({
-      id         : 'ProteinWTTrack',
-      name       : 'Protein',
-      url        : root_url + "targ_rep/wge_searches/protein_translation_for_region?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__",
-      model      : Genoverse.Track.Model.Protein,
-      view       : Genoverse.Track.View.Protein,
-      resizable  : 'auto',
-      populateMenu : function (f) {
-        var feature              = this.track.model.featuresById[f.id];
-        var sequence_with_spaces = feature.sequence.match(/.{1,10}/g).join('&nbsp;')
-        var sequence_line_split  = sequence_with_spaces.match(/.{1,80}/g).join('<br />')
-        var atts = {
-          Chr: feature.chr_name,
-          Start : feature.start,
-          End : feature.end,
-          Strand: feature.strand,
-          Sequence: sequence_line_split,
-          "Gene ID": feature.gene,
-          "Transcript ID": feature.transcript,
-          "Protein ID": feature.protein,
-          "Start Phase": feature.start_phase,
-          "End Phase": feature.end_phase,
-          "Number amino acids": feature.num_amino_acids
-        };
-        return atts;
-      }
-    }),
+    // // wildtype protein track
+    // Genoverse.Track.Protein.extend({
+    //   id         : 'ProteinWTTrack',
+    //   name       : 'Protein',
+    //   url        : root_url + "targ_rep/wge_searches/protein_translation_for_region?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__",
+    //   model      : Genoverse.Track.Model.Protein,
+    //   view       : Genoverse.Track.View.Protein,
+    //   resizable  : 'auto',
+    //   populateMenu : function (f) {
+    //     var feature              = this.track.model.featuresById[f.id];
+    //     var sequence_with_spaces = feature.sequence.match(/.{1,10}/g).join('&nbsp;')
+    //     var sequence_line_split  = sequence_with_spaces.match(/.{1,80}/g).join('<br />')
+    //     var atts = {
+    //       Chr: feature.chr_name,
+    //       Start : feature.start,
+    //       End : feature.end,
+    //       Strand: feature.strand,
+    //       Sequence: sequence_line_split,
+    //       "Gene ID": feature.gene,
+    //       "Transcript ID": feature.transcript,
+    //       "Protein ID": feature.protein,
+    //       "Start Phase": feature.start_phase,
+    //       "End Phase": feature.end_phase,
+    //       "Number amino acids": feature.num_amino_acids
+    //     };
+    //     return atts;
+    //   }
+    // }),
 
     // mutant sequence track (red boxes for deletions, blue for insertions)
     Genoverse.Track.MutantSeq.extend({
       id              : 'MutSequenceTrack',
       name            : 'Mut Sequence',
-      url             : root_url + 'colony/mut_nucleotide_sequence/' + colony_id + '?feature=mutsequencetrack;content-type=application/json',
+      url             : root_url + 'colony/mut_nucleotide_sequences/' + colony_id + '?feature=mutsequencetrack;content-type=application/json',
       resizable       : 'auto',
       populateMenu : function (f) {
         var feature = this.track.model.featuresById[f.id];
@@ -169,46 +168,51 @@ var genoverseConfig = {
             End : feature.end,
             "Reference Sequence" : feature.ref_sequence,
             "Alternate Sequence" : feature.alt_sequence,
-            "Modification Type" : feature.type
+            "Modification Type" : feature.mod_type
         };
         return atts;
       },
       setFeatureColor : function (f) {
-        var feature           = this.track.model.featuresById[f.id];
-        var modification_type = feature.type;
-        if ( modification_type === 'deletion' ) {
-          f.color = '#FF0000';
-        } else if ( modification_type === 'insertion' ) {
-          f.color = '#00BFFF';
-        } else {
-          f.color = '#008000';
-        };
+        var feature  = this.track.model.featuresById[f.id];
+        switch(feature.mod_type) {
+          case 'del':
+              f.color = '#b94A48';
+              break;
+          case 'ins':
+              f.color = '#00BFFF';
+              break;
+          case 'snp':
+              f.color = '#FE9A2E';
+              break;
+          default:
+              f.color = '#000000';
+        }
       }
     }),
 
-    // show mutant protein track
-    Genoverse.Track.Protein.extend({
-      id         : 'ProteinMutTrack',
-      name       : 'Mut Protein',
-      url        : root_url + "targ_rep/wge_searches/mutant_protein_translation_for_colony?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__&colony_id=" + colony_id,
-      model      : Genoverse.Track.Model.Protein,
-      view       : Genoverse.Track.View.Protein,
-      resizable  : 'auto',
-      populateMenu : function (f) {
-        var feature              = this.track.model.featuresById[f.id];
-        var sequence_with_spaces = feature.sequence.match(/.{1,10}/g).join('&nbsp;')
-        var sequence_line_split  = sequence_with_spaces.match(/.{1,80}/g).join('<br />')
-        var atts = {
-          Chr: feature.chr_name,
-          Start : feature.start,
-          End : feature.end,
-          Strand: feature.strand,
-          Sequence: sequence_line_split,
-          "Number amino acids": feature.num_amino_acids
-        };
-        return atts;
-      }
-    })
+    // // show mutant protein track
+    // Genoverse.Track.Protein.extend({
+    //   id         : 'ProteinMutTrack',
+    //   name       : 'Mut Protein',
+    //   url        : root_url + "targ_rep/wge_searches/mutant_protein_translation_for_colony?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__&colony_id=" + colony_id,
+    //   model      : Genoverse.Track.Model.Protein,
+    //   view       : Genoverse.Track.View.Protein,
+    //   resizable  : 'auto',
+    //   populateMenu : function (f) {
+    //     var feature              = this.track.model.featuresById[f.id];
+    //     var sequence_with_spaces = feature.sequence.match(/.{1,10}/g).join('&nbsp;')
+    //     var sequence_line_split  = sequence_with_spaces.match(/.{1,80}/g).join('<br />')
+    //     var atts = {
+    //       Chr: feature.chr_name,
+    //       Start : feature.start,
+    //       End : feature.end,
+    //       Strand: feature.strand,
+    //       Sequence: sequence_line_split,
+    //       "Number amino acids": feature.num_amino_acids
+    //     };
+    //     return atts;
+    //   }
+    // })
   ]
 };
 

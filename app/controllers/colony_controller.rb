@@ -81,10 +81,11 @@ class ColonyController < ApplicationController
     @colonies = Colony.all
   end
 
-  def mut_nucleotide_sequence
+  def mut_nucleotide_sequences
+    puts "in colony controller : mut_nucleotide_sequences"
     @colony = Colony.find_by_id(params[:id])
 
-    @mutsequences = @colony.get_mutant_nucleotide_sequence_feature
+    @mutsequences = @colony.get_mutant_nucleotide_sequence_features
 
     respond_with @mutsequences do |format|
       format.json do

@@ -9,7 +9,7 @@ TarMits::Application.routes.draw do
   #get "colony/:id" => 'colony#show'
   #get "colony/:id/:filename" => 'colony#show'
   get "colony" => 'colony#index'
-  get "/colony/mut_nucleotide_sequence/:id" => 'colony#mut_nucleotide_sequence'
+  get "/colony/mut_nucleotide_sequences/:id" => 'colony#mut_nucleotide_sequences'
 
   root :to => "root#index"
 

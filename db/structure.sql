@@ -2796,7 +2796,57 @@ CREATE TABLE solr_centre_map (
 --
 
 CREATE VIEW solr_gene_statuses AS
-SELECT most_advanced.mi_plan_id, most_advanced.marker_symbol, most_advanced.status_name, most_advanced.consortium, most_advanced.created_at, most_advanced.production_centre_name FROM (SELECT all_statuses.mi_plan_id, genes.marker_symbol, all_statuses.status_name, all_statuses.id, all_statuses.created_at, first_value(all_statuses.id) OVER (PARTITION BY all_statuses.gene_id ORDER BY all_statuses.order_by DESC, all_statuses.created_at) AS most_advanced_id, consortia.name AS consortium, centres.name AS production_centre_name FROM ((((((SELECT ('mi_plan'::text || mi_plan_status_stamps.id) AS id, mi_plans_1.id AS mi_plan_id, mi_plans_1.gene_id, mi_plan_statuses.name AS status_name, mi_plan_statuses.order_by, mi_plan_status_stamps.created_at FROM ((mi_plans mi_plans_1 JOIN mi_plan_statuses ON ((mi_plan_statuses.id = mi_plans_1.status_id))) JOIN mi_plan_status_stamps ON (((mi_plans_1.id = mi_plan_status_stamps.mi_plan_id) AND (mi_plan_statuses.id = mi_plan_status_stamps.status_id)))) UNION SELECT ('mi_attempt'::text || mi_attempt_status_stamps.id) AS id, mi_plans_1.id AS mi_plan_id, mi_plans_1.gene_id, mi_attempt_statuses.name AS status_name, (1000 + mi_attempt_statuses.order_by) AS order_by, mi_attempt_status_stamps.created_at FROM (((mi_attempts JOIN mi_attempt_statuses ON ((mi_attempt_statuses.id = mi_attempts.status_id))) JOIN mi_attempt_status_stamps ON (((mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id) AND (mi_attempt_statuses.id = mi_attempt_status_stamps.status_id)))) JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = mi_attempts.mi_plan_id)))) UNION SELECT ('phenotype_attempt'::text || phenotype_attempt_status_stamps.id) AS id, mi_plans_1.id AS mi_plan_id, mi_plans_1.gene_id, phenotype_attempt_statuses.name AS status_name, (2000 + phenotype_attempt_statuses.order_by) AS order_by, phenotype_attempt_status_stamps.created_at FROM (((phenotype_attempts JOIN phenotype_attempt_statuses ON ((phenotype_attempt_statuses.id = phenotype_attempts.status_id))) JOIN phenotype_attempt_status_stamps ON (((phenotype_attempts.id = phenotype_attempt_status_stamps.phenotype_attempt_id) AND (phenotype_attempt_statuses.id = phenotype_attempt_status_stamps.status_id)))) JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = phenotype_attempts.mi_plan_id)))) all_statuses JOIN genes ON ((genes.id = all_statuses.gene_id))) JOIN mi_plans ON ((mi_plans.id = all_statuses.mi_plan_id))) JOIN consortia ON ((mi_plans.consortium_id = consortia.id))) LEFT JOIN centres ON ((mi_plans.production_centre_id = centres.id))) ORDER BY all_statuses.order_by DESC) most_advanced WHERE (most_advanced.id = most_advanced.most_advanced_id);
+ SELECT most_advanced.mi_plan_id,
+    most_advanced.marker_symbol,
+    most_advanced.status_name,
+    most_advanced.consortium,
+    most_advanced.created_at,
+    most_advanced.production_centre_name
+   FROM ( SELECT all_statuses.mi_plan_id,
+            genes.marker_symbol,
+            all_statuses.status_name,
+            all_statuses.id,
+            all_statuses.created_at,
+            first_value(all_statuses.id) OVER (PARTITION BY all_statuses.gene_id ORDER BY all_statuses.order_by DESC, all_statuses.created_at) AS most_advanced_id,
+            consortia.name AS consortium,
+            centres.name AS production_centre_name
+           FROM (((((        (         SELECT ('mi_plan'::text || mi_plan_status_stamps.id) AS id,
+                                    mi_plans_1.id AS mi_plan_id,
+                                    mi_plans_1.gene_id,
+                                    mi_plan_statuses.name AS status_name,
+                                    mi_plan_statuses.order_by,
+                                    mi_plan_status_stamps.created_at
+                                   FROM ((mi_plans mi_plans_1
+                              JOIN mi_plan_statuses ON ((mi_plan_statuses.id = mi_plans_1.status_id)))
+                         JOIN mi_plan_status_stamps ON (((mi_plans_1.id = mi_plan_status_stamps.mi_plan_id) AND (mi_plan_statuses.id = mi_plan_status_stamps.status_id))))
+                        UNION
+                                 SELECT ('mi_attempt'::text || mi_attempt_status_stamps.id) AS id,
+                                    mi_plans_1.id AS mi_plan_id,
+                                    mi_plans_1.gene_id,
+                                    mi_attempt_statuses.name AS status_name,
+                                    (1000 + mi_attempt_statuses.order_by) AS order_by,
+                                    mi_attempt_status_stamps.created_at
+                                   FROM (((mi_attempts
+                              JOIN mi_attempt_statuses ON ((mi_attempt_statuses.id = mi_attempts.status_id)))
+                         JOIN mi_attempt_status_stamps ON (((mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id) AND (mi_attempt_statuses.id = mi_attempt_status_stamps.status_id))))
+                    JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = mi_attempts.mi_plan_id))))
+                UNION
+                         SELECT ('phenotype_attempt'::text || phenotype_attempt_status_stamps.id) AS id,
+                            mi_plans_1.id AS mi_plan_id,
+                            mi_plans_1.gene_id,
+                            phenotype_attempt_statuses.name AS status_name,
+                            (2000 + phenotype_attempt_statuses.order_by) AS order_by,
+                            phenotype_attempt_status_stamps.created_at
+                           FROM (((phenotype_attempts
+                      JOIN phenotype_attempt_statuses ON ((phenotype_attempt_statuses.id = phenotype_attempts.status_id)))
+                 JOIN phenotype_attempt_status_stamps ON (((phenotype_attempts.id = phenotype_attempt_status_stamps.phenotype_attempt_id) AND (phenotype_attempt_statuses.id = phenotype_attempt_status_stamps.status_id))))
+            JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = phenotype_attempts.mi_plan_id)))) all_statuses
+      JOIN genes ON ((genes.id = all_statuses.gene_id)))
+   JOIN mi_plans ON ((mi_plans.id = all_statuses.mi_plan_id)))
+   JOIN consortia ON ((mi_plans.consortium_id = consortia.id)))
+   LEFT JOIN centres ON ((mi_plans.production_centre_id = centres.id)))
+  ORDER BY all_statuses.order_by DESC) most_advanced
+  WHERE (most_advanced.id = most_advanced.most_advanced_id);
 
 
 --
@@ -3297,7 +3347,11 @@ CREATE TABLE targ_rep_mutation_types (
 --
 
 CREATE VIEW targ_rep_es_cell_mutation_types AS
-SELECT es.id AS es_cell_id, types.name AS mutation_type FROM ((targ_rep_es_cells es LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id))) LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
+ SELECT es.id AS es_cell_id,
+    types.name AS mutation_type
+   FROM ((targ_rep_es_cells es
+   LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id)))
+   LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
 
 
 --
@@ -3670,6 +3724,43 @@ CREATE SEQUENCE targ_rep_targeting_vectors_id_seq
 --
 
 ALTER SEQUENCE targ_rep_targeting_vectors_id_seq OWNED BY targ_rep_targeting_vectors.id;
+
+
+--
+-- Name: trace_call_vcf_modifications; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE trace_call_vcf_modifications (
+    id integer NOT NULL,
+    trace_call_id integer NOT NULL,
+    mod_type character varying(255) NOT NULL,
+    chr character varying(255) NOT NULL,
+    start integer NOT NULL,
+    "end" integer NOT NULL,
+    ref_seq text NOT NULL,
+    alt_seq text NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE trace_call_vcf_modifications_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE trace_call_vcf_modifications_id_seq OWNED BY trace_call_vcf_modifications.id;
 
 
 --
@@ -4282,6 +4373,13 @@ ALTER TABLE ONLY targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval(
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY trace_call_vcf_modifications ALTER COLUMN id SET DEFAULT nextval('trace_call_vcf_modifications_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY trace_calls ALTER COLUMN id SET DEFAULT nextval('trace_calls_id_seq'::regclass);
 
 
@@ -4816,6 +4914,14 @@ ALTER TABLE ONLY targ_rep_sequence_annotation
 
 ALTER TABLE ONLY targ_rep_targeting_vectors
     ADD CONSTRAINT targ_rep_targeting_vectors_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: trace_call_vcf_modifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY trace_call_vcf_modifications
+    ADD CONSTRAINT trace_call_vcf_modifications_pkey PRIMARY KEY (id);
 
 
 --
@@ -6014,6 +6120,14 @@ ALTER TABLE ONLY targ_rep_real_alleles
 
 
 --
+-- Name: trace_call_vcf_modifications_trace_calls_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY trace_call_vcf_modifications
+    ADD CONSTRAINT trace_call_vcf_modifications_trace_calls_fk FOREIGN KEY (trace_call_id) REFERENCES trace_calls(id);
+
+
+--
 -- Name: trace_calls_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6416,3 +6530,5 @@ INSERT INTO schema_migrations (version) VALUES ('20141031141000');
 INSERT INTO schema_migrations (version) VALUES ('20141103165100');
 
 INSERT INTO schema_migrations (version) VALUES ('20141206144401');
+
+INSERT INTO schema_migrations (version) VALUES ('20150123133119');

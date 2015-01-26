@@ -48,77 +48,54 @@ class Colony < ActiveRecord::Base
     return 'colony'
   end
 
-  def get_mutant_nucleotide_sequence_feature
+  def get_mutant_nucleotide_sequence_features
+    puts "in colony model : get_mutant_nucleotide_sequence_features"
 
-    mut_seq_feature = {
-      'chr'      => mi_attempt.mi_plan.gene.chr,
-      'strand'   => mi_attempt.mi_plan.gene.strand_name
-    }
+    unless trace_call.trace_call_vcf_modifications.count > 0
+      puts "trace call has no mods"
 
-    if trace_call.file_filtered_analysis_vcf
-      vcf_data = trace_call.parse_filtered_vcf_file
-      # example:
-      # {"chr"=>"6",
-      #  "strand"=>"-",
-      #  "start"=>136781533,
-      #  "end"=>136781560,
-      #  "ref_seq"=>"TGAGAGGCCCAGAACACCATCAGCGCG",
-      #  "alt_seq"=>"TG"}
-
-      mut_seq_feature['start']        = vcf_data['start']
-      mut_seq_feature['end']          = vcf_data['end']
-      mut_seq_feature['ref_sequence'] = vcf_data['ref_seq']
-      mut_seq_feature['alt_sequence'] = vcf_data['alt_seq']
-      mut_seq_feature['sequence']     = vcf_data['alt_seq']
-    end
-
-    alignment_file = trace_call.targeted_file_alignment
-
-    if alignment_file
-      # determine start and end coordinates
-      # tr_start, tr_end = trace_call.target_region
-
-      index = 0
-      # mut_seq_feature = {
-      #   'mut_type' => '',
-      #   'sequence' => '',
-
-      #   # ,
-      #   # 'start'    => tr_start,
-      #   # 'end'      => tr_end
-      # }
-
-      alignment_file.each_line do |line|
-        index += 1
-        stripped_line = line.strip
-
-        if index == 1
-          if match = stripped_line.match(/\w*(-*)\w*/i)
-            mut_seq_feature['type']               = 'insertion'
-            mut_seq_feature['alignment_sequence'] = stripped_line
-          end
-        else
-          if match = stripped_line.match(/\w*(-*)\w*/i)
-            mut_seq_feature['type']               = 'deletion'
-            mut_seq_feature['alignment_sequence'] = stripped_line
+      if trace_call.file_filtered_analysis_vcf
+        vcf_data = trace_call.parse_filtered_vcf_file
+        if vcf_data && vcf_data.length > 0
+          vcf_data.each do |vcf_feature|
+            if vcf_feature.length >= 6
+              puts "attempting to create a new vcfmod"
+              tc_mod = TraceCallVcfModification.new(
+                :trace_call_id => trace_call.id,
+                :mod_type      => vcf_feature['mod_type'],
+                :chr           => vcf_feature['chr'],
+                :start         => vcf_feature['start'],
+                :end           => vcf_feature['end'],
+                :ref_seq       => vcf_feature['ref_seq'],
+                :alt_seq       => vcf_feature['alt_seq']
+              )
+              tc_mod.save!
+            else
+              puts "ERROR: unexpected length of VCF data for trace call id #{self.id}"
+            end
           end
         end
       end
-
-      # e.g. for deletion: gap on btm
-      # "TGCGCGACCTCCGAACGCCCACATGCTACTCCAGCTCCGCGG"
-      # "TGCGCGACCTC----CGCCCACATGCTACTCCAGCTCCGCGG"
-
-      # e.g. insertion? gap on top?
-      # "TGCGCGACCTC----CGCCCACATGCTACTCCAGCTCCGCGG"
-      # "TGCGCGACCTCCGAACGCCCACATGCTACTCCAGCTCCGCGG"
-
-    else
-      puts "ERROR: no alignment file found"
     end
 
     mut_seq_features = []
-    mut_seq_features.push( mut_seq_feature.as_json )
+
+    trace_call.trace_call_vcf_modifications.each do |tc_mod|
+      mut_seq_feature = {
+        'chr'          => mi_attempt.mi_plan.gene.chr,
+        'strand'       => mi_attempt.mi_plan.gene.strand_name,
+        'start'        => tc_mod.start,
+        'end'          => tc_mod.end,
+        'ref_sequence' => tc_mod.ref_seq,
+        'alt_sequence' => tc_mod.alt_seq,
+        'sequence'     => tc_mod.alt_seq,
+        'mod_type'     => tc_mod.mod_type
+      }
+      require 'pp'
+      puts "mut_seq_feature"
+      pp mut_seq_feature
+      mut_seq_features.push( mut_seq_feature.as_json )
+    end
 
     return mut_seq_features
   end

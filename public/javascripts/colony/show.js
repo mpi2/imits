@@ -75,7 +75,7 @@ var genoverseConfig = {
     Genoverse.Track.Vector.extend({
       id              : 'VectorTrack',
       name            : 'Vectors',
-      url             : '/mutagenesis_factor/vector/' + mutagenesis_factor_id + '?feature=vectortrack;content-type=application/json',
+      url             : url_prefix + '/mutagenesis_factor/vector/' + mutagenesis_factor_id + '?feature=vectortrack;content-type=application/json',
       resizable       : 'auto',
       populateMenu : function (f) {
         var feature = this.track.model.featuresById[f.id];
@@ -106,7 +106,7 @@ var genoverseConfig = {
     Genoverse.Track.Crisprs.extend({
       id              : 'CrisprTrack',
       name            : 'Crisprs',
-      url             : '/mutagenesis_factor/crisprs/' + mutagenesis_factor_id + '?feature=crisprtrack;content-type=application/json',
+      url             : url_prefix + '/mutagenesis_factor/crisprs/' + mutagenesis_factor_id + '?feature=crisprtrack;content-type=application/json',
       resizable       : 'auto',
       populateMenu : function (f) {
         var feature = this.track.model.featuresById[f.id];
@@ -128,7 +128,7 @@ var genoverseConfig = {
     // Genoverse.Track.Protein.extend({
     //   id         : 'ProteinWTTrack',
     //   name       : 'Protein',
-    //   url        : "/targ_rep/wge_searches/protein_translation_for_region?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__",
+    //   url        : url_prefix + "/targ_rep/wge_searches/protein_translation_for_region?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__",
     //   model      : Genoverse.Track.Model.Protein,
     //   view       : Genoverse.Track.View.Protein,
     //   resizable  : 'auto',
@@ -157,7 +157,7 @@ var genoverseConfig = {
     Genoverse.Track.MutantSeq.extend({
       id              : 'MutSequenceTrack',
       name            : 'Mut Sequence',
-      url             : '/colony/mut_nucleotide_sequences/' + colony_id + '?feature=mutsequencetrack;content-type=application/json',
+      url             : url_prefix + '/colony/mut_nucleotide_sequences/' + colony_id + '?feature=mutsequencetrack;content-type=application/json',
       resizable       : 'auto',
       populateMenu : function (f) {
         var feature = this.track.model.featuresById[f.id];

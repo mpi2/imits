@@ -36,14 +36,17 @@
     <% seq_end   = @colony.mi_attempt.mi_plan.gene.start_coordinates %>
   <% end %>
 
+  <% url_prefix = '' %>
+  <% if Rails.env.production? %>
+    <% url_prefix = '/imits' %>
+  <% end %>
   <script type="text/javascript">
     var chr_num               = <%= chr_num %>;
     var seq_start             = <%= seq_start %>;
     var seq_end               = <%= seq_end %>;
     var mutagenesis_factor_id = <%= mutagenesis_factor_id %>;
-    var root_url              = '<%= root_url %>';
     var colony_id             = <%= @colony.id %>;
-    // var chr_strand            = '<%= chr_strand %>';
+    var url_prefix            = '<%= url_prefix %>';
   </script>
 
   <h2>Genoverse Interface</h2>

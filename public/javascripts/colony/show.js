@@ -40,7 +40,7 @@ var genoverseConfig = {
     Genoverse.Track.extend({
       id        : 'SequenceTrack',
       name      : 'Sequence',
-      url       : 'http://rest.ensembl.org/sequence/region/mouse/__CHR__:__START__-__END__?content-type=text/plain',
+      url       : 'https://rest.ensembl.org/sequence/region/mouse/__CHR__:__START__-__END__?content-type=text/plain',
       model     : Genoverse.Track.Model.Sequence.Ensembl,
       view      : Genoverse.Track.View.Sequence,
       resizable : 'auto',
@@ -51,7 +51,7 @@ var genoverseConfig = {
     Genoverse.Track.extend({
       id     : 'GenesTrack',
       name   : 'Genes',
-      url    : 'http://rest.ensembl.org/overlap/region/mouse/__CHR__:__START__-__END__?feature=gene;feature=transcript;feature=exon;feature=cds;content-type=application/json',
+      url    : 'https://rest.ensembl.org/overlap/region/mouse/__CHR__:__START__-__END__?feature=gene;feature=transcript;feature=exon;feature=cds;content-type=application/json',
       height : 200,
       info   : 'Ensembl API genes & transcripts, see <a href="http://rest.ensembl.org/" target="_blank">rest.ensembl.org</a> for more details',
 
@@ -75,7 +75,7 @@ var genoverseConfig = {
     Genoverse.Track.Vector.extend({
       id              : 'VectorTrack',
       name            : 'Vectors',
-      url             : root_url + 'mutagenesis_factor/vector/' + mutagenesis_factor_id + '?feature=vectortrack;content-type=application/json',
+      url             : '/mutagenesis_factor/vector/' + mutagenesis_factor_id + '?feature=vectortrack;content-type=application/json',
       resizable       : 'auto',
       populateMenu : function (f) {
         var feature = this.track.model.featuresById[f.id];
@@ -106,7 +106,7 @@ var genoverseConfig = {
     Genoverse.Track.Crisprs.extend({
       id              : 'CrisprTrack',
       name            : 'Crisprs',
-      url             : root_url + 'mutagenesis_factor/crisprs/' + mutagenesis_factor_id + '?feature=crisprtrack;content-type=application/json',
+      url             : '/mutagenesis_factor/crisprs/' + mutagenesis_factor_id + '?feature=crisprtrack;content-type=application/json',
       resizable       : 'auto',
       populateMenu : function (f) {
         var feature = this.track.model.featuresById[f.id];
@@ -128,7 +128,7 @@ var genoverseConfig = {
     // Genoverse.Track.Protein.extend({
     //   id         : 'ProteinWTTrack',
     //   name       : 'Protein',
-    //   url        : root_url + "targ_rep/wge_searches/protein_translation_for_region?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__",
+    //   url        : "/targ_rep/wge_searches/protein_translation_for_region?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__",
     //   model      : Genoverse.Track.Model.Protein,
     //   view       : Genoverse.Track.View.Protein,
     //   resizable  : 'auto',
@@ -157,7 +157,7 @@ var genoverseConfig = {
     Genoverse.Track.MutantSeq.extend({
       id              : 'MutSequenceTrack',
       name            : 'Mut Sequence',
-      url             : root_url + 'colony/mut_nucleotide_sequences/' + colony_id + '?feature=mutsequencetrack;content-type=application/json',
+      url             : '/colony/mut_nucleotide_sequences/' + colony_id + '?feature=mutsequencetrack;content-type=application/json',
       resizable       : 'auto',
       populateMenu : function (f) {
         var feature = this.track.model.featuresById[f.id];
@@ -194,7 +194,7 @@ var genoverseConfig = {
     // Genoverse.Track.Protein.extend({
     //   id         : 'ProteinMutTrack',
     //   name       : 'Mut Protein',
-    //   url        : root_url + "targ_rep/wge_searches/mutant_protein_translation_for_colony?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__&colony_id=" + colony_id,
+    //   url        : "/targ_rep/wge_searches/mutant_protein_translation_for_colony?species=mouse&chr_name=__CHR__&chr_start=__START__&chr_end=__END__&colony_id=" + colony_id,
     //   model      : Genoverse.Track.Model.Protein,
     //   view       : Genoverse.Track.View.Protein,
     //   resizable  : 'auto',

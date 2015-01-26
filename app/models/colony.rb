@@ -49,17 +49,12 @@ class Colony < ActiveRecord::Base
   end
 
   def get_mutant_nucleotide_sequence_features
-    puts "in colony model : get_mutant_nucleotide_sequence_features"
-
     unless trace_call.trace_call_vcf_modifications.count > 0
-      puts "trace call has no mods"
-
       if trace_call.file_filtered_analysis_vcf
         vcf_data = trace_call.parse_filtered_vcf_file
         if vcf_data && vcf_data.length > 0
           vcf_data.each do |vcf_feature|
             if vcf_feature.length >= 6
-              puts "attempting to create a new vcfmod"
               tc_mod = TraceCallVcfModification.new(
                 :trace_call_id => trace_call.id,
                 :mod_type      => vcf_feature['mod_type'],
@@ -91,9 +86,6 @@ class Colony < ActiveRecord::Base
         'sequence'     => tc_mod.alt_seq,
         'mod_type'     => tc_mod.mod_type
       }
-      require 'pp'
-      puts "mut_seq_feature"
-      pp mut_seq_feature
       mut_seq_features.push( mut_seq_feature.as_json )
     end
 

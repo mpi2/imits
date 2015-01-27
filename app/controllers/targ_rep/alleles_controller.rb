@@ -217,9 +217,6 @@ class TargRep::AllelesController < TargRep::BaseController
     else
       @order_from_names = docs[0].has_key?('order_names') ? docs[0]["order_names"] : nil
       @order_from_urls = docs[0].has_key?('order_links') ? docs[0]["order_links"] : nil
-
-      @order_from_names = @order_from_names.blank? && docs[0].has_key?('contact_names') ? docs[0]["contact_names"] : nil
-      @order_from_urls = @order_from_urls.blank? && docs[0].has_key?('contact_links') ? docs[0]["contact_links"] : nil
     end
   end
 

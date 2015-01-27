@@ -1,6 +1,6 @@
-require 'pp'
-
 class TargRep::AllelesController < TargRep::BaseController
+
+  include SolrBulkUpdate
 
   respond_to :html, :xml, :json
 
@@ -205,7 +205,8 @@ class TargRep::AllelesController < TargRep::BaseController
     product_id    = params[:product_id]
 
     solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-    proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['product'])
+
+    proxy = SolrBulkUpdate::Proxy.new(solr_update[Rails.env]['index_proxy']['product'])
     json_qry = { :q => 'product_id:' + product_id }
     docs = proxy.search(json_qry)
 
@@ -231,7 +232,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
     # fetch order URL from Solr
     solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-    proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['allele'])
+    proxy = SolrBulkUpdate::Proxy.new(solr_update[Rails.env]['index_proxy']['allele'])
     json_qry = { :q => 'id:"' + doc_id + '" allele_id:"' + allele_id + '" product_type:"' + product_type + '"' }
     docs = proxy.search(json_qry)
 

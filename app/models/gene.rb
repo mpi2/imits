@@ -199,50 +199,54 @@ class Gene < ActiveRecord::Base
 
 # mi_plan summaries and pretty formatting
   def assigned_mi_plans
-    return @assigned_mi_plans ||= self.gene_production_summary(self.id, 'assigned plans')
+    return @assigned_mi_plans ||= self.gene_production_summary({:gene_ids => self.id, :return_value => 'assigned plans'})
   end
 
   def non_assigned_mi_plans
-    return @non_assigned_mi_plans ||= self.gene_production_summary(self.id, 'non assigned plans')
+    return @non_assigned_mi_plans ||= self.gene_production_summary({:gene_ids => self.id, :return_value => 'non assigned plans'})
   end
 
   def pretty_print_assigned_mi_plans
-    return @pretty_print_assigned_mi_plans ||= self.gene_production_summary(self.id, 'pretty assigned plans')
+    return @pretty_print_assigned_mi_plans ||= self.gene_production_summary({:gene_ids => self.id, :return_value => 'pretty assigned plans'})
   end
 
   def pretty_print_non_assigned_mi_plans
-    return @pretty_print_non_assigned_mi_plans ||= self.gene_production_summary(self.id, 'pretty non assigned plans')
+    return @pretty_print_non_assigned_mi_plans ||= self.gene_production_summary({:gene_ids => self.id, :return_value => 'pretty non assigned plans'})
   end
 
   def pretty_print_mi_attempts_in_progress
-    return @pretty_print_mi_attempts_in_progress ||= self.gene_production_summary(self.id, 'pretty in progress mi attempts')
+    return @pretty_print_mi_attempts_in_progress ||= self.gene_production_summary({:gene_ids => self.id, :return_value => 'pretty in progress mi attempts'})
   end
 
   def pretty_print_mi_attempts_genotype_confirmed
-    return @pretty_print_mi_attempts_genotype_confirmed ||= self.gene_production_summary(self.id, 'pretty genotype confirmed mi attempts')
+    return @pretty_print_mi_attempts_genotype_confirmed ||= self.gene_production_summary({:gene_ids => self.id, :return_value => 'pretty genotype confirmed mi attempts'})
   end
 
   def pretty_print_aborted_mi_attempts
-    return @pretty_print_aborted_mi_attempts ||= self.gene_production_summary(self.id, 'pretty aborted mi attempts')
+    return @pretty_print_aborted_mi_attempts ||= self.gene_production_summary({:gene_ids => self.id, :return_value => 'pretty aborted mi attempts'})
   end
 
   def pretty_print_phenotype_attempts
-    return @pretty_print_phenotype_attempts ||= self.gene_production_summary(self.id, 'pretty phenotype attempts')
+    return @pretty_print_phenotype_attempts ||= self.gene_production_summary({:gene_ids => self.id, :return_value => 'pretty phenotype attempts'})
   end
 
 # generate all mi_plan summary attributes
-  def gene_production_summary(gene_ids = nil, return_value = nil)
-    gene_ids = [gene_ids] if !gene_ids.kind_of?(Array)
-    result = self.class.gene_production_summary(gene_ids)
+  def gene_production_summary(options = {})
+    gene_ids = options[:gene_ids] || nil
+    return_value = options[:return_value] || nil
+    crispr = options.has_key?(:crispr) ? options[:crispr] : nil
 
-    @assigned_mi_plans = self.class.assigned_mi_plans_in_bulk(nil, result['assigned plans'])[self.marker_symbol]
-    @non_assigned_mi_plans = self.class.non_assigned_mi_plans_in_bulk(nil, result['non assigned plans'])[self.marker_symbol]
-    @pretty_print_assigned_mi_plans = self.class.pretty_print_assigned_mi_plans_in_bulk(nil, result['assigned plans'])[self.marker_symbol]
-    @pretty_print_non_assigned_mi_plans = self.class.pretty_print_non_assigned_mi_plans_in_bulk(nil, result['non assigned plans'])[self.marker_symbol]
-    @pretty_print_mi_attempts_in_progress = self.class.pretty_print_mi_attempts_in_bulk_helper(nil, nil, nil, result['in progress mi attempts'])[self.marker_symbol]
-    @pretty_print_mi_attempts_genotype_confirmed = self.class.pretty_print_mi_attempts_in_bulk_helper(nil, nil, nil, result['genotype confirmed mi attempts'])[self.marker_symbol]
-    @pretty_print_aborted_mi_attempts = self.class.pretty_print_mi_attempts_in_bulk_helper(nil, nil, nil, result['aborted mi attempts'])[self.marker_symbol]
-    @pretty_print_phenotype_attempts = self.class.pretty_print_phenotype_attempts_in_bulk_helper(nil, result['phenotype attempts'])[self.marker_symbol]
+    gene_ids = [gene_ids] if !gene_ids.kind_of?(Array)
+    @result = self.class.gene_production_summary({:gene_ids => gene_ids, :crispr => crispr}) if @result.nil?
+
+    @assigned_mi_plans = self.class.assigned_mi_plans_in_bulk(:result => @result['assigned plans'])[self.marker_symbol]
+    @non_assigned_mi_plans = self.class.non_assigned_mi_plans_in_bulk(:result => @result['non assigned plans'])[self.marker_symbol]
+    @pretty_print_assigned_mi_plans = self.class.pretty_print_assigned_mi_plans_in_bulk(:result => @result['assigned plans'])[self.marker_symbol]
+    @pretty_print_non_assigned_mi_plans = self.class.pretty_print_non_assigned_mi_plans_in_bulk(:result => @result['non assigned plans'])[self.marker_symbol]
+    @pretty_print_mi_attempts_in_progress = self.class.pretty_print_mi_attempts_in_bulk_helper(:result => @result['in progress mi attempts'])[self.marker_symbol]
+    @pretty_print_mi_attempts_genotype_confirmed = self.class.pretty_print_mi_attempts_in_bulk_helper(:result => @result['genotype confirmed mi attempts'])[self.marker_symbol]
+    @pretty_print_aborted_mi_attempts = self.class.pretty_print_mi_attempts_in_bulk_helper(:result => @result['aborted mi attempts'])[self.marker_symbol]
+    @pretty_print_phenotype_attempts = self.class.pretty_print_phenotype_attempts_in_bulk_helper(:result => @result['phenotype attempts'])[self.marker_symbol]
 
     case return_value
     when 'assigned plans'
@@ -269,26 +273,31 @@ class Gene < ActiveRecord::Base
 
 # CLASS METHODS
 # mi_plan summarys for a list of genes
-  def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_id = nil)
-    return pretty_print_mi_attempts_in_bulk_helper(true, [MiAttempt::Status.micro_injection_in_progress, MiAttempt::Status.chimeras_obtained], gene_id)
+  def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_ids = nil)
+    return pretty_print_mi_attempts_in_bulk_helper({:active => true, :statuses => [MiAttempt::Status.micro_injection_in_progress, MiAttempt::Status.chimeras_obtained], :gene_ids => gene_ids})
   end
 
-  def self.pretty_print_mi_attempts_genotype_confirmed_in_bulk(gene_id = nil)
-    return pretty_print_mi_attempts_in_bulk_helper(true, [MiAttempt::Status.genotype_confirmed], gene_id)
+  def self.pretty_print_mi_attempts_genotype_confirmed_in_bulk(gene_ids = nil)
+    return pretty_print_mi_attempts_in_bulk_helper({:active => true, :statuses => [MiAttempt::Status.genotype_confirmed], :gene_ids => gene_ids})
   end
 
-  def self.pretty_print_aborted_mi_attempts_in_bulk(gene_id=nil)
-    return pretty_print_mi_attempts_in_bulk_helper(false, [], gene_id)
+  def self.pretty_print_aborted_mi_attempts_in_bulk(gene_ids = nil)
+    return pretty_print_mi_attempts_in_bulk_helper({:active => false, :gene_ids => gene_ids})
   end
 
-  def self.pretty_print_phenotype_attempts_in_bulk(gene_id = nil)
-    return pretty_print_phenotype_attempts_in_bulk_helper(gene_id)
+  def self.pretty_print_phenotype_attempts_in_bulk(gene_ids = nil)
+    return pretty_print_phenotype_attempts_in_bulk_helper({:gene_ids => gene_ids})
   end
 
 # mi_plan summary formatting
-  def self.non_assigned_mi_plans_in_bulk(gene_ids = nil, result = nil, crispr = false)
+  def self.non_assigned_mi_plans_in_bulk(options = {})
+    gene_ids = options[:gene_ids] || nil
+    result = options[:result] || nil
+    crispr = options[:crispr] || false
+    show_eucommtoolscre_data = options.has_key?(:show_eucommtoolscre_data) ? options[:show_eucommtoolscre_data] : true
+
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'non assigned plans', nil, crispr) if result.nil?
+    result = self.gene_production_summary({:gene_ids => gene_ids, :return_value => 'non assigned plans', :crispr => crispr, :show_eucommtoolscre_data => show_eucommtoolscre_data}) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -305,9 +314,15 @@ class Gene < ActiveRecord::Base
     return genes
   end
 
-  def self.assigned_mi_plans_in_bulk(gene_ids = nil, result = nil, crispr = false)
+
+  def self.assigned_mi_plans_in_bulk(options = {})
+    gene_ids = options[:gene_ids] || nil
+    result = options[:result] || nil
+    crispr = options[:crispr] || false
+    show_eucommtoolscre_data = options.has_key?(:show_eucommtoolscre_data) ? options[:show_eucommtoolscre_data] : true
+
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'assigned plans', nil, crispr) if result.nil?
+    result = self.gene_production_summary({:gene_ids => gene_ids, :return_value => 'assigned plans', :crispr => crispr, :show_eucommtoolscre_data => show_eucommtoolscre_data}) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -325,9 +340,14 @@ class Gene < ActiveRecord::Base
   end
 
 
-  def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil, result = nil, crispr = false)
+  def self.pretty_print_non_assigned_mi_plans_in_bulk(options = {})
+    gene_ids = options[:gene_ids] || nil
+    result = options[:result] || nil
+    crispr = options[:crispr] || false
+    show_eucommtoolscre_data = options.has_key?(:show_eucommtoolscre_data) ? options[:show_eucommtoolscre_data] : true
+
     #puts "#### pretty_print_non_assigned_mi_plans_in_bulk: crispr: #{crispr}"
-    data = Gene.non_assigned_mi_plans_in_bulk(gene_id, result, crispr)
+    data = Gene.non_assigned_mi_plans_in_bulk({ :gene_ids => gene_ids, :result => result, :crispr => crispr, :show_eucommtoolscre_data => show_eucommtoolscre_data})
 
     data.each do |marker_symbol,mi_plans|
       strings = mi_plans.map do |mip|
@@ -344,8 +364,13 @@ class Gene < ActiveRecord::Base
     return data
   end
 
-  def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil, result = nil, crispr = false)
-    data = Gene.assigned_mi_plans_in_bulk(gene_id, result, crispr)
+  def self.pretty_print_assigned_mi_plans_in_bulk(options = {})
+    gene_ids = options[:gene_ids] || nil
+    result = options[:result] || nil
+    crispr = options[:crispr] || false
+    show_eucommtoolscre_data = options.has_key?(:show_eucommtoolscre_data) ? options[:show_eucommtoolscre_data] : true
+
+    data = Gene.assigned_mi_plans_in_bulk({ :gene_ids => gene_ids, :result => result, :crispr => crispr, :show_eucommtoolscre_data => show_eucommtoolscre_data})
 
     data.each do |marker_symbol,mi_plans|
       strings = mi_plans.map do |mip|
@@ -361,7 +386,14 @@ class Gene < ActiveRecord::Base
   end
 
 
-  def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_ids = nil, result = nil, crispr = false)
+  def self.pretty_print_mi_attempts_in_bulk_helper( options = {})
+    active = options[:active] || nil
+    statuses = options[:statuses] || []
+    gene_ids = options[:gene_ids] || nil
+    result = options[:result] || nil
+    crispr = options[:crispr] || false
+    show_eucommtoolscre_data = options.has_key?(:show_eucommtoolscre_data) ? options[:show_eucommtoolscre_data] : true
+
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
 
     if result.nil?
@@ -370,17 +402,17 @@ class Gene < ActiveRecord::Base
         if statuses.count == 1
 
           if statuses.map{|status| status.name}.include?('Genotype confirmed')
-            result = self.gene_production_summary(gene_ids, 'genotype confirmed mi attempts', nil, crispr)
+            result = self.gene_production_summary({:gene_ids => gene_ids, :return_value => 'genotype confirmed mi attempts', :crispr =>  crispr, :show_eucommtoolscre_data => show_eucommtoolscre_data})
           else
-           result = self.gene_production_summary(gene_ids, 'in progress mi attempts', nil, crispr)
+           result = self.gene_production_summary({:gene_ids => gene_ids, :return_value => 'in progress mi attempts', :crispr => crispr, :show_eucommtoolscre_data => show_eucommtoolscre_data})
           end
 
         else
-          result = self.gene_production_summary(gene_ids, 'full_data', statuses, crispr)
+          result = self.gene_production_summary({:gene_ids => gene_ids, :return_value => 'full_data', :statuses => statuses, :crispr => crispr, :show_eucommtoolscre_data => show_eucommtoolscre_data})
         end
 
       else
-        result = self.gene_production_summary(gene_ids, 'aborted mi attempts', nil, crispr)
+        result = self.gene_production_summary({:gene_ids => gene_ids, :return_value => 'aborted mi attempts', :crispr => crispr, :show_eucommtoolscre_data => show_eucommtoolscre_data})
       end
     end
 
@@ -397,9 +429,13 @@ class Gene < ActiveRecord::Base
   end
 
 
-  def self.pretty_print_phenotype_attempts_in_bulk_helper(gene_ids = nil, result = nil)
+  def self.pretty_print_phenotype_attempts_in_bulk_helper(options = {})
+    gene_ids = options[:gene_ids] || nil
+    result = options[:result] || nil
+    show_eucommtoolscre_data = options[:show_eucommtoolscre_data] || true
+
     gene_ids = [gene_ids] if (!gene_ids.kind_of?(Array)) and (!gene_ids.nil?)
-    result = self.gene_production_summary(gene_ids, 'phenotype attempts', nil, crispr) if result.nil?
+    result = self.gene_production_summary({:gene_ids => gene_ids, :return_value => 'phenotype attempts', :crispr => crispr, :show_eucommtoolscre_data => show_eucommtoolscre_data}) if result.nil?
 
     genes = {}
     result.each do |mi_plan_id, res|
@@ -415,7 +451,12 @@ class Gene < ActiveRecord::Base
 
 
 # mi_plan summary SQL query.
-  def self.gene_production_summary(gene_ids = nil, return_value = nil, statuses = nil, crispr = false)
+  def self.gene_production_summary(options = {})
+    gene_ids = options[:gene_ids] || nil
+    return_value = options[:return_value] || nil
+    statuses = options[:statuses] || nil
+    crispr = options.has_key?(:crispr) ? options[:crispr] : nil
+    show_eucommtoolscre_data = options.has_key?(:show_eucommtoolscre_data) ? options[:show_eucommtoolscre_data] : true
 
     sql = <<-EOF
 
@@ -426,9 +467,15 @@ class Gene < ActiveRecord::Base
       (
         (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id, CASE WHEN mi_attempt_statuses.name IS NOT NULL THEN mi_attempt_statuses.name ELSE mi_plan_statuses.name END AS status_name
          FROM mi_plans
-           JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id #{crispr ? 'AND mi_plans.mutagenesis_via_crispr_cas9 IS TRUE' : ''}
+           JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id #{[true, false].include?(crispr) ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr}" : ''}
            LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id) ON mi_plans.id = mi_attempts.mi_plan_id
-         #{gene_ids.nil? ? "" : "WHERE mi_plans.gene_id IN (#{gene_ids.join(', ')})"}
+           #{ if !gene_ids.nil? || show_eucommtoolscre_data == false
+                query = []
+                query << "mi_plans.gene_id IN (#{gene_ids.join(', ')})" if !gene_ids.nil?
+                query << "mi_plans.consortium_id != 17" if show_eucommtoolscre_data == false
+                "WHERE #{query.join(' AND ')}"
+              end
+           }
         )
 
         UNION ALL
@@ -450,7 +497,8 @@ class Gene < ActiveRecord::Base
            JOIN mi_attempts ON (mi_attempts.id = mouse_allele_mods.mi_attempt_id OR mi_attempts.id = mam2.mi_attempt_id)
 
          WHERE mi_attempts.is_active = true AND (mouse_allele_mods.id IS NOT NULL OR phenotyping_productions.id IS NOT NULL)
-           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"} #{crispr ? 'AND mi_plans.mutagenesis_via_crispr_cas9 IS TRUE' : ''}
+           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"} #{[true, false].include?(crispr) ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr}" : ''}
+           #{show_eucommtoolscre_data == false ? " AND mi_plans.consortium_id != 17" : ''}
         )
       ) AS production_summary
       #{statuses.nil? ? "" : "WHERE production_summary.status_name IN ('#{statuses.map{|status| status.name}.join("','")}')"}

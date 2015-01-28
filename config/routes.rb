@@ -1,9 +1,15 @@
 TarMits::Application.routes.draw do
+
+  get "mutagenesis_factor/crisprs/:id" => 'mutagenesis_factor#crisprs'
+  get "mutagenesis_factor/vector/:id"  => 'mutagenesis_factor#vector'
+  get "mutagenesis_factor/oligo/:id"   => 'mutagenesis_factor#oligo'
+
   get "colony/show/:id" => 'colony#show'
   get "colony/show/:id/:filename" => 'colony#show'
   #get "colony/:id" => 'colony#show'
   #get "colony/:id/:filename" => 'colony#show'
   get "colony" => 'colony#index'
+  get "/colony/mut_nucleotide_sequences/:id" => 'colony#mut_nucleotide_sequences'
 
   root :to => "root#index"
 
@@ -240,6 +246,8 @@ TarMits::Application.routes.draw do
     get 'wge_searches/crispr_search' => 'wge_searches#crispr_search', :as => 'crispr_search'
     get 'wge_searches/crispr_pair_search' => 'wge_searches#crispr_pair_search', :as => 'crispr_pair_search'
     get 'wge_searches/crispr_search_by_grna_sequence' => 'wge_searches#crispr_search_by_grna_sequence', :as => 'crispr_search_by_grna_sequence'
+    get 'wge_searches/protein_translation_for_region' => 'wge_searches#protein_translation_for_region', :as => 'protein_translation_for_region'
+    get 'wge_searches/mutant_protein_translation_for_colony' => 'wge_searches#mutant_protein_translation_for_colony', :as => 'mutant_protein_translation_for_colony'
 
     get 'lims2_searches/get_crispr_group_data' => 'lims2_searches#get_crispr_group_data', :as => 'get_crispr_group_data'
     #connect ':controller/:action/:id.:format'

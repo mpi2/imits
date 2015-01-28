@@ -252,22 +252,29 @@ class QcGridReport
         targ_rep_distribution_qcs.chr11a,
         targ_rep_distribution_qcs.chr11b,
         targ_rep_distribution_qcs.chry,
-        qc_southern_blots_mi_attempts.description AS qc_southern_blot,
-        qc_five_prime_lr_pcrs_mi_attempts.description AS qc_five_prime_lr_pcr,
-        qc_five_prime_cassette_integrities_mi_attempts.description AS qc_five_prime_cassette_integrity,
-        qc_tv_backbone_assays_mi_attempts.description AS qc_tv_backbone_assay,
-        qc_neo_count_qpcrs_mi_attempts.description AS qc_neo_count_qpcr,
-        qc_lacz_count_qpcrs_mi_attempts.description AS qc_lacz_count_qpcr,
-        qc_neo_sr_pcrs_mi_attempts.description AS qc_neo_sr_pcr,
-        qc_loa_qpcrs_mi_attempts.description AS qc_loa_qpcr,
-        qc_homozygous_loa_sr_pcrs_mi_attempts.description AS qc_homozygous_loa_sr_pcr,
-        qc_lacz_sr_pcrs_mi_attempts.description AS qc_lacz_sr_pcr,
-        qc_mutant_specific_sr_pcrs_mi_attempts.description AS qc_mutant_specific_sr_pcr,
-        qc_loxp_confirmations_mi_attempts.description AS qc_loxp_confirmation,
-        qc_three_prime_lr_pcrs_mi_attempts.description AS qc_three_prime_lr_pcr
+
+        colony_qcs.qc_southern_blot AS qc_southern_blot,
+        colony_qcs.qc_five_prime_lr_pcr AS qc_five_prime_lr_pcr,
+        colony_qcs.qc_five_prime_cassette_integrity AS qc_five_prime_cassette_integrity,
+        colony_qcs.qc_tv_backbone_assay AS qc_tv_backbone_assay,
+        colony_qcs.qc_neo_count_qpcr AS qc_neo_count_qpcr,
+        colony_qcs.qc_lacz_count_qpcr AS qc_lacz_count_qpcr,
+        colony_qcs.qc_neo_sr_pcr AS qc_neo_sr_pcr,
+        colony_qcs.qc_loa_qpcr AS qc_loa_qpcr,
+        colony_qcs.qc_homozygous_loa_sr_pcr AS qc_homozygous_loa_sr_pcr,
+        colony_qcs.qc_lacz_sr_pcr AS qc_lacz_sr_pcr,
+        colony_qcs.qc_mutant_specific_sr_pcr AS qc_mutant_specific_sr_pcr,
+        colony_qcs.qc_loxp_confirmation AS qc_loxp_confirmation,
+        colony_qcs.qc_three_prime_lr_pcr AS qc_three_prime_lr_pcr,
+        colony_qcs.qc_critical_region_qpcr AS qc_critical_region_qpcr,
+        colony_qcs.qc_loxp_srpcr AS qc_loxp_srpcr,
+        colony_qcs.qc_loxp_srpcr_and_sequencing AS qc_loxp_srpcr_and_sequencing
+
+
 
       FROM mi_attempts
 
+      JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id
       JOIN mi_plans  ON mi_attempts.mi_plan_id = mi_plans.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
       JOIN centres   ON centres.id = mi_plans.production_centre_id
       JOIN consortia ON consortia.id = mi_plans.consortium_id
@@ -281,19 +288,7 @@ class QcGridReport
       LEFT JOIN targ_rep_distribution_qcs ON targ_rep_distribution_qcs.es_cell_id = targ_rep_es_cells.id
       LEFT JOIN targ_rep_es_cell_distribution_centres ON targ_rep_es_cell_distribution_centres.id = targ_rep_distribution_qcs.es_cell_distribution_centre_id
 
-      LEFT JOIN qc_results AS qc_southern_blots_mi_attempts ON qc_southern_blots_mi_attempts.id = mi_attempts.qc_southern_blot_id
-      LEFT JOIN qc_results AS qc_five_prime_lr_pcrs_mi_attempts ON qc_five_prime_lr_pcrs_mi_attempts.id = mi_attempts.qc_five_prime_lr_pcr_id
-      LEFT JOIN qc_results AS qc_five_prime_cassette_integrities_mi_attempts ON qc_five_prime_cassette_integrities_mi_attempts.id = mi_attempts.qc_five_prime_cassette_integrity_id
-      LEFT JOIN qc_results AS qc_tv_backbone_assays_mi_attempts ON qc_tv_backbone_assays_mi_attempts.id = mi_attempts.qc_tv_backbone_assay_id
-      LEFT JOIN qc_results AS qc_neo_count_qpcrs_mi_attempts ON qc_neo_count_qpcrs_mi_attempts.id = mi_attempts.qc_neo_count_qpcr_id
-      LEFT JOIN qc_results AS qc_lacz_count_qpcrs_mi_attempts ON qc_lacz_count_qpcrs_mi_attempts.id = mi_attempts.qc_lacz_count_qpcr_id
-      LEFT JOIN qc_results AS qc_neo_sr_pcrs_mi_attempts ON qc_neo_sr_pcrs_mi_attempts.id = mi_attempts.qc_neo_sr_pcr_id
-      LEFT JOIN qc_results AS qc_loa_qpcrs_mi_attempts ON qc_loa_qpcrs_mi_attempts.id = mi_attempts.qc_loa_qpcr_id
-      LEFT JOIN qc_results AS qc_homozygous_loa_sr_pcrs_mi_attempts ON qc_homozygous_loa_sr_pcrs_mi_attempts.id = mi_attempts.qc_homozygous_loa_sr_pcr_id
-      LEFT JOIN qc_results AS qc_lacz_sr_pcrs_mi_attempts ON qc_lacz_sr_pcrs_mi_attempts.id = mi_attempts.qc_lacz_sr_pcr_id
-      LEFT JOIN qc_results AS qc_mutant_specific_sr_pcrs_mi_attempts ON qc_mutant_specific_sr_pcrs_mi_attempts.id = mi_attempts.qc_mutant_specific_sr_pcr_id
-      LEFT JOIN qc_results AS qc_loxp_confirmations_mi_attempts ON qc_loxp_confirmations_mi_attempts.id = mi_attempts.qc_loxp_confirmation_id
-      LEFT JOIN qc_results AS qc_three_prime_lr_pcrs_mi_attempts ON qc_three_prime_lr_pcrs_mi_attempts.id = mi_attempts.qc_three_prime_lr_pcr_id
+      LEFT JOIN colony_qcs ON colonies.id = colony_qcs.colony_id
 
       WHERE mi_attempt_statuses.code = 'gtc'
 
@@ -331,6 +326,9 @@ class QcGridReport
         'qc_mutant_specific_sr_pcr',
         'qc_loxp_confirmation',
         'qc_three_prime_lr_pcr',
+        'qc_critical_region_qpcr',
+        'qc_loxp_srpcr',
+        'qc_loxp_srpcr_and_sequencing',
         'user_qc_map_test',
         'user_qc_karyotype',
         'user_qc_tv_backbone_assay',

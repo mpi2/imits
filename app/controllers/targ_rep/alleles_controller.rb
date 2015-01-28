@@ -1,6 +1,6 @@
-require 'pp'
-
 class TargRep::AllelesController < TargRep::BaseController
+
+  include SolrBulkUpdate
 
   respond_to :html, :xml, :json
 
@@ -205,7 +205,8 @@ class TargRep::AllelesController < TargRep::BaseController
     product_id    = params[:product_id]
 
     solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-    proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['product'])
+
+    proxy = SolrBulkUpdate::Proxy.new(solr_update[Rails.env]['index_proxy']['product'])
     json_qry = { :q => 'product_id:' + product_id }
     docs = proxy.search(json_qry)
 
@@ -216,9 +217,6 @@ class TargRep::AllelesController < TargRep::BaseController
     else
       @order_from_names = docs[0].has_key?('order_names') ? docs[0]["order_names"] : nil
       @order_from_urls = docs[0].has_key?('order_links') ? docs[0]["order_links"] : nil
-
-      @order_from_names = @order_from_names.blank? && docs[0].has_key?('contact_names') ? docs[0]["contact_names"] : nil
-      @order_from_urls = @order_from_urls.blank? && docs[0].has_key?('contact_links') ? docs[0]["contact_links"] : nil
     end
   end
 
@@ -231,7 +229,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
     # fetch order URL from Solr
     solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-    proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['allele'])
+    proxy = SolrBulkUpdate::Proxy.new(solr_update[Rails.env]['index_proxy']['allele'])
     json_qry = { :q => 'id:"' + doc_id + '" allele_id:"' + allele_id + '" product_type:"' + product_type + '"' }
     docs = proxy.search(json_qry)
 

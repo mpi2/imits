@@ -56,7 +56,7 @@ class NotificationsByGene < PlannedMicroinjectionList
   def mi_plan_summary(production_centre = nil, consortium = nil, idg = false)
     if idg
       prepare_idg
-      @mi_plan_summary = ActiveRecord::Base.connection.execute(self._mi_plan_summary_idg(production_centre, consortium))
+      @mi_plan_summary = ActiveRecord::Base.connection.execute(self._mi_plan_summary_idg)
     else
       @mi_plan_summary = ActiveRecord::Base.connection.execute(self._mi_plan_summary(production_centre, consortium))
     end
@@ -71,26 +71,16 @@ class NotificationsByGene < PlannedMicroinjectionList
     hash
   end
 
-  def pretty_print_statuses
-    hash = {}
-    @mi_plan_summary.each do |row|
-      gene = Gene.find_by_marker_symbol(row['marker_symbol'])
-      hash[row['marker_symbol']] = gene.relevant_status[:status].to_s.humanize.titleize if gene
-    end
-    hash
-  end
+#  def pretty_print_statuses
+#    hash = {}
+#    @mi_plan_summary.each do |row|
+#      gene = Gene.find_by_marker_symbol(row['marker_symbol'])
+#      hash[row['marker_symbol']] = gene.relevant_status[:status].to_s.humanize.titleize if gene
+#    end
+#    hash
+#  end
 
-  def _mi_plan_summary_idg(production_centre = nil, consortium = nil)
-    where_clause = []
-    where_clause.push "new_intermediate_report_summary_by_mi_plan.consortium = '#{consortium}'" if consortium
-    where_clause.push "new_intermediate_report_summary_by_mi_plan.production_centre = '#{production_centre}'" if production_centre
-
-    config = YAML.load_file("#{Rails.root}/config/idg_symbols.yml")
-    idg_clause = config.map {|i| "'#{i}'"} * ', '
-    idg_clause = "lower(new_intermediate_report_summary_by_mi_plan.gene) in (#{idg_clause.downcase})"
-
-    where_clause = ' where ' + where_clause.join(' and ') if where_clause.length > 0
-    where_clause = '' if where_clause.length < 1
+  def _mi_plan_summary_idg()
 
     sql = <<-EOF
     with notification_details AS (
@@ -120,33 +110,49 @@ class NotificationsByGene < PlannedMicroinjectionList
 
   def _mi_plan_summary(production_centre = nil, consortium = nil)
     where_clause = []
+    all = consortium == '<all>' ? true : false
+    none = consortium == '<none>' ? true : false
+    consortium = nil if ['<all>'].include?(consortium)
 
-    if consortium =~ /all/
-      where_clause = []
-    elsif consortium =~ /none/
-      where_clause.push "new_intermediate_report_summary_by_mi_plan.consortium is null"
-    elsif consortium.to_s.length > 0
-      where_clause.push "new_intermediate_report_summary_by_mi_plan.consortium = '#{consortium}'"
+    if !consortium.nil?
+      if production_centre.nil?
+        intermediate_table = 'new_intermediate_report_summary_by_consortia'
+      else
+        intermediate_table = 'new_intermediate_report_summary_by_consortia_and_centre'
+        where_clause.push "#{intermediate_table}.production_centre = '#{production_centre}'"
+      end
+    else
+      if production_centre.nil?
+        intermediate_table = 'new_intermediate_report_summary_by_gene'
+      else
+        intermediate_table = 'new_intermediate_report_summary_by_centre'
+        where_clause.push "#{intermediate_table}.production_centre = '#{production_centre}'"
+      end
     end
 
-    where_clause.push "new_intermediate_report_summary_by_mi_plan.production_centre = '#{production_centre}'" if production_centre
+    if none
+      where_clause.push "#{intermediate_table}.consortium is null"
+    elsif consortium.to_s.length > 0
+      where_clause.push "#{intermediate_table}.consortium = '#{consortium}'"
+    end
 
     where_clause = 'where ' + where_clause.join(' and ') if where_clause.length > 0
     where_clause = '' if where_clause.length < 1
 
     sql = <<-EOF
-    SELECT
-    genes.marker_symbol as gene,
-    count(*) as number_of_notifications,
-    genes.marker_symbol as marker_symbol,
-    genes.mgi_accession_id AS mgi_accession_id
-    FROM notifications
-    JOIN contacts ON contacts.id = notifications.contact_id and contacts.report_to_public is true
-    JOIN genes ON genes.id = notifications.gene_id
-    LEFT JOIN new_intermediate_report_summary_by_mi_plan ON new_intermediate_report_summary_by_mi_plan.gene = genes.marker_symbol
-    #{where_clause}
-    GROUP BY genes.marker_symbol, genes.mgi_accession_id
-    ORDER BY number_of_notifications desc, marker_symbol
+      SELECT
+        genes.marker_symbol as gene,
+        count(*) as number_of_notifications,
+        genes.marker_symbol as marker_symbol,
+        genes.mgi_accession_id AS mgi_accession_id,
+        #{intermediate_table}.overall_status AS status
+      FROM notifications
+        JOIN contacts ON contacts.id = notifications.contact_id and contacts.report_to_public is true
+        JOIN genes ON genes.id = notifications.gene_id
+        LEFT JOIN #{intermediate_table} ON #{intermediate_table}.gene = genes.marker_symbol
+        #{where_clause}
+      GROUP BY genes.marker_symbol, genes.mgi_accession_id, #{intermediate_table}.overall_status
+      ORDER BY number_of_notifications desc, marker_symbol, #{intermediate_table}.overall_status
     EOF
 
     sql

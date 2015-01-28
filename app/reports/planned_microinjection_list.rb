@@ -8,33 +8,38 @@ class PlannedMicroinjectionList #< Reports::Base
   attr_accessor :pretty_print_mi_attempts_genotype_confirmed
   attr_accessor :gene_pretty_prints
 
-  def mi_plan_summary(consortium = nil, crisprs = false)
-    @crisprs = crisprs
-    @mi_plan_summary = ActiveRecord::Base.connection.execute(self.class.mi_plan_summary(consortium, crisprs))
+  def initialize(options = {})
+    @crisprs = options[:crisprs] || false
+    @show_eucommtoolscre_data = options.has_key?(:show_eucommtoolscre_data) ? options[:show_eucommtoolscre_data] : true
+
+  end
+
+  def mi_plan_summary(consortium = nil)
+    @mi_plan_summary = ActiveRecord::Base.connection.execute(self.class.mi_plan_summary(consortium, @crisprs))
   end
 
   def pretty_print_non_assigned_mi_plans
-    Gene.pretty_print_non_assigned_mi_plans_in_bulk(nil, gene_pretty_prints['non assigned plans'], @crisprs)
+    Gene.pretty_print_non_assigned_mi_plans_in_bulk({:result => gene_pretty_prints['non assigned plans'], :crispr => @crisprs, :show_eucommtoolscre_data => @show_eucommtoolscre_data})
   end
 
   def pretty_print_assigned_mi_plans
-    Gene.pretty_print_assigned_mi_plans_in_bulk(nil, gene_pretty_prints['assigned plans'], @crisprs)
+    Gene.pretty_print_assigned_mi_plans_in_bulk({:result => gene_pretty_prints['assigned plans'], :crispr => @crisprs, :show_eucommtoolscre_data => @show_eucommtoolscre_data})
   end
 
   def pretty_print_aborted_mi_attempts
-    Gene.pretty_print_mi_attempts_in_bulk_helper(nil, nil, nil, gene_pretty_prints['aborted mi attempts'], @crisprs)
+    Gene.pretty_print_mi_attempts_in_bulk_helper({:result => gene_pretty_prints['aborted mi attempts'], :crispr => @crisprs, :show_eucommtoolscre_data => @show_eucommtoolscre_data})
   end
 
   def pretty_print_mi_attempts_in_progress
-    Gene.pretty_print_mi_attempts_in_bulk_helper(nil, nil, nil, gene_pretty_prints['in progress mi attempts'], @crisprs)
+    Gene.pretty_print_mi_attempts_in_bulk_helper({:result => gene_pretty_prints['in progress mi attempts'], :crispr => @crisprs, :show_eucommtoolscre_data => @show_eucommtoolscre_data})
   end
 
   def pretty_print_mi_attempts_genotype_confirmed
-    Gene.pretty_print_mi_attempts_in_bulk_helper(nil, nil, nil, gene_pretty_prints['genotype confirmed mi attempts'], @crisprs)
+    Gene.pretty_print_mi_attempts_in_bulk_helper({:result => gene_pretty_prints['genotype confirmed mi attempts'], :crispr => @crisprs, :show_eucommtoolscre_data => @show_eucommtoolscre_data})
   end
 
   def gene_pretty_prints
-    @gene_pretty_prints ||= Gene.gene_production_summary nil, nil, nil, @crisprs
+    @gene_pretty_prints ||= Gene.gene_production_summary({:crispr => @crisprs, :show_eucommtoolscre_data => @show_eucommtoolscre_data})
   end
 
 ## Class Methods
@@ -46,7 +51,7 @@ class PlannedMicroinjectionList #< Reports::Base
              max(CASE WHEN mi_attempt_statuses.name = 'Micro-injection aborted' THEN mi_attempt_status_stamps.created_at ELSE NULL END ) AS plan_aborted_max_date --,
              --mi_plans.mutagenesis_via_crispr_cas9 as mutagenesis_via_crispr_cas9
         FROM mi_plans
-        JOIN consortia ON consortia.id = mi_plans.consortium_id #{consortium.nil? ? "" : "AND consortia.name = '#{consortium}'"} #{crisprs ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : ''}
+        JOIN consortia ON consortia.id = mi_plans.consortium_id #{consortium.nil? ? "" : "AND consortia.name = '#{consortium}'"} #{crisprs ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : 'and mi_plans.mutagenesis_via_crispr_cas9 = false'}
         LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id
                                JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.status_id = mi_attempt_statuses.id AND mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id
                   ) ON mi_attempts.mi_plan_id = mi_plans.id
@@ -105,10 +110,10 @@ class PlannedMicroinjectionList #< Reports::Base
       JOIN mi_plans ON mi_plans.id = mi_attempt_counts.plan_id -- #{crisprs ? 'and mi_plans.mutagenesis_via_crispr_cas9 is true' : ''}
       JOIN new_intermediate_report_summary_by_mi_plan ON new_intermediate_report_summary_by_mi_plan.mi_plan_id = mi_attempt_counts.plan_id #{crisprs ? 'and new_intermediate_report_summary_by_mi_plan.mutagenesis_via_crispr_cas9 is true' : ''}
       JOIN mi_plan_statuses ON mi_plan_statuses.name = new_intermediate_report_summary_by_mi_plan.mi_plan_status
-      JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report_summary_by_mi_plan.mi_plan_id 
+      JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report_summary_by_mi_plan.mi_plan_id
         AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
-      LEFT JOIN status_conflict_options ON new_intermediate_report_summary_by_mi_plan.mi_plan_id != status_conflict_options.mi_plan_id 
-        AND mi_plan_statuses.name = status_conflict_options.possible_conflict 
+      LEFT JOIN status_conflict_options ON new_intermediate_report_summary_by_mi_plan.mi_plan_id != status_conflict_options.mi_plan_id
+        AND mi_plan_statuses.name = status_conflict_options.possible_conflict
         AND new_intermediate_report_summary_by_mi_plan.gene = status_conflict_options.marker_symbol
     GROUP BY
       new_intermediate_report_summary_by_mi_plan.mi_plan_id,

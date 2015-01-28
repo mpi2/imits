@@ -7,7 +7,7 @@ contacts:
   CNRS:
   Fleming:
   Harwell: impc@har.mrc.ac.uk
-  HMGU: s.marschall@helmholtz-muenchen.de
+  HMGU: nicole.potrafke@helmholtz-muenchen.de
   ICS: birlingm@igbmc.fr
   IMG:
   INFRAFRONTIER-CNB:
@@ -33,5 +33,5 @@ contacts:
   WTSI: mouseinterest@sanger.ac.uk|skarnes@sanger.ac.uk
 
 bcc:
-  - re4@sanger.ac.uk
-  - vvi@sanger.ac.uk
+  - as28@sanger.ac.uk
+  - pm9@sanger.ac.uk

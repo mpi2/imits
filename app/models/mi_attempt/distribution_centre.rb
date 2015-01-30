@@ -15,6 +15,8 @@ class MiAttempt::DistributionCentre < ApplicationModel
   } + FULL_ACCESS_ATTRIBUTES + ['mi_attempt_id']
 
   KOMP_CENTRE_NAME = 'KOMP Repo'
+  EMMA_REPO_NAME   = 'EMMA'
+  MMRRC_REPO_NAME  = 'MMRRC'
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
@@ -48,23 +50,20 @@ class MiAttempt::DistributionCentre < ApplicationModel
   end
 
   def reconcile_with_repo( repository_name, reposcraper )
-    # instantiate reposcraper if nil
-    if ( reposcraper.nil? )
-      reposcraper = RepositoryGeneDetailsScraper.new()
-    end
 
-    # get marker symbol from gene
-    gene          = self.mi_attempt.mi_plan.gene
-    marker_symbol = gene.marker_symbol
+    gene_repo_details = nil
 
     # use geneid or marker symbol to fetch gene details hash
     case repository_name
-      when KOMP_CENTRE_NAME
-        geneid            = gene.komp_repo_geneid
-        gene_repo_details = reposcraper.fetch_komp_allele_details( marker_symbol, geneid )
-      else
-        puts "ERROR : repository name #{repository_name} not recognised for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
-        return
+    when EMMA_REPO_NAME
+      gene_repo_details = reconcile_with_emma_repo( reposcraper )
+    when KOMP_CENTRE_NAME
+      gene_repo_details = reconcile_with_komp_repo( reposcraper )
+    when MMRRC_REPO_NAME
+      gene_repo_details = reconcile_with_mmrrc_repo( reposcraper )
+    else
+      puts "ERROR : repository name #{repository_name} not recognised for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
+      return
     end
 
     production_centre = self.mi_attempt.mi_plan.production_centre.name
@@ -145,6 +144,50 @@ class MiAttempt::DistributionCentre < ApplicationModel
       "ERROR : Failed to save mi attempt distribution centre for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
     end
 
+  end
+
+  def reconcile_with_emma_repo( reposcraper )
+    # instantiate reposcraper if nil
+    if ( reposcraper.nil? )
+      reposcraper = ScraperEmmaRepository.new()
+    end
+
+    gene_repo_details = nil
+
+    marker_symbol     = self.mi_attempt.mi_plan.gene.marker_symbol
+    gene_repo_details = reposcraper.fetch_emma_allele_details( marker_symbol )
+
+    return gene_repo_details
+  end
+
+  def reconcile_with_komp_repo( reposcraper )
+    # instantiate reposcraper if nil
+    if ( reposcraper.nil? )
+      reposcraper = ScraperKompRepository.new()
+    end
+
+    gene_repo_details = nil
+
+    marker_symbol     = self.mi_attempt.mi_plan.gene.marker_symbol
+    geneid            = self.mi_attempt.mi_plan.gene.komp_repo_geneid
+
+    gene_repo_details = reposcraper.fetch_komp_allele_details( marker_symbol, geneid )
+
+    return gene_repo_details
+  end
+
+  def reconcile_with_mmrrc_repo( reposcraper )
+    # instantiate reposcraper if nil
+    if ( reposcraper.nil? )
+      reposcraper = ScraperMmrrcRepository.new()
+    end
+
+    gene_repo_details = nil
+
+    marker_symbol     = self.mi_attempt.mi_plan.gene.marker_symbol
+    gene_repo_details = reposcraper.fetch_mmrrc_allele_details( marker_symbol )
+
+    return gene_repo_details
   end
 
   def calculate_order_link( config = nil )

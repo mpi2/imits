@@ -1,17 +1,14 @@
 #!/usr/bin/env ruby
 
-# Select the gene list from the Komp website
-# ruby -r "./app/helpers/repository_gene_details_scraper.rb" -e "RepositoryGeneDetailsScraper.new.fetch_komp_catalog_gene_list"
-
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
 
 STDOUT.sync = true
 
-class RepositoryGeneDetailsScraper
+class ScraperKompRepository
 
-    attr_accessor :komp_gene_details
+    attr_accessor :gene_details
     attr_accessor :count_is_mice
     attr_accessor :count_is_recovery
     attr_accessor :count_is_germ_plasm
@@ -27,7 +24,7 @@ class RepositoryGeneDetailsScraper
 
     def initialize
         # instance variables
-         @komp_gene_details                  = {}
+         @gene_details                       = {}
          @count_is_mice                      = 0
          @count_is_recovery                  = 0
          @count_is_germ_plasm                = 0
@@ -41,7 +38,7 @@ class RepositoryGeneDetailsScraper
     ##
     def fetch_komp_catalog_gene_list( repo_url )
 
-        @komp_gene_details = {}
+        @gene_details = {}
 
         # process catalog table from Komp website
         count_updates   = 0
@@ -89,7 +86,7 @@ class RepositoryGeneDetailsScraper
                 end
 
                 # add into hash
-                @komp_gene_details[marker_symbol] = {
+                @gene_details[marker_symbol] = {
                     'geneid'               => geneid
                 }
 
@@ -132,22 +129,22 @@ class RepositoryGeneDetailsScraper
     #     timeStart = Time.new
     #     puts "start at #{timeStart.inspect}"
 
-    #     # if @komp_gene_details is empty call fetch_komp_catalog_gene_list()
-    #     if ( @komp_gene_details.count() == 0 )
+    #     # if @gene_details is empty call fetch_komp_catalog_gene_list()
+    #     if ( @gene_details.count() == 0 )
     #         fetch_komp_catalog_gene_list()
-    #         if ( @komp_gene_details.count() == 0 )
+    #         if ( @gene_details.count() == 0 )
     #             puts "ERROR : no gene details in list, cannot continue"
     #             return
     #         end
     #     end
 
-    #     # for each marker symbol key in @komp_gene_details, call method to fetch
+    #     # for each marker symbol key in @gene_details, call method to fetch
     #     # details from the genes sub-page in Komp
     #     is_first_time = true
-    #     puts "Count of genes to process = #{@komp_gene_details.count()}"
+    #     puts "Count of genes to process = #{@gene_details.count()}"
     #     count_genes_processed = 0
     #     sleeptime_total = 0
-    #     @komp_gene_details.each do |curr_marker_symbol, gene_details|
+    #     @gene_details.each do |curr_marker_symbol, gene_details|
 
     #         pp gene_details
 
@@ -161,11 +158,11 @@ class RepositoryGeneDetailsScraper
     #         end
 
     #         puts "Processing : marker symbol - #{curr_marker_symbol}, Komp gene_id - #{gene_details['geneid']}"
-    #         fetch_komp_allele_details( curr_marker_symbol, @komp_gene_details[curr_marker_symbol]['geneid'] )
+    #         fetch_komp_allele_details( curr_marker_symbol, @gene_details[curr_marker_symbol]['geneid'] )
     #         count_genes_processed += 1
     #     end
 
-    #     # pp @komp_gene_details
+    #     # pp @gene_details
 
     #     puts "Count of genes processed = #{count_genes_processed}"
     #     puts "Total sleeptime = #{sleeptime_total}"
@@ -243,7 +240,7 @@ class RepositoryGeneDetailsScraper
             end # page_tables
 
             # to hold hash of allele details in main hash
-            @komp_gene_details[marker_symbol] = { 'alleles' => {} }
+            @gene_details[marker_symbol] = { 'alleles' => {} }
 
             if ( gene_table.nil? || gene_table.blank? )
                 puts "WARN : could not locate targeting projects table in sub-page for marker symbol #{marker_symbol}, perhaps no products"
@@ -257,12 +254,12 @@ class RepositoryGeneDetailsScraper
             return
         end
 
-        return @komp_gene_details[marker_symbol]
+        return @gene_details[marker_symbol]
     end
 
     def fetch_komp_geneid_for_marker_symbol( marker_symbol )
 
-        if ( @komp_gene_details.nil? || @komp_gene_details.count() == 0 )
+        if ( @gene_details.nil? || @gene_details.count() == 0 )
             # try selecting a limited catalog listing and extracting the gene id
             repo_url = KOMP_GENES_CATALOG_PAGE_URL.dup
             repo_url["gname="] = "gname=#{marker_symbol}"
@@ -271,8 +268,8 @@ class RepositoryGeneDetailsScraper
 
         # fetch geneid from main hash for this marker symbol
         geneid = 0
-        if @komp_gene_details.has_key?(marker_symbol)
-            geneid = @komp_gene_details[marker_symbol]['geneid']
+        if @gene_details.has_key?(marker_symbol)
+            geneid = @gene_details[marker_symbol]['geneid']
         else
             puts "WARN : no entry found in komp gene list for marker symbol #{marker_symbol}, searching"
             geneid = search_komp_for_marker_symbol( marker_symbol )
@@ -451,18 +448,18 @@ class RepositoryGeneDetailsScraper
             end
 
             # sometimes the allele is listed twice, do not overwrite positives
-            if ( @komp_gene_details[marker_symbol]['alleles'].has_key?(allele) )
+            if ( @gene_details[marker_symbol]['alleles'].has_key?(allele) )
                 if ( is_mice == 1 )
-                    @komp_gene_details[marker_symbol]['alleles'][allele]['is_mice'] = 1
+                    @gene_details[marker_symbol]['alleles'][allele]['is_mice'] = 1
                 end
                 if ( is_recovery == 1 )
-                    @komp_gene_details[marker_symbol]['alleles'][allele]['is_recovery'] = 1
+                    @gene_details[marker_symbol]['alleles'][allele]['is_recovery'] = 1
                 end
                 if ( is_germ_plasm == 1 )
-                    @komp_gene_details[marker_symbol]['alleles'][allele]['is_germ_plasm'] = 1
+                    @gene_details[marker_symbol]['alleles'][allele]['is_germ_plasm'] = 1
                 end
                 if ( is_embryos == 1 )
-                    @komp_gene_details[marker_symbol]['alleles'][allele]['is_embryos'] = 1
+                    @gene_details[marker_symbol]['alleles'][allele]['is_embryos'] = 1
                 end
             else
                 @count_unique_alleles_found += 1
@@ -476,7 +473,7 @@ class RepositoryGeneDetailsScraper
                     @count_unique_alleles_with_products += 1
                 end
 
-                @komp_gene_details[marker_symbol]['alleles'][allele] = {
+                @gene_details[marker_symbol]['alleles'][allele] = {
                     'is_mice'              => is_mice,
                     'is_recovery'          => is_recovery,
                     'is_germ_plasm'        => is_germ_plasm,
@@ -520,5 +517,5 @@ end
 
 if __FILE__ == $0
   # this will only run if the script was the main, not load'd or require'd
-  RepositoryGeneDetailsScraper.new.fetch_komp_catalog_gene_list
+  ScraperKompRepository.new.fetch_komp_catalog_gene_list
 end

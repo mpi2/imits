@@ -1,10 +1,10 @@
-class MiAttemptKompReconciledListReport
+class MiAttemptMmrrcUnreconciledListReport
 
     ##
-    ## Report to display the repository mi attempt distribution centre reconciled list
+    ## Report to display the repository mi attempt distribution centre unreconciled list
     ##
 
-    attr_accessor :komp_reconciled_list
+    attr_accessor :mmrrc_unreconciled_list
     attr_accessor :consortium
     attr_accessor :prod_centre
 
@@ -13,18 +13,17 @@ class MiAttemptKompReconciledListReport
         @prod_centre = prod_centre
     end
 
-    def komp_reconciled_list
-        # centre_id 35 is Komp Repo
-        @komp_reconciled_list ||= ActiveRecord::Base.connection.execute(self.class.select_list_by_centre_sql(self.consortium, self.prod_centre, 35))
+    def mmrrc_unreconciled_list
+        @mmrrc_unreconciled_list ||= ActiveRecord::Base.connection.execute(self.class.select_list_by_dist_network_sql(self.consortium, self.prod_centre, 'MMRRC'))
     end
 
     class << self
 
         def title
-          "Mi Attempt Distribution Centres Komp Repository Reconciled List"
+          "Mi Attempt Distribution Centres MMRRC Repository Unreconciled List"
         end
 
-        def select_list_by_centre_sql(consortium, prod_centre, repo_centre_id)
+        def select_list_by_dist_network_sql(consortium, prod_centre, dist_network_name)
             sql = <<-EOF
               SELECT genes.marker_symbol,
               mi_attempt_distribution_centres.mi_attempt_id,
@@ -45,8 +44,8 @@ class MiAttemptKompReconciledListReport
               JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
               LEFT OUTER JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
               WHERE mi_attempt_statuses.name = 'Genotype confirmed'
-              AND mi_attempt_distribution_centres.centre_id = #{repo_centre_id}
-              AND reconciled = 'true'
+              AND mi_attempt_distribution_centres.distribution_network = '#{dist_network_name}'
+              AND reconciled = 'false'
               AND consortia.name = '#{consortium}'
               AND centres.name = '#{prod_centre}'
               AND (mi_attempt_distribution_centres.start_date IS NULL OR mi_attempt_distribution_centres.start_date <= current_date)
@@ -54,7 +53,6 @@ class MiAttemptKompReconciledListReport
               ORDER BY genes.marker_symbol
             EOF
         end
-
     end # end class
 
 end

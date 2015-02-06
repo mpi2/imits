@@ -14,9 +14,9 @@ class MiAttempt::DistributionCentre < ApplicationModel
   WRITABLE_ATTRIBUTES = %w{
   } + FULL_ACCESS_ATTRIBUTES + ['mi_attempt_id']
 
-  KOMP_CENTRE_NAME = 'KOMP Repo'
-  EMMA_REPO_NAME   = 'EMMA'
-  MMRRC_REPO_NAME  = 'MMRRC'
+  EMMA_REPO_NAME  = 'EMMA'
+  KOMP_REPO_NAME  = 'KOMP Repo'
+  MMRRC_REPO_NAME = 'MMRRC'
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
@@ -57,7 +57,7 @@ class MiAttempt::DistributionCentre < ApplicationModel
     case repository_name
     when EMMA_REPO_NAME
       gene_repo_details = reconcile_with_emma_repo( reposcraper )
-    when KOMP_CENTRE_NAME
+    when KOMP_REPO_NAME
       gene_repo_details = reconcile_with_komp_repo( reposcraper )
     when MMRRC_REPO_NAME
       gene_repo_details = reconcile_with_mmrrc_repo( reposcraper )
@@ -67,12 +67,11 @@ class MiAttempt::DistributionCentre < ApplicationModel
     end
 
     production_centre = self.mi_attempt.mi_plan.production_centre.name
-    puts "Production centre = #{production_centre}"
 
     # possible results here:
-    # nil -> means no geneid was found at all
-    # hash containing geneid and empty alleles hash -> means gene checked but no products
-    # hash containing geneid and alleles hash containing 1 or more alleles -> has products but need to check flags
+    # nil -> means no gene was found at all
+    # hash containing gene and empty alleles hash -> means gene checked but no products
+    # hash containing gene and alleles hash containing 1 or more alleles -> has products but need to check allele matches and product flags
     if ( gene_repo_details.nil? )
       puts "WARN : No gene details found for this gene on repository, reconciled set to not found"
       self.reconciled = 'not found'
@@ -108,21 +107,21 @@ class MiAttempt::DistributionCentre < ApplicationModel
 
         matching_allele = gene_repo_details['alleles'][mi_attempt_allele_symbol]
 
-        if ( matching_allele['is_mice'] == 1 )
-          puts "repo has mice"
-        end
+        # if ( matching_allele['is_mice'] == 1 )
+        #   puts "repo has mice"
+        # end
 
-        if ( matching_allele['is_recovery'] == 1 )
-          puts "repo has recovery mice"
-        end
+        # if ( matching_allele['is_recovery'] == 1 )
+        #   puts "repo has recovery mice"
+        # end
 
-        if ( matching_allele['is_germ_plasm'] == 1 )
-          puts "repo has germ plasm"
-        end
+        # if ( matching_allele['is_germ_plasm'] == 1 )
+        #   puts "repo has germ plasm"
+        # end
 
-        if ( matching_allele['is_embryos'] == 1 )
-          puts "repo has embryos"
-        end
+        # if ( matching_allele['is_embryos'] == 1 )
+        #   puts "repo has embryos"
+        # end
         # any match counts as reconciled
         if (( matching_allele['is_mice'] == 1 ) || ( matching_allele['is_recovery'] == 1 ) ||
             ( matching_allele['is_germ_plasm'] == 1 ) || ( matching_allele['is_embryos'] == 1 ))

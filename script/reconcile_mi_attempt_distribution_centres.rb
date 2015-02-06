@@ -55,13 +55,13 @@ class ReconcileMiAttemptDistributionCentres
 
     case @repository_name
     when EMMA_REPO_NAME
-      mi_distribution_centres = self.class.select_mi_distribution_centres_by_distribution_network(EMMA_REPO_NAME)
+      mi_distribution_centres = self.class.select_mi_distribution_centres_by_distribution_network(@repository_name)
       @reposcraper            = ScraperEmmaRepository.new()
     when KOMP_REPO_NAME
-      mi_distribution_centres = self.class.select_mi_distribution_centres_by_centre(KOMP_REPO_NAME)
+      mi_distribution_centres = self.class.select_mi_distribution_centres_by_centre(@repository_name)
       @reposcraper            = ScraperKompRepository.new()
     when MMRRC_REPO_NAME
-      mi_distribution_centres = self.class.select_mi_distribution_centres_by_distribution_network(MMRRC_REPO_NAME)
+      mi_distribution_centres = self.class.select_mi_distribution_centres_by_distribution_network(@repository_name)
       @reposcraper            = ScraperMmrrcRepository.new()
     else
       puts "ERROR : repository name unrecognised when selecting mi_distribution_centres"
@@ -152,101 +152,101 @@ class ReconcileMiAttemptDistributionCentres
   ##
   # Reconcile the Mi Attempt Distribution Centres for the selected repository and a specified gene
   ##
-  # def reconcile_mi_attempt_distribution_centres_for_gene( marker_symbol )
+  def reconcile_mi_attempt_distribution_centres_for_gene( marker_symbol )
 
-  #   puts "Reconcile Mi Attempt Distribution Centres for gene : #{marker_symbol}"
+    puts "Reconcile Mi Attempt Distribution Centres for gene : #{marker_symbol}"
 
-  #   if ( marker_symbol.nil? )
-  #     puts "ERROR: No marker symbol entered into method"
-  #     return
-  #   end
+    if ( marker_symbol.nil? )
+      puts "ERROR: No marker symbol entered into method"
+      return
+    end
 
-  #   # processing depends on repository
-  #   case @repository_name
-  #   when EMMA_REPO_NAME
-  #     # _reconcile_emma_mi_attempt_distribution_centres_for_gene( marker_symbol )
-  #     puts "NOT IMPLEMENTED YET"
-  #   when KOMP_REPO_NAME
-  #     _reconcile_komp_mi_attempt_distribution_centres_for_gene( marker_symbol )
-  #   when MMRRC_REPO_NAME
-  #     # _reconcile_mmrrc_mi_attempt_distribution_centres_for_gene( marker_symbol )
-  #     puts "NOT IMPLEMENTED YET"
-  #   else
-  #     puts "ERROR : repository name unrecognised when reconciling Mi attempt"
-  #     return
-  #   end # end case
+    # processing depends on repository
+    case @repository_name
+    when EMMA_REPO_NAME
+      # _reconcile_emma_mi_attempt_distribution_centres_for_gene( marker_symbol )
+      puts "NOT IMPLEMENTED YET"
+    when KOMP_REPO_NAME
+      _reconcile_komp_mi_attempt_distribution_centres_for_gene( marker_symbol )
+    when MMRRC_REPO_NAME
+      # _reconcile_mmrrc_mi_attempt_distribution_centres_for_gene( marker_symbol )
+      puts "NOT IMPLEMENTED YET"
+    else
+      puts "ERROR : repository name unrecognised when reconciling Mi attempt"
+      return
+    end # end case
 
-  # end # reconcile_mi_attempt_distribution_centres_for_gene
+  end # reconcile_mi_attempt_distribution_centres_for_gene
 
   ##
   # Reconcile the Mi Attempt Distribution Centres for the KOMP repository and a specified gene
   ##
-  # def _reconcile_komp_mi_attempt_distribution_centres_for_gene( marker_symbol )
+  def _reconcile_komp_mi_attempt_distribution_centres_for_gene( marker_symbol )
 
-  #   puts "Reconcile KOMP repository Mi Attempt Distribution Centres for gene : #{marker_symbol}"
+    puts "Reconcile KOMP repository Mi Attempt Distribution Centres for gene : #{marker_symbol}"
 
-  #   # find gene for marker symbol
-  #   gene = Gene.find_by_marker_symbol( marker_symbol )
+    # find gene for marker symbol
+    gene = Gene.find_by_marker_symbol( marker_symbol )
 
-  #   if ( gene.nil? )
-  #     puts "ERROR : no gene located for marker symbol #{marker_symbol} in Imits"
-  #     return
-  #   end
+    if ( gene.nil? )
+      puts "ERROR : no gene located for marker symbol #{marker_symbol} in Imits"
+      return
+    end
 
-  #   geneid = gene.komp_repo_geneid
+    geneid = gene.komp_repo_geneid
 
-  #   # create a new repository scraper instance
-  #   puts "Creating Repo Scraper instance"
-  #   if ( @reposcraper.nil? )
-  #     @reposcraper = ScraperKompRepository.new()
-  #   end
+    # create a new repository scraper instance
+    puts "Creating Repo Scraper instance"
+    if ( @reposcraper.nil? )
+      @reposcraper = ScraperKompRepository.new()
+    end
 
-  #   # attempt to scrape the geneid from the KOMP website
-  #   if ( geneid.nil? )
-  #     geneid = @reposcraper.fetch_komp_geneid_for_marker_symbol( marker_symbol )
-  #   end
+    # attempt to scrape the geneid from the KOMP website
+    if ( geneid.nil? )
+      geneid = @reposcraper.fetch_komp_geneid_for_marker_symbol( marker_symbol )
+    end
 
-  #   if ( geneid.nil? )
-  #     puts "ERROR: geneid not found for #{marker_symbol}, cannot continue"
-  #     return
-  #   end
-  #   puts "Found geneid = #{geneid} for #{marker_symbol}"
+    if ( geneid.nil? )
+      puts "ERROR: geneid not found for #{marker_symbol}, cannot continue"
+      return
+    end
+    puts "Found geneid = #{geneid} for #{marker_symbol}"
 
-  #   # for mi_plans find mi_attempts
-  #   # puts "Check Mi Plans for gene #{gene.marker_symbol}"
-  #   mi_plans = gene.mi_plans
-  #   mi_plans.each do |mi_plan|
+    # for mi_plans find mi_attempts
+    # puts "Check Mi Plans for gene #{gene.marker_symbol}"
+    mi_plans = gene.mi_plans
+    mi_plans.each do |mi_plan|
 
-  #     # puts "Check the Mi Attempts for Mi Plan id #{mi_plan.id}"
-  #     mi_attempts = mi_plan.mi_attempts
-  #     mi_attempts.each do |mi_attempt|
+      # puts "Check the Mi Attempts for Mi Plan id #{mi_plan.id}"
+      mi_attempts = mi_plan.mi_attempts
+      mi_attempts.each do |mi_attempt|
 
-  #       # puts "Check Mi Attempt status for Mi Attempt id #{mi_attempt.id}"
-  #       unless mi_attempt.status.name == 'Genotype confirmed'
-  #           puts "Rejected Mi Attempt id #{mi_attempt.id}, in status #{mi_attempt.status.name}"
-  #           next
-  #       end
+        # puts "Check Mi Attempt status for Mi Attempt id #{mi_attempt.id}"
+        unless mi_attempt.status.name == 'Genotype confirmed'
+            puts "Rejected Mi Attempt id #{mi_attempt.id}, in status #{mi_attempt.status.name}"
+            next
+        end
 
-  #       # puts "Checking Distribution Centres for Mi Attempt id #{mi_attempt.id}"
-  #       mi_distribution_centres = mi_attempt.distribution_centres
-  #       mi_distribution_centres.each do |mi_distribution_centre|
+        # puts "Checking Distribution Centres for Mi Attempt id #{mi_attempt.id}"
+        mi_distribution_centres = mi_attempt.distribution_centres
+        mi_distribution_centres.each do |mi_distribution_centre|
 
-  #           puts "Reconcile Mi Plan id #{mi_plan.id} Mi Attempt id #{mi_attempt.id} at Distribution Centre #{mi_distribution_centre.id}"
-  #           mi_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
-  #       end # distribution_centres
-  #     end # mi_attempts
-  #   end # mi_plans
-  # end # _reconcile_komp_mi_attempt_distribution_centres_for_gene
+            puts "Reconcile Mi Plan id #{mi_plan.id} Mi Attempt id #{mi_attempt.id} at Distribution Centre #{mi_distribution_centre.id}"
+            mi_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
+        end # distribution_centres
+      end # mi_attempts
+    end # mi_plans
+  end # _reconcile_komp_mi_attempt_distribution_centres_for_gene
 
   private
     #####
     # select mi distribution centres by relation to a repository centre e.g. 'KOMP Repo'
     #####
-    def self.select_mi_distribution_centres_by_centre(repo_name)
-      repository_centre = Centre.find_by_name(repo_name)
+    def self.select_mi_distribution_centres_by_centre(repository_name)
+      repository_centre = Centre.find_by_name(repository_name)
 
       if repository_centre.nil?
-        puts "ERROR : repository centre not found for #{repo_name}"
+        puts "ERROR : repository centre not found for #{repository_name}"
       else
         # N.B. can change filter in the Centre model to effect the Mi's selected for update
         mi_distribution_centres_unfiltered = repository_centre.mi_attempt_distribution_centres
@@ -257,8 +257,8 @@ class ReconcileMiAttemptDistributionCentres
     #####
     # select mi distribution centres by their distribution network e.g. 'EMMA' or 'MMRRC'
     #####
-    def self.select_mi_distribution_centres_by_distribution_network(repo_name)
-      mi_distribution_centres_unfiltered = MiAttempt::DistributionCentre.where("distribution_network = ?", repo_name).order(:id)
+    def self.select_mi_distribution_centres_by_distribution_network(repository_name)
+      mi_distribution_centres_unfiltered = MiAttempt::DistributionCentre.where("distribution_network = ?", repository_name).order(:id)
       return self.filter_gtc_mi_attempt_distribution_centres(mi_distribution_centres_unfiltered)
     end
 
@@ -280,6 +280,11 @@ class ReconcileMiAttemptDistributionCentres
         # if [ 'UCD-KOMP', 'DTCC-Legacy', 'MGP', 'MGP Legacy', 'EUCOMM-EUMODIC', 'MRC' ].include? mi_consortium_name
           mi_distribution_centres.push(mi_distribution_centre)
         end
+
+        # if the start or end date on dc is filled in do something
+        # if start filled in current must be after
+        # if end filled in current must be before
+
       end
 
       return mi_distribution_centres

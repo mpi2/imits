@@ -47,20 +47,21 @@ class ReconcilePhenotypeAttemptDistributionCentres
   ##
   def reconcile_all_phenotype_attempt_distribution_centres
 
-    puts "Reconciling All Phenotype Attempt Distribution Centres"
+    puts "Repository name: #{@repository_name}"
+    puts "Check reconciled: #{@check_reconciled}"
 
     phenotype_distribution_centres = nil
     @reposcraper                   = nil
 
     case @repository_name
     when EMMA_REPO_NAME
-      phenotype_distribution_centres = self.class.select_pa_distribution_centres_by_distribution_network(EMMA_REPO_NAME)
+      phenotype_distribution_centres = self.class.select_pa_distribution_centres_by_distribution_network(@repository_name)
       @reposcraper                   = ScraperEmmaRepository.new()
     when KOMP_REPO_NAME
-      phenotype_distribution_centres = self.class.select_pa_distribution_centres_by_centre(KOMP_REPO_NAME)
+      phenotype_distribution_centres = self.class.select_pa_distribution_centres_by_centre(@repository_name)
       @reposcraper                   = ScraperKompRepository.new()
     when MMRRC_REPO_NAME
-      phenotype_distribution_centres = self.class.select_pa_distribution_centres_by_distribution_network(MMRRC_REPO_NAME)
+      phenotype_distribution_centres = self.class.select_pa_distribution_centres_by_distribution_network(@repository_name)
       @reposcraper                   = ScraperMmrrcRepository.new()
     else
       puts "ERROR : repository name unrecognised when selecting phenotype_distribution_centres"
@@ -123,16 +124,16 @@ class ReconcilePhenotypeAttemptDistributionCentres
 
       puts "Processing this Phenotype Attempt Distribution Centre"
 
-      # phenotype_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
+      phenotype_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
       count_dcs_processed += 1
       puts "---------------------------------------------"
 
       # delay for random time in seconds before processing
-      # unless count_dcs_processed == 1
-      #     sleeptime = rand(5)
-      #     sleep(3 + sleeptime)
-      #     sleeptime_total = sleeptime_total + sleeptime + 3
-      # end
+      unless count_dcs_processed == 1
+          sleeptime = rand(5)
+          sleep(3 + sleeptime)
+          sleeptime_total = sleeptime_total + sleeptime + 3
+      end
     end
 
     puts '============================================================'
@@ -244,11 +245,12 @@ class ReconcilePhenotypeAttemptDistributionCentres
     #####
     # select phenotype attempt distribution centres by relation to a repository centre e.g. 'KOMP Repo'
     #####
-    def self.select_pa_distribution_centres_by_centre(repo_name)
-      repository_centre = Centre.find_by_name(repo_name)
+    def self.select_pa_distribution_centres_by_centre(repository_name)
+      puts "Selecting phenotype attempt distribution centres by Centre: #{repository_name}"
+      repository_centre = Centre.find_by_name(repository_name)
 
       if repository_centre.nil?
-        puts "ERROR : repository centre not found for #{repo_name}"
+        puts "ERROR : repository centre not found for #{repository_name}"
       else
         # N.B. can change filter in the Centre model to affect the data selected for update
         pa_distribution_centres_unfiltered = repository_centre.phenotype_attempt_distribution_centres
@@ -259,8 +261,9 @@ class ReconcilePhenotypeAttemptDistributionCentres
     #####
     # select phenotype attempt distribution centres by their distribution network e.g. 'EMMA' or 'MMRRC'
     #####
-    def self.select_pa_distribution_centres_by_distribution_network(repo_name)
-      pa_distribution_centres_unfiltered = PhenotypeAttempt::DistributionCentre.where("distribution_network = ?", repo_name).order(:id)
+    def self.select_pa_distribution_centres_by_distribution_network(repository_name)
+      puts "Selecting phenotype attempt distribution centres by distribution network: #{repository_name}"
+      pa_distribution_centres_unfiltered = PhenotypeAttempt::DistributionCentre.where("distribution_network = ?", repository_name).order(:id)
       return self.filter_cre_excised_phenotype_attempt_distribution_centres(pa_distribution_centres_unfiltered)
     end
 
@@ -272,29 +275,21 @@ class ReconcilePhenotypeAttemptDistributionCentres
 
       pa_distribution_centres = []
 
-      puts "count of pa_distribution_centres_unfiltered = #{pa_distribution_centres_unfiltered.count()}"
-
       pa_distribution_centres_unfiltered.each do |phenotype_distribution_centre|
         mouse_allele_mod = phenotype_distribution_centre.mouse_allele_mod
         if mouse_allele_mod.nil?
-          puts "mouse allele mod nil"
           next
         end
         unless mouse_allele_mod.status.name == 'Cre Excision Complete'
-          puts "status not cre"
           next
         end
         # limit selection to specific consortia
         pa_consortium_name = mouse_allele_mod.mi_plan.consortium.name
-        puts "consortia name = #{pa_consortium_name}"
         if [ 'BaSH', 'JAX', 'DTCC' ].include? pa_consortium_name
         # if [ 'UCD-KOMP', 'DTCC-Legacy', 'MGP', 'MGP Legacy', 'EUCOMM-EUMODIC', 'MRC' ].include? pa_consortium_name
-          puts "adding pa dc to list"
           pa_distribution_centres.push(phenotype_distribution_centre)
         end
       end
-
-      puts "count of pa_distribution_centres = #{pa_distribution_centres.count()}"
 
       return pa_distribution_centres
     end

@@ -18,9 +18,9 @@ class ScraperKompRepository
 
     # URLs for scraping KOMP websites
     KOMP_REPO = 'KOMP Repo'
-    KOMP_GENES_CATALOG_PAGE_URL = 'https://www.komp.org/catalog.php?available=&mutation=&gname=&project=&origin=&'
-    KOMP_GENE_PAGE_URL_STUB     = 'https://www.komp.org/geneinfo.php?geneid='
-    KOMP_GENE_SEARCH_STUB       = 'https://www.komp.org/searchresult.php?query='
+    KOMP_GENES_CATALOG_URL  = 'https://www.komp.org/catalog.php?available=&mutation=&gname=&project=&origin=&'
+    KOMP_GENE_PAGE_URL_STUB = 'https://www.komp.org/geneinfo.php?geneid='
+    KOMP_GENE_SEARCH_STUB   = 'https://www.komp.org/searchresult.php?query='
 
     def initialize
         # instance variables
@@ -45,17 +45,17 @@ class ScraperKompRepository
         count_unchanged = 0
         begin
             if ( repo_url.nil? )
-                page = get_page(KOMP_GENES_CATALOG_PAGE_URL)
+                doc = get_doc(KOMP_GENES_CATALOG_URL)
             else
-                page = get_page(repo_url)
+                doc = get_doc(repo_url)
             end
 
-            if page.nil?
-              puts "ERROR: nil returned from get_page"
+            if doc.nil?
+              puts "ERROR: nil returned from get_doc"
               return
             end
 
-            catalog_rows = page.css("#catalog tbody tr")
+            catalog_rows = doc.css("#catalog tbody tr")
             catalog_rows.each do |row|
                 # gene id
                 gene_id_href_nodeset = row.xpath('./td[1]/a/@href')
@@ -146,8 +146,6 @@ class ScraperKompRepository
     #     sleeptime_total = 0
     #     @gene_details.each do |curr_marker_symbol, gene_details|
 
-    #         pp gene_details
-
     #         # delay for random time in seconds before processing
     #         if ( is_first_time == true )
     #             is_first_time = false
@@ -161,8 +159,6 @@ class ScraperKompRepository
     #         fetch_komp_allele_details( curr_marker_symbol, @gene_details[curr_marker_symbol]['geneid'] )
     #         count_genes_processed += 1
     #     end
-
-    #     # pp @gene_details
 
     #     puts "Count of genes processed = #{count_genes_processed}"
     #     puts "Total sleeptime = #{sleeptime_total}"
@@ -204,12 +200,12 @@ class ScraperKompRepository
     def fetch_komp_allele_details( marker_symbol, geneid )
 
         if ( marker_symbol.nil? )
-            puts "ERROR : no marker symbol input to fetch_komp_allele_details_by_marker_symbol, cannot continue"
+            puts "ERROR : no marker symbol input to fetch_komp_allele_details, cannot continue"
             return
         end
 
         if ( geneid.nil? )
-            puts "WARN : no geneid input to fetch_komp_allele_details_by_marker_symbol"
+            puts "WARN : no geneid input to fetch_komp_allele_details"
             # attempt to scrape gene id from komp site
             geneid = fetch_komp_geneid_for_marker_symbol( marker_symbol )
             if ( geneid.nil? )
@@ -223,21 +219,20 @@ class ScraperKompRepository
         # now use geneid to pull the subpage from Komp
         begin
             gene_specific_url = "#{KOMP_GENE_PAGE_URL_STUB}#{geneid}"
-            #page = Nokogiri::HTML(open( gene_specific_url, :proxy => nil))
 
-            page = get_page(gene_specific_url)
-            if page.nil?
-              puts "ERROR: nil returned from get_page"
+            doc = get_doc(gene_specific_url)
+            if doc.nil?
+              puts "ERROR: nil returned from get_doc"
               return
             end
 
             # identify the correct table
-            page_tables = page.css('#main_body_td table')
-            page_tables.each do |table|
+            doc_tables = doc.css('#main_body_td table')
+            doc_tables.each do |table|
                 if is_komp_targeting_projects_table?( table )
                     gene_table = table
                 end
-            end # page_tables
+            end # doc_tables
 
             # to hold hash of allele details in main hash
             @gene_details[marker_symbol] = { 'alleles' => {} }
@@ -261,7 +256,7 @@ class ScraperKompRepository
 
         if ( @gene_details.nil? || @gene_details.count() == 0 )
             # try selecting a limited catalog listing and extracting the gene id
-            repo_url = KOMP_GENES_CATALOG_PAGE_URL.dup
+            repo_url = KOMP_GENES_CATALOG_URL.dup
             repo_url["gname="] = "gname=#{marker_symbol}"
             self.fetch_komp_catalog_gene_list( repo_url )
         end
@@ -288,23 +283,23 @@ class ScraperKompRepository
 
         search_url = KOMP_GENE_SEARCH_STUB.dup + "#{marker_symbol}"
 
-        page = get_page search_url
-        if page.nil?
-          puts "ERROR: nil returned from get_page"
+        doc = get_doc search_url
+        if doc.nil?
+          puts "ERROR: nil returned from get_doc"
           return
         end
 
-        page_title = page.css("head title").text
+        doc_title = doc.css("head title").text
 
         # search outcome one of three types:
-        if ( page_title == 'Search Result' )
-            if ( ( page.xpath( '//*[@id="main_body_td"]/b[2]').text ) == 'no' )
+        if ( doc_title == 'Search Result' )
+            if ( ( doc.xpath( '//*[@id="main_body_td"]/b[2]').text ) == 'no' )
                 # 1. No result -> gene not in repository, return nil
                 puts "WARN : No result found in search of repository for marker symbol #{marker_symbol}"
                 return
-            elsif ( page.xpath( '//*[@id="main_body_td"]/table/thead/tr[1]/th' ).text == 'KOMP Search Results' )
+            elsif ( doc.xpath( '//*[@id="main_body_td"]/table/thead/tr[1]/th' ).text == 'KOMP Search Results' )
                 # 2. There is a Search sub-page -> select geneid from links on this page and store, then fetch_komp_allele_details, return geneid
-                page.xpath('//*[@id="main_body_td"]/table/tr').each do |row|
+                doc.xpath('//*[@id="main_body_td"]/table/tr').each do |row|
                     # check for match to our marker_symbol
                     row_ms = row.xpath( './td[1]/a[1]/b/i' ).text.strip
                     if ( row_ms.nil? )
@@ -341,7 +336,7 @@ class ScraperKompRepository
         else
             # 3. Direct to normal gene products page
             geneid = String(nil)
-            page.xpath('//a/@href').each do |link|
+            doc.xpath('//a/@href').each do |link|
                 if ( link.value.nil? )
                     next
                 end
@@ -386,8 +381,6 @@ class ScraperKompRepository
                 next
             end
 
-            puts "Komp allele found : #{allele}"
-
             # cycle through cells in this row to look for order buttons
             is_mice           = 0
             is_recovery       = 0
@@ -409,8 +402,6 @@ class ScraperKompRepository
                 if ( anchor_text.nil? || anchor_text.empty? )
                     next
                 end
-
-                # puts "anchor node anchor text = #{anchor_text}"
 
                 if ( anchor_text == 'Order' )
                     # this cell represents an order button, now check if of type we want to flag
@@ -499,16 +490,16 @@ class ScraperKompRepository
         return false
     end
 
-    def get_page url
+    def get_doc url
         begin
             command = "curl -o /tmp/trash.html #{url}"
             system command
             # grep the code to find out how to manage return code
             file = File.open("/tmp/trash.html", "rb")
-            page = Nokogiri::HTML(file.read)
-            return page
+            doc = Nokogiri::HTML(file.read)
+            return doc
         rescue => e
-            puts "ERROR : failed to get_page"
+            puts "ERROR : failed to get_doc"
             puts "Exception message : #{e.message}"
         end
     end

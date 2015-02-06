@@ -1,10 +1,10 @@
-class MiAttemptKompReconciledListReport
+class MiAttemptEmmaReconciledListReport
 
     ##
     ## Report to display the repository mi attempt distribution centre reconciled list
     ##
 
-    attr_accessor :komp_reconciled_list
+    attr_accessor :emma_reconciled_list
     attr_accessor :consortium
     attr_accessor :prod_centre
 
@@ -13,18 +13,17 @@ class MiAttemptKompReconciledListReport
         @prod_centre = prod_centre
     end
 
-    def komp_reconciled_list
-        # centre_id 35 is Komp Repo
-        @komp_reconciled_list ||= ActiveRecord::Base.connection.execute(self.class.select_list_by_centre_sql(self.consortium, self.prod_centre, 35))
+    def emma_reconciled_list
+        @emma_reconciled_list ||= ActiveRecord::Base.connection.execute(self.class.select_list_by_dist_network_sql(self.consortium, self.prod_centre, 'EMMA'))
     end
 
     class << self
 
         def title
-          "Mi Attempt Distribution Centres Komp Repository Reconciled List"
+          "Mi Attempt Distribution Centres EMMA Repository Reconciled List"
         end
 
-        def select_list_by_centre_sql(consortium, prod_centre, repo_centre_id)
+        def select_list_by_dist_network_sql(consortium, prod_centre, dist_network_name)
             sql = <<-EOF
               SELECT genes.marker_symbol,
               mi_attempt_distribution_centres.mi_attempt_id,
@@ -45,7 +44,7 @@ class MiAttemptKompReconciledListReport
               JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
               LEFT OUTER JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
               WHERE mi_attempt_statuses.name = 'Genotype confirmed'
-              AND mi_attempt_distribution_centres.centre_id = #{repo_centre_id}
+              AND mi_attempt_distribution_centres.distribution_network = '#{dist_network_name}'
               AND reconciled = 'true'
               AND consortia.name = '#{consortium}'
               AND centres.name = '#{prod_centre}'

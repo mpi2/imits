@@ -14,7 +14,9 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
   WRITABLE_ATTRIBUTES = %w{
   } + FULL_ACCESS_ATTRIBUTES + ['phenotype_attempt_id']
 
-  KOMP_CENTRE_NAME = 'KOMP Repo'
+  EMMA_REPO_NAME  = 'EMMA'
+  KOMP_REPO_NAME  = 'KOMP Repo'
+  MMRRC_REPO_NAME = 'MMRRC'
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
@@ -56,17 +58,17 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
     case repository_name
     when EMMA_REPO_NAME
       gene_repo_details = reconcile_with_emma_repo( reposcraper )
-    when KOMP_CENTRE_NAME
+    when KOMP_REPO_NAME
       gene_repo_details = reconcile_with_komp_repo( reposcraper )
     when MMRRC_REPO_NAME
       gene_repo_details = reconcile_with_mmrrc_repo( reposcraper )
     else
-      puts "ERROR : repository name #{repository_name} not recognised for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
+      puts "ERROR : repository name #{repository_name} not recognised for Phenotype Attempt id #{self.phenotype_attempt.id}, cannot reconcile"
       return
     end
 
     production_centre = self.mouse_allele_mod.mi_plan.production_centre.name
-    puts "Production centre = #{production_centre}"
+    # puts "Production centre = #{production_centre}"
 
     # possible results here:
     # nil -> means no geneid was found at all
@@ -111,21 +113,21 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
         matching_allele = gene_repo_details['alleles'][mouse_allele_mod_allele_symbol]
 
-        if ( matching_allele['is_mice'] == 1 )
-          puts "repo has mice"
-        end
+        # if ( matching_allele['is_mice'] == 1 )
+        #   puts "repo has mice"
+        # end
 
-        if ( matching_allele['is_recovery'] == 1 )
-          puts "repo has recovery mice"
-        end
+        # if ( matching_allele['is_recovery'] == 1 )
+        #   puts "repo has recovery mice"
+        # end
 
-        if ( matching_allele['is_germ_plasm'] == 1 )
-          puts "repo has germ plasm"
-        end
+        # if ( matching_allele['is_germ_plasm'] == 1 )
+        #   puts "repo has germ plasm"
+        # end
 
-        if ( matching_allele['is_embryos'] == 1 )
-          puts "repo has embryos"
-        end
+        # if ( matching_allele['is_embryos'] == 1 )
+        #   puts "repo has embryos"
+        # end
         # any match counts as reconciled
         if (( matching_allele['is_mice'] == 1 ) || ( matching_allele['is_recovery'] == 1 ) ||
             ( matching_allele['is_germ_plasm'] == 1 ) || ( matching_allele['is_embryos'] == 1 ))
@@ -155,7 +157,8 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
       reposcraper = ScraperEmmaRepository.new()
     end
 
-    marker_symbol     = self.mi_attempt.mi_plan.gene.marker_symbol
+    gene              = self.mouse_allele_mod.mi_plan.gene
+    marker_symbol     = gene.marker_symbol
     gene_repo_details = reposcraper.fetch_emma_allele_details( marker_symbol )
 
     return gene_repo_details
@@ -182,7 +185,8 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
       reposcraper = ScraperMmrrcRepository.new()
     end
 
-    marker_symbol     = self.mi_attempt.mi_plan.gene.marker_symbol
+    gene              = self.mouse_allele_mod.mi_plan.gene
+    marker_symbol     = gene.marker_symbol
     gene_repo_details = reposcraper.fetch_mmrrc_allele_details( marker_symbol )
 
     return gene_repo_details

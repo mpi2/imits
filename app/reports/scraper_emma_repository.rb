@@ -48,6 +48,17 @@ class ScraperEmmaRepository
               return
             end
 
+            header_row = doc.xpath("//body/table[@class='resultSet tablesorter']/thead/tr[1]")
+
+            col_adjust = 0
+            if header_row
+                col2_name = header_row.at_xpath('th[2]').try(:text).try(:to_s).try(:strip)
+                puts "col2_name : #{col2_name}"
+                if ( col2_name.include? "OMIM name" )
+                    col_adjust = 1
+                end
+            end
+
             rows = doc.xpath("//body/table[@class='resultSet tablesorter']/tbody/tr")
 
             if ( rows.nil? || rows.count == 0 )
@@ -59,24 +70,40 @@ class ScraperEmmaRepository
 
             # pull details from each row
             rows.each do |row|
-                emmaid            = row.at_xpath('td[1]/span/span[1]').text.to_s.strip
-                mgiLink           = row.at_xpath('td[2]').text.to_s.strip
-                strain_well_id    = row.at_xpath('td[3]').text.to_s.strip
-                strain_prefix     = row.at_xpath('td[4]/text()[1]').to_s.strip
-                allele_name       = row.at_xpath('td[4]/sup').text.to_s.strip
-                img_link          = row.at_xpath('td[5]/span/img').to_s.strip
-                availability_text = row.at_xpath('td[5]/span/span').text.to_s.strip
+                emmaid            = row.at_xpath("td[1]/span/span[1]").try(:text).try(:to_s).try(:strip)
+                gene_symbol         = row.at_xpath("td[#{col_adjust + 2}]").try(:text).try(:to_s).try(:strip)
+                common_strain_name  = row.at_xpath("td[#{col_adjust + 3}]").try(:text).try(:to_s).try(:strip)
+                # strain_prefix       = row.at_xpath("td[4]/text()[1]").try(:to_s).try(:strip)
+                int_strain_desig    = row.at_xpath("td[#{col_adjust + 4}]").try(:to_s).try(:strip)
+                status_img          = row.at_xpath("td[#{col_adjust + 5}]/span/img").try(:to_s).try(:strip)
+                # status_text         = row.at_xpath("td[5]/span/span").try(:text).try(:to_s).try(:strip)
 
-                next unless allele_name
+                # repository search is sloppy, check marker symbol match for row
+                next unless gene_symbol == marker_symbol
+
+                puts "EMMA id            : #{emmaid}"
+                puts "gene_symbol        : #{gene_symbol}"
+                puts "common_strain_name : #{common_strain_name}"
+                puts "int_strain_desig   : #{int_strain_desig}"
+                puts "status_img         : #{status_img}"
+
+                allele_name = nil
+                if int_strain_desig && ( int_strain_desig.include? "<sup>")
+                    extracted_allele     = int_strain_desig.match(/.*<sup>(.*)<\/sup>/)[1]
+                    allele_name          = extracted_allele
+                else
+                    next
+                end
 
                 puts "allele name in repo: #{allele_name}"
 
                 row_available = false
-                if ( img_link =~ /.*(green_dot).*/ ) || ( img_link =~ /.*(yellow_dot).*/ )
+                if ( status_img =~ /.*(green_dot).*/ ) || ( status_img =~ /.*(yellow_dot).*/ )
                     row_available = true
                 end
 
                 if row_available
+                    puts "product available"
                     if ( @gene_details[marker_symbol]['alleles'].has_key?(allele_name) )
                         @gene_details[marker_symbol]['alleles'][allele_name]['is_mice'] = 1
                     else

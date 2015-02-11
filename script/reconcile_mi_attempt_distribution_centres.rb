@@ -3,7 +3,6 @@
 ##
 # This class handles reconciling Mi Attempt Distribution Centres in Imits against the specified
 # repository.
-# NB. currently only handles repository KOMP
 ##
 class ReconcileMiAttemptDistributionCentres
 
@@ -280,11 +279,6 @@ class ReconcileMiAttemptDistributionCentres
         # if [ 'UCD-KOMP', 'DTCC-Legacy', 'MGP', 'MGP Legacy', 'EUCOMM-EUMODIC', 'MRC' ].include? mi_consortium_name
           mi_distribution_centres.push(mi_distribution_centre)
         end
-
-        # if the start or end date on dc is filled in do something
-        # if start filled in current must be after
-        # if end filled in current must be before
-
       end
 
       return mi_distribution_centres

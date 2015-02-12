@@ -13,23 +13,22 @@ class CheckUnreconciledKompWithMmrrc
   ##
   # Any initialization before running checks
   ##
-  def initialize( mi_filepath, pa_filepath )
-    puts "In initialize"
+  def initialize( mi_attempt_csv_filepath, phenotype_attempt_csv_filepath )
+    # puts "In initialize"
 
-    if ( mi_filepath.nil? )
-      @output_mi_filepath = '/nfs/team87/tmp/unreconciled_komp_mi_dc_data.csv'
-      # puts "Mi attempt filepath passed in from rake task was nil, setting to default : #{@output_mi_filepath}"
+    if ( mi_attempt_csv_filepath.nil? )
+      puts "WARN: Mi attempt filepath passed in from rake task was nil, no results file will be created"
     else
-      @output_mi_filepath = repo_name
-      # puts "Mi attempt filepath passed in from rake task : #{@output_mi_filepath}"
+      @output_mi_filepath = mi_attempt_csv_filepath
+      puts "Mi attempt filepath passed in from rake task : #{@output_mi_filepath}"
     end
 
-    if ( pa_filepath.nil? )
-      @output_pa_filepath = '/nfs/team87/tmp/unreconciled_komp_pa_dc_data.csv'
-      # puts "Phenotype attempt filepath passed in from rake task was nil, setting to default : #{@output_pa_filepath}"
+    if ( phenotype_attempt_csv_filepath.nil? )
+      @output_pa_filepath = '/nfs/team87/reconcile_output/unreconciled_komp_pa_dc_data.csv'
+      puts "Phenotype attempt filepath passed in from rake task was nil, setting to default : #{@output_pa_filepath}"
     else
-      @output_pa_filepath = repo_name
-      # puts "Phenotype attempt filepath passed in from rake task : #{@output_pa_filepath}"
+      @output_pa_filepath = phenotype_attempt_csv_filepath
+      puts "Phenotype attempt filepath passed in from rake task : #{@output_pa_filepath}"
     end
 
   end

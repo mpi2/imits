@@ -7,6 +7,8 @@
 ##
 class ReconcilePhenotypeAttemptDistributionCentres
 
+  require 'csv'
+
   attr_accessor :repository_name
   attr_accessor :reposcraper
 
@@ -17,7 +19,10 @@ class ReconcilePhenotypeAttemptDistributionCentres
   ##
   # Any initialization before running checks
   ##
-  def initialize( repo_name, check_reconciled )
+  def initialize( repo_name, check_reconciled, results_csv_filepath )
+
+    @output_csv_filepath = nil
+
     # default to KOMP repo
     if ( repo_name.nil? )
       @repository_name = KOMP_REPO_NAME
@@ -40,6 +45,13 @@ class ReconcilePhenotypeAttemptDistributionCentres
         puts "This run will NOT check already reconciled Phenotype Distribution Centres"
       end
     end
+
+    if ( results_csv_filepath.nil? )
+      puts "WARN: CSV results filepath passed in from rake task was nil, no results file will be created"
+    else
+      @output_csv_filepath = results_csv_filepath
+      puts "CSV results filepath passed in from rake task : #{@output_csv_filepath}"
+    end
   end
 
   ##
@@ -52,6 +64,7 @@ class ReconcilePhenotypeAttemptDistributionCentres
 
     phenotype_distribution_centres = nil
     @reposcraper                   = nil
+    pa_results                     = {}
 
     case @repository_name
     when EMMA_REPO_NAME
@@ -79,8 +92,8 @@ class ReconcilePhenotypeAttemptDistributionCentres
     count_dcs_skipped   = 0
     sleeptime_total     = 0
 
-    phenotype_distribution_centres.each do |phenotype_distribution_centre|
-      phenotype_attempt = phenotype_distribution_centre.phenotype_attempt
+    phenotype_distribution_centres.each do |pa_distribution_centre|
+      phenotype_attempt = pa_distribution_centre.phenotype_attempt
 
       puts "---------------------------------------------"
       puts "Phenotype Attempt [num #{count_dcs_processed + count_dcs_skipped + 1}] : #{phenotype_attempt.id}"
@@ -89,26 +102,43 @@ class ReconcilePhenotypeAttemptDistributionCentres
       mi_plan                 = mam.mi_plan
       consortium_name         = mi_plan.consortium.name
       marker_symbol           = mi_plan.gene.marker_symbol
-      geneid                  = mi_plan.gene.komp_repo_geneid
-      phenotype_dc_reconciled = phenotype_distribution_centre.reconciled
+      phenotype_dc_reconciled = pa_distribution_centre.reconciled
 
       puts "Mouse Allele Mod id         = #{mam.id}"
       puts "Status                      = #{mam.status.name}"
       puts "Mi Plan id                  = #{mi_plan.id}"
       puts "Consortium name             = #{consortium_name}"
       puts "Marker symbol               = #{marker_symbol}"
-      unless geneid.nil?
-        puts "Komp Repo geneid in gene DB = #{geneid}"
+
+      # add to results hash, keyed on marker symbol and pa dc id
+      unless pa_results.has_key?(marker_symbol)
+        pa_results[marker_symbol] = {
+          'marker_symbol'        => marker_symbol,
+          'repository_name'      => @repository_name,
+          'distribution_centres' => {}
+        }
+
+        if @repository_name == KOMP_REPO_NAME
+          geneid = mi_plan.gene.komp_repo_geneid
+          unless geneid.nil?
+            pa_results[marker_symbol]['geneid'] = geneid
+            puts "Komp Repo geneid in gene DB = #{geneid}"
+          end
+        end
       end
-      if phenotype_dc_reconciled == "true"
-        puts "Phenotype DC reconciled TRUE"
-      elsif phenotype_dc_reconciled == "false"
-        puts "Phenotype DC reconciled FALSE"
-      elsif phenotype_dc_reconciled == "not checked"
-        puts "Phenotype DC reconciled NOT CHECKED"
-      else
-        puts "Phenotype DC reconciled not set"
-      end
+
+      pa_allele = self.class.get_allele_for_pa_distribution_centre(pa_distribution_centre)
+
+      pa_results[marker_symbol]['distribution_centres'][pa_distribution_centre.id] = {
+        'pa_dc_id'           => pa_distribution_centre.id,
+        'mi_plan_id'         => mi_plan.id,
+        'consortium'         => consortium_name,
+        'current_reconciled' => phenotype_dc_reconciled,
+        'allele'             => pa_allele,
+        'action'             => 'none'
+      }
+
+      puts "Current reconciled          = #{phenotype_dc_reconciled}"
 
       unless @check_reconciled
         # only those not already reconciled
@@ -118,15 +148,27 @@ class ReconcilePhenotypeAttemptDistributionCentres
           count_dcs_skipped += 1
           puts "Skipping this Phenotype Attempt Distribution Centre"
           puts "---------------------------------------------"
+          pa_results[marker_symbol]['distribution_centres'][pa_distribution_centre.id]['action'] = "skipped"
           next
         end
       end
 
       puts "Processing this Phenotype Attempt Distribution Centre"
 
-      phenotype_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
+      gene_repo_details = pa_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
+
+      pa_results[marker_symbol]['distribution_centres'][pa_distribution_centre.id]['action'] = "checked"
+
+      if gene_repo_details.nil?
+        puts "WARN: No gene details found for this gene at #{repository_name}"
+      else
+        pa_results[marker_symbol]['distribution_centres'][pa_distribution_centre.id]['repository_details'] = gene_repo_details
+      end
+
       count_dcs_processed += 1
       puts "---------------------------------------------"
+
+      break if count_dcs_processed > 2 # TODO remove
 
       # delay for random time in seconds before processing
       unless count_dcs_processed == 1
@@ -150,96 +192,102 @@ class ReconcilePhenotypeAttemptDistributionCentres
     end
     puts "Total time sleeping between scrapes = #{sleeptime_total} seconds"
     puts "------------------------------------------------------------"
+
+    # write results to csv
+    if @output_csv_filepath
+      self.class.write_results_to_csv( pa_results, @output_csv_filepath )
+    end
+
   end # reconcile_all_phenotype_attempt_distribution_centres
 
   ##
   # Reconcile the Phenotype Attempt Distribution Centres for the selected repository and a specified gene
   ##
-  # def reconcile_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
+  def reconcile_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
 
-  #   puts "Reconcile Phenotype Attempt Distribution Centres for gene : #{marker_symbol}"
+    puts "Reconcile Phenotype Attempt Distribution Centres for gene : #{marker_symbol}"
 
-  #   if ( marker_symbol.nil? )
-  #     puts "ERROR: No marker symbol entered into method"
-  #     return
-  #   end
+    if ( marker_symbol.nil? )
+      puts "ERROR: No marker symbol entered into method"
+      return
+    end
 
-  #   # processing depends on repository
-  #   case @repository_name
-  #   when EMMA_REPO_NAME
-  #     # _reconcile_emma_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
-  #     puts "NOT IMPLEMENTED YET (#{marker_symbol})"
-  #   when KOMP_REPO_NAME
-  #     _reconcile_komp_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
-  #   when MMRRC_REPO_NAME
-  #     # _reconcile_mmrrc_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
-  #     puts "NOT IMPLEMENTED YET (#{marker_symbol})"
-  #   else
-  #     puts "ERROR : repository name unrecognised when reconciling Phenotype Attempt"
-  #     return
-  #   end # end case
+    # processing depends on repository
+    case @repository_name
+    when EMMA_REPO_NAME
+      # _reconcile_emma_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
+      puts "NOT IMPLEMENTED YET (#{marker_symbol})"
+    when KOMP_REPO_NAME
+      _reconcile_komp_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
+    when MMRRC_REPO_NAME
+      # _reconcile_mmrrc_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
+      puts "NOT IMPLEMENTED YET (#{marker_symbol})"
+    else
+      puts "ERROR : repository name unrecognised when reconciling Phenotype Attempt"
+      return
+    end # end case
 
-  # end # reconcile_phenotype_attempt_distribution_centres_for_gene
+  end # reconcile_phenotype_attempt_distribution_centres_for_gene
 
   ##
   # Reconcile the Phenotype Attempt Distribution Centres for the KOMP repository and a specified gene
   ##
-  # def _reconcile_komp_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
+  def _reconcile_komp_phenotype_attempt_distribution_centres_for_gene( marker_symbol )
 
-  #   puts "Reconcile KOMP repository Phenotype Attempt Distribution Centres for gene : #{marker_symbol}"
+    puts "Reconcile KOMP repository Phenotype Attempt Distribution Centres for gene : #{marker_symbol}"
 
-  #   # find gene for marker symbol
-  #   gene = Gene.find_by_marker_symbol( marker_symbol )
+    # find gene for marker symbol
+    gene = Gene.find_by_marker_symbol( marker_symbol )
 
-  #   if ( gene.nil? )
-  #     puts "ERROR : no gene located for marker symbol #{marker_symbol} in Imits"
-  #     return
-  #   end
+    if ( gene.nil? )
+      puts "ERROR : no gene located for marker symbol #{marker_symbol} in Imits"
+      return
+    end
 
-  #   geneid = gene.komp_repo_geneid
+    geneid = gene.komp_repo_geneid
 
-  #   # create a new repository scraper instance
-  #   puts "Creating Repo Scraper instance"
-  #   if ( @reposcraper.nil? )
-  #     @reposcraper = ScraperKompRepository.new()
-  #   end
+    # create a new repository scraper instance
+    puts "Creating Repo Scraper instance"
+    if ( @reposcraper.nil? )
+      @reposcraper = ScraperKompRepository.new()
+    end
 
-  #   # attempt to scrape the geneid from the KOMP website
-  #   if ( geneid.nil? )
-  #     geneid = @reposcraper.fetch_komp_geneid_for_marker_symbol( marker_symbol )
-  #   end
+    # attempt to scrape the geneid from the KOMP website
+    if ( geneid.nil? )
+      geneid = @reposcraper.fetch_komp_geneid_for_marker_symbol( marker_symbol )
+    end
 
-  #   if ( geneid.nil? )
-  #     puts "ERROR: geneid not found for #{marker_symbol}, cannot continue"
-  #     return
-  #   end
-  #   puts "Found geneid = #{geneid} for #{marker_symbol}"
+    if ( geneid.nil? )
+      puts "ERROR: geneid not found for #{marker_symbol}, cannot continue"
+      return
+    end
+    puts "Found geneid = #{geneid} for #{marker_symbol}"
 
-  #   # for mi_plans find phenotype_attempts
-  #   # puts "Check Mi Plans for gene #{gene.marker_symbol}"
-  #   mi_plans = gene.mi_plans
-  #   mi_plans.each do |mi_plan|
+    # for mi_plans find phenotype_attempts
+    # puts "Check Mi Plans for gene #{gene.marker_symbol}"
+    mi_plans = gene.mi_plans
+    mi_plans.each do |mi_plan|
 
-  #     # puts "Check the Mouse Allele Mods for Mi Plan id #{mi_plan.id}"
-  #     mouse_allele_mods = mi_plan.mouse_allele_mods
-  #     mouse_allele_mods.each do |mouse_allele_mod|
+      # puts "Check the Mouse Allele Mods for Mi Plan id #{mi_plan.id}"
+      mouse_allele_mods = mi_plan.mouse_allele_mods
+      mouse_allele_mods.each do |mouse_allele_mod|
 
-  #       # puts "Check Mouse Allele Mod with id #{mouse_allele_mod.id}"
-  #       unless mouse_allele_mod.status.name == 'Cre Excision Complete'
-  #           puts "Rejected Mouse Allele Mod, status #{mouse_allele_mod.status.name}"
-  #           next
-  #       end
+        # puts "Check Mouse Allele Mod with id #{mouse_allele_mod.id}"
+        unless mouse_allele_mod.status.name == 'Cre Excision Complete'
+            puts "Rejected Mouse Allele Mod, status #{mouse_allele_mod.status.name}"
+            next
+        end
 
-  #       # puts "Checking Distribution Centres for Mouse Allele Mod id #{mouse_allele_mod.id}"
-  #       phenotype_distribution_centres = mouse_allele_mod.distribution_centres
-  #       phenotype_distribution_centres.each do |phenotype_distribution_centre|
+        # puts "Checking Distribution Centres for Mouse Allele Mod id #{mouse_allele_mod.id}"
+        phenotype_distribution_centres = mouse_allele_mod.distribution_centres
+        phenotype_distribution_centres.each do |phenotype_distribution_centre|
 
-  #           puts "Reconcile Mi Plan id #{mi_plan.id} Mouse Allele Mod id #{mouse_allele_mod.id} at Distribution Centre #{phenotype_distribution_centre.id}"
-  #           phenotype_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
-  #       end # distribution_centres
-  #     end # phenotype_attempts
-  #   end # mi_plans
-  # end # _reconcile_komp_phenotype_attempt_distribution_centres_for_gene
+            puts "Reconcile Mi Plan id #{mi_plan.id} Mouse Allele Mod id #{mouse_allele_mod.id} at Distribution Centre #{phenotype_distribution_centre.id}"
+            phenotype_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
+        end # distribution_centres
+      end # phenotype_attempts
+    end # mi_plans
+  end # _reconcile_komp_phenotype_attempt_distribution_centres_for_gene
 
   private
     #####
@@ -292,6 +340,96 @@ class ReconcilePhenotypeAttemptDistributionCentres
       end
 
       return pa_distribution_centres
+    end
+
+    #####
+    # get allele for pa distribution centre
+    #####
+    def self.get_allele_for_pa_distribution_centre(pa_distribution_centre)
+
+      dc_allele_symbol_unsplit = pa_distribution_centre.phenotype_attempt.allele_symbol
+      if ( dc_allele_symbol_unsplit.nil? )
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Phenotype Attempt id #{pa_distribution_centre.phenotype_attempt.id}, cannot reconcile"
+        return
+      end
+
+      # strip out the superscript part of the allele symbol
+      split_array = dc_allele_symbol_unsplit.match(/\w*<sup>(\S*)<\/sup>/)
+      if ( split_array.nil? || split_array.length < 1 )
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Phenotype Attempt id #{pa_distribution_centre.phenotype_attempt.id}, cannot reconcile"
+        return
+      end
+
+      dc_allele_symbol = split_array[1]
+      if ( dc_allele_symbol.nil? )
+        puts "WARN: No allele name found for Phenotype Attempt id #{pa_distribution_centre.phenotype_attempt.id}, cannot reconcile"
+        return
+      end
+
+      return dc_allele_symbol
+    end
+
+    #####
+    # write results out to csv file
+    #####
+    def self.write_results_to_csv( pa_results, output_pa_filepath )
+      if ( pa_results && pa_results.length > 0 )
+        # grab hash keys as sorted array
+        sorted_pa_keys = pa_results.keys.sort
+
+        # write results out to mi_filepath passed as attribute
+        CSV.open(output_pa_filepath, "wb") do |csv|
+
+          # write Mi headers
+          csv << ['repository','marker_symbol', 'phenotype_attempt_dc_id', 'mi_plan_id', 'consortium', 'allele', 'action', 'current_reconciled', 'exists_at_repo', 'available_at_repo', 'repo_alleles', 'new_reconciled' ]
+
+          # iterate by marker symbol (gene)
+          sorted_pa_keys.each do |pa_key|
+            marker_symbol   = pa_key
+            repository_name = pa_results[pa_key]['repository_name']
+
+            # iterate over each distribution centre within a marker symbol
+            sorted_pa_dc_keys = pa_results[pa_key]['distribution_centres'].keys.sort
+
+            sorted_pa_dc_keys.each do |pa_dc_key|
+              pa_dc_id            = pa_dc_key
+              dc_h                = pa_results[pa_key]['distribution_centres'][pa_dc_key]
+              mi_plan_id          = dc_h['mi_plan_id']
+              consortium          = dc_h['consortium']
+              allele              = dc_h['allele']
+              current_reconciled  = dc_h['current_reconciled']
+              action              = dc_h['action']
+
+              # use repository details if anything found
+              if dc_h.has_key?('repository_details')
+                exists_at_repo    = dc_h['repository_details']['exists_at_repo']
+                available_at_repo = dc_h['repository_details']['available_at_repo']
+
+                if dc_h['repository_details'].has_key?('alleles')
+                  array_alleles   = dc_h['repository_details']['alleles'].keys.sort
+                  if array_alleles.length == 0
+                    repo_alleles  = nil
+                  else
+                    repo_alleles    = array_alleles.join('|')
+                  end
+                end
+
+                if dc_h['repository_details'].has_key?('new_reconciled')
+                  new_reconciled  = dc_h['repository_details']['new_reconciled']
+                end
+              else
+                exists_at_repo    = nil
+                available_at_repo = nil
+                repo_alleles      = nil
+                new_reconciled    = nil
+              end
+
+              # write row for each mi attempt distribution centre
+              csv << [repository_name, marker_symbol, pa_dc_id, mi_plan_id, consortium, allele, action, current_reconciled, exists_at_repo, available_at_repo, repo_alleles, new_reconciled ]
+            end # dcs
+          end # mi
+        end # csv
+      end # if pa_results
     end
 
 end # end class

@@ -6,6 +6,8 @@
 ##
 class ReconcileMiAttemptDistributionCentres
 
+  require 'csv'
+
   attr_accessor :repository_name
   attr_accessor :reposcraper
 
@@ -16,7 +18,10 @@ class ReconcileMiAttemptDistributionCentres
   ##
   # Any initialization before running checks
   ##
-  def initialize( repo_name, check_reconciled )
+  def initialize( repo_name, check_reconciled, results_csv_filepath )
+
+    @output_csv_filepath = nil
+
     # default to KOMP repo
     if ( repo_name.nil? )
       @repository_name = KOMP_REPO_NAME
@@ -39,6 +44,13 @@ class ReconcileMiAttemptDistributionCentres
         puts "This run will NOT check already reconciled Mi Distribution Centres"
       end
     end
+
+    if ( results_csv_filepath.nil? )
+      puts "WARN: CSV results filepath passed in from rake task was nil, no results file will be created"
+    else
+      @output_csv_filepath = results_csv_filepath
+      puts "CSV results filepath passed in from rake task : #{@output_csv_filepath}"
+    end
   end
 
   ##
@@ -51,6 +63,7 @@ class ReconcileMiAttemptDistributionCentres
     # selection of mi_distribution_centres depends on repository
     mi_distribution_centres = nil
     @reposcraper            = nil
+    mi_results              = {}
 
     case @repository_name
     when EMMA_REPO_NAME
@@ -87,24 +100,41 @@ class ReconcileMiAttemptDistributionCentres
       mi_plan          = mi_attempt.mi_plan
       consortium_name  = mi_plan.consortium.name
       marker_symbol    = mi_plan.gene.marker_symbol
-      geneid           = mi_plan.gene.komp_repo_geneid
       mi_dc_reconciled = mi_distribution_centre.reconciled
 
       puts "Status                      = #{mi_attempt.status.name}"
       puts "Consortium                  = #{consortium_name}"
       puts "Marker symbol               = #{marker_symbol}"
-      unless geneid.nil?
-        puts "Komp Repo geneid in gene DB = #{geneid}"
+
+      # add to results hash, keyed on marker symbol and mi dc id
+      unless mi_results.has_key?(marker_symbol)
+        mi_results[marker_symbol] = {
+          'marker_symbol'        => marker_symbol,
+          'repository_name'      => @repository_name,
+          'distribution_centres' => {}
+        }
+
+        if @repository_name == KOMP_REPO_NAME
+          geneid = mi_plan.gene.komp_repo_geneid
+          unless geneid.nil?
+            mi_results[marker_symbol]['geneid'] = geneid
+            puts "Komp Repo geneid in gene DB = #{geneid}"
+          end
+        end
       end
-      if mi_dc_reconciled == "true"
-        puts "Mi DC reconciled TRUE"
-      elsif mi_dc_reconciled == "false"
-        puts "Mi DC reconciled FALSE"
-      elsif mi_dc_reconciled == "not checked"
-        puts "Mi DC reconciled NOT CHECKED"
-      else
-        puts "Mi DC reconciled not set"
-      end
+
+      mi_allele = self.class.get_allele_for_mi_distribution_centre(mi_distribution_centre)
+
+      mi_results[marker_symbol]['distribution_centres'][mi_distribution_centre.id] = {
+        'mi_dc_id'           => mi_distribution_centre.id,
+        'mi_plan_id'         => mi_plan.id,
+        'consortium'         => consortium_name,
+        'current_reconciled' => mi_dc_reconciled,
+        'allele'             => mi_allele,
+        'action'             => 'none'
+      }
+
+      puts "Current reconciled          = #{mi_dc_reconciled}"
 
       unless @check_reconciled
         # only those not already reconciled
@@ -114,15 +144,27 @@ class ReconcileMiAttemptDistributionCentres
           count_dcs_skipped += 1
           puts "Skipping this Mi Attempt Distribution Centre"
           puts "---------------------------------------------"
+          mi_results[marker_symbol]['distribution_centres'][mi_distribution_centre.id]['action'] = "skipped"
           next
         end
       end
 
       puts "Processing this Mi Attempt Distribution Centre"
 
-      mi_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
+      gene_repo_details = mi_distribution_centre.reconcile_with_repo( @repository_name, @reposcraper )
+
+      mi_results[marker_symbol]['distribution_centres'][mi_distribution_centre.id]['action'] = "checked"
+
+      if gene_repo_details.nil?
+        puts "WARN: No gene details found for this gene at #{repository_name}"
+      else
+        mi_results[marker_symbol]['distribution_centres'][mi_distribution_centre.id]['repository_details'] = gene_repo_details
+      end
+
       count_dcs_processed += 1
       puts "---------------------------------------------"
+
+      break if count_dcs_processed > 2 # TODO remove
 
       # delay for random time in seconds before processing
       unless count_dcs_processed == 1
@@ -146,6 +188,12 @@ class ReconcileMiAttemptDistributionCentres
     end
     puts "Total time sleeping between scrapes = #{sleeptime_total} seconds"
     puts "------------------------------------------------------------"
+
+    # write results to csv
+    if @output_csv_filepath
+      self.class.write_results_to_csv( mi_results, @output_csv_filepath )
+    end
+
   end # reconcile_all_mi_attempt_distribution_centres
 
   ##
@@ -282,6 +330,96 @@ class ReconcileMiAttemptDistributionCentres
       end
 
       return mi_distribution_centres
+    end
+
+    #####
+    # get allele for mi distribution centre
+    #####
+    def self.get_allele_for_mi_distribution_centre(mi_distribution_centre)
+
+      dc_allele_symbol_unsplit = mi_distribution_centre.mi_attempt.allele_symbol
+      if ( dc_allele_symbol_unsplit.nil? )
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Mi Attempt id #{mi_distribution_centre.mi_attempt.id}, cannot reconcile"
+        return
+      end
+
+      # strip out the superscript part of the allele symbol
+      split_array = dc_allele_symbol_unsplit.match(/\w*<sup>(\S*)<\/sup>/)
+      if ( split_array.nil? || split_array.length < 1 )
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Mi Attempt id #{mi_distribution_centre.mi_attempt.id}, cannot reconcile"
+        return
+      end
+
+      dc_allele_symbol = split_array[1]
+      if ( dc_allele_symbol.nil? )
+        puts "WARN: No allele name found for Mi Attempt id #{mi_distribution_centre.mi_attempt.id}, cannot reconcile"
+        return
+      end
+
+      return dc_allele_symbol
+    end
+
+    #####
+    # write results out to csv file
+    #####
+    def self.write_results_to_csv( mi_results, output_mi_filepath )
+      if ( mi_results && mi_results.length > 0 )
+        # grab hash keys as sorted array
+        sorted_mi_keys = mi_results.keys.sort
+
+        # write results out to mi_filepath passed as attribute
+        CSV.open(output_mi_filepath, "wb") do |csv|
+
+          # write Mi headers
+          csv << ['repository','marker_symbol', 'mi_attempt_dc_id', 'mi_plan_id', 'consortium', 'allele', 'action', 'current_reconciled', 'exists_at_repo', 'available_at_repo', 'repo_alleles', 'new_reconciled' ]
+
+          # iterate by marker symbol (gene)
+          sorted_mi_keys.each do |mi_key|
+            marker_symbol   = mi_key
+            repository_name = mi_results[mi_key]['repository_name']
+
+            # iterate over each distribution centre within a marker symbol
+            sorted_mi_dc_keys = mi_results[mi_key]['distribution_centres'].keys.sort
+
+            sorted_mi_dc_keys.each do |mi_dc_key|
+              mi_dc_id            = mi_dc_key
+              dc_h                = mi_results[mi_key]['distribution_centres'][mi_dc_key]
+              mi_plan_id          = dc_h['mi_plan_id']
+              consortium          = dc_h['consortium']
+              allele              = dc_h['allele']
+              current_reconciled  = dc_h['current_reconciled']
+              action              = dc_h['action']
+
+              # use repository details if anything found
+              if dc_h.has_key?('repository_details')
+                exists_at_repo    = dc_h['repository_details']['exists_at_repo']
+                available_at_repo = dc_h['repository_details']['available_at_repo']
+
+                if dc_h['repository_details'].has_key?('alleles')
+                  array_alleles   = dc_h['repository_details']['alleles'].keys.sort
+                  if array_alleles.length == 0
+                    repo_alleles  = nil
+                  else
+                    repo_alleles    = array_alleles.join('|')
+                  end
+                end
+
+                if dc_h['repository_details'].has_key?('new_reconciled')
+                  new_reconciled  = dc_h['repository_details']['new_reconciled']
+                end
+              else
+                exists_at_repo    = nil
+                available_at_repo = nil
+                repo_alleles      = nil
+                new_reconciled    = nil
+              end
+
+              # write row for each mi attempt distribution centre
+              csv << [repository_name, marker_symbol, mi_dc_id, mi_plan_id, consortium, allele, action, current_reconciled, exists_at_repo, available_at_repo, repo_alleles, new_reconciled ]
+            end # dcs
+          end # mi
+        end # csv
+      end # if mi_results
     end
 
 end # end class

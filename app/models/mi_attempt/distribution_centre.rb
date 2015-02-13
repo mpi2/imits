@@ -51,8 +51,6 @@ class MiAttempt::DistributionCentre < ApplicationModel
 
   def reconcile_with_repo( repository_name, reposcraper )
 
-    gene_repo_details = nil
-
     # use geneid or marker symbol to fetch gene details hash
     case repository_name
     when EMMA_REPO_NAME
@@ -66,6 +64,12 @@ class MiAttempt::DistributionCentre < ApplicationModel
       return
     end
 
+    unless gene_repo_details.nil?
+      gene_repo_details['exists_at_repo']    = nil
+      gene_repo_details['available_at_repo'] = nil
+      gene_repo_details['new_reconciled']    = nil
+    end
+
     production_centre = self.mi_attempt.mi_plan.production_centre.name
 
     # possible results here:
@@ -73,9 +77,15 @@ class MiAttempt::DistributionCentre < ApplicationModel
     # hash containing gene and empty alleles hash -> means gene checked but no products
     # hash containing gene and alleles hash containing 1 or more alleles -> has products but need to check allele matches and product flags
     if ( gene_repo_details.nil? )
+      gene_repo_details = {
+        'exists_at_repo'    => false,
+        'available_at_repo' => false
+      }
       puts "WARN : No gene details found for this gene on repository, reconciled set to not found"
       self.reconciled = 'not found'
     elsif ( gene_repo_details['alleles'].count == 0 )
+      gene_repo_details['exists_at_repo']    = false
+      gene_repo_details['available_at_repo'] = false
       puts "WARN : No product details found for this gene in repository, reconciled set to false"
       self.reconciled = 'false'
     else
@@ -105,31 +115,38 @@ class MiAttempt::DistributionCentre < ApplicationModel
 
       if gene_repo_details['alleles'].has_key?(mi_attempt_allele_symbol)
 
+        gene_repo_details['exists_at_repo'] = true
+
         matching_allele = gene_repo_details['alleles'][mi_attempt_allele_symbol]
 
-        # if ( matching_allele['is_mice'] == 1 )
-        #   puts "repo has mice"
-        # end
+        if ( matching_allele['is_mice'] == 1 )
+          puts "repo has mice"
+        end
 
-        # if ( matching_allele['is_recovery'] == 1 )
-        #   puts "repo has recovery mice"
-        # end
+        if ( matching_allele['is_recovery'] == 1 )
+          puts "repo has recovery mice"
+        end
 
-        # if ( matching_allele['is_germ_plasm'] == 1 )
-        #   puts "repo has germ plasm"
-        # end
+        if ( matching_allele['is_germ_plasm'] == 1 )
+          puts "repo has germ plasm"
+        end
 
-        # if ( matching_allele['is_embryos'] == 1 )
-        #   puts "repo has embryos"
-        # end
+        if ( matching_allele['is_embryos'] == 1 )
+          puts "repo has embryos"
+        end
+
         # any match counts as reconciled
         if (( matching_allele['is_mice'] == 1 ) || ( matching_allele['is_recovery'] == 1 ) ||
             ( matching_allele['is_germ_plasm'] == 1 ) || ( matching_allele['is_embryos'] == 1 ))
+          gene_repo_details['available_at_repo'] = true
           self.reconciled = 'true'
         else
+          gene_repo_details['available_at_repo'] = false
           self.reconciled = 'false'
         end # check for allele flags
       else
+        gene_repo_details['exists_at_repo']    = false
+        gene_repo_details['available_at_repo'] = false
         puts "WARN : No repository allele found to match to Mi Attempt allele #{mi_attempt_allele_symbol}, reconciled set to false"
         self.reconciled = 'false'
       end # check for allele details
@@ -138,11 +155,13 @@ class MiAttempt::DistributionCentre < ApplicationModel
     begin
       self.reconciled_at = Time.now # UTC time
       self.save
+      gene_repo_details['new_reconciled'] = self.reconciled
       puts "Allele reconciled to #{self.reconciled} at time #{self.reconciled_at}"
     rescue => e
       "ERROR : Failed to save mi attempt distribution centre for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
     end
 
+    return gene_repo_details
   end
 
   def reconcile_with_emma_repo( reposcraper )

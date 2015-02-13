@@ -16,19 +16,21 @@ class CheckUnreconciledKompWithMmrrc
   def initialize( mi_attempt_csv_filepath, phenotype_attempt_csv_filepath )
     # puts "In initialize"
 
+    @output_mi_filepath = nil
+    @output_pa_filepath = nil
+
     if ( mi_attempt_csv_filepath.nil? )
       puts "WARN: Mi attempt filepath passed in from rake task was nil, no results file will be created"
     else
       @output_mi_filepath = mi_attempt_csv_filepath
-      puts "Mi attempt filepath passed in from rake task : #{@output_mi_filepath}"
+      # puts "Mi attempt filepath passed in from rake task : #{@output_mi_filepath}"
     end
 
     if ( phenotype_attempt_csv_filepath.nil? )
-      @output_pa_filepath = '/nfs/team87/reconcile_output/unreconciled_komp_pa_dc_data.csv'
-      puts "Phenotype attempt filepath passed in from rake task was nil, setting to default : #{@output_pa_filepath}"
+      puts "WARN: Phenotype attempt filepath passed in from rake task was nil, no results file will be created"
     else
       @output_pa_filepath = phenotype_attempt_csv_filepath
-      puts "Phenotype attempt filepath passed in from rake task : #{@output_pa_filepath}"
+      # puts "Phenotype attempt filepath passed in from rake task : #{@output_pa_filepath}"
     end
 
   end
@@ -36,11 +38,15 @@ class CheckUnreconciledKompWithMmrrc
   def check_komp_distribution_centres
     puts "Checking for unreconciled Mi attempt distribution centres"
     mi_results = self.class.check_mi_distribution_centres
-    self.class.write_mi_attempt_results_to_csv( mi_results, @output_mi_filepath )
+    if @output_mi_filepath
+      self.class.write_mi_attempt_results_to_csv( mi_results, @output_mi_filepath )
+    end
 
     puts "Checking for unreconciled Phenotype attempt distribution centres"
     pa_results = self.class.check_pa_distribution_centres
-    self.class.write_phenotype_attempt_results_to_csv( pa_results, @output_pa_filepath )
+    if @output_pa_filepath
+      self.class.write_phenotype_attempt_results_to_csv( pa_results, @output_pa_filepath )
+    end
 
     puts "Script Finished"
     puts "Mi attempt results csv at:        #{@output_mi_filepath}"
@@ -57,7 +63,7 @@ class CheckUnreconciledKompWithMmrrc
     # check whether mi distribution centre allele and repository allele match
     #####
     def self.check_mi_distribution_centres
-      puts "In check for Mi Distribution Centres"
+      # puts "In check for Mi Distribution Centres"
       mi_results = {}
 
       @reposcraper = ScraperMmrrcRepository.new()
@@ -137,7 +143,7 @@ class CheckUnreconciledKompWithMmrrc
             else
               puts "Does not exist at MMRRC"
               mi_results[marker_symbol]['distribution_centres'][mi_distribution_centre.id]['exists_at_mmrrc'] = false
-            mi_results[marker_symbol]['distribution_centres'][mi_distribution_centre.id]['available_at_mmrrc'] = false
+              mi_results[marker_symbol]['distribution_centres'][mi_distribution_centre.id]['available_at_mmrrc'] = false
               count_unreconciled_mi_dcs_not_at_mmrrc += 1
             end
           end
@@ -306,7 +312,7 @@ class CheckUnreconciledKompWithMmrrc
     # check whether phenotype distribution centre allele and repository allele match
     #####
     def self.check_pa_distribution_centres
-      puts "In check for Pa Distribution Centres"
+      # puts "In check for Pa Distribution Centres"
       pa_results = {}
 
       @reposcraper = ScraperMmrrcRepository.new()
@@ -334,6 +340,10 @@ class CheckUnreconciledKompWithMmrrc
         mi_plan                 = mam.mi_plan
         consortium_name         = mi_plan.consortium.name
         marker_symbol           = mi_plan.gene.marker_symbol
+
+        puts "Mi Plan ID    = #{mi_plan.id}"
+        puts "Consortium    = #{consortium_name}"
+        puts "Marker symbol = #{marker_symbol}"
 
         # scrape MMRRC website to see if unreconciled Pa DC has allele there
         gene_repo_details       = pa_distribution_centre.reconcile_with_mmrrc_repo( @reposcraper )

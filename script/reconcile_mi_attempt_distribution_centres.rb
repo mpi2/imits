@@ -164,8 +164,6 @@ class ReconcileMiAttemptDistributionCentres
       count_dcs_processed += 1
       puts "---------------------------------------------"
 
-      break if count_dcs_processed > 2 # TODO remove
-
       # delay for random time in seconds before processing
       unless count_dcs_processed == 1
           sleeptime = rand(5)

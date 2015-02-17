@@ -1076,7 +1076,9 @@ CREATE TABLE genes (
     marker_type character varying(255),
     feature_type character varying(255),
     synonyms character varying(255),
-    komp_repo_geneid integer
+    komp_repo_geneid integer,
+    marker_name character varying(255),
+    cm_position character varying(255)
 );
 
 
@@ -3673,6 +3675,43 @@ ALTER SEQUENCE targ_rep_targeting_vectors_id_seq OWNED BY targ_rep_targeting_vec
 
 
 --
+-- Name: trace_call_vcf_modifications; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE trace_call_vcf_modifications (
+    id integer NOT NULL,
+    trace_call_id integer NOT NULL,
+    mod_type character varying(255) NOT NULL,
+    chr character varying(255) NOT NULL,
+    start integer NOT NULL,
+    "end" integer NOT NULL,
+    ref_seq text NOT NULL,
+    alt_seq text NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE trace_call_vcf_modifications_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE trace_call_vcf_modifications_id_seq OWNED BY trace_call_vcf_modifications.id;
+
+
+--
 -- Name: trace_calls; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4282,6 +4321,13 @@ ALTER TABLE ONLY targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval(
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY trace_call_vcf_modifications ALTER COLUMN id SET DEFAULT nextval('trace_call_vcf_modifications_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY trace_calls ALTER COLUMN id SET DEFAULT nextval('trace_calls_id_seq'::regclass);
 
 
@@ -4816,6 +4862,14 @@ ALTER TABLE ONLY targ_rep_sequence_annotation
 
 ALTER TABLE ONLY targ_rep_targeting_vectors
     ADD CONSTRAINT targ_rep_targeting_vectors_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: trace_call_vcf_modifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY trace_call_vcf_modifications
+    ADD CONSTRAINT trace_call_vcf_modifications_pkey PRIMARY KEY (id);
 
 
 --
@@ -6014,6 +6068,14 @@ ALTER TABLE ONLY targ_rep_real_alleles
 
 
 --
+-- Name: trace_call_vcf_modifications_trace_calls_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY trace_call_vcf_modifications
+    ADD CONSTRAINT trace_call_vcf_modifications_trace_calls_fk FOREIGN KEY (trace_call_id) REFERENCES trace_calls(id);
+
+
+--
 -- Name: trace_calls_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6416,3 +6478,7 @@ INSERT INTO schema_migrations (version) VALUES ('20141031141000');
 INSERT INTO schema_migrations (version) VALUES ('20141103165100');
 
 INSERT INTO schema_migrations (version) VALUES ('20141206144401');
+
+INSERT INTO schema_migrations (version) VALUES ('20150121134401');
+
+INSERT INTO schema_migrations (version) VALUES ('20150123133119');

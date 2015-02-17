@@ -213,6 +213,7 @@ TarMits::Application.routes.draw do
 
     resources :distribution_qcs
 
+    get '/alleles/:id/loa_primers' => 'alleles#loa_primers', :as => 'loa_primers'
     get '/alleles/:id/escell-clone-genbank-file' => 'alleles#escell_clone_genbank_file', :as => 'escell_clone_genbank_file'
     get '/alleles/:id/allele-genbank-file' => 'alleles#allele_genbank_file', :as => 'allele_genbank_file'
     get '/alleles/:id/targeting-vector-genbank-file' => 'alleles#targeting_vector_genbank_file', :as => 'targeting_vector_genbank_file'

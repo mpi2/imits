@@ -226,6 +226,51 @@ class TargRep::Allele < ActiveRecord::Base
       pipelines.keys.sort.join(', ')
     end
 
+    def self.allele_description (options)
+      marker_symbol = options.has_key?('marker_symbol') ? options['marker_symbol'] : nil
+      cassette       = options.has_key?('cassette') ? options['cassette'] : nil
+      allele_type   = options.has_key?('allele_type') ? options['allele_type'] : nil
+      colony_name   = options.has_key?('colony_name') ? options['colony_name'] : nil
+
+      return '' if allele_type.nil?
+
+      allele_descriptions = { 'tma'     => "KO first allele (reporter-tagged insertion with conditional potential)",
+                              'tme'     => "targeted, non-conditional allele",
+                              'tme.1'   => "targeted, non-conditional allele (post-Cre)",
+                              'tm'      => "Reporter-tagged deletion allele (with selection cassette)",
+                              'tmb'     => "Reporter-tagged deletion allele (post-Cre)",
+                              'tm.1'    => "Reporter-tagged deletion allele (post Cre, with no selection cassette)",
+                              'tmc'     => "Wild type floxed exon (post-Flp)",
+                              'tm.2'    => "Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette)",
+                              'tmd'     => "Deletion allele (post-Flp and Cre with no reporter)",
+                              'tmCreSC' => "Cre driver allele (with selection cassette)",
+                              'tmCre'   => "Cre driver allele",
+                              'tmCGI'   => "Truncation cassette with conditional potential",
+                              'gt'      => "Gene Trap",
+                              'Gene Trap' => "Gene Trap",
+                              'em'      => "[X] bp deletion/insertion] in [exon ID] causing a frameshift mutation"
+                            }
+
+      return allele_descriptions['tmCGI'] if !marker_symbol.blank? && marker_symbol =~ /CGI/
+
+      return allele_descriptions['tma'] if allele_type == 'a'
+      return allele_descriptions['tmb'] if allele_type == 'b'
+      return allele_descriptions['tmc'] if allele_type == 'c'
+      return allele_descriptions['tmd'] if allele_type == 'd'
+      return allele_descriptions['tme'] if allele_type == 'e'
+      return allele_descriptions['gt'] if allele_type == 'gt'
+      return allele_descriptions['em'] if allele_type == 'em'
+
+      if !cassette.blank? && cassette =~ /Cre/
+        return allele_descriptions['tmCreSC'] if allele_type == ''
+        return allele_descriptions['tmCre'] if allele_type == '.1'
+      end
+
+      return allele_descriptions['tm'] if allele_type == ''
+      return allele_descriptions['tm.1'] if allele_type == '.1'
+      return allele_descriptions['tm.2'] if allele_type == '.2'
+
+    end
 end
 
 # == Schema Information

@@ -2,7 +2,9 @@ require 'pp'
 
 class TargRep::AllelesController < TargRep::BaseController
 
-  respond_to :html, :xml, :json
+  respond_to :html, :except => [:loa]
+  respond_to :xml, :except => [:loa]
+  respond_to :json
 
   before_filter do
     @klass = TargRep::Allele
@@ -37,7 +39,8 @@ class TargRep::AllelesController < TargRep::BaseController
     :vector_image_cre,
     :vector_image_flp,
     :vector_image_flp_cre,
-    :show_issue
+    :show_issue,
+    :loa_primers
   ]
 
   # GET /alleles
@@ -251,6 +254,26 @@ class TargRep::AllelesController < TargRep::BaseController
   ##
   ## Custom controllers
   ##
+
+  def loa_primers
+    allele_id = params[:id]
+    return if allele_id.blank?
+
+    @allele = TargRep::Allele.find(allele_id)
+
+    loa_pcrs = {}
+
+    if ! @allele.blank?
+      loa_pcrs['upstream'] = @allele.taqman_upstream_del_assay_id unless @allele.taqman_upstream_del_assay_id.blank?
+      loa_pcrs['critical'] = @allele.taqman_critical_del_assay_id unless @allele.taqman_critical_del_assay_id.blank?
+      loa_pcrs['downstream'] = @allele.taqman_downstream_del_assay_id unless @allele.taqman_downstream_del_assay_id.blank?
+    end
+
+    respond_to do |format|
+      format.json { render :json => loa_pcrs.to_json }
+    end
+  end
+
   def history
     @allele = @klass.find(params[:id])
   end

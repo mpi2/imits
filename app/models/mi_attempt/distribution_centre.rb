@@ -14,7 +14,9 @@ class MiAttempt::DistributionCentre < ApplicationModel
   WRITABLE_ATTRIBUTES = %w{
   } + FULL_ACCESS_ATTRIBUTES + ['mi_attempt_id']
 
-  KOMP_CENTRE_NAME = 'KOMP Repo'
+  EMMA_REPO_NAME  = 'EMMA'
+  KOMP_REPO_NAME  = 'KOMP Repo'
+  MMRRC_REPO_NAME = 'MMRRC'
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
@@ -48,36 +50,42 @@ class MiAttempt::DistributionCentre < ApplicationModel
   end
 
   def reconcile_with_repo( repository_name, reposcraper )
-    # instantiate reposcraper if nil
-    if ( reposcraper.nil? )
-      reposcraper = RepositoryGeneDetailsScraper.new()
-    end
-
-    # get marker symbol from gene
-    gene          = self.mi_attempt.mi_plan.gene
-    marker_symbol = gene.marker_symbol
 
     # use geneid or marker symbol to fetch gene details hash
     case repository_name
-      when KOMP_CENTRE_NAME
-        geneid            = gene.komp_repo_geneid
-        gene_repo_details = reposcraper.fetch_komp_allele_details( marker_symbol, geneid )
-      else
-        puts "ERROR : repository name #{repository_name} not recognised for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
-        return
+    when EMMA_REPO_NAME
+      gene_repo_details = reconcile_with_emma_repo( reposcraper )
+    when KOMP_REPO_NAME
+      gene_repo_details = reconcile_with_komp_repo( reposcraper )
+    when MMRRC_REPO_NAME
+      gene_repo_details = reconcile_with_mmrrc_repo( reposcraper )
+    else
+      puts "ERROR : repository name #{repository_name} not recognised for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
+      return
+    end
+
+    unless gene_repo_details.nil?
+      gene_repo_details['exists_at_repo']    = nil
+      gene_repo_details['available_at_repo'] = nil
+      gene_repo_details['new_reconciled']    = nil
     end
 
     production_centre = self.mi_attempt.mi_plan.production_centre.name
-    puts "Production centre = #{production_centre}"
 
     # possible results here:
-    # nil -> means no geneid was found at all
-    # hash containing geneid and empty alleles hash -> means gene checked but no products
-    # hash containing geneid and alleles hash containing 1 or more alleles -> has products but need to check flags
+    # nil -> means no gene was found at all
+    # hash containing gene and empty alleles hash -> means gene checked but no products
+    # hash containing gene and alleles hash containing 1 or more alleles -> has products but need to check allele matches and product flags
     if ( gene_repo_details.nil? )
+      gene_repo_details = {
+        'exists_at_repo'    => false,
+        'available_at_repo' => false
+      }
       puts "WARN : No gene details found for this gene on repository, reconciled set to not found"
       self.reconciled = 'not found'
     elsif ( gene_repo_details['alleles'].count == 0 )
+      gene_repo_details['exists_at_repo']    = false
+      gene_repo_details['available_at_repo'] = false
       puts "WARN : No product details found for this gene in repository, reconciled set to false"
       self.reconciled = 'false'
     else
@@ -107,6 +115,8 @@ class MiAttempt::DistributionCentre < ApplicationModel
 
       if gene_repo_details['alleles'].has_key?(mi_attempt_allele_symbol)
 
+        gene_repo_details['exists_at_repo'] = true
+
         matching_allele = gene_repo_details['alleles'][mi_attempt_allele_symbol]
 
         if ( matching_allele['is_mice'] == 1 )
@@ -124,14 +134,19 @@ class MiAttempt::DistributionCentre < ApplicationModel
         if ( matching_allele['is_embryos'] == 1 )
           puts "repo has embryos"
         end
+
         # any match counts as reconciled
         if (( matching_allele['is_mice'] == 1 ) || ( matching_allele['is_recovery'] == 1 ) ||
             ( matching_allele['is_germ_plasm'] == 1 ) || ( matching_allele['is_embryos'] == 1 ))
+          gene_repo_details['available_at_repo'] = true
           self.reconciled = 'true'
         else
+          gene_repo_details['available_at_repo'] = false
           self.reconciled = 'false'
         end # check for allele flags
       else
+        gene_repo_details['exists_at_repo']    = false
+        gene_repo_details['available_at_repo'] = false
         puts "WARN : No repository allele found to match to Mi Attempt allele #{mi_attempt_allele_symbol}, reconciled set to false"
         self.reconciled = 'false'
       end # check for allele details
@@ -140,11 +155,57 @@ class MiAttempt::DistributionCentre < ApplicationModel
     begin
       self.reconciled_at = Time.now # UTC time
       self.save
+      gene_repo_details['new_reconciled'] = self.reconciled
       puts "Allele reconciled to #{self.reconciled} at time #{self.reconciled_at}"
     rescue => e
       "ERROR : Failed to save mi attempt distribution centre for Mi Attempt id #{self.mi_attempt.id}, cannot reconcile"
     end
 
+    return gene_repo_details
+  end
+
+  def reconcile_with_emma_repo( reposcraper )
+    # instantiate reposcraper if nil
+    if ( reposcraper.nil? )
+      reposcraper = ScraperEmmaRepository.new()
+    end
+
+    gene_repo_details = nil
+
+    marker_symbol     = self.mi_attempt.mi_plan.gene.marker_symbol
+    gene_repo_details = reposcraper.fetch_emma_allele_details( marker_symbol )
+
+    return gene_repo_details
+  end
+
+  def reconcile_with_komp_repo( reposcraper )
+    # instantiate reposcraper if nil
+    if ( reposcraper.nil? )
+      reposcraper = ScraperKompRepository.new()
+    end
+
+    gene_repo_details = nil
+
+    marker_symbol     = self.mi_attempt.mi_plan.gene.marker_symbol
+    geneid            = self.mi_attempt.mi_plan.gene.komp_repo_geneid
+
+    gene_repo_details = reposcraper.fetch_komp_allele_details( marker_symbol, geneid )
+
+    return gene_repo_details
+  end
+
+  def reconcile_with_mmrrc_repo( reposcraper )
+    # instantiate reposcraper if nil
+    if ( reposcraper.nil? )
+      reposcraper = ScraperMmrrcRepository.new()
+    end
+
+    gene_repo_details = nil
+
+    marker_symbol     = self.mi_attempt.mi_plan.gene.marker_symbol
+    gene_repo_details = reposcraper.fetch_mmrrc_allele_details( marker_symbol )
+
+    return gene_repo_details
   end
 
   def calculate_order_link( config = nil )

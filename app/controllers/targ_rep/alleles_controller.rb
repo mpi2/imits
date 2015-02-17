@@ -1,6 +1,6 @@
-require 'pp'
-
 class TargRep::AllelesController < TargRep::BaseController
+
+  include SolrBulkUpdate
 
   respond_to :html, :except => [:loa]
   respond_to :xml, :except => [:loa]
@@ -193,12 +193,12 @@ class TargRep::AllelesController < TargRep::BaseController
   end
 
   def show_issue
-    core = params[:core].blank? ? "allele" : params[:core]
+    core = params[:core].blank? ? "product" : params[:core]
 
-    if core == "allele"
-      show_issue_allele_core
-    else
+    if core == "product"
       show_issue_product_core
+    else
+      Rails.logger.info "#### Unexpected core <#{params[:core]}> for Solr for allele with an issue"
     end
 
   end
@@ -208,7 +208,8 @@ class TargRep::AllelesController < TargRep::BaseController
     product_id    = params[:product_id]
 
     solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-    proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['product'])
+
+    proxy = SolrBulkUpdate::Proxy.new(solr_update[Rails.env]['index_proxy']['product'])
     json_qry = { :q => 'product_id:' + product_id }
     docs = proxy.search(json_qry)
 
@@ -219,35 +220,6 @@ class TargRep::AllelesController < TargRep::BaseController
     else
       @order_from_names = docs[0].has_key?('order_names') ? docs[0]["order_names"] : nil
       @order_from_urls = docs[0].has_key?('order_links') ? docs[0]["order_links"] : nil
-
-      @order_from_names = @order_from_names.blank? && docs[0].has_key?('contact_names') ? docs[0]["contact_names"] : nil
-      @order_from_urls = @order_from_urls.blank? && docs[0].has_key?('contact_links') ? docs[0]["contact_links"] : nil
-    end
-  end
-
-  # for displaying allele issue screen to warn user about the issue before they place an order
-  def show_issue_allele_core
-    @allele       = @klass.find(params[:allele_id])
-    allele_id     = params[:allele_id]
-    doc_id        = params[:doc_id]
-    product_type  = params[:product_type]
-
-    # fetch order URL from Solr
-    solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-    proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['allele'])
-    json_qry = { :q => 'id:"' + doc_id + '" allele_id:"' + allele_id + '" product_type:"' + product_type + '"' }
-    docs = proxy.search(json_qry)
-
-    # check for one element in docs array
-    if ( docs.nil? || docs.empty? )
-      Rails.logger.info "Unable to fetch information for doc id #{doc_id}, allele id #{allele_id} and product type #{product_type} from Solr for allele with an issue"
-    elsif ( docs.length > 1 )
-      Rails.logger.info "Multiple docs returned for doc id #{doc_id}, allele id #{allele_id} and product type #{product_type} from Solr for allele with an issue"
-    else
-      # docs is an array of hashes, where each doc is one item that can be ordered (e.g. stem cell or mouse)
-      # our json query is specific to one doc, and the doc is a hash which contains an array of order names and another of order urls
-      @order_from_names = docs[0]["order_from_names"]
-      @order_from_urls  = docs[0]["order_from_urls"]
     end
   end
 

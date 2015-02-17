@@ -1,0 +1,111 @@
+.gv-panel div {
+  white-space: nowrap;
+}
+
+.gv-panel-right {
+  height: 100%;
+  background-color: #5F8CB0;
+  background-image: -webkit-linear-gradient(left, #5F8CB0, #4A7496);
+  background-image: -moz-linear-gradient(left center, #5F8CB0, #4A7496);
+  border-radius: 0 5px 5px 0;
+  border: 1px solid #1C5380!important;
+  border-left: none;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);
+  vertical-align: top;
+}
+
+.gv-panel button {
+  background: none;
+  border: none;
+  border-bottom: 1px solid #1C5380;
+  color: #E2E9EF;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
+  width: 30px;
+  height: 50px;
+  font-size: 18px;
+  line-height: 20px;
+  padding: 2px;
+  margin: 0;
+  font-family: Tahoma;
+}
+
+.gv-canvas-container .gv-wrapper {
+  border-width: 1px 0 1px 1px;
+}
+
+.gv-panel button:only-child {
+  width: 100%;
+}
+
+.gv-panel div.gv-button-set>button:not(:first-child) {
+  border-left: 1px solid #1C5380;
+}
+
+.gv-panel div.gv-button-set:not(:first-child)>button {
+  box-shadow: 0 1px 1px rgba(255, 255, 255, 0.12) inset;
+}
+
+.gv-panel div.gv-button-set:last-child {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.gv-panel button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.gv-panel button:active, .gv-panel button.gv-active {
+  border-top: none;
+  background-color: rgba(6, 54, 95, 0.35);
+  box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset !important;
+}
+
+table.gv {
+  position: relative;
+  margin-bottom: 30px;
+  border-collapse: separate;
+}
+
+table.gv td {
+  padding: 0;
+  color: white;
+  border: none;
+}
+
+.gv-tracks-menu td {
+  padding: 5px!important;
+  vertical-align: top;
+  width: 50%;
+}
+
+.gv-tracks-menu tr:first-child td {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.gv-tracks-menu .gv-remove-track,
+.gv-tracks-menu .gv-add-track {
+  border-radius: 3px;
+  display: inline-block;
+  font-size: 13px;
+  font-weight: bold;
+  height: 15px;
+  line-height: 12px;
+  margin: 3px 5px 0 0;
+  padding: 0 0 0 1px;
+  width: 18px;
+}
+
+.gv-powered-by {
+  position: absolute;
+  right: 0;
+  bottom: -16px;
+  font-size: 10px;
+  font-family: Verdana;
+  color: black;
+}
+
+.gv-powered-by a {
+  font-weight: bold;
+}

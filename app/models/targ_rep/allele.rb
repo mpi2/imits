@@ -235,8 +235,8 @@ class TargRep::Allele < ActiveRecord::Base
       return '' if allele_type.nil?
 
       allele_descriptions = { 'tma'     => "KO first allele (reporter-tagged insertion with conditional potential)",
-                              'tme'     => "targeted, non-conditional allele",
-                              'tme.1'   => "targeted, non-conditional allele (post-Cre)",
+                              'tme'     => "Targeted, non-conditional allele",
+                              'tme.1'   => "Targeted, non-conditional allele (post-Cre)",
                               'tm'      => "Reporter-tagged deletion allele (with selection cassette)",
                               'tmb'     => "Reporter-tagged deletion allele (post-Cre)",
                               'tm.1'    => "Reporter-tagged deletion allele (post Cre, with no selection cassette)",

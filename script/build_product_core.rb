@@ -513,6 +513,7 @@ class BuildProductCore
   end
 
 
+
   def create_mouse_doc row
     process_allele_type(row, row['type'])
 
@@ -539,9 +540,11 @@ class BuildProductCore
      "order_names"                      => [],
      "contact_links"                    => [@look_up_contact.has_key?(row["production_centre"]) ? "mailto:#{@look_up_contact[row['production_centre']]}?Subject=Mouse Line for #{row['marker_symbol']}" : ''],
      "contact_names"                    => [@look_up_contact.has_key?(row["production_centre"]) ? row["production_centre"] : ''],
+     "other_links"                      => ["production_graph:#{production_graph_url(row['imits_gene_id'])}", "genbank_file:#{self.class.allele_genbank_file_url(row['allele_id'], row['mouse_allele_mod_allele_type'])}", "allele_image:#{self.class.allele_image_url(row['allele_id'], row['mouse_allele_mod_allele_type'])}"],
      "ikmc_project_id"                  => row["ikmc_project_id"],
      "design_id"                        => row["design_id"],
-     "cassette"                         => row["cassette"]
+     "cassette"                         => row["cassette"],
+     "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
     }
 
 
@@ -581,9 +584,11 @@ class BuildProductCore
      "qc_data"                          => self.class.convert_to_array(row['qc_data']).keep_if{|qc| qc != 'NULL'} + self.class.convert_to_array(row['distribution_qc']).keep_if{|qc| qc != 'NULL'},
      "associated_products_colony_names" => self.class.convert_to_array(row['colonies']),
      "associated_product_vector_name"   => row['vector_name'],
+     "other_links"                       => ["genbank_file:#{self.class.allele_genbank_file_url(row['allele_id'])}", "allele_image:#{self.class.allele_image_url(row['allele_id'])}"],
      "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
-     "cassette"                         => row["cassette"]
+     "cassette"                         => row["cassette"],
+     "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
     }
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))
@@ -610,14 +615,13 @@ class BuildProductCore
      "other_links"                       => ["genbank_file:#{self.class.targeting_vector_genbank_file_url(row['allele_id'])}", "allele_image:#{self.class.vector_image_url(row['allele_id'])}", "design_link:#{self.class.design_url(row['design_id'])}"],
      "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
-     "cassette"                         => row["cassette"]
+     "cassette"                         => row["cassette"],
+     "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
      }
 
-    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['allele_type'], row["allele_id"],  row['pipeline'], row['cassette'])
-
+    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['allele_type'], row['allele_id'], row['pipeline'], row['cassette'])
     if allele_name
       doc["allele_type"] = allele_type
-      doc["allele_name"] = allele_name
     end
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))
@@ -641,7 +645,7 @@ class BuildProductCore
      "other_links"                     => ["design_link:#{self.class.design_url(row['design_id'])}"]
     }
 
-    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['mutation_type'], row["allele_id"], row['pipeline'], row['cassette'])
+    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['mutation_type'], row['allele_id'], row['pipeline'], row['cassette'])
     if allele_name
       doc["allele_type"] = allele_type
       doc["allele_name"] = allele_name

@@ -180,6 +180,8 @@ TarMits::Application.routes.draw do
 
   get '/public_dump' => 'root#public_dump', :as => 'public_dump'
 
+  get '/link_to' => 'track_link#link_to', :as => 'link_to'
+
   ## TargRep interface
   namespace :targ_rep do
     resources :pipelines

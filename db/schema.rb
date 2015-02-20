@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150123133119) do
+ActiveRecord::Schema.define(:version => 20150220101838) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -1449,6 +1449,17 @@ ActiveRecord::Schema.define(:version => 20150123133119) do
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
     t.integer  "trace_call_id", :null => false
+  end
+
+  create_table "track_links", :force => true do |t|
+    t.string   "ip_address"
+    t.string   "http_refer"
+    t.string   "link_clicked"
+    t.string   "link_type"
+    t.integer  "year"
+    t.integer  "month"
+    t.integer  "day"
+    t.datetime "created_at"
   end
 
   create_table "tracking_goals", :force => true do |t|

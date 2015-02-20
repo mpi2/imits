@@ -3793,6 +3793,42 @@ ALTER SEQUENCE trace_files_id_seq OWNED BY trace_files.id;
 
 
 --
+-- Name: track_links; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE track_links (
+    id integer NOT NULL,
+    ip_address character varying(255),
+    http_refer character varying(255),
+    link_clicked character varying(255),
+    link_type character varying(255),
+    year integer,
+    month integer,
+    day integer,
+    created_at timestamp without time zone
+);
+
+
+--
+-- Name: track_links_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE track_links_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: track_links_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE track_links_id_seq OWNED BY track_links.id;
+
+
+--
 -- Name: tracking_goals; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4336,6 +4372,13 @@ ALTER TABLE ONLY trace_calls ALTER COLUMN id SET DEFAULT nextval('trace_calls_id
 --
 
 ALTER TABLE ONLY trace_files ALTER COLUMN id SET DEFAULT nextval('trace_files_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY track_links ALTER COLUMN id SET DEFAULT nextval('track_links_id_seq'::regclass);
 
 
 --
@@ -4886,6 +4929,14 @@ ALTER TABLE ONLY trace_calls
 
 ALTER TABLE ONLY trace_files
     ADD CONSTRAINT trace_files_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: track_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY track_links
+    ADD CONSTRAINT track_links_pkey PRIMARY KEY (id);
 
 
 --
@@ -6482,3 +6533,5 @@ INSERT INTO schema_migrations (version) VALUES ('20141206144401');
 INSERT INTO schema_migrations (version) VALUES ('20150121134401');
 
 INSERT INTO schema_migrations (version) VALUES ('20150123133119');
+
+INSERT INTO schema_migrations (version) VALUES ('20150220101838');

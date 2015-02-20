@@ -154,7 +154,7 @@ class BuildAllele2
                                      'e.1' => 'cre',
                                      '.1'  => 'cre',
                                      'c'   => 'flp',
-                                     'd'   => 'flp_cre'
+                                     'd'   => 'flp-cre'
                                      }
 
     @mutation_types = {

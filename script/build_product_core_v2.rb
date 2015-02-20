@@ -363,7 +363,7 @@ class BuildProductCore
                                      'e.1' => 'cre',
                                      '.1'  => 'cre',
                                      'c'   => 'flp',
-                                     'd'   => 'flp_cre'
+                                     'd'   => 'flp-cre'
                                      }
 
     @qc_results = {}

@@ -193,7 +193,7 @@ class TraceCall < ActiveRecord::Base
           if vcf_feature.length >= 6
             tc_mod = TraceCallVcfModification.new(
               :trace_call_id => self.id,
-              :type          => vcf_feature['type'],
+              :mod_type      => vcf_feature['mod_type'],
               :chr           => vcf_feature['chr'],
               :start         => vcf_feature['start'],
               :end           => vcf_feature['end'],

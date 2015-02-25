@@ -90,4 +90,5 @@ end
 #  distribution_network   :string(255)
 #  reconciled             :string(255)      default("not checked"), not null
 #  reconciled_at          :datetime
+#  available              :boolean          default(TRUE), not null
 #

@@ -257,30 +257,13 @@ end
 #
 # Table name: colonies
 #
-#  id                             :integer          not null, primary key
-#  name                           :string(255)      not null
-#  mi_attempt_id                  :integer
-#  trace_file_file_name           :string(255)
-#  trace_file_content_type        :string(255)
-#  trace_file_file_size           :integer
-#  trace_file_updated_at          :datetime
-#  genotype_confirmed             :boolean          default(FALSE)
-#  file_alignment                 :text
-#  file_filtered_analysis_vcf     :text
-#  file_variant_effect_output_txt :text
-#  file_reference_fa              :text
-#  file_mutant_fa                 :text
-#  file_primer_reads_fa           :text
-#  file_alignment_data_yaml       :text
-#  file_trace_output              :text
-#  file_trace_error               :text
-#  file_exception_details         :text
-#  file_return_code               :integer
-#  file_merged_variants_vcf       :text
-#  is_het                         :boolean          default(FALSE)
-#  report_to_public               :boolean          default(FALSE)
-#  unwanted_allele                :boolean          default(FALSE)
-#  unwanted_allele_description    :text
+#  id                          :integer          not null, primary key
+#  name                        :string(255)      not null
+#  mi_attempt_id               :integer
+#  genotype_confirmed          :boolean          default(FALSE)
+#  report_to_public            :boolean          default(FALSE)
+#  unwanted_allele             :boolean          default(FALSE)
+#  unwanted_allele_description :text
 #
 # Indexes
 #

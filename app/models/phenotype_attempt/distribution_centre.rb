@@ -92,4 +92,5 @@ end
 #  mouse_allele_mod_id    :integer
 #  reconciled             :string(255)      default("not checked"), not null
 #  reconciled_at          :datetime
+#  available              :boolean          default(TRUE), not null
 #

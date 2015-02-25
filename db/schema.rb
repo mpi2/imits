@@ -49,6 +49,7 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
     t.string  "name",                                                  :null => false
     t.integer "mi_attempt_id"
     t.boolean "genotype_confirmed",                 :default => false
+    t.boolean "het_scf",                            :default => false
     t.boolean "report_to_public",                   :default => false
     t.boolean "unwanted_allele",                    :default => false
     t.text    "unwanted_allele_description"

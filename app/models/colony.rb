@@ -182,6 +182,7 @@ end
 #  name                               :string(255)      not null
 #  mi_attempt_id                      :integer
 #  genotype_confirmed                 :boolean          default(FALSE)
+#  het_scf                            :boolean          default(FALSE)
 #  report_to_public                   :boolean          default(FALSE)
 #  unwanted_allele                    :boolean          default(FALSE)
 #  unwanted_allele_description        :text

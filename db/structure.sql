@@ -777,7 +777,6 @@ CREATE TABLE colonies (
     name character varying(255) NOT NULL,
     mi_attempt_id integer,
     genotype_confirmed boolean DEFAULT false,
-    het_scf boolean DEFAULT false,
     report_to_public boolean DEFAULT false,
     unwanted_allele boolean DEFAULT false,
     unwanted_allele_description text,
@@ -785,7 +784,8 @@ CREATE TABLE colonies (
     mgi_allele_symbol_superscript character varying(255),
     mgi_allele_id character varying(255),
     allele_symbol_superscript_template character varying(255),
-    allele_type character varying(255)
+    allele_type character varying(255),
+    colony_background_strain_id integer
 );
 
 
@@ -927,7 +927,8 @@ CREATE TABLE deleter_strains (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    excision_type character varying(255)
 );
 
 
@@ -979,6 +980,43 @@ CREATE SEQUENCE deposited_materials_id_seq
 --
 
 ALTER SEQUENCE deposited_materials_id_seq OWNED BY deposited_materials.id;
+
+
+--
+-- Name: distribution_centres; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE distribution_centres (
+    id integer NOT NULL,
+    colony_id integer NOT NULL,
+    deposited_material_id integer NOT NULL,
+    distribution_network character varying(255),
+    centre_id integer NOT NULL,
+    start_date date,
+    end_date date,
+    reconciled character varying(255) DEFAULT 'not checked'::character varying NOT NULL,
+    reconciled_at timestamp without time zone,
+    available boolean DEFAULT true NOT NULL
+);
+
+
+--
+-- Name: distribution_centres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE distribution_centres_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: distribution_centres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE distribution_centres_id_seq OWNED BY distribution_centres.id;
 
 
 --
@@ -1083,7 +1121,9 @@ CREATE TABLE genes (
     marker_type character varying(255),
     feature_type character varying(255),
     synonyms character varying(255),
-    komp_repo_geneid integer
+    komp_repo_geneid integer,
+    marker_name character varying(255),
+    cm_position character varying(255)
 );
 
 
@@ -2809,7 +2849,7 @@ CREATE TABLE solr_centre_map (
 --
 
 CREATE VIEW solr_gene_statuses AS
-SELECT most_advanced.mi_plan_id, most_advanced.marker_symbol, most_advanced.status_name, most_advanced.consortium, most_advanced.created_at, most_advanced.production_centre_name FROM (SELECT all_statuses.mi_plan_id, genes.marker_symbol, all_statuses.status_name, all_statuses.id, all_statuses.created_at, first_value(all_statuses.id) OVER (PARTITION BY all_statuses.gene_id ORDER BY all_statuses.order_by DESC, all_statuses.created_at) AS most_advanced_id, consortia.name AS consortium, centres.name AS production_centre_name FROM ((((((SELECT ('mi_plan'::text || mi_plan_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plan_statuses.name AS status_name, mi_plan_statuses.order_by, mi_plan_status_stamps.created_at FROM ((mi_plans JOIN mi_plan_statuses ON ((mi_plan_statuses.id = mi_plans.status_id))) JOIN mi_plan_status_stamps ON (((mi_plans.id = mi_plan_status_stamps.mi_plan_id) AND (mi_plan_statuses.id = mi_plan_status_stamps.status_id)))) UNION SELECT ('mi_attempt'::text || mi_attempt_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_attempt_statuses.name AS status_name, (1000 + mi_attempt_statuses.order_by) AS order_by, mi_attempt_status_stamps.created_at FROM (((mi_attempts JOIN mi_attempt_statuses ON ((mi_attempt_statuses.id = mi_attempts.status_id))) JOIN mi_attempt_status_stamps ON (((mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id) AND (mi_attempt_statuses.id = mi_attempt_status_stamps.status_id)))) JOIN mi_plans ON ((mi_plans.id = mi_attempts.mi_plan_id)))) UNION SELECT ('phenotype_attempt'::text || phenotype_attempt_status_stamps.id) AS id, mi_plans.id AS mi_plan_id, mi_plans.gene_id, phenotype_attempt_statuses.name AS status_name, (2000 + phenotype_attempt_statuses.order_by) AS order_by, phenotype_attempt_status_stamps.created_at FROM (((phenotype_attempts JOIN phenotype_attempt_statuses ON ((phenotype_attempt_statuses.id = phenotype_attempts.status_id))) JOIN phenotype_attempt_status_stamps ON (((phenotype_attempts.id = phenotype_attempt_status_stamps.phenotype_attempt_id) AND (phenotype_attempt_statuses.id = phenotype_attempt_status_stamps.status_id)))) JOIN mi_plans ON ((mi_plans.id = phenotype_attempts.mi_plan_id)))) all_statuses JOIN genes ON ((genes.id = all_statuses.gene_id))) JOIN mi_plans ON ((mi_plans.id = all_statuses.mi_plan_id))) JOIN consortia ON ((mi_plans.consortium_id = consortia.id))) LEFT JOIN centres ON ((mi_plans.production_centre_id = centres.id))) ORDER BY all_statuses.order_by DESC) most_advanced WHERE (most_advanced.id = most_advanced.most_advanced_id);
+SELECT most_advanced.mi_plan_id, most_advanced.marker_symbol, most_advanced.status_name, most_advanced.consortium, most_advanced.created_at, most_advanced.production_centre_name FROM (SELECT all_statuses.mi_plan_id, genes.marker_symbol, all_statuses.status_name, all_statuses.id, all_statuses.created_at, first_value(all_statuses.id) OVER (PARTITION BY all_statuses.gene_id ORDER BY all_statuses.order_by DESC, all_statuses.created_at) AS most_advanced_id, consortia.name AS consortium, centres.name AS production_centre_name FROM ((((((SELECT ('mi_plan'::text || mi_plan_status_stamps.id) AS id, mi_plans_1.id AS mi_plan_id, mi_plans_1.gene_id, mi_plan_statuses.name AS status_name, mi_plan_statuses.order_by, mi_plan_status_stamps.created_at FROM ((mi_plans mi_plans_1 JOIN mi_plan_statuses ON ((mi_plan_statuses.id = mi_plans_1.status_id))) JOIN mi_plan_status_stamps ON (((mi_plans_1.id = mi_plan_status_stamps.mi_plan_id) AND (mi_plan_statuses.id = mi_plan_status_stamps.status_id)))) UNION SELECT ('mi_attempt'::text || mi_attempt_status_stamps.id) AS id, mi_plans_1.id AS mi_plan_id, mi_plans_1.gene_id, mi_attempt_statuses.name AS status_name, (1000 + mi_attempt_statuses.order_by) AS order_by, mi_attempt_status_stamps.created_at FROM (((mi_attempts JOIN mi_attempt_statuses ON ((mi_attempt_statuses.id = mi_attempts.status_id))) JOIN mi_attempt_status_stamps ON (((mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id) AND (mi_attempt_statuses.id = mi_attempt_status_stamps.status_id)))) JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = mi_attempts.mi_plan_id)))) UNION SELECT ('phenotype_attempt'::text || phenotype_attempt_status_stamps.id) AS id, mi_plans_1.id AS mi_plan_id, mi_plans_1.gene_id, phenotype_attempt_statuses.name AS status_name, (2000 + phenotype_attempt_statuses.order_by) AS order_by, phenotype_attempt_status_stamps.created_at FROM (((phenotype_attempts JOIN phenotype_attempt_statuses ON ((phenotype_attempt_statuses.id = phenotype_attempts.status_id))) JOIN phenotype_attempt_status_stamps ON (((phenotype_attempts.id = phenotype_attempt_status_stamps.phenotype_attempt_id) AND (phenotype_attempt_statuses.id = phenotype_attempt_status_stamps.status_id)))) JOIN mi_plans mi_plans_1 ON ((mi_plans_1.id = phenotype_attempts.mi_plan_id)))) all_statuses JOIN genes ON ((genes.id = all_statuses.gene_id))) JOIN mi_plans ON ((mi_plans.id = all_statuses.mi_plan_id))) JOIN consortia ON ((mi_plans.consortium_id = consortia.id))) LEFT JOIN centres ON ((mi_plans.production_centre_id = centres.id))) ORDER BY all_statuses.order_by DESC) most_advanced WHERE (most_advanced.id = most_advanced.most_advanced_id);
 
 
 --
@@ -3686,6 +3726,43 @@ ALTER SEQUENCE targ_rep_targeting_vectors_id_seq OWNED BY targ_rep_targeting_vec
 
 
 --
+-- Name: trace_call_vcf_modifications; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE trace_call_vcf_modifications (
+    id integer NOT NULL,
+    trace_call_id integer NOT NULL,
+    mod_type character varying(255) NOT NULL,
+    chr character varying(255) NOT NULL,
+    start integer NOT NULL,
+    "end" integer NOT NULL,
+    ref_seq text NOT NULL,
+    alt_seq text NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE trace_call_vcf_modifications_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE trace_call_vcf_modifications_id_seq OWNED BY trace_call_vcf_modifications.id;
+
+
+--
 -- Name: trace_calls; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -3897,6 +3974,13 @@ ALTER TABLE ONLY deleter_strains ALTER COLUMN id SET DEFAULT nextval('deleter_st
 --
 
 ALTER TABLE ONLY deposited_materials ALTER COLUMN id SET DEFAULT nextval('deposited_materials_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY distribution_centres ALTER COLUMN id SET DEFAULT nextval('distribution_centres_id_seq'::regclass);
 
 
 --
@@ -4295,6 +4379,13 @@ ALTER TABLE ONLY targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval(
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY trace_call_vcf_modifications ALTER COLUMN id SET DEFAULT nextval('trace_call_vcf_modifications_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY trace_calls ALTER COLUMN id SET DEFAULT nextval('trace_calls_id_seq'::regclass);
 
 
@@ -4381,6 +4472,14 @@ ALTER TABLE ONLY deleter_strains
 
 ALTER TABLE ONLY deposited_materials
     ADD CONSTRAINT deposited_materials_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY distribution_centres
+    ADD CONSTRAINT distribution_centres_pkey PRIMARY KEY (id);
 
 
 --
@@ -4832,6 +4931,14 @@ ALTER TABLE ONLY targ_rep_targeting_vectors
 
 
 --
+-- Name: trace_call_vcf_modifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY trace_call_vcf_modifications
+    ADD CONSTRAINT trace_call_vcf_modifications_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: trace_calls_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -5200,14 +5307,6 @@ ALTER TABLE ONLY colonies
 
 ALTER TABLE ONLY colony_qcs
     ADD CONSTRAINT colony_qcs_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
-
-
---
--- Name: fk_mouse_allele_mod_distribution_centres; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY phenotype_attempt_distribution_centres
-    ADD CONSTRAINT fk_mouse_allele_mod_distribution_centres FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
 
 
 --
@@ -5963,14 +6062,6 @@ ALTER TABLE ONLY phenotyping_productions
 
 
 --
--- Name: phenotyping_productions_mouse_allele_mod_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY phenotyping_productions
-    ADD CONSTRAINT phenotyping_productions_mouse_allele_mod_id_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
-
-
---
 -- Name: phenotyping_productions_phenotype_attempt_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6032,6 +6123,14 @@ ALTER TABLE ONLY targ_rep_genotype_primers
 
 ALTER TABLE ONLY targ_rep_real_alleles
     ADD CONSTRAINT targ_rep_real_alleles_gene_id_fk FOREIGN KEY (gene_id) REFERENCES genes(id);
+
+
+--
+-- Name: trace_call_vcf_modifications_trace_calls_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY trace_call_vcf_modifications
+    ADD CONSTRAINT trace_call_vcf_modifications_trace_calls_fk FOREIGN KEY (trace_call_id) REFERENCES trace_calls(id);
 
 
 --
@@ -6426,8 +6525,6 @@ INSERT INTO schema_migrations (version) VALUES ('20140818161100');
 
 INSERT INTO schema_migrations (version) VALUES ('20140901093510');
 
-INSERT INTO schema_migrations (version) VALUES ('20140903093510');
-
 INSERT INTO schema_migrations (version) VALUES ('20140904123936');
 
 INSERT INTO schema_migrations (version) VALUES ('20141022103936');
@@ -6441,3 +6538,7 @@ INSERT INTO schema_migrations (version) VALUES ('20141103165100');
 INSERT INTO schema_migrations (version) VALUES ('20141206144401');
 
 INSERT INTO schema_migrations (version) VALUES ('20141218120401');
+
+INSERT INTO schema_migrations (version) VALUES ('20150121134401');
+
+INSERT INTO schema_migrations (version) VALUES ('20150123133119');

@@ -1,26 +1,37 @@
 require 'tempfile'
 
-class Colony < ActiveRecord::Base
+class Colony < ApplicationModel
 
   acts_as_audited
   acts_as_reportable
 
   belongs_to :mi_attempt
   belongs_to :mouse_allele_mod
+  belongs_to :colony_background_strain, :class_name => 'Strain'
 
   has_many :allele_modifications, :class_name => 'MouseAlleleMod', :foreign_key => 'parent_colony_id'
   has_many :phenotyping_productions, :class_name => 'PhenotypingProduction', :foreign_key => 'parent_colony_id'
+  has_many :distribution_centres, :class_name => 'DistributionCentre', :dependent => :destroy
 
   has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy
   has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
 
   accepts_nested_attributes_for :colony_qc
   accepts_nested_attributes_for :trace_call
+  accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
+
+  access_association_by_attribute :colony_background_strain, :name
+
 
   validates :name, :presence => true
-  validates_uniqueness_of :name, conditions: -> { where("mi_attempt_id IS NOT NULL") }
-  validates_uniqueness_of :name, conditions: -> { where("mouse_allele_mod_id  IS NOT NULL") }
+  # bit of a bodge but works.
+  # would have liked to do
+  ##  validates_uniqueness_of :name, conditions: -> { where("mi_attempt_id  IS NOT NULL") }
+  ##  validates_uniqueness_of :name, conditions: -> { where("mouse_allele_mod_id  IS NOT NULL") }
+  validates_uniqueness_of :name, scope: :mi_attempt_id
+  validates_uniqueness_of :name, scope: :mouse_allele_mod_id
 
+  validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validate :set_allele_symbol_superscript
 
   validate do |colony|
@@ -182,7 +193,6 @@ end
 #  name                               :string(255)      not null
 #  mi_attempt_id                      :integer
 #  genotype_confirmed                 :boolean          default(FALSE)
-#  het_scf                            :boolean          default(FALSE)
 #  report_to_public                   :boolean          default(FALSE)
 #  unwanted_allele                    :boolean          default(FALSE)
 #  unwanted_allele_description        :text
@@ -191,6 +201,7 @@ end
 #  mgi_allele_id                      :string(255)
 #  allele_symbol_superscript_template :string(255)
 #  allele_type                        :string(255)
+#  colony_background_strain_id        :integer
 #
 # Indexes
 #

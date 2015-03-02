@@ -11,6 +11,8 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
   acts_as_audited
 
+  self.table_name = "phenotype_attempt_distribution_centres"
+
   WRITABLE_ATTRIBUTES = %w{
   } + FULL_ACCESS_ATTRIBUTES + ['phenotype_attempt_id']
 
@@ -18,8 +20,8 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
-  belongs_to :phenotype_attempt
   belongs_to :mouse_allele_mod
+  belongs_to :phenotype_attempts
   belongs_to :centre
   belongs_to :deposited_material
 

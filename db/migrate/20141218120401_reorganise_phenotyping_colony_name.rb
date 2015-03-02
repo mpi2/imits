@@ -10,28 +10,43 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
     add_column :phenotyping_productions, :rederivation_complete, :boolean
 
     add_column :centres, :superscript, :string
+    add_column :deleter_strains, :excision_type, :string
 
     add_column :colonies, :mouse_allele_mod_id, :integer
     add_column :colonies, :mgi_allele_symbol_superscript, :string
     add_column :colonies, :mgi_allele_id, :string
     add_column :colonies, :allele_symbol_superscript_template, :string
     add_column :colonies, :allele_type, :string
+    add_column :colonies, :colony_background_strain_id, :integer
 
+    create_table :distribution_centres do |t|
+      t.integer :colony_id, :null => false
+      t.integer :deposited_material_id, :null => false
+      t.string :distribution_network
+      t.integer :centre_id, :null => false
+      t.date :start_date
+      t.date :end_date
+      t.string :reconciled, :limit =>255, :default => "not checked", :null => false
+      t.datetime :reconciled_at
+      t.boolean :available, :default => true, :null => false
+      t.timestamp
+    end
 
     add_foreign_key :colonies, :mouse_allele_mods, :column => :mouse_allele_mod_id, :name => 'colonies_mouse_allele_mod_fk'
     remove_index :colonies, :name => :colony_name_index
+    remove_foreign_key :phenotyping_productions,  :name =>  :phenotyping_productions_mouse_allele_mod_id_fk
+    remove_foreign_key :phenotype_attempt_distribution_centres,  :name =>  :fk_mouse_allele_mod_distribution_centres
     add_index :colonies, [:name, :mi_attempt_id, :mouse_allele_mod_id], :unique => true, :name => :mouse_allele_mod_colony_name_uniqueness_index
 
     sql = <<-EOF
-      BEGIN;
 
         -- Move Mi Attempt mouse_allele_type to colonies table. Populate this fields from the mi_attempt field before removing this field.
-        UPDATE colonies SET allele_type = mi_attempts.mouse_allele_type
+        UPDATE colonies SET allele_type = mi_attempts.mouse_allele_type, colony_background_strain_id = mi_attempts.colony_background_strain_id
         FROM mi_attempts
         WHERE mi_attempts.id = colonies.mi_attempt_id AND mi_attempts.mouse_allele_type IS NOT NULL;
 
         -- replace colony_name with a colony model. Create new colonies for all the mouse_allele_mod colonies
-        INSERT INTO colonies (name, genotype_confirmed, mouse_allele_mod_id, mgi_allele_symbol_superscript, allele_symbol_superscript_template, allele_type, mgi_allele_id) SELECT colony_name, CASE WHEN status_id = 6 THEN true ELSE false END, mouse_allele_mods.id, mouse_allele_mods.allele_name ,substring(mouse_allele_mods.allele_name from 'tm.') || '@' || substring(mouse_allele_mods.allele_name from '\(.+\).+') AS allele_symbol_superscript_template ,mouse_allele_mods.mouse_allele_type, mouse_allele_mods.allele_mgi_accession_id  FROM mouse_allele_mods WHERE mouse_allele_mods.cre_excision = true;
+        INSERT INTO colonies (name, genotype_confirmed, mouse_allele_mod_id, mgi_allele_symbol_superscript, allele_symbol_superscript_template, allele_type, mgi_allele_id, colony_background_strain_id) SELECT colony_name, CASE WHEN status_id = 6 THEN true ELSE false END, mouse_allele_mods.id, mouse_allele_mods.allele_name ,substring(mouse_allele_mods.allele_name from 'tm.') || '@' || substring(mouse_allele_mods.allele_name from '\(.+\).+') AS allele_symbol_superscript_template ,mouse_allele_mods.mouse_allele_type, mouse_allele_mods.allele_mgi_accession_id, mouse_allele_mods.colony_background_strain_id  FROM mouse_allele_mods WHERE mouse_allele_mods.cre_excision = true;
 
         -- Copy mouse_allele_mod qc to colony_qc table
 
@@ -90,14 +105,15 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
         FROM mouse_allele_mods, colonies
         WHERE mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id AND colonies.mouse_allele_mod_id = mouse_allele_mods.id  AND mouse_allele_mods.cre_excision = true;
 
-        UPDATE phenotyping_productions SET colony_background_strain_id = mouse_allele_mods.colony_background_strain_id, rederivation_started = mouse_allele_mods.rederivation_complete, rederivation_complete = mouse_allele_mods.rederivation_complete
+        UPDATE phenotyping_productions SET colony_background_strain_id = mouse_allele_mods.colony_background_strain_id, rederivation_started = mouse_allele_mods.rederivation_complete, rederivation_complete = mouse_allele_mods.rederivation_complete, phenotype_attempt_id = mouse_allele_mods.phenotype_attempt_id
         FROM mouse_allele_mods
         WHERE mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id;
 
-       -- Delete mouse_allele_mods when mouse_allele_modifications are not occuring. Not required with the addition of parent_colony_id keys above
---        DELETE mouse_allele_mods WHERE id = SELECT m2.id FROM mouse_allele_mods m2 WHERE m2.cre_excision = false;
+       --Delete mouse_allele_mods when mouse_allele_modifications are not occuring. Not required with the addition of parent_colony_id keys above
 
-      COMMIT;
+       DELETE FROM mouse_allele_mod_status_stamps WHERE mouse_allele_mod_status_stamps.mouse_allele_mod_id IN (SELECT id FROM mouse_allele_mods WHERE cre_excision = false);
+       DELETE FROM mouse_allele_mods WHERE cre_excision = false;
+
     EOF
 
     ActiveRecord::Base.connection.execute(sql)
@@ -109,7 +125,6 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
 #    remove_column :mouse_allele_mods, :mi_attempt_id
 #    remove_column :mouse_allele_mods, :colony_name
 #    remove_column :mouse_allele_mods, :allele_category
-#    remove_column :mouse_allele_mods, :phenotype_attempt_id
 #    remove_column :mouse_allele_mods, :allele_name
 #    remove_column :mouse_allele_mods, :allele_mgi_accession_id
 
@@ -131,12 +146,14 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
     remove_column :phenotyping_productions, :rederivation_complete
 
     remove_column :centres, :superscript
+    remove_column :deleter_strains, :excision_type
 
     remove_column :colonies, :mouse_allele_mod_id
     remove_column :colonies, :mgi_allele_symbol_superscript
     remove_column :colonies, :allele_symbol_superscript_template
     remove_column :colonies, :allele_type
     remove_column :colonies, :mgi_allele_id
+    remove_column :colonies, :colony_background_strain_id
 
   end
 end

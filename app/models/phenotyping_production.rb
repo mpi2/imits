@@ -12,9 +12,15 @@ class PhenotypingProduction < ApplicationModel
   belongs_to :mi_plan
   belongs_to :parent_colony, :class_name => 'Colony'
   belongs_to :status
+  belongs_to :colony_background_strain, :class_name => 'Strain'
+
   has_many   :status_stamps, :order => "#{PhenotypingProduction::StatusStamp.table_name}.created_at ASC", dependent: :destroy
 
+  access_association_by_attribute :colony_background_strain, :name
+  access_association_by_attribute :parent_colony, :name
+
   accepts_nested_attributes_for :status_stamps
+
 
   protected :status=
 

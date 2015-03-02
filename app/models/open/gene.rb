@@ -132,6 +132,8 @@ end
 #  feature_type                       :string(255)
 #  synonyms                           :string(255)
 #  komp_repo_geneid                   :integer
+#  marker_name                        :string(255)
+#  cm_position                        :string(255)
 #
 # Indexes
 #

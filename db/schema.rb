@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141218120401) do
+ActiveRecord::Schema.define(:version => 20150123133119) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -49,7 +49,6 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
     t.string  "name",                                                  :null => false
     t.integer "mi_attempt_id"
     t.boolean "genotype_confirmed",                 :default => false
-    t.boolean "het_scf",                            :default => false
     t.boolean "report_to_public",                   :default => false
     t.boolean "unwanted_allele",                    :default => false
     t.text    "unwanted_allele_description"
@@ -58,6 +57,7 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
     t.string  "mgi_allele_id"
     t.string  "allele_symbol_superscript_template"
     t.string  "allele_type"
+    t.integer "colony_background_strain_id"
   end
 
   add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true
@@ -105,9 +105,10 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
   add_index "contacts", ["email"], :name => "index_contacts_on_email", :unique => true
 
   create_table "deleter_strains", :force => true do |t|
-    t.string   "name",       :limit => 100, :null => false
+    t.string   "name",          :limit => 100, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "excision_type"
   end
 
   create_table "deposited_materials", :force => true do |t|
@@ -117,6 +118,18 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
   end
 
   add_index "deposited_materials", ["name"], :name => "index_deposited_materials_on_name", :unique => true
+
+  create_table "distribution_centres", :force => true do |t|
+    t.integer  "colony_id",                                        :null => false
+    t.integer  "deposited_material_id",                            :null => false
+    t.string   "distribution_network"
+    t.integer  "centre_id",                                        :null => false
+    t.date     "start_date"
+    t.date     "end_date"
+    t.string   "reconciled",            :default => "not checked", :null => false
+    t.datetime "reconciled_at"
+    t.boolean  "available",             :default => true,          :null => false
+  end
 
   create_table "email_templates", :force => true do |t|
     t.string   "status"
@@ -168,6 +181,8 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
     t.string   "feature_type"
     t.string   "synonyms"
     t.integer  "komp_repo_geneid"
+    t.string   "marker_name"
+    t.string   "cm_position"
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
@@ -1419,6 +1434,18 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
   add_index "targ_rep_targeting_vectors", ["name"], :name => "index_targvec", :unique => true
   add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
 
+  create_table "trace_call_vcf_modifications", :force => true do |t|
+    t.integer  "trace_call_id", :null => false
+    t.string   "mod_type",      :null => false
+    t.string   "chr",           :null => false
+    t.integer  "start",         :null => false
+    t.integer  "end",           :null => false
+    t.text     "ref_seq",       :null => false
+    t.text     "alt_seq",       :null => false
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
   create_table "trace_calls", :force => true do |t|
     t.integer  "colony_id",                                         :null => false
     t.text     "file_alignment"
@@ -1560,7 +1587,6 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
 
   add_foreign_key "phenotype_attempt_distribution_centres", "centres", :name => "phenotype_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "phenotype_attempt_distribution_centres", "deposited_materials", :name => "phenotype_attempt_distribution_centres_deposited_material_id_fk"
-  add_foreign_key "phenotype_attempt_distribution_centres", "mouse_allele_mods", :name => "fk_mouse_allele_mod_distribution_centres"
   add_foreign_key "phenotype_attempt_distribution_centres", "phenotype_attempts", :name => "phenotype_attempt_distribution_centres_phenotype_attempt_id_fk"
 
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempt_statuses", :name => "phenotype_attempt_status_stamps_status_id_fk", :column => "status_id"
@@ -1592,7 +1618,6 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_productions", :name => "fk_phenotyping_productions"
 
   add_foreign_key "phenotyping_productions", "mi_plans", :name => "phenotyping_productions_mi_plan_id_fk"
-  add_foreign_key "phenotyping_productions", "mouse_allele_mods", :name => "phenotyping_productions_mouse_allele_mod_id_fk"
   add_foreign_key "phenotyping_productions", "phenotype_attempts", :name => "phenotyping_productions_phenotype_attempt_id_fk"
   add_foreign_key "phenotyping_productions", "phenotyping_production_statuses", :name => "phenotyping_productions_status_id_fk", :column => "status_id"
 
@@ -1605,6 +1630,8 @@ ActiveRecord::Schema.define(:version => 20141218120401) do
   add_foreign_key "targ_rep_genotype_primers", "targ_rep_alleles", :name => "targ_rep_genotype_primers_allele_id_fk", :column => "allele_id"
 
   add_foreign_key "targ_rep_real_alleles", "genes", :name => "targ_rep_real_alleles_gene_id_fk"
+
+  add_foreign_key "trace_call_vcf_modifications", "trace_calls", :name => "trace_call_vcf_modifications_trace_calls_fk"
 
   add_foreign_key "trace_calls", "colonies", :name => "trace_calls_colonies_fk"
 

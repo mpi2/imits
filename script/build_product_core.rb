@@ -333,7 +333,7 @@ class BuildProductCore
 
 
   def initialize (show_eucommtoolscre = false)
-    @config = YAML.load_file("#{Rails.root}/script/build_allele2.yml")
+    @config = YAML.load_file("#{Rails.root}/script/build_allele2_v2.yml")
     @solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
 
     @show_eucommtoolscre = show_eucommtoolscre

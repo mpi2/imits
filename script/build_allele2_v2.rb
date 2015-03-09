@@ -382,7 +382,7 @@ class BuildAllele2
     end
 
     puts "#### select..."
-    puts @sql
+    #puts @sql
     rows = ActiveRecord::Base.connection.execute(@sql)
 
     puts "#### step 1..."

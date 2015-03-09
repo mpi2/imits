@@ -48,7 +48,23 @@ sql: |
               ) AS ordered_phenotyping_production
            ) AS phenotyping_summary
          WHERE phenotyping_summary.id = phenotyping_summary.most_advanced_record
+  ),
+
+       crispr_mutation_descriptions AS (
+         SELECT colony_id, colony_name, exon_id, string_agg(mutation_length || ' bp ' || mutation_type, ' and ')  AS mutation_description
+         FROM (
+             SELECT colonies.id AS colony_id, colonies.name AS colony_name, trace_calls.exon_id AS exon_id, CASE WHEN trace_call_vcf_modifications.mod_type = 'del' THEN 'Deletion' ELSE 'Insertion' END AS mutation_type, SUM( 1 + ABS(trace_call_vcf_modifications.start - trace_call_vcf_modifications.end) ) AS mutation_length
+             FROM trace_calls
+               JOIN trace_call_vcf_modifications ON trace_call_vcf_modifications.trace_call_id = trace_calls.id
+               JOIN colonies ON colonies.id = trace_calls.colony_id
+             WHERE trace_call_vcf_modifications.mod_type IN ('del', 'ins')
+             GROUP BY colonies.id, colonies.name, trace_calls.exon_id, trace_call_vcf_modifications.mod_type
+             ORDER BY colonies.id, colonies.name, trace_calls.exon_id, trace_call_vcf_modifications.mod_type
+         ) AS mutations
+         GROUP BY colony_id, colony_name, exon_id
+
   )
+
   select distinct
   targ_rep_alleles.id as targ_rep_alleles_id,
   targ_rep_alleles.cassette AS cassette,
@@ -56,13 +72,21 @@ sql: |
   targ_rep_mutation_types.name mutation_type,
   genes.marker_symbol, genes.marker_name AS marker_name, genes.mgi_accession_id, genes.marker_type AS marker_type, genes.feature_type as feature_type,
 
+  mouse_allele_mods.allele_name AS mam_mgi_allele_symbol_superscript,
+  colonies.allele_name AS mi_mgi_allele_symbol_superscript,
   targ_rep_es_cells.mgi_allele_symbol_superscript,
+
+  crispr_mutation_descriptions.mutation_description AS crispr_mutation_description,
+  crispr_mutation_descriptions.exon_id AS exon_id,
+
   targ_rep_es_cells.name AS es_cell_name,
   targ_rep_es_cells.allele_symbol_superscript_template,
   targ_rep_es_cells.allele_type AS es_cell_allele_type,
   targ_rep_es_cells.mgi_allele_id AS es_cell_mgi_accession_id,
   targ_rep_es_cells.ikmc_project_id AS es_ikmc_project_id,
   targ_rep_es_pipeline.name AS es_pipeline,
+
+  mi_attempts.mutagenesis_factor_id AS mutagenesis_factor_id,
 
   targ_rep_targeting_vectors.ikmc_project_id AS tv_ikmc_project_id,
   targ_rep_tv_pipeline.name AS tv_pipeline,
@@ -98,11 +122,19 @@ sql: |
                 left outer join targ_rep_pipelines targ_rep_es_pipeline ON targ_rep_es_pipeline.id = targ_rep_es_cells.pipeline_id
              ) on genes.id = targ_rep_alleles.gene_id AND (targ_rep_targeting_vectors.id IS NOT NULL OR targ_rep_es_cells.id IS NOT NULL)
   left outer join targ_rep_mutation_types on targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
+
+
+
   left outer join (mi_attempts
+                   left outer join colonies ON colonies.mi_attempt_id = mi_attempts.id AND genotype_confirmed = true
+                   left outer join crispr_mutation_descriptions ON crispr_mutation_descriptions.colony_id = colonies.id
                    join mi_plans mi_attempt_plan on mi_attempts.mi_plan_id = mi_attempt_plan.id SUBS_TEMPLATE2 and mi_attempt_plan.report_to_public is true
                    join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.status_id
                    join consortia miconsortium ON miconsortium.id = mi_attempt_plan.consortium_id and miconsortium.name SUBS_EUCOMMTOOLSCRE
-                  ) on mi_attempts.es_cell_id = targ_rep_es_cells.id
+                  ) on mi_attempts.es_cell_id = targ_rep_es_cells.id OR (mi_attempt_plan.gene_id = genes.id AND colonies.id IS NOT NULL AND mi_attempts.mutagenesis_factor_id IS NOT NULL AND colonies.allele_name IS NOT NULL)
+
+
+
   left outer join centres miapc on mi_attempt_plan.production_centre_id = miapc.id
   left outer join (mouse_allele_mods
                    join mi_plans paplan on mouse_allele_mods.mi_plan_id = paplan.id SUBS_TEMPLATE2 and paplan.report_to_public is true
@@ -128,7 +160,7 @@ options:
   USE_REPORT_TO_PUBLIC: true
   USE_ALLELES: true
   USE_GENES: true
-  MARKER_SYMBOL: #Cbx1	#Prdm14 #Lrrc20 #Podxl2 # "Cbx4" #"Tmod2"  # "3110035E14Rik"   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
+  MARKER_SYMBOL: Adad2 #Cbx1	#Prdm14 #Lrrc20 #Podxl2 # "Cbx4" #"Tmod2"  # "3110035E14Rik"   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"
   DETECT_GENE_DUPS: true
   FILTER_TARGET: ""   #"feature_type"    #"marker_type"
   CREATE_FILES: false

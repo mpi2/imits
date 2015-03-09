@@ -34,11 +34,29 @@ class Colony < ActiveRecord::Base
   end
 
   before_save :set_genotype_confirmed
+  before_save :set_crispr_allele
 
   def set_genotype_confirmed
     if !mi_attempt.blank? && !mi_attempt.status.blank?
       if !mi_attempt.es_cell.blank? && mi_attempt.status.code == 'gtc'
         self.genotype_confirmed = true
+      end
+    end
+  end
+  protected :set_genotype_confirmed
+
+  def set_crispr_allele
+    if !mi_attempt.blank? && !mi_attempt.status.blank?
+      if !mi_attempt.mutagenesis_factor_id.blank? && mi_attempt.status.code == 'gtc'
+        n = 0
+        gene = mi_attempt.marker_symbol
+        while true
+          n += 1
+          test_allele_name = "em#{n}#{mi_attempt.production_centre.code}"
+          break if Colony.joins(mi_attempt: {mi_plan: :gene}).where("genes.marker_symbol = '#{gene}' AND colonies.allele_name = '#{test_allele_name}'").blank?
+        end
+
+        self.allele_name = test_allele_name
       end
     end
   end
@@ -104,6 +122,8 @@ end
 #  report_to_public            :boolean          default(FALSE)
 #  unwanted_allele             :boolean          default(FALSE)
 #  unwanted_allele_description :text
+#  mgi_allele_id               :string(255)
+#  allele_name                 :string(255)
 #
 # Indexes
 #

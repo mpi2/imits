@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150123133119) do
+ActiveRecord::Schema.define(:version => 20150309151000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(:version => 20150123133119) do
     t.datetime "updated_at"
     t.string   "contact_name",  :limit => 100
     t.string   "contact_email", :limit => 100
+    t.string   "code"
   end
 
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
@@ -51,6 +52,8 @@ ActiveRecord::Schema.define(:version => 20150123133119) do
     t.boolean "report_to_public",            :default => false
     t.boolean "unwanted_allele",             :default => false
     t.text    "unwanted_allele_description"
+    t.string  "mgi_allele_id"
+    t.string  "allele_name"
   end
 
   add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
@@ -1441,6 +1444,7 @@ ActiveRecord::Schema.define(:version => 20150123133119) do
     t.string   "trace_file_content_type"
     t.integer  "trace_file_file_size"
     t.datetime "trace_file_updated_at"
+    t.string   "exon_id"
   end
 
   create_table "trace_files", :force => true do |t|

@@ -4,10 +4,10 @@ development:
   index_proxy:
     gene: http://localhost:8983/solr/gene
     allele: http://localhost:8983/solr/allele
-    allele2: http://localhost:8983/solr/allele2
-    product: http://localhost:8983/solr/product
-    eucommtoolscre_allele2: http://localhost:8983/solr/eucommtoolscre_allele2
-    eucommtoolscre_product: http://localhost:8983/solr/eucommtoolscre_product
+    allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
+    product: http://ikmc.vm.bytemark.co.uk:8985/solr/product
+    eucommtoolscre_allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/eucommtoolscre_allele2
+    eucommtoolscre_product: http://ikmc.vm.bytemark.co.uk:8985/solr/eucommtoolscre_product
 
 test:
   targ_rep_url: https://www.i-dcc.org/imits/targ_rep

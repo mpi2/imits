@@ -231,6 +231,8 @@ class TargRep::Allele < ActiveRecord::Base
       cassette       = options.has_key?('cassette') ? options['cassette'] : nil
       allele_type   = options.has_key?('allele_type') ? options['allele_type'] : nil
       colony_name   = options.has_key?('colony_name') ? options['colony_name'] : nil
+      crispr_mutation_description = options.has_key?('crispr_mutation_description') ? options['crispr_mutation_description'] : nil
+      exon_id = options.has_key?('exon_id') ? options['exon_id'] : nil
 
       return '' if allele_type.nil?
 
@@ -248,7 +250,7 @@ class TargRep::Allele < ActiveRecord::Base
                               'tmCGI'   => "Truncation cassette with conditional potential",
                               'gt'      => "Gene Trap",
                               'Gene Trap' => "Gene Trap",
-                              'em'      => "[X] bp deletion/insertion] in [exon ID] causing a frameshift mutation"
+                              'em'      => "Frameshift mutation caused by a #{crispr_mutation_description} in #{exon_id}"
                             }
 
       return allele_descriptions['tmCGI'] if !marker_symbol.blank? && marker_symbol =~ /CGI/

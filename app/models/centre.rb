@@ -38,6 +38,7 @@ end
 #  updated_at    :datetime
 #  contact_name  :string(100)
 #  contact_email :string(100)
+#  code          :string(255)
 #
 # Indexes
 #

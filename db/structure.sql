@@ -744,7 +744,8 @@ CREATE TABLE centres (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     contact_name character varying(100),
-    contact_email character varying(100)
+    contact_email character varying(100),
+    code character varying(255)
 );
 
 
@@ -778,7 +779,9 @@ CREATE TABLE colonies (
     genotype_confirmed boolean DEFAULT false,
     report_to_public boolean DEFAULT false,
     unwanted_allele boolean DEFAULT false,
-    unwanted_allele_description text
+    unwanted_allele_description text,
+    mgi_allele_id character varying(255),
+    allele_name character varying(255)
 );
 
 
@@ -3736,7 +3739,8 @@ CREATE TABLE trace_calls (
     trace_file_file_name character varying(255),
     trace_file_content_type character varying(255),
     trace_file_file_size integer,
-    trace_file_updated_at timestamp without time zone
+    trace_file_updated_at timestamp without time zone,
+    exon_id character varying(255)
 );
 
 
@@ -6482,3 +6486,9 @@ INSERT INTO schema_migrations (version) VALUES ('20141206144401');
 INSERT INTO schema_migrations (version) VALUES ('20150121134401');
 
 INSERT INTO schema_migrations (version) VALUES ('20150123133119');
+
+INSERT INTO schema_migrations (version) VALUES ('20150303141000');
+
+INSERT INTO schema_migrations (version) VALUES ('20150309141000');
+
+INSERT INTO schema_migrations (version) VALUES ('20150309151000');

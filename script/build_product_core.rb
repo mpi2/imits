@@ -137,7 +137,6 @@ class BuildProductCore
              genes.marker_symbol AS marker_symbol,
              genes.mgi_accession_id AS mgi_accession_id,
              targ_rep_mutation_types.code AS allele_type,
-             targ_rep_alleles.id AS allele_id,
              targ_rep_alleles.has_issue AS has_issue,
              targ_rep_alleles.cassette AS cassette,
              targ_rep_alleles.cassette_type AS cassette_type,
@@ -218,13 +217,16 @@ class BuildProductCore
         '' AS mouse_allele_mod_allele_type,
         mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
         es_cells.allele_type AS es_cell_allele_type,
+        '' AS mam_mgi_allele_symbol_superscript,
+        colonies.allele_name AS mi_mgi_allele_symbol_superscript,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
         plans.production_centre_name AS production_centre,
         es_cells.allele_id AS allele_id,
         es_cells.allele_symbol_superscript_template AS allele_symbol_superscript_template,
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         plans.crispr_plan AS crispr_plan,
-        mi_attempts.external_ref AS colony_name,
+        mi_attempts.mutagenesis_factor_id AS mutagenesis_factor_id,
+        colonies.name AS colony_name,
         '' AS parent_colony_name,
         mi_attempt_statuses.name AS mouse_status,
         mi_attempt_status_stamps.created_at AS mouse_status_date,
@@ -252,6 +254,7 @@ class BuildProductCore
         plans.gene_id AS imits_gene_id,
         ARRAY[MI_ATTEMPT_QC_RESULTS] AS qc_data
       FROM (mi_attempts
+        JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id
         JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
         JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = mi_attempts.status_id
         JOIN plans ON plans.id = mi_attempts.mi_plan_id
@@ -260,7 +263,7 @@ class BuildProductCore
         LEFT JOIN strains AS test_strain ON test_strain.id = mi_attempts.test_cross_strain_id
         LEFT JOIN es_cells ON es_cells.id = mi_attempts.es_cell_id
         LEFT JOIN distribution_centres ON distribution_centres.mi_attempt_id = mi_attempts.id
-      WHERE mi_attempts.report_to_public = true AND mi_attempts.is_active = true
+      WHERE mi_attempts.report_to_public = true AND mi_attempts.is_active = true AND (mi_attempts.mutagenesis_factor_id IS NULL OR colonies.genotype_confirmed = true)
 
       UNION ALL
 
@@ -270,12 +273,15 @@ class BuildProductCore
         mouse_allele_mods.mouse_allele_type AS mouse_allele_mod_allele_type,
         mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
         es_cells.allele_type AS es_cell_allele_type,
+        mouse_allele_mods.allele_name AS mam_mgi_allele_symbol_superscript,
+        '' AS mi_mgi_allele_symbol_superscript,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
         plans.production_centre_name AS production_centre,
         es_cells.allele_id AS allele_id,
         es_cells.allele_symbol_superscript_template AS allele_symbol_superscript_template,
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         false AS crispr_plan,
+        NULL AS mutagenesis_factor_id,
         mouse_allele_mods.colony_name AS colony_name,
         mi_attempts.external_ref AS parent_colony_name,
         mouse_allele_mod_statuses.name AS mouse_status,
@@ -343,9 +349,9 @@ class BuildProductCore
     @solr_password = @config['options']['SOLR_PASSWORD']
     @dataset_max_size = 80000
     @process_mice = true
-    @process_es_cells = true
-    @process_targeting_vectors = true
-    @process_intermediate_vectors = true
+    @process_es_cells = false
+    @process_targeting_vectors = false
+    @process_intermediate_vectors = false
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',
@@ -442,6 +448,7 @@ class BuildProductCore
         doc_set = doc_sets[-1]
         row_no = 0
       end
+      row['targ_rep_alleles_id'] = row['allele_id']
       doc_set << self.method(doc_creation_method_name).call(row)
     end
 
@@ -487,10 +494,12 @@ class BuildProductCore
   def prepare_allele_symbol row, type
     row['allele_symbol'] = 'None'
     row['allele_symbol'] = 'DUMMY_' + row['targ_rep_alleles_id'] if ! row['targ_rep_alleles_id'].to_s.empty?
-    row['allele_symbol'] = 'tm1' + row['allele_type'] if row['allele_type'] != 'None'
+    row['allele_symbol'] = 'tm' + row['targ_rep_alleles_id'] + row['allele_type'] if !['None', 'em'].include?(row['allele_type'])
     row['allele_symbol'] = row['allele_symbol_superscript'] if ! row['allele_symbol_superscript'].to_s.empty?
     row['allele_symbol'] = row['allele_symbol_superscript_template'].to_s.gsub(/\@/, row['allele_type'].to_s) if ! row['allele_type'].nil? && ! row['allele_symbol_superscript_template'].to_s.empty?
 
+    row['allele_symbol'] = row['mi_mgi_allele_symbol_superscript'] if type == 'MiAttempt' && ! row['mi_mgi_allele_symbol_superscript'].blank?
+    row['allele_symbol'] = row['mam_mgi_allele_symbol_superscript'] if type == 'MouseAlleleModification' && ! row['mam_mgi_allele_symbol_superscript'].blank?
   end
 
   def process_allele_type row, type
@@ -498,6 +507,7 @@ class BuildProductCore
     row['allele_type'] = @guess_mapping[ row['mutation_type'] ] if (!row['mutation_type'].blank?) && @guess_mapping.has_key?(row['mutation_type'])
     row['allele_type'] = row['es_cell_allele_type'] if !row['es_cell_allele_type'].nil?
     row['allele_type'] = row['mi_attempt_mouse_allele_type'] if type != 'Allele' && !row['mi_attempt_mouse_allele_type'].blank?
+    row['allele_type'] = 'em' if type == 'MiAttempt' && !row['mutagenesis_factor_id'].blank?
     guess_allele_type(row) if type == 'MouseAlleleModification'
 
     prepare_allele_symbol(row, type)
@@ -531,7 +541,7 @@ class BuildProductCore
      "status"                           => row["mouse_status"],
      "status_date"                      => row["mouse_status_date"].to_date.to_s,
      "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; @qc_results.has_key?(qc_data[2].to_i) && @qc_results[qc_data[2].to_i] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{@qc_results[qc_data[2].to_i]}" : nil}.compact,
-     "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == true ? 'Casp9/Crispr' : 'ES Cell'}"],
+     "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == 't' ? 'Casp9/Crispr' : 'ES Cell'}"],
      "associated_product_es_cell_name"  => row["es_cell_name"],
      "associated_product_colony_name"   => row["parent_colony_name"],
      "associated_product_vector_name"   => row["vector_name"],
@@ -821,7 +831,7 @@ class BuildProductCore
       return {:urls => ["mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['Wtsi']}
 
     elsif 'NorCOMM' == pipeline
-      return {:urls => ['http://www.phenogenomics.ca/services/cmmr/escell_services.html'], :names => ['NorCOMM']}
+      return {:urls => ['http://www.phenogenomics.ca/cmmr/services/escell.html'], :names => ['NorCOMM']}
 
     else
       puts "PIPELINE : #{pipeline}"

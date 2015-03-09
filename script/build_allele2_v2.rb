@@ -224,9 +224,12 @@ class BuildAllele2
   def prepare_allele_symbol row1, type
     row1['allele_symbol'] = 'None'
     row1['allele_symbol'] = 'DUMMY_' + row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
-    row1['allele_symbol'] = 'tm' + row1['targ_rep_alleles_id'] + row1['allele_type'] if row1['allele_type'] != 'None'
+    row1['allele_symbol'] = 'tm' + row1['targ_rep_alleles_id'] + row1['allele_type'] if !['None', 'em'].include?(row1['allele_type'])
     row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
     row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['allele_type'].to_s) if ! row1['allele_type'].nil? && ! row1['allele_symbol_superscript_template'].to_s.empty?
+
+    row1['allele_symbol'] = row1['mi_mgi_allele_symbol_superscript'] if type == 'MiAttempt' && ! row1['mi_mgi_allele_symbol_superscript'].blank?
+    row1['allele_symbol'] = row1['mam_mgi_allele_symbol_superscript'] if type == 'MouseAlleleModification' && ! row1['mam_mgi_allele_symbol_superscript'].blank?
   end
 
   def process_allele_type row1, type
@@ -234,6 +237,7 @@ class BuildAllele2
     row1['allele_type'] = @guess_mapping[ row1['mutation_type'] ] if (!row1['mutation_type'].blank?) && @guess_mapping.has_key?(row1['mutation_type'])
     row1['allele_type'] = row1['es_cell_allele_type'] if !row1['es_cell_allele_type'].nil?
     row1['allele_type'] = row1['mi_mouse_allele_type'] if !row1['mi_mouse_allele_type'].blank? && type != 'Allele'
+    row1['allele_type'] = 'em' if type == 'MiAttempt' && !row1['mutagenesis_factor_id'].blank?
     guess_allele_type(row1) if type == 'MouseAlleleModification'
 
     prepare_allele_symbol(row1, type)
@@ -279,7 +283,9 @@ class BuildAllele2
     row1['allele_image'] = ""
     row1['allele_simple_image'] = ""
 
-    return if row1['targ_rep_alleles_id'].blank?
+    row1['allele_simple_image'] = "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg" if ! row1['mutagenesis_factor_id'].blank?
+
+    return if row1['allele_type'] == 'em' || row1['targ_rep_alleles_id'].blank?
 
     if !row1['mi_mouse_allele_type'].blank? and row1['es_cell_allele_type'] != row1['mi_mouse_allele_type']
       return if try_to_find_correct_allele(row1)
@@ -376,7 +382,7 @@ class BuildAllele2
     end
 
     puts "#### select..."
-   # puts @sql
+    puts @sql
     rows = ActiveRecord::Base.connection.execute(@sql)
 
     puts "#### step 1..."
@@ -441,9 +447,16 @@ class BuildAllele2
 
         row['allele_mgi_accession_id'] = row['es_cell_mgi_accession_id']
         genbank_file(row)
-        row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
         row['mouse_status'] = @statuses['GENOTYPE_CONFIRMED']
         row['links'] = []
+        if row['allele_type'] != 'em'
+          row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
+          row['links'] << "southern_tools:http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=#{row['es_cell_name']}&iframe=true&width=100%&height=100%"
+          row['links'] << "lrpcr_genotype_primers:https://www.mousephenotype.org/phenotype-archive/lrpcr/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+          row['links'] << "genotype_primers:https://www.mousephenotype.org/phenotype-archive/genotyping_primers/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+          row['links'] << "loa_link_id:#{row['targ_rep_alleles_id']}"
+        end
+
         row['ikmc_project'] = []
         row['pipeline'] = [row['es_pipeline']]
         if ! row['es_ikmc_project_id'].blank?
@@ -495,18 +508,22 @@ class BuildAllele2
         # B4
         row['allele_mgi_accession_id'] = row['es_cell_mgi_accession_id']
         genbank_file(row)
-        row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
         row['links'] = []
+        if row['allele_type'] != 'em'
+          row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
+          row['links'] << "southern_tools:http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=#{row['es_cell_name']}&iframe=true&width=100%&height=100%"
+          row['links'] << "lrpcr_genotype_primers:https://www.mousephenotype.org/phenotype-archive/lrpcr/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+          row['links'] << "genotype_primers:https://www.mousephenotype.org/phenotype-archive/genotyping_primers/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+          row['links'] << "loa_link_id:#{row['targ_rep_alleles_id']}"
+        end
+
         row['ikmc_project'] = []
         row['pipeline'] = [row['es_pipeline']]
         if ! row['es_ikmc_project_id'].blank?
           set_mutagenesis_factor(row)
           row['ikmc_project'] << row['es_ikmc_project_id']
         end
-        row['links'] << "southern_tools:http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=#{row['es_cell_name']}&iframe=true&width=100%&height=100%"
-        row['links'] << "lrpcr_genotype_primers:https://www.mousephenotype.org/phenotype-archive/lrpcr/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
-        row['links'] << "genotype_primers:https://www.mousephenotype.org/phenotype-archive/genotyping_primers/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
-        row['links'] << "loa_link_id:#{row['targ_rep_alleles_id']}"
+
         row['mouse_status'] = row['mi_attempt_status']
         row['phenotype_status'] = ''
         row['production_centre'] = row['miacentre_name']
@@ -602,7 +619,8 @@ class BuildAllele2
       hash['allele_type'] = row['allele_type']
 
       hash['allele_mgi_accession_id'] = row['allele_mgi_accession_id']
-      hash['allele_description'] = TargRep::Allele.allele_description({'marker_symbol' => row['marker_symbol'], 'allele_type' => row['allele_type'], 'cassette' => row['cassette'] })
+      puts "MUTATION DESCRIPTION #{row['crispr_mutation_description']}"
+      hash['allele_description'] = TargRep::Allele.allele_description({'marker_symbol' => row['marker_symbol'], 'allele_type' => row['allele_type'], 'cassette' => row['cassette'] , 'crispr_mutation_description' => row['crispr_mutation_description'], 'exon_id' => row['exon_id']})
 
       hash['genbank_file'] = row['genbank_file_url']
       hash['allele_image'] = row['allele_image']

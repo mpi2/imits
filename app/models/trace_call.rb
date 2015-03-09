@@ -183,6 +183,8 @@ class TraceCall < ActiveRecord::Base
       self.file_primer_reads_fa = data
     end
 
+    parse_filtered_vep_file
+
     updated = self.save!
 
     # parse some details from the filtered_analysis file
@@ -292,6 +294,21 @@ class TraceCall < ActiveRecord::Base
     return "#{targeted_reference_sequence}\n#{targeted_mutated_sequence}"
   end
 
+  def parse_filtered_vep_file
+
+    self.file_variant_effect_output_txt.each_line do |line|
+      stripped_line = line.strip
+      next if stripped_line[0] == '#'
+
+      parsed_fields = stripped_line.split("\t")
+
+      if parsed_fields.length >= 4
+        self.exon_id = parsed_fields[4]
+      end
+    end
+  end
+
+
   def parse_filtered_vcf_file
     vcf_data = []
 
@@ -312,10 +329,10 @@ class TraceCall < ActiveRecord::Base
             seq_length = alt_seq.length
           elsif ref_seq.length > alt_seq.length
             mod_type   = 'del'
-            seq_length = ref_seq.length
+            seq_length = ref_seq.length - alt_seq.length
           elsif ref_seq.length < alt_seq.length
             mod_type   = 'ins'
-            seq_length = alt_seq.length
+            seq_length = alt_seq.length - ref_seq.length
           else
             puts "ERROR: cannot understand this line"
             puts line
@@ -324,52 +341,14 @@ class TraceCall < ActiveRecord::Base
 
           vcf_data.push({
             'chr'      => parsed_fields[0],
-            'start'    => parsed_fields[1].to_i,
-            'end'      => parsed_fields[1].to_i + seq_length - 1,
+            'start'    => parsed_fields[1].to_i + 1,
+            'end'      => parsed_fields[1].to_i + seq_length,
             'ref_seq'  => ref_seq,
             'alt_seq'  => alt_seq,
             'mod_type' => mod_type
           })
         end
     end
-
-    # example (deletion):
-    # ["6",
-    # "136781533",
-    # ".",
-    # "TGAGAGGCCCAGAACACCATCAGCGCG",
-    # "TG",
-    # "22.4955",
-    # ".",
-    # "INDEL;IDV=1;IMF=1;DP=1;SGB=-0.379885;MQ0F=0;AF1=1;AC1=2;DP4=0,0,0,1;MQ=60;FQ=-37.5258",
-    # "GT:PL",
-    # "1/1:60,3,0"]
-
-    # if parsed_fields.length >= 4
-    #   ref_seq = parsed_fields[3]
-    #   alt_seq = parsed_fields[4]
-
-    #   # compare sequences to determine whether insertion or deletion
-    #   if alt_seq.length > ref_seq.length
-    #     mod_type   = 'insertion'
-    #     seq_length = alt_seq.length
-    #   elsif ref_seq.length > alt_seq.length
-    #     mod_type = 'deletion'
-    #     seq_length = ref_seq.length
-    #   else
-    #     mod_type = 'unknown'
-    #     seq_length = ref_seq.length
-    #   end
-
-    #   vcf_data = {
-    #     'chr'      => parsed_fields[0],
-    #     'start'    => parsed_fields[1].to_i,
-    #     'end'      => parsed_fields[1].to_i + seq_length,
-    #     'ref_seq'  => ref_seq,
-    #     'alt_seq'  => alt_seq,
-    #     'mod_type' => mod_type
-    #   }
-    # end
 
     return vcf_data
   end
@@ -400,4 +379,5 @@ end
 #  trace_file_content_type        :string(255)
 #  trace_file_file_size           :integer
 #  trace_file_updated_at          :datetime
+#  exon_id                        :string(255)
 #

@@ -349,9 +349,9 @@ class BuildProductCore
     @solr_password = @config['options']['SOLR_PASSWORD']
     @dataset_max_size = 80000
     @process_mice = true
-    @process_es_cells = false
-    @process_targeting_vectors = false
-    @process_intermediate_vectors = false
+    @process_es_cells = true
+    @process_targeting_vectors = true
+    @process_intermediate_vectors = true
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',

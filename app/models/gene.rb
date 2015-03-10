@@ -275,9 +275,6 @@ class Gene < ActiveRecord::Base
     if marker_symbol =~ /CGI/
       self.feature_type = 'CpG Island'
       self.marker_type = 'DNA Segment'
-    elsif marker_symbol =~ /Gm/
-      self.feature_type = 'scRNA gene'
-      self.marker_type = 'Gene'
     end
   end
   private :set_cgi_and_gm_feature_types

@@ -41,7 +41,7 @@ class BuildProductCore
       JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
       JOIN genes ON genes.id = targ_rep_alleles.gene_id
       LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_es_cells.ikmc_project_foreign_id
-      LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
+      LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_es_cells.pipeline_id
       LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
       LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = targ_rep_es_cells.targeting_vector_id
     WHERE targ_rep_pipelines.name SUBS_EUCOMMTOOLSCRE
@@ -827,11 +827,17 @@ class BuildProductCore
                         "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"],
               :names => ['EUMMCR', 'MMRRC']}
 
-    elsif ['Sanger MGP'].include?(pipeline)
+    elsif ['Sanger MGP', 'Sanger_Faculty'].include?(pipeline)
       return {:urls => ["mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['Wtsi']}
 
     elsif 'NorCOMM' == pipeline
       return {:urls => ['http://www.phenogenomics.ca/cmmr/services/escell.html'], :names => ['NorCOMM']}
+
+    elsif 'TIGM' == pipeline
+      return {:urls => ["mailto:info@tigm.org?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['TIGM']}
+
+    elsif 'NARLabs' == pipeline
+      return {:urls => ["mailto:geniechin@narlabs.org.tw?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['NARLabs']}
 
     else
       puts "PIPELINE : #{pipeline}"

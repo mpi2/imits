@@ -129,6 +129,7 @@ class BuildProductCore
           (SELECT targ_rep_es_cells.*
           FROM targ_rep_es_cells
           ORDER BY targ_rep_es_cells.targeting_vector_id, targ_rep_es_cells.mgi_allele_symbol_superscript) AS es_cells
+        WHERE es_cells.report_to_public = true
         GROUP BY es_cells.targeting_vector_id
       )
 
@@ -495,6 +496,7 @@ class BuildProductCore
     row['allele_symbol'] = 'None'
     row['allele_symbol'] = 'DUMMY_' + row['targ_rep_alleles_id'] if ! row['targ_rep_alleles_id'].to_s.empty?
     row['allele_symbol'] = 'tm' + row['targ_rep_alleles_id'] + row['allele_type'] if !['None', 'em'].include?(row['allele_type'])
+    row['allele_symbol'] = 'tm' + row['design_id'] + row['allele_type'] + '(' + row['cassette'] + ')' if !['None', 'em'].include?(row['allele_type']) && !row['design_id'].blank? && !row['cassette'].blank?
     row['allele_symbol'] = row['allele_symbol_superscript'] if ! row['allele_symbol_superscript'].to_s.empty?
     row['allele_symbol'] = row['allele_symbol_superscript_template'].to_s.gsub(/\@/, row['allele_type'].to_s) if ! row['allele_type'].nil? && ! row['allele_symbol_superscript_template'].to_s.empty?
 
@@ -623,7 +625,7 @@ class BuildProductCore
      "cassette"                         => row["cassette"]
      }
 
-    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['allele_type'], row["allele_id"],  row['pipeline'], row['cassette'])
+    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['allele_type'], row["design_id"],  row['pipeline'], row['cassette'])
 
     if allele_name
       doc["allele_type"] = allele_type
@@ -651,7 +653,7 @@ class BuildProductCore
      "other_links"                     => ["design_link:#{self.class.design_url(row['design_id'])}"]
     }
 
-    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['mutation_type'], row["allele_id"], row['pipeline'], row['cassette'])
+    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['mutation_type'], row["design_id"], row['pipeline'], row['cassette'])
     if allele_name
       doc["allele_type"] = allele_type
       doc["allele_name"] = allele_name
@@ -753,7 +755,7 @@ class BuildProductCore
     psql_array[1, psql_array.length-2].gsub('"', '').split(',')
   end
 
-  def self.process_vector_allele_type (allele_names, allele_types, mutation_type_code, allele_id, pipeline = '', cassette = '')
+  def self.process_vector_allele_type (allele_names, allele_types, mutation_type_code, design_id, pipeline = '', cassette = '')
     if !allele_names.blank? and allele_types[0] != 'NULL' and allele_names[0] != 'NULL'
       return [allele_types[0], allele_names[0]]
     end
@@ -768,7 +770,7 @@ class BuildProductCore
 
     return [] if mutation_type_code.blank? or !allele_guess_hash.has_key?(mutation_type_code)
 
-    allele_name_guess = [allele_guess_hash[mutation_type_code]['type'], allele_guess_hash[mutation_type_code]['allele_name'].gsub(/\@/, allele_id)]
+    allele_name_guess = [allele_guess_hash[mutation_type_code]['type'], "#{allele_guess_hash[mutation_type_code]['allele_name'].gsub(/\@/, design_id)}(#{cassette})"]
     return allele_name_guess
   end
 

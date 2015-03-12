@@ -225,6 +225,7 @@ class BuildAllele2
     row1['allele_symbol'] = 'None'
     row1['allele_symbol'] = 'DUMMY_' + row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
     row1['allele_symbol'] = 'tm' + row1['targ_rep_alleles_id'] + row1['allele_type'] if !['None', 'em'].include?(row1['allele_type'])
+    row1['allele_symbol'] = 'tm' + row1['design_id'] + row1['allele_type'] + '(' + row1['cassette'] + ')' if !['None', 'em'].include?(row1['allele_type']) && !row1['design_id'].blank? && !row1['cassette'].blank?
     row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
     row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['allele_type'].to_s) if ! row1['allele_type'].nil? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
@@ -413,7 +414,6 @@ class BuildAllele2
           next
         end
         next if mark?(row)
-
         row['allele_mgi_accession_id'] = row['mouse_allele_mod_mouse_mgi_accession_id']
 
         genbank_file(row)
@@ -444,7 +444,6 @@ class BuildAllele2
           next
         end
         next if mark?(row)
-
         row['allele_mgi_accession_id'] = row['es_cell_mgi_accession_id']
         genbank_file(row)
         row['mouse_status'] = @statuses['GENOTYPE_CONFIRMED']
@@ -504,7 +503,6 @@ class BuildAllele2
           next
         end
         next if mark?(row)
-
         # B4
         row['allele_mgi_accession_id'] = row['es_cell_mgi_accession_id']
         genbank_file(row)
@@ -550,7 +548,6 @@ class BuildAllele2
         next
       end
       next if mark?(row)
-
       if row['does_an_es_cell_exist'] == 't'
         row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
         row['allele_mgi_accession_id'] = row['es_cell_mgi_accession_id']

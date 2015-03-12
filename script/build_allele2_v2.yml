@@ -74,13 +74,13 @@ sql: |
 
   mouse_allele_mods.allele_name AS mam_mgi_allele_symbol_superscript,
   colonies.allele_name AS mi_mgi_allele_symbol_superscript,
-  targ_rep_es_cells.mgi_allele_symbol_superscript,
+  CASE WHEN (targ_rep_es_cells.report_to_public = true OR mi_attempts.report_to_public = true OR mouse_allele_mods.report_to_public = true) THEN targ_rep_es_cells.mgi_allele_symbol_superscript ELSE '' END AS mgi_allele_symbol_superscript,
 
   crispr_mutation_descriptions.mutation_description AS crispr_mutation_description,
   crispr_mutation_descriptions.exon_id AS exon_id,
 
   targ_rep_es_cells.name AS es_cell_name,
-  targ_rep_es_cells.allele_symbol_superscript_template,
+  CASE WHEN (targ_rep_es_cells.report_to_public = true OR mi_attempts.report_to_public = true OR mouse_allele_mods.report_to_public = true) THEN  targ_rep_es_cells.allele_symbol_superscript_template ELSE '' END AS allele_symbol_superscript_template,
   targ_rep_es_cells.allele_type AS es_cell_allele_type,
   targ_rep_es_cells.mgi_allele_id AS es_cell_mgi_accession_id,
   targ_rep_es_cells.ikmc_project_id AS es_ikmc_project_id,
@@ -90,8 +90,8 @@ sql: |
 
   targ_rep_targeting_vectors.ikmc_project_id AS tv_ikmc_project_id,
   targ_rep_tv_pipeline.name AS tv_pipeline,
-  CASE WHEN (targ_rep_targeting_vectors.allele_id IS NOT NULL) THEN true else false END AS does_a_targ_vec_exist,
-  CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL) THEN true else false END AS does_an_es_cell_exist,
+  CASE WHEN (targ_rep_targeting_vectors.allele_id IS NOT NULL AND targ_rep_targeting_vectors.report_to_public = true) THEN true else false END AS does_a_targ_vec_exist,
+  CASE WHEN (targ_rep_es_cells.allele_id IS NOT NULL AND targ_rep_es_cells.report_to_public = true) THEN true else false END AS does_an_es_cell_exist,
 
   CASE WHEN (mi_attempts.report_to_public = true) THEN miapc.name END AS miacentre_name,
   CASE WHEN (mi_attempts.report_to_public = true) THEN mi_attempt_statuses.name END AS mi_attempt_status,

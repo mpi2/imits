@@ -250,7 +250,7 @@ class TargRep::Allele < ActiveRecord::Base
                               'tmCGI'   => "Truncation cassette with conditional potential",
                               'gt'      => "Gene Trap",
                               'Gene Trap' => "Gene Trap",
-                              'em'      => "Frameshift mutation caused by a #{crispr_mutation_description} in #{exon_id}"
+                              'em'      => "#{if !exon_id.blank? && !crispr_mutation_description.blank?;"Frameshift mutation caused by a #{crispr_mutation_description}  in #{exon_id}" ; else; "Frameshift mutation"; end}"
                             }
 
       return allele_descriptions['tmCGI'] if !marker_symbol.blank? && marker_symbol =~ /CGI/

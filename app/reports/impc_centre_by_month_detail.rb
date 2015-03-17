@@ -53,7 +53,7 @@ class ImpcCentreByMonthDetail
 	    centres.name = 'Harwell' AND consortia.name IN ('BaSH', 'MRC')
 	  OR
 	    centres.name = 'UCD' AND consortia.name = 'DTCC'
-	  ORImpcCentreByMonthDetail
+	  OR
 	    centres.name = 'WTSI' AND consortia.name IN ('MGP', 'BaSH')
 	  OR
 	    centres.name = 'Monterotondo' AND consortia.name = 'Monterotondo')

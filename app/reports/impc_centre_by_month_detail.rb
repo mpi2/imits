@@ -48,12 +48,12 @@ class ImpcCentreByMonthDetail
 	  OR
 	    centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')
 	  OR
-	    centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
+	    centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC', 'MARC')
 	  OR
 	    centres.name = 'Harwell' AND consortia.name IN ('BaSH', 'MRC')
 	  OR
 	    centres.name = 'UCD' AND consortia.name = 'DTCC'
-	  OR
+	  ORImpcCentreByMonthDetail
 	    centres.name = 'WTSI' AND consortia.name IN ('MGP', 'BaSH')
 	  OR
 	    centres.name = 'Monterotondo' AND consortia.name = 'Monterotondo')
@@ -97,7 +97,7 @@ class ImpcCentreByMonthDetail
 	  OR
 	    centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')
 	  OR
-	    centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
+	    centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC', 'MARC')
 	  OR
 	    centres.name = 'Harwell' AND consortia.name IN ('BaSH', 'MRC')
 	  OR

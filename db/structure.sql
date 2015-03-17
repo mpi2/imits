@@ -3654,7 +3654,8 @@ CREATE TABLE targ_rep_targeting_vectors (
     updated_at timestamp without time zone NOT NULL,
     ikmc_project_foreign_id integer,
     mgi_allele_name_prediction character varying(40),
-    allele_type_prediction character varying(10)
+    allele_type_prediction character varying(10),
+    production_centre_auto_update boolean DEFAULT true NOT NULL
 );
 
 
@@ -6492,3 +6493,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150303141000');
 INSERT INTO schema_migrations (version) VALUES ('20150309141000');
 
 INSERT INTO schema_migrations (version) VALUES ('20150309151000');
+
+INSERT INTO schema_migrations (version) VALUES ('20150317151000');

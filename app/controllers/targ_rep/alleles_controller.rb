@@ -557,6 +557,7 @@ class TargRep::AllelesController < TargRep::BaseController
     end
 
     def format_nested_params
+      puts 'HELLO'
       # Specific to create/update methods - webservice interface
       params[:targ_rep_allele] = params.delete(:molecular_structure) if params[:molecular_structure]
       params[:targ_rep_allele] = params.delete(:allele) if params[:allele]
@@ -585,7 +586,9 @@ class TargRep::AllelesController < TargRep::BaseController
       ##
 
       if allele_params.include? :es_cells
-        allele_params[:es_cells].each { |attrs| attrs[:nested] = true }
+        allele_params[:es_cells].each do |attrs|
+          attrs[:nested] = true
+        end
         allele_params[:es_cells_attributes] = allele_params.delete(:es_cells)
       elsif not allele_params.include? :es_cells_attributes
         allele_params[:es_cells_attributes] = []
@@ -615,6 +618,42 @@ class TargRep::AllelesController < TargRep::BaseController
         allele_params[:targeting_vectors_attributes] = allele_params.delete(:targeting_vectors)
       end
 
+
+      allele_params[:es_cells_attributes].each do |key, attrs|
+        puts attrs
+        if current_user != 'htgt@sanger.ac.uk'
+          if !attrs.has_key?("id")
+            attrs["production_centre_auto_update"] = false
+          else
+            es_cell = TargRep::EsCell.find(attrs["id"])
+            puts es_cell.report_to_public
+            puts attrs["report_to_public"]
+            if attrs.has_key?("report_to_public") && es_cell.report_to_public != (attrs["report_to_public"] == '1')
+              attrs["production_centre_auto_update"] = false
+            end
+          end
+        end
+      end
+
+      allele_params[:targeting_vectors_attributes].each do |key, attrs|
+        puts "HTGT USER?"
+        if current_user != 'htgt@sanger.ac.uk'
+          puts "YES"
+          if !attrs.has_key?("id")
+            puts "NEW"
+            attrs["production_centre_auto_update"] = false
+          else
+            puts "EXISTING"
+            targeting_vector = TargRep::TargetingVector.find(attrs["id"])
+            puts targeting_vector.report_to_public
+            puts attrs["report_to_public"]
+            if attrs.has_key?("report_to_public") && targeting_vector.report_to_public != (attrs["report_to_public"] == '1')
+              attrs["production_centre_auto_update"] = false
+            end
+          end
+          puts "AUTO UPDATE #{attrs["production_centre_auto_update"]}"
+        end
+      end
       ##
       ##  Allele Sequence Anotation
       ##

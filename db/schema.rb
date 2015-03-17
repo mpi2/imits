@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150309151000) do
+ActiveRecord::Schema.define(:version => 20150317151000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -1394,17 +1394,18 @@ ActiveRecord::Schema.define(:version => 20150309151000) do
   end
 
   create_table "targ_rep_targeting_vectors", :force => true do |t|
-    t.integer  "allele_id",                                :null => false
-    t.string   "name",                                     :null => false
+    t.integer  "allele_id",                                                     :null => false
+    t.string   "name",                                                          :null => false
     t.string   "ikmc_project_id"
     t.string   "intermediate_vector"
-    t.boolean  "report_to_public",                         :null => false
+    t.boolean  "report_to_public",                                              :null => false
     t.integer  "pipeline_id"
-    t.datetime "created_at",                               :null => false
-    t.datetime "updated_at",                               :null => false
+    t.datetime "created_at",                                                    :null => false
+    t.datetime "updated_at",                                                    :null => false
     t.integer  "ikmc_project_foreign_id"
-    t.string   "mgi_allele_name_prediction", :limit => 40
-    t.string   "allele_type_prediction",     :limit => 10
+    t.string   "mgi_allele_name_prediction",    :limit => 40
+    t.string   "allele_type_prediction",        :limit => 10
+    t.boolean  "production_centre_auto_update",               :default => true, :null => false
   end
 
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"

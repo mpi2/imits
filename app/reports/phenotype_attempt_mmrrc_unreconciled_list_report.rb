@@ -45,7 +45,7 @@ class PhenotypeAttemptMmrrcUnreconciledListReport
             JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
             LEFT OUTER JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
             WHERE mouse_allele_mod_statuses.name = 'Cre Excision Complete'
-            AND mi_attempt_distribution_centres.distribution_network = '#{dist_network_name}'
+            AND phenotype_attempt_distribution_centres.distribution_network = '#{dist_network_name}'
             AND reconciled = 'false'
             AND consortia.name = '#{consortium}'
             AND centres.name = '#{prod_centre}'

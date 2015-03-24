@@ -215,4 +215,79 @@ class V2::ReportsController < ApplicationController
     @komp_reconciled_list = report.komp_reconciled_list
   end
 
+  def emma_phenotype_unreconciled_list
+    @consortium = params[:consortium]
+    if @consortium.blank?
+      flash[:alert] = "Missing Consortium Name"
+    end
+
+    @prod_centre = params[:prod_centre]
+    if @prod_centre.blank?
+      flash[:alert] = "Missing Production Centre"
+    end
+
+    report = PhenotypeAttemptEmmaUnreconciledListReport.new(@consortium, @prod_centre)
+    @emma_unreconciled_list = report.emma_unreconciled_list
+  end
+
+  def emma_phenotype_reconciled_list
+    @consortium = params[:consortium]
+    if @consortium.blank?
+      flash[:alert] = "Missing Consortium Name"
+    end
+
+    @prod_centre = params[:prod_centre]
+    if @prod_centre.blank?
+      flash[:alert] = "Missing Production Centre"
+    end
+
+    report = PhenotypeAttemptEmmaReconciledListReport.new(@consortium, @prod_centre)
+    @emma_reconciled_list = report.emma_reconciled_list
+  end
+
+
+  def mmrrc_phenotype_unreconciled_list
+    @consortium = params[:consortium]
+    if @consortium.blank?
+      flash[:alert] = "Missing Consortium Name"
+    end
+
+    @prod_centre = params[:prod_centre]
+    if @prod_centre.blank?
+      flash[:alert] = "Missing Production Centre"
+    end
+
+    report = PhenotypeAttemptMmrrcUnreconciledListReport.new(@consortium, @prod_centre)
+    @mmrrc_unreconciled_list = report.mmrrc_unreconciled_list
+  end
+
+  def mmrrc_phenotype_reconciled_list
+    @consortium = params[:consortium]
+    if @consortium.blank?
+      flash[:alert] = "Missing Consortium Name"
+    end
+
+    @prod_centre = params[:prod_centre]
+    if @prod_centre.blank?
+      flash[:alert] = "Missing Production Centre"
+    end
+
+    report = PhenotypeAttemptMmrrcReconciledListReport.new(@consortium, @prod_centre)
+    @mmrrc_reconciled_list = report.mmrrc_reconciled_list
+  end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 end

@@ -811,13 +811,8 @@ class BuildProductCore
       return {:urls => ["http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells"], :names => ['EUMMCR']}
 
     elsif ['KOMP-CSD', 'KOMP-Regeneron'].include?(pipeline)
-      if ! ikmc_project_id.blank?
-        if ikmc_project_id.match(/^VG/)
-          project = ikmc_project_id
-        else
-          project = 'CSD' + ikmc_project_id
-        end
-        url = "http://www.komp.org/geneinfo.php?project=#{project}"
+      if ! marker_symbol.blank?
+        url = "https://www.komp.org/geneinfo.php?Symbol=#{marker_symbol}"
       else
         url = "http://www.komp.org/"
       end

@@ -48,7 +48,7 @@ MMRRC:
   :preferred: 'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL'
   :default: ''
 KOMP:
-  :preferred: 'http://www.komp.org/geneinfo.php?project=PROJECT_ID'
+  :preferred: 'https://www.komp.org/geneinfo.php?Symbol=MARKER_SYMBOL'
   :default: 'http://www.komp.org/'
 CMMR:
   :preferred: 'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL'

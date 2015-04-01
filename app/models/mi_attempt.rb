@@ -25,7 +25,6 @@ class MiAttempt < ApplicationModel
   has_one    :colony, inverse_of: :mi_attempt, dependent: :destroy
 
   has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC", dependent: :destroy
-  has_many   :phenotype_attempts
   has_many   :mouse_allele_mods
   has_many   :colonies, inverse_of: :mi_attempt, dependent: :destroy
   has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre', dependent: :destroy
@@ -90,7 +89,7 @@ class MiAttempt < ApplicationModel
 
 
   validate do |mi_attempt|
-    if !mi_attempt.phenotype_attempts.blank? and
+    if !colony.blank? and (!mi_attempt.colony.allele_modifications.blank? or mi_attempt.colony.phenotyping_productions.blank?) and
               mi_attempt.status != MiAttempt::Status.genotype_confirmed
       mi_attempt.errors.add(:status, 'cannot be changed - phenotype attempts exist')
     end

@@ -4,67 +4,74 @@
 
   <tr>
     <td style="text-align: center;vertical-align: top;">
-        <div style="padding:30px 0px 0px 0px">
-        <%= f.text_field :name, :maxlength => 20 %>
+        <div style="padding:30px 0px 0px 0px ; width:110px">
+            <%= f.text_field :name, :size=>'15' %>
+        </div>
     </td>
     <td style="text-align: left;vertical-align: top">
-        <div style="padding:30px 0px 0px 20px; width:220px">
 
-        <% if ftc.object.trace_data_error %>
-            <% if ftc.object.file_error.to_s.length > 0 %>
-                <p>Error: <%= ftc.object.file_error %></p>
+        <div style="padding:0px 10px 0px 10px;">
 
-                <% if ! Rails.env.production? %>
-                    <p>debug stderr:</p>
-                    <p><%= ftc.object.file_trace_error %></p>
-                    <p>debug stdout:</p>
-                    <p><%= ftc.object.file_trace_output %></p>
+            <fieldset class="collapsible">
+            <legend>Upload sequence files</legend>
+            <div>
+
+            <% if ftc.object.trace_data_error %>
+                <% if ftc.object.file_error.to_s.length > 0 %>
+                    <p>Error: <%= ftc.object.file_error %></p>
+
+                    <% if ! Rails.env.production? %>
+                        <p>debug stderr:</p>
+                        <p><%= ftc.object.file_trace_error %></p>
+                        <p>debug stdout:</p>
+                        <p><%= ftc.object.file_trace_output %></p>
+                    <% end %>
+
+                <% else %>
+                    <p>error</p>
                 <% end %>
-
-            <% else %>
-                <p>error</p>
+            <% elsif ftc.object.trace_data_pending %>
+                <p>Analysis pending</p>
+            <% elsif ! f.object.new_record? && ftc.object.trace_data_available %>
+                <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
             <% end %>
-        <% elsif ftc.object.trace_data_pending %>
-            <p>Analysis pending</p>
-        <% elsif ! f.object.new_record? && ftc.object.trace_data_available %>
-            <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
-        <% end %>
-        <% if ! f.object.new_record? && (ftc.object.trace_data_available || ftc.object.trace_data_pending) %>
-            <button id="cbutton_<%= f.object.id %>" type="button" onclick="$(this).toggle();var id = '#cdiv_<%= f.object.id %>'; $(id).toggle();">Replace</button>
-                <div id="cdiv_<%= f.object.id %>" style="display:none;">
-                    <%= ftc.file_field :trace_file %>
-                </div>
+            <% if ! f.object.new_record? && (ftc.object.trace_data_available || ftc.object.trace_data_pending) %>
+                <button id="cbutton_<%= f.object.id %>" type="button" onclick="$(this).toggle();var id = '#cdiv_<%= f.object.id %>'; $(id).toggle();">Replace</button>
+                    <div id="cdiv_<%= f.object.id %>" style="display:none;">
+                        <%= ftc.file_field :trace_file %>
+                    </div>
+                    <div>Heterozygous Trace? <%= ftc.check_box :is_het %></div>
+                    <!-- see http://stackoverflow.com/questions/2187008/styling-an-anchor-tag-to-look-like-a-submit-button for download button -->
+            <% else %>
+                <%= ftc.file_field :trace_file %></br>
                 <div>Heterozygous Trace? <%= ftc.check_box :is_het %></div>
-                <!-- see http://stackoverflow.com/questions/2187008/styling-an-anchor-tag-to-look-like-a-submit-button for download button -->
-        <% else %>
-            <%= ftc.file_field :trace_file %></br>
-            <div>Heterozygous Trace? <%= ftc.check_box :is_het %></div>
-        <% end %>
+            <% end %>
+            </div>
+            </fieldset>
+        </div>
 
+        <div style="padding:0px 10px 0px 10px">
+            <fieldset class="collapsible">
+            <legend>Colony Status</legend>
+            <div>
+                <div>Genotype Confirmed? <%= f.check_box :genotype_confirmed %></div>
+                <div>Allele Description</div><div><%= f.text_area :unwanted_allele_description %></div>
+                <div>Unwanted Allele Obtained? <%= f.check_box :unwanted_allele %></div>
+            </div>
+            </fieldset>
+        </div>
 
-    </td>
-    <td style="text-align: left;vertical-align: top;">
-        <div style="padding:30px 0px 0px 20px">Genotype Confirmed? <%= f.check_box :genotype_confirmed %></div>
-
-        <fieldset>
-            <legend>Unwanted Allele</legend>
-            Obtained? <%= f.check_box :unwanted_allele %></br></br>
-            Allele Description<%= f.text_area :unwanted_allele_description %>
-        </fieldset>
-    </td>
-    <td  style="text-align: left;vertical-align: top;">
-
-        <div class="colony-qc-data" style="width:320px">
+        <div class="colony-qc-data" style="padding:0px 10px 0px 10px;">
 
             <fieldset class="collapsible hide-by-default">
-                <legend>Expand to view and edit</legend>
+                <legend>QC Data</legend>
                 <div>
                     <table>
                         <% if f.object.colony_qc.blank? %>
                             <% f.object.build_colony_qc %>
                         <% end %>
                         <%= f.fields_for :colony_qc do |builder| %>
-                            <% MiAttempt::QC_FIELDS.each do |qc_field| %>
+                            <% ColonyQc::QC_FIELDS.each do |qc_field| %>
                                 <tr>
                                     <td><%= builder.label(:post, qc_field) %></td>
                                     <td><%= builder.select qc_field, ['na', 'pass', 'fail'] %></td>
@@ -75,8 +82,44 @@
                 </div>
             </fieldset>
         </div>
+
+        <div class="distribution_centre" style="padding:0px 10px 0px 10px;">
+
+          <fieldset class="collapsible" id="distribution_centres">
+          <legend>Distribution Centres</legend>
+              <div class="distribution_centres">
+              <% if f.object.genotype_confirmed %>
+                  <table id="distribution_centres_<%= f.object_id %>_table" class="report_table">
+                  <thead class="title">
+                      <tr>
+                          <th>Distribution centre</th>
+                          <th>Distribution network?</th>
+                          <th>Deposited material</th>
+                          <th>Distribution dates</th>
+                          <th>Action</th>
+                      </tr>
+                  </thead>
+                  <tbody class="distribution_centres">
+                      <tr></tr>
+                      <% if f.object.distribution_centres.length > 0 %>
+                          <%= f.fields_for :distribution_centres do |builder| %>
+                              <% if !builder.object.new_record? %>
+                                  <%= render '/shared/distribution_centre_fields', f: builder %>
+                              <% end %>
+                          <% end %>
+                      <% end %>
+                  </tbody>
+                  </table>
+                  <%= link_to_add_fields "Add Distribution Centre", f, :distribution_centres %>
+              <% else %>
+                  No Distribution Centres can be set until Status is Genotype confirmed.
+              <% end %>
+              </div>
+          </fieldset>
+
+        </div>
     </td>
-    <td style="text-align: center;vertical-align: top;">
+    <td style="text-align: center;vertical-align: top; width:50px">
         <div style="padding:30px 0px 0px 0px">
             <%= f.check_box :report_to_public %>
         </div>

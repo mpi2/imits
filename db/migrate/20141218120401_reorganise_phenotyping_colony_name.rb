@@ -14,12 +14,14 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
 
     add_column :colonies, :mouse_allele_mod_id, :integer
     add_column :colonies, :mgi_allele_symbol_superscript, :string
-    add_column :colonies, :mgi_allele_id, :string
     add_column :colonies, :allele_symbol_superscript_template, :string
     add_column :colonies, :allele_type, :string
-    add_column :colonies, :colony_background_strain_id, :integer
+    add_column :colonies, :background_strain_id, :integer
 
-    create_table :distribution_centres do |t|
+    create_table :phenotype_attempt_ids do |t|
+    end
+
+    create_table :colony_distribution_centres do |t|
       t.integer :colony_id, :null => false
       t.integer :deposited_material_id, :null => false
       t.string :distribution_network
@@ -29,7 +31,7 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
       t.string :reconciled, :limit =>255, :default => "not checked", :null => false
       t.datetime :reconciled_at
       t.boolean :available, :default => true, :null => false
-      t.timestamp
+      t.timestamps
     end
 
     add_foreign_key :colonies, :mouse_allele_mods, :column => :mouse_allele_mod_id, :name => 'colonies_mouse_allele_mod_fk'
@@ -39,6 +41,8 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
     add_index :colonies, [:name, :mi_attempt_id, :mouse_allele_mod_id], :unique => true, :name => :mouse_allele_mod_colony_name_uniqueness_index
 
     sql = <<-EOF
+        --
+        INSERT INTO phenotype_attempt_ids (id) SELECT id FROM phenotype_attempts;
 
         -- Move Mi Attempt mouse_allele_type to colonies table. Populate this fields from the mi_attempt field before removing this field.
         UPDATE colonies SET allele_type = mi_attempts.mouse_allele_type, colony_background_strain_id = mi_attempts.colony_background_strain_id
@@ -101,13 +105,19 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
         FROM mouse_allele_mods, mi_attempts, colonies
         WHERE mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id AND mi_attempts.id = mouse_allele_mods.mi_attempt_id AND colonies.mi_attempt_id = mi_attempts.id AND mouse_allele_mods.cre_excision = false;
 
-        UPDATE phenotyping_productions SET parent_colony_id = colonies.id
+        UPDATE phenotyping_productions SET parent_colony_id = colonies.id, phenotype_attempt_id = mouse_allele_mods.phenotype_attempt_id
         FROM mouse_allele_mods, colonies
         WHERE mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id AND colonies.mouse_allele_mod_id = mouse_allele_mods.id  AND mouse_allele_mods.cre_excision = true;
 
         UPDATE phenotyping_productions SET colony_background_strain_id = mouse_allele_mods.colony_background_strain_id, rederivation_started = mouse_allele_mods.rederivation_complete, rederivation_complete = mouse_allele_mods.rederivation_complete, phenotype_attempt_id = mouse_allele_mods.phenotype_attempt_id
         FROM mouse_allele_mods
-        WHERE mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id;
+        WHERE mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id AND mouse_allele_mods.cre_excision = false;
+
+       INSERT INTO colony_distribution_centres (colony_id, deposited_material_id, distribution_network, centre_id, start_date, end_date, reconciled, reconciled_at, available, updated_at, created_at)
+         SELECT colonies.id, mi_attempt_distribution_centres.deposited_material_id, mi_attempt_distribution_centres.distribution_network, mi_attempt_distribution_centres.centre_id, mi_attempt_distribution_centres.start_date, mi_attempt_distribution_centres.end_date, mi_attempt_distribution_centres.reconciled, mi_attempt_distribution_centres.reconciled_at, mi_attempt_distribution_centres.available , mi_attempt_distribution_centres.updated_at, mi_attempt_distribution_centres.created_at FROM mi_attempt_distribution_centres JOIN mi_attempts ON mi_attempts.id = mi_attempt_distribution_centres.mi_attempt_id JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id
+         UNION
+         SELECT colonies.id, phenotype_attempt_distribution_centres.deposited_material_id, phenotype_attempt_distribution_centres.distribution_network, phenotype_attempt_distribution_centres.centre_id, phenotype_attempt_distribution_centres.start_date, phenotype_attempt_distribution_centres.end_date, phenotype_attempt_distribution_centres.reconciled, phenotype_attempt_distribution_centres.reconciled_at, phenotype_attempt_distribution_centres.available , phenotype_attempt_distribution_centres.updated_at, phenotype_attempt_distribution_centres.created_at FROM phenotype_attempt_distribution_centres JOIN mouse_allele_mods ON mouse_allele_mods.id = phenotype_attempt_distribution_centres.mouse_allele_mod_id JOIN colonies ON colonies.mouse_allele_mod_id = mouse_allele_mods.id
+         ;
 
        --Delete mouse_allele_mods when mouse_allele_modifications are not occuring. Not required with the addition of parent_colony_id keys above
 
@@ -152,8 +162,7 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
     remove_column :colonies, :mgi_allele_symbol_superscript
     remove_column :colonies, :allele_symbol_superscript_template
     remove_column :colonies, :allele_type
-    remove_column :colonies, :mgi_allele_id
-    remove_column :colonies, :colony_background_strain_id
+    remove_column :colonies, :background_strain_id
 
   end
 end

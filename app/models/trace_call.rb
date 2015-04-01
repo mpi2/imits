@@ -295,4 +295,5 @@ end
 #  trace_file_content_type        :string(255)
 #  trace_file_file_size           :integer
 #  trace_file_updated_at          :datetime
+#  exon_id                        :string(255)
 #

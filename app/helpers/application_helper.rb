@@ -18,7 +18,7 @@ module ApplicationHelper
     fields = f.fields_for(association, @new_object, child_index: id) do |builder|
       render('/shared/' + association.to_s.singularize + "_fields", f: builder)
     end
-    link_to(name, '#', class: "add-row", :"data-fields" => fields.gsub("\n", ""), :"data-object-id" => @new_object.object_id, :"data-table-id" => association.to_s + '_table')
+    link_to(name, '#', class: "add-row", :"data-fields" => fields.gsub("\n", ""), :"data-object-id" => @new_object.object_id, :"data-table-id" => association.to_s + '_' + f.object_id.to_s + '_table')
   end
 
   def javascript(*files)

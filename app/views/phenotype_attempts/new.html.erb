@@ -6,21 +6,22 @@
 <% end %>
 
 <div id="object-new-bottom" class="grid_8 prefix_2 suffix_2">
-  <%= form_for @phenotype_attempt, :as => :phenotype_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
+  <%= form_for @phenotype_attempt, :as => :phenotype_attempt, :url => "/phenotype_attempts/#{@phenotype_attempt.id}", :html => {'onsubmit' => 'return false;'} do |form| %>
 
-  <%= form.error_messages %>
+    <% if !form.object.errors.blank? %>
+      <div class="errorExplanation" id="errorExplanation"><h2>1 error prohibited this phenotype attempt from being saved</h2><p>There were problems with the following fields:</p>
+        <% form.object.errors.messages.each do |key, message| %>
+          <ul><li><%= key.to_s + ' '+ message.join(' ') %></li></ul>
+        <% end %>
+      </div>
+    <% end %>
 
   <fieldset class="collapsible">
-    <legend>ES Cell Details</legend>
+    <legend>Gene</legend>
     <div>
       <div class="marker-symbol">
         <div class="label" >Marker Symbol</div>
-        <div id="marker_symbol"><%= @mi_attempt.es_cell.marker_symbol %></div>
-      </div>
-
-      <div class="es-cell-name">
-          <div class="label">ES Cell Name</div>
-          <div><%= @mi_attempt.es_cell.name %></div>
+        <div id="marker_symbol"><%= @mi_attempt.mi_plan.gene.marker_symbol %></div>
       </div>
     </div>
   </fieldset>

@@ -745,6 +745,7 @@ CREATE TABLE centres (
     updated_at timestamp without time zone,
     contact_name character varying(100),
     contact_email character varying(100),
+    code character varying(255),
     superscript character varying(255)
 );
 
@@ -780,9 +781,10 @@ CREATE TABLE colonies (
     report_to_public boolean DEFAULT false,
     unwanted_allele boolean DEFAULT false,
     unwanted_allele_description text,
+    mgi_allele_id character varying(255),
+    allele_name character varying(255),
     mouse_allele_mod_id integer,
     mgi_allele_symbol_superscript character varying(255),
-    mgi_allele_id character varying(255),
     allele_symbol_superscript_template character varying(255),
     allele_type character varying(255),
     colony_background_strain_id integer
@@ -806,6 +808,45 @@ CREATE SEQUENCE colonies_id_seq
 --
 
 ALTER SEQUENCE colonies_id_seq OWNED BY colonies.id;
+
+
+--
+-- Name: colony_distribution_centres; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE colony_distribution_centres (
+    id integer NOT NULL,
+    colony_id integer NOT NULL,
+    deposited_material_id integer NOT NULL,
+    distribution_network character varying(255),
+    centre_id integer NOT NULL,
+    start_date date,
+    end_date date,
+    reconciled character varying(255) DEFAULT 'not checked'::character varying NOT NULL,
+    reconciled_at timestamp without time zone,
+    available boolean DEFAULT true NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: colony_distribution_centres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE colony_distribution_centres_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: colony_distribution_centres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE colony_distribution_centres_id_seq OWNED BY colony_distribution_centres.id;
 
 
 --
@@ -980,43 +1021,6 @@ CREATE SEQUENCE deposited_materials_id_seq
 --
 
 ALTER SEQUENCE deposited_materials_id_seq OWNED BY deposited_materials.id;
-
-
---
--- Name: distribution_centres; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE distribution_centres (
-    id integer NOT NULL,
-    colony_id integer NOT NULL,
-    deposited_material_id integer NOT NULL,
-    distribution_network character varying(255),
-    centre_id integer NOT NULL,
-    start_date date,
-    end_date date,
-    reconciled character varying(255) DEFAULT 'not checked'::character varying NOT NULL,
-    reconciled_at timestamp without time zone,
-    available boolean DEFAULT true NOT NULL
-);
-
-
---
--- Name: distribution_centres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE distribution_centres_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: distribution_centres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE distribution_centres_id_seq OWNED BY distribution_centres.id;
 
 
 --
@@ -2428,6 +2432,34 @@ ALTER SEQUENCE phenotype_attempt_distribution_centres_id_seq OWNED BY phenotype_
 
 
 --
+-- Name: phenotype_attempt_ids; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE phenotype_attempt_ids (
+    id integer NOT NULL
+);
+
+
+--
+-- Name: phenotype_attempt_ids_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE phenotype_attempt_ids_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: phenotype_attempt_ids_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE phenotype_attempt_ids_id_seq OWNED BY phenotype_attempt_ids.id;
+
+
+--
 -- Name: phenotype_attempt_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -3787,7 +3819,8 @@ CREATE TABLE trace_calls (
     trace_file_file_name character varying(255),
     trace_file_content_type character varying(255),
     trace_file_file_size integer,
-    trace_file_updated_at timestamp without time zone
+    trace_file_updated_at timestamp without time zone,
+    exon_id character varying(255)
 );
 
 
@@ -3945,6 +3978,13 @@ ALTER TABLE ONLY colonies ALTER COLUMN id SET DEFAULT nextval('colonies_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY colony_distribution_centres ALTER COLUMN id SET DEFAULT nextval('colony_distribution_centres_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY colony_qcs ALTER COLUMN id SET DEFAULT nextval('colony_qcs_id_seq'::regclass);
 
 
@@ -3974,13 +4014,6 @@ ALTER TABLE ONLY deleter_strains ALTER COLUMN id SET DEFAULT nextval('deleter_st
 --
 
 ALTER TABLE ONLY deposited_materials ALTER COLUMN id SET DEFAULT nextval('deposited_materials_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY distribution_centres ALTER COLUMN id SET DEFAULT nextval('distribution_centres_id_seq'::regclass);
 
 
 --
@@ -4163,6 +4196,13 @@ ALTER TABLE ONLY notifications ALTER COLUMN id SET DEFAULT nextval('notification
 --
 
 ALTER TABLE ONLY phenotype_attempt_distribution_centres ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_distribution_centres_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempt_ids ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_ids_id_seq'::regclass);
 
 
 --
@@ -4435,6 +4475,14 @@ ALTER TABLE ONLY colonies
 
 
 --
+-- Name: colony_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY colony_distribution_centres
+    ADD CONSTRAINT colony_distribution_centres_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: colony_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4472,14 +4520,6 @@ ALTER TABLE ONLY deleter_strains
 
 ALTER TABLE ONLY deposited_materials
     ADD CONSTRAINT deposited_materials_pkey PRIMARY KEY (id);
-
-
---
--- Name: distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY distribution_centres
-    ADD CONSTRAINT distribution_centres_pkey PRIMARY KEY (id);
 
 
 --
@@ -4688,6 +4728,14 @@ ALTER TABLE ONLY notifications
 
 ALTER TABLE ONLY phenotype_attempt_distribution_centres
     ADD CONSTRAINT phenotype_attempt_distribution_centres_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: phenotype_attempt_ids_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY phenotype_attempt_ids
+    ADD CONSTRAINT phenotype_attempt_ids_pkey PRIMARY KEY (id);
 
 
 --
@@ -6542,3 +6590,9 @@ INSERT INTO schema_migrations (version) VALUES ('20141218120401');
 INSERT INTO schema_migrations (version) VALUES ('20150121134401');
 
 INSERT INTO schema_migrations (version) VALUES ('20150123133119');
+
+INSERT INTO schema_migrations (version) VALUES ('20150303141000');
+
+INSERT INTO schema_migrations (version) VALUES ('20150309141000');
+
+INSERT INTO schema_migrations (version) VALUES ('20150309151000');

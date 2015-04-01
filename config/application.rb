@@ -27,20 +27,6 @@ module TarMits
     # Activate observers that should always be running.
     # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
 
-    config.enable_solr_phenotype_attempt = false
-
-    config.active_record.observers = [
-      'SolrUpdate::Observer::AnyWithMiAttempts',
-      'SolrUpdate::Observer::MiAttempt',
-      'SolrUpdate::Observer::DistributionCentres',
-      'SolrUpdate::Observer::Allele',
-      'SolrUpdate::Observer::EsCell',
-      'SolrUpdate::Observer::MiPlan',
-      'SolrUpdate::Observer::Gene',
-      'SolrUpdate::Observer::IkmcProject'
-    ]
-
-    config.active_record.observers += ['SolrUpdate::Observer::PhenotypeAttempt'] if config.enable_solr_phenotype_attempt
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
@@ -60,8 +46,6 @@ module TarMits
 
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
-
-    require 'solr_update'
 
     config.paths['intermediate_report_log'] = 'log/intermediate_report.log'
     config.paths['upload_path'] = File.join(Rails.root, 'uploads')

@@ -5,6 +5,8 @@ class Colony < ApplicationModel
   acts_as_audited
   acts_as_reportable
 
+  extend AccessAssociationByAttribute
+
   belongs_to :mi_attempt
   belongs_to :mouse_allele_mod
   belongs_to :colony_background_strain, :class_name => 'Strain'
@@ -84,7 +86,7 @@ class Colony < ApplicationModel
       if mi_attempt.es_cell_id
         return mi_attempt.es_cell.allele_symbol_superscript_template
       elsif mi_attempt.mutagenesis_factor
-        return "em1(IMPC)#{production_centre.superscript}"
+        return "em1(IMPC)#{mi_attempt.production_centre.superscript}"
       else
         return nil
       end
@@ -127,6 +129,10 @@ class Colony < ApplicationModel
     return mi_attempt.mi_plan.gene if !mi_attempt_id.blank?
     return mouse_allele_mod.mi_plan.gene if !mouse_allele_mod_id.blank?
     return nil
+  end
+
+  def marker_symbol
+    gene.try(:marker_symbol)
   end
 
   def mi_plan
@@ -177,6 +183,25 @@ class Colony < ApplicationModel
     end
   end
 
+  def distribution_centres_formatted_display
+    output_string = ''
+    self.distribution_centres.each do |distribution_centre|
+      output_array = []
+      if distribution_centre.distribution_network
+        output_array << distribution_centre.distribution_network
+      end
+      output_array << distribution_centre.centre.name
+      if !distribution_centre.deposited_material.name.nil?
+        output_array << distribution_centre.deposited_material.name
+      end
+      output_string << "[#{output_array.join(', ')}] "
+    end
+    return output_string.strip
+  end
+
+  def phenotype_attempts_count
+    self.allele_modifications.length + self.phenotyping_productions.length
+  end
 
   def self.readable_name
     return 'colony'
@@ -196,9 +221,10 @@ end
 #  report_to_public                   :boolean          default(FALSE)
 #  unwanted_allele                    :boolean          default(FALSE)
 #  unwanted_allele_description        :text
+#  mgi_allele_id                      :string(255)
+#  allele_name                        :string(255)
 #  mouse_allele_mod_id                :integer
 #  mgi_allele_symbol_superscript      :string(255)
-#  mgi_allele_id                      :string(255)
 #  allele_symbol_superscript_template :string(255)
 #  allele_type                        :string(255)
 #  colony_background_strain_id        :integer

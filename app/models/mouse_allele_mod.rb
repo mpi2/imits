@@ -44,36 +44,67 @@ class MouseAlleleMod < ApplicationModel
 
   protected :status=
 
+  before_validation :remove_spaces_from_colony_name
   before_validation :set_blank_qc_fields_to_na
   before_validation :allow_override_of_plan
   before_validation :change_status
   before_validation :manage_colony_and_qc_data
 
+  before_save :set_phenotype_attempt_id
 
   after_save :manage_status_stamps
 
-#  validates :parent_colony, :presence => true
-#  validates :mi_plan, :presence => true
-#  validates :phenotype_attempt_id, :presence => true
-#  validates :status, :presence => true
 
-  # validate mi_plan
-#  validate do |me|
-#    if validate_plan
+## BEFORE VALIDATION METHODS
 
-#      if !me.mi_plan.phenotype_only and me.parent_colony and me.parent_colony.mi_plan and me.parent_colony.mi_plan != me.mi_plan
-#        me.errors.add(:mi_plan, 'must be either the same as the mi_attempt OR phenotype_only')
-#      end
+  def remove_spaces_from_colony_name
+    if ! self.colony_name.nil?
+      self.colony_name = self.colony_name.to_s.strip || self.colony_name
+      self.colony_name = self.colony_name.to_s.gsub(/\s+/, ' ')
+    end
+  end
 
-#    end
-#  end
+  def generate_colony_name_if_blank
+    return unless self.colony_name.blank?
+    i = 0
+    begin
+      i += 1
+      j = i > 0 ? "-#{i}" : ""
+      new_colony_name = "#{self.parent_colony.name}#{j}"
+    end until self.class.find_by_colony_name(new_colony_name).blank?
+    self.colony_name = new_colony_name
+  end
 
+  validates :colony, :presence => true
+  validates :parent_colony, :presence => true
+  validates :status, :presence => true
 
-#  validate do |me|
-#    if me.parent_colony and me.parent_colony.genotype_confirmed != true
-#      me.errors.add(:colony, "Status must be 'Genotype confirmed'")
-#    end
-#  end
+  #mi_plan validatation
+  validate do |pp|
+    if pp.mi_plan.nil?
+      pp.errors.add(:consortium_name, 'must be set')
+      pp.errors.add(:centre_name, 'must be set')
+      return
+    end
+
+    if mi_plan != colony.mi_plan && mi_plan.phenotype_only == false
+      pp.errors[:mi_plan] << 'must be either the same as the mouse production plan OR phenotype_only'
+    end
+  end
+
+  #genotype confirmed colony
+  validate do |pp|
+    if parent_colony && parent_colony.genotype_confirmed == false
+      pp.errors.add(:production_colony_name, "Must be 'Genotype confirmed'")
+    end
+  end
+
+## BEFORE SAVE METHODS
+
+  def set_phenotype_attempt_id
+    return unless phenotype_attempt_id.blank?
+    phenotype_attempt_id = PhenotypeAttemptId.new.save.id
+  end
 
 
 ## METHODS
@@ -191,6 +222,23 @@ class MouseAlleleMod < ApplicationModel
     end
 
     return col.mi_attempt
+  end
+
+  def distribution_centres_formatted_display
+    return [] if self.colony.blank? || self.colony.distribution_centres.blank?
+    output_string = ''
+    self.colony.distribution_centres.each do |distribution_centre|
+      output_array = []
+      if distribution_centre.is_distributed_by_emma
+        output_array << 'EMMA'
+      end
+      output_array << distribution_centre.centre.name
+      if !distribution_centre.deposited_material.name.nil?
+        output_array << distribution_centre.deposited_material.name
+      end
+      output_string << "[#{output_array.join(', ')}] "
+    end
+    return output_string.strip()
   end
 
 ## CLASS METHODS

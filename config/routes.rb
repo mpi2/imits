@@ -90,11 +90,17 @@ TarMits::Application.routes.draw do
     end
   end
 
-  resources :phenotype_attempts, :only => [:index, :create, :show, :update] do
-    collection do
-      get 'attributes'
-    end
-  end
+#  resources :phenotype_attempts, :only => [:index, :create, :show, :update] do
+#    collection do
+#      get 'attributes'
+#    end
+#  end
+
+
+  get '/phenotype_attempts'      => 'phenotype_attempts#index', :as => 'index'
+  get '/phenotype_attempts/:id'  => 'phenotype_attempts#show', :as => 'show'
+  get '/phenotype_attempts/new'  => 'phenotype_attempts#create', :as => 'create'
+  post '/phenotype_attempts/:id' => 'phenotype_attempts#update', :as => 'update'
 
   resources :mouse_allele_mods, :only => [:show, :index]
   match 'mouse_allele_mods/colony_name/:colony_name' => 'mouse_allele_mods#colony_name'
@@ -161,14 +167,6 @@ TarMits::Application.routes.draw do
   resources :report_caches, :only => [:show]
 
   match ':controller/:id/history' => ':controller#history'
-
-  namespace :solr_update do
-    namespace :queue do
-      resources :items, :only => [:index, :destroy] do
-        post :run, :on => :member
-      end
-    end
-  end
 
   get '/javascripts/dynamic_esc_qc_conflict_selects' => 'javascripts#dynamic_esc_qc_conflict_selects'
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150123133119) do
+ActiveRecord::Schema.define(:version => 20150309151000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(:version => 20150123133119) do
     t.datetime "updated_at"
     t.string   "contact_name",  :limit => 100
     t.string   "contact_email", :limit => 100
+    t.string   "code"
     t.string   "superscript"
   end
 
@@ -52,15 +53,30 @@ ActiveRecord::Schema.define(:version => 20150123133119) do
     t.boolean "report_to_public",                   :default => false
     t.boolean "unwanted_allele",                    :default => false
     t.text    "unwanted_allele_description"
+    t.string  "mgi_allele_id"
+    t.string  "allele_name"
     t.integer "mouse_allele_mod_id"
     t.string  "mgi_allele_symbol_superscript"
-    t.string  "mgi_allele_id"
     t.string  "allele_symbol_superscript_template"
     t.string  "allele_type"
     t.integer "colony_background_strain_id"
   end
 
   add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true
+
+  create_table "colony_distribution_centres", :force => true do |t|
+    t.integer  "colony_id",                                        :null => false
+    t.integer  "deposited_material_id",                            :null => false
+    t.string   "distribution_network"
+    t.integer  "centre_id",                                        :null => false
+    t.date     "start_date"
+    t.date     "end_date"
+    t.string   "reconciled",            :default => "not checked", :null => false
+    t.datetime "reconciled_at"
+    t.boolean  "available",             :default => true,          :null => false
+    t.datetime "created_at",                                       :null => false
+    t.datetime "updated_at",                                       :null => false
+  end
 
   create_table "colony_qcs", :force => true do |t|
     t.integer "colony_id",                        :null => false
@@ -118,18 +134,6 @@ ActiveRecord::Schema.define(:version => 20150123133119) do
   end
 
   add_index "deposited_materials", ["name"], :name => "index_deposited_materials_on_name", :unique => true
-
-  create_table "distribution_centres", :force => true do |t|
-    t.integer  "colony_id",                                        :null => false
-    t.integer  "deposited_material_id",                            :null => false
-    t.string   "distribution_network"
-    t.integer  "centre_id",                                        :null => false
-    t.date     "start_date"
-    t.date     "end_date"
-    t.string   "reconciled",            :default => "not checked", :null => false
-    t.datetime "reconciled_at"
-    t.boolean  "available",             :default => true,          :null => false
-  end
 
   create_table "email_templates", :force => true do |t|
     t.string   "status"
@@ -910,6 +914,9 @@ ActiveRecord::Schema.define(:version => 20150123133119) do
     t.boolean  "available",              :default => true,          :null => false
   end
 
+  create_table "phenotype_attempt_ids", :force => true do |t|
+  end
+
   create_table "phenotype_attempt_status_stamps", :force => true do |t|
     t.integer  "phenotype_attempt_id", :null => false
     t.integer  "status_id",            :null => false
@@ -1467,6 +1474,7 @@ ActiveRecord::Schema.define(:version => 20150123133119) do
     t.string   "trace_file_content_type"
     t.integer  "trace_file_file_size"
     t.datetime "trace_file_updated_at"
+    t.string   "exon_id"
   end
 
   create_table "trace_files", :force => true do |t|

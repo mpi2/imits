@@ -40,6 +40,18 @@ Ext.define('Imits.model.MiAttempt', {
         name: 'colony_name'
     },
     {
+        name: 'genotyped_confirmed_colony_names'
+    },
+    {
+        name: 'genotyped_confirmed_colony_phenotype_attempts_count'
+    },
+    {
+        name: 'genotype_confirmed_allele_symbols'
+    },
+    {
+        name: 'genotype_confirmed_distribution_centres'
+    },
+    {
         name: 'consortium_name'
     },
     {

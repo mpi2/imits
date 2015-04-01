@@ -8,30 +8,25 @@
 <div id="object-box" class="grid_8 prefix_2 suffix_2">
   <h2><%= @title %></h2>
 
-  <%= link_to 'History', phenotype_attempt_path(@phenotype_attempt) + '/history' %>
 
-  <%= form_for @phenotype_attempt, :as => :phenotype_attempt, :html => {:class => 'edit show phenotype-attempt'} do |form| %>
 
-    <%= form.error_messages %>
+  <%= form_for @phenotype_attempt, :as => :phenotype_attempt, :url => "/phenotype_attempts/#{@phenotype_attempt.id}", :html => {:class => 'edit show phenotype-attempt'} do |form| %>
 
-    <fieldset class="collapsible">
-      <legend>ES Cell Details</legend>
-      <div>
-        <div class="marker-symbol">
-          <div class="label">Marker Symbol</div>
-          <div><%= @mi_attempt.es_cell.marker_symbol %></div>
-        </div>
-
-        <div class="es-cell-name">
-          <div class="label">ES Cell Name</div>
-          <div><%= @mi_attempt.es_cell.name %></div>
-        </div>
+    <% if !form.object.errors.blank? %>
+      <div class="errorExplanation" id="errorExplanation"><h2>1 error prohibited this phenotype attempt from being saved</h2><p>There were problems with the following fields:</p>
+        <% form.object.errors.messages.each do |key, message| %>
+          <ul><li><%= key.to_s + ' '+ message.join(' ') %></li></ul>
+        <% end %>
       </div>
-    </fieldset>
+    <% end %>
 
     <fieldset class="collapsible">
       <legend>Mi-Plan Details</legend>
         <div>
+        <div class="marker-symbol">
+          <div class="label">Marker Symbol</div>
+          <div><%= @mi_attempt.es_cell.marker_symbol %></div>
+        </div>
           <div class="consortium-name">
             <div class="label">Consortium</div>
             <div><%= @phenotype_attempt.consortium_name %></div>
@@ -56,11 +51,13 @@
               </tr>
             </thead>
             <tbody class="distribution_centres">
-              <%= form.fields_for :status_stamps do |builder| %>
-                <% if !builder.object.new_record? %>
-                <%= render '/shared/status_stamp_fields', f: builder %>
-                <% end %>
-              <% end %>
+              <% if !@phenotype_attempt.registered_at.blank? %> <tr><td>Phenotype Attempt Registered</td><td><%= form.datetime_select :registered_at %></td></tr> <% end %>
+              <% if !@phenotype_attempt.rederivation_started_at.blank? %> <tr><td>Rederivation Started</td><td><%= form.datetime_select :rederivation_started_at %></td></tr> <% end %>
+              <% if !@phenotype_attempt.rederivation_complet_at.blank? %> <tr><td>Rederivation Complete</td><td><%= form.datetime_select :rederivation_complet_at %></td></tr> <% end %>
+              <% if !@phenotype_attempt.cre_excision_started_at.blank? %> <tr><td>Cre Excision Started</td><td><%= form.datetime_select :cre_excision_started_at %></td></tr> <% end %>
+              <% if !@phenotype_attempt.cre_excision_complete_at.blank? %> <tr><td>Cre Excision Complete</td><td><%= form.datetime_select :cre_excision_complete_at %></td></tr> <% end %>
+              <% if !@phenotype_attempt.phenotyping_started_at.blank? %> <tr><td>Phenotyping Started</td><td><%= form.datetime_select :phenotyping_started_at %></td></tr> <% end %>
+              <% if !@phenotype_attempt.phenotyping_complete_at.blank? %> <tr><td>Phenotyping Complete</td><td><%= form.datetime_select :phenotyping_complete_at %></td></tr> <% end %>
             </tbody>
           </table>
         </div>

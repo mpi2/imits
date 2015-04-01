@@ -2,64 +2,24 @@
 <% phenotype_attempt = form.object %>
 
 <fieldset class="collapsible">
-  <legend>Universal Details</legend>
+  <legend>Original Allele Details</legend>
   <div>
     <% if @mi_attempt %>
       <label>MI Attempt Colony Name</label>
       <%= @mi_attempt.colony_name %>
       <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
-    <% end %>
-  </div>
-  <div>
-    <%= generator.text_field(:colony_name, :size => 20) %>
-  </div>
-  <div>
-    <% if ! @phenotype_attempt.status_id.nil? %>
-      <label>Status</label>
-      <%= @phenotype_attempt.status_name%>
-      <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name || 'p' %>
-    <% end %>
-  </div>
-  <div>
-    <%= form.label :is_active, :is_active.to_s.titlecase %>
-    <%= form.check_box :is_active %>
-  </div>
-</fieldset>
-
-<fieldset class="collapsible" id="distribution_centres">
-  <legend>Distribution Centres</legend>
-  <div class="distribution_centres">
-    <% if ['cec', 'pds', 'pdc'].include?(phenotype_attempt.status.try(:code)) %>
-      <table id="distribution_centres_table" class="report_table">
-        <thead class="title">
-          <tr>
-            <th>Distribution centre</th>
-            <th>Distribution network?</th>
-            <th>Deposited material</th>
-            <th>Start date</th>
-            <th>End date</th>
-            <th>Available</th>
-            <th>Reconciled</th>
-            <th>Reconciled date</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody class="distribution_centres">
-        <tr></tr>
-          <% if phenotype_attempt.distribution_centres.length > 0 %>
-            <%= form.fields_for :distribution_centres do |builder| %>
-              <% if !builder.object.new_record? %>
-                <%= render '/shared/distribution_centre_fields', f: builder %>
-              <% end %>
-            <% end %>
-          <% end %>
-        </tbody>
-      </table>
-      <% if @phenotype_attempt.has_status? :cec %>
-        <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
-      <% end %>
-    <% else %>
-      No Distribution Centres can be set until Status is Cre Excision Complete.
+      <div class="es-cell-name">
+        <div class="label">ES Cell Name</div>
+        <div><%= @mi_attempt.es_cell.name %></div>
+      </div>
+      <div class="allele-name">
+        <div class="label">Allele Name</div>
+        <div><%= @mi_attempt.mouse_allele_symbol_superscript %></div>
+      </div>
+      <div>
+        <%= form.label :cre_excision_required, 'Is Excision Required?' %>
+        <%= form.check_box :cre_excision_required %>
+      </div>
     <% end %>
   </div>
 </fieldset>
@@ -73,86 +33,109 @@
     </div>
   <% end %>
 </fieldset>
-<fieldset class="collapsible">
-  <legend>Cre Excision</legend>
 
-  <div>
+
+<div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
+  <fieldset class="collapsible">
+    <legend>Allele Modification Details</legend>
+
+
     <div>
-      <%= form.label :cre_excision_required, 'Is Cre-Excision Required?' %>
-      <%= form.check_box :cre_excision_required %>
-    </div>
-    <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
+      <div>
+        <% unless @phenotype_attempt.new_record? || @phenotype_attempt.mouse_allele_mod.blank? %>
+          <label>Excision Status</label>
+          <%= @phenotype_attempt.mouse_allele_mod.try(:status).try(:name)%>
+          <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name || 'p' %>
+          <br><br>
+        <% end %>
+      </div>
       <div>
         <%= form.label :tat_cre, "Cre Excision via TAT-Cre?" %>
         <%= form.check_box :tat_cre %>
       </div>
 
       <div id="tat-cre-hidden-fields" class="<%= @phenotype_attempt.tat_cre ? 'hidden' : '' %>">
-        <div>
-          <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
-        </div>
-        <div>
-          <%= generator.deleter_strains_field :deleter_strain %>
-        </div>
-        <div>
-          <%= generator.number_field :number_of_cre_matings_successful %>
-        </div>
+      <div>
+        <%= generator.deleter_strains_field :deleter_strain %>
+      </div>
+      <div>
+        <%= generator.number_field :number_of_cre_matings_successful %>
+      </div>
       </div>
       <div>
         <%= generator.mouse_allele_type_field %>
       </div>
+      <div>
+        <%= form.label :is_active, :is_active.to_s.titlecase %>
+        <%= form.check_box :is_active %>
+      </div>
     </div>
+  </fieldset>
+</div>
+
+
+<%unless @phenotype_attempt.new_record?%> <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>"> <% end %>
+  <fieldset>
+    <legend>Colony Details</legend>
     <div>
-     <%= form.label :colony_background_strain_name, 'Colony Background Strain' %>
+      <%= generator.text_field(:colony_name, :size => 20) %>
     </div>
     <div>
       <%= generator.strains_field :colony_background_strain %>
     </div>
-  </div>
-</fieldset>
 
-<fieldset class="collapsible hide-by-default qc-details">
-  <legend>QC Details</legend>
-  <div>
-    <%= generator.qc_fields %>
-  </div>
-</fieldset>
+    <% if @phenotype_attempt.new_record? ||  (!@phenotype_attempt.mouse_allele_mod.blank? && @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) != 'Cre Excision Complete' ) %>
+      <%= generator.text_field :phenotyping_experiments_started, :class => 'date-field' %>
+    <% end %>
 
-<fieldset class="collapsible" id="distribution_centres">
-  <legend>phenotyping</legend>
-  <div class="distribution_centres">
-    <table id="phenotyping_productions_table" class="report_table">
-      <thead class="title">
-        <tr>
-          <th>Phenotyping consortium</th>
-          <th>Phenotyping centre</th>
-          <th>Colony Name</th>
-          <th>Experiments Started</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody class="distribution_centres">
-        <tr></tr>
-        <%= form.fields_for :phenotyping_productions do |builder| %>
-          <% if phenotype_attempt.phenotyping_productions.length > 0 %>
-            <% if !builder.object.new_record? %>
-              <%= render '/shared/phenotyping_production_fields', f: builder %>
+    <% unless @phenotype_attempt.new_record? || @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) != 'Cre Excision Complete'%>
+      <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
+        <legend>Distribution Centres</legend>
+        <div class="distribution_centres">
+        </div>
+      </div>
+    <% end %>
+  </fieldset>
+<%unless @phenotype_attempt.new_record?%> </div> <% end %>
+
+
+<% unless @phenotype_attempt.new_record?  || (!@phenotype_attempt.mouse_allele_mod.blank? && @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) != 'Cre Excision Complete' ) %>
+  <fieldset class="collapsible" id="distribution_centres">
+    <legend>phenotyping</legend>
+      <div class="allele-name">
+        <div>Phenotyping <%= @phenotype_attempt.mouse_allele_symbol_superscript %> Allele</div>
+      </div>
+      <div>
+        <% if ! @phenotype_attempt.status_id.nil? %>
+          <label>Status</label>
+          <%= @phenotype_attempt.status_name%>
+          <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name || 'p' %>
+        <% end %>
+      </div>
+    <div class="distribution_centres">
+      <table id="phenotyping_productions_table" class="report_table">
+        <thead class="title">
+          <tr>
+            <th>Phenotyping consortium</th>
+            <th>Phenotyping centre</th>
+            <th>Colony Name</th>
+            <th>Status</th>
+            <th></th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody class="distribution_centres">
+          <tr></tr>
+          <%= form.fields_for :phenotyping_productions do |builder| %>
+            <% if phenotype_attempt.phenotyping_productions.length > 0 %>
+              <% if !builder.object.new_record? %>
+                <%= render '/shared/phenotyping_production_fields', f: builder %>
+              <% end %>
             <% end %>
           <% end %>
-        <% end %>
-      </tbody>
-    </table>
-  <%= link_to_add_fields "Add Phenotyping Centre", form, :phenotyping_productions %>
-  </div>
-</fieldset>
-
-<fieldset class="collapsible">
-  <legend>Other</legend>
-
-  <% [:report_to_public, :is_active].each do |field| %>
-    <div>
-      <%= form.label field, field.to_s.titlecase %>
-      <%= form.check_box field %>
+        </tbody>
+      </table>
+    <%= link_to_add_fields "Add Phenotyping Centre", form, :phenotyping_productions %>
     </div>
-  <% end %>
-</fieldset>
+  </fieldset>
+<% end %>

@@ -299,11 +299,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGridCommon', {
         dataIndex: 'is_active',
         header: 'Active?',
         xtype: 'boolgridcolumn'
-    },
-    {
-        dataIndex: 'is_released_from_genotyping',
-        header: 'Released From Genotyping',
-        xtype: 'boolgridcolumn'
     }
     ]
 });

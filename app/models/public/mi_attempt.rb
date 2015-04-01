@@ -104,6 +104,10 @@ class Public::MiAttempt < ::MiAttempt
     test_cross_strain_mgi_name
     mgi_accession_id
     mutagenesis_factor_external_ref
+    genotyped_confirmed_colony_names
+    genotyped_confirmed_colony_phenotype_attempts_count
+    genotype_confirmed_allele_symbols
+    genotype_confirmed_distribution_centres
 
   } + FULL_ACCESS_ATTRIBUTES
 
@@ -125,11 +129,33 @@ class Public::MiAttempt < ::MiAttempt
   end
 
   def phenotype_attempts_count
-    self.phenotype_attempts.count
+    return 0 if self.colony.blank?
+    self.colony.allele_modifications.length + self.colony.phenotyping_productions.length
   end
 
   def pipeline_name
     try(:es_cell).try(:pipeline).try(:name)
+  end
+
+  def genotyped_confirmed_colony_names
+    return [] if colonies.blank? && colony.blank?
+    return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.name}.join(',') + ']'
+  end
+
+  def genotyped_confirmed_colony_phenotype_attempts_count
+    return [] if colonies.blank? && colony.blank?
+    return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.phenotype_attempts_count}.join(',') + ']'
+  end
+
+  def genotype_confirmed_allele_symbols
+    return [] if colonies.blank? && colony.blank?
+    return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.allele_symbol}.join(',') + ']'
+  end
+
+  def genotype_confirmed_distribution_centres
+    return [] if colonies.blank? && colony.blank?
+    return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.distribution_centres.count > 0 ? c.distribution_centres_formatted_display : '[]'}.join(',') + ']'
+
   end
 end
 

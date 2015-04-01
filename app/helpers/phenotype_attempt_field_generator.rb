@@ -16,6 +16,13 @@ class PhenotypeAttemptFieldGenerator < FieldGenerator
     form_field(name+'_name', nil, field_html)
   end
 
+  def strains_field_no_label(name)
+    element_classes = []
+    name = name.to_s
+    field_html = @form.collection_select(name+'_name', Strain.order(:name), :name, :pretty_drop_down, :include_blank => true)
+
+    return content_tag(:div, field_html.html_safe, :class => element_classes.join(' ')).html_safe
+  end
   def deleter_strains_field(name)
     name = name.to_s
     field_html = @form.collection_select(name+'_name', DeleterStrain.order(:name), :name, :name, :include_blank => true)

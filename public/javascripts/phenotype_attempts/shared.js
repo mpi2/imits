@@ -49,3 +49,24 @@ Ext.select('.fill_other_occurences').on("change", function(event) {
   console.log(div);
   div.update(value);
  })
+
+Ext.select('form #phenotype_attempt_cre_excision_required').on("change", function(e) {
+  div = Ext.select('#cre-excision-fields');
+
+  if(this.checked) {
+    div.setStyle('display','block');
+  } else {
+    div.setStyle('display','none');
+  }
+})
+
+Ext.select('form #phenotype_attempt_tat_cre').on("change", function(e) {
+  div = Ext.select("#tat-cre-hidden-fields");
+
+  if(this.checked) {
+    div.setStyle('display','none');
+  } else {
+    div.setStyle('display','block');
+  }
+})
+

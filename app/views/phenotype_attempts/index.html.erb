@@ -6,7 +6,7 @@
   <%= javascript_tag "USER_PRODUCTION_CENTRE = '#{production_centre}'" %>
   <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>
   <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
-  <%= javascript_tag "PHENOTYPE_STATUS_OPTIONS = #{PhenotypeAttempt::Status.all.map(&:name).to_json}" %>
+  <%= javascript_tag "PHENOTYPE_STATUS_OPTIONS = #{( MouseAlleleMod::Status.all.map(&:name) + PhenotypingProduction::Status.all.map(&:name) - ['Mouse Allele Modification Aborted', 'Mouse Allele Modification Registered', 'Phenotyping Production Registered', 'Phenotype Production Aborted'] ).uniq.to_json}" %>
   <%= javascript_tag "PHENOTYPE_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
   <%= javascript_tag "PHENOTYPE_DELETER_STRAIN_OPTIONS = #{DeleterStrain.all.map(&:name).to_json}" %>
 <% end %>
@@ -21,7 +21,7 @@
     <legend>Search for Phenotype Attempts</legend>
     <div>
       <div class="grid_6 alpha">
-        <label for="q[terms]">Gene Symbol:</label>
+        <label for="q[terms]">Gene Symbol, or Colony Name, or Mi Attempt Colony Name:</label>
         <textarea cols="10" rows="10" name="q[terms]" id="search-terms" class="initial-focus"><%= params[:q][:terms] %></textarea>
       </div>
       <div class="grid_6 omega">
@@ -32,7 +32,7 @@
           </tr>
           <tr>
             <td><label for="q[status_name]">Status:</label></td>
-            <td><%= select_tag 'q[status_name]', options_for_select(['']+PhenotypeAttempt::Status.all.map(&:name), params[:q][:status_name]) %></td>
+            <td><%= select_tag 'q[status_name]', options_for_select((['']+ MouseAlleleMod::Status.all.map(&:name) + PhenotypingProduction::Status.all.map(&:name) - ['Mouse Allele Modification Aborted', 'Mouse Allele Modification Registered', 'Phenotyping Production Registered', 'Phenotype Production Aborted'] ).uniq, params[:q][:status_name]) %></td>
           </tr>
         </table>
       </div>

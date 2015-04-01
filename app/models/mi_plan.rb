@@ -21,7 +21,6 @@ class MiPlan < ApplicationModel
   has_many :mi_attempts
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
-  has_many :phenotype_attempts
   has_many :mouse_allele_mods
   has_many :phenotyping_productions
   has_many :es_cell_qcs, :dependent => :delete_all
@@ -304,6 +303,16 @@ class MiPlan < ApplicationModel
     end
 
     return retval
+  end
+
+  def phenotype_attempts
+    pas = []
+    phenotype_attempt_ids = []
+    phenotype_attempt_ids << MouseAlleleMod.find_all_by_mi_plan_id(self.id).map{|mam| mam.phenotype_attempt_id}.reject! { |c| c.blank? }
+    phenotype_attempt_ids << PhenotypingProduction.find_all_by_mi_plan_id(self.id).map{|pp| pp.phenotype_attempt_id}.reject! { |c| c.blank? }
+
+    pas = phenotype_attempt_ids.flatten.uniq.reject! { |c| c.blank? }.map{ |pa_id| Public::PhenotypeAttempt.find(id)}
+    return pas
   end
 
   def self.with_mi_attempt

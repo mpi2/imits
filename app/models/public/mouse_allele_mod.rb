@@ -29,6 +29,7 @@ class Public::MouseAlleleMod < ::MouseAlleleMod
   READABLE_ATTRIBUTES = %w{
     id
     status_name
+    phenotype_attempt_id
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{

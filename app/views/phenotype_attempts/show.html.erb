@@ -1,8 +1,8 @@
 <% @title = 'Edit Phenotype Attempt' %>
 
 <% content_for :post_js_footer do %>
-  <%= javascript_include_tag('phenotype_attempts/shared') %>
   <%= javascript_include_tag('phenotype_attempts/show') %>
+  <%= javascript_include_tag('phenotype_attempts/shared') %>
 <% end %>
 
 <div id="object-box" class="grid_8 prefix_2 suffix_2">
@@ -10,7 +10,7 @@
 
 
 
-  <%= form_for @phenotype_attempt, :as => :phenotype_attempt, :url => "/phenotype_attempts/#{@phenotype_attempt.id}", :html => {:class => 'edit show phenotype-attempt'} do |form| %>
+  <%= form_for @phenotype_attempt, :method => :put, :as => :phenotype_attempt, :url => "/phenotype_attempts/#{@phenotype_attempt.id}", :html => {:class => 'edit show phenotype-attempt'} do |form| %>
 
     <% if !form.object.errors.blank? %>
       <div class="errorExplanation" id="errorExplanation"><h2>1 error prohibited this phenotype attempt from being saved</h2><p>There were problems with the following fields:</p>

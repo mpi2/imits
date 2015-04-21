@@ -21,7 +21,9 @@ class MouseAlleleMod < ApplicationModel
   has_many   :status_stamps, :order => "#{MouseAlleleMod::StatusStamp.table_name}.created_at ASC", dependent: :destroy
 
   access_association_by_attribute :deleter_strain, :name
-
+  access_association_by_attribute :colony, :name
+  access_association_by_attribute :parent_colony, :name
+  access_association_by_attribute :status, :name
 
   ColonyQc::QC_FIELDS.each do |qc_field|
 
@@ -40,7 +42,8 @@ class MouseAlleleMod < ApplicationModel
     end
   end
 
-  accepts_nested_attributes_for :status_stamps, :colony
+  accepts_nested_attributes_for :status_stamps
+  accepts_nested_attributes_for :colony, :update_only =>true
 
   protected :status=
 
@@ -75,7 +78,7 @@ class MouseAlleleMod < ApplicationModel
     self.colony_name = new_colony_name
   end
 
-  validates :colony, :presence => true
+#  validates :colony, :presence => true
   validates :parent_colony, :presence => true
   validates :status, :presence => true
 
@@ -87,7 +90,7 @@ class MouseAlleleMod < ApplicationModel
       return
     end
 
-    if mi_plan != colony.mi_plan && mi_plan.phenotype_only == false
+    if mi_plan != parent_colony.mi_plan &&  mi_plan.phenotype_only == false
       pp.errors[:mi_plan] << 'must be either the same as the mouse production plan OR phenotype_only'
     end
   end
@@ -103,7 +106,9 @@ class MouseAlleleMod < ApplicationModel
 
   def set_phenotype_attempt_id
     return unless phenotype_attempt_id.blank?
-    phenotype_attempt_id = PhenotypeAttemptId.new.save.id
+    paid = PhenotypeAttemptId.new
+    paid.save
+    self.phenotype_attempt_id = paid.id
   end
 
 
@@ -142,8 +147,8 @@ class MouseAlleleMod < ApplicationModel
   end
 
   def colony_background_strain_name
-    @colony_background_strain_name unless @colony_background_strain_name.blank?
-    colony.try(:colony_background_strain_name)
+    return @colony_background_strain_name unless @colony_background_strain_name.blank?
+    colony.try(:background_strain_name)
   end
 
 ## BEFORE VALIDATION FUNCTIONS
@@ -178,9 +183,9 @@ class MouseAlleleMod < ApplicationModel
       colony_attr_hash[:name] = colony_name
     end
 
-    colony_attr_hash[:id] = colony.id if !colony.blank?
-
-    colony_attr_hash[:colony_background_strain_name] = colony_background_strain_name
+    colony_attr_hash[:background_strain_name] = colony_background_strain_name
+    colony_attr_hash[:allele_type] = mouse_allele_type
+    colony_attr_hash[:distribution_centres_attributes] = distribution_centres_attributes
 
     if self.status.try(:code) == 'cec'
       colony_attr_hash[:genotype_confirmed] = true
@@ -189,7 +194,6 @@ class MouseAlleleMod < ApplicationModel
     end
 
     colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
-    colony_attr_hash[:colony_qc_attributes][:id] = colony.colony_qc.id if !colony.blank? and !colony.try(:colony_qc).try(:id).blank?
 
     ColonyQc::QC_FIELDS.each do |qc_field|
       if colony.try(:colony_qc).blank? or self.send("#{qc_field}_result") != colony.colony_qc.send(qc_field)
@@ -202,6 +206,15 @@ class MouseAlleleMod < ApplicationModel
   end
   protected :manage_colony_and_qc_data
 
+  def mouse_allele_type
+    return @mouse_allele_type unless @mouse_allele_type.nil?
+    return colony.allele_type unless colony.blank?
+    return nil
+  end
+
+  def mouse_allele_type=(arg)
+    @mouse_allele_type = arg
+  end
 
   def mouse_allele_symbol_superscript
     return nil unless colony
@@ -241,6 +254,24 @@ class MouseAlleleMod < ApplicationModel
     return output_string.strip()
   end
 
+  def distribution_centres
+    return @distribution_centres unless @distribution_centres.blank?
+    colony.try(:distribution_centres)
+  end
+
+  def distribution_centres=(arg)
+    return distribution_centres unless arg.is_a?(Array) || arg.is_a?(Hash)
+    @distribution_centres = arg
+  end
+
+  def distribution_centres_attributes
+    return distribution_centres.as_json
+  end
+
+  def distribution_centres_attributes=(arg)
+    distribution_centres=arg
+  end
+
 ## CLASS METHODS
   def self.readable_name
     'mouse allele modification'
@@ -253,7 +284,6 @@ end
 #
 #  id                                  :integer          not null, primary key
 #  mi_plan_id                          :integer          not null
-#  mi_attempt_id                       :integer          not null
 #  status_id                           :integer          not null
 #  rederivation_started                :boolean          default(FALSE), not null
 #  rederivation_complete               :boolean          default(FALSE), not null
@@ -262,11 +292,9 @@ end
 #  no_modification_required            :boolean          default(FALSE)
 #  cre_excision                        :boolean          default(TRUE), not null
 #  tat_cre                             :boolean          default(FALSE)
-#  mouse_allele_type                   :string(3)
 #  allele_category                     :string(255)
 #  deleter_strain_id                   :integer
 #  colony_background_strain_id         :integer
-#  colony_name                         :string(125)      not null
 #  is_active                           :boolean          default(TRUE), not null
 #  report_to_public                    :boolean          default(TRUE), not null
 #  phenotype_attempt_id                :integer

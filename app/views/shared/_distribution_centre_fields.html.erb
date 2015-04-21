@@ -3,7 +3,7 @@
         <%= f.select :centre_name, Centre.all.map(&:name), :include_blank => true %>
     </td>
     <td>
-        <%= f.select :distribution_network, MiAttempt::DistributionCentre::DISTRIBUTION_NETWORKS, :include_blank => true %>
+        <%= f.select :distribution_network, ApplicationModel::DistributionCentre::DISTRIBUTION_NETWORKS, :include_blank => true %>
     </td>
     <td>
         <%= f.select :deposited_material_name, DepositedMaterial.all.map(&:name), :include_blank => true %>

@@ -6,8 +6,8 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
     add_column :phenotyping_productions, :parent_colony_id, :integer
 
     add_column :phenotyping_productions, :colony_background_strain_id, :integer
-    add_column :phenotyping_productions, :rederivation_started, :boolean
-    add_column :phenotyping_productions, :rederivation_complete, :boolean
+    add_column :phenotyping_productions, :rederivation_started, :boolean, :null => false, :default => false
+    add_column :phenotyping_productions, :rederivation_complete, :boolean, :null => false, :default => false
 
     add_column :centres, :superscript, :string
     add_column :deleter_strains, :excision_type, :string
@@ -36,21 +36,30 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
 
     add_foreign_key :colonies, :mouse_allele_mods, :column => :mouse_allele_mod_id, :name => 'colonies_mouse_allele_mod_fk'
     remove_index :colonies, :name => :colony_name_index
+    remove_foreign_key :mouse_allele_mods, :name => :mouse_allele_mods_phenotype_attempt_id_fk
+    remove_foreign_key :phenotyping_productions, :name => :phenotyping_productions_phenotype_attempt_id_fk
     remove_foreign_key :phenotyping_productions,  :name =>  :phenotyping_productions_mouse_allele_mod_id_fk
+
     remove_foreign_key :phenotype_attempt_distribution_centres,  :name =>  :fk_mouse_allele_mod_distribution_centres
     add_index :colonies, [:name, :mi_attempt_id, :mouse_allele_mod_id], :unique => true, :name => :mouse_allele_mod_colony_name_uniqueness_index
 
     sql = <<-EOF
         --
         INSERT INTO phenotype_attempt_ids (id) SELECT id FROM phenotype_attempts;
+        SELECT setval('phenotype_attempt_ids_id_seq', (SELECT MAX(id) FROM phenotype_attempts));
 
         -- Move Mi Attempt mouse_allele_type to colonies table. Populate this fields from the mi_attempt field before removing this field.
-        UPDATE colonies SET allele_type = mi_attempts.mouse_allele_type, colony_background_strain_id = mi_attempts.colony_background_strain_id
+        UPDATE colonies SET allele_type = mi_attempts.mouse_allele_type, background_strain_id = mi_attempts.colony_background_strain_id
         FROM mi_attempts
         WHERE mi_attempts.id = colonies.mi_attempt_id AND mi_attempts.mouse_allele_type IS NOT NULL;
 
+        -- Move Mi Attempt background_strain to colonies table. Populate this fields from the mi_attempt field before removing this field.
+        UPDATE colonies SET background_strain_id = mi_attempts.colony_background_strain_id
+        FROM mi_attempts
+        WHERE mi_attempts.id = colonies.mi_attempt_id AND mi_attempts.colony_background_strain_id IS NOT NULL;
+
         -- replace colony_name with a colony model. Create new colonies for all the mouse_allele_mod colonies
-        INSERT INTO colonies (name, genotype_confirmed, mouse_allele_mod_id, mgi_allele_symbol_superscript, allele_symbol_superscript_template, allele_type, mgi_allele_id, colony_background_strain_id) SELECT colony_name, CASE WHEN status_id = 6 THEN true ELSE false END, mouse_allele_mods.id, mouse_allele_mods.allele_name ,substring(mouse_allele_mods.allele_name from 'tm.') || '@' || substring(mouse_allele_mods.allele_name from '\(.+\).+') AS allele_symbol_superscript_template ,mouse_allele_mods.mouse_allele_type, mouse_allele_mods.allele_mgi_accession_id, mouse_allele_mods.colony_background_strain_id  FROM mouse_allele_mods WHERE mouse_allele_mods.cre_excision = true;
+        INSERT INTO colonies (name, genotype_confirmed, mouse_allele_mod_id, mgi_allele_symbol_superscript, allele_symbol_superscript_template, allele_type, mgi_allele_id, background_strain_id) SELECT colony_name, CASE WHEN status_id = 6 THEN true ELSE false END, mouse_allele_mods.id, mouse_allele_mods.allele_name ,substring(mouse_allele_mods.allele_name from 'tm.') || '@' || substring(mouse_allele_mods.allele_name from '\(.+\).+') AS allele_symbol_superscript_template ,mouse_allele_mods.mouse_allele_type, mouse_allele_mods.allele_mgi_accession_id, mouse_allele_mods.colony_background_strain_id  FROM mouse_allele_mods WHERE mouse_allele_mods.cre_excision = true;
 
         -- Copy mouse_allele_mod qc to colony_qc table
 
@@ -124,16 +133,22 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
        DELETE FROM mouse_allele_mod_status_stamps WHERE mouse_allele_mod_status_stamps.mouse_allele_mod_id IN (SELECT id FROM mouse_allele_mods WHERE cre_excision = false);
        DELETE FROM mouse_allele_mods WHERE cre_excision = false;
 
+       INSERT INTO phenotyping_production_statuses (name, code, order_by) VALUES ('Rederivation Started', 'res', 430), ('Rederivation Complete', 'rec', 440);
     EOF
 
     ActiveRecord::Base.connection.execute(sql)
 
-#    remove_column :phenotype_attempts, :mi_attempt_id
+    add_foreign_key :mouse_allele_mods, :phenotype_attempt_ids, :column => :phenotype_attempt_id
+    add_foreign_key :phenotyping_productions, :phenotype_attempt_ids, :column => :phenotype_attempt_id
+
+
+    remove_column :phenotyping_productions, :mouse_allele_mod_id
 
 #    remove_column :mi_attempts, :mouse_allele_type
 
-#    remove_column :mouse_allele_mods, :mi_attempt_id
-#    remove_column :mouse_allele_mods, :colony_name
+    remove_column :mouse_allele_mods, :mi_attempt_id
+    remove_column :mouse_allele_mods, :colony_name
+    remove_column :mouse_allele_mods,  :mouse_allele_type
 #    remove_column :mouse_allele_mods, :allele_category
 #    remove_column :mouse_allele_mods, :allele_name
 #    remove_column :mouse_allele_mods, :allele_mgi_accession_id

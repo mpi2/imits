@@ -92,11 +92,37 @@
       <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
         <legend>Distribution Centres</legend>
         <div class="distribution_centres">
+        <% if ['Cre Excision Complete'].include?(@phenotype_attempt.status_name) %>
+          <table id="distribution_centres_<%= form.object_id %>_table" class="report_table">
+            <thead class="title">
+              <tr>
+                <th>Distribution centre</th>
+                <th>Distribution network?</th>
+                <th>Deposited material</th>
+                <th>Distribution dates</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody class="distribution_centres">
+              <tr></tr>
+              <% if @phenotype_attempt.distribution_centres.length > 0 %>
+                <%= form.fields_for :distribution_centres do |builder| %>
+                  <%= render '/shared/distribution_centre_fields', f: builder %>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+          <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+        <% else %>
+          No Distribution Centres can be set until Status is Genotype confirmed.
+        <% end %>
         </div>
       </div>
     <% end %>
   </fieldset>
 <%unless @phenotype_attempt.new_record?%> </div> <% end %>
+
+
 
 
 <% unless @phenotype_attempt.new_record?  || (!@phenotype_attempt.mouse_allele_mod.blank? && @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) != 'Cre Excision Complete' ) %>
@@ -106,14 +132,14 @@
         <div>Phenotyping <%= @phenotype_attempt.mouse_allele_symbol_superscript %> Allele</div>
       </div>
       <div>
-        <% if ! @phenotype_attempt.status_id.nil? %>
+        <% if ! @phenotype_attempt.status_name.nil? %>
           <label>Status</label>
           <%= @phenotype_attempt.status_name%>
           <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name || 'p' %>
         <% end %>
       </div>
     <div class="distribution_centres">
-      <table id="phenotyping_productions_table" class="report_table">
+      <table id="phenotyping_productions_<%= form.object_id %>_table" class="report_table">
         <thead class="title">
           <tr>
             <th>Phenotyping consortium</th>

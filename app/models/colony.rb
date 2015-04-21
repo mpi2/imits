@@ -9,21 +9,21 @@ class Colony < ApplicationModel
 
   belongs_to :mi_attempt
   belongs_to :mouse_allele_mod
-  belongs_to :colony_background_strain, :class_name => 'Strain'
+  belongs_to :background_strain, :class_name => 'Strain'
 
   has_many :allele_modifications, :class_name => 'MouseAlleleMod', :foreign_key => 'parent_colony_id'
   has_many :phenotyping_productions, :class_name => 'PhenotypingProduction', :foreign_key => 'parent_colony_id'
-  has_many :distribution_centres, :class_name => 'DistributionCentre', :dependent => :destroy
+  has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :dependent => :destroy
 
   has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy
   has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
 
-  accepts_nested_attributes_for :colony_qc
+  access_association_by_attribute :background_strain, :name
+
+  accepts_nested_attributes_for :colony_qc, :update_only =>true
   accepts_nested_attributes_for :trace_call
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
-
-  access_association_by_attribute :colony_background_strain, :name
-
+  accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
 
   validates :name, :presence => true
   # bit of a bodge but works.
@@ -36,11 +36,11 @@ class Colony < ApplicationModel
   validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validate :set_allele_symbol_superscript
 
-  validate do |colony|
-    if mouse_allele_mod_id.blank? and mi_attempt_id.blank?
-      colony.errors.add :base, 'A Colony can only be produced via a Micro-Injection or an Allele Modification.'
-    end
-  end
+#  validate do |colony|
+#    if mouse_allele_mod_id.blank? and mi_attempt_id.blank?
+#      colony.errors.add :base, 'A Colony can only be produced via a Micro-Injection or an Allele Modification.'
+#    end
+#  end
 
   validate do |colony|
     if !mouse_allele_mod_id.blank? and !mi_attempt_id.blank?
@@ -227,7 +227,7 @@ end
 #  mgi_allele_symbol_superscript      :string(255)
 #  allele_symbol_superscript_template :string(255)
 #  allele_type                        :string(255)
-#  colony_background_strain_id        :integer
+#  background_strain_id               :integer
 #
 # Indexes
 #

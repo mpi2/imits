@@ -492,9 +492,10 @@ class Gene < ActiveRecord::Base
                END AS status_name
 
          FROM mi_plans
-           LEFT JOIN (mouse_allele_mods JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id) ON mouse_allele_mods.mi_plan_id = mi_plans.id
-           LEFT JOIN (phenotyping_productions JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id JOIN mouse_allele_mods AS mam2 ON mam2.id = phenotyping_productions.mouse_allele_mod_id) ON phenotyping_productions.mi_plan_id = mi_plans.id
-           JOIN mi_attempts ON (mi_attempts.id = mouse_allele_mods.mi_attempt_id OR mi_attempts.id = mam2.mi_attempt_id)
+           LEFT JOIN (phenotyping_productions JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id JOIN colonies parent_colony ON parent_colony.id = phenotyping_productions.parent_colony_id) ON phenotyping_productions.mi_plan_id = mi_plans.id
+           LEFT JOIN (mouse_allele_mods JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id) ON (mouse_allele_mods.id = parent_colony.mouse_allele_mod_id) OR (mouse_allele_mods.mi_plan_id = mi_plans.id)
+
+           JOIN ( mi_attempts JOIN colonies mi_attempt_colony ON mi_attempt_colony.mi_attempt_id = mi_attempts.id ) ON mi_attempt_colony.id = mouse_allele_mods.parent_colony_id OR mi_attempt_colony.id = phenotyping_productions.parent_colony_id
 
          WHERE mi_attempts.is_active = true AND (mouse_allele_mods.id IS NOT NULL OR phenotyping_productions.id IS NOT NULL)
            #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"} #{[true, false].include?(crispr) ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr}" : ''}

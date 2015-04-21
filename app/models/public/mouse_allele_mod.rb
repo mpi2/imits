@@ -86,7 +86,6 @@ end
 #
 #  id                                  :integer          not null, primary key
 #  mi_plan_id                          :integer          not null
-#  mi_attempt_id                       :integer          not null
 #  status_id                           :integer          not null
 #  rederivation_started                :boolean          default(FALSE), not null
 #  rederivation_complete               :boolean          default(FALSE), not null
@@ -95,11 +94,9 @@ end
 #  no_modification_required            :boolean          default(FALSE)
 #  cre_excision                        :boolean          default(TRUE), not null
 #  tat_cre                             :boolean          default(FALSE)
-#  mouse_allele_type                   :string(3)
 #  allele_category                     :string(255)
 #  deleter_strain_id                   :integer
 #  colony_background_strain_id         :integer
-#  colony_name                         :string(125)      not null
 #  is_active                           :boolean          default(TRUE), not null
 #  report_to_public                    :boolean          default(TRUE), not null
 #  phenotype_attempt_id                :integer

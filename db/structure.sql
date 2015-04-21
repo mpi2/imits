@@ -787,7 +787,7 @@ CREATE TABLE colonies (
     mgi_allele_symbol_superscript character varying(255),
     allele_symbol_superscript_template character varying(255),
     allele_type character varying(255),
-    colony_background_strain_id integer
+    background_strain_id integer
 );
 
 
@@ -1757,7 +1757,6 @@ ALTER SEQUENCE mouse_allele_mod_statuses_id_seq OWNED BY mouse_allele_mod_status
 CREATE TABLE mouse_allele_mods (
     id integer NOT NULL,
     mi_plan_id integer NOT NULL,
-    mi_attempt_id integer NOT NULL,
     status_id integer NOT NULL,
     rederivation_started boolean DEFAULT false NOT NULL,
     rederivation_complete boolean DEFAULT false NOT NULL,
@@ -1766,11 +1765,9 @@ CREATE TABLE mouse_allele_mods (
     no_modification_required boolean DEFAULT false,
     cre_excision boolean DEFAULT true NOT NULL,
     tat_cre boolean DEFAULT false,
-    mouse_allele_type character varying(3),
     allele_category character varying(255),
     deleter_strain_id integer,
     colony_background_strain_id integer,
-    colony_name character varying(125) NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     report_to_public boolean DEFAULT true NOT NULL,
     phenotype_attempt_id integer,
@@ -2664,7 +2661,6 @@ ALTER SEQUENCE phenotyping_production_statuses_id_seq OWNED BY phenotyping_produ
 CREATE TABLE phenotyping_productions (
     id integer NOT NULL,
     mi_plan_id integer NOT NULL,
-    mouse_allele_mod_id integer NOT NULL,
     status_id integer NOT NULL,
     colony_name character varying(255),
     phenotyping_experiments_started date,
@@ -2678,8 +2674,8 @@ CREATE TABLE phenotyping_productions (
     ready_for_website date,
     parent_colony_id integer,
     colony_background_strain_id integer,
-    rederivation_started boolean,
-    rederivation_complete boolean
+    rederivation_started boolean DEFAULT false NOT NULL,
+    rederivation_complete boolean DEFAULT false NOT NULL
 );
 
 
@@ -3734,7 +3730,8 @@ CREATE TABLE targ_rep_targeting_vectors (
     updated_at timestamp without time zone NOT NULL,
     ikmc_project_foreign_id integer,
     mgi_allele_name_prediction character varying(40),
-    allele_type_prediction character varying(10)
+    allele_type_prediction character varying(10),
+    production_centre_auto_update boolean DEFAULT true NOT NULL
 );
 
 
@@ -5694,14 +5691,6 @@ ALTER TABLE ONLY mouse_allele_mods
 
 
 --
--- Name: mouse_allele_mods_mi_attempt_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY mouse_allele_mods
-    ADD CONSTRAINT mouse_allele_mods_mi_attempt_id_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
-
-
---
 -- Name: mouse_allele_mods_mi_plan_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5714,7 +5703,7 @@ ALTER TABLE ONLY mouse_allele_mods
 --
 
 ALTER TABLE ONLY mouse_allele_mods
-    ADD CONSTRAINT mouse_allele_mods_phenotype_attempt_id_fk FOREIGN KEY (phenotype_attempt_id) REFERENCES phenotype_attempts(id);
+    ADD CONSTRAINT mouse_allele_mods_phenotype_attempt_id_fk FOREIGN KEY (phenotype_attempt_id) REFERENCES phenotype_attempt_ids(id);
 
 
 --
@@ -6114,7 +6103,7 @@ ALTER TABLE ONLY phenotyping_productions
 --
 
 ALTER TABLE ONLY phenotyping_productions
-    ADD CONSTRAINT phenotyping_productions_phenotype_attempt_id_fk FOREIGN KEY (phenotype_attempt_id) REFERENCES phenotype_attempts(id);
+    ADD CONSTRAINT phenotyping_productions_phenotype_attempt_id_fk FOREIGN KEY (phenotype_attempt_id) REFERENCES phenotype_attempt_ids(id);
 
 
 --
@@ -6596,3 +6585,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150303141000');
 INSERT INTO schema_migrations (version) VALUES ('20150309141000');
 
 INSERT INTO schema_migrations (version) VALUES ('20150309151000');
+
+INSERT INTO schema_migrations (version) VALUES ('20150317151000');

@@ -1,28 +1,32 @@
 function addHideRowLinks() {
-    var parentEl = Ext.fly('distribution_centres_table');
-    if (parentEl) {
-        parentEl.on('click', function(event, target, options) {
-            event.preventDefault();
-            var inputField = Ext.get(target).prev('.destroy-field');
-            inputField.set({value: true});
-            row = Ext.get(target).parent().parent();
-            row.setVisibilityMode(Ext.Element.DISPLAY);
-            row.hide();
-        }, this, {delegate: 'a'});
-    }
-    var parentEl = Ext.fly('phenotyping_productions_table');
-    if (parentEl) {
-        parentEl.on('click', function(event, target, options) {
-            event.preventDefault();
-            var inputField = Ext.get(target).prev('.destroy-field');
-            inputField.set({value: true});
-            row = Ext.get(target).parent().parent();
-            row.setVisibilityMode(Ext.Element.DISPLAY);
-            row.hide();
-        }, this, {delegate: 'a'});
-    }
-}
+    var addDeleteRowArray = [/distribution_centres_\d+_table/, /phenotyping_productions_\d+_table/];
+    var tableElements = $('table');
+    tableElements.each( function(index) {
+      id =  tableElements[index].id;
 
+      addDeleteRowArray.forEach(function(tableNameRegex) {
+        tableRegex = tableNameRegex;
+
+        if (tableRegex.test(id)){
+
+          var parentEl = Ext.fly(id);
+          if (parentEl) {
+              parentEl.on('click', function(event, target, options) {
+                  if(target.classList.length == 0) return;
+
+                  event.preventDefault();
+                  var inputField = Ext.get(target).prev('.destroy-field');
+                  inputField.set({value: true});
+                  row = Ext.get(target).parent().parent();
+                  row.setVisibilityMode(Ext.Element.DISPLAY);
+                  row.hide();
+              }, this, {delegate: 'a'});
+          }
+
+        }
+      })
+    })
+}
 
 Ext.onReady(addHideRowLinks);
 

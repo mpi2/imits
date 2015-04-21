@@ -200,6 +200,7 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def new
+    puts 'NEW'
     set_centres_consortia_and_strains
     @user = current_user
     @parent_colony = Colony.find(params[:colony_id])
@@ -207,7 +208,7 @@ class PhenotypeAttemptsController < ApplicationController
     if @mi_attempt.status.name == "Genotype confirmed"
       @phenotype_attempt = Public::PhenotypeAttempt.new(
         :mi_plan => @mi_attempt.mi_plan
-      )
+        )
     else
       flash.now[:alert] = "#{@mi_attempt.status.name} status"
     end
@@ -215,35 +216,35 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def create
+    puts 'CREATE'
     set_centres_consortia_and_strains
+    puts "PARAMS #{params}"
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
-    @mi_attempt = MiAttempt.find_by_external_ref(@phenotype_attempt.mi_attempt_colony_name)
-    @phenotype_attempt.mi_attempt = @mi_attempt
+    @mi_attempt = MiAttempt.joins(:colony).where("colonies.name = '#{params[:phenotype_attempt][:mi_attempt_colony_name]}'").first
 
+    puts "PHENOTYPE ATTEMPT #{@phenotype_attempt.attributes}"
+    puts "MI ATTEMPT #{@mi_attempt.attributes}"
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
 
-    if ! @phenotype_attempt.valid? && ! user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt)
-      plan_error = @phenotype_attempt.errors[:mi_plan].find { |e| /cannot be found with supplied parameters/ =~ e}
-      if plan_error != nil
-        flash.now[:alert] = "Plan " << plan_error
+    if ! (@phenotype_attempt.valid? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt))
+        flash.now[:alert] = "Phenotype attempt could not be created - please check the values you entered"
+        render :template => 'phenotype_attempts/new'
+    else
+      if @phenotype_attempt.save
+        flash[:notice] = 'Phenotype attempt created'
+        redirect_to "/phenotype_attempts/#{@phenotype_attempt.id}"
+#        render :template => 'phenotype_attempts/show'
       else
         flash.now[:alert] = "Phenotype attempt could not be created - please check the values you entered"
+        render :template => 'phenotype_attempts/new'
       end
-
-      if ! @phenotype_attempt.errors[:base].blank?
-        flash.now[:alert] += '<br/>' + @phenotype_attempt.errors[:base].join('<br/>')
-      end
-    else
-      @phenotype_attempt.save!
-      flash[:notice] = 'Phenotype attempt created'
     end
-
-    respond_with @phenotype_attempt
   end
 
 
   def update
+    puts 'UPDATE'
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
@@ -251,16 +252,17 @@ class PhenotypeAttemptsController < ApplicationController
     if user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt)
       @phenotype_attempt.update_attributes(params[:phenotype_attempt])
       if @phenotype_attempt.valid?
+        @phenotype_attempt = Public::PhenotypeAttempt.find(@phenotype_attempt.id)
         flash.now[:notice] = 'Phenotype attempt updated successfully'
       else
         flash.now[:alert] = 'Phenotype attempt could not be updated - please check the values you entered'
       end
     else
-      @phenotype_attempt.reload
+      @phenotype_attempt = Public::PhenotypeAttempt.find(@phenotype_attempt.id)
     end
 
     set_centres_consortia_and_strains
-    @mi_attempt = @phenotype_attempt.mouse_allele_mod.mi_attempt
+    @mi_attempt = @phenotype_attempt.mi_attempt
 
     respond_with @phenotype_attempt do |format|
       format.html do
@@ -279,6 +281,7 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def show
+    puts 'SHOW'
     set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     @mi_attempt = @phenotype_attempt.mi_attempt

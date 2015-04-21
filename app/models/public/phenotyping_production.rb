@@ -65,7 +65,6 @@ end
 #
 #  id                              :integer          not null, primary key
 #  mi_plan_id                      :integer          not null
-#  mouse_allele_mod_id             :integer          not null
 #  status_id                       :integer          not null
 #  colony_name                     :string(255)
 #  phenotyping_experiments_started :date
@@ -79,6 +78,6 @@ end
 #  ready_for_website               :date
 #  parent_colony_id                :integer
 #  colony_background_strain_id     :integer
-#  rederivation_started            :boolean
-#  rederivation_complete           :boolean
+#  rederivation_started            :boolean          default(FALSE), not null
+#  rederivation_complete           :boolean          default(FALSE), not null
 #

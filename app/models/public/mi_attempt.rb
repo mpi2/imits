@@ -1,7 +1,6 @@
 class Public::MiAttempt < ::MiAttempt
 
   include ::Public::Serializable
-  include ::Public::DistributionCentresAttributes
   include ::Public::MutagenesisFactorAttributes
   include ::Public::ColonyAttributes
   include ::ApplicationModel::BelongsToMiPlan::Public
@@ -116,8 +115,6 @@ class Public::MiAttempt < ::MiAttempt
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
-  accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
-
   def status_name; status.name; end
 
   def status_dates
@@ -138,22 +135,22 @@ class Public::MiAttempt < ::MiAttempt
   end
 
   def genotyped_confirmed_colony_names
-    return [] if colonies.blank? && colony.blank?
+    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
     return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.name}.join(',') + ']'
   end
 
   def genotyped_confirmed_colony_phenotype_attempts_count
-    return [] if colonies.blank? && colony.blank?
+    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
     return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.phenotype_attempts_count}.join(',') + ']'
   end
 
   def genotype_confirmed_allele_symbols
-    return [] if colonies.blank? && colony.blank?
+    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
     return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.allele_symbol}.join(',') + ']'
   end
 
   def genotype_confirmed_distribution_centres
-    return [] if colonies.blank? && colony.blank?
+    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
     return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.distribution_centres.count > 0 ? c.distribution_centres_formatted_display : '[]'}.join(',') + ']'
 
   end

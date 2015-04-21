@@ -284,9 +284,7 @@
           <tr></tr>
           <% if mi_attempt.distribution_centres.length > 0 %>
             <%= form.fields_for :distribution_centres do |builder| %>
-              <% if !builder.object.new_record? %>
               <%= render '/shared/distribution_centre_fields', f: builder %>
-              <% end %>
             <% end %>
           <% end %>
         </tbody>
@@ -299,8 +297,8 @@
   </fieldset>
 </div>
 
+<% if !@mi_attempt.new_record? && !@mi_attempt.es_cell.blank?%>
 <div class="object-es-cell">
-<% if !@mi_attempt.new_record?%>
   <fieldset class="collapsible">
     <legend>QC Diagram</legend>
     <div>
@@ -321,7 +319,7 @@
       </div>
     </div>
   </fieldset>
-<% end %>
+
 
   <fieldset class="collapsible hide-by-default qc-details">
     <legend>QC Details</legend>
@@ -330,6 +328,8 @@
     </div>
   </fieldset>
 </div>
+
+<% end %>
 
 <% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
   <%= render 'status_change_history', :mi_attempt => mi_attempt %>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150309151000) do
+ActiveRecord::Schema.define(:version => 20150317151000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -59,7 +59,7 @@ ActiveRecord::Schema.define(:version => 20150309151000) do
     t.string  "mgi_allele_symbol_superscript"
     t.string  "allele_symbol_superscript_template"
     t.string  "allele_type"
-    t.integer "colony_background_strain_id"
+    t.integer "background_strain_id"
   end
 
   add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true
@@ -459,26 +459,23 @@ ActiveRecord::Schema.define(:version => 20150309151000) do
   end
 
   create_table "mouse_allele_mods", :force => true do |t|
-    t.integer  "mi_plan_id",                                                            :null => false
-    t.integer  "mi_attempt_id",                                                         :null => false
-    t.integer  "status_id",                                                             :null => false
-    t.boolean  "rederivation_started",                               :default => false, :null => false
-    t.boolean  "rederivation_complete",                              :default => false, :null => false
-    t.integer  "number_of_cre_matings_started",                      :default => 0,     :null => false
-    t.integer  "number_of_cre_matings_successful",                   :default => 0,     :null => false
-    t.boolean  "no_modification_required",                           :default => false
-    t.boolean  "cre_excision",                                       :default => true,  :null => false
-    t.boolean  "tat_cre",                                            :default => false
-    t.string   "mouse_allele_type",                   :limit => 3
+    t.integer  "mi_plan_id",                                             :null => false
+    t.integer  "status_id",                                              :null => false
+    t.boolean  "rederivation_started",                :default => false, :null => false
+    t.boolean  "rederivation_complete",               :default => false, :null => false
+    t.integer  "number_of_cre_matings_started",       :default => 0,     :null => false
+    t.integer  "number_of_cre_matings_successful",    :default => 0,     :null => false
+    t.boolean  "no_modification_required",            :default => false
+    t.boolean  "cre_excision",                        :default => true,  :null => false
+    t.boolean  "tat_cre",                             :default => false
     t.string   "allele_category"
     t.integer  "deleter_strain_id"
     t.integer  "colony_background_strain_id"
-    t.string   "colony_name",                         :limit => 125,                    :null => false
-    t.boolean  "is_active",                                          :default => true,  :null => false
-    t.boolean  "report_to_public",                                   :default => true,  :null => false
+    t.boolean  "is_active",                           :default => true,  :null => false
+    t.boolean  "report_to_public",                    :default => true,  :null => false
     t.integer  "phenotype_attempt_id"
-    t.datetime "created_at",                                                            :null => false
-    t.datetime "updated_at",                                                            :null => false
+    t.datetime "created_at",                                             :null => false
+    t.datetime "updated_at",                                             :null => false
     t.integer  "qc_southern_blot_id"
     t.integer  "qc_five_prime_lr_pcr_id"
     t.integer  "qc_five_prime_cassette_integrity_id"
@@ -996,7 +993,6 @@ ActiveRecord::Schema.define(:version => 20150309151000) do
 
   create_table "phenotyping_productions", :force => true do |t|
     t.integer  "mi_plan_id",                                         :null => false
-    t.integer  "mouse_allele_mod_id",                                :null => false
     t.integer  "status_id",                                          :null => false
     t.string   "colony_name"
     t.date     "phenotyping_experiments_started"
@@ -1010,8 +1006,8 @@ ActiveRecord::Schema.define(:version => 20150309151000) do
     t.date     "ready_for_website"
     t.integer  "parent_colony_id"
     t.integer  "colony_background_strain_id"
-    t.boolean  "rederivation_started"
-    t.boolean  "rederivation_complete"
+    t.boolean  "rederivation_started",            :default => false, :null => false
+    t.boolean  "rederivation_complete",           :default => false, :null => false
   end
 
   create_table "pipelines", :force => true do |t|
@@ -1424,17 +1420,18 @@ ActiveRecord::Schema.define(:version => 20150309151000) do
   end
 
   create_table "targ_rep_targeting_vectors", :force => true do |t|
-    t.integer  "allele_id",                                :null => false
-    t.string   "name",                                     :null => false
+    t.integer  "allele_id",                                                     :null => false
+    t.string   "name",                                                          :null => false
     t.string   "ikmc_project_id"
     t.string   "intermediate_vector"
-    t.boolean  "report_to_public",                         :null => false
+    t.boolean  "report_to_public",                                              :null => false
     t.integer  "pipeline_id"
-    t.datetime "created_at",                               :null => false
-    t.datetime "updated_at",                               :null => false
+    t.datetime "created_at",                                                    :null => false
+    t.datetime "updated_at",                                                    :null => false
     t.integer  "ikmc_project_foreign_id"
-    t.string   "mgi_allele_name_prediction", :limit => 40
-    t.string   "allele_type_prediction",     :limit => 10
+    t.string   "mgi_allele_name_prediction",    :limit => 40
+    t.string   "allele_type_prediction",        :limit => 10
+    t.boolean  "production_centre_auto_update",               :default => true, :null => false
   end
 
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"
@@ -1565,10 +1562,9 @@ ActiveRecord::Schema.define(:version => 20150309151000) do
   add_foreign_key "mouse_allele_mod_status_stamps", "mouse_allele_mod_statuses", :name => "mouse_allele_mod_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "mouse_allele_mod_status_stamps", "mouse_allele_mods", :name => "fk_mouse_allele_mods"
 
-  add_foreign_key "mouse_allele_mods", "mi_attempts", :name => "mouse_allele_mods_mi_attempt_id_fk"
   add_foreign_key "mouse_allele_mods", "mi_plans", :name => "mouse_allele_mods_mi_plan_id_fk"
   add_foreign_key "mouse_allele_mods", "mouse_allele_mod_statuses", :name => "mouse_allele_mods_status_id_fk", :column => "status_id"
-  add_foreign_key "mouse_allele_mods", "phenotype_attempts", :name => "mouse_allele_mods_phenotype_attempt_id_fk"
+  add_foreign_key "mouse_allele_mods", "phenotype_attempt_ids", :name => "mouse_allele_mods_phenotype_attempt_id_fk", :column => "phenotype_attempt_id"
   add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_critical_region_qpcr_id_fk", :column => "qc_critical_region_qpcr_id"
   add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
   add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_five_prime_lr_pcr_id_fk", :column => "qc_five_prime_lr_pcr_id"
@@ -1626,7 +1622,7 @@ ActiveRecord::Schema.define(:version => 20150309151000) do
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_productions", :name => "fk_phenotyping_productions"
 
   add_foreign_key "phenotyping_productions", "mi_plans", :name => "phenotyping_productions_mi_plan_id_fk"
-  add_foreign_key "phenotyping_productions", "phenotype_attempts", :name => "phenotyping_productions_phenotype_attempt_id_fk"
+  add_foreign_key "phenotyping_productions", "phenotype_attempt_ids", :name => "phenotyping_productions_phenotype_attempt_id_fk", :column => "phenotype_attempt_id"
   add_foreign_key "phenotyping_productions", "phenotyping_production_statuses", :name => "phenotyping_productions_status_id_fk", :column => "status_id"
 
   add_foreign_key "targ_rep_allele_sequence_annotations", "targ_rep_alleles", :name => "targ_rep_allele_sequence_annotations_allele_id_fk", :column => "allele_id"

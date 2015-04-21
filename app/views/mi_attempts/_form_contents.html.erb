@@ -265,6 +265,8 @@
   </fieldset>
 </div>
 
+
+<% if !@mi_attempt.new_record? && !@mi_attempt.es_cell.blank?%>
 <div class="object-es-cell">
   <fieldset class="collapsible" id="distribution_centres">
     <legend>Distribution Centres</legend>
@@ -297,7 +299,6 @@
   </fieldset>
 </div>
 
-<% if !@mi_attempt.new_record? && !@mi_attempt.es_cell.blank?%>
 <div class="object-es-cell">
   <fieldset class="collapsible">
     <legend>QC Diagram</legend>

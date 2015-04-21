@@ -63,8 +63,7 @@ class Colony < ApplicationModel
   end
 
   before_save :set_genotype_confirmed
-
-
+  after_save :add_default_distribution_centre
 
   def set_genotype_confirmed
     if !mi_attempt.blank? && !mi_attempt.status.blank?
@@ -77,6 +76,25 @@ class Colony < ApplicationModel
   end
   protected :set_genotype_confirmed
 
+  def add_default_distribution_centre
+    if self.genotype_confirmed and self.distribution_centres.count == 0
+      centre = production_centre_name
+      if centre == 'UCD'
+        centre = 'KOMP Repo'
+      end
+      distribution_centre = Colony::DistributionCentre.new({:colony_id => self.id, :centre_name => centre, :deposited_material_name => 'Live mice'})
+      if centre == 'TCP' && consortium_name == 'NorCOMM2'
+        distribution_centre.distribution_network = 'CMMR'
+      elsif centre == 'TCP' && ['UCD-KOMP', 'DTCC'].include?(consortium_name)
+        distribution_centre.centre = Centre.find_by_name('KOMP Repo')
+      elsif centre == 'WTSI' and ['EUCOMM', 'EUCOMMTools'].include?(pipeline_name)
+        distribution_centre.distribution_network = 'EMMA'
+      end
+      raise "Could not save DEFAULT distribution Centre" if !distribution_centre.valid?
+      distribution_centre.save
+    end
+  end
+  protected :add_default_distribution_centre
 
   def get_template
     return allele_symbol_superscript_template unless allele_symbol_superscript_template.nil?
@@ -181,6 +199,24 @@ class Colony < ApplicationModel
     else
       return nil
     end
+  end
+
+  def production_centre_name
+    return mouse_allele_mod.production_centre_name unless mouse_allele_mod.blank?
+    return mi_attempt.production_centre_name unless mi_attempt.blank?
+    return nil
+  end
+
+  def consortium_name
+    return mouse_allele_mod.consortium_name unless mouse_allele_mod.blank?
+    return mi_attempt.consortium_name unless mi_attempt.blank?
+    return nil
+  end
+
+  def pipeline_name
+    return mouse_allele_mod.parent_colony.pipeline_name unless mouse_allele_mod.blank?
+    return mi_attempt.es_cell.try(:pipeline).try(:name) unless mi_attempt.blank? || mi_attempt.es_cell.blank?
+    return nil
   end
 
   def distribution_centres_formatted_display

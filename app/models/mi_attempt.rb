@@ -161,7 +161,8 @@ class MiAttempt < ApplicationModel
   def distribution_centres_attributes
     return nil if es_cell.blank?
     return @distribution_centres_attributes unless @distribution_centres_attributes.blank?
-    return distribution_centres.map(&:as_json)
+    return distribution_centres.map(&:as_json) unless distribution_centres.blank?
+    return nil
   end
 
   def distribution_centres_attributes=(arg)
@@ -395,11 +396,11 @@ class MiAttempt < ApplicationModel
 
   def colony_background_strain_name
     return @colony_background_strain_name unless @colony_background_strain_name.blank?
-    return colony_background_strain.try(:name)
+    return colony.background_strain.try(:name) unless es_cell.blank?
   end
 
   def colony_background_strain_name=(arg)
-    @colony_background_strain_name = arg unless mutagenesis_factor.blank?
+    @colony_background_strain_name = arg unless es_cell.blank?
   end
 
 

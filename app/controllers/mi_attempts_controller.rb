@@ -69,9 +69,7 @@ class MiAttemptsController < ApplicationController
 
   def show
     @mi_attempt = Public::MiAttempt.find(params[:id])
-    if @mi_attempt.has_status?(:gtc) && @mi_attempt.distribution_centres.length == 0
-      @mi_attempt.distribution_centres.build
-    end
+
     get_marker_symbol
     @vector_options = get_vector_options(@marker_symbol)
     respond_with @mi_attempt

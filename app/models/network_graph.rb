@@ -69,7 +69,7 @@ class NetworkGraph
           if mouse_allele_mod.mi_plan_id != mouse_allele_mod.parent_colony.mi_attempt.mi_plan_id
             @relations<<[@nodes[['MP',mi_plan.id]], @nodes[['MAM',mouse_allele_mod.id]]]
 
-            mouse_allele_mod.joins(colony: :phenotyping_productions).where("phenotyping_productions.report_to_public IN #{@report_to_public}").order("created_at", "id").each do |phenotyping_production|
+            PhenotypingProduction.joins(parent_colony: :mouse_allele_mod).where("mouse_allele_mods.id = #{mouse_allele_mod.id} AND phenotyping_productions.report_to_public IN #{@report_to_public}").order("created_at", "id").each do |phenotyping_production|
               if ! @nodes.include?(['PP',phenotyping_production.id])
                 phen_no += 1
                 @nodes[['PP',phenotyping_production.id]] = NetworkGraph::PhenotypingProductionNode.new(phenotyping_production, params = {:symbol => "PP#{phen_no}", :url => ""})

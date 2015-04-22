@@ -119,6 +119,7 @@ class PhenotypeAttemptsController < ApplicationController
         mam_params.delete(p)
 
         md_split.each do |md|
+
           sub_md = /^(#{pp_translation_options.keys.join('|')})(.+)$/.match(md)
           if sub_md
             pp_param << pp_translation_options[sub_md[1]] + sub_md[2]
@@ -143,8 +144,9 @@ class PhenotypeAttemptsController < ApplicationController
           elsif mam_search_options.keys.include?(md)
             mam_param << mam_search_options[md]
           elsif md == 'status_name'
-            if ['Phenotyping Started', 'Phenotyping Complete'].include?(value)
-              mam_param << 'colony_phenotyping_productions_status_name'
+            value = value.is_a?(Array) ? value : [value]
+            if value.any?{ |v| ['Phenotyping Started', 'Phenotyping Complete'].include?(v)}
+              mam_param << 'status_name_or_colony_phenotyping_productions_status_name'
             else
               mam_param << 'status_name'
             end

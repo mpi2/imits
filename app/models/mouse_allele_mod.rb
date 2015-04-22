@@ -185,7 +185,8 @@ class MouseAlleleMod < ApplicationModel
 
     colony_attr_hash[:background_strain_name] = colony_background_strain_name
     colony_attr_hash[:allele_type] = mouse_allele_type
-    colony_attr_hash[:distribution_centres_attributes] = distribution_centres_attributes
+
+    colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?
 
     if self.status.try(:code) == 'cec'
       colony_attr_hash[:genotype_confirmed] = true
@@ -255,21 +256,23 @@ class MouseAlleleMod < ApplicationModel
   end
 
   def distribution_centres
-    return @distribution_centres unless @distribution_centres.blank?
-    colony.try(:distribution_centres)
-  end
-
-  def distribution_centres=(arg)
-    return distribution_centres unless arg.is_a?(Array) || arg.is_a?(Hash)
-    @distribution_centres = arg
+    return colony.try(:distribution_centres)
+    return []
   end
 
   def distribution_centres_attributes
-    return distribution_centres.as_json
+    return @distribution_centres_attributes unless @distribution_centres_attributes.blank?
+    return distribution_centres.map(&:as_json) unless distribution_centres.blank?
+    return nil
   end
 
   def distribution_centres_attributes=(arg)
-    distribution_centres=arg
+    @distribution_centres_attributes = arg
+  end
+
+  def reload
+    @distribution_centres_attributes = []
+    super
   end
 
 ## CLASS METHODS

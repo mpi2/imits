@@ -24,18 +24,21 @@
   </div>
 </fieldset>
 
-<fieldset class="collapsible">
-  <legend>Rederivation</legend>
-  <% [:rederivation_started, :rederivation_complete].each do |field| %>
-    <div>
-      <%= form.label field, field.to_s.titlecase %>
-      <%= form.check_box field %>
-    </div>
-  <% end %>
-</fieldset>
 
 
 <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
+
+  <fieldset class="collapsible">
+    <legend>Rederivation</legend>
+    <% [:rederivation_started, :rederivation_complete].each do |field| %>
+      <div>
+        <%= form.label field, field.to_s.titlecase %>
+        <%= form.check_box field %>
+      </div>
+    <% end %>
+  </fieldset>
+
+
   <fieldset class="collapsible">
     <legend>Allele Modification Details</legend>
 
@@ -74,7 +77,7 @@
 </div>
 
 
-<%unless @phenotype_attempt.new_record?%> <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>"> <% end %>
+<% if !@phenotype_attempt.mouse_allele_mod.blank? && @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) == 'Cre Excision Complete' %>
   <fieldset>
     <legend>Colony Details</legend>
     <div>
@@ -109,6 +112,9 @@
                 <%= form.fields_for :distribution_centres do |builder| %>
                   <%= render '/shared/distribution_centre_fields', f: builder %>
                 <% end %>
+
+                <input id="phenotype_attempt_distribution_centres_0_id" name="phenotype_attempt[phenotyping_productions_attributes][0][id]" type="hidden" value="3963">
+
               <% end %>
             </tbody>
           </table>
@@ -120,10 +126,7 @@
       </div>
     <% end %>
   </fieldset>
-<%unless @phenotype_attempt.new_record?%> </div> <% end %>
-
-
-
+<% end %>
 
 <% unless @phenotype_attempt.new_record?  || (!@phenotype_attempt.mouse_allele_mod.blank? && @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) != 'Cre Excision Complete' ) %>
   <fieldset class="collapsible" id="distribution_centres">

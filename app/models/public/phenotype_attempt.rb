@@ -14,7 +14,7 @@ class Public::PhenotypeAttempt
 
 
   PHENOTYPE_ATTEMPT_MAM_FIELDS = {:exclude => ["id", "mi_plan_id", "cre_excision", "deleter_strain_id", "status_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "report_to_public", "is_active", "phenotype_attempt_id", "cre_excision", "created_at", "updated_at"],
-                                  :include => ["deleter_strain_name", "mouse_allele_type", "distribution_centres", "distribution_centres_attributes"] + (ColonyQc::QC_FIELDS.map{|a| "#{a}_result"})}
+                                  :include => ["deleter_strain_name", "mouse_allele_type", "distribution_centres_attributes"] + (ColonyQc::QC_FIELDS.map{|a| "#{a}_result"})}
   PHENOTYPE_ATTEMPT_PP_FIELDS = {:exclude => ["id", "mi_plan_id", "mouse_allelle_mod_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "status_id", "parent_colony_id", "colony_name", "report_to_public", "is_active", "phenotype_attempt_id", "created_at", "updated_at"],
                                  :include => []}
 
@@ -274,6 +274,11 @@ class Public::PhenotypeAttempt
     @report_to_public = arg
   end
 
+  def distribution_centres
+    return mouse_allele_mod.distribution_centres unless mouse_allele_mod.blank?
+    return []
+  end
+
   def cre_excision_required
     return excision_required unless excision_required.blank?
     return false
@@ -449,7 +454,7 @@ class Public::PhenotypeAttempt
         phenotyping_productions << pp
       end
       pp_attributes.each do |patr, pval|
-        pp.send("#{patr}=", pval) unless patr == '_destroy'
+        pp.send("#{patr}=", pval) unless patr == '_destroy' || !pp.methods.include?("#{patr}=".to_sym)
       end
     end
 
@@ -483,15 +488,25 @@ class Public::PhenotypeAttempt
       return false
     end
 
+    if !mouse_allele_mod.blank? && mouse_allele_mod.new_record? && !new_record? && phenotyping_productions.any?{ |pp| ['Phenotyping Started', 'Phenotyping Complete'].include?(pp.try(:status_name).to_s)}
+        errors.add("Phenotype Attempt:", "cannot change 'Excision Required?' if phenotyping has started or is complete.")
+        return false
+    end
+
     if destroy_mam
       # change pp parent colony to mi_attempt colony
       if phenotyping_productions.count > 1
-        errors.add("phenotype attempt", "cannot remove mouse allele modification when Phenotype Attempt has many Phenotyping Centres.")
+        errors.add("Phenotype Attempt:", "cannot change 'Excision Required?' when Phenotype Attempt has many Phenotyping Centres.")
+        return false
+      end
+
+      if phenotyping_productions.any?{ |pp| ['Phenotyping Started', 'Phenotyping Complete'].include?(pp.try(:status_name).to_s)}
+        errors.add("Phenotype Attempt:", "cannot change 'Excision Required?' if phenotyping has started or is complete.")
         return false
       end
 
       if mouse_allele_mod.status_name == 'Cre Excision Complete'
-        errors.add("phenotype attempt", "cannot remove mouse allele modification if status is more advanced than Cre Excision Complete.")
+        errors.add("Phenotype Attempt:", "cannot change 'Excision Required?' if status is more advanced than Cre Excision Complete.")
         return false
       end
 
@@ -546,20 +561,20 @@ class Public::PhenotypeAttempt
         if destroy_mam
           mouse_allele_mod.destroy
         else
-          mouse_allele_mod.save if !mouse_allele_mod.blank? && mouse_allele_mod.changed?
+          mouse_allele_mod.save if !mouse_allele_mod.blank?
 
           #ensure pp and mam phenotype_attempt_id match. Can get out of sync if mam is deleted and then recreated for example.
-          if !new_record? && !mouse_allele_mod.blank? && !linked_phenotyping_production.phenotype_attempt_id.blank? && (mouse_allele_mod.phenotype_attempt_id.blank? || linked_phenotyping_production.phenotype_attempt_id != mouse_allele_mod.phenotype_attempt_id)
+          if !new_record? && !mouse_allele_mod.blank? && !linked_phenotyping_production.blank? && !linked_phenotyping_production.phenotype_attempt_id.blank? && (mouse_allele_mod.phenotype_attempt_id.blank? || linked_phenotyping_production.phenotype_attempt_id != mouse_allele_mod.phenotype_attempt_id)
             mouse_allele_mod.phenotype_attempt_id = linked_phenotyping_production.phenotype_attempt_id
           end
         end
 
-        linked_phenotyping_production.save! if linked_phenotyping_production.changed?
+        linked_phenotyping_production.save! unless linked_phenotyping_production.blank? || !linked_phenotyping_production.changed?
         phenotyping_productions.each{|pp|  pp.save! if pp.changed?}
       end
 
     rescue ActiveRecord::RecordInvalid => exception
-      errors.add("phenotype attempt", exception.message)
+      errors.add("Phenotype Attempt:", exception.message)
       return false
     end
 

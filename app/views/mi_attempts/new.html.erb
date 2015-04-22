@@ -4,6 +4,7 @@
   <%= javascript_include_tag('mi_attempts/shared') %>
   <%= javascript_include_tag('mi_attempts/new') %>
   <%= javascript_include_tag('mi_attempts/show') %>
+  <%= javascript_tag "NUCLEASES_OPTIONS = #{MutagenesisFactor::NUCLEASES.map{|nuc| nuc.blank? ? '' : nuc}.to_json}" %>
 <% end %>
 
 <% if !@mi_attempt.warnings.blank? %>

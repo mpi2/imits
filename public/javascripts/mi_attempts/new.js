@@ -713,9 +713,9 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                             text: 'Nuclease',
                             margin: '0 0 2 0'
                         });
-                        nucleaseOptions = ''
+                        nucleaseOptions = '';
                         if (nucleaseValue){nucleaseOptions += '<option value="' + nucleaseValue + '">' + nucleaseValue + '</option>'};
-                        nucleaseOptions += '<option value=""></option><option value="CASP9">CASP9</option><option value="D10A">D10A</option>';
+                        NUCLEASES_OPTIONS.forEach( function(opt) { nucleaseOptions += '<option value="' + opt + '">' + opt + '</option>'} );
                         nucleaseHtml = '<select id="mi_attempt_mutagenesis_factor_attributes_nuclease" name="mi_attempt[mutagenesis_factor_attributes][nuclease]">' + nucleaseOptions;
                         Ext.create('Ext.Component', {
                             renderTo: 'nuclease-container',

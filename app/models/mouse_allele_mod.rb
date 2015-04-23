@@ -186,6 +186,8 @@ class MouseAlleleMod < ApplicationModel
     colony_attr_hash[:background_strain_name] = colony_background_strain_name
     colony_attr_hash[:allele_type] = mouse_allele_type
 
+    puts "DISTRIBUTIOBN ATR #{self.distribution_centres_attributes}"
+    puts "ACTUAL DIS #{self.colony.distribution_centres.to_s}"
     colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?
 
     if self.status.try(:code) == 'cec'

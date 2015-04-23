@@ -93,7 +93,6 @@ class PhenotypeAttemptsController < ApplicationController
       params['q'].stringify_keys!
       params.merge!(params['q'])
       params.delete('q')
-      puts "PARAMS: #{params}"
     end
 
     extended_response = params[:extended_response].to_s
@@ -202,7 +201,6 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def new
-    puts 'NEW'
     set_centres_consortia_and_strains
     @user = current_user
     @parent_colony = Colony.find(params[:colony_id])
@@ -218,14 +216,10 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def create
-    puts 'CREATE'
     set_centres_consortia_and_strains
-    puts "PARAMS #{params}"
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @mi_attempt = MiAttempt.joins(:colony).where("colonies.name = '#{params[:phenotype_attempt][:mi_attempt_colony_name]}'").first
 
-    puts "PHENOTYPE ATTEMPT #{@phenotype_attempt.attributes}"
-    puts "MI ATTEMPT #{@mi_attempt.attributes}"
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
 
@@ -246,14 +240,13 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def update
-    puts 'UPDATE'
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
 
     if user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt)
       @phenotype_attempt.update_attributes(params[:phenotype_attempt])
-      if @phenotype_attempt.valid?
+      if @phenotype_attempt.errors.blank?
         @phenotype_attempt = Public::PhenotypeAttempt.find(@phenotype_attempt.id)
         flash.now[:notice] = 'Phenotype attempt updated successfully'
       else
@@ -283,7 +276,6 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def show
-    puts 'SHOW'
     set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     @mi_attempt = @phenotype_attempt.mi_attempt

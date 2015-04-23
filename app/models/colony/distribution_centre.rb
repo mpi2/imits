@@ -33,15 +33,6 @@ class Colony::DistributionCentre < ApplicationModel
   access_association_by_attribute :deposited_material, :name
   access_association_by_attribute :centre, :name
 
-  before_save do
-    ## TODO: Update martbuilder so we don't need to continue updating the boolean.
-    self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
-
-    # TODO: excluded for simplicity Nov 2014
-    # self.update_whether_distribution_centre_available # this method in module mi_attempt_distribution_centre
-
-    true # Rails doesn't save if you return false.
-  end
 
   def self.readable_name
     return 'distribution centre'

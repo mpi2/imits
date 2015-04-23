@@ -25,7 +25,7 @@ class MiAttempt < ApplicationModel
 
   has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC", dependent: :destroy
   has_many   :mouse_allele_mods
-  has_many   :colonies, inverse_of: :mi_attempt, dependent: :destroy
+  has_many   :colonies, inverse_of: :mi_attempt
   has_many   :crisprs, through: :mutagenesis_factor
   has_many   :genotype_primers, through: :mutagenesis_factor
 

@@ -126,7 +126,7 @@ class Public::PhenotypeAttempt
 
    def phenotyping_productions_attributes
      return @phenotyping_productions_attributes.as_json unless @phenotyping_productions_attributes.nil?
-     return phenotyping_productions.as_json(:except => [:created_at, :updated_at, :status_id, :phenotype_attempt_id, :parent_colony_id, :colony_background_strain_id], :methods => [:consortium_name, :production_centre_name, :parent_colony_name, :status_name, :colony_background_strain_name]) unless phenotyping_productions.blank?
+     return phenotyping_productions.as_json(:except => ["created_at", "updated_at", "status_id", "phenotype_attempt_id", "parent_colony_id", "colony_background_strain_id"], :methods => ["consortium_name", "production_centre_name", "parent_colony_name", "status_name", "colony_background_strain_name"]) unless phenotyping_productions.blank?
      return []
    end
 
@@ -448,13 +448,14 @@ class Public::PhenotypeAttempt
 
     phenotyping_productions_attributes.each do |pp_attributes|
       pp = nil
-      phenotyping_productions.each{|p| pp = p if p.id.to_s == pp_attributes['id']}
+      phenotyping_productions.each{|p| pp = p if p.id.to_s == pp_attributes['id'].to_s}
+
       if pp.blank?
-        pp = PhenotypingProduction.new
-        phenotyping_productions << pp
+        pp = phenotyping_productions.build
       end
       pp_attributes.each do |patr, pval|
-        pp.send("#{patr}=", pval) unless patr == '_destroy' || !pp.methods.include?("#{patr}=".to_sym)
+        pp.mark_for_destruction if patr == '_destroy' && self.class.to_true_or_false(pval) == true
+        pp.send("#{patr}=".to_sym, pval) unless !pp.methods.include?("#{patr}=".to_sym)
       end
     end
 
@@ -522,6 +523,7 @@ class Public::PhenotypeAttempt
     end
 
     phenotyping_productions.each do |pp|
+
       if pp.valid? == false
         pp.errors.messages.each{|error, message| errors.add("phenotype attempt #{error}", message)}
         return false
@@ -550,19 +552,20 @@ class Public::PhenotypeAttempt
     @linked_phenotyping_production = nil if new_record?
 
     mouse_allele_mod.reload unless mouse_allele_mod.blank?
+    phenotyping_productions.delete_if{|pp| pp.new_record? || pp.marked_for_destruction?}
     phenotyping_productions.each{|pp| pp.reload}
     linked_phenotyping_production.try(:reload) unless linked_phenotyping_production.blank?
 
 
     return false unless valid?
 
+
     begin
       ActiveRecord::Base.transaction do
         if destroy_mam
           mouse_allele_mod.destroy
         else
-          mouse_allele_mod.save if !mouse_allele_mod.blank?
-
+          mouse_allele_mod.save(validate: false) if !mouse_allele_mod.blank?
           #ensure pp and mam phenotype_attempt_id match. Can get out of sync if mam is deleted and then recreated for example.
           if !new_record? && !mouse_allele_mod.blank? && !linked_phenotyping_production.blank? && !linked_phenotyping_production.phenotype_attempt_id.blank? && (mouse_allele_mod.phenotype_attempt_id.blank? || linked_phenotyping_production.phenotype_attempt_id != mouse_allele_mod.phenotype_attempt_id)
             mouse_allele_mod.phenotype_attempt_id = linked_phenotyping_production.phenotype_attempt_id
@@ -570,7 +573,14 @@ class Public::PhenotypeAttempt
         end
 
         linked_phenotyping_production.save! unless linked_phenotyping_production.blank? || !linked_phenotyping_production.changed?
-        phenotyping_productions.each{|pp|  pp.save! if pp.changed?}
+        phenotyping_productions.each do |pp|
+          if pp.marked_for_destruction?
+            @linked_phenotyping_production = nil if !linked_phenotyping_production.blank? && linked_phenotyping_production.id == pp.id
+            pp.destroy
+          else
+            pp.save! if pp.changed?
+          end
+        end
       end
 
     rescue ActiveRecord::RecordInvalid => exception
@@ -585,8 +595,10 @@ class Public::PhenotypeAttempt
   def reload
 
     mouse_allele_mod.reload unless mouse_allele_mod.blank? || destroy_mam
+    phenotyping_productions.delete_if{|pp| pp.new_record? || pp.marked_for_destruction?}
     phenotyping_productions.each{|pp| pp.reload}
     linked_phenotyping_production.try(:reload) unless linked_phenotyping_production.blank?
+    @distribution_centres_attributes = []
 
     instance_variable_names.each do |iv|
       instance_variable_set(iv, nil) if self.class.column_names.member?(iv.gsub('@', ''))

@@ -16,7 +16,7 @@ class Open::MiAttemptsController < OpenApplicationController
         @access = false
         render 'mi_attempts/index' # renders the apps/views/mi_attempts/index.html.erb view.
       end
-      format.json { render :json => data_for_serialized(:json) }
+      format.json { params[:report_to_public_eq] = true; render :json => data_for_serialized(:json) }
     end
   end
 

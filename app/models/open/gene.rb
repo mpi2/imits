@@ -3,7 +3,12 @@ class Open::Gene < ::Gene
   # BEGIN Helper functions for clean reporting
 
 
-  def self.gene_production_summary()
+  def self.gene_production_summary(options = {})
+    gene_ids = options[:gene_ids] || nil
+    return_value = options[:return_value] || nil
+    statuses = options[:statuses] || nil
+    crispr = options.has_key?(:crispr) ? options[:crispr] : nil
+    show_eucommtoolscre_data = options.has_key?(:show_eucommtoolscre_data) ? options[:show_eucommtoolscre_data] : true
 
     sql = <<-EOF
 
@@ -14,24 +19,43 @@ class Open::Gene < ::Gene
       (
         (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id, CASE WHEN mi_attempt_statuses.name IS NOT NULL THEN mi_attempt_statuses.name ELSE mi_plan_statuses.name END AS status_name
          FROM mi_plans
-           JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id
-           LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id) ON mi_plans.id = mi_attempts.mi_plan_id AND mi_attempts.report_to_public = true
-           WHERE mi_plans.report_to_public = true
-         #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"}
+           JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id #{[true, false].include?(crispr) ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr}" : ''}
+           LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id) ON mi_plans.id = mi_attempts.mi_plan_id
+           WHERE mi_attempts.report_to_public = true AND mi_plans.report_to_public = true
+           #{ if !gene_ids.nil? || show_eucommtoolscre_data == false
+                query = []
+                query << "mi_plans.gene_id IN (#{gene_ids.join(', ')})" if !gene_ids.nil?
+                query << "mi_plans.consortium_id != 17" if show_eucommtoolscre_data == false
+                "AND #{query.join(' AND ')}"
+              end
+           }
         )
 
         UNION ALL
 
-        (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id, phenotype_attempt_statuses.name AS status_name
+        (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id,
+                CASE
+                  WHEN phenotyping_production_statuses.name = 'Phenotype Production Aborted' AND (mouse_allele_mod_statuses.name IS NULL OR mouse_allele_mod_statuses.name = 'Mouse Allele Modification Aborted')
+                    THEN 'Phenotype Attempt Aborted'
+                 WHEN phenotyping_production_statuses.name IS NOT NULL AND (mouse_allele_mod_statuses.name IS NULL OR phenotyping_production_statuses.order_by > mouse_allele_mod_statuses.order_by)
+                   THEN phenotyping_production_statuses.name
+                 WHEN mouse_allele_mod_statuses.name = 'Mouse Allele Modification Aborted'
+                   THEN 'Phenotype Attempt Aborted'
+                 ELSE mouse_allele_mod_statuses.name
+               END AS status_name
+
          FROM mi_plans
-           JOIN phenotype_attempts ON mi_plans.id = phenotype_attempts.mi_plan_id AND phenotype_attempts.report_to_public = true
-           JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id
-           JOIN mi_attempts ON mi_attempts.id = phenotype_attempts.mi_attempt_id AND mi_attempts.report_to_public = true
-         WHERE mi_attempts.is_active = true
-           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"}
+           LEFT JOIN (phenotyping_productions JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id JOIN colonies parent_colony ON parent_colony.id = phenotyping_productions.parent_colony_id) ON phenotyping_productions.mi_plan_id = mi_plans.id
+           LEFT JOIN (mouse_allele_mods JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id) ON (mouse_allele_mods.id = parent_colony.mouse_allele_mod_id) OR (mouse_allele_mods.mi_plan_id = mi_plans.id)
+
+           JOIN ( mi_attempts JOIN colonies mi_attempt_colony ON mi_attempt_colony.mi_attempt_id = mi_attempts.id ) ON mi_attempt_colony.id = mouse_allele_mods.parent_colony_id OR mi_attempt_colony.id = phenotyping_productions.parent_colony_id
+
+         WHERE mi_plans.report_to_public = true AND mi_attempts.is_active = true AND mi_attempts.report_to_public = true AND ((mouse_allele_mods.id IS NOT NULL AND mouse_allele_mods.report_to_public = true) OR (phenotyping_productions.id IS NOT NULL AND phenotyping_productions.report_to_public = true))
+           #{gene_ids.nil? ? "" : "AND mi_plans.gene_id IN (#{gene_ids.join(', ')})"} #{[true, false].include?(crispr) ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr}" : ''}
+           #{show_eucommtoolscre_data == false ? " AND mi_plans.consortium_id != 17" : ''}
         )
       ) AS production_summary
-      #{statuses.nil? ? "" : "WHERE production_summary.status_name IN (#{statuses.map{|status| status.name}.join(',')})"}
+      #{statuses.nil? ? "" : "WHERE production_summary.status_name IN ('#{statuses.map{|status| status.name}.join("','")}')"}
       GROUP BY production_summary.mi_plan_id, production_summary.gene_id, production_summary.consortium_id, production_summary.production_centre_id, production_summary.status_name
       )
 
@@ -39,9 +63,14 @@ class Open::Gene < ::Gene
       FROM status_summary
         JOIN genes ON genes.id = status_summary.gene_id
         JOIN consortia ON consortia.id = status_summary.consortium_id
-        JOIN centres ON centres.id = status_summary.production_centre_id
+        LEFT JOIN centres ON centres.id = status_summary.production_centre_id
       ORDER BY genes.marker_symbol, status_summary.status_name, consortia.name, centres.name
     EOF
+
+
+
+
+
 
     result = ActiveRecord::Base.connection.execute(sql)
 

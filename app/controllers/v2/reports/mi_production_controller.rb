@@ -752,21 +752,21 @@ class V2::Reports::MiProductionController < ApplicationController
 
     elsif type == 'Phenotype Attempt Registered'
       if !no_lower_limit
-        hash['phenotype_attempt_registered_date_gteq'] = month_begins
+        hash['phenotyping_registered_date_gteq'] = month_begins
       end
-      hash['phenotype_attempt_registered_date_lt'] = next_month
+      hash['phenotyping_registered_date_lt'] = next_month
 
     elsif type == 'Tm1b Phenotype Attempt Registered'
       if !no_lower_limit
-        hash['tm1b_phenotype_attempt_registered_date_gteq'] = month_begins
+        hash['tm1b_phenotyping_registered_date_gteq'] = month_begins
       end
-      hash['tm1b_phenotype_attempt_registered_date_lt'] = next_month
+      hash['tm1b_phenotyping_registered_date_lt'] = next_month
 
     elsif type == 'Tm1a Phenotype Attempt Registered'
       if !no_lower_limit
-        hash['tm1a_phenotype_attempt_registered_date_gteq'] = month_begins
+        hash['tm1a_phenotyping_registered_date_gteq'] = month_begins
       end
-      hash['tm1a_phenotype_attempt_registered_date_lt'] = next_month
+      hash['tm1a_phenotyping_registered_date_lt'] = next_month
 
     elsif type == 'Rederivation Started'
       if !no_lower_limit

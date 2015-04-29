@@ -102,7 +102,7 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
       display['plan'] = true
       #confiuration of fields that should be returned
       sql = ''
-      puts "HELLO THERE #{display.has_key?('plan') && display['plan'] == true}"
+
       if display.has_key?('plan') && display['plan'] == true
         sql += <<-EOF
                plan_summary.mi_plan_id,
@@ -152,7 +152,9 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
                ,phenotyping_production_summary.phenotyping_production_id,
                phenotyping_production_summary.phenotyping_production_colony_name,
                phenotyping_production_summary.phenotyping_status,
-               phenotyping_production_summary.phenotype_attempt_registered_date,
+               phenotyping_production_summary.phenotyping_registered_date,
+               phenotyping_production_summary.phenotyping_rederivation_started_date,
+               phenotyping_production_summary.phenotyping_rederivation_complete_date,
                phenotyping_production_summary.phenotyping_experiments_started_date,
                phenotyping_production_summary.phenotyping_started_date,
                phenotyping_production_summary.phenotyping_complete_date,

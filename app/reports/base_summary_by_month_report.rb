@@ -195,8 +195,8 @@ class BaseSummaryByMonthReport
               THEN 1 ELSE 0
             END) as mi_aborted_count,
             SUM(CASE
-              WHEN report.phenotype_attempt_registered_date >= series.date
-                AND report.phenotype_attempt_registered_date < date(series.date + interval '1 month')
+              WHEN report.phenotyping_registered_date >= series.date
+                AND report.phenotyping_registered_date < date(series.date + interval '1 month')
               THEN 1 ELSE 0
             END) as phenotype_registered_count,
             SUM(CASE
@@ -252,7 +252,7 @@ class BaseSummaryByMonthReport
               CASE WHEN chimeras_obtained_date < '#{from_date}' THEN '#{from_date_minus_a_month}' ELSE chimeras_obtained_date END AS chimeras_obtained_date,
               CASE WHEN genotype_confirmed_date < '#{from_date}' THEN '#{from_date_minus_a_month}' ELSE genotype_confirmed_date END AS genotype_confirmed_date,
               CASE WHEN micro_injection_aborted_date < '#{from_date}' THEN '#{from_date_minus_a_month}' ELSE micro_injection_aborted_date END AS micro_injection_aborted_date,
-              CASE WHEN phenotype_attempt_registered_date < '#{from_date}' THEN '#{from_date_minus_a_month}' ELSE phenotype_attempt_registered_date END AS phenotype_attempt_registered_date,
+              CASE WHEN phenotyping_registered_date < '#{from_date}' THEN '#{from_date_minus_a_month}' ELSE phenotyping_registered_date END AS phenotyping_registered_date,
               CASE WHEN rederivation_started_date < '#{from_date}' THEN '#{from_date_minus_a_month}' ELSE rederivation_started_date END AS rederivation_started_date,
               CASE WHEN rederivation_complete_date < '#{from_date}' THEN '#{from_date_minus_a_month}' ELSE rederivation_complete_date END AS rederivation_complete_date,
               CASE WHEN cre_excision_started_date < '#{from_date}' THEN '#{from_date_minus_a_month}' ELSE cre_excision_started_date END AS cre_excision_started_date,

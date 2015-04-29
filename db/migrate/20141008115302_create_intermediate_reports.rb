@@ -48,7 +48,9 @@ class CreateIntermediateReports < ActiveRecord::Migration
           t.date     :cre_excision_complete_date
 
           t.string   :phenotyping_status
-          t.date     :phenotype_attempt_registered_date
+          t.date     :phenotyping_registered_date
+          t.date     :phenotyping_rederivation_started_date
+          t.date     :phenotyping_rederivation_complete_date
           t.date     :phenotyping_experiments_started_date
           t.date     :phenotyping_started_date
           t.date     :phenotyping_complete_date
@@ -115,7 +117,9 @@ class CreateIntermediateReports < ActiveRecord::Migration
           t.date     :cre_excision_complete_date
 
           t.string   :phenotyping_status
-          t.date     :phenotype_attempt_registered_date
+          t.date     :phenotyping_registered_date
+          t.date     :phenotyping_rederivation_started_date
+          t.date     :phenotyping_rederivation_complete_date
           t.date     :phenotyping_experiments_started_date
           t.date     :phenotyping_started_date
           t.date     :phenotyping_complete_date
@@ -178,7 +182,9 @@ class CreateIntermediateReports < ActiveRecord::Migration
           t.date     :cre_excision_complete_date
 
           t.string   :phenotyping_status
-          t.date     :phenotype_attempt_registered_date
+          t.date     :phenotyping_registered_date
+          t.date     :phenotyping_rederivation_started_date
+          t.date     :phenotyping_rederivation_complete_date
           t.date     :phenotyping_experiments_started_date
           t.date     :phenotyping_started_date
           t.date     :phenotyping_complete_date
@@ -196,6 +202,12 @@ class CreateIntermediateReports < ActiveRecord::Migration
     add_foreign_key :intermediate_report_summary_by_centre_and_consortia, :mouse_allele_mods, column: 'modified_mouse_allele_mod_id', name: 'irscc_modified_mouse_allele_mod_fk'
     add_foreign_key :intermediate_report_summary_by_centre_and_consortia, :mouse_allele_mods, name: 'irscc_mouse_allele_mods_fk'
     add_foreign_key :intermediate_report_summary_by_centre_and_consortia, :phenotyping_productions, name: 'irscc_phenotyping_productions_fk'
+
+    drop_table :new_intermediate_report_summary_by_centre
+    drop_table :new_intermediate_report_summary_by_centre_and_consortia
+    drop_table :new_intermediate_report_summary_by_consortia
+    drop_table :new_intermediate_report_summary_by_gene
+    drop_table :new_intermediate_report_summary_by_mi_plan
   end
 
 

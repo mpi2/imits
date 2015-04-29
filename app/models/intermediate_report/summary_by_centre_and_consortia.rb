@@ -45,18 +45,17 @@ module IntermediateReport::SummaryByCentreAndConsortia
      def self.production_sql
        sql = <<-EOF
                   SELECT mi_attempts.id AS mi_attempt_id, NULL AS mouse_allele_mods_id, mi_attempts.mi_plan_id AS mi_plan_id,
-                    mi_attempt_statuses.name AS production_status, mi_attempt_statuses.order_by AS production_status_order, mi_attempt_status_stamps.created_at AS production_status_order_status_stamp_created_at, false AS cre_excised
+                    mi_attempt_statuses.name AS production_status, mi_attempt_statuses.order_by AS production_status_order, mi_attempt_status_stamps.created_at AS production_status_order_status_stamp_created_at, false AS allele_modification
                   FROM mi_attempts
                     JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
                     JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = mi_attempts.status_id
                   UNION
 
                   SELECT NULL AS mi_attempt_id, mouse_allele_mods.id AS mouse_allele_mods_id, mouse_allele_mods.mi_plan_id AS mi_plan_id,
-                    mouse_allele_mod_statuses.name AS production_status, mouse_allele_mod_statuses.order_by AS production_status_order, mouse_allele_mod_status_stamps.created_at AS production_status_order_status_stamp_created_at, mouse_allele_mods.cre_excision
+                    mouse_allele_mod_statuses.name AS production_status, mouse_allele_mod_statuses.order_by AS production_status_order, mouse_allele_mod_status_stamps.created_at AS production_status_order_status_stamp_created_at, false AS allele_modification
                   FROM mouse_allele_mods
                     JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
                     JOIN mouse_allele_mod_status_stamps ON mouse_allele_mod_status_stamps.mouse_allele_mod_id = mouse_allele_mods.id AND mouse_allele_mod_status_stamps.status_id = mouse_allele_mods.status_id
-                  WHERE mouse_allele_mods.cre_excision = true
                 EOF
        return sql
      end
@@ -118,8 +117,10 @@ module IntermediateReport::SummaryByCentreAndConsortia
                     FROM phenotyping_productions
                       JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
                       JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
-                      JOIN mouse_allele_mods ON mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id #{!excision__condition.blank? ? "AND mouse_allele_mods.cre_excision = #{excision__condition}" : ''}
-                      JOIN mi_attempts ON mi_attempts.id = mouse_allele_mods.mi_attempt_id
+                      JOIN colonies ON colonies.id = phenotyping_productions.parent_colony_id #{!excision__condition.blank? ? (excision__condition ? "AND colonies.mouse_allele_mod_id IS NOT NULL" : "AND colonies.mouse_allele_mod_id IS NULL") : ''}
+                      LEFT JOIN (mouse_allele_mods JOIN colonies mam_colonies ON mam_colonies.mouse_allele_mod_id = mouse_allele_mods.id) ON mam_colonies.id = phenotyping_productions.parent_colony_id
+                      LEFT JOIN colonies mouse_allele_mod_colonies ON mouse_allele_mod_colonies.id = mouse_allele_mods.parent_colony_id
+                      JOIN mi_attempts ON mi_attempts.id = mouse_allele_mod_colonies.mi_attempt_id OR colonies.mi_attempt_id = mi_attempts.id
                       JOIN mi_plans crispr_plan ON crispr_plan.id = mi_attempts.mi_plan_id #{!crispr_condition.blank? ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr_condition}" : ''}
                     ORDER BY
                       mi_plans.gene_id,
@@ -246,7 +247,7 @@ module IntermediateReport::SummaryByCentreAndConsortia
       def self.best_production_report_sql(experiment_type, approach, plan_condition = nil , production_condition = nil)
         <<-EOF
           --
-          WITH filtered_plans AS (#{filter_plans_sql(plan_condition)}), filtered_production AS (SELECT * FROM (#{production_sql}) AS production #{!production_condition.blank? ? "WHERE production.cre_excised = #{production_condition}" : ""} ), #{best_production_sql}, #{best_phenotyping_sql(plan_condition, production_condition)}
+          WITH filtered_plans AS (#{filter_plans_sql(plan_condition)}), filtered_production AS (SELECT * FROM (#{production_sql}) AS production #{!production_condition.blank? ? "WHERE production.allele_modification = #{production_condition}" : ""} ), #{best_production_sql}, #{best_phenotyping_sql(plan_condition, production_condition)}
 
           SELECT
               '#{experiment_type}' AS catagory,
@@ -284,7 +285,9 @@ module IntermediateReport::SummaryByCentreAndConsortia
               mam_aborted_statuses.created_at::date as phenotype_attempt_aborted_date,
 
               NULL AS phenotyping_production_id,
-              pp_registered_statuses.created_at::date as phenotype_attempt_registered_date,
+              pp_registered_statuses.created_at::date AS phenotyping_registered_date,
+              pp_re_started_statuses.created_at::date AS phenotyping_rederivation_started_date,
+              pp_re_complete_statuses.created_at::date AS phenotyping_rederivation_complete_date,
               pp_started_statuses.created_at::date as phenotyping_started_date,
               phenotyping_productions.phenotyping_experiments_started::date as phenotyping_experiments_started_date,
               pp_complete_statuses.created_at::date as phenotyping_complete_date,
@@ -299,8 +302,8 @@ module IntermediateReport::SummaryByCentreAndConsortia
           JOIN genes ON genes.id = top_production.gene_id
           JOIN consortia ON consortia.id = top_production.consortium_id
           JOIN centres ON centres.id = top_production.production_centre_id
-          LEFT JOIN mouse_allele_mods ON mouse_allele_mods.id = top_production.mouse_allele_mod_id
-          JOIN mi_attempts ON mi_attempts.id = mouse_allele_mods.mi_attempt_id OR mi_attempts.id = top_production.mi_attempt_id
+          LEFT JOIN (mouse_allele_mods JOIN colonies mi_attempt_colony ON mi_attempt_colony.id = mouse_allele_mods.parent_colony_id) ON mouse_allele_mods.id = top_production.mouse_allele_mod_id
+          JOIN mi_attempts ON mi_attempts.id = mi_attempt_colony.mi_attempt_id OR mi_attempts.id = top_production.mi_attempt_id
 
           LEFT JOIN (top_phenotyping_production JOIN phenotyping_productions ON phenotyping_productions.id = top_phenotyping_production.phenotyping_production_id
                     )ON top_phenotyping_production.gene_id = top_production.gene_id  AND top_phenotyping_production.consortium_id = top_production.consortium_id AND top_phenotyping_production.production_centre_id = top_production.production_centre_id
@@ -322,6 +325,8 @@ module IntermediateReport::SummaryByCentreAndConsortia
           LEFT JOIN phenotyping_production_statuses ON phenotyping_productions.status_id = phenotyping_production_statuses.id
           LEFT JOIN phenotyping_production_status_stamps AS pp_aborted_statuses ON pp_aborted_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_aborted_statuses.status_id = 5
           LEFT JOIN phenotyping_production_status_stamps AS pp_registered_statuses ON pp_registered_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_registered_statuses.status_id = 1
+          LEFT JOIN phenotyping_production_status_stamps AS pp_re_started_statuses ON pp_re_started_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_re_started_statuses.status_id = 6
+          LEFT JOIN phenotyping_production_status_stamps AS pp_re_complete_statuses ON pp_re_complete_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_re_complete_statuses.status_id = 7
           LEFT JOIN phenotyping_production_status_stamps AS pp_started_statuses ON pp_started_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_started_statuses.status_id = 3
           LEFT JOIN phenotyping_production_status_stamps AS pp_complete_statuses ON pp_complete_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_complete_statuses.status_id = 4
 
@@ -370,7 +375,7 @@ module IntermediateReport::SummaryByCentreAndConsortia
           'micro_injection_aborted_date',
 
           'mouse_allele_mod_status',
-          'mouse_allele_mod_registered_date',           # phenotype_attempt_statuses
+          'mouse_allele_mod_registered_date',           # mouse_allele_mod_statuses
           'rederivation_started_date',
           'rederivation_complete_date',
           'cre_excision_started_date',
@@ -378,7 +383,9 @@ module IntermediateReport::SummaryByCentreAndConsortia
 
 
           'phenotyping_status',
-          'phenotype_attempt_registered_date',           # phenotype_attempt_statuses
+          'phenotyping_registered_date',                # phenotyping_statuses
+          'phenotyping_rederivation_started_date',
+          'phenotyping_rederivation_complete_date',
           'phenotyping_started_date',
           'phenotyping_experiments_started_date',
           'phenotyping_complete_date',

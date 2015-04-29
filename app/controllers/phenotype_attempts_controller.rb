@@ -279,7 +279,14 @@ class PhenotypeAttemptsController < ApplicationController
     set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     @mi_attempt = @phenotype_attempt.mi_attempt
-    respond_with @phenotype_attempt
+    respond_with @phenotype_attempt do |format|
+      format.html do
+        render :html => @phenotype_attempt
+      end
+      format.json do
+        render :json => @phenotype_attempt.attributes.to_json
+      end
+    end
   end
 
 

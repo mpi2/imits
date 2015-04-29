@@ -19,7 +19,7 @@ class Public::PhenotypeAttempt
                                  :include => []}
 
   READABLE_ATTRIBUTES = {
-      :methods => [:id, :mi_plan_id, :status_name, :mi_attempt_colony_name, :colony_name, :production_centre_name, :consortium_name, :marker_symbol, :colony_background_strain_name, :rederivation_started, :rederivation_complete, :distribution_centres_formatted_display, :is_active, :report_to_public, :cre_excision_required, :excision_required ]
+      :methods => [:id, :mi_plan_id, :status_name, :mi_attempt_colony_name, :colony_name, :production_centre_name, :consortium_name, :marker_symbol, :colony_background_strain_name, :colony_background_strain_mgi_name, :colony_background_strain_mgi_accession, :rederivation_started, :rederivation_complete, :distribution_centres_formatted_display, :is_active, :report_to_public, :cre_excision_required, :excision_required ]
   }
 
   @@phenotype_attempt_fields = []
@@ -151,6 +151,18 @@ class Public::PhenotypeAttempt
 
   def colony_name=(arg)
     @colony_name = arg
+  end
+
+  def colony_background_strain_mgi_name
+    return mouse_allele_mod.colony_background_strain_mgi_name unless mouse_allele_mod.blank?
+    return linked_phenotyping_production.colony_background_strain_mgi_name unless linked_phenotyping_production.blank?
+    nil
+  end
+
+  def colony_background_strain_mgi_accession
+    return mouse_allele_mod.colony_background_strain_mgi_accession unless mouse_allele_mod.blank?
+    return linked_phenotyping_production.colony_background_strain_mgi_accession unless linked_phenotyping_production.blank?
+    nil
   end
 
   def mi_plan_id=(arg)

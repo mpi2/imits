@@ -151,6 +151,14 @@ class MouseAlleleMod < ApplicationModel
     colony.try(:background_strain_name)
   end
 
+  def colony_background_strain_mgi_name
+    colony.try(:background_strain).try(:mgi_strain_name)
+  end
+
+  def colony_background_strain_mgi_accession
+    colony.try(:background_strain).try(:mgi_strain_accession_id)
+  end
+
 ## BEFORE VALIDATION FUNCTIONS
   def set_blank_qc_fields_to_na
     ColonyQc::QC_FIELDS.each do |qc_field|

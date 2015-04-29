@@ -149,6 +149,14 @@ class PhenotypingProduction < ApplicationModel
 
   def status_name; status.try(:name); end
 
+  def colony_background_strain_mgi_name
+    colony_background_strain.try(:mgi_strain_name)
+  end
+
+  def colony_background_strain_mgi_accession
+    colony_background_strain.try(:mgi_strain_accession_id)
+  end
+
 ## CLASS METHODS
 
   def self.readable_name

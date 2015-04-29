@@ -54,9 +54,11 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def komp2_production_summary
+    report_filters
+
     @title = Komp2ProductionReport.title
 
-    @report = Komp2ProductionReport.new
+    @report = Komp2ProductionReport.new({'category' => @category, 'allele_type' => @allele_type})
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
@@ -67,15 +69,17 @@ class V2::Reports::MiProductionController < ApplicationController
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
+    @crispr_effort_efficiency_totals = @report.generate_crispr_efficiency_totals
     @mi_plan_statuses = Komp2ProductionReport.mi_plan_statuses
-
 
     render :template => 'v2/reports/mi_production/production_summary'
   end
 
   def impc_production_summary
+    report_filters
+
     @title = ImpcProductionReport.title
-    @report = ImpcProductionReport.new
+    @report = ImpcProductionReport.new({'category' => @category, 'allele_type' => @allele_type})
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
@@ -86,15 +90,17 @@ class V2::Reports::MiProductionController < ApplicationController
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
+    @crispr_effort_efficiency_totals = @report.generate_crispr_efficiency_totals
     @mi_plan_statuses = ImpcProductionReport.mi_plan_statuses
-
 
     render :template => 'v2/reports/mi_production/production_summary'
   end
 
   def eucomm_tools_production_summary
+    report_filters
+
     @title = EucommToolsProductionReport.title
-    @report = EucommToolsProductionReport.new
+    @report = EucommToolsProductionReport.new({'category' => @category, 'allele_type' => @allele_type})
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
@@ -105,6 +111,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
+    @crispr_effort_efficiency_totals = @report.generate_crispr_efficiency_totals
     @mi_plan_statuses = EucommToolsProductionReport.mi_plan_statuses
 
     render :template => 'v2/reports/mi_production/production_summary'
@@ -125,7 +132,8 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def komp2_summary_by_month
-    @report  = Komp2SummaryByMonthReport.new
+    report_filters
+    @report  = Komp2SummaryByMonthReport.new(nil, @category, @approach, @allele_type)
     @clone_columns = @report.clone_columns
     @phenotype_columns = @report.phenotype_columns
     @consortia = @report.available_consortia
@@ -134,7 +142,8 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def impc_summary_by_month
-    @report  = ImpcSummaryByMonthReport.new
+    report_filters
+    @report  = ImpcSummaryByMonthReport.new(nil, @category, @approach, @allele_type)
     @clone_columns = @report.clone_columns
     @phenotype_columns = @report.phenotype_columns
     @consortia = @report.available_consortia
@@ -143,8 +152,9 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def komp2_graph_report_display
+    report_filters
     @title = 'KOMP Production Summaries'
-    @report = Komp2GraphReportDisplay.new
+    @report = Komp2GraphReportDisplay.new(nil, @category, @approach, @allele_type)
     date = @report.date_previous_month.to_date.at_beginning_of_month
     @consortia = @report.available_consortia
     @date = date.to_s
@@ -153,7 +163,8 @@ class V2::Reports::MiProductionController < ApplicationController
 
   def graph_report_display
 
-    @consortia = params[:consortia].split(',')
+    report_filters
+    @consortia = params[:consortia].split(',').map{|con| Consortium.find_by_name(con).try(:name)}.reject { |c| c.blank? }
     @title = "Production Summaries for #{@consortia.to_sentence}"
 
     @error = false
@@ -167,8 +178,9 @@ class V2::Reports::MiProductionController < ApplicationController
     end
     error_message << missing_consortia.to_sentence
 
+
     if ! @error
-      @report = GraphReportDisplay.new(@consortia)
+      @report = GraphReportDisplay.new(@consortia, @category, @approach, @allele_type)
       date = @report.date_previous_month.to_date.at_beginning_of_month
       @date = date.to_s
       @date_name = Date::ABBR_MONTHNAMES[date.month]
@@ -211,11 +223,18 @@ class V2::Reports::MiProductionController < ApplicationController
 
 
   def impc_centre_by_month
-    @report = ImpcCentreByMonthReport.new
+    report_filters
+
+    @report = ImpcCentreByMonthReport.new({'category' => @category})
     @centre_by_month = @report.report_rows
     @cumulative_totals = @report.cumulative_totals
     @consortia = @report.consortia
-    @columns = ImpcCentreByMonthReport.columns
+    @columns = ImpcCentreByMonthReport.columns.dup
+    if @category == 'crispr'
+      @columns.delete('Injected')
+    else
+      @columns.delete(' Injected')
+    end
     @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
   end
 
@@ -392,6 +411,8 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def genes_gt_mi_attempt_summary
+    params[:consortia] = [] if !params.has_key?(:consortia)
+    params[:centres] = [] if !params.has_key?(:centres)
     @consortia = Consortium.where(:name => params[:consortia].split(','))
     @production_centres = Centre.where(:name => params[:centres].split(','))
 
@@ -427,6 +448,13 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   private
+
+  def report_filters
+    @category = !params[:category].blank? && ['crispr', 'es cell', 'all'].include?(params[:category]) ? params[:category] : 'es cell'
+    @approach = !params[:approach].blank? && ['micro injection', 'mouse allele modification'].include?(params[:approach]) ? params[:approach] : 'all'
+    @allele_type = !params[:allele_type].nil? && TargRepRealAllele.types.include?(params[:allele_type]) ? params[:allele_type] : nil
+  end
+
   def params_cleaned_for_search
     new_params = params.dup
     params[:q] ||= {}

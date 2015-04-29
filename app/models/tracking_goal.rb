@@ -24,6 +24,8 @@ class TrackingGoal < ActiveRecord::Base
   READABLE_ATTRIBUTES = %w(
     id
     goal
+    crispr_goal
+    total_goal
     goal_type
     year
     month
@@ -71,6 +73,12 @@ class TrackingGoal < ActiveRecord::Base
     end
   end
 
+  before_save :calculate_totals
+
+  def calculate_totals
+    self.total_goal = self.goal + self.crispr_goal
+  end
+
   def month
     @month || date.try(:month)
   end
@@ -108,4 +116,6 @@ end
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  consortium_id        :integer
+#  crispr_goal          :integer          default(0)
+#  total_goal           :integer          default(0)
 #

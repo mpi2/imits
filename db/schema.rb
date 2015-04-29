@@ -237,6 +237,154 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.string   "phenotype_attempt_colony_name"
   end
 
+  create_table "intermediate_report_summary_by_centre_and_consortia", :force => true do |t|
+    t.string  "catagory",                             :null => false
+    t.string  "approach",                             :null => false
+    t.string  "allele_type",                          :null => false
+    t.integer "mi_plan_id"
+    t.integer "mi_attempt_id"
+    t.integer "modified_mouse_allele_mod_id"
+    t.integer "mouse_allele_mod_id"
+    t.integer "phenotyping_production_id"
+    t.string  "consortium"
+    t.string  "production_centre"
+    t.string  "gene"
+    t.string  "mgi_accession_id"
+    t.string  "mi_attempt_external_ref"
+    t.string  "mi_attempt_colony_name"
+    t.string  "mouse_allele_mod_colony_name"
+    t.string  "phenotyping_production_colony_name"
+    t.string  "mi_plan_status"
+    t.date    "gene_interest_date"
+    t.date    "assigned_date"
+    t.date    "assigned_es_cell_qc_in_progress_date"
+    t.date    "assigned_es_cell_qc_complete_date"
+    t.date    "aborted_es_cell_qc_failed_date"
+    t.string  "mi_attempt_status"
+    t.date    "micro_injection_aborted_date"
+    t.date    "micro_injection_in_progress_date"
+    t.date    "chimeras_obtained_date"
+    t.date    "founder_obtained_date"
+    t.date    "genotype_confirmed_date"
+    t.string  "mouse_allele_mod_status"
+    t.date    "mouse_allele_mod_registered_date"
+    t.date    "rederivation_started_date"
+    t.date    "rederivation_complete_date"
+    t.date    "cre_excision_started_date"
+    t.date    "cre_excision_complete_date"
+    t.string  "phenotyping_status"
+    t.date    "phenotype_attempt_registered_date"
+    t.date    "phenotyping_experiments_started_date"
+    t.date    "phenotyping_started_date"
+    t.date    "phenotyping_complete_date"
+    t.date    "phenotype_attempt_aborted_date"
+    t.date    "created_at"
+  end
+
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["allele_type"], :name => "irscc_allele_type"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["approach"], :name => "irscc_approach"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["catagory"], :name => "irscc_catagory"
+
+  create_table "intermediate_report_summary_by_consortia", :force => true do |t|
+    t.string  "catagory",                             :null => false
+    t.string  "approach",                             :null => false
+    t.string  "allele_type",                          :null => false
+    t.integer "mi_plan_id"
+    t.integer "mi_attempt_id"
+    t.integer "modified_mouse_allele_mod_id"
+    t.integer "mouse_allele_mod_id"
+    t.integer "phenotyping_production_id"
+    t.string  "consortium"
+    t.string  "gene"
+    t.string  "mgi_accession_id"
+    t.string  "mi_attempt_external_ref"
+    t.string  "mi_attempt_colony_name"
+    t.string  "mouse_allele_mod_colony_name"
+    t.string  "phenotyping_production_colony_name"
+    t.string  "mi_plan_status"
+    t.date    "gene_interest_date"
+    t.date    "assigned_date"
+    t.date    "assigned_es_cell_qc_in_progress_date"
+    t.date    "assigned_es_cell_qc_complete_date"
+    t.date    "aborted_es_cell_qc_failed_date"
+    t.string  "mi_attempt_status"
+    t.date    "micro_injection_aborted_date"
+    t.date    "micro_injection_in_progress_date"
+    t.date    "chimeras_obtained_date"
+    t.date    "founder_obtained_date"
+    t.date    "genotype_confirmed_date"
+    t.string  "mouse_allele_mod_status"
+    t.date    "mouse_allele_mod_registered_date"
+    t.date    "rederivation_started_date"
+    t.date    "rederivation_complete_date"
+    t.date    "cre_excision_started_date"
+    t.date    "cre_excision_complete_date"
+    t.string  "phenotyping_status"
+    t.date    "phenotype_attempt_registered_date"
+    t.date    "phenotyping_experiments_started_date"
+    t.date    "phenotyping_started_date"
+    t.date    "phenotyping_complete_date"
+    t.date    "phenotype_attempt_aborted_date"
+    t.date    "created_at"
+  end
+
+  add_index "intermediate_report_summary_by_consortia", ["allele_type"], :name => "irsc_allele_type"
+  add_index "intermediate_report_summary_by_consortia", ["approach"], :name => "irsc_approach"
+  add_index "intermediate_report_summary_by_consortia", ["catagory"], :name => "irsc_catagory"
+
+  create_table "intermediate_report_summary_by_mi_plan", :force => true do |t|
+    t.string  "catagory",                             :null => false
+    t.string  "approach",                             :null => false
+    t.string  "allele_type",                          :null => false
+    t.integer "mi_plan_id"
+    t.integer "mi_attempt_id"
+    t.integer "modified_mouse_allele_mod_id"
+    t.integer "mouse_allele_mod_id"
+    t.integer "phenotyping_production_id"
+    t.string  "consortium"
+    t.string  "production_centre"
+    t.string  "sub_project"
+    t.string  "priority"
+    t.string  "gene"
+    t.string  "mgi_accession_id"
+    t.string  "mi_attempt_external_ref"
+    t.string  "mi_attempt_colony_name"
+    t.string  "mouse_allele_mod_colony_name"
+    t.string  "phenotyping_production_colony_name"
+    t.string  "mi_plan_status"
+    t.date    "assigned_date"
+    t.date    "assigned_es_cell_qc_in_progress_date"
+    t.date    "assigned_es_cell_qc_complete_date"
+    t.date    "aborted_es_cell_qc_failed_date"
+    t.string  "mi_attempt_status"
+    t.date    "micro_injection_aborted_date"
+    t.date    "micro_injection_in_progress_date"
+    t.date    "chimeras_obtained_date"
+    t.date    "founder_obtained_date"
+    t.date    "genotype_confirmed_date"
+    t.string  "mouse_allele_mod_status"
+    t.date    "mouse_allele_mod_registered_date"
+    t.date    "rederivation_started_date"
+    t.date    "rederivation_complete_date"
+    t.date    "cre_excision_started_date"
+    t.date    "cre_excision_complete_date"
+    t.string  "phenotyping_status"
+    t.date    "phenotype_attempt_registered_date"
+    t.date    "phenotyping_experiments_started_date"
+    t.date    "phenotyping_started_date"
+    t.date    "phenotyping_complete_date"
+    t.date    "phenotype_attempt_aborted_date"
+    t.integer "mi_aborted_count"
+    t.date    "mi_aborted_max_date"
+    t.integer "allele_mod_aborted_count"
+    t.date    "allele_mod_aborted_max_date"
+    t.date    "created_at"
+  end
+
+  add_index "intermediate_report_summary_by_mi_plan", ["allele_type"], :name => "irsmp_allele_type"
+  add_index "intermediate_report_summary_by_mi_plan", ["approach"], :name => "irsmp_approach"
+  add_index "intermediate_report_summary_by_mi_plan", ["catagory"], :name => "irsmp_catagory"
+
   create_table "mi_attempt_distribution_centres", :force => true do |t|
     t.date     "start_date"
     t.date     "end_date"
@@ -654,6 +802,7 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.datetime "created_at"
     t.string   "sub_project"
     t.string   "mutation_sub_type",                             :limit => 100
+    t.string   "mi_attempt_external_ref"
   end
 
   create_table "new_intermediate_report_summary_by_consortia", :force => true do |t|
@@ -730,6 +879,7 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.datetime "created_at"
     t.string   "sub_project"
     t.string   "mutation_sub_type",                             :limit => 100
+    t.string   "mi_attempt_external_ref"
   end
 
   create_table "new_intermediate_report_summary_by_gene", :force => true do |t|
@@ -882,6 +1032,7 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.integer  "gc_old_pipeline_efficiency_gene_count"
     t.datetime "created_at"
     t.boolean  "mutagenesis_via_crispr_cas9",                                  :default => false
+    t.string   "mi_attempt_external_ref"
   end
 
   create_table "notifications", :force => true do |t|
@@ -1025,8 +1176,12 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.integer  "month"
     t.integer  "mi_goal"
     t.integer  "gc_goal"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
+    t.integer  "crispr_mi_goal", :default => 0
+    t.integer  "crispr_gc_goal", :default => 0
+    t.integer  "total_mi_goal",  :default => 0
+    t.integer  "total_gc_goal",  :default => 0
   end
 
   add_index "production_goals", ["consortium_id", "year", "month"], :name => "index_production_goals_on_consortium_id_and_year_and_month", :unique => true
@@ -1487,9 +1642,11 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.date     "date"
     t.string   "goal_type"
     t.integer  "goal"
-    t.datetime "created_at",           :null => false
-    t.datetime "updated_at",           :null => false
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
     t.integer  "consortium_id"
+    t.integer  "crispr_goal",          :default => 0
+    t.integer  "total_goal",           :default => 0
   end
 
   create_table "users", :force => true do |t|
@@ -1515,6 +1672,24 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
   add_foreign_key "colonies", "mouse_allele_mods", :name => "colonies_mouse_allele_mod_fk"
 
   add_foreign_key "colony_qcs", "colonies", :name => "colony_qcs_colonies_fk"
+
+  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "mi_attempts", :name => "irscc_mi_attempts_fk"
+  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "mi_plans", :name => "irscc_mi_plans_fk"
+  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "mouse_allele_mods", :name => "irscc_modified_mouse_allele_mod_fk", :column => "modified_mouse_allele_mod_id"
+  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "mouse_allele_mods", :name => "irscc_mouse_allele_mods_fk"
+  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "phenotyping_productions", :name => "irscc_phenotyping_productions_fk"
+
+  add_foreign_key "intermediate_report_summary_by_consortia", "mi_attempts", :name => "irsc_mi_attempts_fk"
+  add_foreign_key "intermediate_report_summary_by_consortia", "mi_plans", :name => "irsc_mi_plans_fk"
+  add_foreign_key "intermediate_report_summary_by_consortia", "mouse_allele_mods", :name => "irsc_modified_mouse_allele_mod_fk", :column => "modified_mouse_allele_mod_id"
+  add_foreign_key "intermediate_report_summary_by_consortia", "mouse_allele_mods", :name => "irsc_mouse_allele_mods_fk"
+  add_foreign_key "intermediate_report_summary_by_consortia", "phenotyping_productions", :name => "irsc_phenotyping_productions_fk"
+
+  add_foreign_key "intermediate_report_summary_by_mi_plan", "mi_attempts", :name => "irsmp_mi_attempts_fk"
+  add_foreign_key "intermediate_report_summary_by_mi_plan", "mi_plans", :name => "irsmp_mi_plans_fk"
+  add_foreign_key "intermediate_report_summary_by_mi_plan", "mouse_allele_mods", :name => "irsmp_modified_mouse_allele_mod_fk", :column => "modified_mouse_allele_mod_id"
+  add_foreign_key "intermediate_report_summary_by_mi_plan", "mouse_allele_mods", :name => "irsmp_mouse_allele_mods_fk"
+  add_foreign_key "intermediate_report_summary_by_mi_plan", "phenotyping_productions", :name => "irsmp_phenotyping_productions_fk"
 
   add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"

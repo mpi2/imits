@@ -243,7 +243,17 @@ class Colony < ApplicationModel
     return 'colony'
   end
 
-
+  def self.group_colonies_by_mi_attempt_sql
+    return <<-EOF
+                SELECT ordered_colonies.mi_attempt_id, string_agg(ordered_colonies.colony_name, ', ') AS colony_name
+                FROM (
+                    SELECT colonies.mi_attempt_id AS mi_attempt_id, colonies.name AS colony_name
+                    FROM colonies
+                    ORDER BY colonies.mi_attempt_id, colonies.genotype_confirmed
+                    ) AS ordered_colonies
+                GROUP BY ordered_colonies.mi_attempt_id
+            EOF
+  end
 end
 
 # == Schema Information

@@ -24,6 +24,9 @@ Ext.define('Imits.model.TrackingGoal', {
         name: 'goal'
     },
     {
+        name: 'crispr_goal'
+    },
+    {
         name: 'goal_type'
     },
     {

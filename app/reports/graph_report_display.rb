@@ -1,6 +1,6 @@
 class GraphReportDisplay < BaseSummaryByMonthReport
 
-  def initialize(consortia_list=nil)
+  def initialize(consortia_list=nil, category = 'es cell', approach = 'all', allele_type = nil)
     @chart_file_names = {}
     super
     graph_data = self.generate_graphs
@@ -39,7 +39,7 @@ class GraphReportDisplay < BaseSummaryByMonthReport
       if ! future_goals.has_key?(report_row['consortium'])
         future_goals[report_row['consortium']] = []
       end
-      future_goals[report_row['consortium']] << {:date => report_row['date'].to_date,  :goal => report_row['gc_goal'].to_i}
+      future_goals[report_row['consortium']] << {:date => report_row['date'].to_date,  :goal => @category != 'crispr' ? report_row['gc_goal'].to_i : 0}
     end
 
 
@@ -64,15 +64,15 @@ class GraphReportDisplay < BaseSummaryByMonthReport
 
       rowno = 0
       dates.each do |date|
-        dataset[consortium]['mi_goal_data'].append(@report_hash["#{consortium}-#{date}-MI Goal"].to_i)
+        dataset[consortium]['mi_goal_data'].append(@category!='crispr' ? @report_hash["#{consortium}-#{date}-MI Goal"].to_i : 0)
         dataset[consortium]['mi_data'].append(@report_hash["#{consortium}-#{date}-Cumulative MIs"].to_i)
-        dataset[consortium]['pos_mi_diff_data'].append([0, @report_hash["#{consortium}-#{date}-MI Goal"].to_i - @report_hash["#{consortium}-#{date}-Cumulative MIs"].to_i].max)
-        dataset[consortium]['neg_mi_diff_data'].append(([0, @report_hash["#{consortium}-#{date}-MI Goal"].to_i - @report_hash["#{consortium}-#{date}-Cumulative MIs"].to_i].min)*(-1))
+        dataset[consortium]['pos_mi_diff_data'].append([0, dataset[consortium]['mi_goal_data'][-1] - dataset[consortium]['mi_data'][-1]].max)
+        dataset[consortium]['neg_mi_diff_data'].append(([0, dataset[consortium]['mi_goal_data'][-1] - dataset[consortium]['mi_data'][-1]].min)*(-1))
 
-        dataset[consortium]['gc_goal_data'].append(@report_hash["#{consortium}-#{date}-GC Goal"].to_i)
+        dataset[consortium]['gc_goal_data'].append(@category!='crispr' ? @report_hash["#{consortium}-#{date}-GC Goal"].to_i : 0)
         dataset[consortium]['gc_data'].append(@report_hash["#{consortium}-#{date}-Cumulative genotype confirmed"].to_i)
-        dataset[consortium]['pos_gc_diff_data'].append([0, @report_hash["#{consortium}-#{date}-GC Goal"].to_i - @report_hash["#{consortium}-#{date}-Cumulative genotype confirmed"].to_i].max)
-        dataset[consortium]['neg_gc_diff_data'].append(([0, @report_hash["#{consortium}-#{date}-GC Goal"].to_i - @report_hash["#{consortium}-#{date}-Cumulative genotype confirmed"].to_i].min)*(-1))
+        dataset[consortium]['pos_gc_diff_data'].append([0, dataset[consortium]['gc_goal_data'][-1] - dataset[consortium]['gc_data'][-1]].max)
+        dataset[consortium]['neg_gc_diff_data'].append(([0, dataset[consortium]['gc_goal_data'][-1] - dataset[consortium]['gc_data'][-1]].min)*(-1))
 
         dataset[consortium]['cre_excised_data'].append(@report_hash["#{consortium}-#{date}-Cumulative Cre Excision Complete"].to_i)
         dataset[consortium]['x_data'].append([rowno,"#{Date::ABBR_MONTHNAMES[date.month]}-#{date.year.to_s[2..3]}"])
@@ -91,7 +91,7 @@ class GraphReportDisplay < BaseSummaryByMonthReport
         last_date = "2016-07-01".to_date
         future_goals[consortium].insert(0, {:date => dates.last , :goal => dataset[consortium]['extended_gc_goals'].last})
         if future_goals[consortium].last[:date] < last_date and dates.last < last_date
-          future_goals[consortium] << { :date => last_date.to_date, :goal => 820}
+          future_goals[consortium] << { :date => last_date.to_date, :goal => @category != 'crispr' ? 820 : 0}
         end
 
         if future_goals[consortium].count > 0

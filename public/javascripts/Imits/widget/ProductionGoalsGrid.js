@@ -45,6 +45,8 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
         var monthValue     = self.monthText.getSubmitValue();
         var miValue        = self.miText.getSubmitValue();
         var gcValue        = self.gcText.getSubmitValue();
+        var crisprmiValue  = self.miText.getSubmitValue();
+        var crisprgcValue  = self.gcText.getSubmitValue();
 
         if(!consortiumName || consortiumName && !consortiumName.length) {
             alert("You must enter a valid Consortium.");
@@ -73,7 +75,9 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
             'year' : yearValue,
             'month' : monthValue,
             'mi_goal' : miValue,
-            'gc_goal' : gcValue
+            'gc_goal' : gcValue,
+            'crispr_mi_goal' : crisprmiValue,
+            'crispr_gc_goal' : crisprgcValue
         });
 
         productionGoal.save({
@@ -108,7 +112,7 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
             store: window.CONSORTIUM_OPTIONS,
             fieldLabel: 'Consortium',
             labelAlign: 'right',
-            labelWidth: 65,
+            labelWidth: 55,
             storeOptionsAreSpecial: true,
             hidden: false
         });
@@ -116,7 +120,7 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
         self.yearText = Ext.create('Ext.form.field.Number', {
             fieldLabel: 'Year',
             name: 'year',
-            labelWidth: 50,
+            labelWidth: 30,
             labelAlign: 'right',
             regex: /[1-9-]*/
         });
@@ -126,7 +130,7 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
         self.monthText = Ext.create('Ext.form.field.Number', {
             fieldLabel: 'Month',
             name: 'month',
-            labelWidth: 50,
+            labelWidth: 35,
             labelAlign: 'right',
             regex: /[1-9-]*/
         });
@@ -134,7 +138,7 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
         self.miText = Ext.create('Ext.form.field.Number', {
             fieldLabel: 'MI Goal',
             name: 'mi_goal',
-            labelWidth: 50,
+            labelWidth: 40,
             labelAlign: 'right',
             regex: /[1-9-]*/
         });
@@ -142,11 +146,26 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
         self.gcText = Ext.create('Ext.form.field.Number', {
             fieldLabel: 'GC Goal',
             name: 'gc_goal',
-            labelWidth: 50,
+            labelWidth: 40,
             labelAlign: 'right',
             regex: /[1-9-]*/
         });
 
+        self.crisprmiText = Ext.create('Ext.form.field.Number', {
+            fieldLabel: 'Crispr MI Goal',
+            name: 'crispr_mi_goal',
+            labelWidth: 40,
+            labelAlign: 'right',
+            regex: /[1-9-]*/
+        });
+
+        self.crisprgcText = Ext.create('Ext.form.field.Number', {
+            fieldLabel: 'Crispr GC Goal',
+            name: 'crispr_gc_goal',
+            labelWidth: 40,
+            labelAlign: 'right',
+            regex: /[1-9-]*/
+        });
         self.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
             items: [
@@ -155,10 +174,12 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
             self.monthText,
             self.miText,
             self.gcText,
+            self.crisprmiText,
+            self.crisprgcText,
             '  ',
             {
                 id: 'register_interest_button',
-                text: 'Create production goal',
+                text: 'Create goals',
                 cls:'x-btn-text-icon',
                 iconCls: 'icon-add',
                 grid: self,
@@ -211,6 +232,16 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
         {
             dataIndex: 'gc_goal',
             header: 'GC Goal',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'crispr_mi_goal',
+            header: 'Crispr MI Goal',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'crispr_gc_goal',
+            header: 'Crispr GC Goal',
             editor: 'simplenumberfield'
         },
         {

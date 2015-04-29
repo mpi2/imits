@@ -8,6 +8,25 @@ class MiPlan < ApplicationModel
   include MiPlan::StatusManagement
   include ApplicationModel::HasStatuses
 
+  FUNDING = {'IMPC' => {
+                 'HMGU' => ['Helmholtz GMC'],
+                 'ICS' => ['Phenomin', 'Helmholtz GMC'],
+                 'Harwell' => ['BaSH', 'MRC'],
+                 'UCD' =>['DTCC'],
+                 'WTSI' =>['MGP', 'BaSH'],
+                 'Monterotondo' =>['Monterotondo'],
+                 'BCM' => 'all',
+                 'TCP' => 'all',
+                 'JAX' => 'all',
+                 'RIKEN BRC' => 'all'
+                },
+            'KOMP' => [
+                'BaSH',
+                'DTCC',
+                'JAX'
+               ]
+           }
+
   belongs_to :sub_project
   belongs_to :gene
   belongs_to :consortium
@@ -582,6 +601,42 @@ class MiPlan < ApplicationModel
 
     return false
   end
+
+  def impc_activity?
+    return false if self.production_centre.blank? || self.consortium.blank?
+
+    if !FUNDING['IMPC'][self.production_centre.name].blank? && (FUNDING['IMPC'][self.production_centre.name] == 'all' || FUNDING['IMPC'][self.production_centre.name].include?(self.consortium.name))
+      return true
+    else
+      return false
+    end
+  end
+
+  def komp_activity?
+    return false if self.consortium.blank? || !FUNDING['KOMP'].include?(self.consortium.name)
+    return true
+  end
+
+  def self.impc_activity_sql_where
+
+    where_array = []
+    FUNDING['IMPC'].each do |key, value|
+      where_clause = "(centres.name = '#{key}' "
+      if value != 'all'
+        where_clause += "AND consortia.name IN ('#{value.join("', '")}')"
+      end
+      where_clause += ") "
+      where_array << where_clause
+    end
+    return where_array.join(" OR ")
+  end
+
+  def self.komp_activity_sql_where
+    where_array = FUNDING['KOMP']
+    return "consortia.name IN ('#{where_array.join("', '")}')"
+  end
+
+
 end
 
 # == Schema Information

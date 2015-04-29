@@ -1,26 +1,28 @@
 <% @title %>
 
-<h1><%= @title %></h1>
-
+<h1><%= @title %> (Displaying <%= @category.titlecase %> Data)</h1>
+<p><span style="font-weight:bold;">Switch</span> report to include: <a href=<%="?category=es%20cell"%>>ES Cell Data</a> | <a href=<%="?category=crispr"%>>Crispr Data</a> | <a href=<%="?category=all"%>>All Data</a></p></br>
 <table class="report_table">
 <thead>
 <tr><th width="250">Status</th><th>Description</th></tr>
 </thead>
 <tbody>
 <tr><td><strong>All Genes</strong></td><td>Unique genes targeted by Consortium</td></tr>
-<tr>
-  <td><strong>ES Cell QC (gene)</strong></td>
-  <td><strong>Cumulative! </strong>Genes where we see <em>any</em> ES QC activity, in progess, successful or aborted</td></tr>
-<tr>
-  <td><strong>ES QC Confirmed (gene)</strong></td>
-  <td>Genes where QC ES Cell clone(s) have been thawed and QC passed.</td>
-</tr>
-<tr>
-  <td><strong>ES QC Failed (gene)</strong></td>
-  <td>
-    Genes where <em>no</em> more attempts will be made to thaw existing ES Cell clones for this gene.
-  </td>
-</tr>
+<% if @category != 'crispr'%>
+  <tr>
+    <td><strong>ES Cell QC (gene)</strong></td>
+    <td><strong>Cumulative! </strong>Genes where we see <em>any</em> ES QC activity, in progess, successful or aborted</td></tr>
+  <tr>
+    <td><strong>ES QC Confirmed (gene)</strong></td>
+    <td>Genes where QC ES Cell clone(s) have been thawed and QC passed.</td>
+  </tr>
+  <tr>
+    <td><strong>ES QC Failed (gene)</strong></td>
+    <td>
+      Genes where <em>no</em> more attempts will be made to thaw existing ES Cell clones for this gene.
+    </td>
+  </tr>
+<% end %>
 <tr>
   <td><strong>Microinjections (gene)</strong></td>
   <td><strong>Cumulative!</strong> Number of Genes with any mouse production activity, In Progess, Chimeric, Genotype Confirmed or Aborted</td>
@@ -83,21 +85,23 @@
           <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative Gene Interest', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
           <td><%= report_link_to(@report.report_hash, consortium, 'Gene Interest', :date => @date, :production_group => 'consortia')%></td>
         </tr>
-        <tr>
-          <td>ES Cell QC (genes)</td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative ES Starts', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'ES Cell QC In Progress', :date => @date, :production_group => 'consortia')%></td>
-        </tr>
-        <tr>
-          <td>ES QC Confirmed (genes)</td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative ES Cell QC Complete', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'ES Cell QC Complete', :date => @date, :production_group => 'consortia')%></td>
-        </tr>
-        <tr>
-          <td>ES QC Failed (genes)</td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative ES Cell QC Failed', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'ES Cell QC Failed', :date => @date, :production_group => 'consortia')%></td>
-        </tr>
+        <% if @category != 'crispr'%>
+          <tr>
+            <td>ES Cell QC (genes)</td>
+            <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative ES Starts', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
+            <td><%= report_link_to(@report.report_hash, consortium, 'ES Cell QC In Progress', :date => @date, :production_group => 'consortia')%></td>
+          </tr>
+          <tr>
+            <td>ES QC Confirmed (genes)</td>
+            <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative ES Cell QC Complete', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
+            <td><%= report_link_to(@report.report_hash, consortium, 'ES Cell QC Complete', :date => @date, :production_group => 'consortia')%></td>
+          </tr>
+          <tr>
+            <td>ES QC Failed (genes)</td>
+            <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative ES Cell QC Failed', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
+            <td><%= report_link_to(@report.report_hash, consortium, 'ES Cell QC Failed', :date => @date, :production_group => 'consortia')%></td>
+          </tr>
+        <% end %>
         <tr>
           <td>Microinjections (genes)</td>
           <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative MIs', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>

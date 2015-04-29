@@ -67,32 +67,47 @@
     </a>
   </div>
 
-</div>
-
-<div class="grid_4">
   <h3>Detailed Status Date Report <%= @generated_message %></h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
         <h4>Gene-by-gene Status Change Dates for All IMPC Consortia</h4>
       </a>
     </div>
+</div>
+
+<div class="grid_4">
 
   <h3>KOMP2 Production Reports</h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_production_summary) %>">
         <h4>Production for KOMP2 Consortia</h4>
+        <p>
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_production_summary, :category => 'es cell') %>">ES Cell Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_production_summary, :category => 'crispr') %>">Crispr Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_production_summary, :category => 'all') %>">All Data</a> |
+        </p>
       </a>
     </div>
 
     <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_graph_report_display) %>">
       <h4>Monthly Production for KOMP2 Consortia (summary and graphs)</h4>
+        <p>
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_graph_report_display, :category => 'es cell') %>">ES Cell Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_graph_report_display, :category => 'crispr') %>">Crispr Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_graph_report_display, :category => 'all') %>">All Data</a> |
+        </p>
       </a>
     </div>
 
     <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_summary_by_month) %>">
       <h4>Monthly Production for KOMP2 Consortia (tables only)</h4>
+        <p>
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_summary_by_month, :category => 'es cell') %>">ES Cell Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_summary_by_month, :category => 'crispr') %>">Crispr Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_summary_by_month, :category => 'all') %>">All Data</a> |
+        </p>
       </a>
     </div>
 
@@ -114,6 +129,11 @@
     <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_production_summary) %>">
         <h4>Production for IMPC Consortia</h4>
+        <p>
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_production_summary, :category => 'es cell') %>">ES Cell Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_production_summary, :category => 'crispr') %>">Crispr Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_production_summary, :category => 'all') %>">All Data</a> |
+        </p>
       </a>
     </div>
 
@@ -121,6 +141,11 @@
     <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month) %>">
       <h4>Monthly Production for IMPC Production centres</h4>
+        <p>
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month, :category => 'es cell') %>">ES Cell Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month, :category => 'crispr') %>">Crispr Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month, :category => 'all') %>">All Data</a> |
+        </p>
       </a>
     </div>
 
@@ -136,9 +161,28 @@
     <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :eucomm_tools_production_summary) %>">
         <h4>Production for EUCOMMToolsCre</h4>
+          <p>
+            <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :eucomm_tools_production_summary, :category => 'es cell') %>">ES Cell Data</a> |
+            <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :eucomm_tools_production_summary, :category => 'crispr') %>">Crispr Data</a> |
+            <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :eucomm_tools_production_summary, :category => 'all') %>">All Data</a> |
+          </p>
       </a>
     </div>
 
+<% if current_user.admin %>
+  <h3>MGP Production Reports</h3>
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :mgp_production_by_priority) %>">
+      <h4>MGP Production by Priority</h4>
+      </a>
+    </div>
+
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :mgp_production_by_subproject) %>">
+      <h4>MGP Production by Sub-project</h4>
+      </a>
+    </div>
+<% end %>
 </div>
 
 <div class="grid_4">
@@ -219,6 +263,7 @@
     </a>
   </div>
 </div>
+
 
 <div class="clear"></div>
 

@@ -28,7 +28,7 @@ class ImpcCentreByMonthDetail
     def mi_rows_sql(insert_bit)
       <<-EOF
           select
-            consortia.name as consortium, centres.name as production_centre, genes.marker_symbol, mi_attempts.external_ref AS colony_name,
+            consortia.name as consortium, centres.name as production_centre, genes.marker_symbol, colonies.name AS colony_name,
             targ_rep_es_cells.name as clone, mi_attempt_statuses.name as current_status, mi_date as mi_date_asserted,
             (select to_char(created_at,'YYYY-MM-DD') from mi_attempt_status_stamps where mi_attempt_id = mi_attempts.id and status_id = 1) as mi_date_of_entry,
             (select to_char(created_at,'YYYY-MM-DD') from mi_attempt_status_stamps where mi_attempt_id = mi_attempts.id and status_id = 4) as chimerism_date,
@@ -39,24 +39,13 @@ class ImpcCentreByMonthDetail
             join centres on centres.id = mi_plans.production_centre_id
             join genes on genes.id = mi_plans.gene_id
             join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
+            join colonies on colonies.mi_attempt_id = mi_attempts.id
             join mi_attempt_statuses on mi_attempts.status_id = mi_attempt_statuses.id
             join targ_rep_es_cells on mi_attempts.es_cell_id = targ_rep_es_cells.id
           where
             #{insert_bit} and mi_plans.mutagenesis_via_crispr_cas9 = false
 	  and
-	    (centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
-	  OR
-	    centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')
-	  OR
-	    centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
-	  OR
-	    centres.name = 'Harwell' AND consortia.name IN ('BaSH', 'MRC')
-	  OR
-	    centres.name = 'UCD' AND consortia.name = 'DTCC'
-	  OR
-	    centres.name = 'WTSI' AND consortia.name IN ('MGP', 'BaSH')
-	  OR
-	    centres.name = 'Monterotondo' AND consortia.name = 'Monterotondo')
+	    (#{MiPlan.impc_activity_sql_where})
           order by mi_date_asserted;
       EOF
     end
@@ -93,19 +82,7 @@ class ImpcCentreByMonthDetail
             #{insert_bit}
       and (mouse_allele_mods.id IS NOT NULL OR phenotyping_productions.id IS NOT NULL) and mi_plans.mutagenesis_via_crispr_cas9 = false
 	  and
-	    (centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
-	  OR
-	    centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')
-	  OR
-	    centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
-	  OR
-	    centres.name = 'Harwell' AND consortia.name IN ('BaSH', 'MRC')
-	  OR
-	    centres.name = 'UCD' AND consortia.name = 'DTCC'
-	  OR
-	    centres.name = 'WTSI' AND consortia.name IN ('MGP', 'BaSH')
-	  OR
-	    centres.name = 'Monterotondo' AND consortia.name = 'Monterotondo')
+	    (#{MiPlan.impc_activity_sql_where})
           order by registered_date;
       EOF
     end

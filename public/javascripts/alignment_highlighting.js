@@ -1,9 +1,11 @@
 $(function(){
-
 $('#seq_1').html(colour_alignment($('#seq_1').html()));
 })
 
+
 function colour_alignment(seq){
+
+>>>>>>> crispr_dev
     var match_char    =  /[ACTGN]/;
     var mismatch_char =  /[actgn]/;
     var delete_char   =  /-/;

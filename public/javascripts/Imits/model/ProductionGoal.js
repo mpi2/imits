@@ -22,6 +22,12 @@ Ext.define('Imits.model.ProductionGoal', {
     },
     {
         name: 'gc_goal'
+    },
+    {
+        name: 'crispr_mi_goal'
+    },
+    {
+        name: 'crispr_gc_goal'
     }
 
     ],

@@ -52,7 +52,7 @@
     <fieldset class="collapsible" id="distribution_centres">
       <legend>Distribution Centres</legend>
         <div class="distribution_centres">
-          <% if @phenotype_attempt.status.try(:name) == "Cre Excision Complete" && @phenotype_attempt.distribution_centres.length > 0%>
+          <% if @phenotype_attempt.status_name == "Cre Excision Complete" && @phenotype_attempt.distribution_centres.length > 0%>
             <table id="distribution_centres_table" class="report_table">
               <thead class="title">
                 <tr>

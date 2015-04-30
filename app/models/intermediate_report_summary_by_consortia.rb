@@ -3,12 +3,6 @@ class IntermediateReportSummaryByConsortia < ActiveRecord::Base
 
   acts_as_reportable
 
-  belongs_to :mi_plans
-  belongs_to :mi_attmepts
-  belongs_to :mouse_allele_mod
-  belongs_to :phenotyping_production
-
-
   class << self
 
     def select_sql(category = 'es cell', approach = 'all', allele_type= nil)
@@ -158,7 +152,11 @@ end
 #
 # Indexes
 #
-#  irsc_allele_type  (allele_type)
-#  irsc_approach     (approach)
-#  irsc_catagory     (catagory)
+#  irsc_allele_type              (allele_type)
+#  irsc_approach                 (approach)
+#  irsc_catagory                 (catagory)
+#  irsc_mi_attempts              (mi_attempt_id)
+#  irsc_mi_plans                 (mi_plan_id)
+#  irsc_mouse_allele_mods        (mouse_allele_mod_id)
+#  irsc_phenotyping_productions  (phenotyping_production_id)
 #

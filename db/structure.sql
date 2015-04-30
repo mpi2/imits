@@ -4971,6 +4971,34 @@ CREATE INDEX irsc_catagory ON intermediate_report_summary_by_consortia USING btr
 
 
 --
+-- Name: irsc_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsc_mi_attempts ON intermediate_report_summary_by_consortia USING btree (mi_attempt_id);
+
+
+--
+-- Name: irsc_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsc_mi_plans ON intermediate_report_summary_by_consortia USING btree (mi_plan_id);
+
+
+--
+-- Name: irsc_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsc_mouse_allele_mods ON intermediate_report_summary_by_consortia USING btree (mouse_allele_mod_id);
+
+
+--
+-- Name: irsc_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsc_phenotyping_productions ON intermediate_report_summary_by_consortia USING btree (phenotyping_production_id);
+
+
+--
 -- Name: irscc_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4992,6 +5020,34 @@ CREATE INDEX irscc_catagory ON intermediate_report_summary_by_centre_and_consort
 
 
 --
+-- Name: irscc_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscc_mi_attempts ON intermediate_report_summary_by_centre_and_consortia USING btree (mi_attempt_id);
+
+
+--
+-- Name: irscc_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscc_mi_plans ON intermediate_report_summary_by_centre_and_consortia USING btree (mi_plan_id);
+
+
+--
+-- Name: irscc_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscc_mouse_allele_mods ON intermediate_report_summary_by_centre_and_consortia USING btree (mouse_allele_mod_id);
+
+
+--
+-- Name: irscc_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscc_phenotyping_productions ON intermediate_report_summary_by_centre_and_consortia USING btree (phenotyping_production_id);
+
+
+--
 -- Name: irsmp_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -5010,6 +5066,34 @@ CREATE INDEX irsmp_approach ON intermediate_report_summary_by_mi_plan USING btre
 --
 
 CREATE INDEX irsmp_catagory ON intermediate_report_summary_by_mi_plan USING btree (catagory);
+
+
+--
+-- Name: irsmp_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsmp_mi_attempts ON intermediate_report_summary_by_mi_plan USING btree (mi_attempt_id);
+
+
+--
+-- Name: irsmp_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsmp_mi_plans ON intermediate_report_summary_by_mi_plan USING btree (mi_plan_id);
+
+
+--
+-- Name: irsmp_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsmp_mouse_allele_mods ON intermediate_report_summary_by_mi_plan USING btree (mouse_allele_mod_id);
+
+
+--
+-- Name: irsmp_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsmp_phenotyping_productions ON intermediate_report_summary_by_mi_plan USING btree (phenotyping_production_id);
 
 
 --
@@ -5120,126 +5204,6 @@ ALTER TABLE ONLY mouse_allele_mod_status_stamps
 
 ALTER TABLE ONLY phenotyping_production_status_stamps
     ADD CONSTRAINT fk_phenotyping_productions FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
-
-
---
--- Name: irsc_mi_attempts_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_consortia
-    ADD CONSTRAINT irsc_mi_attempts_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
-
-
---
--- Name: irsc_mi_plans_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_consortia
-    ADD CONSTRAINT irsc_mi_plans_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
-
-
---
--- Name: irsc_modified_mouse_allele_mod_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_consortia
-    ADD CONSTRAINT irsc_modified_mouse_allele_mod_fk FOREIGN KEY (modified_mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
-
-
---
--- Name: irsc_mouse_allele_mods_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_consortia
-    ADD CONSTRAINT irsc_mouse_allele_mods_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
-
-
---
--- Name: irsc_phenotyping_productions_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_consortia
-    ADD CONSTRAINT irsc_phenotyping_productions_fk FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
-
-
---
--- Name: irscc_mi_attempts_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
-    ADD CONSTRAINT irscc_mi_attempts_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
-
-
---
--- Name: irscc_mi_plans_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
-    ADD CONSTRAINT irscc_mi_plans_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
-
-
---
--- Name: irscc_modified_mouse_allele_mod_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
-    ADD CONSTRAINT irscc_modified_mouse_allele_mod_fk FOREIGN KEY (modified_mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
-
-
---
--- Name: irscc_mouse_allele_mods_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
-    ADD CONSTRAINT irscc_mouse_allele_mods_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
-
-
---
--- Name: irscc_phenotyping_productions_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
-    ADD CONSTRAINT irscc_phenotyping_productions_fk FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
-
-
---
--- Name: irsmp_mi_attempts_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
-    ADD CONSTRAINT irsmp_mi_attempts_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
-
-
---
--- Name: irsmp_mi_plans_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
-    ADD CONSTRAINT irsmp_mi_plans_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
-
-
---
--- Name: irsmp_modified_mouse_allele_mod_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
-    ADD CONSTRAINT irsmp_modified_mouse_allele_mod_fk FOREIGN KEY (modified_mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
-
-
---
--- Name: irsmp_mouse_allele_mods_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
-    ADD CONSTRAINT irsmp_mouse_allele_mods_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
-
-
---
--- Name: irsmp_phenotyping_productions_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
-    ADD CONSTRAINT irsmp_phenotyping_productions_fk FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
 
 
 --

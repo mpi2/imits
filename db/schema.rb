@@ -286,6 +286,10 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
   add_index "intermediate_report_summary_by_centre_and_consortia", ["allele_type"], :name => "irscc_allele_type"
   add_index "intermediate_report_summary_by_centre_and_consortia", ["approach"], :name => "irscc_approach"
   add_index "intermediate_report_summary_by_centre_and_consortia", ["catagory"], :name => "irscc_catagory"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["mi_attempt_id"], :name => "irscc_mi_attempts"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["mi_plan_id"], :name => "irscc_mi_plans"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["mouse_allele_mod_id"], :name => "irscc_mouse_allele_mods"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["phenotyping_production_id"], :name => "irscc_phenotyping_productions"
 
   create_table "intermediate_report_summary_by_consortia", :force => true do |t|
     t.string  "catagory",                               :null => false
@@ -335,6 +339,10 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
   add_index "intermediate_report_summary_by_consortia", ["allele_type"], :name => "irsc_allele_type"
   add_index "intermediate_report_summary_by_consortia", ["approach"], :name => "irsc_approach"
   add_index "intermediate_report_summary_by_consortia", ["catagory"], :name => "irsc_catagory"
+  add_index "intermediate_report_summary_by_consortia", ["mi_attempt_id"], :name => "irsc_mi_attempts"
+  add_index "intermediate_report_summary_by_consortia", ["mi_plan_id"], :name => "irsc_mi_plans"
+  add_index "intermediate_report_summary_by_consortia", ["mouse_allele_mod_id"], :name => "irsc_mouse_allele_mods"
+  add_index "intermediate_report_summary_by_consortia", ["phenotyping_production_id"], :name => "irsc_phenotyping_productions"
 
   create_table "intermediate_report_summary_by_mi_plan", :force => true do |t|
     t.string  "catagory",                               :null => false
@@ -390,6 +398,10 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
   add_index "intermediate_report_summary_by_mi_plan", ["allele_type"], :name => "irsmp_allele_type"
   add_index "intermediate_report_summary_by_mi_plan", ["approach"], :name => "irsmp_approach"
   add_index "intermediate_report_summary_by_mi_plan", ["catagory"], :name => "irsmp_catagory"
+  add_index "intermediate_report_summary_by_mi_plan", ["mi_attempt_id"], :name => "irsmp_mi_attempts"
+  add_index "intermediate_report_summary_by_mi_plan", ["mi_plan_id"], :name => "irsmp_mi_plans"
+  add_index "intermediate_report_summary_by_mi_plan", ["mouse_allele_mod_id"], :name => "irsmp_mouse_allele_mods"
+  add_index "intermediate_report_summary_by_mi_plan", ["phenotyping_production_id"], :name => "irsmp_phenotyping_productions"
 
   create_table "mi_attempt_distribution_centres", :force => true do |t|
     t.date     "start_date"
@@ -1296,24 +1308,6 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
   add_foreign_key "colonies", "mouse_allele_mods", :name => "colonies_mouse_allele_mod_fk"
 
   add_foreign_key "colony_qcs", "colonies", :name => "colony_qcs_colonies_fk"
-
-  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "mi_attempts", :name => "irscc_mi_attempts_fk"
-  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "mi_plans", :name => "irscc_mi_plans_fk"
-  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "mouse_allele_mods", :name => "irscc_modified_mouse_allele_mod_fk", :column => "modified_mouse_allele_mod_id"
-  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "mouse_allele_mods", :name => "irscc_mouse_allele_mods_fk"
-  add_foreign_key "intermediate_report_summary_by_centre_and_consortia", "phenotyping_productions", :name => "irscc_phenotyping_productions_fk"
-
-  add_foreign_key "intermediate_report_summary_by_consortia", "mi_attempts", :name => "irsc_mi_attempts_fk"
-  add_foreign_key "intermediate_report_summary_by_consortia", "mi_plans", :name => "irsc_mi_plans_fk"
-  add_foreign_key "intermediate_report_summary_by_consortia", "mouse_allele_mods", :name => "irsc_modified_mouse_allele_mod_fk", :column => "modified_mouse_allele_mod_id"
-  add_foreign_key "intermediate_report_summary_by_consortia", "mouse_allele_mods", :name => "irsc_mouse_allele_mods_fk"
-  add_foreign_key "intermediate_report_summary_by_consortia", "phenotyping_productions", :name => "irsc_phenotyping_productions_fk"
-
-  add_foreign_key "intermediate_report_summary_by_mi_plan", "mi_attempts", :name => "irsmp_mi_attempts_fk"
-  add_foreign_key "intermediate_report_summary_by_mi_plan", "mi_plans", :name => "irsmp_mi_plans_fk"
-  add_foreign_key "intermediate_report_summary_by_mi_plan", "mouse_allele_mods", :name => "irsmp_modified_mouse_allele_mod_fk", :column => "modified_mouse_allele_mod_id"
-  add_foreign_key "intermediate_report_summary_by_mi_plan", "mouse_allele_mods", :name => "irsmp_mouse_allele_mods_fk"
-  add_foreign_key "intermediate_report_summary_by_mi_plan", "phenotyping_productions", :name => "irsmp_phenotyping_productions_fk"
 
   add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"

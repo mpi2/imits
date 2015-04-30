@@ -3,11 +3,6 @@ class IntermediateReportSummaryByMiPlan < ActiveRecord::Base
 
   acts_as_reportable
 
-  belongs_to :mi_plan
-  belongs_to :mi_attmept
-  belongs_to :mouse_allele_mod
-  belongs_to :phenotyping_production
-
   class << self
 
     def es_cell_and_crsipr_sql
@@ -92,7 +87,11 @@ end
 #
 # Indexes
 #
-#  irsmp_allele_type  (allele_type)
-#  irsmp_approach     (approach)
-#  irsmp_catagory     (catagory)
+#  irsmp_allele_type              (allele_type)
+#  irsmp_approach                 (approach)
+#  irsmp_catagory                 (catagory)
+#  irsmp_mi_attempts              (mi_attempt_id)
+#  irsmp_mi_plans                 (mi_plan_id)
+#  irsmp_mouse_allele_mods        (mouse_allele_mod_id)
+#  irsmp_phenotyping_productions  (phenotyping_production_id)
 #

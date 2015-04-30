@@ -436,8 +436,8 @@ class Public::PhenotypeAttempt
     if !mouse_allele_mod.blank? && destroy_mam == false
       mouse_allele_mod.parent_colony_name = mi_attempt_colony_name
       mouse_allele_mod.colony_name = colony_name
-      mouse_allele_mod.production_centre_name = production_centre_name
-      mouse_allele_mod.consortium_name = consortium_name
+      mouse_allele_mod.production_centre_name = production_centre_name || linked_phenotyping_production.try(:production_centre_name)
+      mouse_allele_mod.consortium_name = consortium_name || linked_phenotyping_production.try(:consortium_name)
       mouse_allele_mod.mi_plan_id = mi_plan_id
 
       mouse_allele_mod.rederivation_started = rederivation_started
@@ -497,6 +497,7 @@ class Public::PhenotypeAttempt
     set_models_attributes
 
     if !destroy_mam && !mouse_allele_mod.blank? && mouse_allele_mod.valid? == false
+      puts "CENTRE #{mouse_allele_mod.production_centre_name} : #{production_centre_name}"
       mouse_allele_mod.errors.messages.each{|error, message| errors.add("phenotype attempt #{error}", message)}
       return false
     end
@@ -575,12 +576,24 @@ class Public::PhenotypeAttempt
     begin
       ActiveRecord::Base.transaction do
         if destroy_mam
+          #reparent phenotyping production to mi_attempt colony before mam deletion
+          mouse_allele_mod.colony.phenotyping_productions.each{|pp| pp.parent_colony_id = mouse_allele_mod.parent_colony_id; pp.save}
           mouse_allele_mod.destroy
         else
-          mouse_allele_mod.save(validate: false) if !mouse_allele_mod.blank?
           #ensure pp and mam phenotype_attempt_id match. Can get out of sync if mam is deleted and then recreated for example.
           if !new_record? && !mouse_allele_mod.blank? && !linked_phenotyping_production.blank? && !linked_phenotyping_production.phenotype_attempt_id.blank? && (mouse_allele_mod.phenotype_attempt_id.blank? || linked_phenotyping_production.phenotype_attempt_id != mouse_allele_mod.phenotype_attempt_id)
             mouse_allele_mod.phenotype_attempt_id = linked_phenotyping_production.phenotype_attempt_id
+          end
+
+          if !mouse_allele_mod.blank?
+            mouse_allele_mod.save(validate: false)
+
+            mouse_allele_mod.colony.phenotyping_productions.each do |pp|
+              if pp.parent_colony_id != mouse_allele_mod.colony.id
+                pp.parent_colony_id = mouse_allele_mod.colony.id
+                pp.save
+              end
+            end
           end
         end
 

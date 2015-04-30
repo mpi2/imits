@@ -3,12 +3,6 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
 
   acts_as_reportable
 
-  belongs_to :mi_plans
-  belongs_to :mi_attmepts
-  belongs_to :mouse_allele_mod
-  belongs_to :phenotyping_production
-
-
   class << self
 
     def plan_summary(options)
@@ -221,7 +215,11 @@ end
 #
 # Indexes
 #
-#  irscc_allele_type  (allele_type)
-#  irscc_approach     (approach)
-#  irscc_catagory     (catagory)
+#  irscc_allele_type              (allele_type)
+#  irscc_approach                 (approach)
+#  irscc_catagory                 (catagory)
+#  irscc_mi_attempts              (mi_attempt_id)
+#  irscc_mi_plans                 (mi_plan_id)
+#  irscc_mouse_allele_mods        (mouse_allele_mod_id)
+#  irscc_phenotyping_productions  (phenotyping_production_id)
 #

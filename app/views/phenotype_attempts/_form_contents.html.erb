@@ -26,7 +26,7 @@
 
 
 
-<div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
+<div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required == true ? '' : 'hidden' %>">
 
   <fieldset class="collapsible">
     <legend>Rederivation</legend>
@@ -41,8 +41,6 @@
 
   <fieldset class="collapsible">
     <legend>Allele Modification Details</legend>
-
-
     <div>
       <div>
         <% unless @phenotype_attempt.new_record? || @phenotype_attempt.mouse_allele_mod.blank? %>
@@ -57,7 +55,7 @@
         <%= form.check_box :tat_cre %>
       </div>
 
-      <div id="tat-cre-hidden-fields" class="<%= @phenotype_attempt.tat_cre ? 'hidden' : '' %>">
+      <div id="tat-cre-hidden-fields" class="<%= @phenotype_attempt.tat_cre == true ? 'hidden' : '' %>">
       <div>
         <%= generator.deleter_strains_field :deleter_strain %>
       </div>
@@ -77,22 +75,23 @@
 </div>
 
 
-
-<fieldset>
+<% if !@phenotype_attempt.new_record? %><div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>"><% end %>
+  <fieldset>
   <legend>Colony Details</legend>
   <div>
     <%= generator.text_field(:colony_name, :size => 20) %>
   </div>
+
   <div>
     <%= generator.strains_field :colony_background_strain %>
   </div>
 
-  <% if @phenotype_attempt.new_record? ||  (@phenotype_attempt.mouse_allele_mod.blank?) %>
+  <% if @phenotype_attempt.new_record? %>
     <%= generator.text_field :phenotyping_experiments_started, :class => 'date-field' %>
   <% end %>
 
   <% unless @phenotype_attempt.new_record? || @phenotype_attempt.mouse_allele_mod.blank? || @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) != 'Cre Excision Complete'%>
-    <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
+    <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required == true ? '' : 'hidden' %>">
       <legend>Distribution Centres</legend>
       <div class="distribution_centres">
       <% if ['Cre Excision Complete'].include?(@phenotype_attempt.status_name) %>
@@ -122,7 +121,8 @@
       </div>
     </div>
   <% end %>
-</fieldset>
+  </fieldset>
+<% if !@phenotype_attempt.new_record? %> </div> <% end %>
 
 <% unless @phenotype_attempt.new_record?  || (!@phenotype_attempt.mouse_allele_mod.blank? && @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) != 'Cre Excision Complete' ) %>
   <fieldset class="collapsible" id="distribution_centres">

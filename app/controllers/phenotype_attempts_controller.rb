@@ -209,6 +209,7 @@ class PhenotypeAttemptsController < ApplicationController
       @phenotype_attempt = Public::PhenotypeAttempt.new(
         :mi_plan => @mi_attempt.mi_plan
         )
+      @phenotype_attempt.cre_excision_required = false unless @mi_attempt.mutagenesis_factor.blank?
     else
       flash.now[:alert] = "#{@mi_attempt.status.name} status"
     end

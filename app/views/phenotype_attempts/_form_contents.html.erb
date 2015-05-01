@@ -8,10 +8,17 @@
       <label>MI Attempt Colony Name</label>
       <%= @mi_attempt.colony_name %>
       <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
-      <div class="es-cell-name">
-        <div class="label">ES Cell Name</div>
-        <div><%= @mi_attempt.es_cell.name %></div>
-      </div>
+      <% if @mi_attempt.es_cell.blank? %>
+        <div class="es-cell-name">
+          <div class="label">Mutagensis Factor</div>
+          <div><a href=""><%= @mi_attempt.mutagenesis_factor.external_ref %></a></div>
+        </div>
+      <% else %>
+        <div class="es-cell-name">
+          <div class="label">ES Cell Name</div>
+          <div><%= @mi_attempt.es_cell.name %></div>
+        </div>
+      <% end %>
       <div class="allele-name">
         <div class="label">Allele Name</div>
         <div><%= @mi_attempt.mouse_allele_symbol_superscript %></div>

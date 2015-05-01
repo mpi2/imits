@@ -145,15 +145,72 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
     remove_column :phenotyping_productions, :mouse_allele_mod_id
 
 #    remove_column :mi_attempts, :mouse_allele_type
+#    remove_column :mi_attempts, :colony_background_strain_id
+
+    remove_column :mi_attempts, :qc_lacz_count_qpcr_id
+    remove_column :mi_attempts, :qc_critical_region_qpcr_id
+    remove_column :mi_attempts, :qc_loxp_srpcr_id
+    remove_column :mi_attempts, :qc_loxp_srpcr_and_sequencing_id
+    remove_column :mi_attempts, :qc_southern_blot_id
+    remove_column :mi_attempts, :qc_five_prime_lr_pcr_id
+    remove_column :mi_attempts, :qc_five_prime_cassette_integrity_id
+    remove_column :mi_attempts, :qc_tv_backbone_assay_id
+    remove_column :mi_attempts, :qc_neo_count_qpcr_id
+    remove_column :mi_attempts, :qc_neo_sr_pcr_id
+    remove_column :mi_attempts, :qc_loa_qpcr_id
+    remove_column :mi_attempts, :qc_homozygous_loa_sr_pcr_id
+    remove_column :mi_attempts, :qc_lacz_sr_pcr_id
+    remove_column :mi_attempts, :qc_mutant_specific_sr_pcr_id
+    remove_column :mi_attempts, :qc_loxp_confirmation_id
+    remove_column :mi_attempts, :qc_three_prime_lr_pcr_id
 
     remove_column :mouse_allele_mods, :mi_attempt_id
     remove_column :mouse_allele_mods, :colony_name
-    remove_column :mouse_allele_mods,  :mouse_allele_type
-#    remove_column :mouse_allele_mods, :allele_category
-#    remove_column :mouse_allele_mods, :allele_name
-#    remove_column :mouse_allele_mods, :allele_mgi_accession_id
+    remove_column :mouse_allele_mods, :mouse_allele_type
+    remove_column :mouse_allele_mods, :allele_category
+    remove_column :mouse_allele_mods, :allele_name
+    remove_column :mouse_allele_mods, :allele_mgi_accession_id
+    remove_column :mouse_allele_mods, :colony_background_strain_id
+    remove_column :mouse_allele_mods, :no_modification_required
+
+    remove_column :mouse_allele_mods, :qc_southern_blot_id
+    remove_column :mouse_allele_mods, :qc_five_prime_lr_pcr_id
+    remove_column :mouse_allele_mods, :qc_five_prime_cassette_integrity_id
+    remove_column :mouse_allele_mods, :qc_tv_backbone_assay_id
+    remove_column :mouse_allele_mods, :qc_neo_count_qpcr_id
+    remove_column :mouse_allele_mods, :qc_neo_sr_pcr_id
+    remove_column :mouse_allele_mods, :qc_loa_qpcr_id
+    remove_column :mouse_allele_mods, :qc_homozygous_loa_sr_pcr_id
+    remove_column :mouse_allele_mods, :qc_lacz_sr_pcr_id
+    remove_column :mouse_allele_mods, :qc_mutant_specific_sr_pcr_id
+    remove_column :mouse_allele_mods, :qc_loxp_confirmation_id
+    remove_column :mouse_allele_mods, :qc_three_prime_lr_pcr_id
+    remove_column :mouse_allele_mods, :qc_lacz_count_qpcr_id
+    remove_column :mouse_allele_mods, :qc_critical_region_qpcr_id
+    remove_column :mouse_allele_mods, :qc_loxp_srpcr_id
+    remove_column :mouse_allele_mods, :qc_loxp_srpcr_and_sequencing_id
 
 #    alter_column :mouse_allele_mods, :cre_excision, :excision
+    drop_table :solr_alleles
+    drop_table :solr_centre_map
+
+    self.connection.execute "DROP VIEW IF EXISTS solr_gene_statuses;"
+
+    drop_table :solr_genes
+    drop_table :solr_ikmc_projects_details_agg
+    drop_table :solr_mi_attempts
+    drop_table :solr_options
+    drop_table :solr_phenotype_attempts
+    drop_table :solr_update_queue_items
+
+    drop_table :mi_attempt_distribution_centres
+
+    remove_foreign_key :phenotype_attempts, :name => 'phenotype_attempts_status_id_fk'
+    drop_table :phenotype_attempt_distribution_centres
+    drop_table :phenotype_attempt_status_stamps
+    drop_table :phenotype_attempt_statuses
+    drop_table :phenotype_attempts
+
   end
 
   def self.down

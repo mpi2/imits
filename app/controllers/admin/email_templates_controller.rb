@@ -27,18 +27,18 @@ class Admin::EmailTemplatesController < Admin::BaseController
       @email_template = EmailTemplate.new(params[:email_template])
     end
 
-    @contact = Contact.find_by_email('vvi@sanger.ac.uk')
+    @contact = Contact.find_by_email('pm9@sanger.ac.uk.ac.uk')
 
     @relevant_status = @gene.relevant_status
     set_attributes
-    
-    begin 
+
+    begin
       @welcome_email_body = ERB.new(@email_template.welcome_body).result(binding)
     rescue SyntaxError, NameError
 
     end
 
-    begin    
+    begin
       @update_email_body = ERB.new(@email_template.update_body).result(binding) rescue nil
     rescue SyntaxError, NameError
 
@@ -75,13 +75,13 @@ class Admin::EmailTemplatesController < Admin::BaseController
       if(@relevant_status)
         relevant_mi_plan = @relevant_status[:mi_plan_id] ? MiPlan.find(@relevant_status[:mi_plan_id]) : nil
         relevant_mi_attempt = @relevant_status[:mi_attempt_id] ? MiAttempt.find(@relevant_status[:mi_attempt_id]) : nil
-        relevant_phenotype_attempt = @relevant_status[:phenotype_attempt_id] ? PhenotypeAttempt.find(@relevant_status[:phenotype_attempt_id]) : nil
-    
+        relevant_phenotype_attempt = @relevant_status[:phenotype_attempt_id] ? Public::PhenotypeAttempt.find(@relevant_status[:phenotype_attempt_id]) : nil
+
         @relevant_production_centre = "unknown production centre"
         if es_cell = TargRep::EsCell.includes(:allele).where("targ_rep_alleles.gene_id = '#{@gene.id}'").first
           @relevant_cell_name = es_cell.name
         end
-    
+
         if relevant_phenotype_attempt
           @allele_symbol = relevant_phenotype_attempt.allele_symbol.to_s.sub('</sup>', '>').sub('<sup>','<').html_safe
         elsif relevant_mi_attempt
@@ -89,7 +89,7 @@ class Admin::EmailTemplatesController < Admin::BaseController
         else
           @allele_symbol = ''
         end
-    
+
         if (relevant_mi_plan) && (relevant_mi_plan.production_centre != nil)
           @relevant_production_centre = relevant_mi_plan.production_centre.name
         end
@@ -97,7 +97,7 @@ class Admin::EmailTemplatesController < Admin::BaseController
           @relevant_cell_name = relevant_mi_attempt.es_cell.name
           @allele_name_suffix = relevant_mi_attempt.es_cell.allele_symbol_superscript_template
         end
-    
+
         if @gene.mi_plans
           @gene.mi_plans.each do |plan|
             if plan.is_active?

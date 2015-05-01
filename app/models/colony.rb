@@ -235,6 +235,32 @@ class Colony < ApplicationModel
     return output_string.strip
   end
 
+  def create_phenotype_attempt_for_komp2
+    consortia_to_check = ["BaSH", "DTCC", "JAX"]
+    if !self.mi_attempt_id.blank? && genotype_confirmed == true && consortia_to_check.include?(mi_attempt.consortium.name)
+      unless phenotype_attempts_count > 0
+        phenotype_attempt_create
+      end
+    end
+  end
+
+  def phenotype_attempt_create
+    return if mi_attempt_id.blank?
+    colony_name = self.name
+    i = 0
+    begin
+      i += 1
+      j = i > 0 ? "-#{i}" : ""
+      new_colony_name = "#{colony_name}#{j}"
+    end until self.class.find_by_name(new_colony_name).blank?
+    colony_name = new_colony_name
+
+    pa = Public::PhenotypeAttempt.new ({:mi_attempt_colony_name => self.name, :mi_plan_id => self.mi_attempt.mi_plan_id, :colony_name => colony_name})
+    pa.save
+    raise "Could not create Phenotype Attempt #{pa.errors.messages}" unless pa.errors.messages.blank?
+  end
+  private :add_default_distribution_centre
+
   def phenotype_attempts_count
     self.allele_modifications.length + self.phenotyping_productions.length
   end

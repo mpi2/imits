@@ -81,7 +81,7 @@ class MiPlan < ApplicationModel
     if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
 
       plan.phenotype_attempts.each do |phenotype_attempt|
-        if phenotype_attempt.status.code != 'abt'
+        if phenotype_attempt.status_name != 'Phenotype Attempt Aborted'
           plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
           return
         end
@@ -263,7 +263,7 @@ class MiPlan < ApplicationModel
   end
 
   def products
-   @products ||= {:mi_attempts => mi_attempts.where("is_active = true"), :phenotype_attempts => phenotype_attempts.where("is_active = true")}
+   @products ||= {:mi_attempts => mi_attempts.where("is_active = true"), :phenotype_attempts => phenotype_attempts.reject{|pa| !pa.is_active}}
   end
 
   def latest_relevant_mi_attempt
@@ -282,7 +282,9 @@ class MiPlan < ApplicationModel
   end
 
   def best_status_phenotype_attempt
-    ordered_pas = phenotype_attempts.all.sort { |pa1, pa2| pa2.status.order_by <=> pa1.status.order_by }
+    status_sort_order =  Public::PhenotypeAttempt.status_order
+
+    ordered_pas = phenotype_attempts.sort { |pa1, pa2| status_sort_order[pa2.status_name] <=> status_sort_order[pa1.status.order_by] }
 
     if ordered_pas.empty?
       return nil
@@ -293,11 +295,11 @@ class MiPlan < ApplicationModel
 
   def latest_relevant_phenotype_attempt
 
-    status_sort_order =  PhenotypeAttempt::Status.status_order
+    status_sort_order =  Public::PhenotypeAttempt.status_order
 
-    ordered_pas = phenotype_attempts.all.sort do |pi1, pi2|
-      [status_sort_order[pi1.public_status], pi2.in_progress_date] <=>
-              [status_sort_order[pi2.public_status], pi1.in_progress_date]
+    ordered_pas = phenotype_attempts.sort do |pi1, pi2|
+      [status_sort_order[pi1.public_status_name], pi2.in_progress_date] <=>
+              [status_sort_order[pi2.public_status_name], pi1.in_progress_date]
     end
     if ordered_pas.empty?
       return nil
@@ -327,10 +329,10 @@ class MiPlan < ApplicationModel
   def phenotype_attempts
     pas = []
     phenotype_attempt_ids = []
-    phenotype_attempt_ids << MouseAlleleMod.find_all_by_mi_plan_id(self.id).map{|mam| mam.phenotype_attempt_id}.reject! { |c| c.blank? }
-    phenotype_attempt_ids << PhenotypingProduction.find_all_by_mi_plan_id(self.id).map{|pp| pp.phenotype_attempt_id}.reject! { |c| c.blank? }
+    phenotype_attempt_ids << mouse_allele_mods.map{|mam| mam.phenotype_attempt_id}.reject { |c| c.blank? }
+    phenotype_attempt_ids << phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.reject { |c| c.blank? }
 
-    pas = phenotype_attempt_ids.flatten.uniq.reject! { |c| c.blank? }.map{ |pa_id| Public::PhenotypeAttempt.find(id)}
+    pas = phenotype_attempt_ids.flatten.uniq.reject { |c| c.blank? }.map{ |pa_id| Public::PhenotypeAttempt.find(pa_id)}
     return pas
   end
 

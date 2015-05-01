@@ -13,13 +13,13 @@ class Public::PhenotypeAttempt
   end
 
 
-  PHENOTYPE_ATTEMPT_MAM_FIELDS = {:exclude => ["id", "mi_plan_id", "cre_excision", "deleter_strain_id", "status_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "report_to_public", "is_active", "phenotype_attempt_id", "cre_excision", "created_at", "updated_at"],
+  PHENOTYPE_ATTEMPT_MAM_FIELDS = {:exclude => ["id", "mi_plan_id", "cre_excision", "deleter_strain_id", "status_id", "parent_colony_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "report_to_public", "is_active", "phenotype_attempt_id", "cre_excision", "created_at", "updated_at"],
                                   :include => ["deleter_strain_name", "mouse_allele_type", "distribution_centres_attributes"] + (ColonyQc::QC_FIELDS.map{|a| "#{a}_result"})}
   PHENOTYPE_ATTEMPT_PP_FIELDS = {:exclude => ["id", "mi_plan_id", "mouse_allelle_mod_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "status_id", "parent_colony_id", "colony_name", "report_to_public", "is_active", "phenotype_attempt_id", "created_at", "updated_at"],
                                  :include => []}
 
   READABLE_ATTRIBUTES = {
-      :methods => [:id, :mi_plan_id, :status_name, :mi_attempt_colony_name, :colony_name, :production_centre_name, :consortium_name, :marker_symbol, :colony_background_strain_name, :colony_background_strain_mgi_name, :colony_background_strain_mgi_accession, :rederivation_started, :rederivation_complete, :distribution_centres_formatted_display, :is_active, :report_to_public, :cre_excision_required, :excision_required ]
+      :methods => [:id, :mi_plan_id, :status_name, :mi_attempt_colony_name, :parent_colony_name, :colony_name, :production_centre_name, :consortium_name, :marker_symbol, :colony_background_strain_name, :colony_background_strain_mgi_name, :colony_background_strain_mgi_accession, :rederivation_started, :rederivation_complete, :distribution_centres_formatted_display, :is_active, :report_to_public, :cre_excision_required, :excision_required, :phenotyping_productions_attributes, :mouse_allele_symbol_superscript, :mouse_allele_symbol, :status_dates]
   }
 
   @@phenotype_attempt_fields = []
@@ -210,6 +210,11 @@ class Public::PhenotypeAttempt
     return nil
   end
 
+  def parent_colony_name
+    mi_attempt_colony_name
+  end
+
+
   def mi_attempt_colony_name=(arg)
     colonies = Colony.where("name = '#{arg}' and mi_attempt_id IS NOT NULL")
     if colonies.length == 1
@@ -269,6 +274,10 @@ class Public::PhenotypeAttempt
     return true
   end
 
+  def is_active?
+    return is_active
+  end
+
   def is_active=(arg)
     return if ['true', 'false'].include?(arg.to_s)
     @is_active = arg
@@ -322,7 +331,7 @@ class Public::PhenotypeAttempt
 
   def registered_at
     return nil if mouse_allele_mod.blank?
-    return @rederivation_complet_at unless @rederivation_complet_at.blank?
+    return @registered_at unless @registered_at.blank?
     mouse_allele_mod.status_stamps.where("status_id = 1").try(:first).try(:created_at)
   end
 
@@ -339,8 +348,8 @@ class Public::PhenotypeAttempt
   def rederivation_started_at=(arg)
   end
 
-  def rederivation_complet_at
-    return @rederivation_complet_at unless @rederivation_complet_at.blank?
+  def rederivation_complete_at
+    return @rederivation_complete_at unless @rederivation_complete_at.blank?
     return mouse_allele_mod.status_stamps.where("status_id = 4").try(:first).try(:created_at) unless mouse_allele_mod.blank?
     return linked_phenotyping_production.status_stamps.where("status_id = 7").try(:first).try(:created_at) unless linked_phenotyping_production.blank?
     return nil
@@ -375,6 +384,32 @@ class Public::PhenotypeAttempt
     phenotyping_productions.map{|pp| pp.status_stamps.where("status_id = 4").try(:first).try(:created_at)}.select(&:present?).min
   end
 
+  def in_progress_date
+    return registered_at   #Phenotype Attempt Registered
+  end
+
+  def public_status
+    if status_name == 'Cre Excision Complete' and mouse_allele_mod.try(:report_to_public) == false
+      return 'Cre Excision Started'
+    end
+    return status_name
+  end
+
+  def status_dates
+    status_stamps_dates = {}
+
+    status_stamps_dates['Phenotype Attempt Registered'] = registered_at.to_date unless registered_at.blank?
+    status_stamps_dates['Rederivation Started'] = rederivation_started_at.to_date unless rederivation_started_at.blank?
+    status_stamps_dates['Rederivation Complete'] = rederivation_complete_at.to_date unless rederivation_complete_at.blank?
+    status_stamps_dates['Cre Excision Started'] = cre_excision_started_at.to_date unless cre_excision_started_at.blank?
+    status_stamps_dates['Cre Excision Complete'] = cre_excision_complete_at.to_date unless cre_excision_complete_at.blank?
+    status_stamps_dates['Phenotyping Started'] = phenotyping_started_at.to_date unless phenotyping_started_at.blank?
+    status_stamps_dates['Phenotyping Complete'] = phenotyping_complete_at.to_date unless phenotyping_complete_at.blank?
+
+    return status_stamps_dates.as_json
+  end
+
+
   def status_name
     return nil if (mouse_allele_mod.blank? && phenotyping_productions.blank?) || new_record?
     return translate_status_name(phenotyping_productions.first.status_name) if mouse_allele_mod.blank?
@@ -394,6 +429,12 @@ class Public::PhenotypeAttempt
     return nil
   end
 
+  def mouse_allele_symbol
+    return nil if new_record?
+    return mouse_allele_mod.colony.allele_symbol unless mouse_allele_mod.blank?
+    return mi_attempt.colony.allele_symbol unless linked_phenotyping_production.blank?
+    return nil
+  end
 
   def translate_status_name(status_name)
     return nil if status_name.blank?
@@ -680,6 +721,12 @@ class Public::PhenotypeAttempt
     'phenotype attempt'
   end
 
+  def self.status_order
+    status_order = {}
+    MouseAlleleMod::Status.all.each{|status| status_order[status] = status[:order_by]}
+    PhenotypingProduction::Status.all.each{|status| status_order[status] = status[:order_by]}
+    return status_order
+  end
 
   def self.column_names
     return @@phenotype_attempt_fields

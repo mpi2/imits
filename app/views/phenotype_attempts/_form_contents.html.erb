@@ -131,6 +131,13 @@
   </fieldset>
 <% if !@phenotype_attempt.new_record? %> </div> <% end %>
 
+<fieldset class="collapsible hide-by-default qc-details">
+  <legend>QC Details</legend>
+  <div>
+    <%= generator.qc_fields %>
+  </div>
+</fieldset>
+
 <% unless @phenotype_attempt.new_record?  || (!@phenotype_attempt.mouse_allele_mod.blank? && @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) != 'Cre Excision Complete' ) %>
   <fieldset class="collapsible" id="distribution_centres">
     <legend>phenotyping</legend>

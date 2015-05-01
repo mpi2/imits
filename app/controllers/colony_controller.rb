@@ -69,7 +69,6 @@ class ColonyController < ApplicationController
   end
 
   def phenotype_attempts_new
-    puts 'COLONY NEW PHENOTYPE'
     @colony = Colony.find_by_name(params[:mi_attempt_colony_name])
 
     redirect_to :controller => 'phenotype_attempts', :action => :new, :colony_id => @colony.try(:id)

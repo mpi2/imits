@@ -53,7 +53,7 @@
             <tbody class="distribution_centres">
               <% if !@phenotype_attempt.registered_at.blank? %> <tr><td>Phenotype Attempt Registered</td><td><%= form.datetime_select :registered_at %></td></tr> <% end %>
               <% if !@phenotype_attempt.rederivation_started_at.blank? %> <tr><td>Rederivation Started</td><td><%= form.datetime_select :rederivation_started_at %></td></tr> <% end %>
-              <% if !@phenotype_attempt.rederivation_complet_at.blank? %> <tr><td>Rederivation Complete</td><td><%= form.datetime_select :rederivation_complet_at %></td></tr> <% end %>
+              <% if !@phenotype_attempt.rederivation_complete_at.blank? %> <tr><td>Rederivation Complete</td><td><%= form.datetime_select :rederivation_complete_at %></td></tr> <% end %>
               <% if !@phenotype_attempt.cre_excision_started_at.blank? %> <tr><td>Cre Excision Started</td><td><%= form.datetime_select :cre_excision_started_at %></td></tr> <% end %>
               <% if !@phenotype_attempt.cre_excision_complete_at.blank? %> <tr><td>Cre Excision Complete</td><td><%= form.datetime_select :cre_excision_complete_at %></td></tr> <% end %>
               <% if !@phenotype_attempt.phenotyping_started_at.blank? %> <tr><td>Phenotyping Started</td><td><%= form.datetime_select :phenotyping_started_at %></td></tr> <% end %>

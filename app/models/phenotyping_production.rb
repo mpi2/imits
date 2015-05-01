@@ -44,7 +44,6 @@ class PhenotypingProduction < ApplicationModel
   def allow_override_of_plan
     return if self.consortium_name.blank? or self.production_centre_name.blank? or self.gene.blank?
     set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
-      puts "PARENT COLONY #{pa.parent_colony}"
       plan = pa.parent_colony.mi_plan
       if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
         plan = [plan]
@@ -107,11 +106,13 @@ class PhenotypingProduction < ApplicationModel
 
   def set_phenotyping_experiments_started_if_blank
     #if phenotyping started or complete
-    return unless phenotyping_experiments_started.blank?
+    return unless self.phenotyping_experiments_started.blank?
     if ['pds', 'pdc'].include?(status.code)
-      phenotyping_experiments_started = self.status_stamps.joins(:status).where("phenotyping_production_statuses.code = 'pds'").try(:created_at) || Time.now()
+      phenotyping_started_status_stamps = self.status_stamps.joins(:status).where("phenotyping_production_statuses.code = 'pds'")
+      self.phenotyping_experiments_started = !phenotyping_started_status_stamps.blank? ? phenotyping_started_status_stamps.first.created_at : Time.now()
     end
   end
+  protected :set_phenotyping_experiments_started_if_blank
 
   def set_phenotype_attempt_id
     return unless phenotype_attempt_id.blank?

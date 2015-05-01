@@ -22,13 +22,12 @@ class MiPlansController < ApplicationController
     respond_with @mi_plan
   end
 
-  def search_for_available_phenotyping_plans(crispr = false)
+  def search_for_available_phenotyping_plans
     #must pass params hash with :marker_symbol and a :mi_plan_id associated with an mi_attempt
     sql = <<-SQL
       SELECT mi_plans.* FROM mi_plans JOIN genes ON mi_plans.gene_id = genes.id
       WHERE  (mi_plans.is_active AND (NOT mi_plans.withdrawn) AND genes.marker_symbol = '#{params[:marker_symbol]}')
          AND (mi_plans.phenotype_only OR mi_plans.id = '#{params[:mi_plan_id]}')
-         AND (mi_plans.mutagenesis_via_crispr_cas9 = #{crispr})
     SQL
 
     @mi_plans = MiPlan.find_by_sql(sql)

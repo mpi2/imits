@@ -194,18 +194,6 @@ end
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
 #  mouse_allele_type                               :string(3)
-#  qc_southern_blot_id                             :integer
-#  qc_five_prime_lr_pcr_id                         :integer
-#  qc_five_prime_cassette_integrity_id             :integer
-#  qc_tv_backbone_assay_id                         :integer
-#  qc_neo_count_qpcr_id                            :integer
-#  qc_neo_sr_pcr_id                                :integer
-#  qc_loa_qpcr_id                                  :integer
-#  qc_homozygous_loa_sr_pcr_id                     :integer
-#  qc_lacz_sr_pcr_id                               :integer
-#  qc_mutant_specific_sr_pcr_id                    :integer
-#  qc_loxp_confirmation_id                         :integer
-#  qc_three_prime_lr_pcr_id                        :integer
 #  report_to_public                                :boolean          default(TRUE), not null
 #  is_active                                       :boolean          default(TRUE), not null
 #  is_released_from_genotyping                     :boolean          default(FALSE), not null
@@ -215,10 +203,6 @@ end
 #  mi_plan_id                                      :integer          not null
 #  genotyping_comment                              :string(512)
 #  legacy_es_cell_id                               :integer
-#  qc_lacz_count_qpcr_id                           :integer          default(1)
-#  qc_critical_region_qpcr_id                      :integer          default(1)
-#  qc_loxp_srpcr_id                                :integer          default(1)
-#  qc_loxp_srpcr_and_sequencing_id                 :integer          default(1)
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean
 #  mutagenesis_factor_id                           :integer

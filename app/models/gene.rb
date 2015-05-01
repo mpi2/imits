@@ -3,7 +3,6 @@ class Gene < ActiveRecord::Base
 
   has_many :mi_plans
   has_many :mi_attempts, :through => :mi_plans
-  has_many :phenotype_attempts, :through => :mi_plans
   has_many :mouse_allele_mods, :through => :mi_plans
   has_many :phenotyping_productions, :through => :mi_plans
   has_many :notifications
@@ -21,6 +20,9 @@ class Gene < ActiveRecord::Base
     @vectors = @vectors || TargRep::TargetingVector.find_by_sql(retreive_genes_vectors_sql)
   end
 
+  def phenotype_attempts
+    phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.uniq.map{|pa_id| Public::PhenotypeAttempt.find(pa_id)}
+  end
 
   def retreive_genes_vectors_sql
     sql = <<-EOF

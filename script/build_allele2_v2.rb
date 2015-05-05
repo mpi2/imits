@@ -173,9 +173,11 @@ class BuildAllele2
   end
 
   def mark? row
+    # Check if allele name exists. This does not check for alleles uniqueness when only targeting vectors (allele name auto created) have been created and there are multiple designs with the same structure.
     if @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_symbol'].to_s) && @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] == true
       return true
-    elsif @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_type'] + row['cassette'].to_s + row['design_id'].to_s) && @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_type'] + row['cassette'].to_s + row['design_id'].to_s) == true
+    # Checks if allele exists based on unique structure, but only for the cases when the allele name has been auto created, which is mainly when only targeting vectors have been created.
+    elsif row['allele_symbol'].to_s =~ /#{row['cassette'].to_s}/ && @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_type'] + row['cassette'].to_s + row['design_id'].to_s) && @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_type'] + row['cassette'].to_s + row['design_id'].to_s) == true
       return true
     else
       return false

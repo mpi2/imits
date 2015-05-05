@@ -199,7 +199,7 @@ class BuildProductCore
               LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
               LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_targeting_vectors.ikmc_project_foreign_id
               LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
-            WHERE targ_rep_targeting_vectors.intermediate_vector IS NOT NULL AND targ_rep_targeting_vectors.intermediate_vector != ''
+            WHERE targ_rep_targeting_vectors.intermediate_vector IS NOT NULL AND targ_rep_targeting_vectors.intermediate_vector != '' AND targ_rep_alleles.project_design_id IS NOT NULL AND targ_rep_alleles.cassette IS NOT NULL AND targ_rep_pipelines.name SUBS_EUCOMMTOOLSCRE
             ) AS intermediate
         ORDER BY intermediate.vector_name
       ) AS distinct_intermediate_vectors
@@ -256,6 +256,7 @@ class BuildProductCore
         ARRAY[MI_ATTEMPT_QC_RESULTS] AS qc_data
       FROM (mi_attempts
         JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id
+        JOIN colony_qcs ON colonies.id = colony_qcs.colony_id
         JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
         JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = mi_attempts.status_id
         JOIN plans ON plans.id = mi_attempts.mi_plan_id
@@ -322,7 +323,7 @@ class BuildProductCore
       WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.is_active = true AND mouse_allele_mods.cre_excision = true
     EOF
 
-    mi_attempts_qc_fields = MiAttempt::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || mi_attempts.#{field.to_s}_id"}.join(', ')
+    mi_attempts_qc_fields = ColonyQc::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || colony_qcs.#{field.to_s}"}.join(', ')
     sql['MI_ATTEMPT_QC_RESULTS'] = mi_attempts_qc_fields
 
     phenotype_attempts_qc_fields = PhenotypeAttempt::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || mouse_allele_mods.#{field.to_s}_id"}.join(', ')
@@ -388,6 +389,11 @@ class BuildProductCore
     end
     return list
   end
+
+#  def build_json data
+#    return MultiJson.dump(data)
+#  end
+
 
   def delete_index type
     puts "deleting #{Time.now}"
@@ -542,7 +548,7 @@ class BuildProductCore
      "production_completed"             => ['Genotype confirmed','Cre Excision Complete'].include?(row['mouse_status']) ? true : false,
      "status"                           => row["mouse_status"],
      "status_date"                      => row["mouse_status_date"].to_date.to_s,
-     "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; @qc_results.has_key?(qc_data[2].to_i) && @qc_results[qc_data[2].to_i] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{@qc_results[qc_data[2].to_i]}" : nil}.compact,
+     "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; if !@qc_results.has_key?(qc_data[2].to_i) && qc_data[2] != 'na'; "#{qc_data[0]}:#{qc_data[1]}:#{qc_data[2]}" ; else @qc_results.has_key?(qc_data[2].to_i) && @qc_results[qc_data[2].to_i] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{@qc_results[qc_data[2].to_i]}" : nil ; end}.compact,
      "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == 't' ? 'Casp9/Crispr' : 'ES Cell'}"],
      "associated_product_es_cell_name"  => row["es_cell_name"],
      "associated_product_colony_name"   => row["parent_colony_name"],
@@ -570,6 +576,7 @@ class BuildProductCore
       end
     end
 
+    #{'add' => {'doc' => doc}
     doc
   end
 
@@ -600,6 +607,7 @@ class BuildProductCore
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))
 
+    #{'add' => {'doc' => doc}
     doc
   end
 
@@ -633,6 +641,8 @@ class BuildProductCore
     end
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))
+
+    #{'add' => {'doc' => doc}
     doc
   end
 
@@ -659,6 +669,7 @@ class BuildProductCore
       doc["allele_name"] = allele_name
     end
 
+    #{'add' => {'doc' => doc}
     doc
   end
 

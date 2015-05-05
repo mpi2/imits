@@ -6,7 +6,7 @@
 <% end %>
 
 <div id="object-new-bottom" class="grid_8 prefix_2 suffix_2">
-  <%= form_for @phenotype_attempt, :method => :post, :as => :phenotype_attempt, :url => "#{root_path}/phenotype_attempts", :html => {'onsubmit' => 'return false;'} do |form| %>
+  <%= form_for @phenotype_attempt, :method => :post, :as => :phenotype_attempt, :url => "#{root_path}phenotype_attempts", :html => {'onsubmit' => 'return false;'} do |form| %>
 
     <% if !form.object.errors.blank? %>
       <div class="errorExplanation" id="errorExplanation"><h2>1 error prohibited this phenotype attempt from being saved</h2><p>There were problems with the following fields:</p>

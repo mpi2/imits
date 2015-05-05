@@ -14,12 +14,12 @@
       <div>
         <div class="marker-symbol">
           <div class="label">Marker Symbol</div>
-          <div><%= @mi_attempt.es_cell.marker_symbol %></div>
+          <div><%= @mi_attempt.es_cell.try(:marker_symbol) %></div>
         </div>
 
         <div class="es-cell-name">
           <div class="label">ES Cell Name</div>
-          <div><%= @mi_attempt.es_cell.name %></div>
+          <div><%= @mi_attempt.es_cell.try(:name) %></div>
         </div>
       </div>
     </fieldset>

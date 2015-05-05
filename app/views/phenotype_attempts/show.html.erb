@@ -10,7 +10,7 @@
 
 
 
-  <%= form_for @phenotype_attempt, :method => :put, :as => :phenotype_attempt, :url => "/phenotype_attempts/#{@phenotype_attempt.id}", :html => {:class => 'edit show phenotype-attempt'} do |form| %>
+  <%= form_for @phenotype_attempt, :method => :put, :as => :phenotype_attempt, :url => "#{root_path}/phenotype_attempts/#{@phenotype_attempt.id}", :html => {:class => 'edit show phenotype-attempt'} do |form| %>
 
     <% if !form.object.errors.blank? %>
       <div class="errorExplanation" id="errorExplanation"><h2>1 error prohibited this phenotype attempt from being saved</h2><p>There were problems with the following fields:</p>

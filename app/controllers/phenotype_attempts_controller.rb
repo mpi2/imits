@@ -222,21 +222,39 @@ class PhenotypeAttemptsController < ApplicationController
     @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     @mi_attempt = MiAttempt.joins(:colony).where("colonies.name = '#{params[:phenotype_attempt][:mi_attempt_colony_name]}'").first
 
+    @phenotype_attempt.mi_plan_id = @mi_attempt.mi_plan_id if @phenotype_attempt.mi_plan_id.blank? && !@mi_attempt.blank?
+
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
 
-    if ! (@phenotype_attempt.valid? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt))
-        flash.now[:alert] = "Phenotype attempt could not be created - please check the values you entered"
-        render :template => 'phenotype_attempts/new'
-    else
-      if @phenotype_attempt.save
-        flash[:notice] = 'Phenotype attempt created'
-        redirect_to "#{root_url}/phenotype_attempts/#{@phenotype_attempt.id}"
+    respond_with @phenotype_attempt do |format|
+      format.html do
+        if ! (@phenotype_attempt.valid? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt))
+          flash.now[:alert] = "Phenotype attempt could not be created - please check the values you entered"
+          render :template => 'phenotype_attempts/new'
+        else
+          if @phenotype_attempt.save
+            flash[:notice] = 'Phenotype attempt created'
+            redirect_to "#{root_url}/phenotype_attempts/#{@phenotype_attempt.id}"
 #        render :template => 'phenotype_attempts/show'
-      else
-        flash.now[:alert] = "Phenotype attempt could not be created - please check the values you entered"
-        render :template => 'phenotype_attempts/new'
+          else
+            flash.now[:alert] = "Phenotype attempt could not be created - please check the values you entered"
+            render :template => 'phenotype_attempts/new'
+          end
+        end
       end
+      format.json do
+        if ! (@phenotype_attempt.valid? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt))
+          render :json => "Phenotype attempt could not be created - please check the values you entered"
+        else
+          if @phenotype_attempt.save
+            render :json => @phenotype_attempt.errors, :status => :unprocessable_entity
+          else
+            render :json => "Phenotype attempt could not be created - please check the values you entered"
+          end
+        end
+      end
+
     end
   end
 
@@ -269,7 +287,7 @@ class PhenotypeAttemptsController < ApplicationController
 
       format.json do
         if @phenotype_attempt.errors.messages.blank? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt)
-          render :json => @phenotype_attempt
+          render :json => @phenotype_attempt.attributes.to_json
         else
           render :json => @phenotype_attempt.errors, :status => :unprocessable_entity
         end

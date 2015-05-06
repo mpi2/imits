@@ -23,7 +23,7 @@ class Open::PhenotypeAttemptsController < OpenApplicationController
 
   def show
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
-
+    @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     if @phenotype_attempt.report_to_public
       @mi_attempt = @phenotype_attempt.mi_attempt
       respond_with @phenotype_attempt

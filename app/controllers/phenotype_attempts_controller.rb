@@ -219,6 +219,7 @@ class PhenotypeAttemptsController < ApplicationController
   def create
     set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
+    @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     @mi_attempt = MiAttempt.joins(:colony).where("colonies.name = '#{params[:phenotype_attempt][:mi_attempt_colony_name]}'").first
 
     return unless authorize_user_production_centre(@phenotype_attempt)
@@ -242,6 +243,7 @@ class PhenotypeAttemptsController < ApplicationController
 
   def update
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
+    @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
 
@@ -279,6 +281,7 @@ class PhenotypeAttemptsController < ApplicationController
   def show
     set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
+    @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     @mi_attempt = @phenotype_attempt.mi_attempt
     respond_with @phenotype_attempt do |format|
       format.html do

@@ -44,6 +44,7 @@ class PhenotypingProduction < ApplicationModel
   def allow_override_of_plan
     return if self.consortium_name.blank? or self.production_centre_name.blank? or self.gene.blank?
     set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
+      puts "LETS SEE #{pa.attributes} : #{pa.parent_colony_name}"
       plan = pa.parent_colony.mi_plan
       if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
         plan = [plan]

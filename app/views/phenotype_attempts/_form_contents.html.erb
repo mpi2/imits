@@ -6,8 +6,8 @@
   <div>
     <% if @mi_attempt %>
       <label>MI Attempt Colony Name</label>
-      <%= @mi_attempt.colony_name %>
-      <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
+      <%= @parent_colony.name %>
+      <%= form.hidden_field 'mi_attempt_colony_name', :value => @parent_colony.name %>
       <% if @mi_attempt.es_cell.blank? %>
         <div class="es-cell-name">
           <div class="label">Mutagensis Factor</div>

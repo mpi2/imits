@@ -216,8 +216,10 @@ class Public::PhenotypeAttempt
 
 
   def mi_attempt_colony_name=(arg)
+    puts "HELLO: #{arg}"
     colonies = Colony.where("name = '#{arg}' and mi_attempt_id IS NOT NULL")
     if colonies.length == 1
+      puts "NOT HERE"
       @parent_colony_name = colonies.first.name
     end
   end
@@ -425,14 +427,14 @@ class Public::PhenotypeAttempt
   def mouse_allele_symbol_superscript
     return nil if new_record?
     return mouse_allele_mod.colony.allele_symbol_superscript unless mouse_allele_mod.blank?
-    return mi_attempt.colony.allele_symbol_superscript unless linked_phenotyping_production.blank?
+    return linked_phenotyping_production.parent_colony.allele_symbol_superscript unless linked_phenotyping_production.blank?
     return nil
   end
 
   def mouse_allele_symbol
     return nil if new_record?
     return mouse_allele_mod.colony.allele_symbol unless mouse_allele_mod.blank?
-    return mi_attempt.colony.allele_symbol unless linked_phenotyping_production.blank?
+    return linked_phenotyping_production.parent_colony.allele_symbol unless linked_phenotyping_production.blank?
     return nil
   end
 
@@ -538,7 +540,6 @@ class Public::PhenotypeAttempt
     set_models_attributes
 
     if !destroy_mam && !mouse_allele_mod.blank? && mouse_allele_mod.valid? == false
-      puts "CENTRE #{mouse_allele_mod.production_centre_name} : #{production_centre_name}"
       mouse_allele_mod.errors.messages.each{|error, message| errors.add("phenotype attempt #{error}", message)}
       return false
     end
@@ -613,6 +614,7 @@ class Public::PhenotypeAttempt
 
     return false unless valid?
 
+    puts "PHENOTYPE ATTEMPT: #{attributes}"
 
     begin
       ActiveRecord::Base.transaction do

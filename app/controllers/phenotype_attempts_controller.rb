@@ -245,10 +245,10 @@ class PhenotypeAttemptsController < ApplicationController
       end
       format.json do
         if ! (@phenotype_attempt.valid? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt))
-          render :json => "Phenotype attempt could not be created - please check the values you entered"
+          render :json => @phenotype_attempt.errors, :status => :unprocessable_entity
         else
           if @phenotype_attempt.save
-            render :json => @phenotype_attempt.errors, :status => :unprocessable_entity
+            render :json => @phenotype_attempt.attributes.to_json
           else
             render :json => "Phenotype attempt could not be created - please check the values you entered"
           end

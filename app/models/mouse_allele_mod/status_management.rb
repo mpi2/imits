@@ -6,7 +6,7 @@ module MouseAlleleMod::StatusManagement
   ss = ApplicationModel::StatusManager.new(MouseAlleleMod)
 
   ss.add('Mouse Allele Modification Registered') do |pt|
-    pt.no_modification_required == false
+    pt.cre_excision == true
   end
 
   ss.add('Phenotype Attempt Registered') { |pt| true }

@@ -231,7 +231,7 @@ class PhenotypeAttemptsController < ApplicationController
     else
       if @phenotype_attempt.save
         flash[:notice] = 'Phenotype attempt created'
-        redirect_to "/phenotype_attempts/#{@phenotype_attempt.id}"
+        redirect_to "#{root_url}/phenotype_attempts/#{@phenotype_attempt.id}"
 #        render :template => 'phenotype_attempts/show'
       else
         flash.now[:alert] = "Phenotype attempt could not be created - please check the values you entered"

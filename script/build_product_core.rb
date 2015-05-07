@@ -767,8 +767,8 @@ class BuildProductCore
   end
 
   def self.process_vector_allele_type (allele_names, allele_types, mutation_type_code, design_id, pipeline = '', cassette = '')
-    if !allele_names.blank? and allele_types[0] != 'NULL' and allele_names[0] != 'NULL'
-      return [allele_types[0], allele_names[0]]
+    if !allele_names.blank? and allele_names[0] != 'NULL' and (allele_types[0] != 'NULL' || mutation_type_code = 'del')
+      return [allele_types[0], allele_names[0] != 'NULL' ? allele_names[0] : '']
     end
 
     cre_knock_in_suffix = /(_Cre[0-9A-Za-z]+)_/.match(cassette)

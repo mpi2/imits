@@ -1364,7 +1364,8 @@ CREATE TABLE mi_attempts (
     real_allele_id integer,
     founder_num_assays integer,
     founder_num_positive_results integer,
-    assay_type text
+    assay_type text,
+    experimental boolean DEFAULT false NOT NULL
 );
 
 
@@ -6495,3 +6496,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150309141000');
 INSERT INTO schema_migrations (version) VALUES ('20150309151000');
 
 INSERT INTO schema_migrations (version) VALUES ('20150317151000');
+
+INSERT INTO schema_migrations (version) VALUES ('20150529151000');

@@ -346,7 +346,7 @@
 <fieldset class="collapsible">
   <legend>Other</legend>
     <div>
-    <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
+    <% [:experimental, :report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
       <div>
         <%= form.label field, field.to_s.titlecase %>
         <%= form.check_box field %>

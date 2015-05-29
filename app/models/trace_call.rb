@@ -104,9 +104,9 @@ class TraceCall < ActiveRecord::Base
       FileUtils.mkdir_p FOLDER_IN
 
       options[:remote] = true
-      options[:chr] = self.colony.mi_attempt.mi_plan.gene.chr if ! options[:chr]
+      options[:chr] = self.colony.mi_attempt.gene.chr if ! options[:chr]
 
-      strand_name = self.colony.mi_attempt.mi_plan.gene.strand_name == '-' ? '-' : ''
+      strand_name = self.colony.mi_attempt.gene.strand_name == '-' ? '-' : ''
       options[:strand] = "#{strand_name}1" if ! options[:strand]
 
       options[:species] = "Mouse"
@@ -380,4 +380,5 @@ end
 #  trace_file_file_size           :integer
 #  trace_file_updated_at          :datetime
 #  exon_id                        :string(255)
+#  mutagenesis_factor_id          :integer          not null
 #

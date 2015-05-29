@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150317151000) do
+ActiveRecord::Schema.define(:version => 20150527130000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -58,6 +58,12 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
 
   add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
 
+  create_table "colony_alleles", :force => true do |t|
+    t.integer "colony_id",      :null => false
+    t.integer "gene_target_id"
+    t.integer "real_allele_id"
+  end
+
   create_table "colony_qcs", :force => true do |t|
     t.integer "colony_id",                        :null => false
     t.string  "qc_southern_blot",                 :null => false
@@ -76,6 +82,7 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.string  "qc_critical_region_qpcr",          :null => false
     t.string  "qc_loxp_srpcr",                    :null => false
     t.string  "qc_loxp_srpcr_and_sequencing",     :null => false
+    t.integer "mutagenesis_factor_id"
   end
 
   add_index "colony_qcs", ["colony_id"], :name => "index_colony_qcs_on_colony_id", :unique => true
@@ -137,6 +144,11 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
   end
 
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true
+
+  create_table "gene_targets", :force => true do |t|
+    t.integer "mi_plan_id",    :null => false
+    t.integer "mi_attempt_id", :null => false
+  end
 
   create_table "genes", :force => true do |t|
     t.string   "marker_symbol",                      :limit => 75, :null => false
@@ -311,7 +323,6 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.integer  "qc_loxp_srpcr_and_sequencing_id",                                :default => 1
     t.date     "cassette_transmission_verified"
     t.boolean  "cassette_transmission_verified_auto_complete"
-    t.integer  "mutagenesis_factor_id"
     t.integer  "crsp_total_embryos_injected"
     t.integer  "crsp_total_embryos_survived"
     t.integer  "crsp_total_transfered"
@@ -484,6 +495,8 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.integer "vector_id"
     t.string  "external_ref"
     t.text    "nuclease"
+    t.integer "mi_attempt_id",  :null => false
+    t.integer "gene_target_id", :null => false
   end
 
   create_table "new_intermediate_report_summary_by_centre", :force => true do |t|
@@ -1446,6 +1459,7 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
     t.integer  "trace_file_file_size"
     t.datetime "trace_file_updated_at"
     t.string   "exon_id"
+    t.integer  "mutagenesis_factor_id",                             :null => false
   end
 
   create_table "trace_files", :force => true do |t|
@@ -1487,7 +1501,15 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
 
   add_foreign_key "colonies", "mi_attempts", :name => "colonies_mi_attempt_fk"
 
+  add_foreign_key "colony_alleles", "colonies", :name => "colony_alleles_colony_id_fk"
+  add_foreign_key "colony_alleles", "gene_targets", :name => "colony_alleles_gene_target_id_fk"
+  add_foreign_key "colony_alleles", "targ_rep_real_alleles", :name => "colony_alleles_real_allele_fk", :column => "real_allele_id"
+
   add_foreign_key "colony_qcs", "colonies", :name => "colony_qcs_colonies_fk"
+  add_foreign_key "colony_qcs", "mutagenesis_factors", :name => "colony_qcs_mutagenesis_factor_id_fk"
+
+  add_foreign_key "gene_targets", "mi_attempts", :name => "gene_targets_mi_attempt_id_fk"
+  add_foreign_key "gene_targets", "mi_plans", :name => "gene_targets_mi_plan_id_fk"
 
   add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
@@ -1560,6 +1582,9 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
   add_foreign_key "mouse_allele_mods", "targ_rep_alleles", :name => "mouse_allele_mods_targ_rep_allele_id_fk", :column => "allele_id"
   add_foreign_key "mouse_allele_mods", "targ_rep_real_alleles", :name => "mouse_allele_mods_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
+  add_foreign_key "mutagenesis_factors", "gene_targets", :name => "mutagenesis_factors_gene_target_id_fk"
+  add_foreign_key "mutagenesis_factors", "mi_attempts", :name => "mutagenesis_factors_mi_attempt_id_fk"
+
   add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
   add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
 
@@ -1614,6 +1639,7 @@ ActiveRecord::Schema.define(:version => 20150317151000) do
   add_foreign_key "trace_call_vcf_modifications", "trace_calls", :name => "trace_call_vcf_modifications_trace_calls_fk"
 
   add_foreign_key "trace_calls", "colonies", :name => "trace_calls_colonies_fk"
+  add_foreign_key "trace_calls", "mutagenesis_factors", :name => "trace_calls_mutagenesis_factor_id_fk"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

@@ -8,7 +8,6 @@ class MiAttempt < ApplicationModel
   include MiAttempt::StatusManagement
   include MiAttempt::WarningGenerator
   include ApplicationModel::HasStatuses
-  include ApplicationModel::BelongsToMiPlan
 
   QC_FIELDS = [
     :qc_southern_blot,
@@ -32,24 +31,25 @@ class MiAttempt < ApplicationModel
   CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze
 
   belongs_to :real_allele
-  belongs_to :mi_plan
   belongs_to :es_cell, :class_name => 'TargRep::EsCell'
   belongs_to :status
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
-  belongs_to :mutagenesis_factor, :inverse_of => :mi_attempt
 
   has_one    :colony, inverse_of: :mi_attempt
 
+  has_many   :mutagenesis_factors
+  has_many   :gene_targets
   has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many   :phenotype_attempts
   has_many   :mouse_allele_mods
   has_many   :colonies, inverse_of: :mi_attempt
   has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
-  has_many   :crisprs, through: :mutagenesis_factor
-  has_many   :genotype_primers, through: :mutagenesis_factor
+  has_many   :crisprs, through: :mutagenesis_factors
+  has_many   :genotype_primers, through: :mutagenesis_factors
+  has_many   :mi_plans, through: :gene_targets
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :colony_background_strain, :name
@@ -73,7 +73,7 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  accepts_nested_attributes_for :status_stamps, :mutagenesis_factor, :colony
+  accepts_nested_attributes_for :status_stamps, :mutagenesis_factors, :colony
   accepts_nested_attributes_for :colonies, :allow_destroy => true
 
   protected :status=
@@ -85,28 +85,10 @@ class MiAttempt < ApplicationModel
   validates :assay_type, :inclusion => { :in => CRISPR_ASSAY_TYPES}, :allow_nil => true
 
   validate do |mi|
-    if (mi.mutagenesis_factor.blank? and mi.es_cell.blank?) or (!mi.mutagenesis_factor.blank? and !mi.es_cell.blank?)
+    if (mi.mutagenesis_factors.blank? and mi.es_cell.blank?) or (!mi.mutagenesis_factors.blank? and !mi.es_cell.blank?)
       mi.errors.add :base, 'Please Select EITHER an es_cell_name OR mutagenesis_factor'
     end
   end
-
-
-  # validate mi plan
-  validate do |mi_attempt|
-    if validate_plan #test whether to continue with validations
-      if mi_attempt.mi_plan.phenotype_only
-        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
-      end
-      if mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.es_cell.blank?
-        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (crispr plan)')
-      end
-
-      if !mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.mutagenesis_factor.blank?
-        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (requires crispr plan)')
-      end
-    end
-  end
-
 
   validate do |mi_attempt|
     if !mi_attempt.phenotype_attempts.blank? and
@@ -128,6 +110,7 @@ class MiAttempt < ApplicationModel
   before_validation :set_total_chimeras
   before_validation :set_es_cell_from_es_cell_name
 
+  before_validation :manage_gene_targets
   before_validation :generate_external_ref_if_blank
   before_validation :change_status
   before_validation :manage_colony_for_es_cell_micro_injections_qc_data
@@ -157,7 +140,32 @@ class MiAttempt < ApplicationModel
   before_save :make_mi_date_and_in_progress_status_consistent
   after_save :add_default_distribution_centre
   after_save :manage_status_stamps
-  after_save :reload_mi_plan_mi_attempts
+
+  def consortium_name
+    return gene_targets.first.mi_plan.try(:consortium).try(:name) unless gene_targets.blank?
+    return nil
+  end
+
+  def production_centre_name
+    return gene_targets.first.mi_plan.try(:production_centre).try(:name) unless gene_targets.blank?
+    return nil
+  end
+
+  def marker_symbols
+    return nil if gene_targets.blank?
+    return gene_targets.map{|gt| gt.marker_symbol}
+  end
+
+  def mi_plan_ids
+    return @mi_plan_ids unless @mi_plan_ids.blank?
+    return gene_targets.map{|gt| gt.mi_plan_id}
+    return []
+  end
+
+  def mi_plan_ids=(arg)
+    arg = [arg] unless arg.class == Array
+    @mi_plan_ids = arg
+  end
 
   def colony
     if !es_cell.blank?
@@ -231,15 +239,34 @@ class MiAttempt < ApplicationModel
   end
   protected :set_cassette_transmission_verified
 
+  def manage_gene_targets
+
+    gts_attributes = []
+    gts = []
+    gts = GeneTargets.where("mi_attempt_id = #{self.id}") unless self.new_record?
+    gts_mi_plan_ids = gts.map{|gt| gt.mi_plan_id}
+
+    mi_plan_ids.each do |mi_plan_id|
+      gts_attributes << {:mi_plan_id => mi_plan_id} unless gts_mi_plan_ids.include?(mi_plan_id)
+    end
+
+    gts.each do |gene_target|
+      gts_attributes << {:id => gene_target.id, :_destroy => true} unless mi_plan_ids.include?(gene_target.mi_plan_id)
+    end
+
+    self.gene_targets_attributes = gts_attributes
+  end
+  protected :manage_gene_targets
+
   def generate_external_ref_if_blank
-    return if self.es_cell.blank? && self.mutagenesis_factor.blank?
+    return if self.es_cell.blank? && self.mutagenesis_factors.blank?
     return unless self.external_ref.blank?
-    return if self.production_centre.blank?
+    return if self.production_centre_name.blank?
     product_prefix = self.es_cell.nil? ? 'Crisp' : self.es_cell.name
     i = 0
     begin
       i += 1
-      self.external_ref = "#{self.production_centre.name}-#{product_prefix}-#{i}"
+      self.external_ref = "#{self.production_centre_name}-#{product_prefix}-#{i}"
     end until self.class.find_by_external_ref(self.external_ref).blank?
   end
   protected :generate_external_ref_if_blank
@@ -285,27 +312,22 @@ class MiAttempt < ApplicationModel
   end
   protected :make_mi_date_and_in_progress_status_consistent
 
-  def reload_mi_plan_mi_attempts
-    mi_plan.mi_attempts.reload
-  end
-  protected :reload_mi_plan_mi_attempts
-
   # END Callbacks
 
   def self.active
-    where(:is_active => true)
+    where("mi_attempts.is_active = true")
   end
 
   def self.genotype_confirmed
-    where(:status_id => MiAttempt::Status.genotype_confirmed.id)
+    where("mi_attempts.status_id = #{MiAttempt::Status.genotype_confirmed.id}")
   end
 
   def self.in_progress
-    where(:status_id => MiAttempt::Status.micro_injection_in_progress.id)
+    where("mi_attempts.status_id = #{MiAttempt::Status.micro_injection_in_progress.id}")
   end
 
   def self.aborted
-    where(:status_id => MiAttempt::Status.micro_injection_aborted.id)
+    where("mi_attempts.status_id = #{MiAttempt::Status.micro_injection_aborted.id}")
   end
 
   def distribution_centres_formatted_display
@@ -324,14 +346,6 @@ class MiAttempt < ApplicationModel
     return output_string.strip
   end
 
-  def mutagenesis_factor_external_ref
-    if (self.mutagenesis_factor)
-      return self.mutagenesis_factor.external_ref
-    else
-      return nil
-    end
-  end
-
   def es_cell_name
     if(self.es_cell)
       return self.es_cell.name
@@ -348,7 +362,7 @@ class MiAttempt < ApplicationModel
 
   def create_phenotype_attempt_for_komp2
     consortia_to_check = ["BaSH", "DTCC", "JAX"]
-    if self.status.name == "Genotype confirmed" && consortia_to_check.include?(self.consortium.name)
+    if self.status.name == "Genotype confirmed" && consortia_to_check.include?(self.consortium_name)
       if self.phenotype_attempts.empty?
         self.phenotype_attempts.create!
       end
@@ -402,14 +416,25 @@ class MiAttempt < ApplicationModel
   end
 
   def gene
-    if mi_plan.try(:gene)
-      return mi_plan.gene
+    if ! gene_targets.blank? && gene_targets.count == 1
+      return gene_targets.first.mi_plan.try(:gene)
     elsif !es_cell.blank? and es_cell.try(:gene)
       return es_cell.gene
     else
       return nil
     end
   end
+
+  def genes
+    if ! gene_targets.blank?
+      return gene_targets.map{|gt| gt.mi_plan.try(:gene)}
+    elsif !es_cell.blank? and es_cell.try(:gene)
+      return es_cell.gene
+    else
+      return nil
+    end
+  end
+
 
   def allele
     if !es_cell.blank?
@@ -419,7 +444,7 @@ class MiAttempt < ApplicationModel
   end
 
   def mgi_accession_id
-    return mi_plan.try(:gene).try(:mgi_accession_id)
+    return gene.try(:mgi_accession_id)
   end
 
   def blast_strain_mgi_accession
@@ -463,17 +488,13 @@ class MiAttempt < ApplicationModel
   end
 
   def marker_symbol
-    if !mi_plan.blank?
-      # mi_plan delegates through to gene to fetch marker symbol
-      mi_plan.try(:marker_symbol)
-    else
-      nil
-    end
+    return marker_symbols.first if !marker_symbols.blank? && marker_symbols.length == 1
+    return nil
   end
 
   def mi_plan_mutagenesis_via_crispr_cas9
-    if !mi_plan.blank?
-      mi_plan.try(:mutagenesis_via_crispr_cas9)
+    if !gene_targets.first.mi_plan.blank?
+      gene_targets.first.mi_plan.try(:mutagenesis_via_crispr_cas9)
     else
       nil
     end
@@ -493,7 +514,7 @@ class MiAttempt < ApplicationModel
     if self.status.code == 'gtc' and self.report_to_public == false
       if !es_cell_id.blank?
         return MiAttempt::Status.find_by_code('chr')
-      elsif !mutagenesis_factor_id.blank?
+      elsif !mutagenesis_factors.blank?
         return MiAttempt::Status.find_by_code('fod')
       else
         return MiAttempt::Status.find_by_code('abt')
@@ -502,14 +523,12 @@ class MiAttempt < ApplicationModel
     return self.status
   end
 
-  delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
-
   def self.translations
     return {
       'es_cell_marker_symbol'   => 'es_cell_allele_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_allele_symbol',
-      'consortium_name'         => 'mi_plan_consortium_name',
-      'production_centre_name'  => 'mi_plan_production_centre_name',
+      'consortium_name'         => 'gene_targets_mi_plan_consortium_name',
+      'production_centre_name'  => 'gene_targets_mi_plan_production_centre_name',
       'colony_name'             => 'external_ref'
     }
   end
@@ -627,7 +646,6 @@ end
 #  qc_loxp_srpcr_and_sequencing_id                 :integer          default(1)
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean
-#  mutagenesis_factor_id                           :integer
 #  crsp_total_embryos_injected                     :integer
 #  crsp_total_embryos_survived                     :integer
 #  crsp_total_transfered                           :integer

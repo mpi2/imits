@@ -95,8 +95,8 @@ class Colony < ActiveRecord::Base
 
     trace_call.trace_call_vcf_modifications.each do |tc_mod|
       mut_seq_feature = {
-        'chr'          => mi_attempt.mi_plan.gene.chr,
-        'strand'       => mi_attempt.mi_plan.gene.strand_name,
+        'chr'          => mi_attempt.gene.chr,
+        'strand'       => mi_attempt.gene.strand_name,
         'start'        => tc_mod.start,
         'end'          => tc_mod.end,
         'ref_sequence' => tc_mod.ref_seq,

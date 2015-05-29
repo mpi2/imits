@@ -69,6 +69,7 @@ end
 #  qc_critical_region_qpcr          :string(255)      not null
 #  qc_loxp_srpcr                    :string(255)      not null
 #  qc_loxp_srpcr_and_sequencing     :string(255)      not null
+#  mutagenesis_factor_id            :integer
 #
 # Indexes
 #

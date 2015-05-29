@@ -805,6 +805,37 @@ ALTER SEQUENCE colonies_id_seq OWNED BY colonies.id;
 
 
 --
+-- Name: colony_alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE colony_alleles (
+    id integer NOT NULL,
+    colony_id integer NOT NULL,
+    gene_target_id integer,
+    real_allele_id integer
+);
+
+
+--
+-- Name: colony_alleles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE colony_alleles_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: colony_alleles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE colony_alleles_id_seq OWNED BY colony_alleles.id;
+
+
+--
 -- Name: colony_qcs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -826,7 +857,8 @@ CREATE TABLE colony_qcs (
     qc_three_prime_lr_pcr character varying(255) NOT NULL,
     qc_critical_region_qpcr character varying(255) NOT NULL,
     qc_loxp_srpcr character varying(255) NOT NULL,
-    qc_loxp_srpcr_and_sequencing character varying(255) NOT NULL
+    qc_loxp_srpcr_and_sequencing character varying(255) NOT NULL,
+    mutagenesis_factor_id integer
 );
 
 
@@ -1047,6 +1079,36 @@ CREATE SEQUENCE es_cells_id_seq
 --
 
 ALTER SEQUENCE es_cells_id_seq OWNED BY es_cells.id;
+
+
+--
+-- Name: gene_targets; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE gene_targets (
+    id integer NOT NULL,
+    mi_plan_id integer NOT NULL,
+    mi_attempt_id integer NOT NULL
+);
+
+
+--
+-- Name: gene_targets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE gene_targets_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: gene_targets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE gene_targets_id_seq OWNED BY gene_targets.id;
 
 
 --
@@ -1345,7 +1407,6 @@ CREATE TABLE mi_attempts (
     qc_loxp_srpcr_and_sequencing_id integer DEFAULT 1,
     cassette_transmission_verified date,
     cassette_transmission_verified_auto_complete boolean,
-    mutagenesis_factor_id integer,
     crsp_total_embryos_injected integer,
     crsp_total_embryos_survived integer,
     crsp_total_transfered integer,
@@ -1780,7 +1841,9 @@ CREATE TABLE mutagenesis_factors (
     id integer NOT NULL,
     vector_id integer,
     external_ref character varying(255),
-    nuclease text
+    nuclease text,
+    mi_attempt_id integer NOT NULL,
+    gene_target_id integer NOT NULL
 );
 
 
@@ -3741,7 +3804,8 @@ CREATE TABLE trace_calls (
     trace_file_content_type character varying(255),
     trace_file_file_size integer,
     trace_file_updated_at timestamp without time zone,
-    exon_id character varying(255)
+    exon_id character varying(255),
+    mutagenesis_factor_id integer NOT NULL
 );
 
 
@@ -3899,6 +3963,13 @@ ALTER TABLE ONLY colonies ALTER COLUMN id SET DEFAULT nextval('colonies_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY colony_alleles ALTER COLUMN id SET DEFAULT nextval('colony_alleles_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY colony_qcs ALTER COLUMN id SET DEFAULT nextval('colony_qcs_id_seq'::regclass);
 
 
@@ -3942,6 +4013,13 @@ ALTER TABLE ONLY email_templates ALTER COLUMN id SET DEFAULT nextval('email_temp
 --
 
 ALTER TABLE ONLY es_cells ALTER COLUMN id SET DEFAULT nextval('es_cells_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY gene_targets ALTER COLUMN id SET DEFAULT nextval('gene_targets_id_seq'::regclass);
 
 
 --
@@ -4382,6 +4460,14 @@ ALTER TABLE ONLY colonies
 
 
 --
+-- Name: colony_alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY colony_alleles
+    ADD CONSTRAINT colony_alleles_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: colony_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4435,6 +4521,14 @@ ALTER TABLE ONLY email_templates
 
 ALTER TABLE ONLY es_cells
     ADD CONSTRAINT es_cells_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: gene_targets_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY gene_targets
+    ADD CONSTRAINT gene_targets_pkey PRIMARY KEY (id);
 
 
 --
@@ -5233,11 +5327,43 @@ ALTER TABLE ONLY colonies
 
 
 --
+-- Name: colony_alleles_colony_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY colony_alleles
+    ADD CONSTRAINT colony_alleles_colony_id_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
+
+
+--
+-- Name: colony_alleles_gene_target_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY colony_alleles
+    ADD CONSTRAINT colony_alleles_gene_target_id_fk FOREIGN KEY (gene_target_id) REFERENCES gene_targets(id);
+
+
+--
+-- Name: colony_alleles_real_allele_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY colony_alleles
+    ADD CONSTRAINT colony_alleles_real_allele_fk FOREIGN KEY (real_allele_id) REFERENCES targ_rep_real_alleles(id);
+
+
+--
 -- Name: colony_qcs_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY colony_qcs
     ADD CONSTRAINT colony_qcs_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
+
+
+--
+-- Name: colony_qcs_mutagenesis_factor_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY colony_qcs
+    ADD CONSTRAINT colony_qcs_mutagenesis_factor_id_fk FOREIGN KEY (mutagenesis_factor_id) REFERENCES mutagenesis_factors(id);
 
 
 --
@@ -5262,6 +5388,22 @@ ALTER TABLE ONLY mouse_allele_mod_status_stamps
 
 ALTER TABLE ONLY phenotyping_production_status_stamps
     ADD CONSTRAINT fk_phenotyping_productions FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
+
+
+--
+-- Name: gene_targets_mi_attempt_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY gene_targets
+    ADD CONSTRAINT gene_targets_mi_attempt_id_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
+
+
+--
+-- Name: gene_targets_mi_plan_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY gene_targets
+    ADD CONSTRAINT gene_targets_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
 
 
 --
@@ -5761,6 +5903,22 @@ ALTER TABLE ONLY mouse_allele_mods
 
 
 --
+-- Name: mutagenesis_factors_gene_target_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mutagenesis_factors
+    ADD CONSTRAINT mutagenesis_factors_gene_target_id_fk FOREIGN KEY (gene_target_id) REFERENCES gene_targets(id);
+
+
+--
+-- Name: mutagenesis_factors_mi_attempt_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mutagenesis_factors
+    ADD CONSTRAINT mutagenesis_factors_mi_attempt_id_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
+
+
+--
 -- Name: notifications_contact_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6086,6 +6244,14 @@ ALTER TABLE ONLY trace_call_vcf_modifications
 
 ALTER TABLE ONLY trace_calls
     ADD CONSTRAINT trace_calls_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
+
+
+--
+-- Name: trace_calls_mutagenesis_factor_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY trace_calls
+    ADD CONSTRAINT trace_calls_mutagenesis_factor_id_fk FOREIGN KEY (mutagenesis_factor_id) REFERENCES mutagenesis_factors(id);
 
 
 --
@@ -6495,3 +6661,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150309141000');
 INSERT INTO schema_migrations (version) VALUES ('20150309151000');
 
 INSERT INTO schema_migrations (version) VALUES ('20150317151000');
+
+INSERT INTO schema_migrations (version) VALUES ('20150527130000');

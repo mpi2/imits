@@ -189,7 +189,7 @@ class TargRep::WgeSearchesController < TargRep::BaseController
 
         colony = Colony.find_by_id(colony_id)
         if colony
-          chr_strand = colony.mi_attempt.mi_plan.gene.strand_name
+          chr_strand = colony.mi_attempt.gene.strand_name
 
           # NB this data is an array of features each containing sequence, but NOT in any order, so we need to sort it
           # and the sort order depends on strand of the protein we are looking at

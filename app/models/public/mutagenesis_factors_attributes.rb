@@ -1,4 +1,4 @@
-module Public::MutagenesisFactorAttributes
+module Public::MutagenesisFactorsAttributes
 
   JSON_OPTIONS = {
     :except => [:vector_id],
@@ -7,7 +7,7 @@ module Public::MutagenesisFactorAttributes
     :methods => [:vector_name]
   }
 
-  def mutagenesis_factor_attributes
-    return mutagenesis_factor.as_json(JSON_OPTIONS)
+  def mutagenesis_factors_attributes
+    return mutagenesis_factors.as_json(JSON_OPTIONS)
   end
 end

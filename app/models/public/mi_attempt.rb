@@ -2,7 +2,7 @@ class Public::MiAttempt < ::MiAttempt
 
   include ::Public::Serializable
   include ::Public::DistributionCentresAttributes
-  include ::Public::MutagenesisFactorAttributes
+  include ::Public::MutagenesisFactorsAttributes
   include ::Public::ColonyAttributes
   include ::ApplicationModel::BelongsToMiPlan::Public
 
@@ -62,10 +62,9 @@ class Public::MiAttempt < ::MiAttempt
     comments
     genotyping_comment
     distribution_centres_attributes
-    mi_plan_id
+    mi_plan_ids
     status_stamps_attributes
-    mutagenesis_factor_id
-    mutagenesis_factor_attributes
+    mutagenesis_factors_attributes
     cassette_transmission_verified
     cassette_transmission_verified_auto_complete
     crsp_total_embryos_injected
@@ -103,7 +102,6 @@ class Public::MiAttempt < ::MiAttempt
     test_cross_strain_mgi_accession
     test_cross_strain_mgi_name
     mgi_accession_id
-    mutagenesis_factor_external_ref
 
   } + FULL_ACCESS_ATTRIBUTES
 
@@ -198,7 +196,6 @@ end
 #  qc_loxp_srpcr_and_sequencing_id                 :integer          default(1)
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean
-#  mutagenesis_factor_id                           :integer
 #  crsp_total_embryos_injected                     :integer
 #  crsp_total_embryos_survived                     :integer
 #  crsp_total_transfered                           :integer

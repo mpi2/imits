@@ -24,16 +24,16 @@
 <br />
 
 <% if @colony then %>
-  <% chr_num               = @colony.mi_attempt.mi_plan.gene.chr %>
-  <% chr_strand            = @colony.mi_attempt.mi_plan.gene.strand_name %>
+  <% chr_num               = @colony.mi_attempt.gene.chr %>
+  <% chr_strand            = @colony.mi_attempt.gene.strand_name %>
   <% mutagenesis_factor_id = @colony.mi_attempt.mutagenesis_factor_id %>
 
   <% if chr_strand == '+' then %>
-    <% seq_start = @colony.mi_attempt.mi_plan.gene.start_coordinates %>
-    <% seq_end   = @colony.mi_attempt.mi_plan.gene.end_coordinates %>
+    <% seq_start = @colony.mi_attempt.gene.start_coordinates %>
+    <% seq_end   = @colony.mi_attempt.gene.end_coordinates %>
   <% else %>
-    <% seq_start = @colony.mi_attempt.mi_plan.gene.end_coordinates %>
-    <% seq_end   = @colony.mi_attempt.mi_plan.gene.start_coordinates %>
+    <% seq_start = @colony.mi_attempt.gene.end_coordinates %>
+    <% seq_end   = @colony.mi_attempt.gene.start_coordinates %>
   <% end %>
 
   <% url_prefix = '' %>

@@ -18,7 +18,7 @@ class MiPlan < ApplicationModel
 
   belongs_to :es_cells_received_from, :class_name => 'TargRep::CentrePipeline'
 
-  has_many :mi_attempts
+  has_many :gene_targets
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
   has_many :phenotype_attempts
@@ -33,6 +33,7 @@ class MiPlan < ApplicationModel
   access_association_by_attribute :production_centre, :name
 
   delegate :marker_symbol, :to => :gene
+  delegate :mgi_accession_id, :to => :gene
 
   protected :status=
 
@@ -218,9 +219,6 @@ class MiPlan < ApplicationModel
 
   # END Callbacks
 
-  delegate :marker_symbol, :to => :gene
-  delegate :mgi_accession_id, :to => :gene
-
   def update_es_cell_received
     if number_of_es_cells_received.blank? && number_of_es_cells_starting_qc.to_i > 0
       return if centre_pipeline.blank?
@@ -245,14 +243,18 @@ class MiPlan < ApplicationModel
   end
 
   def products
-   @products ||= {:mi_attempts => mi_attempts.where("is_active = true"), :phenotype_attempts => phenotype_attempts.where("is_active = true")}
+   @products ||= {:mi_attempts => mi_attempts.where("mi_attempts.is_active = true"), :phenotype_attempts => phenotype_attempts.where("is_active = true")}
+  end
+
+  def mi_attempts
+    MiAttempt.joins(gene_targets: :mi_plan).where("mi_plans.id = #{self.id}")
   end
 
   def latest_relevant_mi_attempt
 
     status_sort_order =  MiAttempt::Status.status_order
 
-    ordered_mis = mi_attempts.all.sort do |mi1, mi2|
+    ordered_mis = mi_attempts.sort do |mi1, mi2|
       [status_sort_order[mi1.public_status], mi2.in_progress_date] <=>
               [status_sort_order[mi2.public_status], mi1.in_progress_date]
     end
@@ -307,31 +309,23 @@ class MiPlan < ApplicationModel
   end
 
   def self.with_mi_attempt
-    ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    raise "Cannot run 'mi_plan.with_mi_attempt' when there are no mi_attempts" if ids.empty?
-    where("#{self.table_name}.id in (?)",ids)
+    MiPlan.find_by_sql("SELECT DISTINCT(mi_plans.*) FROM mi_plans JOIN gene_targets ON gene_targets.mi_plan_id = mi_plans.id")
   end
 
   def self.without_mi_attempt
-    ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    raise "Cannot run 'mi_plan.without_mi_attempt' when there are no mi_attempts" if ids.empty?
-    where("#{self.table_name}.id not in (?)",ids)
+    MiPlan.find_by_sql("SELECT DISTINCT(mi_plans.*) FROM mi_plans LEFT JOIN gene_targets ON gene_targets.mi_plan_id = mi_plans.id WHERE gene_targets.id IS NULL")
   end
 
   def self.with_active_mi_attempt
-    ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    return [] if ids.empty?
-    where("#{self.table_name}.id in (?)",ids)
+    MiPlan.find_by_sql("SELECT DISTINCT(mi_plans.*) FROM mi_plans JOIN gene_targets ON gene_targets.mi_plan_id = mi_plans.id JOIN mi_attempts ON mi_attempts.id = gene_targets.mi_attempt_id AND mi_attempts.is_active = true")
   end
 
   def self.without_active_mi_attempt
-    ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    raise "Cannot run 'mi_plan.without_active_mi_attempt' when there are no active mi_attempts" if ids.empty?
-    where("#{self.table_name}.id not in (?)",ids)
+    MiPlan.find_by_sql("SELECT DISTINCT(mi_plans.*) FROM mi_plans LEFT JOIN (gene_targets JOIN mi_attempts ON mi_attempts.id = gene_targets.mi_attempt_id AND mi_attempts.is_active = true) ON gene_targets.mi_plan_id = mi_plans.id WHERE gene_targets.id IS NULL")
   end
 
   def self.with_genotype_confirmed_mouse
-    where("#{self.table_name}.id in (?)", MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    MiPlan.find_by_sql("SELECT DISTINCT(mi_plans.*) FROM mi_plans JOIN gene_targets ON gene_targets.mi_plan_id = mi_plans.id JOIN mi_attempts ON mi_attempts.id = gene_targets.mi_attempt_id WHERE mi_attempts.status_id = 2")
   end
 
   def reason_for_inspect_or_conflict

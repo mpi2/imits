@@ -64,6 +64,7 @@ class Colony < ApplicationModel
 
   before_save :set_genotype_confirmed
   after_save :add_default_distribution_centre
+  before_save :set_crispr_allele
 
   def set_genotype_confirmed
     if !mi_attempt.blank? && !mi_attempt.status.blank?
@@ -95,6 +96,27 @@ class Colony < ApplicationModel
     end
   end
   protected :add_default_distribution_centre
+
+  def set_crispr_allele
+    if !mi_attempt.blank? && !mi_attempt.status.blank?
+      if !mi_attempt.mutagenesis_factor_id.blank? && mi_attempt.status.code == 'gtc'
+        n = 0
+        gene = mi_attempt.marker_symbol
+        while true
+          n += 1
+          test_allele_name = "em#{n}#{mi_attempt.production_centre.code}"
+          break if Colony.joins(mi_attempt: {mi_plan: :gene}).where("genes.marker_symbol = '#{gene}' AND colonies.allele_name = '#{test_allele_name}'").blank?
+        end
+
+        self.allele_name = test_allele_name
+      end
+    end
+  end
+
+
+  def self.readable_name
+    return 'colony'
+  end
 
   def get_template
     return allele_symbol_superscript_template unless allele_symbol_superscript_template.nil?
@@ -279,6 +301,52 @@ class Colony < ApplicationModel
                     ) AS ordered_colonies
                 GROUP BY ordered_colonies.mi_attempt_id
             EOF
+  end
+
+
+  #### may not work, should this be in trace call model
+  def get_mutant_nucleotide_sequence_features
+    unless trace_call.trace_call_vcf_modifications.count > 0
+      if trace_call.file_filtered_analysis_vcf
+        vcf_data = trace_call.parse_filtered_vcf_file
+        if vcf_data && vcf_data.length > 0
+          vcf_data.each do |vcf_feature|
+            if vcf_feature.length >= 6
+              tc_mod = TraceCallVcfModification.new(
+                :trace_call_id => trace_call.id,
+                :mod_type      => vcf_feature['mod_type'],
+                :chr           => vcf_feature['chr'],
+                :start         => vcf_feature['start'],
+                :end           => vcf_feature['end'],
+                :ref_seq       => vcf_feature['ref_seq'],
+                :alt_seq       => vcf_feature['alt_seq']
+              )
+              tc_mod.save!
+            else
+              puts "ERROR: unexpected length of VCF data for trace call id #{self.id}"
+            end
+          end
+        end
+      end
+    end
+
+    mut_seq_features = []
+
+    trace_call.trace_call_vcf_modifications.each do |tc_mod|
+      mut_seq_feature = {
+        'chr'          => mi_attempt.mi_plan.gene.chr,
+        'strand'       => mi_attempt.mi_plan.gene.strand_name,
+        'start'        => tc_mod.start,
+        'end'          => tc_mod.end,
+        'ref_sequence' => tc_mod.ref_seq,
+        'alt_sequence' => tc_mod.alt_seq,
+        'sequence'     => tc_mod.alt_seq,
+        'mod_type'     => tc_mod.mod_type
+      }
+      mut_seq_features.push( mut_seq_feature.as_json )
+    end
+
+    return mut_seq_features
   end
 end
 

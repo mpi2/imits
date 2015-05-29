@@ -22,6 +22,7 @@ class MmrrcOriginal
       colony_name = mi.colony_name
       marker_symbol = mi.mi_plan.gene.marker_symbol
       allele_symbol = mi.allele_symbol
+      allele_name = allele_symbol.match("<sup>(.*)</sup>")[1]
       genetic_founder_background_strain = mi.es_cell.strain
       current_background_strain = mi.colony_background_strain.name
       clone = mi.es_cell.name
@@ -57,7 +58,7 @@ class MmrrcOriginal
 
       ikmc_project_id = mi.es_cell.ikmc_project_id
       genetic_alterations =
-      "cassette #{cassette_name} inserted at chromosome #{chromosome} position #{cassette_start}. LoxP site at position #{loxp_start}. mutation is #{alteration}. Details page at www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/#{ikmc_project_id}"
+      "cassette #{cassette_name} inserted at chromosome #{chromosome} position #{cassette_start}. LoxP site at position #{loxp_start}. mutation is #{alteration}. Details page at https://www.mousephenotype.org/data/alleles/#{mgi_accession_id}/#{allele_name}"
 
       blast_strain = mi.blast_strain.name
       test_strain = mi.test_cross_strain.name
@@ -124,6 +125,7 @@ class MmrrcNew
       colony_name = mi.colony_name
       marker_symbol = mi.mi_plan.gene.marker_symbol
       allele_symbol = mi.allele_symbol
+      allele_name = allele_symbol.match("<sup>(.*)</sup>")[1]
       genetic_founder_background_strain = mi.es_cell.strain
       current_background_strain = mi.colony_background_strain.name
       clone = mi.es_cell.name
@@ -159,7 +161,7 @@ class MmrrcNew
 
       ikmc_project_id = mi.es_cell.ikmc_project_id
       genetic_alterations =
-      "cassette #{cassette_name} inserted at chromosome #{chromosome} position #{cassette_start}. LoxP site at position #{loxp_start}. mutation is #{alteration}. Details page at www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/#{ikmc_project_id}"
+      "cassette #{cassette_name} inserted at chromosome #{chromosome} position #{cassette_start}. LoxP site at position #{loxp_start}. mutation is #{alteration}. Details page at https://www.mousephenotype.org/data/alleles/#{mgi_accession_id}/#{allele_name}"
 
       blast_strain = mi.blast_strain.name
       test_strain = mi.test_cross_strain.name

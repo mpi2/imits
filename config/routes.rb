@@ -66,6 +66,16 @@ TarMits::Application.routes.draw do
   get "colony/show/:id/:filename" => 'colony#show'
   get "colony/:mi_attempt_colony_name/phenotype_attempts/new" => 'colony#phenotype_attempts_new'
 
+
+  #get "colony/:id" => 'colony#show'
+  #get "colony/:id/:filename" => 'colony#show'
+  get "colony" => 'colony#index'
+  get "/colony/mut_nucleotide_sequences/:id" => 'colony#mut_nucleotide_sequences'
+
+  get "mutagenesis_factor/crisprs/:id" => 'mutagenesis_factor#crisprs'
+  get "mutagenesis_factor/vector/:id"  => 'mutagenesis_factor#vector'
+  get "mutagenesis_factor/oligo/:id"   => 'mutagenesis_factor#oligo'
+
   namespace :mi_attempts do
     resources :distribution_centres do
       collection do
@@ -204,6 +214,7 @@ TarMits::Application.routes.draw do
 
     resources :distribution_qcs
 
+    get '/alleles/:id/loa_primers' => 'alleles#loa_primers', :as => 'loa_primers'
     get '/alleles/:id/escell-clone-genbank-file' => 'alleles#escell_clone_genbank_file', :as => 'escell_clone_genbank_file'
     get '/alleles/:id/allele-genbank-file' => 'alleles#allele_genbank_file', :as => 'allele_genbank_file'
     get '/alleles/:id/targeting-vector-genbank-file' => 'alleles#targeting_vector_genbank_file', :as => 'targeting_vector_genbank_file'
@@ -231,6 +242,8 @@ TarMits::Application.routes.draw do
     get 'wge_searches/crispr_search' => 'wge_searches#crispr_search', :as => 'crispr_search'
     get 'wge_searches/crispr_pair_search' => 'wge_searches#crispr_pair_search', :as => 'crispr_pair_search'
     get 'wge_searches/crispr_search_by_grna_sequence' => 'wge_searches#crispr_search_by_grna_sequence', :as => 'crispr_search_by_grna_sequence'
+    get 'wge_searches/protein_translation_for_region' => 'wge_searches#protein_translation_for_region', :as => 'protein_translation_for_region'
+    get 'wge_searches/mutant_protein_translation_for_colony' => 'wge_searches#mutant_protein_translation_for_colony', :as => 'mutant_protein_translation_for_colony'
 
     get 'lims2_searches/get_crispr_group_data' => 'lims2_searches#get_crispr_group_data', :as => 'get_crispr_group_data'
     #connect ':controller/:action/:id.:format'

@@ -2,14 +2,12 @@
 development:
   targ_rep_url: http://localhost:3000/targ_rep
   index_proxy:
-    gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
+    gene: http://localhost:8983/solr/gene
     allele: http://localhost:8983/solr/allele
     allele2: http://localhost:8983/solr/allele2
-    product1: http://ikmc.vm.bytemark.co.uk:8985/solr/product
     product: http://localhost:8983/solr/product
-    allele21: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
-    allele24: http://ikmc.vm.bytemark.co.uk:8984/solr/allele2
-    allele25: http://ikmc.vm.bytemark.co.uk:8983/solr/allele2
+    eucommtoolscre_allele2: http://localhost:8983/solr/eucommtoolscre_allele2
+    eucommtoolscre_product: http://localhost:8983/solr/eucommtoolscre_product
 
 test:
   targ_rep_url: https://www.i-dcc.org/imits/targ_rep
@@ -18,6 +16,8 @@ test:
     allele: http://localhost:8984/solr/allele
     allele2: http://localhost:8984/solr/allele2
     product: http://localhost:8984/solr/product
+    eucommtoolscre_allele2: http://localhost:8984/solr/eucommtoolscre_allele2
+    eucommtoolscre_product: http://localhost:8984/solr/eucommtoolscre_product
 
 labs:
   targ_rep_url: https://www.i-dcc.org/labs/imits/targ_rep
@@ -26,6 +26,8 @@ labs:
     allele: http://t87-dev.internal.sanger.ac.uk:8983/solr/allele
     allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
     product: http://ikmc.vm.bytemark.co.uk:8985/solr/product
+    eucommtoolscre_allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/eucommtoolscre_allele2
+    eucommtoolscre_product: http://ikmc.vm.bytemark.co.uk:8985/solr/eucommtoolscre_product
 
 migration:
   targ_rep_url: https://www.i-dcc.org/imits/targ_rep
@@ -34,6 +36,8 @@ migration:
     allele: http://t87-dev.internal.sanger.ac.uk:8983/solr/allele
     allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/allele2
     product: http://ikmc.vm.bytemark.co.uk:8985/solr/product
+    eucommtoolscre_allele2: http://ikmc.vm.bytemark.co.uk:8985/solr/eucommtoolscre_allele2
+    eucommtoolscre_product: http://ikmc.vm.bytemark.co.uk:8985/solr/eucommtoolscre_product
 
 staging:
   targ_rep_url: https://www.i-dcc.org/staging/imits/targ_rep
@@ -42,6 +46,8 @@ staging:
     allele: http://ikmc.vm.bytemark.co.uk:8984/solr/allele
     allele2: http://ikmc.vm.bytemark.co.uk:8984/solr/allele2
     product: http://ikmc.vm.bytemark.co.uk:8984/solr/product
+    eucommtoolscre_allele2: http://ikmc.vm.bytemark.co.uk:8984/solr/eucommtoolscre_allele2
+    eucommtoolscre_product: http://ikmc.vm.bytemark.co.uk:8984/solr/eucommtoolscre_product
 
 production:
   targ_rep_url: https://www.i-dcc.org/imits/targ_rep
@@ -50,6 +56,8 @@ production:
     allele: http://ikmc.vm.bytemark.co.uk:8983/solr/allele
     allele2: http://ikmc.vm.bytemark.co.uk:8983/solr/allele2
     product: http://ikmc.vm.bytemark.co.uk:8983/solr/product
+    eucommtoolscre_allele2: http://ikmc.vm.bytemark.co.uk:8983/solr/eucommtoolscre_allele2
+    eucommtoolscre_product: http://ikmc.vm.bytemark.co.uk:8983/solr/eucommtoolscre_product
 
 all:
   queue_run_limit: 100

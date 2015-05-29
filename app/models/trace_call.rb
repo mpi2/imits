@@ -4,6 +4,7 @@ class TraceCall < ActiveRecord::Base
   acts_as_reportable
 
   belongs_to :colony
+  has_many :trace_call_vcf_modifications
 
   has_attached_file :trace_file, :storage => :database
   do_not_validate_attachment_file_type :trace_file
@@ -182,7 +183,32 @@ class TraceCall < ActiveRecord::Base
       self.file_primer_reads_fa = data
     end
 
+    parse_filtered_vep_file
+
     updated = self.save!
+
+    # parse some details from the filtered_analysis file
+    if self.file_filtered_analysis_vcf
+      vcf_data = parse_filtered_vcf_file
+      if vcf_data && vcf_data.length > 0
+        vcf_data.each do |vcf_feature|
+          if vcf_feature.length >= 6
+            tc_mod = TraceCallVcfModification.new(
+              :trace_call_id => self.id,
+              :mod_type      => vcf_feature['mod_type'],
+              :chr           => vcf_feature['chr'],
+              :start         => vcf_feature['start'],
+              :end           => vcf_feature['end'],
+              :ref_seq       => vcf_feature['ref_seq'],
+              :alt_seq       => vcf_feature['alt_seq']
+            )
+            tc_mod.save!
+          else
+            puts "ERROR: unexpected length of VCF data for trace call id #{self.id}"
+          end
+        end
+      end
+    end
 
     if options[:keep_generated_files]
       puts "#### check folder #{output_trace_call_dir}"
@@ -268,6 +294,64 @@ class TraceCall < ActiveRecord::Base
     return "#{targeted_reference_sequence}\n#{targeted_mutated_sequence}"
   end
 
+  def parse_filtered_vep_file
+
+    self.file_variant_effect_output_txt.each_line do |line|
+      stripped_line = line.strip
+      next if stripped_line[0] == '#'
+
+      parsed_fields = stripped_line.split("\t")
+
+      if parsed_fields.length >= 4
+        self.exon_id = parsed_fields[4]
+      end
+    end
+  end
+
+
+  def parse_filtered_vcf_file
+    vcf_data = []
+
+    self.file_filtered_analysis_vcf.each_line do |line|
+        stripped_line = line.strip
+        next if stripped_line[0] == '#'
+
+        parsed_fields = stripped_line.split("\t")
+        # break
+
+        if parsed_fields.length >= 4
+          ref_seq = parsed_fields[3]
+          alt_seq = parsed_fields[4]
+
+          # compare sequences to determine whether snp, or indel
+          if alt_seq.length == ref_seq.length
+            mod_type   = 'snp'
+            seq_length = alt_seq.length
+          elsif ref_seq.length > alt_seq.length
+            mod_type   = 'del'
+            seq_length = ref_seq.length - alt_seq.length
+          elsif ref_seq.length < alt_seq.length
+            mod_type   = 'ins'
+            seq_length = alt_seq.length - ref_seq.length
+          else
+            puts "ERROR: cannot understand this line"
+            puts line
+            next
+          end
+
+          vcf_data.push({
+            'chr'      => parsed_fields[0],
+            'start'    => parsed_fields[1].to_i + 1,
+            'end'      => parsed_fields[1].to_i + seq_length,
+            'ref_seq'  => ref_seq,
+            'alt_seq'  => alt_seq,
+            'mod_type' => mod_type
+          })
+        end
+    end
+
+    return vcf_data
+  end
 end
 
 # == Schema Information

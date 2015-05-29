@@ -2,9 +2,10 @@
 <h3># Repository Reconciled Phenotype Attempt Distribution Centres Summary</h3>
 <p>This is the summary of repository reconciled Phenotype attempt distribution centre entries. The Phenotype attempt must be in 'Cre Excision Complete' status to be included here.</p>
 <br>
-<h4>KOMP repository summary</h4>
-<p>To be reconciled against KOMP the repository must have the Phenotype attempt allele orderable as one of 'Mice', 'Cryo Recovery', 'Sperm' or 'Embryos'.</p>
-<div class='report'>
+<% if @phenotype_reconciled_komp_summary_list %>
+  <h4>KOMP repository summary</h4>
+  <p>To be reconciled against KOMP the repository must have the Phenotype attempt allele orderable as one of 'Mice', 'Cryo Recovery', 'Sperm' or 'Embryos'.</p>
+  <div class='report'>
     <table>
       <thead>
         <tr>
@@ -17,7 +18,7 @@
         </tr>
       </thead>
       <tbody>
-        <% @phenotype_reconciled_summary_list.each do |report_row| %>
+        <% @phenotype_reconciled_komp_summary_list.each do |report_row| %>
             <tr>
                 <td><%= report_row['consortium_name'] %></td>
                 <td><%= report_row['production_centre_name'] %></td>
@@ -35,7 +36,86 @@
                 <td><%= report_row['percent_reconciled_true'] %></td>
             </tr>
         <% end %>
-
       </tbody>
     </table>
-</div>
+  </div>
+  <br />
+<% end %>
+<% if @phenotype_reconciled_emma_summary_list %>
+  <h4>EMMA repository summary</h4>
+  <p>To be reconciled against EMMA the repository must have the Phenotype attempt allele orderable as either a 'colony' or 'small colony'.</p>
+  <div class='report'>
+    <table>
+      <thead>
+        <tr>
+          <th>Consortium</th>
+          <th>Production Centre</th>
+          <th>Phenotype Attempts</th>
+          <th>Unreconciled</th>
+          <th>Reconciled</th>
+          <th>&#37; Reconciled</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @phenotype_reconciled_emma_summary_list.each do |report_row| %>
+            <tr>
+                <td><%= report_row['consortium_name'] %></td>
+                <td><%= report_row['production_centre_name'] %></td>
+                <td><%= report_row['count_mouse_allele_mods'] %></td>
+                <% if report_row['count_reconciled_false'] == '0' %>
+                    <td><%= report_row['count_reconciled_false'] %></td>
+                <% else %>
+                    <td><a href="<%= url_for(:controller => 'v2/reports', :action => :emma_phenotype_unreconciled_list, :consortium => report_row['consortium_name'], :prod_centre => report_row['production_centre_name']) %>"><%= report_row['count_reconciled_false'] %></a></td>
+                <% end %>
+                <% if report_row['count_reconciled_true'] == '0' %>
+                    <td><%= report_row['count_reconciled_true'] %></td>
+                <% else %>
+                    <td><a href="<%= url_for(:controller => 'v2/reports', :action => :emma_phenotype_reconciled_list, :consortium => report_row['consortium_name'], :prod_centre => report_row['production_centre_name']) %>"><%= report_row['count_reconciled_true'] %></a></td>
+                <% end %>
+                <td><%= report_row['percent_reconciled_true'] %></td>
+            </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <br />
+<% end %>
+<% if @phenotype_reconciled_mmrrc_summary_list %>
+  <h4>MMRRC repository summary</h4>
+  <p>To be reconciled against MMRRC the repository must have the Phenotype attempt allele orderable as either a 'Live Colony' or 'Cryo-Archive'.</p>
+  <div class='report'>
+    <table>
+      <thead>
+        <tr>
+          <th>Consortium</th>
+          <th>Production Centre</th>
+          <th>Phenotype Attempts</th>
+          <th>Unreconciled</th>
+          <th>Reconciled</th>
+          <th>&#37; Reconciled</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @phenotype_reconciled_mmrrc_summary_list.each do |report_row| %>
+            <tr>
+                <td><%= report_row['consortium_name'] %></td>
+                <td><%= report_row['production_centre_name'] %></td>
+                <td><%= report_row['count_mouse_allele_mods'] %></td>
+                <% if report_row['count_reconciled_false'] == '0' %>
+                    <td><%= report_row['count_reconciled_false'] %></td>
+                <% else %>
+                    <td><a href="<%= url_for(:controller => 'v2/reports', :action => :mmrrc_phenotype_unreconciled_list, :consortium => report_row['consortium_name'], :prod_centre => report_row['production_centre_name']) %>"><%= report_row['count_reconciled_false'] %></a></td>
+                <% end %>
+                <% if report_row['count_reconciled_true'] == '0' %>
+                    <td><%= report_row['count_reconciled_true'] %></td>
+                <% else %>
+                    <td><a href="<%= url_for(:controller => 'v2/reports', :action => :mmrrc_phenotype_reconciled_list, :consortium => report_row['consortium_name'], :prod_centre => report_row['production_centre_name']) %>"><%= report_row['count_reconciled_true'] %></a></td>
+                <% end %>
+                <td><%= report_row['percent_reconciled_true'] %></td>
+            </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <br />
+<% end %>

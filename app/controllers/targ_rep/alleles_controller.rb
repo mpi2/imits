@@ -1,8 +1,10 @@
-require 'pp'
-
 class TargRep::AllelesController < TargRep::BaseController
 
-  respond_to :html, :xml, :json
+  include SolrBulkUpdate
+
+  respond_to :html, :except => [:loa]
+  respond_to :xml, :except => [:loa]
+  respond_to :json
 
   before_filter do
     @klass = TargRep::Allele
@@ -37,7 +39,8 @@ class TargRep::AllelesController < TargRep::BaseController
     :vector_image_cre,
     :vector_image_flp,
     :vector_image_flp_cre,
-    :show_issue
+    :show_issue,
+    :loa_primers
   ]
 
   # GET /alleles
@@ -190,12 +193,12 @@ class TargRep::AllelesController < TargRep::BaseController
   end
 
   def show_issue
-    core = params[:core].blank? ? "allele" : params[:core]
+    core = params[:core].blank? ? "product" : params[:core]
 
-    if core == "allele"
-      show_issue_allele_core
-    else
+    if core == "product"
       show_issue_product_core
+    else
+      Rails.logger.info "#### Unexpected core <#{params[:core]}> for Solr for allele with an issue"
     end
 
   end
@@ -205,7 +208,8 @@ class TargRep::AllelesController < TargRep::BaseController
     product_id    = params[:product_id]
 
     solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-    proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['product'])
+
+    proxy = SolrBulkUpdate::Proxy.new(solr_update[Rails.env]['index_proxy']['product'])
     json_qry = { :q => 'product_id:' + product_id }
     docs = proxy.search(json_qry)
 
@@ -216,41 +220,32 @@ class TargRep::AllelesController < TargRep::BaseController
     else
       @order_from_names = docs[0].has_key?('order_names') ? docs[0]["order_names"] : nil
       @order_from_urls = docs[0].has_key?('order_links') ? docs[0]["order_links"] : nil
-
-      @order_from_names = @order_from_names.blank? && docs[0].has_key?('contact_names') ? docs[0]["contact_names"] : nil
-      @order_from_urls = @order_from_urls.blank? && docs[0].has_key?('contact_links') ? docs[0]["contact_links"] : nil
-    end
-  end
-
-  # for displaying allele issue screen to warn user about the issue before they place an order
-  def show_issue_allele_core
-    @allele       = @klass.find(params[:allele_id])
-    allele_id     = params[:allele_id]
-    doc_id        = params[:doc_id]
-    product_type  = params[:product_type]
-
-    # fetch order URL from Solr
-    solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
-    proxy = SolrBulk::Proxy.new(solr_update[Rails.env]['index_proxy']['allele'])
-    json_qry = { :q => 'id:"' + doc_id + '" allele_id:"' + allele_id + '" product_type:"' + product_type + '"' }
-    docs = proxy.search(json_qry)
-
-    # check for one element in docs array
-    if ( docs.nil? || docs.empty? )
-      Rails.logger.info "Unable to fetch information for doc id #{doc_id}, allele id #{allele_id} and product type #{product_type} from Solr for allele with an issue"
-    elsif ( docs.length > 1 )
-      Rails.logger.info "Multiple docs returned for doc id #{doc_id}, allele id #{allele_id} and product type #{product_type} from Solr for allele with an issue"
-    else
-      # docs is an array of hashes, where each doc is one item that can be ordered (e.g. stem cell or mouse)
-      # our json query is specific to one doc, and the doc is a hash which contains an array of order names and another of order urls
-      @order_from_names = docs[0]["order_from_names"]
-      @order_from_urls  = docs[0]["order_from_urls"]
     end
   end
 
   ##
   ## Custom controllers
   ##
+
+  def loa_primers
+    allele_id = params[:id]
+    return if allele_id.blank?
+
+    @allele = TargRep::Allele.find(allele_id)
+
+    loa_pcrs = {}
+
+    if ! @allele.blank?
+      loa_pcrs['upstream'] = @allele.taqman_upstream_del_assay_id unless @allele.taqman_upstream_del_assay_id.blank?
+      loa_pcrs['critical'] = @allele.taqman_critical_del_assay_id unless @allele.taqman_critical_del_assay_id.blank?
+      loa_pcrs['downstream'] = @allele.taqman_downstream_del_assay_id unless @allele.taqman_downstream_del_assay_id.blank?
+    end
+
+    respond_to do |format|
+      format.json { render :json => loa_pcrs.to_json }
+    end
+  end
+
   def history
     @allele = @klass.find(params[:id])
   end
@@ -562,6 +557,7 @@ class TargRep::AllelesController < TargRep::BaseController
     end
 
     def format_nested_params
+      puts 'HELLO'
       # Specific to create/update methods - webservice interface
       params[:targ_rep_allele] = params.delete(:molecular_structure) if params[:molecular_structure]
       params[:targ_rep_allele] = params.delete(:allele) if params[:allele]
@@ -590,7 +586,9 @@ class TargRep::AllelesController < TargRep::BaseController
       ##
 
       if allele_params.include? :es_cells
-        allele_params[:es_cells].each { |attrs| attrs[:nested] = true }
+        allele_params[:es_cells].each do |attrs|
+          attrs[:nested] = true
+        end
         allele_params[:es_cells_attributes] = allele_params.delete(:es_cells)
       elsif not allele_params.include? :es_cells_attributes
         allele_params[:es_cells_attributes] = []
@@ -620,6 +618,42 @@ class TargRep::AllelesController < TargRep::BaseController
         allele_params[:targeting_vectors_attributes] = allele_params.delete(:targeting_vectors)
       end
 
+
+      allele_params[:es_cells_attributes].each do |key, attrs|
+        puts attrs
+        if current_user != 'htgt@sanger.ac.uk'
+          if !attrs.has_key?("id")
+            attrs["production_centre_auto_update"] = false
+          else
+            es_cell = TargRep::EsCell.find(attrs["id"])
+            puts es_cell.report_to_public
+            puts attrs["report_to_public"]
+            if attrs.has_key?("report_to_public") && es_cell.report_to_public != (attrs["report_to_public"] == '1')
+              attrs["production_centre_auto_update"] = false
+            end
+          end
+        end
+      end
+
+      allele_params[:targeting_vectors_attributes].each do |key, attrs|
+        puts "HTGT USER?"
+        if current_user != 'htgt@sanger.ac.uk'
+          puts "YES"
+          if !attrs.has_key?("id")
+            puts "NEW"
+            attrs["production_centre_auto_update"] = false
+          else
+            puts "EXISTING"
+            targeting_vector = TargRep::TargetingVector.find(attrs["id"])
+            puts targeting_vector.report_to_public
+            puts attrs["report_to_public"]
+            if attrs.has_key?("report_to_public") && targeting_vector.report_to_public != (attrs["report_to_public"] == '1')
+              attrs["production_centre_auto_update"] = false
+            end
+          end
+          puts "AUTO UPDATE #{attrs["production_centre_auto_update"]}"
+        end
+      end
       ##
       ##  Allele Sequence Anotation
       ##

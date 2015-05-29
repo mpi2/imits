@@ -13,6 +13,7 @@ class Gene < ActiveRecord::Base
 
   validates :marker_symbol, :presence => true, :uniqueness => true
 
+  before_save :set_cgi_and_gm_feature_types
 
   # GENE PRODUCTS
 
@@ -272,6 +273,13 @@ class Gene < ActiveRecord::Base
     end
   end
 
+  def set_cgi_and_gm_feature_types
+    if marker_symbol =~ /CGI/
+      self.feature_type = 'CpG Island'
+      self.marker_type = 'DNA Segment'
+    end
+  end
+  private :set_cgi_and_gm_feature_types
 
 # CLASS METHODS
 # mi_plan summarys for a list of genes
@@ -608,6 +616,7 @@ class Gene < ActiveRecord::Base
           'chr'           => row[chr_index],
           'start'         => row[start_index],
           'end'           => row[end_index],
+          'cm_position'    => '',
           'strand'        => row[strand_index],
           'genome_build'  => row[genome_build_index],
           'vega_ids'      => [],
@@ -654,6 +663,7 @@ class Gene < ActiveRecord::Base
     open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
+      cm_position_index = 4
       ncbi_ids_index = 8
       synonym_index = 9
       file.each_line do |line|
@@ -665,6 +675,11 @@ class Gene < ActiveRecord::Base
         if genes_data.has_key?(row[mgi_accession_id_index]) and !row[synonym_index].blank?
           genes_data[row[mgi_accession_id_index]]['synonyms'] << row[synonym_index]
         end
+
+        if genes_data.has_key?(row[mgi_accession_id_index]) and !row[cm_position_index].blank?
+          genes_data[row[mgi_accession_id_index]]['cm_position'] = row[cm_position_index]
+        end
+
       end
     end
 
@@ -714,10 +729,12 @@ class Gene < ActiveRecord::Base
       gene.marker_symbol = gene_data['marker_symbol']
       gene.chr = gene_data['chr']
       gene.marker_type = gene_data['marker_type']
+      gene.marker_name = gene_data['marker_name']
       gene.feature_type = gene_data['feature_type']
       gene.synonyms = gene_data['synonyms']
       gene.start_coordinates = gene_data['start']
       gene.end_coordinates = gene_data['end']
+      gene.cm_position = gene_data['cm_position']
       gene.strand_name = gene_data['strand']
       gene.vega_ids = gene_data['vega_ids'].join(',')
       gene.ensembl_ids = gene_data['ens_ids'].join(',')

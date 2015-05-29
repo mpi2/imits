@@ -595,6 +595,7 @@ end
 #  founder_num_assays                              :integer
 #  founder_num_positive_results                    :integer
 #  assay_type                                      :text
+#  experimental                                    :boolean          default(FALSE), not null
 #
 # Indexes
 #

@@ -86,7 +86,7 @@ class PhenotypeAttemptAlleleLoadReport
       FROM phenotype_attempts
       JOIN phenotype_attempt_status_stamps ON phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id AND phenotype_attempt_status_stamps.status_id = 6
       JOIN strains AS pa_colony_background_strains ON pa_colony_background_strains.id = phenotype_attempts.colony_background_strain_id
-      JOIN deleter_strains AS pa_deleter_strains ON pa_deleter_strains.id = phenotype_attempts.deleter_strain_id
+      LEFT JOIN deleter_strains AS pa_deleter_strains ON pa_deleter_strains.id = phenotype_attempts.deleter_strain_id
       JOIN (mi_plans AS pa_mi_plans JOIN centres AS pa_centres ON pa_centres.id = pa_mi_plans.production_centre_id) ON pa_mi_plans.id = phenotype_attempts.mi_plan_id
       JOIN genes ON genes.id = pa_mi_plans.gene_id
       JOIN (mi_attempts JOIN mi_plans AS ma_plans ON mi_attempts.mi_plan_id = ma_plans.id JOIN centres AS ma_centres ON ma_centres.id = ma_plans.production_centre_id) ON mi_attempts.id = phenotype_attempts.mi_attempt_id

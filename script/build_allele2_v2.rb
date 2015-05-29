@@ -65,7 +65,8 @@ end
 
 class BuildAllele2
 
-  def initialize
+  def initialize(show_eucommtoolscre = false)
+    @show_eucommtoolscre = show_eucommtoolscre
     @config = YAML.load_file("#{Rails.root}/script/build_allele2_v2.yml")
 
     @solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
@@ -73,13 +74,11 @@ class BuildAllele2
     @save_as_csv = @config['options']['SAVE_AS_CSV']
     @use_id = @config['options']['USE_ID']
     @use_ids = @config['options']['USE_IDS']
-    @user_order = @config['options']['USE_ORDER']
     @use_report_to_public = @config['options']['USE_REPORT_TO_PUBLIC']
     @use_alleles = @config['options']['USE_ALLELES']
     @use_genes = @config['options']['USE_GENES']
     @marker_symbol = @config['options']['MARKER_SYMBOL'].to_s.split '|'
     @detect_gene_dups = @config['options']['DETECT_GENE_DUPS']
-    @use_replacement = @config['options']['USE_REPLACEMENT']
     #@default_fields = @config['options']['DEFAULT_FIELDS']
     @filter_target = @config['options']['FILTER_TARGET'].to_s
 
@@ -117,6 +116,16 @@ class BuildAllele2
     @sql.gsub!(/SUBS_TEMPLATE/, sql_template) if @use_ids
     @sql.gsub!(/SUBS_TEMPLATE/, '') if ! @use_ids
 
+    if @show_eucommtoolscre
+      @sql.gsub!(/SUBS_EUCOMMTOOLSCRE_ID/, ' = 8 ')
+      @sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
+      @solr_url = @solr_update[Rails.env]['index_proxy']['eucommtoolscre_allele2']
+    else
+      @sql.gsub!(/SUBS_EUCOMMTOOLSCRE_ID/, ' != 8 ')
+      @sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
+      @solr_url = @solr_update[Rails.env]['index_proxy']['allele2']
+    end
+
     @processed_rows = []
     @remainder_rows = []
 
@@ -127,7 +136,6 @@ class BuildAllele2
     #@root = "#{home}/Desktop"
     @root = "#{Rails.root}/script"
 
-    @solr_url = @solr_update[Rails.env]['index_proxy']['allele2']
 
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
@@ -146,7 +154,7 @@ class BuildAllele2
                                      'e.1' => 'cre',
                                      '.1'  => 'cre',
                                      'c'   => 'flp',
-                                     'd'   => 'flp_cre'
+                                     'd'   => 'flp-cre'
                                      }
 
     @mutation_types = {
@@ -161,13 +169,15 @@ class BuildAllele2
     pp row if row['allele_symbol'].to_s.empty? && (row['cassette'].to_s.empty? || row['design_id'].to_s.empty?)
     raise "#### Must have allele_symbol! or cassette and design_id" if row['allele_symbol'].to_s.empty? && (row['cassette'].to_s.empty? || row['design_id'].to_s.empty?)
     @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] = true if ! row['allele_symbol'].to_s.empty?
-    @mark_hash[row['mgi_accession_id'].to_s + row['cassette'].to_s + row['design_id'].to_s] = true if (!row['cassette'].to_s.empty? && !row['design_id'].to_s.empty?)
+    @mark_hash[row['mgi_accession_id'].to_s + row['allele_type'] + row['cassette'].to_s + row['design_id'].to_s] = true if (!row['cassette'].to_s.empty? && !row['design_id'].to_s.empty?)
   end
 
   def mark? row
+    # Check if allele name exists. This does not check for alleles uniqueness when only targeting vectors (allele name auto created) have been created and there are multiple designs with the same structure.
     if @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_symbol'].to_s) && @mark_hash[row['mgi_accession_id'].to_s + row['allele_symbol'].to_s] == true
       return true
-    elsif @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['cassette'].to_s + row['design_id'].to_s) && @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['cassette'].to_s + row['design_id'].to_s) == true
+    # Checks if allele exists based on unique structure, but only for the cases when the allele name has been auto created, which is mainly when only targeting vectors have been created.
+    elsif row['allele_symbol'].to_s =~ /#{row['cassette'].to_s}/ && @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_type'] + row['cassette'].to_s + row['design_id'].to_s) && @mark_hash.has_key?(row['mgi_accession_id'].to_s + row['allele_type'] + row['cassette'].to_s + row['design_id'].to_s) == true
       return true
     else
       return false
@@ -216,10 +226,13 @@ class BuildAllele2
   def prepare_allele_symbol row1, type
     row1['allele_symbol'] = 'None'
     row1['allele_symbol'] = 'DUMMY_' + row1['targ_rep_alleles_id'] if ! row1['targ_rep_alleles_id'].to_s.empty?
-    row1['allele_symbol'] = 'tm1' + row1['allele_type'] if row1['allele_type'] != 'None'
+    row1['allele_symbol'] = 'tm' + row1['targ_rep_alleles_id'] + row1['allele_type'] if !['None', 'em'].include?(row1['allele_type'])
+    row1['allele_symbol'] = 'tm' + row1['design_id'] + row1['allele_type'] + '(' + row1['cassette'] + ')' if !['None', 'em'].include?(row1['allele_type']) && !row1['design_id'].blank? && !row1['cassette'].blank?
     row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
     row1['allele_symbol'] = row1['allele_symbol_superscript_template'].to_s.gsub(/\@/, row1['allele_type'].to_s) if ! row1['allele_type'].nil? && ! row1['allele_symbol_superscript_template'].to_s.empty?
 
+    row1['allele_symbol'] = row1['mi_mgi_allele_symbol_superscript'] if type == 'MiAttempt' && ! row1['mi_mgi_allele_symbol_superscript'].blank?
+    row1['allele_symbol'] = row1['mam_mgi_allele_symbol_superscript'] if type == 'MouseAlleleModification' && ! row1['mam_mgi_allele_symbol_superscript'].blank?
   end
 
   def process_allele_type row1, type
@@ -227,6 +240,7 @@ class BuildAllele2
     row1['allele_type'] = @guess_mapping[ row1['mutation_type'] ] if (!row1['mutation_type'].blank?) && @guess_mapping.has_key?(row1['mutation_type'])
     row1['allele_type'] = row1['es_cell_allele_type'] if !row1['es_cell_allele_type'].nil?
     row1['allele_type'] = row1['mi_mouse_allele_type'] if !row1['mi_mouse_allele_type'].blank? && type != 'Allele'
+    row1['allele_type'] = 'em' if type == 'MiAttempt' && !row1['mutagenesis_factor_id'].blank?
     guess_allele_type(row1) if type == 'MouseAlleleModification'
 
     prepare_allele_symbol(row1, type)
@@ -258,9 +272,11 @@ class BuildAllele2
 
     rows = ActiveRecord::Base.connection.execute(sql)
     if rows.count > 0
+      row1['allele_mgi_accession_id'] = ""
       row1['targ_rep_alleles_id'] = rows[0]['id']
       return false
     else
+      row1['allele_mgi_accession_id'] = ""
       return true
     end
   end
@@ -268,15 +284,30 @@ class BuildAllele2
   def genbank_file row1
     row1['genbank_file_url'] = ""
     row1['allele_image'] = ""
+    row1['allele_simple_image'] = ""
 
-    return if row1['targ_rep_alleles_id'].blank?
+    row1['allele_simple_image'] = "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg" if ! row1['mutagenesis_factor_id'].blank?
+
+    return if row1['allele_type'] == 'em' || row1['targ_rep_alleles_id'].blank?
 
     if !row1['mi_mouse_allele_type'].blank? and row1['es_cell_allele_type'] != row1['mi_mouse_allele_type']
       return if try_to_find_correct_allele(row1)
     end
     transformation = @genbank_file_transformations[row1['allele_type']]
-    row1['genbank_file_url'] = "https://www.mousephenotype.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/escell-clone-#{!transformation.blank? ? transformation + '-' : ''}genbank-file"
-    row1['allele_image'] = "https://www.mousephenotype.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/allele-image#{!transformation.blank? ? '-' + transformation : ''}"
+    row1['genbank_file_url'] = "https://www.i-dcc.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/escell-clone-#{!transformation.blank? ? transformation + '-' : ''}genbank-file"
+    row1['allele_image'] = "https://www.i-dcc.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/allele-image#{!transformation.blank? ? '-' + transformation : ''}"
+    row1['allele_simple_image'] = "https://www.i-dcc.org/imits/targ_rep/alleles/#{row1['targ_rep_alleles_id']}/allele-image#{!transformation.blank? ? '-' + transformation : ''}?simple=true.jpg"
+  end
+
+  def set_mutagenesis_factor row1
+    allele_type = row1['allele_type']
+    pipeline = row1['pipeline']
+
+    return if allele_type.blank? || pipeline.blank?
+    return if ['NorCOMM', 'EUCOMMToolsCre', 'Mirko', 'KOMP-Regeneron'].include?(pipeline)
+    return unless ['a', 'c', 'e', ''].include?(allele_type)
+
+    row1['links'] << "mutagenesis_url:https://www.mousephenotype.org/phenotype-archive/mutagenesis/#{row1['mgi_accession_id']}/#{row1['allele_symbol']}"
   end
 
   def delete_index
@@ -354,6 +385,7 @@ class BuildAllele2
     end
 
     puts "#### select..."
+    #puts @sql
     rows = ActiveRecord::Base.connection.execute(@sql)
 
     puts "#### step 1..."
@@ -384,6 +416,7 @@ class BuildAllele2
           next
         end
         next if mark?(row)
+        row['allele_mgi_accession_id'] = row['mouse_allele_mod_mouse_mgi_accession_id']
 
         genbank_file(row)
         row['mouse_status'] = row['mouse_allele_mod_status']
@@ -395,9 +428,7 @@ class BuildAllele2
         row['production_centre'] = row['pacentre_name']
         row['cassette'] = ''
         row['design_id'] = ''
-        if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
-          row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
-        end
+
         @processed_rows.push row
 
         mark row
@@ -415,16 +446,31 @@ class BuildAllele2
           next
         end
         next if mark?(row)
-
+        row['allele_mgi_accession_id'] = row['es_cell_mgi_accession_id']
         genbank_file(row)
-        row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
         row['mouse_status'] = @statuses['GENOTYPE_CONFIRMED']
+        row['links'] = []
+        if row['allele_type'] != 'em'
+          row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
+          row['links'] << "southern_tools:http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=#{row['es_cell_name']}&iframe=true&width=100%&height=100%"
+          row['links'] << "lrpcr_genotype_primers:https://www.mousephenotype.org/phenotype-archive/lrpcr/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+          row['links'] << "genotype_primers:https://www.mousephenotype.org/phenotype-archive/genotyping_primers/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+          row['links'] << "loa_link_id:#{row['targ_rep_alleles_id']}"
+        end
+
+        row['ikmc_project'] = []
+        row['pipeline'] = [row['es_pipeline']]
+        if ! row['es_ikmc_project_id'].blank?
+          set_mutagenesis_factor(row)
+          row['ikmc_project'] << row['es_ikmc_project_id']
+        end
+        row['links'] << "southern_tools:http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=#{row['es_cell_name']}&iframe=true&width=100%&height=100%"
+        row['links'] << "lrpcr_genotype_primers:https://www.mousephenotype.org/phenotype-archive/lrpcr/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+        row['links'] << "genotyping_primers:https://www.mousephenotype.org/phenotype-archive/genotyping_primers/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+        row['links'] << "loa_link_id:#{row['targ_rep_alleles_id']}"
         row['phenotype_status'] = row['phenotyping_status']
         row['production_centre'] = row['miacentre_name']
         row['phenotyping_centre'] = row['phenotyping_centre_name']
-        if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
-          row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
-        end
 
         @processed_rows.push row
 
@@ -459,16 +505,28 @@ class BuildAllele2
           next
         end
         next if mark?(row)
-
         # B4
+        row['allele_mgi_accession_id'] = row['es_cell_mgi_accession_id']
         genbank_file(row)
-        row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
+        row['links'] = []
+        if row['allele_type'] != 'em'
+          row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
+          row['links'] << "southern_tools:http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=#{row['es_cell_name']}&iframe=true&width=100%&height=100%"
+          row['links'] << "lrpcr_genotype_primers:https://www.mousephenotype.org/phenotype-archive/lrpcr/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+          row['links'] << "genotype_primers:https://www.mousephenotype.org/phenotype-archive/genotyping_primers/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+          row['links'] << "loa_link_id:#{row['targ_rep_alleles_id']}"
+        end
+
+        row['ikmc_project'] = []
+        row['pipeline'] = [row['es_pipeline']]
+        if ! row['es_ikmc_project_id'].blank?
+          set_mutagenesis_factor(row)
+          row['ikmc_project'] << row['es_ikmc_project_id']
+        end
+
         row['mouse_status'] = row['mi_attempt_status']
         row['phenotype_status'] = ''
         row['production_centre'] = row['miacentre_name']
-        if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
-          row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
-        end
 
         @processed_rows.push row
 
@@ -482,15 +540,6 @@ class BuildAllele2
 
     rows.each do |row1|
 
-      #if ! @filter_target.empty?
-      #  if ! @marker_filters.include? row1[@filter_target]
-      #    # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
-      #    next
-      #  end
-      #end
-
-      # B5
-
       row = deep_copy row1
 
       process_allele_type(row, 'Allele')
@@ -501,12 +550,29 @@ class BuildAllele2
         next
       end
       next if mark?(row)
-
       if row['does_an_es_cell_exist'] == 't'
         row['es_cell_status'] = @statuses['ES_CELL_TARGETING_CONFIRMED']
+        row['allele_mgi_accession_id'] = row['es_cell_mgi_accession_id']
+        row['links'] = []
+        row['ikmc_project'] = []
+        row['pipeline'] = [row['es_pipeline']]
+        if ! row['es_ikmc_project_id'].blank?
+          set_mutagenesis_factor(row)
+          row['ikmc_project'] << row['es_ikmc_project_id']
+        end
+        row['links'] << "southern_tools:http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=#{row['es_cell_name']}&iframe=true&width=100%&height=100%"
+        row['links'] << "lrpcr_genotype_primers:https://www.mousephenotype.org/phenotype-archive/lrpcr/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+        row['links'] << "genotyping_primers:https://www.mousephenotype.org/phenotype-archive/genotyping_primers/#{row['mgi_accession_id']}/#{row['allele_symbol']}"
+        row['links'] << "loa_link_id:#{row['targ_rep_alleles_id']}"
       elsif row['does_a_targ_vec_exist'] == 't'
+        row['links'] = []
+        row['ikmc_project'] = []
+        row['pipeline'] = [row['tv_pipeline']]
+        if ! row['tv_ikmc_project_id'].blank?
+          row['ikmc_project'] << row['tv_ikmc_project_id']
+          set_mutagenesis_factor(row)
+        end
         row['es_cell_status'] = @statuses['ES_CELL_PRODUCTION_IN_PROGRESS']
-        row['allele_symbol'] = 'None'
       else
         row['es_cell_status'] = @statuses['NO_ES_CELL_PRODUCTION']
       end
@@ -515,11 +581,9 @@ class BuildAllele2
       row['mouse_status'] = ''
       row['phenotype_status'] = ''
       row['production_centre'] = ''
-      if !(row['gene_chromosome'].blank? || row['gene_start_coordinates'].blank? || row['gene_end_coordinates'].blank?)
-        row['links']             = "http://www.ensembl.org/Mus_musculus/Location/View?r=#{row['gene_chromosome']}:#{row['gene_start_coordinates']}-#{row['gene_end_coordinates']}"
-      end
 
       @processed_rows.push row
+      mark row
     end
 
     key_count = 0
@@ -535,16 +599,11 @@ class BuildAllele2
 
     @processed_rows.each do |row|
 
-      next if row['marker_symbol'] =~ /cgi_/i
-
       target = row if key_count < row.keys.size
       key_count = row.keys.size if key_count < row.keys.size
 
       hash = {}
       hash['marker_symbol'] = row['marker_symbol']
-
-      hash['marker_type'] = row['marker_type']
-      hash['feature_type'] = row['feature_type']
 
       hash['mgi_accession_id'] = row['mgi_accession_id'].to_s
       hash['mgi_accession_id'] = hash['mgi_accession_id'].strip || hash['mgi_accession_id']
@@ -557,12 +616,20 @@ class BuildAllele2
       hash['allele_name'] = ''
       hash['allele_name'] = row['allele_symbol'] if row['allele_symbol'].to_s !~ /DUMMY_/
       hash['allele_type'] = row['allele_type']
+
+      hash['allele_mgi_accession_id'] = row['allele_mgi_accession_id']
+      puts "MUTATION DESCRIPTION #{row['crispr_mutation_description']}"
+      hash['allele_description'] = TargRep::Allele.allele_description({'marker_symbol' => row['marker_symbol'], 'allele_type' => row['allele_type'], 'cassette' => row['cassette'] , 'crispr_mutation_description' => row['crispr_mutation_description'], 'exon_id' => row['exon_id']})
+
       hash['genbank_file'] = row['genbank_file_url']
       hash['allele_image'] = row['allele_image']
+      hash['allele_simple_image'] = row['allele_simple_image']
       hash['cassette'] = row['allele_type'] != 'e' ? row['cassette'] : ''
       hash['design_id'] = row['allele_type'] != 'e' ? row['design_id'] : ''
       hash['type'] = 'allele'
-      hash['links'] = row['links'].to_s
+      hash['links'] = row['links']
+      hash['ikmc_project'] = row['ikmc_project']
+      hash['pipeline'] = row['pipeline']
 
       digest = Digest::MD5.hexdigest(row['mgi_accession_id'].to_s + '-' + row['allele_symbol'].to_s)
 
@@ -579,35 +646,13 @@ class BuildAllele2
         hash['notes'] = notes.join ' - '
       end
 
-      new_processed_allele_rows.push hash if ! new_processed_rows_hash.has_key? digest.to_s   #hash.values.to_s
+      if (!new_processed_rows_hash.has_key? digest.to_s) && row['es_cell_status'] != @statuses['NO_ES_CELL_PRODUCTION']   #hash.values.to_s
+        new_processed_allele_rows.push hash.dup
+      end
 
-      if ! new_processed_rows_hash.has_key? digest.to_s
+      if !new_processed_rows_hash.has_key? digest.to_s
         @genes_hash[hash['marker_symbol']] ||= []
-        @genes_hash[hash['marker_symbol']].push hash
-
-        if @use_replacement
-          @config['replacements'].each do |allele|
-
-            if allele.has_key?(hash['marker_symbol'])
-
-              next if allele[hash['marker_symbol']]['allele']['done']
-
-              hash2 = deep_copy hash
-
-              allele[hash['marker_symbol']]['allele'].keys.each do |kk|
-                hash2[kk] = allele[hash['marker_symbol']]['allele'][kk]
-              end
-
-              hash2['notes'] = 'dummy allele'
-
-              new_processed_allele_rows.push hash2
-
-              allele[hash['marker_symbol']]['allele']['done'] = true
-
-              break
-            end
-          end
-        end
+        @genes_hash[hash['marker_symbol']].push hash.dup
       end
 
       new_processed_rows_hash[digest.to_s] = true
@@ -634,8 +679,6 @@ class BuildAllele2
       if ! summary_gene_dups.empty?
         puts "#### gene duplicates detected!"
         pp summary_gene_dups
-        #else
-        #  puts "#### no gene duplicates detected!"
       end
     end
 
@@ -677,12 +720,6 @@ class BuildAllele2
     puts "done: alleles/genes/total: #{new_processed_allele_rows.size}/#{@new_processed_gene_rows.size}/#{new_processed_allele_rows.size + @new_processed_gene_rows.size}"
   end
 
-  #def should_include row
-  #  return true if @filter_target.empty?
-  #  return false if ! @marker_filters.include? row[@filter_target]
-  #  return true
-  #end
-
   def self.convert_to_array psql_array
     return [] if psql_array.blank?
 
@@ -706,6 +743,7 @@ class BuildAllele2
               FROM mi_attempts
                 JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
                 JOIN centres ON centres.id = mi_plans.production_centre_id
+                JOIN consortia ON consortia.id = mi_plans.consortium_id AND consortia.name SUBS_EUCOMMTOOLSCRE
               WHERE mi_attempts.status_id != 3 AND mi_attempts.report_to_public is true
 
               UNION
@@ -714,6 +752,7 @@ class BuildAllele2
               FROM mouse_allele_mods
                 JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id
                 JOIN centres ON centres.id = mi_plans.production_centre_id
+                JOIN consortia ON consortia.id = mi_plans.consortium_id AND consortia.name SUBS_EUCOMMTOOLSCRE
               WHERE mouse_allele_mods.cre_excision = true AND mouse_allele_mods.status_id != 1 AND mouse_allele_mods.report_to_public is true
              ) AS mi_plan_ids
           ) AS distinct_plan_ids
@@ -733,7 +772,10 @@ class BuildAllele2
         GROUP BY distinct_centres.gene_id
       )
 
-      SELECT genes.marker_symbol, genes.mgi_accession_id, genes.marker_type, genes.feature_type, genes.synonyms, mouse_production_centres.names AS mouse_production_centres, phenotyping_centres.names AS phenotyping_centres
+      SELECT genes.marker_symbol, genes.mgi_accession_id, genes.marker_type, genes.feature_type, genes.synonyms, genes.marker_name,
+             genes.strand_name AS strand, genes.chr AS gene_chromosome, genes.start_coordinates AS gene_start_coordinates, genes.end_coordinates AS gene_end_coordinates,
+             genes.vega_ids AS vega_ids, genes.ncbi_ids AS ncbi_ids, genes.ensembl_ids AS ensembl_ids, genes.ccds_ids AS ccds_ids,
+             mouse_production_centres.names AS mouse_production_centres, phenotyping_centres.names AS phenotyping_centres
       FROM genes
         LEFT JOIN mouse_production_centres ON mouse_production_centres.gene_id = genes.id
         LEFT JOIN phenotyping_centres ON phenotyping_centres.gene_id = genes.id
@@ -743,15 +785,18 @@ class BuildAllele2
       gene_sql << " WHERE genes.marker_symbol IN (#{marker_symbols})"
     end
 
+    if @show_eucommtoolscre
+      gene_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
+    else
+      gene_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
+    end
+
     rows = ActiveRecord::Base.connection.execute(gene_sql)
 
     rows.each do |row1|
 
-      next if row1['marker_symbol'] =~ /cgi_/i
-
       if ! @filter_target.empty?
         if ! @marker_filters.include? row1[@filter_target]
-          # puts "#### ignoring #{row1['marker_symbol']}: #{row1['feature_type']}"
 
           next if ! @genes_hash.has_key?(row1['marker_symbol'])
 
@@ -766,9 +811,6 @@ class BuildAllele2
 
           next if empty
 
-          #next if row1['phenotype_status'].to_s.empty? && row1['mouse_status'].to_s.empty? && row1['es_cell_status'].to_s.empty?
-
-          #next
         end
       end
 
@@ -783,27 +825,50 @@ class BuildAllele2
         hash['synonym'] = ''
         hash['feature_type'] = ''
 
-        hash['marker_symbol'] = row1['marker_symbol']
-        hash['mgi_accession_id'] = row1['mgi_accession_id'].to_s
-        hash['mgi_accession_id'] = hash['mgi_accession_id'].strip || hash['mgi_accession_id']
+        hash['marker_symbol']       = row1['marker_symbol']
+        hash['mgi_accession_id']    = row1['mgi_accession_id'].to_s
+        hash['mgi_accession_id']    = hash['mgi_accession_id'].strip || hash['mgi_accession_id']
+        hash['marker_name']         = row1['marker_name']
+        hash['marker_type']         = row1['marker_type']
+        hash['feature_type']        = row1['feature_type']
+        hash['feature_chromosome']  = row1['gene_chromosome']
+        hash['feature_strand']      = row1['strand']
+        hash['feature_coord_start'] = row1['gene_start_coordinates']
+        hash['feature_coord_end']   = row1['gene_end_coordinates']
+        hash['marker_type']         = row1['marker_type']
+        hash['feature_type']        = row1['feature_type']
 
-        hash['marker_type'] = row1['marker_type']
-        hash['feature_type'] = row1['feature_type']
+        unless  row1['gene_chromosome'].blank? || row1['gene_start_coordinates'].blank? || row1['gene_end_coordinates'].blank?
+          hash['genetic_map_links'] = []
+          hash['genetic_map_links'] = ["mgi:http://www.informatics.jax.org/searches/linkmap.cgi?chromosome=#{row1['gene_chromosome']}&midpoint=#{row1['cm_position']}&cmrange=1.0&dsegments=1&syntenics=0"] if !row1['cm_position'].blank?
+          vega_id = row1['vega_ids'].blank? ? "" : "g=#{row1['vega_ids'].split(',').sort{|s1, s2| s2 <=> s1}[0]};"
+          ensum_id = row1['ensembl_ids'].blank? ? "" :"g=#{row1['ensembl_ids'].split(',').sort{|s1, s2| s2 <=> s1}[0]};"
+          hash['sequence_map_links'] = []
+          hash['sequence_map_links']  << "vega:http://vega.sanger.ac.uk/Mus_musculus/Location/View?#{vega_id}r=#{row1['gene_chromosome']}:#{row1['gene_start_coordinates']}-#{row1['gene_end_coordinates']}"
+          hash['sequence_map_links']  << "ensembl:http://www.ensembl.org/Mus_musculus/Location/View?#{ensum_id}r=#{row1['gene_chromosome']}:#{row1['gene_start_coordinates']}-#{row1['gene_end_coordinates']}"
+          hash['sequence_map_links']  << "ucsc:http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&position=chr#{row1['gene_chromosome']}%3A#{row1['gene_start_coordinates']}-#{row1['gene_end_coordinates']}"
+          hash['sequence_map_links']  << "ncbi:http://www.ncbi.nlm.nih.gov/mapview/maps.cgi?TAXID=10090&CHR=#{row1['gene_chromosome']}&MAPS=genes%5B#{row1['gene_start_coordinates']}:#{row1['gene_end_coordinates']}%5D"
+        end
 
-        hash['production_centres'] = self.class.convert_to_array(row1['mouse_production_centres'])
+        hash['gene_model_ids']      = ["ensembl_ids:#{row1['ensembl_ids']},
+                                       vega_ids:#{row1['vega_ids']},
+                                       ncbi_ids:#{row1['ncbi_ids']},
+                                       ccds_ids:#{row1['ccds_ids']}"]
+
+        hash['production_centres']  = self.class.convert_to_array(row1['mouse_production_centres'])
         hash['phenotyping_centres'] = self.class.convert_to_array(row1['phenotyping_centres'])
 
-        hash['latest_project_status'] = ''
-        hash['latest_project_status'] = ''
-        hash['latest_production_centre'] = ''
+        hash['latest_project_status']     = ''
+        hash['latest_project_status']     = ''
+        hash['latest_production_centre']  = ''
         hash['latest_phenotyping_centre'] = ''
-        hash['latest_phenotype_started'] = '0'
+        hash['latest_phenotype_started']  = '0'
         hash['latest_phenotype_complete'] = '0'
-        hash['latest_phenotype_status'] = ''
-        hash['type'] = 'gene'
-        hash['latest_es_cell_status'] = ''
-        hash['latest_mouse_status'] = ''
-        hash['synonym'] = row1['synonyms'].to_s.split '|'
+        hash['latest_phenotype_status']   = ''
+        hash['type']                      = 'gene'
+        hash['latest_es_cell_status']     = ''
+        hash['latest_mouse_status']       = ''
+        hash['synonym']                   = row1['synonyms'].to_s.split '|'
         @new_processed_gene_rows.push hash
         next
       end
@@ -812,18 +877,20 @@ class BuildAllele2
 
       status_hash = {}
 
-      status_hash[:best_phenotype_status] = 0
-      status_hash[:best_mouse_status] = 0
-      status_hash[:best_es_cell_status] = 0
+      status_hash[:best_phenotype_status]     = 0
+      status_hash[:best_mouse_status]         = 0
+      status_hash[:best_es_cell_status]       = 0
 
-      status_hash[:phenotype_centre] = []
-      status_hash[:mouse_production_centre] = []
+      status_hash[:phenotype_centre]          = []
+      status_hash[:mouse_production_centre]   = []
       status_hash[:es_cell_production_centre] = ''
-      status_hash[:phenotype_started] = false
-      status_hash[:phenotype_complete] = false
-      status_hash[:phenotype_status] = ''
-      status_hash[:es_cell_status] = ''
-      status_hash[:mouse_status] = ''
+      status_hash[:phenotype_started]         = false
+      status_hash[:phenotype_complete]        = false
+      status_hash[:phenotype_status]          = ''
+      status_hash[:es_cell_status]            = ''
+      status_hash[:mouse_status]              = ''
+      status_hash[:ikmc_project]              = []
+      status_hash[:pipeline]                  = []
 
       @genes_hash[marker_symbol].each do |row|
         if ! row['phenotype_status'].to_s.empty?
@@ -870,65 +937,85 @@ class BuildAllele2
           end
 
         end
+
+        if ! row['ikmc_project'].blank?
+          status_hash[:ikmc_project] = status_hash[:ikmc_project].append(row['ikmc_project']).flatten.uniq
+        end
+
+        if ! row['pipeline'].blank?
+          status_hash[:pipeline] = status_hash[:pipeline].append(row['pipeline']).flatten.uniq
+        end
       end
 
       exclude_keys = %W{es_cell_status mouse_status phenotype_status production_centre allele_name allele_type phenotyping_centre}
 
-      row = deep_copy @genes_hash[marker_symbol].first
+      row = @genes_hash[marker_symbol].first
+      gene_row = {}
 
       exclude_keys.each {|ekey| row.delete(ekey) }
 
-      row['latest_project_status'] = status_hash[:phenotype_status] if ! status_hash[:phenotype_status].empty?
-      row['latest_project_status'] = status_hash[:mouse_status] if row['latest_project_status'].to_s.empty? && ! status_hash[:mouse_status].empty?
-      row['latest_project_status'] = status_hash[:es_cell_status] if row['latest_project_status'].to_s.empty? && ! status_hash[:es_cell_status].empty?
+      gene_row['marker_symbol']       = row1['marker_symbol']
+      gene_row['mgi_accession_id']    = row1['mgi_accession_id'].to_s
+      gene_row['marker_name']         = row1['marker_name']
+      gene_row['marker_type']         = row1['marker_type']
+      gene_row['feature_type']        = row1['feature_type']
+      gene_row['feature_chromosome']  = row1['gene_chromosome']
+      gene_row['feature_strand']      = row1['strand']
+      gene_row['feature_coord_start'] = row1['gene_start_coordinates']
+      gene_row['feature_coord_end']   = row1['gene_end_coordinates']
+      gene_row['marker_type']         = row1['marker_type']
+      gene_row['feature_type']        = row1['feature_type']
+      gene_row['synonym']             = row1['synonyms'].to_s.split '|'
 
-      row['latest_production_centre'] = status_hash[:phenotype_centre].to_a.uniq if ! status_hash[:phenotype_centre].empty?
-      row['latest_production_centre'] = status_hash[:mouse_production_centre].to_a.uniq if row['latest_production_centre'].to_s.empty? && ! status_hash[:mouse_production_centre].empty?
-      row['latest_production_centre'] = status_hash[:es_cell_production_centre] if row['latest_production_centre'].to_s.empty? && ! status_hash[:es_cell_production_centre].empty?
 
-      row['latest_phenotyping_centre'] = status_hash[:phenotype_centre].to_a.uniq
+      unless  row1['gene_chromosome'].blank? || row1['gene_start_coordinates'].blank? || row1['gene_end_coordinates'].blank?
+        gene_row['genetic_map_links'] = []
+        gene_row['genetic_map_links'] = ["mgi:http://www.informatics.jax.org/searches/linkmap.cgi?chromosome=#{row1['gene_chromosome']}&midpoint=#{row1['cm_position']}&cmrange=1.0&dsegments=1&syntenics=0"] if !row1['cm_position'].blank?
+        vega_id = row1['vega_ids'].blank? ? "" : "g=#{row1['vega_ids'].split(',').sort{|s1, s2| s2 <=> s1}[0]};"
+        ensum_id = row1['ensembl_ids'].blank? ? "" :"g=#{row1['ensembl_ids'].split(',').sort{|s1, s2| s2 <=> s1}[0]};"
+        gene_row['sequence_map_links'] = []
+        gene_row['sequence_map_links']  << "vega:http://vega.sanger.ac.uk/Mus_musculus/Location/View?#{vega_id}r=#{row1['gene_chromosome']}:#{row1['gene_start_coordinates']}-#{row1['gene_end_coordinates']}"
+        gene_row['sequence_map_links']  << "ensembl:http://www.ensembl.org/Mus_musculus/Location/View?#{ensum_id}r=#{row1['gene_chromosome']}:#{row1['gene_start_coordinates']}-#{row1['gene_end_coordinates']}"
+        gene_row['sequence_map_links']  << "ucsc:http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&position=chr#{row1['gene_chromosome']}%3A#{row1['gene_start_coordinates']}-#{row1['gene_end_coordinates']}"
+        gene_row['sequence_map_links']  << "ncbi:http://www.ncbi.nlm.nih.gov/mapview/maps.cgi?TAXID=10090&CHR=#{row1['gene_chromosome']}&MAPS=genes%5B#{row1['gene_start_coordinates']}:#{row1['gene_end_coordinates']}%5D"
+      end
+      gene_row['gene_model_ids']      = ["ensembl_ids:#{row1['ensembl_ids']},
+                                       vega_ids:#{row1['vega_ids']},
+                                       ncbi_ids:#{row1['ncbi_ids']},
+                                       ccds_ids:#{row1['ccds_ids']}"]
 
-      row['latest_phenotype_started'] = status_hash[:phenotype_started] ? '1' : '0'
-      row['latest_phenotype_complete'] = status_hash[:phenotype_complete] ? '1' : '0'
-      row['latest_phenotype_status'] = status_hash[:phenotype_status]
-      row['latest_es_cell_status'] = status_hash[:es_cell_status]
-      row['latest_mouse_status'] = status_hash[:mouse_status]
-      row['synonym'] = row1['synonyms'].to_s.split '|'
-      row['feature_type'] = row1['feature_type']
-      row['production_centres'] = self.class.convert_to_array(row1['mouse_production_centres'])
-      row['phenotyping_centres'] = self.class.convert_to_array(row1['phenotyping_centres'])
 
-      row['type'] = 'gene'
+      gene_row['latest_project_status'] = status_hash[:phenotype_status] if ! status_hash[:phenotype_status].empty?
+      gene_row['latest_project_status'] = status_hash[:mouse_status] if row['latest_project_status'].to_s.empty? && ! status_hash[:mouse_status].empty?
+      gene_row['latest_project_status'] = status_hash[:es_cell_status] if row['latest_project_status'].to_s.empty? && ! status_hash[:es_cell_status].empty?
+
+      gene_row['latest_production_centre'] = status_hash[:phenotype_centre].to_a.uniq if ! status_hash[:phenotype_centre].empty?
+      gene_row['latest_production_centre'] = status_hash[:mouse_production_centre].to_a.uniq if row['latest_production_centre'].to_s.empty? && ! status_hash[:mouse_production_centre].empty?
+      gene_row['latest_production_centre'] = status_hash[:es_cell_production_centre] if row['latest_production_centre'].to_s.empty? && ! status_hash[:es_cell_production_centre].empty?
+
+      gene_row['latest_phenotyping_centre'] = status_hash[:phenotype_centre].to_a.uniq
+
+      gene_row['latest_phenotype_started'] = status_hash[:phenotype_started] ? '1' : '0'
+      gene_row['latest_phenotype_complete'] = status_hash[:phenotype_complete] ? '1' : '0'
+      gene_row['latest_phenotype_status'] = status_hash[:phenotype_status]
+      gene_row['latest_es_cell_status'] = status_hash[:es_cell_status]
+      gene_row['latest_mouse_status'] = status_hash[:mouse_status]
+
+      gene_row['production_centres'] = self.class.convert_to_array(row1['mouse_production_centres'])
+      gene_row['phenotyping_centres'] = self.class.convert_to_array(row1['phenotyping_centres'])
+      gene_row['ikmc_project'] = status_hash[:ikmc_project]
+      gene_row['pipeline'] = status_hash[:pipeline]
+
+      gene_row['type'] = 'gene'
 
       @legacy_statuses_map.keys.each do |status|
         if @legacy_statuses_map[status].include?(row['latest_project_status'])
-          row['latest_project_status_legacy'] = status
+          gene_row['latest_project_status_legacy'] = status
           break
         end
       end
 
-      if @use_replacement
-        @config['replacements'].each do |allele|
-          if allele.has_key?(row['marker_symbol'])
-
-            next if allele[row['marker_symbol']]['gene']['done']
-
-            row = deep_copy row
-
-            allele[row['marker_symbol']]['gene'].keys.each do |kk|
-              row[kk] = allele[row['marker_symbol']]['gene'][kk]
-            end
-
-            row['notes'] = 'dummy gene'
-
-            allele[row['marker_symbol']]['gene']['done'] = true
-
-            break
-          end
-        end
-      end
-
-      @new_processed_gene_rows.push row
+      @new_processed_gene_rows.push gene_row
     end
 
   end
@@ -937,5 +1024,11 @@ end
 
 if __FILE__ == $0
   # this will only run if the script was the main, not load'd or require'd
+  puts "## Start Rebuild of the Allele 2 Core #{Time.now}"
   BuildAllele2.new.run
+  puts "## Completed Rebuild of the Allele 2 Core#{Time.now}"
+
+  puts "## Start Rebuild of the EUCOMMToolsCre Allele 2 Core#{Time.now}"
+  BuildAllele2.new(true).run
+  puts "## Completed Rebuild of the EUCOMMToolsCre Allele 2 Core#{Time.now}"
 end

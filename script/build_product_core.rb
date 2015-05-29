@@ -19,7 +19,7 @@ class BuildProductCore
       JOIN centres ON centres.id = mi_plans.production_centre_id
       JOIN consortia ON consortia.id = mi_plans.consortium_id
       JOIN genes ON genes.id = mi_plans.gene_id
-    WHERE mi_plans.report_to_public = true AND consortia.name != 'EUCOMMToolsCre'
+    WHERE mi_plans.report_to_public = true AND consortia.name SUBS_EUCOMMTOOLSCRE
   EOF
 
 
@@ -41,10 +41,10 @@ class BuildProductCore
       JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
       JOIN genes ON genes.id = targ_rep_alleles.gene_id
       LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_es_cells.ikmc_project_foreign_id
-      LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
+      LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_es_cells.pipeline_id
       LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
       LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = targ_rep_es_cells.targeting_vector_id
-    WHERE targ_rep_pipelines.name != 'EUCOMMToolsCre'
+    WHERE targ_rep_pipelines.name SUBS_EUCOMMTOOLSCRE
   EOF
 
   DISTRIBUTION_CENTRES_SQL= <<-EOF
@@ -121,7 +121,7 @@ class BuildProductCore
   end
 
   def self.targeting_vectors_sql
-    #es_cell_names finds all es_cells created from the targeting vector and orders them by the allele_type (tm1, tm1a then tm1e).This will allow your to determine the targeting vector allele_type by selecting the first allele_type of the list
+    #es_cell_names finds all es_cells created from the targeting vector and orders them by the allele_type (tm1, tm1a then tm1e).This will allow your to determine the targeting vector allele_type by selecting the first allele_type off the list
     <<-EOF
       WITH es_cell_names AS (
         SELECT es_cells.targeting_vector_id AS targeting_vector_id, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(es_cells.allele_type) AS allele_types, array_agg(es_cells.name) AS list
@@ -129,6 +129,7 @@ class BuildProductCore
           (SELECT targ_rep_es_cells.*
           FROM targ_rep_es_cells
           ORDER BY targ_rep_es_cells.targeting_vector_id, targ_rep_es_cells.mgi_allele_symbol_superscript) AS es_cells
+        WHERE es_cells.report_to_public = true
         GROUP BY es_cells.targeting_vector_id
       )
 
@@ -137,7 +138,6 @@ class BuildProductCore
              genes.marker_symbol AS marker_symbol,
              genes.mgi_accession_id AS mgi_accession_id,
              targ_rep_mutation_types.code AS allele_type,
-             targ_rep_alleles.id AS allele_id,
              targ_rep_alleles.has_issue AS has_issue,
              targ_rep_alleles.cassette AS cassette,
              targ_rep_alleles.cassette_type AS cassette_type,
@@ -161,7 +161,7 @@ class BuildProductCore
         LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_targeting_vectors.ikmc_project_foreign_id
         LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
       WHERE targ_rep_targeting_vectors.report_to_public = true AND targ_rep_alleles.type = 'TargRep::TargetedAllele'
-            AND targ_rep_alleles.project_design_id IS NOT NULL AND targ_rep_alleles.cassette IS NOT NULL AND targ_rep_pipelines.name != 'EUCOMMToolsCre'
+            AND targ_rep_alleles.project_design_id IS NOT NULL AND targ_rep_alleles.cassette IS NOT NULL AND targ_rep_pipelines.name SUBS_EUCOMMTOOLSCRE
       ORDER BY targ_rep_targeting_vectors.name
     EOF
   end
@@ -189,16 +189,17 @@ class BuildProductCore
           'Intermediate Vector' AS vector_type,
           intermediate.cassette AS cassette,
           intermediate.pipeline AS pipeline,
-          intermediate.mutation_type AS mutation_type
+          intermediate.mutation_type AS mutation_type,
+          intermediate.allele_id AS allele_id
         FROM
-          (SELECT targ_rep_alleles.project_design_id AS design_id, targ_rep_targeting_vectors.intermediate_vector AS vector_name, targ_rep_alleles.cassette AS cassette, targ_rep_pipelines.name AS pipeline, genes.marker_symbol AS marker_symbol, genes.mgi_accession_id AS mgi_accession_id, targ_rep_mutation_types.code AS mutation_type
+          (SELECT targ_rep_alleles.project_design_id AS design_id, targ_rep_targeting_vectors.intermediate_vector AS vector_name, targ_rep_alleles.cassette AS cassette, targ_rep_pipelines.name AS pipeline, genes.marker_symbol AS marker_symbol, genes.mgi_accession_id AS mgi_accession_id, targ_rep_mutation_types.code AS mutation_type, targ_rep_targeting_vectors.allele_id AS allele_id
             FROM targ_rep_targeting_vectors
               JOIN targ_rep_alleles ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
               JOIN genes ON genes.id = targ_rep_alleles.gene_id
               LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
               LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_targeting_vectors.ikmc_project_foreign_id
               LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
-            WHERE targ_rep_targeting_vectors.intermediate_vector IS NOT NULL AND targ_rep_targeting_vectors.intermediate_vector != ''
+            WHERE targ_rep_targeting_vectors.intermediate_vector IS NOT NULL AND targ_rep_targeting_vectors.intermediate_vector != '' AND targ_rep_alleles.project_design_id IS NOT NULL AND targ_rep_alleles.cassette IS NOT NULL AND targ_rep_pipelines.name SUBS_EUCOMMTOOLSCRE
             ) AS intermediate
         ORDER BY intermediate.vector_name
       ) AS distinct_intermediate_vectors
@@ -217,13 +218,16 @@ class BuildProductCore
         '' AS mouse_allele_mod_allele_type,
         mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
         es_cells.allele_type AS es_cell_allele_type,
+        '' AS mam_mgi_allele_symbol_superscript,
+        colonies.allele_name AS mi_mgi_allele_symbol_superscript,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
         plans.production_centre_name AS production_centre,
         es_cells.allele_id AS allele_id,
         es_cells.allele_symbol_superscript_template AS allele_symbol_superscript_template,
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         plans.crispr_plan AS crispr_plan,
-        mi_attempts.external_ref AS colony_name,
+        mi_attempts.mutagenesis_factor_id AS mutagenesis_factor_id,
+        colonies.name AS colony_name,
         '' AS parent_colony_name,
         mi_attempt_statuses.name AS mouse_status,
         mi_attempt_status_stamps.created_at AS mouse_status_date,
@@ -251,6 +255,8 @@ class BuildProductCore
         plans.gene_id AS imits_gene_id,
         ARRAY[MI_ATTEMPT_QC_RESULTS] AS qc_data
       FROM (mi_attempts
+        JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id
+        JOIN colony_qcs ON colonies.id = colony_qcs.colony_id
         JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
         JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = mi_attempts.status_id
         JOIN plans ON plans.id = mi_attempts.mi_plan_id
@@ -259,7 +265,7 @@ class BuildProductCore
         LEFT JOIN strains AS test_strain ON test_strain.id = mi_attempts.test_cross_strain_id
         LEFT JOIN es_cells ON es_cells.id = mi_attempts.es_cell_id
         LEFT JOIN distribution_centres ON distribution_centres.mi_attempt_id = mi_attempts.id
-      WHERE mi_attempts.report_to_public = true
+      WHERE mi_attempts.report_to_public = true AND mi_attempts.is_active = true AND (mi_attempts.mutagenesis_factor_id IS NULL OR colonies.genotype_confirmed = true)
 
       UNION ALL
 
@@ -269,12 +275,15 @@ class BuildProductCore
         mouse_allele_mods.mouse_allele_type AS mouse_allele_mod_allele_type,
         mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
         es_cells.allele_type AS es_cell_allele_type,
+        mouse_allele_mods.allele_name AS mam_mgi_allele_symbol_superscript,
+        '' AS mi_mgi_allele_symbol_superscript,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
         plans.production_centre_name AS production_centre,
         es_cells.allele_id AS allele_id,
         es_cells.allele_symbol_superscript_template AS allele_symbol_superscript_template,
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         false AS crispr_plan,
+        NULL AS mutagenesis_factor_id,
         mouse_allele_mods.colony_name AS colony_name,
         mi_attempts.external_ref AS parent_colony_name,
         mouse_allele_mod_statuses.name AS mouse_status,
@@ -311,10 +320,10 @@ class BuildProductCore
         LEFT JOIN strains AS cb_strain ON cb_strain.id = mouse_allele_mods.colony_background_strain_id
         LEFT JOIN deleter_strains AS del_strain ON del_strain.id = mouse_allele_mods.deleter_strain_id
         LEFT JOIN distribution_centres ON distribution_centres.phenotype_attempt_id = mouse_allele_mods.phenotype_attempt_id
-      WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.cre_excision = true
+      WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.is_active = true AND mouse_allele_mods.cre_excision = true
     EOF
 
-    mi_attempts_qc_fields = MiAttempt::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || mi_attempts.#{field.to_s}_id"}.join(', ')
+    mi_attempts_qc_fields = ColonyQc::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || colony_qcs.#{field.to_s}"}.join(', ')
     sql['MI_ATTEMPT_QC_RESULTS'] = mi_attempts_qc_fields
 
     phenotype_attempts_qc_fields = PhenotypeAttempt::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || mouse_allele_mods.#{field.to_s}_id"}.join(', ')
@@ -325,11 +334,18 @@ class BuildProductCore
 
 
 
-  def initialize
-    @config = YAML.load_file("#{Rails.root}/script/build_allele2.yml")
+  def initialize (show_eucommtoolscre = false)
+    @config = YAML.load_file("#{Rails.root}/script/build_allele2_v2.yml")
     @solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
 
-    @solr_url = @solr_update[Rails.env]['index_proxy']['product']
+    @show_eucommtoolscre = show_eucommtoolscre
+
+    if @show_eucommtoolscre
+      @solr_url = @solr_update[Rails.env]['index_proxy']['eucommtoolscre_product']
+    else
+      @solr_url = @solr_update[Rails.env]['index_proxy']['product']
+    end
+
     puts "#### #{@solr_url}/admin/"
     @solr_user = @config['options']['SOLR_USER']
     @solr_password = @config['options']['SOLR_PASSWORD']
@@ -355,7 +371,7 @@ class BuildProductCore
                                      'e.1' => 'cre',
                                      '.1'  => 'cre',
                                      'c'   => 'flp',
-                                     'd'   => 'flp_cre'
+                                     'd'   => 'flp-cre'
                                      }
 
     @qc_results = {}
@@ -373,6 +389,11 @@ class BuildProductCore
     end
     return list
   end
+
+#  def build_json data
+#    return MultiJson.dump(data)
+#  end
+
 
   def delete_index type
     puts "deleting #{Time.now}"
@@ -410,6 +431,13 @@ class BuildProductCore
     puts "#### step #{step_no} #{product_type} Products #{Time.now}"
     puts "#### step #{step_no}.1 Select #{Time.now}"
 
+    # modify sql to either remove or select EUCOMMToolsCre
+    if @show_eucommtoolscre
+      product_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
+    else
+      product_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
+    end
+
     rows = ActiveRecord::Base.connection.execute(product_sql)
     product_count = rows.count
 
@@ -427,6 +455,7 @@ class BuildProductCore
         doc_set = doc_sets[-1]
         row_no = 0
       end
+      row['targ_rep_alleles_id'] = row['allele_id']
       doc_set << self.method(doc_creation_method_name).call(row)
     end
 
@@ -472,10 +501,13 @@ class BuildProductCore
   def prepare_allele_symbol row, type
     row['allele_symbol'] = 'None'
     row['allele_symbol'] = 'DUMMY_' + row['targ_rep_alleles_id'] if ! row['targ_rep_alleles_id'].to_s.empty?
-    row['allele_symbol'] = 'tm1' + row['allele_type'] if row['allele_type'] != 'None'
+    row['allele_symbol'] = 'tm' + row['targ_rep_alleles_id'] + row['allele_type'] if !['None', 'em'].include?(row['allele_type'])
+    row['allele_symbol'] = 'tm' + row['design_id'] + row['allele_type'] + '(' + row['cassette'] + ')' if !['None', 'em'].include?(row['allele_type']) && !row['design_id'].blank? && !row['cassette'].blank?
     row['allele_symbol'] = row['allele_symbol_superscript'] if ! row['allele_symbol_superscript'].to_s.empty?
     row['allele_symbol'] = row['allele_symbol_superscript_template'].to_s.gsub(/\@/, row['allele_type'].to_s) if ! row['allele_type'].nil? && ! row['allele_symbol_superscript_template'].to_s.empty?
 
+    row['allele_symbol'] = row['mi_mgi_allele_symbol_superscript'] if type == 'MiAttempt' && ! row['mi_mgi_allele_symbol_superscript'].blank?
+    row['allele_symbol'] = row['mam_mgi_allele_symbol_superscript'] if type == 'MouseAlleleModification' && ! row['mam_mgi_allele_symbol_superscript'].blank?
   end
 
   def process_allele_type row, type
@@ -483,6 +515,7 @@ class BuildProductCore
     row['allele_type'] = @guess_mapping[ row['mutation_type'] ] if (!row['mutation_type'].blank?) && @guess_mapping.has_key?(row['mutation_type'])
     row['allele_type'] = row['es_cell_allele_type'] if !row['es_cell_allele_type'].nil?
     row['allele_type'] = row['mi_attempt_mouse_allele_type'] if type != 'Allele' && !row['mi_attempt_mouse_allele_type'].blank?
+    row['allele_type'] = 'em' if type == 'MiAttempt' && !row['mutagenesis_factor_id'].blank?
     guess_allele_type(row) if type == 'MouseAlleleModification'
 
     prepare_allele_symbol(row, type)
@@ -515,8 +548,8 @@ class BuildProductCore
      "production_completed"             => ['Genotype confirmed','Cre Excision Complete'].include?(row['mouse_status']) ? true : false,
      "status"                           => row["mouse_status"],
      "status_date"                      => row["mouse_status_date"].to_date.to_s,
-     "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; @qc_results.has_key?(qc_data[2].to_i) && @qc_results[qc_data[2].to_i] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{@qc_results[qc_data[2].to_i]}" : nil}.compact,
-     "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == true ? 'Casp9/Crispr' : 'ES Cell'}"],
+     "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; if !@qc_results.has_key?(qc_data[2].to_i) && qc_data[2] != 'na'; "#{qc_data[0]}:#{qc_data[1]}:#{qc_data[2]}" ; else @qc_results.has_key?(qc_data[2].to_i) && @qc_results[qc_data[2].to_i] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{@qc_results[qc_data[2].to_i]}" : nil ; end}.compact,
+     "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == 't' ? 'Casp9/Crispr' : 'ES Cell'}"],
      "associated_product_es_cell_name"  => row["es_cell_name"],
      "associated_product_colony_name"   => row["parent_colony_name"],
      "associated_product_vector_name"   => row["vector_name"],
@@ -524,11 +557,9 @@ class BuildProductCore
      "order_names"                      => [],
      "contact_links"                    => [@look_up_contact.has_key?(row["production_centre"]) ? "mailto:#{@look_up_contact[row['production_centre']]}?Subject=Mouse Line for #{row['marker_symbol']}" : ''],
      "contact_names"                    => [@look_up_contact.has_key?(row["production_centre"]) ? row["production_centre"] : ''],
-     "other_links"                      => ["production_graph:#{production_graph_url(row['imits_gene_id'])}", "genbank_file:#{self.class.allele_genbank_file_url(row['allele_id'], row['mouse_allele_mod_allele_type'])}", "allele_image:#{self.class.allele_image_url(row['allele_id'], row['mouse_allele_mod_allele_type'])}"],
      "ikmc_project_id"                  => row["ikmc_project_id"],
      "design_id"                        => row["design_id"],
-     "cassette"                         => row["cassette"],
-     "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
+     "cassette"                         => row["cassette"]
     }
 
 
@@ -545,6 +576,7 @@ class BuildProductCore
       end
     end
 
+    #{'add' => {'doc' => doc}
     doc
   end
 
@@ -568,15 +600,14 @@ class BuildProductCore
      "qc_data"                          => self.class.convert_to_array(row['qc_data']).keep_if{|qc| qc != 'NULL'} + self.class.convert_to_array(row['distribution_qc']).keep_if{|qc| qc != 'NULL'},
      "associated_products_colony_names" => self.class.convert_to_array(row['colonies']),
      "associated_product_vector_name"   => row['vector_name'],
-     "other_links"                       => ["genbank_file:#{self.class.allele_genbank_file_url(row['allele_id'])}", "allele_image:#{self.class.allele_image_url(row['allele_id'])}"],
      "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
-     "cassette"                         => row["cassette"],
-     "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
+     "cassette"                         => row["cassette"]
     }
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))
 
+    #{'add' => {'doc' => doc}
     doc
   end
 
@@ -599,16 +630,19 @@ class BuildProductCore
      "other_links"                       => ["genbank_file:#{self.class.targeting_vector_genbank_file_url(row['allele_id'])}", "allele_image:#{self.class.vector_image_url(row['allele_id'])}", "design_link:#{self.class.design_url(row['design_id'])}"],
      "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
-     "cassette"                         => row["cassette"],
-     "loa_assays"                       => self.class.convert_to_array(row["loa"]).keep_if{|qc| qc != 'NULL'}
+     "cassette"                         => row["cassette"]
      }
 
-    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['allele_type'], row['pipeline'], row['cassette'])
+    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['allele_type'], row["design_id"],  row['pipeline'], row['cassette'])
+
     if allele_name
       doc["allele_type"] = allele_type
+      doc["allele_name"] = allele_name
     end
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))
+
+    #{'add' => {'doc' => doc}
     doc
   end
 
@@ -629,41 +663,42 @@ class BuildProductCore
      "other_links"                     => ["design_link:#{self.class.design_url(row['design_id'])}"]
     }
 
-    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['mutation_type'], row['pipeline'], row['cassette'])
+    allele_type, allele_name = self.class.process_vector_allele_type(self.class.convert_to_array(row['allele_names']), self.class.convert_to_array(row['allele_types']), row['mutation_type'], row["design_id"], row['pipeline'], row['cassette'])
     if allele_name
       doc["allele_type"] = allele_type
       doc["allele_name"] = allele_name
     end
 
+    #{'add' => {'doc' => doc}
     doc
   end
 
   def self.targeting_vector_genbank_file_url allele_id
     return "" if allele_id.blank?
-    return "https://www.mousephenotype.org/imits/targ_rep/alleles/#{allele_id}/targeting-vector-genbank-file"
+    return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/targeting-vector-genbank-file"
   end
 
   def self.vector_image_url allele_id
     return "" if allele_id.blank?
-    return "https://www.mousephenotype.org/imits/targ_rep/alleles/#{allele_id}/vector-image"
+    return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/vector-image"
   end
 
   def self.allele_genbank_file_url allele_id, allele_type = ''
     transform = self.allele_modification(allele_type)
     return "" if allele_id.blank?
-    return "https://www.mousephenotype.org/imits/targ_rep/alleles/#{allele_id}/escell-clone#{transform}-genbank-file"
+    return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/escell-clone#{transform}-genbank-file"
   end
 
   def self.allele_image_url allele_id, allele_type = ''
     transform = self.allele_modification(allele_type)
     return "" if allele_id.blank?
-    return "https://www.mousephenotype.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{transform}"
+    return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{transform}"
   end
 
   def self.allele_simple_image_url allele_id, allele_type = ''
     transform = self.allele_modification(allele_type)
     return "" if allele_id.blank?
-    return "https://www.mousephenotype.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{transform}?simple=true"
+    return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{transform}?simple=true"
   end
 
   def self.design_url design_id
@@ -673,7 +708,7 @@ class BuildProductCore
 
   def production_graph_url gene_id
     return "" if gene_id.blank?
-    return "https://www.mousephenotype.org/imits/open/genes/#{gene_id}/network_graph"
+    return "https://www.i-dcc.org/imits/open/genes/#{gene_id}/network_graph"
   end
 
   def self.allele_modification allele_type
@@ -731,23 +766,22 @@ class BuildProductCore
     psql_array[1, psql_array.length-2].gsub('"', '').split(',')
   end
 
-  def self.process_vector_allele_type (allele_names, allele_types, mutation_type_code, pipeline = '', cassette = '')
-    if !allele_names.blank? and allele_types[0] != 'NULL' and allele_names[0] != 'NULL'
-      return [allele_types[0], allele_names[0]]
+  def self.process_vector_allele_type (allele_names, allele_types, mutation_type_code, design_id, pipeline = '', cassette = '')
+    if !allele_names.blank? and allele_names[0] != 'NULL' and (allele_types[0] != 'NULL' || mutation_type_code = 'del')
+      return [allele_types[0], allele_names[0] != 'NULL' ? allele_names[0] : '']
     end
 
     cre_knock_in_suffix = /(_Cre[0-9A-Za-z]+)_/.match(cassette)
 
-    allele_guess_hash = {'crd' => {'type' => 'a', 'allele_name' => "tm1a"},
-     'tnc' => {'type' => 'e', 'allele_name' => "tm1e"},
-     'del' => {'type' => '', 'allele_name' => "tm1"},
-     'cki' => {'type' => 'Cre Knock In', 'allele_name' => "tm1"}
+    allele_guess_hash = {'crd' => {'type' => 'a', 'allele_name' => "tm@a"},
+     'tnc' => {'type' => 'e', 'allele_name' => "tm@e"},
+     'del' => {'type' => '', 'allele_name' => "tm@"},
+     'cki' => {'type' => 'Cre Knock In', 'allele_name' => "tm@"}
       }
 
     return [] if mutation_type_code.blank? or !allele_guess_hash.has_key?(mutation_type_code)
 
-    allele_name_guess = [allele_guess_hash[mutation_type_code]['type'], allele_guess_hash[mutation_type_code]['allele_name']]
-
+    allele_name_guess = [allele_guess_hash[mutation_type_code]['type'], "#{allele_guess_hash[mutation_type_code]['allele_name'].gsub(/\@/, design_id)}(#{cassette})"]
     return allele_name_guess
   end
 
@@ -788,13 +822,8 @@ class BuildProductCore
       return {:urls => ["http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells"], :names => ['EUMMCR']}
 
     elsif ['KOMP-CSD', 'KOMP-Regeneron'].include?(pipeline)
-      if ! ikmc_project_id.blank?
-        if ikmc_project_id.match(/^VG/)
-          project = ikmc_project_id
-        else
-          project = 'CSD' + ikmc_project_id
-        end
-        url = "http://www.komp.org/geneinfo.php?project=#{project}"
+      if ! marker_symbol.blank?
+        url = "https://www.komp.org/geneinfo.php?Symbol=#{marker_symbol}"
       else
         url = "http://www.komp.org/"
       end
@@ -806,11 +835,17 @@ class BuildProductCore
                         "http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=#{marker_symbol}"],
               :names => ['EUMMCR', 'MMRRC']}
 
-    elsif ['Sanger MGP'].include?(pipeline)
+    elsif ['Sanger MGP', 'Sanger_Faculty'].include?(pipeline)
       return {:urls => ["mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['Wtsi']}
 
     elsif 'NorCOMM' == pipeline
-      return {:urls => ['http://www.phenogenomics.ca/services/cmmr/escell_services.html'], :names => ['NorCOMM']}
+      return {:urls => ['http://www.phenogenomics.ca/cmmr/services/escell.html'], :names => ['NorCOMM']}
+
+    elsif 'TIGM' == pipeline
+      return {:urls => ["mailto:info@tigm.org?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['TIGM']}
+
+    elsif 'NARLabs' == pipeline
+      return {:urls => ["mailto:geniechin@narlabs.org.tw?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['NARLabs']}
 
     else
       puts "PIPELINE : #{pipeline}"
@@ -822,5 +857,11 @@ end
 
 if __FILE__ == $0
   # this will only run if the script was the main, not load'd or require'd
+  puts "## Start Rebuild of the Product Core #{Time.now}"
   BuildProductCore.new.run
+  puts "## Completed Rebuild of the Product Core#{Time.now}"
+
+  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
+  BuildProductCore.new(true).run
+  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
 end

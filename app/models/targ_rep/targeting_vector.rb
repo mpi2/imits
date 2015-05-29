@@ -36,7 +36,7 @@ class TargRep::TargetingVector < ActiveRecord::Base
   before_save :set_mirko_ikmc_project_id
 
   before_save do
-    self.report_to_public = true if self.report_to_public.blank?
+    self.report_to_public = true if self.report_to_public.nil?
   end
 
   ##

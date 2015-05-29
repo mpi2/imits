@@ -35,5 +35,5 @@ javascripts:
     - public/javascripts/targ_rep/jquery.min.js
     - public/javascripts/targ_rep/rails.js
     - public/javascripts/targ_rep/application.js
-    
+
   extjs_autodep: <%= ExtjsAutodep.as_yaml %>

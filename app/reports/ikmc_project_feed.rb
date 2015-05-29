@@ -34,6 +34,7 @@ class IkmcProjectFeed
      ["Regeneron", "regeneron"],
      ["EUCOMM", "eucomm"],
      ["NorCOMM", "norcomm"],
+     ["mirKO", "mirko"],
      ["Vega IDs", "vega_ids"],
      ["NCBI IDs", "ncbi_ids"],
      ["Ensembl IDs", "ensembl_ids"],
@@ -83,8 +84,9 @@ class IkmcProjectFeed
       FROM genes
         LEFT JOIN best_status_for_pipelines AS csd ON genes.id = csd.gene_id AND csd.pipeline_name = 'KOMP-CSD'
         LEFT JOIN best_status_for_pipelines AS reg ON genes.id = reg.gene_id AND reg.pipeline_name = 'KOMP-Regeneron'
-        LEFT JOIN best_status_for_pipelines AS eucomm ON genes.id = eucomm.gene_id AND eucomm.pipeline_name = 'EUCOMM'
+        LEFT JOIN best_status_for_pipelines AS eucomm ON genes.id = eucomm.gene_id AND (eucomm.pipeline_name = 'EUCOMM' OR eucomm.pipeline_name = 'EUCOMMTools')
         LEFT JOIN best_status_for_pipelines AS norcomm ON genes.id = norcomm.gene_id AND norcomm.pipeline_name = 'NorCOMM'
+        LEFT JOIN best_status_for_pipelines AS mirko ON genes.id = mirko.gene_id AND mirko.pipeline_name = 'mirKO'
       WHERE genes.mgi_accession_id NOT LIKE 'CGI_%'
 
     EOF

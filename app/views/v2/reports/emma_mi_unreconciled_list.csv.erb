@@ -1,0 +1,4 @@
+Consortium, Production Centre, Gene Marker Symbol, Mi Attempt Colony Name, Mutation Type, Allele Type, Reconciled Date
+<% @emma_unreconciled_list.each do |report_row| %>
+<%= @consortium %>, <%= @prod_centre %>, <%= report_row['marker_symbol'] %>, <%= report_row['mi_attempt_colony_name'] %>, <%= report_row['es_cell_allele_mutation_type'] %>, <% if report_row['mouse_allele_type'].blank? %><%= report_row['allele_type'] %><% else %><%= report_row['mouse_allele_type'] %><% end %>, <%= report_row['reconciled_date'] %>
+<% end %>

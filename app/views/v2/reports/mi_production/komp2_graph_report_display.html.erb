@@ -1,7 +1,7 @@
 <% @title %>
 
 <h1><%= @title %> (Displaying <%= @category.titlecase %> Data)</h1>
-<p><span style="font-weight:bold;">Switch</span> report to include: <a href=<%="?category=es%20cell"%>>ES Cell Data</a> | <a href=<%="?category=crispr"%>>Crispr Data</a> | <a href=<%="?category=all"%>>All Data</a></p></br>
+<p><span style="font-weight:bold;">Switch</span> report to include: <a href=<%=if @consortia.blank? then "?category=es%20cell" else "?category=es%20cell&consortia=#{@consortia.join(',')}" end%>>ES Cell Data</a> | <a  href=<%=if @consortia.blank? then "?category=crispr" else "?category=crispr&consortia=#{@consortia.join(',')}" end %>>Crispr Data</a> | <a  href=<%=if @consortia.blank? then "?category=all" else "?category=all&consortia=#{@consortia.join(',')}" end %>>All Data</a></p></br>
 <table class="report_table">
 <thead>
 <tr><th width="250">Status</th><th>Description</th></tr>

@@ -44,7 +44,7 @@
           <% rowspan = @consortium_centre_by_status[row['consortium']].size %>
           <tr>
             <% unless count > 0 %>
-              <td rowspan="<%= rowspan %>"><%= link_to(row['consortium'],  "graph_report_display?consortia=#{row['consortium']}") %></td>
+              <td rowspan="<%= rowspan %>"><%= link_to(row['consortium'],  "graph_report_display?consortia=#{row['consortium']}&category=#{@category}") %></td>
               <td rowspan="<%= rowspan %>"><%= link_to row['count'], report_detail_path(:consortium => row['consortium'], :production_group => 'consortia') %></td>
               <% if @category != 'crispr'%>
                 <% @mi_plan_statuses.each do |status| %>
@@ -185,12 +185,12 @@
             <td><%= report_link_to(@consortium_centre_by_tm1b_phenotyping_status, row['consortium'], "Tm1b Rederivation completed", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_tm1b_phenotyping_status, row['consortium'], "Tm1b Cre excision started", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_tm1b_phenotyping_status, row['consortium'], "Tm1b Cre excision completed", :centre => centre, :production_group => 'gene') %></td>
-            <td><%= @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-emma"] if @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-emma"] and @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-emma"].to_i > 0 %></td>
-            <td><%= @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-komp"] if @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-komp"] and @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-komp"].to_i > 0 %></td>
+            <td><%= @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-emma"] if @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-emma"] and @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-emma"].to_i > 0 %></td>
+            <td><%= @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-komp"] if @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-komp"] and @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-komp"].to_i > 0 %></td>
 
-            <td><%= @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-mmrrc"] if @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-mmrrc"] and @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-mmrrc"].to_i > 0 %></td>
+            <td><%= @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-mmrrc"] if @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-mmrrc"] and @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-mmrrc"].to_i > 0 %></td>
 
-            <td><%= @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-shelf"] if @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-shelf"] and @distribution_centre_counts["phenotype_attempt-tm1b-#{row['consortium']}-#{centre}-shelf"].to_i > 0%></td>
+            <td><%= @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-shelf"] if @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-shelf"] and @distribution_centre_counts["phenotype_attempt-#{row['consortium']}-#{centre}-shelf"].to_i > 0%></td>
             <td><%= report_link_to(@consortium_centre_by_tm1b_phenotyping_status, row['consortium'], "Tm1b Intent to phenotype", :centre => centre, :production_group => 'gene') %> <% if @phenotyping_counts["#{row['consortium']}-#{centre}-Tm1b Phenotype Attempt Mi Attempt Plan Confliction"].to_i > 0 %>[<%= report_link_to(@phenotyping_counts, row['consortium'], "Tm1b Phenotype Attempt Mi Attempt Plan Confliction", :centre => centre, :production_group => 'gene') %>]<% end %></td>
             <td><%= report_link_to(@phenotyping_counts, row['consortium'], "Tm1b Phenotype Experiments Started", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_tm1b_phenotyping_status, row['consortium'], "Tm1b Phenotyping started", :centre => centre, :production_group => 'gene') %></td>

@@ -53,30 +53,42 @@ class ImpcCentreByMonthDetail
       <<-EOF
           select
             consortia.name as consortium, centres.name as production_centre, genes.marker_symbol,
-            case when externally_modified.colony_name is not null then externally_modified.colony_name else mouse_allele_mods.colony_name end,
-            case when phenotyping_production_statuses.order_by >= mouse_allele_mod_statuses.order_by
+            pp_parent_colony.name AS colony_name,
+            case when mouse_allele_mod_statuses.name like '%Aborted%' then 'Phenotype Attempt Aborted'
+            when phenotyping_production_statuses.order_by IS NULL THEN mouse_allele_mod_statuses.name
+            when mouse_allele_mod_statuses.order_by IS NULL THEN phenotyping_production_statuses.name
+            when phenotyping_production_statuses.order_by >= mouse_allele_mod_statuses.order_by
               then (CASE WHEN phenotyping_production_statuses.name like '%Aborted%' then 'Phenotype Attempt Aborted' else phenotyping_production_statuses.name end)
               else (CASE WHEN mouse_allele_mod_statuses.name like '%Aborted%' then 'Phenotype Attempt Aborted' else mouse_allele_mod_statuses.name end)
             end as current_status,
-            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and status_id = 1) as registered_date,
-            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and status_id = 5) as cre_started_date,
-            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and status_id = 6) as cre_complete_date,
-            case when externally_modified.no_modification_required = true and externally_modified.mi_plan_id != phenotyping_productions.mi_plan_id then 1 else 0 end as mouse_modified_externally,
+            CASE WHEN mouse_allele_mods.id IS NOT NULL THEN (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and mouse_allele_mod_status_stamps.status_id = 1)
+              ELSE (select to_char(created_at,'YYYY-MM-DD') from phenotyping_production_status_stamps where phenotyping_production_id = phenotyping_productions.id and status_id = 1)
+              END
+            as registered_date,
+            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and mouse_allele_mod_status_stamps.status_id = 5) as cre_started_date,
+            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and mouse_allele_mod_status_stamps.status_id = 6) as cre_complete_date,
+            case when mouse_allele_mods.id IS NULL AND pp_parent_colony.mouse_allele_mod_id IS NOT NULL then 1 else 0 end as mouse_modified_externally,
             (select to_char(created_at,'YYYY-MM-DD') from phenotyping_production_status_stamps where phenotyping_production_id = phenotyping_productions.id and status_id = 3) as phenotyping_started_date,
             (select to_char(created_at,'YYYY-MM-DD') from phenotyping_production_status_stamps where phenotyping_production_id = phenotyping_productions.id and status_id = 4) as phenotyping_complete_date,
-            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and status_id = 7) as phenotyping_aborted_date
+
+            CASE WHEN mouse_allele_mods.status_id = 7 THEN (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and status_id = 7)
+              WHEN phenotyping_productions.status_id = 5 THEN (select to_char(created_at,'YYYY-MM-DD') from phenotyping_production_status_stamps where phenotyping_production_id = phenotyping_productions.id and status_id = 7)
+              END
+            as phenotyping_aborted_date
 
             from mi_plans join consortia on mi_plans.consortium_id = consortia.id
             join centres on centres.id = mi_plans.production_centre_id
             join genes on genes.id = mi_plans.gene_id
             left join
-              (mouse_allele_mods join mouse_allele_mod_statuses on mouse_allele_mods.status_id = mouse_allele_mod_statuses.id
-              ) ON mouse_allele_mods.mi_plan_id = mi_plans.id
-            left join
               (phenotyping_productions
                 join phenotyping_production_statuses on phenotyping_productions.status_id = phenotyping_production_statuses.id
-                join mouse_allele_mods as externally_modified on externally_modified.id = phenotyping_productions.mouse_allele_mod_id
-              ) ON (mouse_allele_mods.id is NULL AND phenotyping_productions.mi_plan_id = mi_plans.id) OR (mouse_allele_mods.id IS NOT NULL AND mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id)
+                join colonies pp_parent_colony ON pp_parent_colony.id = phenotyping_productions.parent_colony_id
+              ) ON mi_plans.id = phenotyping_productions.mi_plan_id
+
+            left join (mouse_allele_mods
+                join mouse_allele_mod_statuses on mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
+              ) ON mouse_allele_mods.id = pp_parent_colony.mouse_allele_mod_id OR (mouse_allele_mods.mi_plan_id = mi_plans.id AND phenotyping_productions.id IS NULL)
+
           where
             #{insert_bit}
             and (mouse_allele_mods.id IS NOT NULL OR phenotyping_productions.id IS NOT NULL) and mi_plans.mutagenesis_via_crispr_cas9 = false

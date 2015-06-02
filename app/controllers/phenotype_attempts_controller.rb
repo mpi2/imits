@@ -25,7 +25,8 @@ class PhenotypeAttemptsController < ApplicationController
 
   def data_for_serialized(format)
 
-    pp_search_options = { 'phenotype_attempt_id'             => 'phenotype_attempt_id',
+    pp_search_options = { 'id'                               => 'phenotype_attempt_id',
+                          'phenotype_attempt_id'             => 'phenotype_attempt_id',
                           'marker_symbol'                    => 'marker_symbol',
                           'colony_name'                      => 'colony_name',
                           'status_name'                      => 'status_name',
@@ -45,7 +46,7 @@ class PhenotypeAttemptsController < ApplicationController
                           'report_to_public'                 => 'report_to_public'
                           }
 
-    mam_search_options = {
+    mam_search_options = {'id'                               => 'phenotype_attempt_id',
                           'phenotype_attempt_id'             => 'phenotype_attempt_id',
                           'marker_symbol'                    => 'marker_symbol',
                           'colony_name'                      => 'colony_name_or_colony_phenotyping_productions_colony_name',

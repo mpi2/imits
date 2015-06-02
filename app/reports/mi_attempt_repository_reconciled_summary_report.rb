@@ -35,24 +35,25 @@ class MiAttemptRepositoryReconciledSummaryReport
         def select_summary_by_centre_sql(repo_centre_id)
           sql = <<-EOF
             SELECT consortia.name AS consortium_name, centres.name AS production_centre_name,
-            COUNT(mi_attempt_distribution_centres.mi_attempt_id) AS count_mi_attempts_gtc,
-            COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'false' THEN 1 ELSE 0 END),0) AS count_reconciled_false,
-            COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'not checked' THEN 1 ELSE 0 END),0) AS count_not_checked,
-            COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'not found' THEN 1 ELSE 0 END),0) AS count_not_found,
-            COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'true' THEN 1 ELSE 0 END),0) AS count_reconciled_true,
-            ROUND(((( COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'true' THEN 1 ELSE 0 END),0)::float )
-            /( COUNT(mi_attempt_distribution_centres.mi_attempt_id)::float )) * 100.00::float)::numeric, 1 ) AS percent_reconciled_true
-            FROM mi_attempt_distribution_centres
-            JOIN mi_attempts ON mi_attempts.id = mi_attempt_distribution_centres.mi_attempt_id
+            COUNT(mi_attempts.id) AS count_mi_attempts_gtc,
+            COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'false' THEN 1 ELSE 0 END),0) AS count_reconciled_false,
+            COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'not checked' THEN 1 ELSE 0 END),0) AS count_not_checked,
+            COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'not found' THEN 1 ELSE 0 END),0) AS count_not_found,
+            COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'true' THEN 1 ELSE 0 END),0) AS count_reconciled_true,
+            ROUND(((( COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'true' THEN 1 ELSE 0 END),0)::float )
+            /( COUNT(mi_attempts.id)::float )) * 100.00::float)::numeric, 1 ) AS percent_reconciled_true
+            FROM colony_distribution_centres
+            JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
+            JOIN mi_attempts ON mi_attempts.id = colonies.mi_attempt_id
             JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
             JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
             JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN consortia ON mi_plans.consortium_id = consortia.id
             WHERE mi_attempt_statuses.name = 'Genotype confirmed'
-            AND mi_attempt_distribution_centres.centre_id = #{repo_centre_id}
+            AND colony_distribution_centres.centre_id = #{repo_centre_id}
             AND consortia.id in ( #{consortia_ids_to_include.join(',')} )
-            AND (mi_attempt_distribution_centres.start_date IS NULL OR mi_attempt_distribution_centres.start_date <= current_date)
-            AND (mi_attempt_distribution_centres.end_date IS NULL OR current_date <= mi_attempt_distribution_centres.end_date )
+            AND (colony_distribution_centres.start_date IS NULL OR colony_distribution_centres.start_date <= current_date)
+            AND (colony_distribution_centres.end_date IS NULL OR current_date <= colony_distribution_centres.end_date )
             GROUP BY consortia.name, centres.name
             ORDER BY consortia.name, centres.name
           EOF
@@ -61,24 +62,25 @@ class MiAttemptRepositoryReconciledSummaryReport
         def select_summary_by_dist_network_sql(dist_network_name)
           sql = <<-EOF
           SELECT consortia.name AS consortium_name, centres.name AS production_centre_name,
-            COUNT(mi_attempt_distribution_centres.mi_attempt_id) AS count_mi_attempts_gtc,
-            COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'false' THEN 1 ELSE 0 END),0) AS count_reconciled_false,
-            COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'not checked' THEN 1 ELSE 0 END),0) AS count_not_checked,
-            COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'not found' THEN 1 ELSE 0 END),0) AS count_not_found,
-            COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'true' THEN 1 ELSE 0 END),0) AS count_reconciled_true,
-            ROUND(((( COALESCE(sum(CASE WHEN mi_attempt_distribution_centres.reconciled = 'true' THEN 1 ELSE 0 END),0)::float )
-            /( COUNT(mi_attempt_distribution_centres.mi_attempt_id)::float )) * 100.00::float)::numeric, 1 ) AS percent_reconciled_true
-            FROM mi_attempt_distribution_centres
-            JOIN mi_attempts ON mi_attempts.id = mi_attempt_distribution_centres.mi_attempt_id
+            COUNT(mi_attempts.id) AS count_mi_attempts_gtc,
+            COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'false' THEN 1 ELSE 0 END),0) AS count_reconciled_false,
+            COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'not checked' THEN 1 ELSE 0 END),0) AS count_not_checked,
+            COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'not found' THEN 1 ELSE 0 END),0) AS count_not_found,
+            COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'true' THEN 1 ELSE 0 END),0) AS count_reconciled_true,
+            ROUND(((( COALESCE(sum(CASE WHEN colony_distribution_centres.reconciled = 'true' THEN 1 ELSE 0 END),0)::float )
+            /( COUNT(mi_attempts.id)::float )) * 100.00::float)::numeric, 1 ) AS percent_reconciled_true
+            FROM colony_distribution_centres
+            JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
+            JOIN mi_attempts ON mi_attempts.id = colonies.mi_attempt_id
             JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
             JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
             JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN consortia ON mi_plans.consortium_id = consortia.id
             WHERE mi_attempt_statuses.name = 'Genotype confirmed'
-            AND mi_attempt_distribution_centres.distribution_network = '#{dist_network_name}'
+            AND colony_distribution_centres.distribution_network = '#{dist_network_name}'
             AND consortia.id in ( #{consortia_ids_to_include.join(',')} )
-            AND (mi_attempt_distribution_centres.start_date IS NULL OR mi_attempt_distribution_centres.start_date <= current_date)
-            AND (mi_attempt_distribution_centres.end_date IS NULL OR current_date <= mi_attempt_distribution_centres.end_date )
+            AND (colony_distribution_centres.start_date IS NULL OR colony_distribution_centres.start_date <= current_date)
+            AND (colony_distribution_centres.end_date IS NULL OR current_date <= colony_distribution_centres.end_date )
             GROUP BY consortia.name, centres.name
             ORDER BY consortia.name, centres.name
           EOF

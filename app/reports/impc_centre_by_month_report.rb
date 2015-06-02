@@ -430,8 +430,12 @@ class ImpcCentreByMonthReport
           FROM phenotyping_productions
           JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
           JOIN centres ON centres.id = mi_plans.production_centre_id
-          JOIN mouse_allele_mods ON mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id
-          JOIN mi_attempts ON mi_attempts.id = mouse_allele_mods.mi_attempt_id
+          JOIN colonies ON colonies.id = phenotyping_productions.parent_colony_id
+
+          JOIN mouse_allele_mods ON mouse_allele_mods.id = colonies.mouse_allele_mod_id
+          JOIN colonies mi_colony ON mi_colony.id = mouse_allele_mods.parent_colony_id
+          JOIN mi_attempts ON mi_attempts.id = mi_colony.mi_attempt_id
+
           JOIN genes_with_plans ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id AND phenotyping_productions.status_id != 5
           LEFT JOIN phenotyping_production_status_stamps as ps_stamps ON phenotyping_productions.id = ps_stamps.phenotyping_production_id AND ps_stamps.status_id = 3 AND ps_stamps.created_at <= '#{cut_off_date}'
           LEFT JOIN phenotyping_production_status_stamps as pc_stamps ON phenotyping_productions.id = pc_stamps.phenotyping_production_id AND pc_stamps.status_id = 4 AND pc_stamps.created_at <= '#{cut_off_date}'

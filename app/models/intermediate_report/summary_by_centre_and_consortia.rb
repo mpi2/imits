@@ -52,7 +52,7 @@ module IntermediateReport::SummaryByCentreAndConsortia
                   UNION
 
                   SELECT NULL AS mi_attempt_id, mouse_allele_mods.id AS mouse_allele_mods_id, mouse_allele_mods.mi_plan_id AS mi_plan_id,
-                    mouse_allele_mod_statuses.name AS production_status, mouse_allele_mod_statuses.order_by AS production_status_order, mouse_allele_mod_status_stamps.created_at AS production_status_order_status_stamp_created_at, false AS allele_modification
+                    mouse_allele_mod_statuses.name AS production_status, mouse_allele_mod_statuses.order_by AS production_status_order, mouse_allele_mod_status_stamps.created_at AS production_status_order_status_stamp_created_at, true AS allele_modification
                   FROM mouse_allele_mods
                     JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
                     JOIN mouse_allele_mod_status_stamps ON mouse_allele_mod_status_stamps.mouse_allele_mod_id = mouse_allele_mods.id AND mouse_allele_mod_status_stamps.status_id = mouse_allele_mods.status_id
@@ -245,6 +245,7 @@ module IntermediateReport::SummaryByCentreAndConsortia
       end
 
       def self.best_production_report_sql(experiment_type, approach, plan_condition = nil , production_condition = nil)
+        puts "#{experiment_type}, #{approach}, #{plan_condition}, #{production_condition}"
         <<-EOF
           --
           WITH filtered_plans AS (#{filter_plans_sql(plan_condition)}), filtered_production AS (SELECT * FROM (#{production_sql}) AS production #{!production_condition.blank? ? "WHERE production.allele_modification = #{production_condition}" : ""} ), #{best_production_sql}, #{best_phenotyping_sql(plan_condition, production_condition)}

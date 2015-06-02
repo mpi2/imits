@@ -30,7 +30,8 @@ module ApplicationHelper
   end
 
   def grid_redirect_path(consortium_name, pc_name, distribution_network, dc_name)
-    ammended_table_name = @klass.table_name.gsub(/_distribution_centres/, "s_distribution_centres")
+    table_name = @model_table_name == 'mouse_allele_mods' ? 'phenotype_attempts' : @model_table_name
+    ammended_table_name = table_name + "_distribution_centres"
     send("grid_redirect_#{ammended_table_name}_path", {:consortium_name => consortium_name, :pc_name => pc_name, :distribution_network => distribution_network, :dc_name => dc_name})
   end
 end

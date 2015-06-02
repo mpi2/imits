@@ -172,6 +172,17 @@
 <% if current_user.admin %>
   <h3>MGP Production Reports</h3>
     <div class="report-links">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month) %>">
+      <h4>Monthly Production for IMPC Production centres</h4>
+        <p>
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month, :category => 'es cell') %>">ES Cell Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month, :category => 'crispr') %>">Crispr Data</a> |
+          <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month, :category => 'all') %>">All Data</a> |
+        </p>
+      </a>
+    </div>
+
+    <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :mgp_production_by_priority) %>">
       <h4>MGP Production by Priority</h4>
       </a>
@@ -264,34 +275,6 @@
   </div>
 </div>
 
-
-<div class="clear"></div>
-
-<% if current_user.admin %>
-
-  <h3>MGP Production</h3>
-
-  <div class="grid_4">
-    <div class="report-links">
-      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month) %>">
-      <h4>Monthly Production for IMPC Production centres</h4>
-      </a>
-    </div>
-
-      <div class="report-links">
-        <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :mgp_production_by_priority) %>">
-        <h4>MGP Production by Priority</h4>
-        </a>
-      </div>
-
-
-      <div class="report-links">
-        <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :mgp_production_by_subproject) %>">
-        <h4>MGP Production by Sub-project</h4>
-        </a>
-      </div>
-  </div>
-<% end %>
 
 
 <!--

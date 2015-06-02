@@ -84,29 +84,30 @@ class GroupReport
       #@report_hash["#{field}-Microinjection aborted 6 months"] += report_row['abt_in_6months'].to_i
       #@report_hash["#{field}-Languishing"] += report_row['languishing'].to_i
 
-      phenotype_attempt_status = report_row['phenotype_attempt_status']
+      mouse_allele_mod_status = report_row['mouse_allele_mod_status']
+      phenotyping_status = report_row['phenotyping_status']
 
-      unless phenotype_attempt_status.blank?
+      unless mouse_allele_mod_status.blank? && phenotyping_status.blank?
         @report_hash["#{field}-Registered for phenotyping"] += total_mice
       end
 
-      if 'Cre Excision Started' == phenotype_attempt_status
+      if 'Cre Excision Started' == mouse_allele_mod_status
         @report_hash["#{field}-Cre excision started"] += total_mice
       end
 
-      if 'Cre Excision Complete' == phenotype_attempt_status
+      if 'Cre Excision Complete' == mouse_allele_mod_status
         @report_hash["#{field}-Cre excision completed"] += total_mice
       end
 
-      if 'Phenotyping Started' == phenotype_attempt_status
+      if 'Phenotyping Started' == phenotyping_status
         @report_hash["#{field}-Phenotyping started"] += total_mice
       end
 
-      if 'Phenotyping Complete' == phenotype_attempt_status
+      if 'Phenotyping Complete' == phenotyping_status
         @report_hash["#{field}-Phenotyping completed"] += total_mice
       end
 
-      if 'Phenotype Attempt Aborted' == phenotype_attempt_status
+      if 'Mouse Allele Modification Aborted' == mouse_allele_mod_status || ('Phenotype Production Aborted' == phenotyping_status && mouse_allele_mod_status.blank?)
         @report_hash["#{field}-Phenotyping aborted"] += total_mice
       end
     end
@@ -214,14 +215,15 @@ class GroupReport
           #{intermediate_group_field},
           mi_plan_status,
           mi_attempt_status,
-          phenotype_attempt_status,
+          mouse_allele_mod_status,
+          phenotyping_status,
           count(r.id) as total_mice--,
           --sum(case when r.genotype_confirmed_date is not NULL AND r.micro_injection_in_progress_date <= '#{six_months_ago}' then 1 else 0 end) as gtc_in_6months,
           --sum(case when r.micro_injection_aborted_date is not NULL AND r.micro_injection_in_progress_date <= '#{six_months_ago}' then 1 else 0 end) as abt_in_6months,
           --sum(case when r.mi_attempt_status = 'Micro-injection in progress' AND r.micro_injection_in_progress_date <= '#{six_months_ago}' then 1 else 0 end) as languishing
-        FROM new_intermediate_report_summary_by_mi_plan AS r
+        FROM (#{IntermediateReportSummaryByMiPlan.es_cell_sql}) AS r
         WHERE consortium = '#{consortium}'
-        GROUP BY #{intermediate_group_field}, mi_plan_status, mi_attempt_status, phenotype_attempt_status
+        GROUP BY #{intermediate_group_field}, mi_plan_status, mi_attempt_status, mouse_allele_mod_status, phenotyping_status
         ORDER BY #{intermediate_group_field} ASC
       EOF
     end

@@ -82,7 +82,7 @@ class CheckUnreconciledKompWithMmrrc
 
         count_unreconciled_mi_dcs_checked += 1
 
-        mi_attempt = mi_distribution_centre.mi_attempt
+        mi_attempt = mi_distribution_centre.colony.mi_attempt
         puts "---------------------------------------------"
         puts "Mi Attempt [num #{count_unreconciled_mi_dcs_checked}] : #{mi_attempt.id}"
         mi_plan          = mi_attempt.mi_plan
@@ -211,22 +211,22 @@ class CheckUnreconciledKompWithMmrrc
     #####
     def self.get_allele_for_mi_distribution_centre(mi_distribution_centre)
 
-      dc_allele_symbol_unsplit = mi_distribution_centre.mi_attempt.allele_symbol
+      dc_allele_symbol_unsplit = mi_distribution_centre.colony.mi_attempt.allele_symbol
       if ( dc_allele_symbol_unsplit.nil? )
-        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Mi Attempt id #{mi_distribution_centre.mi_attempt.id}, cannot reconcile"
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Mi Attempt id #{mi_distribution_centre.colony.mi_attempt_id}, cannot reconcile"
         return
       end
 
       # strip out the superscript part of the allele symbol
       split_array = dc_allele_symbol_unsplit.match(/\w*<sup>(\S*)<\/sup>/)
       if ( split_array.nil? || split_array.length < 1 )
-        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Mi Attempt id #{mi_distribution_centre.mi_attempt.id}, cannot reconcile"
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Mi Attempt id #{mi_distribution_centre.colony.mi_attempt_id}, cannot reconcile"
         return
       end
 
       dc_allele_symbol = split_array[1]
       if ( dc_allele_symbol.nil? )
-        puts "WARN: No allele name found for Mi Attempt id #{mi_distribution_centre.mi_attempt.id}, cannot reconcile"
+        puts "WARN: No allele name found for Mi Attempt id #{mi_distribution_centre.colony.mi_attempt_id}, cannot reconcile"
         return
       end
 
@@ -331,12 +331,11 @@ class CheckUnreconciledKompWithMmrrc
 
         count_unreconciled_pa_dcs_checked += 1
 
-        phenotype_attempt = pa_distribution_centre.phenotype_attempt
+        mam = pa_distribution_centre.colony.mouse_allele_mod
 
         puts "---------------------------------------------"
-        puts "Phenotype Attempt [num #{count_unreconciled_pa_dcs_checked}] : #{phenotype_attempt.id}"
+        puts "Phenotype Attempt [num #{count_unreconciled_pa_dcs_checked}] : #{mam.id}"
 
-        mam                     = phenotype_attempt.mouse_allele_mod
         mi_plan                 = mam.mi_plan
         consortium_name         = mi_plan.consortium.name
         marker_symbol           = mi_plan.gene.marker_symbol
@@ -463,22 +462,22 @@ class CheckUnreconciledKompWithMmrrc
     #####
     def self.get_allele_for_pa_distribution_centre(pa_distribution_centre)
 
-      dc_allele_symbol_unsplit = pa_distribution_centre.phenotype_attempt.allele_symbol
+      dc_allele_symbol_unsplit = pa_distribution_centre.colony.allele_name
       if ( dc_allele_symbol_unsplit.nil? )
-        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Phenotype Attempt id #{pa_distribution_centre.phenotype_attempt.id}, cannot reconcile"
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Mouse Allele Mod id #{pa_distribution_centre.colony.mouse_allele_mod_id}, cannot reconcile"
         return
       end
 
       # strip out the superscript part of the allele symbol
       split_array = dc_allele_symbol_unsplit.match(/\w*<sup>(\S*)<\/sup>/)
       if ( split_array.nil? || split_array.length < 1 )
-        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Phenotype Attempt id #{pa_distribution_centre.phenotype_attempt.id}, cannot reconcile"
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Mouse Allele Mod id #{pa_distribution_centre.colony.mouse_allele_mod_id}, cannot reconcile"
         return
       end
 
       dc_allele_symbol = split_array[1]
       if ( dc_allele_symbol.nil? )
-        puts "WARN: No allele name found for Phenotype Attempt id #{pa_distribution_centre.phenotype_attempt.id}, cannot reconcile"
+        puts "WARN: No allele name found for Mouse Allele Mod id #{pa_distribution_centre.colony.mouse_allele_id}, cannot reconcile"
         return
       end
 

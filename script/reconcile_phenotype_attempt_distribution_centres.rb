@@ -93,12 +93,11 @@ class ReconcilePhenotypeAttemptDistributionCentres
     sleeptime_total     = 0
 
     phenotype_distribution_centres.each do |pa_distribution_centre|
-      phenotype_attempt = pa_distribution_centre.phenotype_attempt
+      mam = pa_distribution_centre.colony.mouse_allele_mod
 
       puts "---------------------------------------------"
-      puts "Phenotype Attempt [num #{count_dcs_processed + count_dcs_skipped + 1}] : #{phenotype_attempt.id}"
+      puts "Phenotype Attempt [num #{count_dcs_processed + count_dcs_skipped + 1}] : #{mam.id}"
 
-      mam                     = phenotype_attempt.mouse_allele_mod
       mi_plan                 = mam.mi_plan
       consortium_name         = mi_plan.consortium.name
       marker_symbol           = mi_plan.gene.marker_symbol
@@ -277,7 +276,7 @@ class ReconcilePhenotypeAttemptDistributionCentres
         end
 
         # puts "Checking Distribution Centres for Mouse Allele Mod id #{mouse_allele_mod.id}"
-        phenotype_distribution_centres = mouse_allele_mod.distribution_centres
+        phenotype_distribution_centres = mouse_allele_mod.colony.distribution_centres
         phenotype_distribution_centres.each do |phenotype_distribution_centre|
 
             puts "Reconcile Mi Plan id #{mi_plan.id} Mouse Allele Mod id #{mouse_allele_mod.id} at Distribution Centre #{phenotype_distribution_centre.id}"
@@ -309,7 +308,7 @@ class ReconcilePhenotypeAttemptDistributionCentres
     #####
     def self.select_pa_distribution_centres_by_distribution_network(repository_name)
       puts "Selecting phenotype attempt distribution centres by distribution network: #{repository_name}"
-      pa_distribution_centres_unfiltered = PhenotypeAttempt::DistributionCentre.where("distribution_network = ?", repository_name).order(:id)
+      pa_distribution_centres_unfiltered = Colony::DistributionCentre.joins(:colony).where("colony_distribution_centres.distribution_network = #{repository_name} AND colonies.mouse_allele_mod_is IS NOT NULL").order(:id)
       return self.filter_cre_excised_phenotype_attempt_distribution_centres(pa_distribution_centres_unfiltered)
     end
 
@@ -322,7 +321,7 @@ class ReconcilePhenotypeAttemptDistributionCentres
       pa_distribution_centres = []
 
       pa_distribution_centres_unfiltered.each do |phenotype_distribution_centre|
-        mouse_allele_mod = phenotype_distribution_centre.mouse_allele_mod
+        mouse_allele_mod = phenotype_distribution_centre.colony.mouse_allele_mod
         if mouse_allele_mod.nil?
           next
         end
@@ -345,22 +344,22 @@ class ReconcilePhenotypeAttemptDistributionCentres
     #####
     def self.get_allele_for_pa_distribution_centre(pa_distribution_centre)
 
-      dc_allele_symbol_unsplit = pa_distribution_centre.phenotype_attempt.allele_symbol
+      dc_allele_symbol_unsplit = pa_distribution_centre.colony.allele_name
       if ( dc_allele_symbol_unsplit.nil? )
-        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Phenotype Attempt id #{pa_distribution_centre.phenotype_attempt.id}, cannot reconcile"
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Mouse Allele Mod id #{pa_distribution_centre.colony.mouse_allele_mod_id}, cannot reconcile"
         return
       end
 
       # strip out the superscript part of the allele symbol
       split_array = dc_allele_symbol_unsplit.match(/\w*<sup>(\S*)<\/sup>/)
       if ( split_array.nil? || split_array.length < 1 )
-        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Phenotype Attempt id #{pa_distribution_centre.phenotype_attempt.id}, cannot reconcile"
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Mouse Allele Mod id #{pa_distribution_centre.colony.mouse_allele_mod_id}, cannot reconcile"
         return
       end
 
       dc_allele_symbol = split_array[1]
       if ( dc_allele_symbol.nil? )
-        puts "WARN: No allele name found for Phenotype Attempt id #{pa_distribution_centre.phenotype_attempt.id}, cannot reconcile"
+        puts "WARN: No allele name found for Mouse Allele Mod id #{pa_distribution_centre.colony.mouse_allele_mod_id}, cannot reconcile"
         return
       end
 

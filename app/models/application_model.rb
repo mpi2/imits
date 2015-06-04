@@ -11,7 +11,8 @@ class ApplicationModel < ActiveRecord::Base
     'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
     'e' => 'e - Targeted Non-Conditional',
     'e.1' => 'e.1 - Promoter excision from tm1e mouse',
-    '.1' => '.1 - Promoter excision from Deletion'
+    '.1' => '.1 - Promoter excision from Deletion/Point Mutation ',
+    '.2' => '.2 - Promoter excision from Deletion/Point Mutation '
   }.freeze
 
   COMPLETION_NOTE ={

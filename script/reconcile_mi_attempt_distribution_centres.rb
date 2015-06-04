@@ -92,7 +92,7 @@ class ReconcileMiAttemptDistributionCentres
     sleeptime_total     = 0
 
     mi_distribution_centres.each do |mi_distribution_centre|
-      mi_attempt = mi_distribution_centre.mi_attempt
+      mi_attempt = mi_distribution_centre.colony.mi_attempt
 
       puts "---------------------------------------------"
       puts "Mi Attempt [num #{count_dcs_processed + count_dcs_skipped + 1}] : #{mi_attempt.id}"
@@ -273,7 +273,7 @@ class ReconcileMiAttemptDistributionCentres
         end
 
         # puts "Checking Distribution Centres for Mi Attempt id #{mi_attempt.id}"
-        mi_distribution_centres = mi_attempt.distribution_centres
+        mi_distribution_centres = Colony::DistributionCentre.joins(:colony).where("colonies.mi_attempt_id = #{mi_attempt.id}")
         mi_distribution_centres.each do |mi_distribution_centre|
 
             puts "Reconcile Mi Plan id #{mi_plan.id} Mi Attempt id #{mi_attempt.id} at Distribution Centre #{mi_distribution_centre.id}"
@@ -303,7 +303,7 @@ class ReconcileMiAttemptDistributionCentres
     # select mi distribution centres by their distribution network e.g. 'EMMA' or 'MMRRC'
     #####
     def self.select_mi_distribution_centres_by_distribution_network(repository_name)
-      mi_distribution_centres_unfiltered = MiAttempt::DistributionCentre.where("distribution_network = ?", repository_name).order(:id)
+      mi_distribution_centres_unfiltered = Colony::DistributionCentre.joins(:colony).where("colony_distribution_centres.distribution_network = #{repository_name} AND colonies.mi_attempt_id IS NOT NULL").order(:id)
       return self.filter_gtc_mi_attempt_distribution_centres(mi_distribution_centres_unfiltered)
     end
 
@@ -315,7 +315,7 @@ class ReconcileMiAttemptDistributionCentres
       mi_distribution_centres = []
 
       mi_distribution_centres_unfiltered.each do |mi_distribution_centre|
-        mi_attempt = mi_distribution_centre.mi_attempt
+        mi_attempt = mi_distribution_centre.colony.mi_attempt
         unless mi_attempt && mi_attempt.status.name == 'Genotype confirmed'
           next
         end
@@ -335,22 +335,22 @@ class ReconcileMiAttemptDistributionCentres
     #####
     def self.get_allele_for_mi_distribution_centre(mi_distribution_centre)
 
-      dc_allele_symbol_unsplit = mi_distribution_centre.mi_attempt.allele_symbol
+      dc_allele_symbol_unsplit = mi_distribution_centre.colony.allele_symbol
       if ( dc_allele_symbol_unsplit.nil? )
-        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Mi Attempt id #{mi_distribution_centre.mi_attempt.id}, cannot reconcile"
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format not understood for Mi Attempt id #{mi_distribution_centre.colony.mi_attempt_id}, cannot reconcile"
         return
       end
 
       # strip out the superscript part of the allele symbol
       split_array = dc_allele_symbol_unsplit.match(/\w*<sup>(\S*)<\/sup>/)
       if ( split_array.nil? || split_array.length < 1 )
-        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Mi Attempt id #{mi_distribution_centre.mi_attempt.id}, cannot reconcile"
+        puts "WARN: Allele name #{dc_allele_symbol_unsplit} format split length not correct for Mi Attempt id #{mi_distribution_centre.colony.mi_attempt_id}, cannot reconcile"
         return
       end
 
       dc_allele_symbol = split_array[1]
       if ( dc_allele_symbol.nil? )
-        puts "WARN: No allele name found for Mi Attempt id #{mi_distribution_centre.mi_attempt.id}, cannot reconcile"
+        puts "WARN: No allele name found for Mi Attempt id #{mi_distribution_centre.colony.mi_attempt_id}, cannot reconcile"
         return
       end
 

@@ -62,33 +62,33 @@ namespace :jax_phenotypes do
   def apply_changes data
     failures = 0
     diffed = 0
-    PhenotypeAttempt.transaction do
+    Colony.transaction do
       data.each do |row|
         clean_name = row['Colony name'].gsub("&lt;", '<').gsub("&gt;", '>')
-        pa = PhenotypeAttempt.find_by_colony_name clean_name
-        log "cannot find '#{row['Colony name']}' - #{row.to_s}" if ! pa
-        failures += 1 if ! pa
-        next if ! pa
-        before = "#{pa.id}; #{pa.colony_name}; #{pa.jax_mgi_accession_id}; #{pa.allele_name}"
+        col = Colony.find_by_name clean_name
+        log "cannot find '#{row['Colony name']}' - #{row.to_s}" if ! col
+        failures += 1 if ! col
+        next if ! col
+        before = "#{col.id}; #{col.name}; #{col.mgi_allele_id}; #{col.allele_name}"
 
         if DIFF
-          diff = pa.jax_mgi_accession_id != row['MGI accession id'] || pa.allele_name != row['Allele name']
+          diff = col.mgi_allele_id != row['MGI accession id'] || col.allele_name != row['Allele name']
           next if ! diff
           diffed += 1
         end
 
-        pa.allele_name = row['Allele name']
-        pa.jax_mgi_accession_id = row['MGI accession id']
-        pa.save!
-        pa.reload
-        after = "#{pa.id}; #{pa.colony_name}; #{pa.jax_mgi_accession_id}; #{pa.allele_name}"
+        col.allele_name = row['Allele name']
+        col.mgi_allele_id = row['MGI accession id']
+        col.save!
+        col.reload
+        after = "#{col.id}; #{col.name}; #{col.mgi_allele_id}; #{col.allele_name}"
         log "before: #{before} - after: #{after}"
       end
       puts  "#### results: #{failures}/#{diffed}/#{data.size}"
     end
   end
 
-  desc 'Load ALL JAX Phenotype Attempt changes'
+  desc 'Load ALL JAX Mouse Allele changes'
   task 'load_all' => [:environment] do
     file_list = get_files
     data = []
@@ -99,7 +99,7 @@ namespace :jax_phenotypes do
     apply_changes data
   end
 
-  desc 'Load current JAX Phenotype Attempt changes'
+  desc 'Load current JAX Mouse Allele Mod changes'
   task 'load_current' => [:environment] do
     data = read_data 'mgi_allele_ikmc.txt.current'
     apply_changes data

@@ -7,7 +7,7 @@ class MmrrcOriginal
     r3 = File.open('mmrrc_3_locus_data.tsv','w')
     r4 = File.open('mmrrc_4_sds_data.tsv','w')
 
-    mmrrc_centres = MiAttempt::DistributionCentre.where(:distribution_network=>"MMRRC");
+    mmrrc_centres = Colony::DistributionCentre.joins(:colony).where("colony_distribution_centres.distribution_network = 'MMRRC' AND colonies.mi_attempt_id IS NOT NULL");
 
     r1.write "mmrrc_id\tallele_symbol\tgenetic_founder_background_strain\tcurrent_background_strain\tclone\tresearch_area\thuman_disease_models\n"
     r2.write "mmrrc_id\tmmrrc_strain_nomenclature\talteration\tes_cell_line\n"
@@ -16,61 +16,70 @@ class MmrrcOriginal
 
     mmrrc_centres.each do |mi_dcentre|
 
-      mi = mi_dcentre.mi_attempt
+      col = mi_dcentre.colony
+      mi = col.mi_attempt
+
+      next if mi.blank? || mi.es_cell.blank?
+
+      es_cell = mi.es_cell
+      gene = mi.mi_plan.gene
 
       #report 1
-      colony_name = mi.colony_name
-      marker_symbol = mi.mi_plan.gene.marker_symbol
-      allele_symbol = mi.allele_symbol
+      colony_name = col.name
+      marker_symbol = gene.marker_symbol
+      allele_symbol = col.allele_symbol
       allele_name = allele_symbol.match("<sup>(.*)</sup>")[1]
-      genetic_founder_background_strain = mi.es_cell.strain
-      current_background_strain = mi.colony_background_strain.name
-      clone = mi.es_cell.name
+      genetic_founder_background_strain = es_cell.strain
+      current_background_strain = col.background_strain_name
+      clone = es_cell.name
       research_area = ''
       human_disease_models = ''
 
       #r2
-      alteration = mi.es_cell.allele.mutation_type.name
+      alteration = es_cell.allele.mutation_type.name
       if alteration == 'Conditional Ready'
         alteration = 'Knockout First'
       end
-      puts "#{mi.es_cell.name} --- #{alteration}"
-      if(mi.mouse_allele_type == 'e')
+      puts "#{es_cell.name} --- #{alteration}"
+      if(col.allele_type == 'e')
         alteration = 'Targeted NonConditional'
       end
-      parental_cell_line = mi.es_cell.parental_cell_line
+      if(col.allele_type == 'a')
+        alteration = 'Knockout First'
+      end
+      parental_cell_line = es_cell.parental_cell_line
 
       #r3
-      chromosome = mi.es_cell.allele.chromosome
-      mgi_accession_id= mi.mi_plan.gene.mgi_accession_id
-      mgi_allele_id = mi.mi_plan.gene.mgi_accession_id
+      chromosome = gene.chr
+      mgi_accession_id= gene.mgi_accession_id
+      mgi_allele_id = gene.mgi_accession_id
       # this is going to fail for crisprs - have to rework to go via mutagenesis factor,
       # OR it could be stamped directly on the MI (best idea ...)
-      allele_mgi_allele_id = mi.es_cell.mgi_allele_id
+      allele_mgi_allele_id = col.mgi_allele_id.blank? ? mi.es_cell.mgi_allele_id : col.mgi_allele_id
 
       #r4
-      mmrrc_strain_nomenclature = "#{mi.colony_background_strain.name} - #{allele_symbol}"
+      mmrrc_strain_nomenclature = "#{current_background_strain} - #{allele_symbol}"
       common_strain_name = ''
 
-      cassette_start = mi.es_cell.allele.cassette_start
-      loxp_start = mi.es_cell.allele.loxp_start
-      cassette_name = mi.es_cell.allele.cassette
+      cassette_start = es_cell.cassette_start
+      loxp_start = es_cell.allele.loxp_start
+      cassette_name = es_cell.allele.cassette
 
-      ikmc_project_id = mi.es_cell.ikmc_project_id
+      ikmc_project_id = es_cell.ikmc_project_id
       genetic_alterations =
       "cassette #{cassette_name} inserted at chromosome #{chromosome} position #{cassette_start}. LoxP site at position #{loxp_start}. mutation is #{alteration}. Details page at https://www.mousephenotype.org/data/alleles/#{mgi_accession_id}/#{allele_name}"
 
-      blast_strain = mi.blast_strain.name
-      test_strain = mi.test_cross_strain.name
+      blast_strain = mi.blast_strain_name
+      test_strain = mi.test_cross_strain_name
       interbreeding_generation = ""
       backcross_generation = ""
-      bg_strain = mi.colony_background_strain.name
+      bg_strain = current_background_strain
       mouse_strain_development="ES cell clone #{clone} was injected into #{blast_strain} blastocysts. Resulting chimeras were mated to #{test_strain}, progeny were subsequently mated to #{bg_strain}"
       mouse_strain_control = ''
       phenotype_reference = "http://www.mousephenotype.org/data/genes/#{mgi_accession_id}"
       phenotype_of_het_hemi_mutants = ''
       coat_colour = 'black'
-      if(mi.es_cell.strain.include? 'A')
+      if(es_cell.strain.include? 'A')
         coat_colour = 'agouti and black'
       end
       physical_characteristics = ''
@@ -109,7 +118,7 @@ class MmrrcNew
     #r3 = File.open('mmrrc_3_locus_data.tsv','w')
     #r4 = File.open('mmrrc_4_sds_data.tsv','w')
 
-    mmrrc_centres = MiAttempt::DistributionCentre.where(:distribution_network=>"MMRRC");
+    mmrrc_centres = Colony::DistributionCentre.joins(:colony).where("colony_distribution_centres.distribution_network = 'MMRRC' AND colonies.mi_attempt_id IS NOT NULL");
 
     #r1.write "production_centre\tmmrrc_id\tallele_symbol\tgenetic_founder_background_strain\tcurrent_background_strain\tclone\tresearch_area\thuman_disease_models\n"
     #r2.write "production_centre\tmmrrc_id\tmmrrc_strain_nomenclature\talteration\tes_cell_line\n"
@@ -117,63 +126,72 @@ class MmrrcNew
     #r4.write "production_centre\tcolony_name\tmmrrc_strain_nomenclature\tcommon_strain_name\tgenetic_alterations\tbackcross_generation\tinterbreeding_generation\tmouse_strain_development\tmouse_strain_control\tphenotype_reference\tphenotype_of_het_hemi_mutants\tcoat_colour\tphysical_characteristics\tdonor_primary_reference\tdonor_primary_reference_url\tresearch_applications\tbreeding_system\tbreeding_schemes\n"
 
     mmrrc_centres.each do |mi_dcentre|
-      mi = mi_dcentre.mi_attempt
+      col = mi_dcentre.colony
+      mi = col.mi_attempt
+
+      next if mi.blank? || mi.es_cell.blank?
+
+      es_cell = mi.es_cell
+      gene = mi.mi_plan.gene
 
       production_centre = mi.production_centre.name
 
       #report 1
-      colony_name = mi.colony_name
-      marker_symbol = mi.mi_plan.gene.marker_symbol
-      allele_symbol = mi.allele_symbol
-      allele_name = allele_symbol.match("<sup>(.*)</sup>")[1]
-      genetic_founder_background_strain = mi.es_cell.strain
-      current_background_strain = mi.colony_background_strain.name
-      clone = mi.es_cell.name
+      colony_name = col.name
+      marker_symbol = gene.marker_symbol
+      allele_symbol = col.allele_symbol
+      allele_name = allele_symbol.blank? ? '' : allele_symbol.match("<sup>(.*)</sup>")[1]
+      genetic_founder_background_strain = es_cell.strain
+      current_background_strain = col.background_strain_name
+      clone = es_cell.name
       research_area = ''
       human_disease_models = ''
 
       #r2
-      alteration = mi.es_cell.allele.mutation_type.name
+      alteration = es_cell.allele.mutation_type.name
       if alteration == 'Conditional Ready'
         alteration = 'Knockout First'
       end
-      puts "#{mi.es_cell.name} --- #{alteration}"
-      if(mi.mouse_allele_type == 'e')
+      puts "#{es_cell.name} --- #{alteration}"
+      if(col.allele_type == 'e')
         alteration = 'Targeted NonConditional'
       end
-      parental_cell_line = mi.es_cell.parental_cell_line
+      if(col.allele_type == 'a')
+        alteration = 'Knockout First'
+      end
+      parental_cell_line = es_cell.parental_cell_line
 
       #r3
-      chromosome = mi.es_cell.allele.chromosome
-      mgi_accession_id= mi.mi_plan.gene.mgi_accession_id
-      mgi_allele_id = mi.mi_plan.gene.mgi_accession_id
+      chromosome = gene.chr
+      mgi_accession_id= gene.mgi_accession_id
+      mgi_allele_id = gene.mgi_accession_id
       # this is going to fail for crisprs - have to rework to go via mutagenesis factor,
       # OR it could be stamped directly on the MI (best idea ...)
-      allele_mgi_allele_id = mi.es_cell.mgi_allele_id
+      allele_mgi_allele_id = col.mgi_allele_id.blank? ? mi.es_cell.mgi_allele_id : col.mgi_allele_id
 
       #r4
-      mmrrc_strain_nomenclature = "#{mi.colony_background_strain.name} - #{allele_symbol}"
+      mmrrc_strain_nomenclature = "#{current_background_strain} - #{allele_symbol}"
       common_strain_name = ''
 
-      cassette_start = mi.es_cell.allele.cassette_start
-      loxp_start = mi.es_cell.allele.loxp_start
-      cassette_name = mi.es_cell.allele.cassette
+      cassette_start = es_cell.allele.cassette_start
+      loxp_start = es_cell.allele.loxp_start
+      cassette_name = es_cell.allele.cassette
 
-      ikmc_project_id = mi.es_cell.ikmc_project_id
+      ikmc_project_id = es_cell.ikmc_project_id
       genetic_alterations =
       "cassette #{cassette_name} inserted at chromosome #{chromosome} position #{cassette_start}. LoxP site at position #{loxp_start}. mutation is #{alteration}. Details page at https://www.mousephenotype.org/data/alleles/#{mgi_accession_id}/#{allele_name}"
 
-      blast_strain = mi.blast_strain.name
-      test_strain = mi.test_cross_strain.name
+      blast_strain = mi.blast_strain_name
+      test_strain = mi.test_cross_strain_name
       interbreeding_generation = ""
       backcross_generation = ""
-      bg_strain = mi.colony_background_strain.name
+      bg_strain = current_background_strain
       mouse_strain_development="ES cell clone #{clone} was injected into #{blast_strain} blastocysts. Resulting chimeras were mated to #{test_strain}, progeny were subsequently mated to #{bg_strain}"
       mouse_strain_control = ''
       phenotype_reference = "http://www.mousephenotype.org/data/genes/#{mgi_accession_id}"
       phenotype_of_het_hemi_mutants = ''
       coat_colour = 'black'
-      if(mi.es_cell.strain.include? 'A')
+      if(es_cell.strain.include? 'A')
         coat_colour = 'agouti and black'
       end
       physical_characteristics = ''

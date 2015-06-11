@@ -144,8 +144,8 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
 
     remove_column :phenotyping_productions, :mouse_allele_mod_id
 
-#    remove_column :mi_attempts, :mouse_allele_type
-#    remove_column :mi_attempts, :colony_background_strain_id
+    remove_column :mi_attempts, :mouse_allele_type
+    remove_column :mi_attempts, :colony_background_strain_id
 
     remove_column :mi_attempts, :qc_lacz_count_qpcr_id
     remove_column :mi_attempts, :qc_critical_region_qpcr_id
@@ -190,7 +190,7 @@ class ReorganisePhenotypingColonyName < ActiveRecord::Migration
     remove_column :mouse_allele_mods, :qc_loxp_srpcr_id
     remove_column :mouse_allele_mods, :qc_loxp_srpcr_and_sequencing_id
 
-#    alter_column :mouse_allele_mods, :cre_excision, :excision
+
     drop_table :solr_alleles
     drop_table :solr_centre_map
 

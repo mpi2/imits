@@ -237,12 +237,13 @@ class MiAttempt < ApplicationModel
       colony_attr_hash[:genotype_confirmed] = false
     end
 
-    if colony_background_strain_name != colony.try(:background_strain_name)
+    if self.colony_background_strain_name != colony.try(:background_strain_name)
       colony_attr_hash[:background_strain_name] = self.colony_background_strain_name
     end
 
-    if mouse_allele_type != colony.try(:allele_type)
+    if self.mouse_allele_type != colony.try(:allele_type)
       colony_attr_hash[:allele_type] = self.mouse_allele_type
+      puts "HELLO"
     end
 
     colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?
@@ -385,13 +386,13 @@ class MiAttempt < ApplicationModel
     return blast_strain.try(:mgi_strain_name)
   end
 
-  def mouse_allele_type(arg)
-    @mouse_allele_type = arg unless es_cell.blank?
+  def mouse_allele_type=(arg)
+    @mouse_allele_type = arg unless es_cell.blank? || arg == ''
   end
 
   def mouse_allele_type
-    return @mouse_allele_type unless @mouse_allele_type.blank?
-    return colony.mouse_allele_type unless es_cell.blank?
+    return @mouse_allele_type if defined? @mouse_allele_type
+    return colony.allele_type unless es_cell.blank?
   end
 
   def colony_background_strain

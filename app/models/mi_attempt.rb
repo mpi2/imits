@@ -59,7 +59,7 @@ class MiAttempt < ApplicationModel
 
   validates :status, :presence => true
   validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
-  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
+#  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
   validates :assay_type, :inclusion => { :in => CRISPR_ASSAY_TYPES}, :allow_nil => true
 
@@ -241,6 +241,10 @@ class MiAttempt < ApplicationModel
       colony_attr_hash[:background_strain_name] = self.colony_background_strain_name
     end
 
+    if mouse_allele_type != colony.try(:allele_type)
+      colony_attr_hash[:allele_type] = self.mouse_allele_type
+    end
+
     colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?
 
     colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
@@ -379,6 +383,15 @@ class MiAttempt < ApplicationModel
 
   def blast_strain_mgi_name
     return blast_strain.try(:mgi_strain_name)
+  end
+
+  def mouse_allele_type(arg)
+    @mouse_allele_type = arg unless es_cell.blank?
+  end
+
+  def mouse_allele_type
+    return @mouse_allele_type unless @mouse_allele_type.blank?
+    return colony.mouse_allele_type unless es_cell.blank?
   end
 
   def colony_background_strain

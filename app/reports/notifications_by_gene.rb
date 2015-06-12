@@ -140,7 +140,7 @@ class NotificationsByGene < PlannedMicroinjectionList
     where_clause = '' if where_clause.length < 1
 
     sql = <<-EOF
-      WITH intermediate_report AS #{intermediate_table.}
+      WITH intermediate_report AS #{intermediate_table}
 
       SELECT
         genes.marker_symbol as gene,

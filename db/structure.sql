@@ -1221,6 +1221,57 @@ ALTER SEQUENCE intermediate_report_id_seq OWNED BY intermediate_report.id;
 
 
 --
+-- Name: intermediate_report_summary_by_centre; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE intermediate_report_summary_by_centre (
+    id integer NOT NULL,
+    catagory character varying(255) NOT NULL,
+    approach character varying(255) NOT NULL,
+    allele_type character varying(255) NOT NULL,
+    mi_plan_id integer,
+    mi_attempt_id integer,
+    modified_mouse_allele_mod_id integer,
+    mouse_allele_mod_id integer,
+    phenotyping_production_id integer,
+    production_centre character varying(255),
+    gene character varying(255),
+    mgi_accession_id character varying(255),
+    mi_attempt_external_ref character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mouse_allele_mod_colony_name character varying(255),
+    phenotyping_production_colony_name character varying(255),
+    mi_plan_status character varying(255),
+    gene_interest_date date,
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
+    mi_attempt_status character varying(255),
+    micro_injection_aborted_date date,
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    founder_obtained_date date,
+    genotype_confirmed_date date,
+    mouse_allele_mod_status character varying(255),
+    mouse_allele_mod_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_status character varying(255),
+    phenotyping_registered_date date,
+    phenotyping_rederivation_started_date date,
+    phenotyping_rederivation_complete_date date,
+    phenotyping_experiments_started_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    created_at date
+);
+
+
+--
 -- Name: intermediate_report_summary_by_centre_and_consortia; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -1292,6 +1343,25 @@ ALTER SEQUENCE intermediate_report_summary_by_centre_and_consortia_id_seq OWNED 
 
 
 --
+-- Name: intermediate_report_summary_by_centre_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE intermediate_report_summary_by_centre_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: intermediate_report_summary_by_centre_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE intermediate_report_summary_by_centre_id_seq OWNED BY intermediate_report_summary_by_centre.id;
+
+
+--
 -- Name: intermediate_report_summary_by_consortia; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -1359,6 +1429,74 @@ CREATE SEQUENCE intermediate_report_summary_by_consortia_id_seq
 --
 
 ALTER SEQUENCE intermediate_report_summary_by_consortia_id_seq OWNED BY intermediate_report_summary_by_consortia.id;
+
+
+--
+-- Name: intermediate_report_summary_by_gene; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE intermediate_report_summary_by_gene (
+    id integer NOT NULL,
+    catagory character varying(255) NOT NULL,
+    approach character varying(255) NOT NULL,
+    allele_type character varying(255) NOT NULL,
+    mi_plan_id integer,
+    mi_attempt_id integer,
+    modified_mouse_allele_mod_id integer,
+    mouse_allele_mod_id integer,
+    phenotyping_production_id integer,
+    gene character varying(255),
+    mgi_accession_id character varying(255),
+    mi_attempt_external_ref character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mouse_allele_mod_colony_name character varying(255),
+    phenotyping_production_colony_name character varying(255),
+    mi_plan_status character varying(255),
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
+    mi_attempt_status character varying(255),
+    micro_injection_aborted_date date,
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    founder_obtained_date date,
+    genotype_confirmed_date date,
+    mouse_allele_mod_status character varying(255),
+    mouse_allele_mod_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_status character varying(255),
+    phenotyping_registered_date date,
+    phenotyping_rederivation_started_date date,
+    phenotyping_rederivation_complete_date date,
+    phenotyping_experiments_started_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    created_at date
+);
+
+
+--
+-- Name: intermediate_report_summary_by_gene_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE intermediate_report_summary_by_gene_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: intermediate_report_summary_by_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE intermediate_report_summary_by_gene_id_seq OWNED BY intermediate_report_summary_by_gene.id;
 
 
 --
@@ -3329,6 +3467,13 @@ ALTER TABLE ONLY intermediate_report ALTER COLUMN id SET DEFAULT nextval('interm
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY intermediate_report_summary_by_centre ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_centre_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_centre_and_consortia_id_seq'::regclass);
 
 
@@ -3337,6 +3482,13 @@ ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia ALTER COLUM
 --
 
 ALTER TABLE ONLY intermediate_report_summary_by_consortia ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_consortia_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_gene ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_gene_id_seq'::regclass);
 
 
 --
@@ -3788,11 +3940,27 @@ ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
 
 
 --
+-- Name: intermediate_report_summary_by_centre_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_centre
+    ADD CONSTRAINT intermediate_report_summary_by_centre_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: intermediate_report_summary_by_consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY intermediate_report_summary_by_consortia
     ADD CONSTRAINT intermediate_report_summary_by_consortia_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: intermediate_report_summary_by_gene_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY intermediate_report_summary_by_gene
+    ADD CONSTRAINT intermediate_report_summary_by_gene_pkey PRIMARY KEY (id);
 
 
 --
@@ -4485,6 +4653,104 @@ CREATE INDEX irscc_mouse_allele_mods ON intermediate_report_summary_by_centre_an
 --
 
 CREATE INDEX irscc_phenotyping_productions ON intermediate_report_summary_by_centre_and_consortia USING btree (phenotyping_production_id);
+
+
+--
+-- Name: irscen_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_allele_type ON intermediate_report_summary_by_centre USING btree (allele_type);
+
+
+--
+-- Name: irscen_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_approach ON intermediate_report_summary_by_centre USING btree (approach);
+
+
+--
+-- Name: irscen_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_catagory ON intermediate_report_summary_by_centre USING btree (catagory);
+
+
+--
+-- Name: irscen_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_mi_attempts ON intermediate_report_summary_by_centre USING btree (mi_attempt_id);
+
+
+--
+-- Name: irscen_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_mi_plans ON intermediate_report_summary_by_centre USING btree (mi_plan_id);
+
+
+--
+-- Name: irscen_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_mouse_allele_mods ON intermediate_report_summary_by_centre USING btree (mouse_allele_mod_id);
+
+
+--
+-- Name: irscen_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_phenotyping_productions ON intermediate_report_summary_by_centre USING btree (phenotyping_production_id);
+
+
+--
+-- Name: irsg_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsg_allele_type ON intermediate_report_summary_by_gene USING btree (allele_type);
+
+
+--
+-- Name: irsg_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsg_approach ON intermediate_report_summary_by_gene USING btree (approach);
+
+
+--
+-- Name: irsg_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsg_catagory ON intermediate_report_summary_by_gene USING btree (catagory);
+
+
+--
+-- Name: irsg_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsg_mi_attempts ON intermediate_report_summary_by_gene USING btree (mi_attempt_id);
+
+
+--
+-- Name: irsg_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsg_mi_plans ON intermediate_report_summary_by_gene USING btree (mi_plan_id);
+
+
+--
+-- Name: irsg_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsg_mouse_allele_mods ON intermediate_report_summary_by_gene USING btree (mouse_allele_mod_id);
+
+
+--
+-- Name: irsg_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsg_phenotyping_productions ON intermediate_report_summary_by_gene USING btree (phenotyping_production_id);
 
 
 --
@@ -5369,3 +5635,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150309151000');
 INSERT INTO schema_migrations (version) VALUES ('20150317151000');
 
 INSERT INTO schema_migrations (version) VALUES ('20150529151000');
+
+INSERT INTO schema_migrations (version) VALUES ('20150612115302');

@@ -2,7 +2,7 @@ module IntermediateReport::SummaryByMiPlan
   class Generate < IntermediateReport::Base
 
     def to_s
-      "#<IntermediateReportSummaryByConsortia::Generate size: #{size}>"
+      "#<IntermediateReportSummaryByMiPlan::Generate size: #{size}>"
     end
 
     ##

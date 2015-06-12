@@ -3,14 +3,14 @@ class TargRep::WelcomeController < TargRep::BaseController
   skip_before_filter :authenticate_user!
 
   def index
-    
-    # First fetch our counts from the DB - this direct SQL approach 
+
+    # First fetch our counts from the DB - this direct SQL approach
     # is much faster than going via the model....
     allele_counts = allele_count_by_pipeline
     gene_counts   = gene_count_by_pipeline
     vector_counts = targeting_vector_count_by_pipeline
     escell_counts = escell_count_by_pipeline
-    
+
     @pipeline_counts = {}
     @total_counts    = {
       :pipelines => 0,
@@ -34,9 +34,9 @@ class TargRep::WelcomeController < TargRep::BaseController
       @total_counts[:es_cells]  += @pipeline_counts[pipeline.name][:es_cells]
     end
   end
-   
+
   private
-  
+
   def allele_count_by_pipeline
     sql = <<-SQL
       select
@@ -49,7 +49,7 @@ class TargRep::WelcomeController < TargRep::BaseController
         union
         select distinct ( targ_rep_alleles.id ) as allele_id, targ_rep_es_cells.pipeline_id
         from targ_rep_alleles
-        join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.pipeline_id
+        join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id
       ) tmp
       group by id
     SQL
@@ -57,7 +57,7 @@ class TargRep::WelcomeController < TargRep::BaseController
     Rails.logger.debug 'Allele count by Pipeline'
     run_count_sql(sql)
   end
-  
+
   def gene_count_by_pipeline
     sql = <<-SQL
       select
@@ -70,7 +70,7 @@ class TargRep::WelcomeController < TargRep::BaseController
         union
         select distinct ( targ_rep_alleles.gene_id ) as gene_id, targ_rep_es_cells.pipeline_id
         from targ_rep_alleles
-        join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.pipeline_id
+        join targ_rep_es_cells on targ_rep_alleles.id = targ_rep_es_cells.allele_id
       ) tmp
       group by id
     SQL
@@ -78,7 +78,7 @@ class TargRep::WelcomeController < TargRep::BaseController
     Rails.logger.debug 'Gene count by Pipeline'
     run_count_sql(sql)
   end
-  
+
   def targeting_vector_count_by_pipeline
     sql = <<-SQL
       select
@@ -92,7 +92,7 @@ class TargRep::WelcomeController < TargRep::BaseController
     Rails.logger.debug 'Targeting Vector count by Pipeline'
     run_count_sql(sql)
   end
-  
+
   def escell_count_by_pipeline
     sql = <<-SQL
       select
@@ -106,7 +106,7 @@ class TargRep::WelcomeController < TargRep::BaseController
     Rails.logger.debug 'Es Cell count by Pipeline'
     run_count_sql(sql)
   end
-  
+
   def run_count_sql(sql)
     counts  = {}
     results = ActiveRecord::Base.connection.execute(sql)
@@ -118,5 +118,5 @@ class TargRep::WelcomeController < TargRep::BaseController
 
     return counts
   end
-  
+
 end

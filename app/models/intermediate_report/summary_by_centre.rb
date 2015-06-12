@@ -1,12 +1,12 @@
-module IntermediateReport::SummaryByCentreAndConsortia
+module IntermediateReport::SummaryByCentre
   class Generate < IntermediateReport::Base
 
      def to_s
-       "#<IntermediateReportSummaryByCentreAndConsortia::Generate size: #{size}>"
+       "#<IntermediateReportSummaryByCentre::Generate size: #{size}>"
      end
 
      def self.table
-       "intermediate_report_summary_by_centre_and_consortia"
+       "intermediate_report_summary_by_centre"
      end
 
     def self.report_sql
@@ -63,10 +63,9 @@ module IntermediateReport::SummaryByCentreAndConsortia
      def self.best_production_sql
        # Expected to be placed inside a WITH statement which already contains the temporary tables filtered_plans and filtered_production.
          sql = <<-EOF
-            best_attempts_for_gene_consortia_centre_and_status AS (
+            best_attempts_for_gene_centre_and_status AS (
             SELECT
               filtered_plans.gene_id,
-              filtered_plans.consortium_id,
               filtered_plans.production_centre_id,
               filtered_production.production_status_order AS order_by,
               filtered_production.production_status AS production_status,
@@ -76,7 +75,6 @@ module IntermediateReport::SummaryByCentreAndConsortia
               JOIN filtered_production ON filtered_plans.id = filtered_production.mi_plan_id
             ORDER BY
               filtered_plans.gene_id,
-              filtered_plans.consortium_id,
               filtered_plans.production_centre_id,
               filtered_production.production_status_order DESC,
               filtered_production.production_status_order_status_stamp_created_at ASC
@@ -84,17 +82,16 @@ module IntermediateReport::SummaryByCentreAndConsortia
 
           att AS (
             SELECT
-              best_attempts_for_gene_consortia_centre_and_status.gene_id,
-              best_attempts_for_gene_consortia_centre_and_status.consortium_id,
-              best_attempts_for_gene_consortia_centre_and_status.production_centre_id,
-              best_attempts_for_gene_consortia_centre_and_status.order_by,
-              first_value(best_attempts_for_gene_consortia_centre_and_status.mi_attempt_id) OVER (PARTITION BY best_attempts_for_gene_consortia_centre_and_status.gene_id, best_attempts_for_gene_consortia_centre_and_status.consortium_id, best_attempts_for_gene_consortia_centre_and_status.production_centre_id) AS mi_attempt_id,
-              first_value(best_attempts_for_gene_consortia_centre_and_status.mouse_allele_mods_id) OVER (PARTITION BY best_attempts_for_gene_consortia_centre_and_status.gene_id, best_attempts_for_gene_consortia_centre_and_status.consortium_id, best_attempts_for_gene_consortia_centre_and_status.production_centre_id) AS mouse_allele_mod_id
-            FROM best_attempts_for_gene_consortia_centre_and_status
+              best_attempts_for_gene_centre_and_status.gene_id,
+              best_attempts_for_gene_centre_and_status.production_centre_id,
+              best_attempts_for_gene_centre_and_status.order_by,
+              first_value(best_attempts_for_gene_centre_and_status.mi_attempt_id) OVER (PARTITION BY best_attempts_for_gene_centre_and_status.gene_id, best_attempts_for_gene_centre_and_status.production_centre_id) AS mi_attempt_id,
+              first_value(best_attempts_for_gene_centre_and_status.mouse_allele_mods_id) OVER (PARTITION BY best_attempts_for_gene_centre_and_status.gene_id, best_attempts_for_gene_centre_and_status.production_centre_id) AS mouse_allele_mod_id
+            FROM best_attempts_for_gene_centre_and_status
           ),
 
           top_production AS (
-            SELECT DISTINCT att.gene_id, att.consortium_id, att.production_centre_id, att.mi_attempt_id AS mi_attempt_id, att.mouse_allele_mod_id AS mouse_allele_mod_id
+            SELECT DISTINCT att.gene_id, att.production_centre_id, att.mi_attempt_id AS mi_attempt_id, att.mouse_allele_mod_id AS mouse_allele_mod_id
               FROM att
           )
         EOF
@@ -107,10 +104,9 @@ module IntermediateReport::SummaryByCentreAndConsortia
                   -- 1. Select phenotyping either from crispr or es_cell experimental pipelines OR all phenotyping if condition is remove
                   -- 2. (IMPORTANT) Orders the phenotyping records based on the grouping fields and orders the statuses so the most advanced status is at the top of the group
 
-                  phenotype_production_for_gene_consortia_centre_and_status AS (
+                  phenotype_production_for_gene_centre_and_status AS (
                     SELECT
                       mi_plans.gene_id,
-                      mi_plans.consortium_id,
                       mi_plans.production_centre_id,
                       phenotyping_production_statuses.order_by,
                       phenotyping_productions.id as phenotype_productions_id
@@ -124,7 +120,6 @@ module IntermediateReport::SummaryByCentreAndConsortia
                       JOIN mi_plans crispr_plan ON crispr_plan.id = mi_attempts.mi_plan_id #{!crispr_condition.blank? ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr_condition}" : ''}
                     ORDER BY
                       mi_plans.gene_id,
-                      mi_plans.consortium_id,
                       mi_plans.production_centre_id,
                       phenotyping_production_statuses.order_by DESC
                   ),
@@ -134,19 +129,18 @@ module IntermediateReport::SummaryByCentreAndConsortia
 
                   phenotyping_productions_grouped AS (
                     SELECT
-                      phenotype_production_for_gene_consortia_centre_and_status.gene_id,
-                      phenotype_production_for_gene_consortia_centre_and_status.consortium_id,
-                      phenotype_production_for_gene_consortia_centre_and_status.production_centre_id,
-                      phenotype_production_for_gene_consortia_centre_and_status.order_by,
-                      first_value(phenotype_production_for_gene_consortia_centre_and_status.phenotype_productions_id) OVER (PARTITION BY phenotype_production_for_gene_consortia_centre_and_status.gene_id, phenotype_production_for_gene_consortia_centre_and_status.consortium_id, phenotype_production_for_gene_consortia_centre_and_status.production_centre_id) AS phenotyping_production_id
-                    FROM phenotype_production_for_gene_consortia_centre_and_status
+                      phenotype_production_for_gene_centre_and_status.gene_id,
+                      phenotype_production_for_gene_centre_and_status.production_centre_id,
+                      phenotype_production_for_gene_centre_and_status.order_by,
+                      first_value(phenotype_production_for_gene_centre_and_status.phenotype_productions_id) OVER (PARTITION BY phenotype_production_for_gene_centre_and_status.gene_id, phenotype_production_for_gene_centre_and_status.production_centre_id) AS phenotyping_production_id
+                    FROM phenotype_production_for_gene_centre_and_status
                   ),
 
                   -- Statement description
                   -- PARTITIONS do not collapse the data so we have many records in each group where the following fields are all identical. Therefore we select distinct records to remove duplicates.
 
                   top_phenotyping_production AS (
-                    SELECT DISTINCT phenotyping_productions_grouped.gene_id, phenotyping_productions_grouped.consortium_id, phenotyping_productions_grouped.production_centre_id, phenotyping_productions_grouped.phenotyping_production_id
+                    SELECT DISTINCT phenotyping_productions_grouped.gene_id, phenotyping_productions_grouped.production_centre_id, phenotyping_productions_grouped.phenotyping_production_id
                     FROM phenotyping_productions_grouped
                   )
 
@@ -158,10 +152,9 @@ module IntermediateReport::SummaryByCentreAndConsortia
         <<-EOF
           WITH filtered_plans AS (#{filter_plans_sql(plan_condition)}),
 
-          best_plans_for_gene_consortia_centre_and_status AS (
+          best_plans_for_gene_centre_and_status AS (
             SELECT
               filtered_plans.gene_id,
-              filtered_plans.consortium_id,
               filtered_plans.production_centre_id,
               (CASE
                 WHEN mi_plan_statuses.name = 'Aborted - ES Cell QC Failed'       THEN 1
@@ -176,7 +169,6 @@ module IntermediateReport::SummaryByCentreAndConsortia
               JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = filtered_plans.id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
             ORDER BY
               filtered_plans.gene_id,
-              filtered_plans.consortium_id,
               filtered_plans.production_centre_id,
               mi_plan_statuses.order_by DESC,
               mi_plan_status_stamps.created_at ASC
@@ -184,12 +176,11 @@ module IntermediateReport::SummaryByCentreAndConsortia
 
           att AS (
             SELECT
-              best_plans_for_gene_consortia_centre_and_status.gene_id,
-              best_plans_for_gene_consortia_centre_and_status.consortium_id,
-              best_plans_for_gene_consortia_centre_and_status.production_centre_id,
-              best_plans_for_gene_consortia_centre_and_status.order_by,
-              first_value(best_plans_for_gene_consortia_centre_and_status.mi_plan_id) OVER (PARTITION BY best_plans_for_gene_consortia_centre_and_status.gene_id, best_plans_for_gene_consortia_centre_and_status.consortium_id, best_plans_for_gene_consortia_centre_and_status.production_centre_id) AS mi_plan_id
-            FROM best_plans_for_gene_consortia_centre_and_status
+              best_plans_for_gene_centre_and_status.gene_id,
+              best_plans_for_gene_centre_and_status.production_centre_id,
+              best_plans_for_gene_centre_and_status.order_by,
+              first_value(best_plans_for_gene_centre_and_status.mi_plan_id) OVER (PARTITION BY best_plans_for_gene_centre_and_status.gene_id, best_plans_for_gene_centre_and_status.production_centre_id) AS mi_plan_id
+            FROM best_plans_for_gene_centre_and_status
           ),
 
           top_mi_plans AS (
@@ -204,7 +195,6 @@ module IntermediateReport::SummaryByCentreAndConsortia
             'all' AS allele_type,
             genes.marker_symbol AS gene,
             genes.mgi_accession_id AS mgi_accession_id,
-            consortia.name AS consortium,
             centres.name AS production_centre,
             top_mi_plans.id AS mi_plan_id,
             NULL AS mi_attempt_id,
@@ -233,14 +223,13 @@ module IntermediateReport::SummaryByCentreAndConsortia
             NULL AS phenotyping_colony_name
           FROM top_mi_plans
             JOIN genes ON genes.id = top_mi_plans.gene_id
-            JOIN consortia ON consortia.id = top_mi_plans.consortium_id
             JOIN centres ON centres.id = top_mi_plans.production_centre_id
             LEFT JOIN mi_plan_status_stamps AS assigned          ON assigned.mi_plan_id = top_mi_plans.id          AND assigned.status_id = 1
             LEFT JOIN mi_plan_status_stamps AS es_qc_in_progress ON es_qc_in_progress.mi_plan_id = top_mi_plans.id AND es_qc_in_progress.status_id = 8
             LEFT JOIN mi_plan_status_stamps AS es_qc_complete    ON es_qc_complete.mi_plan_id = top_mi_plans.id    AND es_qc_complete.status_id = 9
             LEFT JOIN mi_plan_status_stamps AS es_qc_fail        ON es_qc_fail.mi_plan_id = top_mi_plans.id        AND es_qc_fail.status_id = 10
             JOIN mi_plan_statuses ON mi_plan_statuses.id = top_mi_plans.status_id
-          ORDER BY catagory, approach, allele_type, gene_id, consortium_id, production_centre_id
+          ORDER BY catagory, approach, allele_type, gene_id, production_centre_id
         EOF
       end
 
@@ -256,7 +245,6 @@ module IntermediateReport::SummaryByCentreAndConsortia
 
               genes.marker_symbol AS gene,
               genes.mgi_accession_id AS mgi_accession_id,
-              consortia.name AS consortium,
               centres.name AS production_centre,
 
               NULL AS mi_plan_id,
@@ -300,13 +288,12 @@ module IntermediateReport::SummaryByCentreAndConsortia
 
           FROM top_production
           JOIN genes ON genes.id = top_production.gene_id
-          JOIN consortia ON consortia.id = top_production.consortium_id
           JOIN centres ON centres.id = top_production.production_centre_id
           LEFT JOIN (mouse_allele_mods JOIN colonies mi_attempt_colony ON mi_attempt_colony.id = mouse_allele_mods.parent_colony_id) ON mouse_allele_mods.id = top_production.mouse_allele_mod_id
           JOIN mi_attempts ON mi_attempts.id = mi_attempt_colony.mi_attempt_id OR mi_attempts.id = top_production.mi_attempt_id
 
           LEFT JOIN (top_phenotyping_production JOIN phenotyping_productions ON phenotyping_productions.id = top_phenotyping_production.phenotyping_production_id
-                    )ON top_phenotyping_production.gene_id = top_production.gene_id  AND top_phenotyping_production.consortium_id = top_production.consortium_id AND top_phenotyping_production.production_centre_id = top_production.production_centre_id
+                    )ON top_phenotyping_production.gene_id = top_production.gene_id AND top_phenotyping_production.production_centre_id = top_production.production_centre_id
 
           LEFT JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id
           LEFT JOIN mi_attempt_status_stamps AS in_progress_stamps ON in_progress_stamps.mi_attempt_id = mi_attempts.id AND in_progress_stamps.status_id = 1
@@ -330,7 +317,7 @@ module IntermediateReport::SummaryByCentreAndConsortia
           LEFT JOIN phenotyping_production_status_stamps AS pp_started_statuses ON pp_started_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_started_statuses.status_id = 3
           LEFT JOIN phenotyping_production_status_stamps AS pp_complete_statuses ON pp_complete_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_complete_statuses.status_id = 4
 
-          ORDER BY catagory, approach, allele_type, genes.id, consortia.id, centres.id
+          ORDER BY catagory, approach, allele_type, genes.id, centres.id
 
         EOF
       end
@@ -344,8 +331,7 @@ module IntermediateReport::SummaryByCentreAndConsortia
 
           'gene',
           'mgi_accession_id',
-          'consortium',                                  # plan data
-          'production_centre',
+          'production_centre',                           # plan data
 
 
           'mi_plan_id',                                  # ids

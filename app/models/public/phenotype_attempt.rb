@@ -19,7 +19,7 @@ class Public::PhenotypeAttempt
                                  :include => []}
 
   READABLE_ATTRIBUTES = {
-      :methods => [:id, :mi_plan_id, :status_name, :mi_attempt_colony_name, :parent_colony_name, :colony_name, :production_centre_name, :consortium_name, :marker_symbol, :colony_background_strain_name, :colony_background_strain_mgi_name, :colony_background_strain_mgi_accession, :rederivation_started, :rederivation_complete, :distribution_centres_formatted_display, :is_active, :report_to_public, :cre_excision_required, :excision_required, :phenotyping_productions_attributes, :mouse_allele_symbol_superscript, :mouse_allele_symbol, :status_dates]
+      :methods => [:id, :mi_plan_id, :status_name, :mi_attempt_colony_name, :parent_colony_name, :colony_name, :production_centre_name, :consortium_name, :marker_symbol, :mgi_accession_id, :colony_background_strain_name, :colony_background_strain_mgi_name, :colony_background_strain_mgi_accession, :rederivation_started, :rederivation_complete, :distribution_centres_formatted_display, :is_active, :report_to_public, :cre_excision_required, :excision_required, :phenotyping_productions_attributes, :mouse_allele_symbol_superscript, :mouse_allele_symbol, :status_dates]
   }
 
   @@phenotype_attempt_fields = []
@@ -448,6 +448,11 @@ class Public::PhenotypeAttempt
   def marker_symbol
     return mouse_allele_mod.mi_plan.gene.marker_symbol if !mouse_allele_mod.blank? && !mouse_allele_mod.mi_plan.blank?
     return linked_phenotyping_production.mi_plan.gene.marker_symbol if !linked_phenotyping_production.blank? && !linked_phenotyping_production.mi_plan.blank?
+  end
+
+  def mgi_accession_id
+    return mouse_allele_mod.mi_plan.gene.mgi_accession_id if !mouse_allele_mod.blank? && !mouse_allele_mod.mi_plan.blank?
+    return linked_phenotyping_production.mi_plan.gene.mgi_accession_id if !linked_phenotyping_production.blank? && !linked_phenotyping_production.mi_plan.blank?
   end
 
   def distribution_centres_formatted_display

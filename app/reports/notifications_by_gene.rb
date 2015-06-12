@@ -116,43 +116,45 @@ class NotificationsByGene < PlannedMicroinjectionList
 
     if !consortium.nil?
       if production_centre.nil?
-        intermediate_table = 'new_intermediate_report_summary_by_consortia'
+        intermediate_table = IntermediateReportSummaryByConsortia
       else
-        intermediate_table = 'new_intermediate_report_summary_by_consortia_and_centre'
-        where_clause.push "#{intermediate_table}.production_centre = '#{production_centre}'"
+        intermediate_table = IntermediateReportSummaryByCentreAndConsortia
+        where_clause.push "intermediate_report.production_centre = '#{production_centre}'"
       end
     else
       if production_centre.nil?
-        intermediate_table = 'new_intermediate_report_summary_by_gene'
+        intermediate_table = IntermediateReportSummaryByGene
       else
-        intermediate_table = 'new_intermediate_report_summary_by_centre'
-        where_clause.push "#{intermediate_table}.production_centre = '#{production_centre}'"
+        intermediate_table = IntermediateReportSummaryByCentre
+        where_clause.push "intermediate_report.production_centre = '#{production_centre}'"
       end
     end
 
     if none
-      where_clause.push "#{intermediate_table}.consortium is null"
+      where_clause.push "intermediate_report.consortium is null"
     elsif consortium.to_s.length > 0
-      where_clause.push "#{intermediate_table}.consortium = '#{consortium}'"
+      where_clause.push "intermediate_report.consortium = '#{consortium}'"
     end
 
     where_clause = 'where ' + where_clause.join(' and ') if where_clause.length > 0
     where_clause = '' if where_clause.length < 1
 
     sql = <<-EOF
+      WITH intermediate_report AS #{intermediate_table.}
+
       SELECT
         genes.marker_symbol as gene,
         count(*) as number_of_notifications,
         genes.marker_symbol as marker_symbol,
         genes.mgi_accession_id AS mgi_accession_id,
-        #{intermediate_table}.overall_status AS status
+        intermediate_report.overall_status AS status
       FROM notifications
         JOIN contacts ON contacts.id = notifications.contact_id and contacts.report_to_public is true
         JOIN genes ON genes.id = notifications.gene_id
-        LEFT JOIN #{intermediate_table} ON #{intermediate_table}.gene = genes.marker_symbol
+        LEFT JOIN intermediate_report ON intermediate_report.gene = genes.marker_symbol
         #{where_clause}
-      GROUP BY genes.marker_symbol, genes.mgi_accession_id, #{intermediate_table}.overall_status
-      ORDER BY number_of_notifications desc, marker_symbol, #{intermediate_table}.overall_status
+      GROUP BY genes.marker_symbol, genes.mgi_accession_id, intermediate_report.overall_status
+      ORDER BY number_of_notifications desc, marker_symbol, intermediate_report.overall_status
     EOF
 
     sql

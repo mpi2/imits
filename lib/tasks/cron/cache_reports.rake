@@ -16,7 +16,6 @@ begin
 
       task :part3 => [:environment] do
         ApplicationModel.audited_transaction do
-          Reports::MiProduction::Intermediate.new.cache
         end
       end
 

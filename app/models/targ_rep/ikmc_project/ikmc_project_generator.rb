@@ -80,7 +80,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
             END AS best_ikmc_project_status
             FROM
               (SELECT targ_rep_ikmc_projects.id AS ikmc_project_id,
-              CASE WHEN phenotype_attempt_statuses.name = 'Phenotyping Started' THEN 1
+              CASE WHEN phenotyping_production_statuses.name = 'Phenotyping Started' THEN 1
                 WHEN mi_attempt_statuses.name = 'Genotype confirmed' THEN 2
                 WHEN mi_attempt_statuses.name IS NOT NULL THEN 3
                 WHEN targ_rep_es_cells.id IS NOT NULL AND targ_rep_es_cells.report_to_public = true THEN 4
@@ -93,8 +93,9 @@ module TargRep::IkmcProject::IkmcProjectGenerator
               LEFT JOIN targ_rep_ikmc_project_statuses ON targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id
               LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
               LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
-              LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id AND mi_attempt_statuses.name != 'Micro-injection aborted' ) ON mi_attempts.es_cell_id = targ_rep_es_cells.id AND mi_attempts.report_to_public = true
-              LEFT JOIN (phenotype_attempts JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id AND phenotype_attempt_statuses.name != 'Phenotype Attempt Aborted' ) ON phenotype_attempts.mi_attempt_id = mi_attempts.id  AND phenotype_attempts.report_to_public = true
+              LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id AND mi_attempt_statuses.name != 'Micro-injection aborted' JOIN colonies mi_colony ON mi_colony.mi_attempt_id = mi_attempts.id) ON mi_attempts.es_cell_id = targ_rep_es_cells.id AND mi_attempts.report_to_public = true
+              LEFT JOIN (mouse_allele_mods JOIN colonies mam_colony ON mam_colony.mouse_allele_mod_id = mouse_allele_mods.id) ON mouse_allele_mods.parent_colony_id = mi_colony.id AND mouse_allele_mods.report_to_public = true
+              LEFT JOIN (phenotyping_productions JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id AND phenotyping_production_statuses.name != 'Phenotype Production Aborted' ) ON (phenotyping_productions.parent_colony_id = mi_colony.id OR phenotyping_productions.parent_colony_id = mam_colony.id)  AND phenotyping_productions.report_to_public = true
               ) AS ikmc_project_statuses
           GROUP BY ikmc_project_statuses.ikmc_project_id
         ) AS best_status

@@ -8,7 +8,7 @@
 <div id="object-box" class="grid_8 prefix_2 suffix_2">
   <h2><%= @title %></h2>
 
-
+  <%= link_to 'History', "#{@phenotype_attempt.id}/history" %>
 
   <%= form_for @phenotype_attempt, :method => :put, :as => :phenotype_attempt, :url => "#{root_path}phenotype_attempts/#{@phenotype_attempt.id}", :html => {:class => 'edit show phenotype-attempt'} do |form| %>
 

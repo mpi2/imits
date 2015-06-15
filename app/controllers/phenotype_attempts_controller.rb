@@ -324,7 +324,7 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def history
-    @resource = PhenotypeAttempt.find(params[:id])
+    @resource = Public::PhenotypeAttempt.find(params[:id])
     render :template => '/shared/history'
   end
 

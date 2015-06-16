@@ -5,6 +5,17 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
 
   class << self
 
+  def select_sql(category = 'es cell', approach = 'all', allele_type= nil)
+
+     if !allele_type.nil?
+       return ""
+     else
+      where_clause = {'category' => category }
+      return generate_sql(where_clause, {'mi_production' => true, 'allele_mod_production' => true, 'phenotyping' => true})
+     end
+    end
+
+
     def plan_summary(options)
       where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell'}
       generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => false})
@@ -54,21 +65,28 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
         end
       end
 
+      where = []
       sql = <<-EOF
         SELECT #{select_fields(display)}
-        FROM (SELECT *
+        FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id FROM mi_plans) AS distinct_gene_consortia_centre
+        JOIN genes ON genes.id = distinct_gene_consortia_centre.gene_id
+        JOIN consortia ON consortia.id = distinct_gene_consortia_centre.consortium_id
+        JOIN centres ON centres.id = distinct_gene_consortia_centre.production_centre_id
+        LEFT JOIN (SELECT *
                FROM intermediate_report_summary_by_centre_and_consortia
                WHERE intermediate_report_summary_by_centre_and_consortia.catagory = '#{where_clauses['category']}' AND intermediate_report_summary_by_centre_and_consortia.approach = 'plan'
-             ) AS plan_summary
+             ) AS plan_summary ON plan_summary.gene = genes.marker_symbol AND plan_summary.consortium = consortia.name AND plan_summary.production_centre = centres.name
       EOF
+      where << "plan_summary.mi_plan_status IS NOT NULL"
 
       if display.has_key?('mi_production') && display['mi_production'] == true
         sql += <<-EOF
           LEFT JOIN (SELECT *
                      FROM intermediate_report_summary_by_centre_and_consortia
                      WHERE intermediate_report_summary_by_centre_and_consortia.catagory = '#{where_clauses['category']}' AND intermediate_report_summary_by_centre_and_consortia.approach = 'micro-injection'
-                    ) AS mi_production_summary ON mi_production_summary.gene = plan_summary.gene AND mi_production_summary.consortium = plan_summary.consortium
+                    ) AS mi_production_summary ON mi_production_summary.gene = genes.marker_symbol AND mi_production_summary.consortium = consortia.name AND mi_production_summary.production_centre = centres.name
         EOF
+        where << "mi_production_summary.mi_attempt_status IS NOT NULL"
       end
 
       if display.has_key?('allele_mod_production') && display['allele_mod_production'] == true
@@ -76,8 +94,9 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
           LEFT JOIN (SELECT *
                      FROM intermediate_report_summary_by_centre_and_consortia
                      WHERE intermediate_report_summary_by_centre_and_consortia.catagory = '#{where_clauses['category']}' AND intermediate_report_summary_by_centre_and_consortia.approach = 'mouse allele modification'
-                    ) AS allele_mod_production_summary ON allele_mod_production_summary.gene = plan_summary.gene AND allele_mod_production_summary.consortium = plan_summary.consortium
+                    ) AS allele_mod_production_summary ON allele_mod_production_summary.gene = genes.marker_symbol AND allele_mod_production_summary.consortium = consortia.name AND allele_mod_production_summary.production_centre = centres.name
         EOF
+        where << "allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL"
       end
 
       if display.has_key?('phenotyping') && display['phenotyping'] == true
@@ -85,10 +104,12 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
           LEFT JOIN (SELECT *
                      FROM intermediate_report_summary_by_centre_and_consortia
                      WHERE intermediate_report_summary_by_centre_and_consortia.catagory = '#{where_clauses['category']}' #{!where_clauses['phenotyping_approach'].nil? ? "AND intermediate_report_summary_by_centre_and_consortia.approach = '#{where_clauses['phenotyping_approach']}'" : ''}
-                    ) AS phenotyping_production_summary ON phenotyping_production_summary.gene = plan_summary.gene AND phenotyping_production_summary.consortium = plan_summary.consortium
+                    ) AS phenotyping_production_summary ON phenotyping_production_summary.gene = genes.marker_symbol AND phenotyping_production_summary.consortium = consortia.name AND phenotyping_production_summary.production_centre = centres.name
         EOF
+        where << "phenotyping_production_summary.phenotyping_status IS NOT NULL"
       end
 
+      sql += "WHERE #{where.join(' OR ')} " unless where.blank?
       return sql
     end
 
@@ -100,9 +121,9 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
       if display.has_key?('plan') && display['plan'] == true
         sql += <<-EOF
                plan_summary.mi_plan_id,
-               plan_summary.consortium,
-               plan_summary.production_centre,
-               plan_summary.gene,
+               consortia.name AS consortium,
+               centres.name AS production_centre,
+               genes.marker_symbol AS gene,
                plan_summary.mgi_accession_id,
                plan_summary.mi_plan_status,
                plan_summary.gene_interest_date,
@@ -154,6 +175,21 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
                phenotyping_production_summary.phenotyping_complete_date,
                phenotyping_production_summary.phenotype_attempt_aborted_date,
                phenotyping_production_summary.approach AS phenotyping_approach
+        EOF
+      end
+
+      if display.has_key?('plan') && display['plan'] == true &&
+         display.has_key?('mi_production') && display['mi_production'] == true &&
+         display.has_key?('allele_mod_production') && display['allele_mod_production'] == true &&
+         display.has_key?('phenotyping') && display['phenotyping'] == true
+        sql += <<-EOF
+           , CASE WHEN phenotyping_production_summary.phenotyping_status = 'Phenotype Production Aborted' AND (allele_mod_production_summary.mouse_allele_mod_status IS NULL OR allele_mod_production_summary.mouse_allele_mod_status = 'Mouse Allele Modification Aborted')
+                THEN 'Phenotype Attempt Aborted'
+                WHEN phenotyping_production_summary.phenotyping_status IS NOT NULL THEN phenotyping_production_summary.phenotyping_status
+                WHEN allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL THEN allele_mod_production_summary.mouse_allele_mod_status
+                WHEN mi_production_summary.mi_attempt_status IS NOT NULL THEN mi_production_summary.mi_attempt_status
+                WHEN plan_summary.mi_plan_status IS NOT NULL THEN plan_summary.mi_plan_status
+           END AS overall_status
         EOF
       end
 

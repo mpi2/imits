@@ -5,163 +5,129 @@ class IntermediateReportSummaryByCentre < ActiveRecord::Base
 
   class << self
 
-    def plan_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell'}
-      generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => false})
+    def select_sql(category = 'es cell', approach = 'all', allele_type= nil)
+
+     select_data = {['es cell','all'] => {'all' => es_cell_sql, 'allele_based' => es_cell_sql},
+#                    ['es cell','micro injection'] => {'all' => ?, 'allele_based' => ?},
+#                    ['es cell','mouse allele modification'] => {'all' => ?, 'allele_based' => ?},
+                    ['crispr','all']  => {'all' => crispr_sql, 'allele_based' => crispr_sql},
+#                    ['crispr','micro injection'] => {'all' => ?, 'allele_based' => ?},
+#                    ['crispr','mouse allele modification'] => {'all' => ?, 'allele_based' => ?},
+                    ['all','all']     => {'all' => es_cell_and_crispr_sql, 'allele_based' => es_cell_and_crispr_sql},
+#                    ['all','micro injection'] => {'all' => ?, 'allele_based' => ?},
+#                    ['all','mouse allele modification'] => {'all' => ?, 'allele_based' => ?}
+                   }
+
+     if !allele_type.nil?
+       return select_data[[category,'all']]['allele_based']
+     else
+       return select_data[[category,'all']]['all']
+     end
     end
 
-    def mi_production_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell'}
-      generate_sql(where_clause, {'mi_production' => true, 'allele_mod_production' => false, 'phenotyping' => false})
-    end
 
-    def mi_phenotyping_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell', 'phenotyping_approach' => 'micro-injection'}
-      generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => true})
-    end
-
-    def mam_production_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell'}
-      generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => true, 'phenotyping' => false})
-    end
-
-    def mam_phenotyping_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell', 'phenotyping_approach' => 'mouse allele modification'}
-      generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => true})
-    end
-
-    def phenotyping_summary_include_everything(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell', 'phenotyping_approach' => nil}
-      generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => true})
-    end
-
-    def generate_sql( where_clauses = {}, display = {})
-      display['plan'] = true
-      display['mi_production'] = true if !display.has_key?('mi_production')
-      display['allele_mod_production'] = true if !display.has_key?('allele_mod_production')
-      display['phenotyping'] = true if !display.has_key?('phenotyping')
-
-      where_clauses['category'] = 'es cell' if !where_clauses.has_key?('category')
-
-      if !where_clauses.has_key?('phenotyping_approach')
-        where_clauses['phenotyping_approach'] = 'all'
-        if !display.has_key?('allele_mod_production') || !display.has_key?('mi_production')
-          if display.has_key?('mi_production')
-            where_clauses['phenotyping_approach'] = 'micro-injection'
-          elsif display.has_key?('allele_mod_production')
-            where_clauses['phenotyping_approach'] = 'mouse allele modification'
-          end
-        end
-      end
-
-      sql = <<-EOF
-        SELECT #{select_fields(display)}
-        FROM (SELECT *
-               FROM intermediate_report_summary_by_centre
-               WHERE intermediate_report_summary_by_centre.catagory = '#{where_clauses['category']}' AND intermediate_report_summary_by_centre.approach = 'plan'
-             ) AS plan_summary
+    def es_cell_and_crispr_sql
+      <<-EOF
+        SELECT #{select_fields}
+        FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.production_centre_id FROM mi_plans) distinct_gene_centres
+          JOIN centres ON centres.id = distinct_gene_centres.consortium_id
+          JOIN genes ON genes.id = distinct_gene_centres.gene_id
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'all' AND intermediate_report_summary_by_centre.approach = 'plan') AS plan_summary ON plan_summary.gene = genes.marker_symbol AND plan_summary.production_centre = centres.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'all' AND intermediate_report_summary_by_centre.approach = 'micro-injection') AS mi_production_summary ON mi_production_summary.gene = genes.marker_symbol AND mi_production_summary.production_centre = centres.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'all' AND intermediate_report_summary_by_centre.approach = 'mouse allele modification') AS allele_mod_production_summary ON allele_mod_production_summary.gene = genes.marker_symbol AND allele_mod_production_summary.production_centre = centres.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'all' AND intermediate_report_summary_by_centre.approach = 'all') AS phenotyping_production_summary ON phenotyping_production_summary.gene = genes.marker_symbol AND phenotyping_production_summary.production_centre = centres.name
+        WHERE phenotyping_production_summary.phenotyping_status IS NOT NULL OR
+              allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL OR
+              mi_production_summary.mi_attempt_status IS NOT NULL OR
+              plan_summary.mi_plan_status IS NOT NULL
       EOF
-
-      if display.has_key?('mi_production') && display['mi_production'] == true
-        sql += <<-EOF
-          LEFT JOIN (SELECT *
-                     FROM intermediate_report_summary_by_centre
-                     WHERE intermediate_report_summary_by_centre.catagory = '#{where_clauses['category']}' AND intermediate_report_summary_by_centre.approach = 'micro-injection'
-                    ) AS mi_production_summary ON mi_production_summary.gene = plan_summary.gene AND mi_production_summary.consortium = plan_summary.consortium
-        EOF
-      end
-
-      if display.has_key?('allele_mod_production') && display['allele_mod_production'] == true
-        sql += <<-EOF
-          LEFT JOIN (SELECT *
-                     FROM intermediate_report_summary_by_centre
-                     WHERE intermediate_report_summary_by_centre.catagory = '#{where_clauses['category']}' AND intermediate_report_summary_by_centre.approach = 'mouse allele modification'
-                    ) AS allele_mod_production_summary ON allele_mod_production_summary.gene = plan_summary.gene AND allele_mod_production_summary.consortium = plan_summary.consortium
-        EOF
-      end
-
-      if display.has_key?('phenotyping') && display['phenotyping'] == true
-        sql += <<-EOF
-          LEFT JOIN (SELECT *
-                     FROM intermediate_report_summary_by_centre
-                     WHERE intermediate_report_summary_by_centre.catagory = '#{where_clauses['category']}' #{!where_clauses['phenotyping_approach'].nil? ? "AND intermediate_report_summary_by_centre.approach = '#{where_clauses['phenotyping_approach']}'" : ''}
-                    ) AS phenotyping_production_summary ON phenotyping_production_summary.gene = plan_summary.gene AND phenotyping_production_summary.consortium = plan_summary.consortium
-        EOF
-      end
-
-      return sql
     end
 
-    def select_fields(display = {'mi_production' => true, 'allele_mod_production' => true, 'phenotyping' => true})
-      display['plan'] = true
-      #confiuration of fields that should be returned
-      sql = ''
-
-      if display.has_key?('plan') && display['plan'] == true
-        sql += <<-EOF
-               plan_summary.mi_plan_id,
-               plan_summary.consortium,
-               plan_summary.production_centre,
-               plan_summary.gene,
-               plan_summary.mgi_accession_id,
-               plan_summary.mi_plan_status,
-               plan_summary.gene_interest_date,
-               plan_summary.assigned_date,
-               plan_summary.assigned_es_cell_qc_in_progress_date,
-               plan_summary.assigned_es_cell_qc_complete_date,
-               plan_summary.aborted_es_cell_qc_failed_date
-        EOF
-      end
-
-      if display.has_key?('mi_production') && display['mi_production'] == true
-        sql += <<-EOF
-               ,mi_production_summary.mi_attempt_id,
-               mi_production_summary.mi_attempt_external_ref,
-               mi_production_summary.mi_attempt_colony_name,
-               mi_production_summary.mi_attempt_status,
-               mi_production_summary.micro_injection_aborted_date,
-               mi_production_summary.micro_injection_in_progress_date,
-               mi_production_summary.chimeras_obtained_date,
-               mi_production_summary.founder_obtained_date,
-               mi_production_summary.genotype_confirmed_date
-        EOF
-      end
-
-      if display.has_key?('allele_mod_production') && display['allele_mod_production'] == true
-        sql += <<-EOF
-               ,allele_mod_production_summary.modified_mouse_allele_mod_id,
-               allele_mod_production_summary.mouse_allele_mod_id,
-               allele_mod_production_summary.mouse_allele_mod_colony_name,
-               allele_mod_production_summary.mouse_allele_mod_status,
-               allele_mod_production_summary.mouse_allele_mod_registered_date,
-               allele_mod_production_summary.rederivation_started_date,
-               allele_mod_production_summary.rederivation_complete_date,
-               allele_mod_production_summary.cre_excision_started_date,
-               allele_mod_production_summary.cre_excision_complete_date
-        EOF
-      end
-
-      if display.has_key?('phenotyping') && display['phenotyping'] == true
-        sql += <<-EOF
-               ,phenotyping_production_summary.phenotyping_production_id,
-               phenotyping_production_summary.phenotyping_production_colony_name,
-               phenotyping_production_summary.phenotyping_status,
-               phenotyping_production_summary.phenotyping_registered_date,
-               phenotyping_production_summary.phenotyping_rederivation_started_date,
-               phenotyping_production_summary.phenotyping_rederivation_complete_date,
-               phenotyping_production_summary.phenotyping_experiments_started_date,
-               phenotyping_production_summary.phenotyping_started_date,
-               phenotyping_production_summary.phenotyping_complete_date,
-               phenotyping_production_summary.phenotype_attempt_aborted_date,
-               phenotyping_production_summary.approach AS phenotyping_approach
-        EOF
-      end
-
-      return sql
+    def es_cell_sql
+      <<-EOF
+        SELECT #{select_fields}
+        FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.production_centre_id FROM mi_plans) distinct_gene_centres
+          JOIN centres ON centres.id = distinct_gene_centres.consortium_id
+          JOIN genes ON genes.id = distinct_gene_centres.gene_id
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'es cell' AND intermediate_report_summary_by_centre.approach = 'plan') AS plan_summary ON plan_summary.gene = genes.marker_symbol AND plan_summary.production_centre = centres.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'es cell' AND intermediate_report_summary_by_centre.approach = 'micro-injection') AS mi_production_summary ON mi_production_summary.gene = genes.marker_symbol AND mi_production_summary.production_centre = centres.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'es cell' AND intermediate_report_summary_by_centre.approach = 'mouse allele modification') AS allele_mod_production_summary ON allele_mod_production_summary.gene = genes.marker_symbol AND allele_mod_production_summary.production_centre = centres.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'es cell' AND intermediate_report_summary_by_centre.approach = 'all') AS phenotyping_production_summary ON phenotyping_production_summary.gene = genes.marker_symbol AND phenotyping_production_summary.production_centre = centres.name
+        WHERE phenotyping_production_summary.phenotyping_status IS NOT NULL OR
+              allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL OR
+              mi_production_summary.mi_attempt_status IS NOT NULL OR
+              plan_summary.mi_plan_status IS NOT NULL
+      EOF
     end
 
+    def crispr_sql
+      <<-EOF
+        SELECT #{select_fields}
+        FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.production_centre_id FROM mi_plans) distinct_gene_centres
+          JOIN centres ON centres.id = distinct_gene_centres.consortium_id
+          JOIN genes ON genes.id = distinct_gene_centres.gene_id
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'crispr' AND intermediate_report_summary_by_centre.approach = 'plan') AS plan_summary ON plan_summary.gene = genes.marker_symbol AND plan_summary.production_centre = centres.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'crispr' AND intermediate_report_summary_by_centre.approach = 'micro-injection') AS mi_production_summary ON mi_production_summary.gene = genes.marker_symbol AND mi_production_summary.production_centre = centres.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'crispr' AND intermediate_report_summary_by_centre.approach = 'mouse allele modification') AS allele_mod_production_summary ON allele_mod_production_summary.gene = genes.marker_symbol AND allele_mod_production_summary.production_centre = centres.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_centre WHERE intermediate_report_summary_by_centre.catagory = 'crispr' AND intermediate_report_summary_by_centre.approach = 'all') AS phenotyping_production_summary ON phenotyping_production_summary.gene = genes.marker_symbol AND phenotyping_production_summary.production_centre = centres.name
+        WHERE phenotyping_production_summary.phenotyping_status IS NOT NULL OR
+              allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL OR
+              mi_production_summary.mi_attempt_status IS NOT NULL OR
+              plan_summary.mi_plan_status IS NOT NULL
+      EOF
+    end
+
+    def select_fields
+      <<-EOF
+           plan_summary.mi_plan_id,
+           mi_production_summary.mi_attempt_id,
+           allele_mod_production_summary.modified_mouse_allele_mod_id,
+           allele_mod_production_summary.mouse_allele_mod_id,
+           phenotyping_production_summary.phenotyping_production_id,
+           centres.name AS production_centre,
+           genes.marker_symbol AS gene,
+           plan_summary.mgi_accession_id,
+           mi_production_summary.mi_attempt_external_ref,
+           mi_production_summary.mi_attempt_colony_name,
+           allele_mod_production_summary.mouse_allele_mod_colony_name,
+           phenotyping_production_summary.phenotyping_production_colony_name,
+
+           CASE WHEN phenotyping_production_summary.phenotyping_status = 'Phenotype Production Aborted' AND (allele_mod_production_summary.mouse_allele_mod_status IS NULL OR allele_mod_production_summary.mouse_allele_mod_status = 'Mouse Allele Modification Aborted')
+                THEN 'Phenotype Attempt Aborted'
+                WHEN phenotyping_production_summary.phenotyping_status IS NOT NULL THEN phenotyping_production_summary.phenotyping_status
+                WHEN allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL THEN allele_mod_production_summary.mouse_allele_mod_status
+                WHEN mi_production_summary.mi_attempt_status IS NOT NULL THEN mi_production_summary.mi_attempt_status
+                WHEN plan_summary.mi_plan_status IS NOT NULL THEN plan_summary.mi_plan_status
+           END AS overall_status,
+
+           plan_summary.mi_plan_status,
+           plan_summary.assigned_date,
+           plan_summary.assigned_es_cell_qc_in_progress_date,
+           plan_summary.assigned_es_cell_qc_complete_date,
+           plan_summary.aborted_es_cell_qc_failed_date,
+           mi_production_summary.mi_attempt_status,
+           mi_production_summary.micro_injection_aborted_date,
+           mi_production_summary.micro_injection_in_progress_date,
+           mi_production_summary.chimeras_obtained_date,
+           mi_production_summary.founder_obtained_date,
+           mi_production_summary.genotype_confirmed_date,
+           allele_mod_production_summary.mouse_allele_mod_status,
+           allele_mod_production_summary.mouse_allele_mod_registered_date,
+           allele_mod_production_summary.rederivation_started_date,
+           allele_mod_production_summary.rederivation_complete_date,
+           allele_mod_production_summary.cre_excision_started_date,
+           allele_mod_production_summary.cre_excision_complete_date,
+           phenotyping_production_summary.phenotyping_status,
+           phenotyping_production_summary.phenotyping_registered_date,
+           phenotyping_production_summary.phenotyping_rederivation_started_date,
+           phenotyping_production_summary.phenotyping_rederivation_complete_date,
+           phenotyping_production_summary.phenotyping_experiments_started_date,
+           phenotyping_production_summary.phenotyping_started_date,
+           phenotyping_production_summary.phenotyping_complete_date,
+           phenotyping_production_summary.phenotype_attempt_aborted_date
+      EOF
+    end
   end
-
 end
 
 # == Schema Information

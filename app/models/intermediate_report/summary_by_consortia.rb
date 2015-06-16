@@ -303,13 +303,13 @@ module IntermediateReport::SummaryByConsortia
           LEFT JOIN (top_phenotyping_production JOIN phenotyping_productions ON phenotyping_productions.id = top_phenotyping_production.phenotyping_production_id
                     )ON top_phenotyping_production.gene_id = top_production.gene_id  AND top_phenotyping_production.consortium_id = top_production.consortium_id
 
-          LEFT JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.id
+          LEFT JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
           LEFT JOIN mi_attempt_status_stamps AS in_progress_stamps ON in_progress_stamps.mi_attempt_id = mi_attempts.id AND in_progress_stamps.status_id = 1
           LEFT JOIN mi_attempt_status_stamps AS gc_stamps          ON gc_stamps.mi_attempt_id = mi_attempts.id          AND gc_stamps.status_id = 2
           LEFT JOIN mi_attempt_status_stamps AS aborted_stamps     ON aborted_stamps.mi_attempt_id = mi_attempts.id     AND aborted_stamps.status_id = 3
           LEFT JOIN mi_attempt_status_stamps AS chimearic_stamps   ON chimearic_stamps.mi_attempt_id = mi_attempts.id   AND chimearic_stamps.status_id = 4
 
-          LEFT JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.id
+          LEFT JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
           LEFT JOIN mouse_allele_mod_status_stamps AS mam_aborted_statuses ON mam_aborted_statuses.mouse_allele_mod_id = mouse_allele_mods.id AND mam_aborted_statuses.status_id = 7
           LEFT JOIN mouse_allele_mod_status_stamps AS mam_registered_statuses ON mam_registered_statuses.mouse_allele_mod_id = mouse_allele_mods.id AND mam_registered_statuses.status_id = 1
           LEFT JOIN mouse_allele_mod_status_stamps AS mam_re_started_statuses ON mam_re_started_statuses.mouse_allele_mod_id = mouse_allele_mods.id AND mam_re_started_statuses.status_id = 3
@@ -317,7 +317,7 @@ module IntermediateReport::SummaryByConsortia
           LEFT JOIN mouse_allele_mod_status_stamps AS mam_cre_started_statuses ON mam_cre_started_statuses.mouse_allele_mod_id = mouse_allele_mods.id AND mam_cre_started_statuses.status_id = 5
           LEFT JOIN mouse_allele_mod_status_stamps AS mam_cre_complete_statuses ON mam_cre_complete_statuses.mouse_allele_mod_id = mouse_allele_mods.id AND mam_cre_complete_statuses.status_id = 6
 
-          LEFT JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.id
+          LEFT JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
           LEFT JOIN phenotyping_production_status_stamps AS pp_aborted_statuses ON pp_aborted_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_aborted_statuses.status_id = 5
           LEFT JOIN phenotyping_production_status_stamps AS pp_registered_statuses ON pp_registered_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_registered_statuses.status_id = 1
           LEFT JOIN phenotyping_production_status_stamps AS pp_re_started_statuses ON pp_re_started_statuses.phenotyping_production_id = phenotyping_productions.id AND pp_re_started_statuses.status_id = 6

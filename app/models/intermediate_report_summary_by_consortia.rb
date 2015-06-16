@@ -18,7 +18,7 @@ class IntermediateReportSummaryByConsortia < ActiveRecord::Base
 #                    ['all','mouse allele modification'] => {'all' => ?, 'allele_based' => ?}
                    }
 
-     if allele_type.nil?
+     if !allele_type.nil?
        return select_data[[category,'all']]['allele_based']
      else
        return select_data[[category,'all']]['all']
@@ -29,30 +29,51 @@ class IntermediateReportSummaryByConsortia < ActiveRecord::Base
     def es_cell_and_crispr_sql
       <<-EOF
         SELECT #{select_fields}
-        FROM      (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'all' AND intermediate_report_summary_by_consortia.approach = 'plan') AS plan_summary
-        LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'all' AND intermediate_report_summary_by_consortia.approach = 'micro-injection') AS mi_production_summary ON mi_production_summary.gene = plan_summary.gene AND mi_production_summary.consortium = plan_summary.consortium
-        LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'all' AND intermediate_report_summary_by_consortia.approach = 'mouse allele modification') AS allele_mod_production_summary ON allele_mod_production_summary.gene = plan_summary.gene AND allele_mod_production_summary.consortium = plan_summary.consortium
-        LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'all' AND intermediate_report_summary_by_consortia.approach = 'all') AS phenotyping_production_summary ON phenotyping_production_summary.gene = plan_summary.gene AND phenotyping_production_summary.consortium = plan_summary.consortium
+        FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.consortium_id FROM mi_plans) distinct_gene_consortia
+          JOIN consortia ON consortia.id = distinct_gene_consortia.consortium_id
+          JOIN genes ON genes.id = distinct_gene_consortia.gene_id
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'all' AND intermediate_report_summary_by_consortia.approach = 'plan') AS plan_summary ON plan_summary.gene = genes.marker_symbol AND plan_summary.consortium = consortia.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'all' AND intermediate_report_summary_by_consortia.approach = 'micro-injection') AS mi_production_summary ON mi_production_summary.gene = genes.marker_symbol AND mi_production_summary.consortium = consortia.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'all' AND intermediate_report_summary_by_consortia.approach = 'mouse allele modification') AS allele_mod_production_summary ON allele_mod_production_summary.gene = genes.marker_symbol AND allele_mod_production_summary.consortium = consortia.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'all' AND intermediate_report_summary_by_consortia.approach = 'all') AS phenotyping_production_summary ON phenotyping_production_summary.gene = genes.marker_symbol AND phenotyping_production_summary.consortium = consortia.name
+        WHERE phenotyping_production_summary.phenotyping_status IS NOT NULL OR
+              allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL OR
+              mi_production_summary.mi_attempt_status IS NOT NULL OR
+              plan_summary.mi_plan_status IS NOT NULL
       EOF
     end
 
     def es_cell_sql
       <<-EOF
         SELECT #{select_fields}
-        FROM      (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'es cell' AND intermediate_report_summary_by_consortia.approach = 'plan') AS plan_summary
-        LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'es cell' AND intermediate_report_summary_by_consortia.approach = 'micro-injection') AS mi_production_summary ON mi_production_summary.gene = plan_summary.gene AND mi_production_summary.consortium = plan_summary.consortium
-        LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'es cell' AND intermediate_report_summary_by_consortia.approach = 'mouse allele modification') AS allele_mod_production_summary ON allele_mod_production_summary.gene = plan_summary.gene AND allele_mod_production_summary.consortium = plan_summary.consortium
-        LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'es cell' AND intermediate_report_summary_by_consortia.approach = 'all') AS phenotyping_production_summary ON phenotyping_production_summary.gene = plan_summary.gene AND phenotyping_production_summary.consortium = plan_summary.consortium
+        FROM  (SELECT DISTINCT mi_plans.gene_id, mi_plans.consortium_id FROM mi_plans) distinct_gene_consortia
+          JOIN consortia ON consortia.id = distinct_gene_consortia.consortium_id
+          JOIN genes ON genes.id = distinct_gene_consortia.gene_id
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'es cell' AND intermediate_report_summary_by_consortia.approach = 'plan') AS plan_summary ON plan_summary.gene = genes.marker_symbol AND plan_summary.consortium = consortia.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'es cell' AND intermediate_report_summary_by_consortia.approach = 'micro-injection') AS mi_production_summary ON mi_production_summary.gene = genes.marker_symbol AND mi_production_summary.consortium = consortia.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'es cell' AND intermediate_report_summary_by_consortia.approach = 'mouse allele modification') AS allele_mod_production_summary ON allele_mod_production_summary.gene = genes.marker_symbol AND allele_mod_production_summary.consortium = consortia.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'es cell' AND intermediate_report_summary_by_consortia.approach = 'all') AS phenotyping_production_summary ON phenotyping_production_summary.gene = genes.marker_symbol AND phenotyping_production_summary.consortium = consortia.name
+        WHERE phenotyping_production_summary.phenotyping_status IS NOT NULL OR
+              allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL OR
+              mi_production_summary.mi_attempt_status IS NOT NULL OR
+              plan_summary.mi_plan_status IS NOT NULL
       EOF
     end
 
     def crispr_sql
       <<-EOF
         SELECT #{select_fields}
-        FROM      (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'crispr' AND intermediate_report_summary_by_consortia.approach = 'plan') AS plan_summary
-        LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'crispr' AND intermediate_report_summary_by_consortia.approach = 'micro-injection') AS mi_production_summary ON mi_production_summary.gene = plan_summary.gene AND mi_production_summary.consortium = plan_summary.consortium
-        LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'crispr' AND intermediate_report_summary_by_consortia.approach = 'mouse allele modification') AS allele_mod_production_summary ON allele_mod_production_summary.gene = plan_summary.gene AND allele_mod_production_summary.consortium = plan_summary.consortium
-        LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'crispr' AND intermediate_report_summary_by_consortia.approach = 'all') AS phenotyping_production_summary ON phenotyping_production_summary.gene = plan_summary.gene AND phenotyping_production_summary.consortium = plan_summary.consortium
+        FROM  (SELECT DISTINCT mi_plans.gene_id, mi_plans.consortium_id FROM mi_plans) distinct_gene_consortia
+          JOIN consortia ON consortia.id = distinct_gene_consortia.consortium_id
+          JOIN genes ON genes.id = distinct_gene_consortia.gene_id
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'crispr' AND intermediate_report_summary_by_consortia.approach = 'plan') AS plan_summary ON plan_summary.gene = genes.marker_symbol AND plan_summary.consortium = consortia.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'crispr' AND intermediate_report_summary_by_consortia.approach = 'micro-injection') AS mi_production_summary ON mi_production_summary.gene = genes.marker_symbol AND mi_production_summary.consortium = consortia.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'crispr' AND intermediate_report_summary_by_consortia.approach = 'mouse allele modification') AS allele_mod_production_summary ON allele_mod_production_summary.gene = genes.marker_symbol AND allele_mod_production_summary.consortium = consortia.name
+          LEFT JOIN (SELECT * FROM intermediate_report_summary_by_consortia WHERE intermediate_report_summary_by_consortia.catagory = 'crispr' AND intermediate_report_summary_by_consortia.approach = 'all') AS phenotyping_production_summary ON phenotyping_production_summary.gene = genes.marker_symbol AND phenotyping_production_summary.consortium = consortia.name
+        WHERE phenotyping_production_summary.phenotyping_status IS NOT NULL OR
+              allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL OR
+              mi_production_summary.mi_attempt_status IS NOT NULL OR
+              plan_summary.mi_plan_status IS NOT NULL
       EOF
     end
 
@@ -63,13 +84,22 @@ class IntermediateReportSummaryByConsortia < ActiveRecord::Base
            allele_mod_production_summary.modified_mouse_allele_mod_id,
            allele_mod_production_summary.mouse_allele_mod_id,
            phenotyping_production_summary.phenotyping_production_id,
-           plan_summary.consortium,
-           plan_summary.gene,
+           consortia.name AS consortium,
+           genes.marker_symbol AS gene,
            plan_summary.mgi_accession_id,
            mi_production_summary.mi_attempt_external_ref,
            mi_production_summary.mi_attempt_colony_name,
            allele_mod_production_summary.mouse_allele_mod_colony_name,
            phenotyping_production_summary.phenotyping_production_colony_name,
+
+           CASE WHEN phenotyping_production_summary.phenotyping_status = 'Phenotype Production Aborted' AND (allele_mod_production_summary.mouse_allele_mod_status IS NULL OR allele_mod_production_summary.mouse_allele_mod_status = 'Mouse Allele Modification Aborted')
+                THEN 'Phenotype Attempt Aborted'
+                WHEN phenotyping_production_summary.phenotyping_status IS NOT NULL THEN phenotyping_production_summary.phenotyping_status
+                WHEN allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL THEN allele_mod_production_summary.mouse_allele_mod_status
+                WHEN mi_production_summary.mi_attempt_status IS NOT NULL THEN mi_production_summary.mi_attempt_status
+                WHEN plan_summary.mi_plan_status IS NOT NULL THEN plan_summary.mi_plan_status
+           END AS overall_status,
+
            plan_summary.mi_plan_status,
            plan_summary.gene_interest_date,
            plan_summary.assigned_date,

@@ -38,9 +38,11 @@ begin
       end
 
       task :intermediate_report => [:environment] do
-        NewIntermediateReportSummaryByMiPlan::Generate.cache
-        NewIntermediateReportSummaryByCentreAndConsortia::Generate.cache
-        NewIntermediateReportSummaryByConsortia::Generate.cache
+        IntermediateReportSummaryByMiPlan::Generate.cache
+        IntermediateReportSummaryByCentreAndConsortia::Generate.cache
+        IntermediateReportSummaryByConsortia::Generate.cache
+        IntermediateReportSummaryByCentre::Generate.cache
+        IntermediateReportSummaryByGene::Generate.cache
       end
 
       task :ikmc_project_update => [:environment] do

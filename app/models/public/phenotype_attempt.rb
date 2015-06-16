@@ -333,7 +333,7 @@ class Public::PhenotypeAttempt
 
   def registered_at
     return @registered_at unless @registered_at.blank?
-    return mouse_allele_mod.status_stamps.where("status_id = 1").try(:first).try(:created_at)
+    return mouse_allele_mod.status_stamps.where("status_id = 1").try(:first).try(:created_at) unless mouse_allele_mod.blank?
     return linked_phenotyping_production.status_stamps.where("status_id = 1").try(:first).try(:created_at) unless linked_phenotyping_production.blank?
     return nil
   end

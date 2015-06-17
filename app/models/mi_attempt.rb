@@ -392,7 +392,7 @@ class MiAttempt < ApplicationModel
 
   def mouse_allele_type
     return @mouse_allele_type if defined? @mouse_allele_type
-    return colony.allele_type unless es_cell.blank?
+    return colony.allele_type unless es_cell.blank? || colony.blank?
   end
 
   def colony_background_strain
@@ -401,7 +401,8 @@ class MiAttempt < ApplicationModel
 
   def colony_background_strain_name
     return @colony_background_strain_name unless @colony_background_strain_name.blank?
-    return colony.background_strain.try(:name) unless es_cell.blank?
+    return colony.background_strain.try(:name) unless es_cell.blank? || colony.blank?
+    return nil
   end
 
   def colony_background_strain_name=(arg)

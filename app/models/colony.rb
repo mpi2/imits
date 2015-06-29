@@ -119,14 +119,14 @@ class Colony < ApplicationModel
   end
 
   def get_template
-    return allele_symbol_superscript_template unless allele_symbol_superscript_template.nil?
+    return allele_symbol_superscript_template unless allele_symbol_superscript_template.blank?
 
     if mi_attempt_id
 
       if mi_attempt.es_cell_id
         return mi_attempt.es_cell.allele_symbol_superscript_template
       elsif mi_attempt.mutagenesis_factor
-        return "em1(IMPC)#{mi_attempt.production_centre.superscript}"
+        return "em1#{mi_attempt.production_centre.superscript}"
       else
         return nil
       end
@@ -151,7 +151,7 @@ class Colony < ApplicationModel
       elsif mi_attempt.mutagenesis_factor
         return 'NHEJ'
       else
-        return nil
+        return 'None'
       end
 
     elsif mouse_allele_mod_id
@@ -159,7 +159,7 @@ class Colony < ApplicationModel
       return mouse_allele_mod.try(:parent_colony).try(:get_type)
 
     else
-      return nil
+      return 'None'
     end
   end
   #protected :get_type
@@ -183,14 +183,14 @@ class Colony < ApplicationModel
 
 
   def set_allele_symbol_superscript
-    return if allele_symbol_superscript_template_changed?
+    return if self.allele_symbol_superscript_template_changed?
 
-    if mgi_allele_symbol_superscript.blank?
-      allele_symbol_superscript_template = nil
+    if self.mgi_allele_symbol_superscript.blank?
+      self.allele_symbol_superscript_template = nil
       return
     end
 
-    allele_symbol_superscript_template, allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
+    self.allele_symbol_superscript_template, self.allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
 
     if errors.count > 0
       self.errors.add errors.first[0], errors.first[1]
@@ -200,12 +200,12 @@ class Colony < ApplicationModel
 
   def allele_symbol_superscript
     template = get_template
-    type = get_type
+    type = get_type.to_s
 
     return nil if template.nil?
 
     if template =~ /#{TargRep::Allele::TEMPLATE_CHARACTER}/
-      if type.nil?
+      if type == 'None'
         return nil
       else
         return template.sub(TargRep::Allele::TEMPLATE_CHARACTER, type)

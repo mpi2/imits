@@ -11,6 +11,7 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     consortium_name
     production_centre_name
     production_colony_name
+    mouse_allele_symbol
     colony_name
     rederivation_started
     rederivation_complete

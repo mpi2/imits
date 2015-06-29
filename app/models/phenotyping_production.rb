@@ -159,6 +159,11 @@ class PhenotypingProduction < ApplicationModel
     colony_background_strain.try(:mgi_strain_accession_id)
   end
 
+  def mouse_allele_symbol
+    return nil if parent_colony.blank?
+    parent_colony.try(:allele_symbol)
+  end
+
 ## CLASS METHODS
 
   def self.readable_name

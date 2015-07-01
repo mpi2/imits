@@ -77,6 +77,10 @@
         <%= form.label :is_active, :is_active.to_s.titlecase %>
         <%= form.check_box :is_active %>
       </div>
+      <div>
+        <%= form.label :report_to_public, :report_to_public.to_s.titlecase %>
+        <%= form.check_box :report_to_public %>
+      </div>
     </div>
   </fieldset>
 </div>
@@ -101,7 +105,7 @@
     <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required == true ? '' : 'hidden' %>">
       <legend>Distribution Centres</legend>
       <div class="distribution_centres">
-      <% if ['Cre Excision Complete'].include?(@phenotype_attempt.status_name) %>
+      <% if ['Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete'].include?(@phenotype_attempt.status_name) %>
         <table id="distribution_centres_<%= form.object_id %>_table" class="report_table">
           <thead class="title">
             <tr>
@@ -123,7 +127,7 @@
         </table>
         <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
       <% else %>
-        No Distribution Centres can be set until Status is Genotype confirmed.
+        No Distribution Centres can be set until Status is Cre Excision Complete.
       <% end %>
       </div>
     </div>

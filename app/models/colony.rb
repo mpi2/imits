@@ -78,6 +78,7 @@ class Colony < ApplicationModel
   protected :set_genotype_confirmed
 
   def add_default_distribution_centre
+    puts 'HELLO'
     if self.genotype_confirmed and self.distribution_centres.count == 0
       centre = production_centre_name
       if centre == 'UCD'
@@ -281,7 +282,6 @@ class Colony < ApplicationModel
     pa.save
     raise "Could not create Phenotype Attempt #{pa.errors.messages}" unless pa.errors.messages.blank?
   end
-  private :add_default_distribution_centre
 
   def phenotype_attempts_count
     self.allele_modifications.length + self.phenotyping_productions.length

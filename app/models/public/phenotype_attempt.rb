@@ -216,10 +216,8 @@ class Public::PhenotypeAttempt
 
 
   def mi_attempt_colony_name=(arg)
-    puts "HELLO: #{arg}"
     colonies = Colony.where("name = '#{arg}' and mi_attempt_id IS NOT NULL")
     if colonies.length == 1
-      puts "NOT HERE"
       @parent_colony_name = colonies.first.name
     end
   end
@@ -492,6 +490,7 @@ class Public::PhenotypeAttempt
       mouse_allele_mod.rederivation_started = rederivation_started
       mouse_allele_mod.rederivation_complete = rederivation_complete
       mouse_allele_mod.is_active = is_active
+      mouse_allele_mod.report_to_public = report_to_public
       mouse_allele_mod.colony_background_strain_name = colony_background_strain_name
 
     elsif !linked_phenotyping_production.blank?
@@ -504,6 +503,7 @@ class Public::PhenotypeAttempt
       linked_phenotyping_production.rederivation_started = rederivation_started
       linked_phenotyping_production.rederivation_complete = rederivation_complete
       linked_phenotyping_production.is_active = is_active
+      linked_phenotyping_production.report_to_public = report_to_public
       linked_phenotyping_production.colony_background_strain_name = colony_background_strain_name
     end
 
@@ -619,8 +619,6 @@ class Public::PhenotypeAttempt
 
 
     return false unless valid?
-
-    puts "PHENOTYPE ATTEMPT: #{attributes}"
 
     begin
       ActiveRecord::Base.transaction do

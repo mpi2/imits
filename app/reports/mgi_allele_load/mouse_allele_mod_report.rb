@@ -87,7 +87,7 @@ class MgiAlleleLoad::MouseAlleleModReport
       JOIN genes ON genes.id = pa_mi_plans.gene_id
       JOIN colonies AS parent_colony ON parent_colony.id = mouse_allele_mods.parent_colony_id
       JOIN (mi_attempts JOIN mi_plans AS ma_plans ON mi_attempts.mi_plan_id = ma_plans.id JOIN centres AS ma_centres ON ma_centres.id = ma_plans.production_centre_id) ON mi_attempts.id = parent_colony.mi_attempt_id
-      JOIN strains AS ma_colony_background_strain ON ma_colony_background_strain.id = mi_attempts.colony_background_strain_id
+      JOIN strains AS ma_colony_background_strain ON ma_colony_background_strain.id = parent_colony.background_strain_id
       JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
       ORDER BY mgi_accession_id
       EOF

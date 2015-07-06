@@ -41,10 +41,10 @@ class MgiAlleleLoad::MouseAlleleModReport
         ma_centres.name AS mi_attempt_production_centre,
         CASE
           WHEN targ_rep_es_cells.allele_symbol_superscript_template IS NOT NULL AND targ_rep_es_cells.allele_symbol_superscript_template != ''
-            AND mi_attempts.mouse_allele_type IS NOT NULL AND mi_attempts.mouse_allele_type != ''
-            AND mi_attempts.mouse_allele_type != targ_rep_es_cells.allele_type
+            AND parent_colony.allele_type IS NOT NULL AND parent_colony.allele_type != ''
+            AND parent_colony.allele_type != targ_rep_es_cells.allele_type
           THEN
-            regexp_replace(targ_rep_es_cells.allele_symbol_superscript_template, '#{TargRep::Allele::TEMPLATE_CHARACTER}' , mi_attempts.mouse_allele_type)
+            regexp_replace(targ_rep_es_cells.allele_symbol_superscript_template, '#{TargRep::Allele::TEMPLATE_CHARACTER}' , parent_colony.allele_type)
           ELSE
             targ_rep_es_cells.mgi_allele_symbol_superscript
         END AS mi_attempt_allele_symbol,

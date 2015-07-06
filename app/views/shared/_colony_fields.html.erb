@@ -1,3 +1,5 @@
+<% generator = MiAttemptFieldGenerator.new(f) %>
+
 <% if f.object.trace_call.nil? then f.object.trace_call = TraceCall.new end %>
 
 <%= f.fields_for :trace_call do |ftc| %>
@@ -55,6 +57,7 @@
             <legend>Colony Status</legend>
             <div>
                 <div>Genotype Confirmed? <%= f.check_box :genotype_confirmed %></div>
+                <div><%= generator.strains_field :background_strain %></div>
                 <div>Allele Description</div><div><%= f.text_area :unwanted_allele_description %></div>
                 <div>Unwanted Allele Obtained? <%= f.check_box :unwanted_allele %></div>
             </div>

@@ -54,13 +54,17 @@
           <% end %>
         </div>
       <% end %>
+      <div id="blast_strain-container">
+        <%= generator.strains_field :blast_strain %>
+      </div>
+
       <div id="vector-container">
         <%= form.fields_for :mutagenesis_factor do |builder| %>
           <%= builder.label :vector_name%>
           <%= builder.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: @vector_options[:selected]) %>
         <% end %>
       </div>
-     <div id="nuclease-container">
+      <div id="nuclease-container">
         <%= form.fields_for :mutagenesis_factor do |builder| %>
           <%= builder.label :nuclease%>
           <%= builder.select :nuclease , MutagenesisFactor::NUCLEASES%>
@@ -217,7 +221,7 @@
   <fieldset class="collapsible">
     <legend>Transfer Details</legend>
     <div>
-      <%= generator.strains_field :blast_strain %>
+      <%= if !@mi_attempt.es_cell_id.blank? then generator.strains_field :blast_strain end %>
       <%= generator.number_field :total_blasts_injected %>
       <%= generator.number_field :total_transferred %>
       <%= generator.number_field :number_surrogates_receiving %>

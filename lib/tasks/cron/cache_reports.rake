@@ -21,13 +21,11 @@ begin
 
       task :part4 => [:environment] do
         ApplicationModel.audited_transaction do
-          Reports::ImpcGeneList.new.cache
         end
       end
 
       task :part5 => [:environment] do
         ApplicationModel.audited_transaction do
-          Reports::MiAttemptsList.new.cache
         end
       end
 

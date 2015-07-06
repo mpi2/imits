@@ -13,7 +13,7 @@ class Public::PhenotypeAttempt
   end
 
 
-  PHENOTYPE_ATTEMPT_MAM_FIELDS = {:exclude => ["id", "mi_plan_id", "cre_excision", "deleter_strain_id", "status_id", "parent_colony_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "report_to_public", "is_active", "phenotype_attempt_id", "cre_excision", "created_at", "updated_at"],
+  PHENOTYPE_ATTEMPT_MAM_FIELDS = {:exclude => ["id", "mi_plan_id", "cre_excision", "deleter_strain_id", "status_id", "parent_colony_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "number_of_cre_matings_successful", "report_to_public", "is_active", "phenotype_attempt_id", "cre_excision", "created_at", "updated_at"],
                                   :include => ["deleter_strain_name", "mouse_allele_type", "distribution_centres_attributes"] + (ColonyQc::QC_FIELDS.map{|a| "#{a}_result"})}
   PHENOTYPE_ATTEMPT_PP_FIELDS = {:exclude => ["id", "mi_plan_id", "mouse_allelle_mod_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "status_id", "parent_colony_id", "colony_name", "report_to_public", "is_active", "phenotype_attempt_id", "created_at", "updated_at"],
                                  :include => []}
@@ -244,6 +244,15 @@ class Public::PhenotypeAttempt
     @colony_background_strain_name = arg
   end
 
+  def number_of_cre_matings_successful
+    return @number_of_cre_matings_successful unless @number_of_cre_matings_successful.blank?
+    return mouse_allele_mod.number_of_cre_matings_successful unless mouse_allele_mod.blank?
+    return 0
+  end
+
+  def number_of_cre_matings_successful=(arg)
+      @number_of_cre_matings_successful = arg
+  end
 
   def rederivation_started
     return @rederivation_started unless @rederivation_started.nil?
@@ -492,6 +501,7 @@ class Public::PhenotypeAttempt
       mouse_allele_mod.is_active = is_active
       mouse_allele_mod.report_to_public = report_to_public
       mouse_allele_mod.colony_background_strain_name = colony_background_strain_name
+      mouse_allele_mod.number_of_cre_matings_successful = number_of_cre_matings_successful
 
     elsif !linked_phenotyping_production.blank?
       linked_phenotyping_production.parent_colony_name = mi_attempt_colony_name

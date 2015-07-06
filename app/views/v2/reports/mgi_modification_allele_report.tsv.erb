@@ -1,4 +1,0 @@
-<%= PhenotypeAttemptAlleleLoadReport.show_columns.map{|column| column['title']}.join("\t") %>
-<% @phenotype_attempt_mgi_allele.each do |record| %>
-<%= PhenotypeAttemptAlleleLoadReport.show_columns.map{|column| record[column['field']]}.join("\t") %>
-<% end %>

@@ -235,6 +235,7 @@ DEPENDENCIES
   foreigner (= 1.0.3)
   hoptoad_notifier (= 2.4.11)
   jammit (= 0.6.5)
+  json
   launchy (= 2.0.5)
   letter_opener
   mocha (= 0.13.3)

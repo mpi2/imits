@@ -1,10 +1,4 @@
-class PhenotypeAttemptAlleleLoadReport
-
-  ##
-  ## This is the base presenter for production specific reports grouped by
-  ## consortium, centre, and status, while also displaying gene & clone efficiency data.
-  ## Consortium/centre/status queries use the intermediate report, efficiency data comes from live tables.
-  ##
+class MgiAlleleLoad::MouseAlleleModReport
 
   attr_accessor :phenotype_attempt_mgi_allele
 

@@ -563,7 +563,6 @@ end
 #  number_of_males_with_40_to_79_percent_chimerism :integer
 #  number_of_males_with_80_to_99_percent_chimerism :integer
 #  number_of_males_with_100_percent_chimerism      :integer
-#  colony_background_strain_id                     :integer
 #  test_cross_strain_id                            :integer
 #  date_chimeras_mated                             :date
 #  number_of_chimera_matings_attempted             :integer
@@ -578,7 +577,6 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_type                               :string(3)
 #  report_to_public                                :boolean          default(TRUE), not null
 #  is_active                                       :boolean          default(TRUE), not null
 #  is_released_from_genotyping                     :boolean          default(FALSE), not null

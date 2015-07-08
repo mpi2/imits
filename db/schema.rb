@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150612115302) do
+ActiveRecord::Schema.define(:version => 20150707115302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -544,7 +544,6 @@ ActiveRecord::Schema.define(:version => 20150612115302) do
     t.integer  "number_of_males_with_40_to_79_percent_chimerism"
     t.integer  "number_of_males_with_80_to_99_percent_chimerism"
     t.integer  "number_of_males_with_100_percent_chimerism"
-    t.integer  "colony_background_strain_id"
     t.integer  "test_cross_strain_id"
     t.date     "date_chimeras_mated"
     t.integer  "number_of_chimera_matings_attempted"
@@ -559,7 +558,6 @@ ActiveRecord::Schema.define(:version => 20150612115302) do
     t.integer  "number_of_cct_offspring"
     t.integer  "number_of_het_offspring"
     t.integer  "number_of_live_glt_offspring"
-    t.string   "mouse_allele_type",                               :limit => 3
     t.boolean  "report_to_public",                                               :default => true,  :null => false
     t.boolean  "is_active",                                                      :default => true,  :null => false
     t.boolean  "is_released_from_genotyping",                                    :default => false, :null => false
@@ -705,7 +703,6 @@ ActiveRecord::Schema.define(:version => 20150612115302) do
     t.boolean  "rederivation_complete",            :default => false, :null => false
     t.integer  "number_of_cre_matings_started",    :default => 0,     :null => false
     t.integer  "number_of_cre_matings_successful", :default => 0,     :null => false
-    t.boolean  "no_modification_required",         :default => false
     t.boolean  "cre_excision",                     :default => true,  :null => false
     t.boolean  "tat_cre",                          :default => false
     t.integer  "deleter_strain_id"
@@ -786,12 +783,12 @@ ActiveRecord::Schema.define(:version => 20150612115302) do
     t.integer  "month"
     t.integer  "mi_goal"
     t.integer  "gc_goal"
-    t.datetime "created_at",                    :null => false
-    t.datetime "updated_at",                    :null => false
-    t.integer  "crispr_mi_goal", :default => 0
-    t.integer  "crispr_gc_goal", :default => 0
-    t.integer  "total_mi_goal",  :default => 0
-    t.integer  "total_gc_goal",  :default => 0
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
+    t.integer  "crispr_mi_goal"
+    t.integer  "crispr_gc_goal"
+    t.integer  "total_mi_goal"
+    t.integer  "total_gc_goal"
   end
 
   add_index "production_goals", ["consortium_id", "year", "month"], :name => "index_production_goals_on_consortium_id_and_year_and_month", :unique => true
@@ -1166,7 +1163,6 @@ ActiveRecord::Schema.define(:version => 20150612115302) do
   add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk", :column => "status_id"
   add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_blast_strain_id_fk", :column => "blast_strain_id"
-  add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
   add_foreign_key "mi_attempts", "targ_rep_alleles", :name => "mi_attempts_targ_rep_allele_id_fk", :column => "allele_id"
   add_foreign_key "mi_attempts", "targ_rep_real_alleles", :name => "mi_attempts_targ_rep_real_allele_id_fk", :column => "real_allele_id"

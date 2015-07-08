@@ -23,7 +23,7 @@
       </thead>
       <tbody>
 
-        <% @summary_by_month[:dates].keys.each do |year| %>
+        <% @summary_by_month[:dates].keys.reverse.each do |year| %>
           <% count = 0 %>
           <% months = @summary_by_month[:dates][year].uniq %>
           <% months.each do |date| %>

@@ -25,9 +25,12 @@ class BaseSummaryByMonthReport
 
   def generate_summary_by_month
 
+    @back_fill_goals = {}
     summary_by_month.each do |report_row|
 
       consortium = report_row['consortium']
+      @back_fill_goals[consortium] = {'mi_goal' => {'last_goal' => 0 , 'next_goal' => 0 , 'year_of_next_goal' => 2016, 'month_of_next_goal' => 07, 'final_goal' => 0 , 'year_of_final_goal' => 2016, 'month_of_final_goal' => 07},
+                                      'gc_goal' => {'last_goal' => 0 , 'next_goal' => 0 , 'year_of_next_goal' => 2016, 'month_of_next_goal' => 07, 'final_goal' => 0 , 'year_of_final_goal' => 2016, 'month_of_final_goal' => 07}} unless @back_fill_goals.has_key?(consortium)
       date = Date.parse(report_row['date'])
 
       if @report_hash[:dates].include?(date.year)
@@ -37,19 +40,63 @@ class BaseSummaryByMonthReport
       end
 
       columns.to_a.each do |heading, key|
-        value = report_row[key.to_s]
+        if ["mi_goal", "gc_goal"].include?(key.to_s)
+          value = fill_in_goals(key.to_s, report_row)
+        else
+          value = report_row[key.to_s]
+        end
 
         @report_hash["#{consortium}-#{date}-#{heading}"] = value
       end
     end
   end
 
+  def select_goal(goal_type)
+     goals = {'es cell' => {:mi_goal => 'mi_goal' ,      :gc_goal => 'gc_goal'},
+             'crispr'  => {:mi_goal => 'crispr_mi_goal', :gc_goal => 'crispr_gc_goal'},
+             'all'     => {:mi_goal => 'total_mi_goal',  :gc_goal => 'total_gc_goal'}}
+
+     return goals[category][goal_type]
+  end
+
+  def fill_in_goals(goal_type, row)
+    if row[goal_type].nil?
+      last_goal = @back_fill_goals[row['consortium']][goal_type]['last_goal'].to_i
+      this_goal_month = row['date'].to_date.month
+      this_goal_year = row['date'].to_date.year
+
+      if last_goal == 0 || @back_fill_goals[row['consortium']][goal_type]['next_goal'].to_i != 0
+        next_goal = @back_fill_goals[row['consortium']][goal_type]['next_goal'].to_i
+        next_goal_year = @back_fill_goals[row['consortium']][goal_type]['year_of_next_goal'].to_i
+        next_goal_month = @back_fill_goals[row['consortium']][goal_type]['month_of_next_goal'].to_i
+      else
+        next_goal = @back_fill_goals[row['consortium']][goal_type]['final_goal'].to_i
+        @back_fill_goals[row['consortium']][goal_type]['year_of_final_goal'].to_i
+        next_goal_month = @back_fill_goals[row['consortium']][goal_type]['month_of_final_goal'].to_i
+
+      end
+
+      month_difference = (next_goal_year.to_i - this_goal_year.to_i) * 12 + (next_goal_month.to_i - this_goal_month.to_i)
+      goal = last_goal + ( (next_goal - last_goal) / (month_difference))
+      @back_fill_goals[row['consortium']][goal_type]['last_goal'] = goal
+
+    else
+      goal = row[goal_type]
+      @back_fill_goals[row['consortium']][goal_type]['last_goal'] = goal
+      @back_fill_goals[row['consortium']][goal_type]['next_goal'] = row["next_#{goal_type}"]
+      @back_fill_goals[row['consortium']][goal_type]['month_of_next_goal'] = row["month_of_next_goal"]
+      @back_fill_goals[row['consortium']][goal_type]['year_of_next_goal'] = row["year_of_next_goal"]
+
+      @back_fill_goals[row['consortium']][goal_type]['final_goal'] = row["final_#{goal_type}"]
+      @back_fill_goals[row['consortium']][goal_type]['month_of_final_goal'] = row["final_goal_month"]
+      @back_fill_goals[row['consortium']][goal_type]['year_of_final_goal'] = row["final_goal_year"]
+    end
+
+    return goal
+  end
+
+
   def columns
-
-    goals = {'es cell' => {:mi_goal => :mi_goal ,       :gc_goal => :genotype_confirmed_goals},
-             'crispr'  => {:mi_goal => :crispr_mi_goal, :gc_goal => :crispr_genotype_confirmed_goals},
-             'all'     => {:mi_goal => :total_mi_goal,  :gc_goal => :total_genotype_confirmed_goals}}
-
 
     return { "Gene Interest" => :commenece_count,
       "Cumulative Gene Interest" => :cumulative_commenece,
@@ -65,11 +112,11 @@ class BaseSummaryByMonthReport
       "Cumulative ES Cell QC Complete" => :cumulative_es_cell_complete,
       "Cumulative ES Cell QC Failed" => :cumulative_es_cells_aborted,
 
-      "MI Goal"            => goals[category][:mi_goal],
+      "MI Goal"            => :mi_goal,
       "Chimeras obtained"  => :chimeras_obtained_count,
       "Genotype confirmed" => :genotype_confirmed_count,
       "Cumulative genotype confirmed" => :cumulative_gcs,
-      "GC Goal"            => goals[category][:gc_goal],
+      "GC Goal"            => :gc_goal,
       "Micro-injection aborted"      => :mi_aborted_count,
       "Phenotype Attempt Registered" => :phenotype_registered_count,
       "Rederivation Started"  => :rederivation_started_count,
@@ -139,6 +186,31 @@ class BaseSummaryByMonthReport
     #IntermediateReportSummaryByConsortia.crispr_sql IntermediateReportSummaryByConsortia.es_cell_and_crsipr_sql
     sql = <<-EOF
       WITH
+        goals AS (
+          SELECT  row_number() OVER (PARTITION BY ordered_goals.consortium_id) AS rank,
+                  ordered_goals.consortium_id, ordered_goals.year, ordered_goals.month, ordered_goals.mi_goal, ordered_goals.gc_goal,
+                  last_value(ordered_goals.year) OVER (PARTITION BY ordered_goals.consortium_id) AS final_goal_year,
+                  last_value(ordered_goals.month) OVER (PARTITION BY ordered_goals.consortium_id) AS final_goal_month,
+                  last_value(ordered_goals.mi_goal) OVER (PARTITION BY ordered_goals.consortium_id) AS final_mi_goal,
+                  last_value(ordered_goals.gc_goal) OVER (PARTITION BY ordered_goals.consortium_id) AS final_gc_goal
+            FROM (
+              SELECT consortium_id, year, month, #{select_goal(:mi_goal)} AS mi_goal, #{select_goal(:gc_goal)} AS gc_goal
+                FROM production_goals
+               WHERE #{select_goal(:mi_goal)} IS NOT NULL AND #{select_goal(:gc_goal)} IS NOT NULL
+               ORDER BY consortium_id, year, month
+              ) AS ordered_goals
+        ),
+
+        goals_with_next_goal AS (
+          SELECT goals.*,
+                 goals_plus_one.year AS year_of_next_goal,
+                 goals_plus_one.month AS month_of_next_goal,
+                 goals_plus_one.mi_goal AS next_mi_goal,
+                 goals_plus_one.gc_goal AS next_gc_goal
+          FROM goals
+          LEFT JOIN goals goals_plus_one ON (goals_plus_one.rank - 1) = goals.rank AND goals_plus_one.consortium_id = goals.consortium_id
+        ),
+
         -- create a series of dates for each month from the 2011-06-01 (from_date) to now. NOTE 2011-05-01 (from_date_minus_a_month) will store all production prior to 2011-06-01 (Easiest bodge).
         consortium_summary AS ( #{IntermediateReportSummaryByConsortia.select_sql(@category, @approach, @allele_type)}
         ),
@@ -301,17 +373,21 @@ class BaseSummaryByMonthReport
         phenotype_complete_count,
         SUM(phenotype_complete_count) OVER (PARTITION BY consortium ORDER BY date) as cumulative_phenotype_complete,
         phenotype_aborted_count,
-        production_goals.gc_goal as genotype_confirmed_goals,
-        production_goals.mi_goal as mi_goal,
-        production_goals.crispr_gc_goal as crispr_genotype_confirmed_goals,
-        production_goals.crispr_mi_goal as crispr_mi_goal,
-        production_goals.total_gc_goal as total_genotype_confirmed_goals,
-        production_goals.total_mi_goal as total_mi_goal
+        goals_with_next_goal.gc_goal AS gc_goal,
+        goals_with_next_goal.mi_goal AS mi_goal,
+        goals_with_next_goal.next_mi_goal AS next_mi_goal,
+        goals_with_next_goal.next_gc_goal AS next_gc_goal,
+        goals_with_next_goal.month_of_next_goal AS month_of_next_goal,
+        goals_with_next_goal.year_of_next_goal AS year_of_next_goal,
+        goals_with_next_goal.final_goal_year AS final_goal_year,
+        goals_with_next_goal.final_goal_month AS final_goal_month,
+        goals_with_next_goal.final_mi_goal AS final_mi_goal,
+        goals_with_next_goal.final_gc_goal AS final_gc_goal
 
       FROM counts
       LEFT JOIN consortia ON consortia.name = consortium
-      LEFT JOIN production_goals ON date_part('year', date) = production_goals.year AND date_part('month', date) = production_goals.month AND consortia.id = production_goals.consortium_id
-      ORDER BY date DESC;
+      LEFT JOIN goals_with_next_goal ON date_part('year', date) = goals_with_next_goal.year AND date_part('month', date) = goals_with_next_goal.month AND consortia.id = goals_with_next_goal.consortium_id
+      ORDER BY date ASC;
     EOF
   end
 

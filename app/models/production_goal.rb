@@ -25,8 +25,16 @@ class ProductionGoal < ActiveRecord::Base
   validates :consortium_id, :presence => true, :uniqueness => {:scope => [:year, :month]}
   validates :year, :presence => true, :numericality => {:greater_than => 2010, :less_than => 2050}
   validates :month, :presence => true, :numericality => {:less_than => 13, :greater_than => 0}
-  validates :mi_goal, :presence => true
-  validates :gc_goal, :presence => true
+
+  validate do |pg|
+    if pg.mi_goal.nil? && pg.crispr_mi_goal.nil?
+      pg.errors.add :base, 'An MI Goal must be entered (either for ES Cell or CRIPSR)'
+    end
+
+    if pg.gc_goal.nil? && pg.crispr_gc_goal.nil?
+      pg.errors.add :base, 'An GC Goal must be entered (either for ES Cell or CRIPSR)'
+    end
+  end
 
   ## Relationships
   belongs_to :consortium
@@ -36,8 +44,8 @@ class ProductionGoal < ActiveRecord::Base
   attr_accessible *READABLE_ATTRIBUTES
 
   def calculate_totals
-    self.total_mi_goal = self.mi_goal + self.crispr_gc_goal
-    self.total_gc_goal = self.gc_goal + self.crispr_gc_goal
+    self.total_mi_goal = (self.mi_goal.blank? ? 0 : self.mi_goal) + (self.crispr_mi_goal.blank? ? 0 : self.crispr_mi_goal)
+    self.total_gc_goal = (self.gc_goal.blank? ? 0 : self.gc_goal) + (self.crispr_gc_goal.blank? ? 0 : self.crispr_gc_goal)
   end
 
   def self.readable_name
@@ -58,10 +66,10 @@ end
 #  gc_goal        :integer
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
-#  crispr_mi_goal :integer          default(0)
-#  crispr_gc_goal :integer          default(0)
-#  total_mi_goal  :integer          default(0)
-#  total_gc_goal  :integer          default(0)
+#  crispr_mi_goal :integer
+#  crispr_gc_goal :integer
+#  total_mi_goal  :integer
+#  total_gc_goal  :integer
 #
 # Indexes
 #

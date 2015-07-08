@@ -91,7 +91,6 @@ end
 #  rederivation_complete            :boolean          default(FALSE), not null
 #  number_of_cre_matings_started    :integer          default(0), not null
 #  number_of_cre_matings_successful :integer          default(0), not null
-#  no_modification_required         :boolean          default(FALSE)
 #  cre_excision                     :boolean          default(TRUE), not null
 #  tat_cre                          :boolean          default(FALSE)
 #  deleter_strain_id                :integer

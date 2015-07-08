@@ -1663,7 +1663,6 @@ CREATE TABLE mi_attempts (
     number_of_males_with_40_to_79_percent_chimerism integer,
     number_of_males_with_80_to_99_percent_chimerism integer,
     number_of_males_with_100_percent_chimerism integer,
-    colony_background_strain_id integer,
     test_cross_strain_id integer,
     date_chimeras_mated date,
     number_of_chimera_matings_attempted integer,
@@ -1678,7 +1677,6 @@ CREATE TABLE mi_attempts (
     number_of_cct_offspring integer,
     number_of_het_offspring integer,
     number_of_live_glt_offspring integer,
-    mouse_allele_type character varying(3),
     report_to_public boolean DEFAULT true NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     is_released_from_genotyping boolean DEFAULT false NOT NULL,
@@ -2062,7 +2060,6 @@ CREATE TABLE mouse_allele_mods (
     rederivation_complete boolean DEFAULT false NOT NULL,
     number_of_cre_matings_started integer DEFAULT 0 NOT NULL,
     number_of_cre_matings_successful integer DEFAULT 0 NOT NULL,
-    no_modification_required boolean DEFAULT false,
     cre_excision boolean DEFAULT true NOT NULL,
     tat_cre boolean DEFAULT false,
     deleter_strain_id integer,
@@ -2343,10 +2340,10 @@ CREATE TABLE production_goals (
     gc_goal integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    crispr_mi_goal integer DEFAULT 0,
-    crispr_gc_goal integer DEFAULT 0,
-    total_mi_goal integer DEFAULT 0,
-    total_gc_goal integer DEFAULT 0
+    crispr_mi_goal integer,
+    crispr_gc_goal integer,
+    total_mi_goal integer,
+    total_gc_goal integer
 );
 
 
@@ -4915,14 +4912,6 @@ ALTER TABLE ONLY mi_attempts
 
 
 --
--- Name: mi_attempts_colony_background_strain_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY mi_attempts
-    ADD CONSTRAINT mi_attempts_colony_background_strain_id_fk FOREIGN KEY (colony_background_strain_id) REFERENCES strains(id);
-
-
---
 -- Name: mi_attempts_mi_attempt_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5637,3 +5626,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150317151000');
 INSERT INTO schema_migrations (version) VALUES ('20150529151000');
 
 INSERT INTO schema_migrations (version) VALUES ('20150612115302');
+
+INSERT INTO schema_migrations (version) VALUES ('20150707115302');

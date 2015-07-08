@@ -101,6 +101,20 @@ class Public::MiPlan < ::MiPlan
     end
   end
 
+  validate do |plan|
+    if plan.changes.has_key?('mutagenesis_via_crispr_cas9')
+      if plan.mutagenesis_via_crispr_cas9 && plan.number_of_es_cells_starting_qc > 0
+        plan.errors.add(:base, 'This is an ES Cell plan. Please create a new plan to indicate use of the mutagenesis via CRISPR CAS9 strategy to target this gene.')
+      elsif plan.mi_attempts.size > 0
+        if plan.mutagenesis_via_crispr_cas9 && plan.mi_attempts.any? {|mi| !mi.es_cell_id.blank?}
+          plan.errors.add(:mutagenesis_via_crispr_cas9, 'cannot be changed. ES Cell Micro-injections exist. Please create a new plan to indicate use of the mutagenesis via CRISPR CAS9 strategy to target this gene.')
+        elsif ! plan.mutagenesis_via_crispr_cas9 && plan.mi_attempts.any? {|mi| mi.es_cell_id.blank?}
+         plan.errors.add(:mutagenesis_via_crispr_cas9, 'cannot be changed. CRISPR Micro-injections exist. Please create a new plan to indicate use of the ES Cell strategy to target this gene.')
+        end
+      end
+    end
+  end
+
   def self.translations
     return {
       'marker_symbol' => 'gene_marker_symbol',

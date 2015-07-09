@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150527130000) do
+ActiveRecord::Schema.define(:version => 20150707115302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -41,22 +41,28 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.string   "contact_name",  :limit => 100
     t.string   "contact_email", :limit => 100
     t.string   "code"
+    t.string   "superscript"
   end
 
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string  "name",                                           :null => false
+    t.string  "name",                                                  :null => false
     t.integer "mi_attempt_id"
-    t.boolean "genotype_confirmed",          :default => false
-    t.boolean "report_to_public",            :default => false
-    t.boolean "unwanted_allele",             :default => false
+    t.boolean "genotype_confirmed",                 :default => false
+    t.boolean "report_to_public",                   :default => false
+    t.boolean "unwanted_allele",                    :default => false
     t.text    "unwanted_allele_description"
     t.string  "mgi_allele_id"
     t.string  "allele_name"
+    t.integer "mouse_allele_mod_id"
+    t.string  "mgi_allele_symbol_superscript"
+    t.string  "allele_symbol_superscript_template"
+    t.string  "allele_type"
+    t.integer "background_strain_id"
   end
 
-  add_index "colonies", ["name"], :name => "colony_name_index", :unique => true
+  add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true
 
   create_table "colony_alleles", :force => true do |t|
     t.integer "colony_id",      :null => false
@@ -64,8 +70,21 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.integer "real_allele_id"
   end
 
+  create_table "colony_distribution_centres", :force => true do |t|
+    t.integer  "colony_id",                                        :null => false
+    t.integer  "deposited_material_id",                            :null => false
+    t.string   "distribution_network"
+    t.integer  "centre_id",                                        :null => false
+    t.date     "start_date"
+    t.date     "end_date"
+    t.string   "reconciled",            :default => "not checked", :null => false
+    t.datetime "reconciled_at"
+    t.boolean  "available",             :default => true,          :null => false
+    t.datetime "created_at",                                       :null => false
+    t.datetime "updated_at",                                       :null => false
+  end
+
   create_table "colony_qcs", :force => true do |t|
-    t.integer "colony_id",                        :null => false
     t.string  "qc_southern_blot",                 :null => false
     t.string  "qc_five_prime_lr_pcr",             :null => false
     t.string  "qc_five_prime_cassette_integrity", :null => false
@@ -82,10 +101,8 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.string  "qc_critical_region_qpcr",          :null => false
     t.string  "qc_loxp_srpcr",                    :null => false
     t.string  "qc_loxp_srpcr_and_sequencing",     :null => false
-    t.integer "mutagenesis_factor_id"
+    t.integer "colony_allele_id"
   end
-
-  add_index "colony_qcs", ["colony_id"], :name => "index_colony_qcs_on_colony_id", :unique => true
 
   create_table "consortia", :force => true do |t|
     t.string   "name",         :null => false
@@ -108,9 +125,10 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
   add_index "contacts", ["email"], :name => "index_contacts_on_email", :unique => true
 
   create_table "deleter_strains", :force => true do |t|
-    t.string   "name",       :limit => 100, :null => false
+    t.string   "name",          :limit => 100, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "excision_type"
   end
 
   create_table "deposited_materials", :force => true do |t|
@@ -146,8 +164,9 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true
 
   create_table "gene_targets", :force => true do |t|
-    t.integer "mi_plan_id",    :null => false
-    t.integer "mi_attempt_id", :null => false
+    t.integer "mi_plan_id",            :null => false
+    t.integer "mi_attempt_id",         :null => false
+    t.integer "mutagenesis_factor_id"
   end
 
   create_table "genes", :force => true do |t|
@@ -228,20 +247,275 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.string   "phenotype_attempt_colony_name"
   end
 
-  create_table "mi_attempt_distribution_centres", :force => true do |t|
-    t.date     "start_date"
-    t.date     "end_date"
-    t.integer  "mi_attempt_id",                                     :null => false
-    t.integer  "deposited_material_id",                             :null => false
-    t.integer  "centre_id",                                         :null => false
-    t.boolean  "is_distributed_by_emma", :default => false,         :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "distribution_network"
-    t.string   "reconciled",             :default => "not checked", :null => false
-    t.datetime "reconciled_at"
-    t.boolean  "available",              :default => true,          :null => false
+  create_table "intermediate_report_summary_by_centre", :force => true do |t|
+    t.string  "catagory",                               :null => false
+    t.string  "approach",                               :null => false
+    t.string  "allele_type",                            :null => false
+    t.integer "mi_plan_id"
+    t.integer "mi_attempt_id"
+    t.integer "modified_mouse_allele_mod_id"
+    t.integer "mouse_allele_mod_id"
+    t.integer "phenotyping_production_id"
+    t.string  "production_centre"
+    t.string  "gene"
+    t.string  "mgi_accession_id"
+    t.string  "mi_attempt_external_ref"
+    t.string  "mi_attempt_colony_name"
+    t.string  "mouse_allele_mod_colony_name"
+    t.string  "phenotyping_production_colony_name"
+    t.string  "mi_plan_status"
+    t.date    "gene_interest_date"
+    t.date    "assigned_date"
+    t.date    "assigned_es_cell_qc_in_progress_date"
+    t.date    "assigned_es_cell_qc_complete_date"
+    t.date    "aborted_es_cell_qc_failed_date"
+    t.string  "mi_attempt_status"
+    t.date    "micro_injection_aborted_date"
+    t.date    "micro_injection_in_progress_date"
+    t.date    "chimeras_obtained_date"
+    t.date    "founder_obtained_date"
+    t.date    "genotype_confirmed_date"
+    t.string  "mouse_allele_mod_status"
+    t.date    "mouse_allele_mod_registered_date"
+    t.date    "rederivation_started_date"
+    t.date    "rederivation_complete_date"
+    t.date    "cre_excision_started_date"
+    t.date    "cre_excision_complete_date"
+    t.string  "phenotyping_status"
+    t.date    "phenotyping_registered_date"
+    t.date    "phenotyping_rederivation_started_date"
+    t.date    "phenotyping_rederivation_complete_date"
+    t.date    "phenotyping_experiments_started_date"
+    t.date    "phenotyping_started_date"
+    t.date    "phenotyping_complete_date"
+    t.date    "phenotype_attempt_aborted_date"
+    t.date    "created_at"
   end
+
+  add_index "intermediate_report_summary_by_centre", ["allele_type"], :name => "irscen_allele_type"
+  add_index "intermediate_report_summary_by_centre", ["approach"], :name => "irscen_approach"
+  add_index "intermediate_report_summary_by_centre", ["catagory"], :name => "irscen_catagory"
+  add_index "intermediate_report_summary_by_centre", ["mi_attempt_id"], :name => "irscen_mi_attempts"
+  add_index "intermediate_report_summary_by_centre", ["mi_plan_id"], :name => "irscen_mi_plans"
+  add_index "intermediate_report_summary_by_centre", ["mouse_allele_mod_id"], :name => "irscen_mouse_allele_mods"
+  add_index "intermediate_report_summary_by_centre", ["phenotyping_production_id"], :name => "irscen_phenotyping_productions"
+
+  create_table "intermediate_report_summary_by_centre_and_consortia", :force => true do |t|
+    t.string  "catagory",                               :null => false
+    t.string  "approach",                               :null => false
+    t.string  "allele_type",                            :null => false
+    t.integer "mi_plan_id"
+    t.integer "mi_attempt_id"
+    t.integer "modified_mouse_allele_mod_id"
+    t.integer "mouse_allele_mod_id"
+    t.integer "phenotyping_production_id"
+    t.string  "consortium"
+    t.string  "production_centre"
+    t.string  "gene"
+    t.string  "mgi_accession_id"
+    t.string  "mi_attempt_external_ref"
+    t.string  "mi_attempt_colony_name"
+    t.string  "mouse_allele_mod_colony_name"
+    t.string  "phenotyping_production_colony_name"
+    t.string  "mi_plan_status"
+    t.date    "gene_interest_date"
+    t.date    "assigned_date"
+    t.date    "assigned_es_cell_qc_in_progress_date"
+    t.date    "assigned_es_cell_qc_complete_date"
+    t.date    "aborted_es_cell_qc_failed_date"
+    t.string  "mi_attempt_status"
+    t.date    "micro_injection_aborted_date"
+    t.date    "micro_injection_in_progress_date"
+    t.date    "chimeras_obtained_date"
+    t.date    "founder_obtained_date"
+    t.date    "genotype_confirmed_date"
+    t.string  "mouse_allele_mod_status"
+    t.date    "mouse_allele_mod_registered_date"
+    t.date    "rederivation_started_date"
+    t.date    "rederivation_complete_date"
+    t.date    "cre_excision_started_date"
+    t.date    "cre_excision_complete_date"
+    t.string  "phenotyping_status"
+    t.date    "phenotyping_registered_date"
+    t.date    "phenotyping_rederivation_started_date"
+    t.date    "phenotyping_rederivation_complete_date"
+    t.date    "phenotyping_experiments_started_date"
+    t.date    "phenotyping_started_date"
+    t.date    "phenotyping_complete_date"
+    t.date    "phenotype_attempt_aborted_date"
+    t.date    "created_at"
+  end
+
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["allele_type"], :name => "irscc_allele_type"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["approach"], :name => "irscc_approach"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["catagory"], :name => "irscc_catagory"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["mi_attempt_id"], :name => "irscc_mi_attempts"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["mi_plan_id"], :name => "irscc_mi_plans"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["mouse_allele_mod_id"], :name => "irscc_mouse_allele_mods"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["phenotyping_production_id"], :name => "irscc_phenotyping_productions"
+
+  create_table "intermediate_report_summary_by_consortia", :force => true do |t|
+    t.string  "catagory",                               :null => false
+    t.string  "approach",                               :null => false
+    t.string  "allele_type",                            :null => false
+    t.integer "mi_plan_id"
+    t.integer "mi_attempt_id"
+    t.integer "modified_mouse_allele_mod_id"
+    t.integer "mouse_allele_mod_id"
+    t.integer "phenotyping_production_id"
+    t.string  "consortium"
+    t.string  "gene"
+    t.string  "mgi_accession_id"
+    t.string  "mi_attempt_external_ref"
+    t.string  "mi_attempt_colony_name"
+    t.string  "mouse_allele_mod_colony_name"
+    t.string  "phenotyping_production_colony_name"
+    t.string  "mi_plan_status"
+    t.date    "gene_interest_date"
+    t.date    "assigned_date"
+    t.date    "assigned_es_cell_qc_in_progress_date"
+    t.date    "assigned_es_cell_qc_complete_date"
+    t.date    "aborted_es_cell_qc_failed_date"
+    t.string  "mi_attempt_status"
+    t.date    "micro_injection_aborted_date"
+    t.date    "micro_injection_in_progress_date"
+    t.date    "chimeras_obtained_date"
+    t.date    "founder_obtained_date"
+    t.date    "genotype_confirmed_date"
+    t.string  "mouse_allele_mod_status"
+    t.date    "mouse_allele_mod_registered_date"
+    t.date    "rederivation_started_date"
+    t.date    "rederivation_complete_date"
+    t.date    "cre_excision_started_date"
+    t.date    "cre_excision_complete_date"
+    t.string  "phenotyping_status"
+    t.date    "phenotyping_registered_date"
+    t.date    "phenotyping_rederivation_started_date"
+    t.date    "phenotyping_rederivation_complete_date"
+    t.date    "phenotyping_experiments_started_date"
+    t.date    "phenotyping_started_date"
+    t.date    "phenotyping_complete_date"
+    t.date    "phenotype_attempt_aborted_date"
+    t.date    "created_at"
+  end
+
+  add_index "intermediate_report_summary_by_consortia", ["allele_type"], :name => "irsc_allele_type"
+  add_index "intermediate_report_summary_by_consortia", ["approach"], :name => "irsc_approach"
+  add_index "intermediate_report_summary_by_consortia", ["catagory"], :name => "irsc_catagory"
+  add_index "intermediate_report_summary_by_consortia", ["mi_attempt_id"], :name => "irsc_mi_attempts"
+  add_index "intermediate_report_summary_by_consortia", ["mi_plan_id"], :name => "irsc_mi_plans"
+  add_index "intermediate_report_summary_by_consortia", ["mouse_allele_mod_id"], :name => "irsc_mouse_allele_mods"
+  add_index "intermediate_report_summary_by_consortia", ["phenotyping_production_id"], :name => "irsc_phenotyping_productions"
+
+  create_table "intermediate_report_summary_by_gene", :force => true do |t|
+    t.string  "catagory",                               :null => false
+    t.string  "approach",                               :null => false
+    t.string  "allele_type",                            :null => false
+    t.integer "mi_plan_id"
+    t.integer "mi_attempt_id"
+    t.integer "modified_mouse_allele_mod_id"
+    t.integer "mouse_allele_mod_id"
+    t.integer "phenotyping_production_id"
+    t.string  "gene"
+    t.string  "mgi_accession_id"
+    t.string  "mi_attempt_external_ref"
+    t.string  "mi_attempt_colony_name"
+    t.string  "mouse_allele_mod_colony_name"
+    t.string  "phenotyping_production_colony_name"
+    t.string  "mi_plan_status"
+    t.date    "assigned_date"
+    t.date    "assigned_es_cell_qc_in_progress_date"
+    t.date    "assigned_es_cell_qc_complete_date"
+    t.date    "aborted_es_cell_qc_failed_date"
+    t.string  "mi_attempt_status"
+    t.date    "micro_injection_aborted_date"
+    t.date    "micro_injection_in_progress_date"
+    t.date    "chimeras_obtained_date"
+    t.date    "founder_obtained_date"
+    t.date    "genotype_confirmed_date"
+    t.string  "mouse_allele_mod_status"
+    t.date    "mouse_allele_mod_registered_date"
+    t.date    "rederivation_started_date"
+    t.date    "rederivation_complete_date"
+    t.date    "cre_excision_started_date"
+    t.date    "cre_excision_complete_date"
+    t.string  "phenotyping_status"
+    t.date    "phenotyping_registered_date"
+    t.date    "phenotyping_rederivation_started_date"
+    t.date    "phenotyping_rederivation_complete_date"
+    t.date    "phenotyping_experiments_started_date"
+    t.date    "phenotyping_started_date"
+    t.date    "phenotyping_complete_date"
+    t.date    "phenotype_attempt_aborted_date"
+    t.date    "created_at"
+  end
+
+  add_index "intermediate_report_summary_by_gene", ["allele_type"], :name => "irsg_allele_type"
+  add_index "intermediate_report_summary_by_gene", ["approach"], :name => "irsg_approach"
+  add_index "intermediate_report_summary_by_gene", ["catagory"], :name => "irsg_catagory"
+  add_index "intermediate_report_summary_by_gene", ["mi_attempt_id"], :name => "irsg_mi_attempts"
+  add_index "intermediate_report_summary_by_gene", ["mi_plan_id"], :name => "irsg_mi_plans"
+  add_index "intermediate_report_summary_by_gene", ["mouse_allele_mod_id"], :name => "irsg_mouse_allele_mods"
+  add_index "intermediate_report_summary_by_gene", ["phenotyping_production_id"], :name => "irsg_phenotyping_productions"
+
+  create_table "intermediate_report_summary_by_mi_plan", :force => true do |t|
+    t.string  "catagory",                               :null => false
+    t.string  "approach",                               :null => false
+    t.string  "allele_type",                            :null => false
+    t.integer "mi_plan_id"
+    t.integer "mi_attempt_id"
+    t.integer "modified_mouse_allele_mod_id"
+    t.integer "mouse_allele_mod_id"
+    t.integer "phenotyping_production_id"
+    t.string  "consortium"
+    t.string  "production_centre"
+    t.string  "sub_project"
+    t.string  "priority"
+    t.string  "gene"
+    t.string  "mgi_accession_id"
+    t.string  "mi_attempt_external_ref"
+    t.string  "mi_attempt_colony_name"
+    t.string  "mouse_allele_mod_colony_name"
+    t.string  "phenotyping_production_colony_name"
+    t.string  "mi_plan_status"
+    t.date    "assigned_date"
+    t.date    "assigned_es_cell_qc_in_progress_date"
+    t.date    "assigned_es_cell_qc_complete_date"
+    t.date    "aborted_es_cell_qc_failed_date"
+    t.string  "mi_attempt_status"
+    t.date    "micro_injection_aborted_date"
+    t.date    "micro_injection_in_progress_date"
+    t.date    "chimeras_obtained_date"
+    t.date    "founder_obtained_date"
+    t.date    "genotype_confirmed_date"
+    t.string  "mouse_allele_mod_status"
+    t.date    "mouse_allele_mod_registered_date"
+    t.date    "rederivation_started_date"
+    t.date    "rederivation_complete_date"
+    t.date    "cre_excision_started_date"
+    t.date    "cre_excision_complete_date"
+    t.string  "phenotyping_status"
+    t.date    "phenotyping_registered_date"
+    t.date    "phenotyping_rederivation_started_date"
+    t.date    "phenotyping_rederivation_complete_date"
+    t.date    "phenotyping_experiments_started_date"
+    t.date    "phenotyping_started_date"
+    t.date    "phenotyping_complete_date"
+    t.date    "phenotype_attempt_aborted_date"
+    t.integer "mi_aborted_count"
+    t.date    "mi_aborted_max_date"
+    t.integer "allele_mod_aborted_count"
+    t.date    "allele_mod_aborted_max_date"
+    t.date    "created_at"
+  end
+
+  add_index "intermediate_report_summary_by_mi_plan", ["allele_type"], :name => "irsmp_allele_type"
+  add_index "intermediate_report_summary_by_mi_plan", ["approach"], :name => "irsmp_approach"
+  add_index "intermediate_report_summary_by_mi_plan", ["catagory"], :name => "irsmp_catagory"
+  add_index "intermediate_report_summary_by_mi_plan", ["mi_attempt_id"], :name => "irsmp_mi_attempts"
+  add_index "intermediate_report_summary_by_mi_plan", ["mi_plan_id"], :name => "irsmp_mi_plans"
+  add_index "intermediate_report_summary_by_mi_plan", ["mouse_allele_mod_id"], :name => "irsmp_mouse_allele_mods"
+  add_index "intermediate_report_summary_by_mi_plan", ["phenotyping_production_id"], :name => "irsmp_phenotyping_productions"
 
   create_table "mi_attempt_status_stamps", :force => true do |t|
     t.integer  "mi_attempt_id", :null => false
@@ -280,7 +554,6 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.integer  "number_of_males_with_40_to_79_percent_chimerism"
     t.integer  "number_of_males_with_80_to_99_percent_chimerism"
     t.integer  "number_of_males_with_100_percent_chimerism"
-    t.integer  "colony_background_strain_id"
     t.integer  "test_cross_strain_id"
     t.date     "date_chimeras_mated"
     t.integer  "number_of_chimera_matings_attempted"
@@ -295,32 +568,14 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.integer  "number_of_cct_offspring"
     t.integer  "number_of_het_offspring"
     t.integer  "number_of_live_glt_offspring"
-    t.string   "mouse_allele_type",                               :limit => 3
-    t.integer  "qc_southern_blot_id"
-    t.integer  "qc_five_prime_lr_pcr_id"
-    t.integer  "qc_five_prime_cassette_integrity_id"
-    t.integer  "qc_tv_backbone_assay_id"
-    t.integer  "qc_neo_count_qpcr_id"
-    t.integer  "qc_neo_sr_pcr_id"
-    t.integer  "qc_loa_qpcr_id"
-    t.integer  "qc_homozygous_loa_sr_pcr_id"
-    t.integer  "qc_lacz_sr_pcr_id"
-    t.integer  "qc_mutant_specific_sr_pcr_id"
-    t.integer  "qc_loxp_confirmation_id"
-    t.integer  "qc_three_prime_lr_pcr_id"
     t.boolean  "report_to_public",                                               :default => true,  :null => false
     t.boolean  "is_active",                                                      :default => true,  :null => false
     t.boolean  "is_released_from_genotyping",                                    :default => false, :null => false
     t.text     "comments"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "mi_plan_id",                                                                        :null => false
     t.string   "genotyping_comment",                              :limit => 512
     t.integer  "legacy_es_cell_id"
-    t.integer  "qc_lacz_count_qpcr_id",                                          :default => 1
-    t.integer  "qc_critical_region_qpcr_id",                                     :default => 1
-    t.integer  "qc_loxp_srpcr_id",                                               :default => 1
-    t.integer  "qc_loxp_srpcr_and_sequencing_id",                                :default => 1
     t.date     "cassette_transmission_verified"
     t.boolean  "cassette_transmission_verified_auto_complete"
     t.integer  "crsp_total_embryos_injected"
@@ -342,6 +597,7 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.integer  "founder_num_assays"
     t.integer  "founder_num_positive_results"
     t.text     "assay_type"
+    t.boolean  "experimental",                                                   :default => false, :null => false
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -449,433 +705,29 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
   end
 
   create_table "mouse_allele_mods", :force => true do |t|
-    t.integer  "mi_plan_id",                                                            :null => false
-    t.integer  "mi_attempt_id",                                                         :null => false
-    t.integer  "status_id",                                                             :null => false
-    t.boolean  "rederivation_started",                               :default => false, :null => false
-    t.boolean  "rederivation_complete",                              :default => false, :null => false
-    t.integer  "number_of_cre_matings_started",                      :default => 0,     :null => false
-    t.integer  "number_of_cre_matings_successful",                   :default => 0,     :null => false
-    t.boolean  "no_modification_required",                           :default => false
-    t.boolean  "cre_excision",                                       :default => true,  :null => false
-    t.boolean  "tat_cre",                                            :default => false
-    t.string   "mouse_allele_type",                   :limit => 3
-    t.string   "allele_category"
+    t.integer  "mi_plan_id",                                          :null => false
+    t.integer  "status_id",                                           :null => false
+    t.boolean  "rederivation_started",             :default => false, :null => false
+    t.boolean  "rederivation_complete",            :default => false, :null => false
+    t.integer  "number_of_cre_matings_started",    :default => 0,     :null => false
+    t.integer  "number_of_cre_matings_successful", :default => 0,     :null => false
+    t.boolean  "cre_excision",                     :default => true,  :null => false
+    t.boolean  "tat_cre",                          :default => false
     t.integer  "deleter_strain_id"
-    t.integer  "colony_background_strain_id"
-    t.string   "colony_name",                         :limit => 125,                    :null => false
-    t.boolean  "is_active",                                          :default => true,  :null => false
-    t.boolean  "report_to_public",                                   :default => true,  :null => false
+    t.boolean  "is_active",                        :default => true,  :null => false
+    t.boolean  "report_to_public",                 :default => true,  :null => false
     t.integer  "phenotype_attempt_id"
-    t.datetime "created_at",                                                            :null => false
-    t.datetime "updated_at",                                                            :null => false
-    t.integer  "qc_southern_blot_id"
-    t.integer  "qc_five_prime_lr_pcr_id"
-    t.integer  "qc_five_prime_cassette_integrity_id"
-    t.integer  "qc_tv_backbone_assay_id"
-    t.integer  "qc_neo_count_qpcr_id"
-    t.integer  "qc_neo_sr_pcr_id"
-    t.integer  "qc_loa_qpcr_id"
-    t.integer  "qc_homozygous_loa_sr_pcr_id"
-    t.integer  "qc_lacz_sr_pcr_id"
-    t.integer  "qc_mutant_specific_sr_pcr_id"
-    t.integer  "qc_loxp_confirmation_id"
-    t.integer  "qc_three_prime_lr_pcr_id"
-    t.integer  "qc_lacz_count_qpcr_id"
-    t.integer  "qc_critical_region_qpcr_id"
-    t.integer  "qc_loxp_srpcr_id"
-    t.integer  "qc_loxp_srpcr_and_sequencing_id"
+    t.datetime "created_at",                                          :null => false
+    t.datetime "updated_at",                                          :null => false
     t.integer  "allele_id"
     t.integer  "real_allele_id"
-    t.string   "allele_name"
-    t.string   "allele_mgi_accession_id"
+    t.integer  "parent_colony_id"
   end
 
   create_table "mutagenesis_factors", :force => true do |t|
     t.integer "vector_id"
     t.string  "external_ref"
     t.text    "nuclease"
-    t.integer "mi_attempt_id",  :null => false
-    t.integer "gene_target_id", :null => false
-  end
-
-  create_table "new_intermediate_report_summary_by_centre", :force => true do |t|
-    t.integer  "mi_plan_id"
-    t.integer  "mi_attempt_id"
-    t.integer  "mouse_allele_mod_id"
-    t.integer  "phenotyping_production_id"
-    t.string   "overall_status",                                :limit => 50
-    t.string   "mi_plan_status",                                :limit => 50
-    t.string   "mi_attempt_status",                             :limit => 50
-    t.string   "phenotype_attempt_status",                      :limit => 50
-    t.string   "production_centre",                                           :null => false
-    t.string   "gene",                                          :limit => 75, :null => false
-    t.string   "mgi_accession_id",                              :limit => 40
-    t.date     "gene_interest_date"
-    t.string   "mi_attempt_colony_name"
-    t.string   "mouse_allele_mod_colony_name"
-    t.string   "production_colony_name"
-    t.date     "assigned_date"
-    t.date     "assigned_es_cell_qc_in_progress_date"
-    t.date     "assigned_es_cell_qc_complete_date"
-    t.date     "aborted_es_cell_qc_failed_date"
-    t.date     "micro_injection_in_progress_date"
-    t.date     "chimeras_obtained_date"
-    t.date     "genotype_confirmed_date"
-    t.date     "micro_injection_aborted_date"
-    t.date     "phenotype_attempt_registered_date"
-    t.date     "rederivation_started_date"
-    t.date     "rederivation_complete_date"
-    t.date     "cre_excision_started_date"
-    t.date     "cre_excision_complete_date"
-    t.date     "phenotyping_started_date"
-    t.date     "phenotyping_experiments_started_date"
-    t.date     "phenotyping_complete_date"
-    t.date     "phenotype_attempt_aborted_date"
-    t.string   "phenotyping_mi_attempt_consortium"
-    t.string   "phenotyping_mi_attempt_production_centre"
-    t.string   "tm1b_phenotype_attempt_status"
-    t.date     "tm1b_phenotype_attempt_registered_date"
-    t.date     "tm1b_rederivation_started_date"
-    t.date     "tm1b_rederivation_complete_date"
-    t.date     "tm1b_cre_excision_started_date"
-    t.date     "tm1b_cre_excision_complete_date"
-    t.date     "tm1b_phenotyping_started_date"
-    t.date     "tm1b_phenotyping_experiments_started_date"
-    t.date     "tm1b_phenotyping_complete_date"
-    t.date     "tm1b_phenotype_attempt_aborted_date"
-    t.string   "tm1b_colony_name"
-    t.string   "tm1b_phenotyping_production_colony_name"
-    t.string   "tm1b_phenotyping_mi_attempt_consortium"
-    t.string   "tm1b_phenotyping_mi_attempt_production_centre"
-    t.string   "tm1a_phenotype_attempt_status"
-    t.date     "tm1a_phenotype_attempt_registered_date"
-    t.date     "tm1a_rederivation_started_date"
-    t.date     "tm1a_rederivation_complete_date"
-    t.date     "tm1a_cre_excision_started_date"
-    t.date     "tm1a_cre_excision_complete_date"
-    t.date     "tm1a_phenotyping_started_date"
-    t.date     "tm1a_phenotyping_experiments_started_date"
-    t.date     "tm1a_phenotyping_complete_date"
-    t.date     "tm1a_phenotype_attempt_aborted_date"
-    t.string   "tm1a_colony_name"
-    t.string   "tm1a_phenotyping_production_colony_name"
-    t.string   "tm1a_phenotyping_mi_attempt_consortium"
-    t.string   "tm1a_phenotyping_mi_attempt_production_centre"
-    t.integer  "distinct_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_genotype_confirmed_es_cells"
-    t.integer  "distinct_non_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_non_genotype_confirmed_es_cells"
-    t.integer  "total_pipeline_efficiency_gene_count"
-    t.integer  "total_old_pipeline_efficiency_gene_count"
-    t.integer  "gc_pipeline_efficiency_gene_count"
-    t.integer  "gc_old_pipeline_efficiency_gene_count"
-    t.datetime "created_at"
-  end
-
-  create_table "new_intermediate_report_summary_by_centre_and_consortia", :force => true do |t|
-    t.integer  "mi_plan_id"
-    t.integer  "mi_attempt_id"
-    t.integer  "mouse_allele_mod_id"
-    t.integer  "phenotyping_production_id"
-    t.string   "overall_status",                                :limit => 50
-    t.string   "mi_plan_status",                                :limit => 50
-    t.string   "mi_attempt_status",                             :limit => 50
-    t.string   "phenotype_attempt_status",                      :limit => 50
-    t.string   "consortium",                                                   :null => false
-    t.string   "production_centre"
-    t.string   "gene",                                          :limit => 75,  :null => false
-    t.string   "mgi_accession_id",                              :limit => 40
-    t.date     "gene_interest_date"
-    t.string   "mi_attempt_colony_name"
-    t.string   "mouse_allele_mod_colony_name"
-    t.string   "production_colony_name"
-    t.date     "assigned_date"
-    t.date     "assigned_es_cell_qc_in_progress_date"
-    t.date     "assigned_es_cell_qc_complete_date"
-    t.date     "aborted_es_cell_qc_failed_date"
-    t.date     "micro_injection_in_progress_date"
-    t.date     "chimeras_obtained_date"
-    t.date     "genotype_confirmed_date"
-    t.date     "micro_injection_aborted_date"
-    t.date     "phenotype_attempt_registered_date"
-    t.date     "rederivation_started_date"
-    t.date     "rederivation_complete_date"
-    t.date     "cre_excision_started_date"
-    t.date     "cre_excision_complete_date"
-    t.date     "phenotyping_started_date"
-    t.date     "phenotyping_experiments_started_date"
-    t.date     "phenotyping_complete_date"
-    t.date     "phenotype_attempt_aborted_date"
-    t.string   "phenotyping_mi_attempt_consortium"
-    t.string   "phenotyping_mi_attempt_production_centre"
-    t.string   "tm1b_phenotype_attempt_status"
-    t.date     "tm1b_phenotype_attempt_registered_date"
-    t.date     "tm1b_rederivation_started_date"
-    t.date     "tm1b_rederivation_complete_date"
-    t.date     "tm1b_cre_excision_started_date"
-    t.date     "tm1b_cre_excision_complete_date"
-    t.date     "tm1b_phenotyping_started_date"
-    t.date     "tm1b_phenotyping_experiments_started_date"
-    t.date     "tm1b_phenotyping_complete_date"
-    t.date     "tm1b_phenotype_attempt_aborted_date"
-    t.string   "tm1b_colony_name"
-    t.string   "tm1b_phenotyping_production_colony_name"
-    t.string   "tm1b_phenotyping_mi_attempt_consortium"
-    t.string   "tm1b_phenotyping_mi_attempt_production_centre"
-    t.string   "tm1a_phenotype_attempt_status"
-    t.date     "tm1a_phenotype_attempt_registered_date"
-    t.date     "tm1a_rederivation_started_date"
-    t.date     "tm1a_rederivation_complete_date"
-    t.date     "tm1a_cre_excision_started_date"
-    t.date     "tm1a_cre_excision_complete_date"
-    t.date     "tm1a_phenotyping_started_date"
-    t.date     "tm1a_phenotyping_experiments_started_date"
-    t.date     "tm1a_phenotyping_complete_date"
-    t.date     "tm1a_phenotype_attempt_aborted_date"
-    t.string   "tm1a_colony_name"
-    t.string   "tm1a_phenotyping_production_colony_name"
-    t.string   "tm1a_phenotyping_mi_attempt_consortium"
-    t.string   "tm1a_phenotyping_mi_attempt_production_centre"
-    t.integer  "distinct_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_genotype_confirmed_es_cells"
-    t.integer  "distinct_non_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_non_genotype_confirmed_es_cells"
-    t.integer  "total_pipeline_efficiency_gene_count"
-    t.integer  "total_old_pipeline_efficiency_gene_count"
-    t.integer  "gc_pipeline_efficiency_gene_count"
-    t.integer  "gc_old_pipeline_efficiency_gene_count"
-    t.datetime "created_at"
-    t.string   "sub_project"
-    t.string   "mutation_sub_type",                             :limit => 100
-  end
-
-  create_table "new_intermediate_report_summary_by_consortia", :force => true do |t|
-    t.integer  "mi_plan_id"
-    t.integer  "mi_attempt_id"
-    t.integer  "mouse_allele_mod_id"
-    t.integer  "phenotyping_production_id"
-    t.string   "overall_status",                                :limit => 50
-    t.string   "mi_plan_status",                                :limit => 50
-    t.string   "mi_attempt_status",                             :limit => 50
-    t.string   "phenotype_attempt_status",                      :limit => 50
-    t.string   "consortium",                                                   :null => false
-    t.string   "gene",                                          :limit => 75,  :null => false
-    t.string   "mgi_accession_id",                              :limit => 40
-    t.date     "gene_interest_date"
-    t.string   "mi_attempt_colony_name"
-    t.string   "mouse_allele_mod_colony_name"
-    t.string   "production_colony_name"
-    t.date     "assigned_date"
-    t.date     "assigned_es_cell_qc_in_progress_date"
-    t.date     "assigned_es_cell_qc_complete_date"
-    t.date     "aborted_es_cell_qc_failed_date"
-    t.date     "micro_injection_in_progress_date"
-    t.date     "chimeras_obtained_date"
-    t.date     "genotype_confirmed_date"
-    t.date     "micro_injection_aborted_date"
-    t.date     "phenotype_attempt_registered_date"
-    t.date     "rederivation_started_date"
-    t.date     "rederivation_complete_date"
-    t.date     "cre_excision_started_date"
-    t.date     "cre_excision_complete_date"
-    t.date     "phenotyping_started_date"
-    t.date     "phenotyping_experiments_started_date"
-    t.date     "phenotyping_complete_date"
-    t.date     "phenotype_attempt_aborted_date"
-    t.string   "phenotyping_mi_attempt_consortium"
-    t.string   "phenotyping_mi_attempt_production_centre"
-    t.string   "tm1b_phenotype_attempt_status"
-    t.date     "tm1b_phenotype_attempt_registered_date"
-    t.date     "tm1b_rederivation_started_date"
-    t.date     "tm1b_rederivation_complete_date"
-    t.date     "tm1b_cre_excision_started_date"
-    t.date     "tm1b_cre_excision_complete_date"
-    t.date     "tm1b_phenotyping_started_date"
-    t.date     "tm1b_phenotyping_experiments_started_date"
-    t.date     "tm1b_phenotyping_complete_date"
-    t.date     "tm1b_phenotype_attempt_aborted_date"
-    t.string   "tm1b_colony_name"
-    t.string   "tm1b_phenotyping_production_colony_name"
-    t.string   "tm1b_phenotyping_mi_attempt_consortium"
-    t.string   "tm1b_phenotyping_mi_attempt_production_centre"
-    t.string   "tm1a_phenotype_attempt_status"
-    t.date     "tm1a_phenotype_attempt_registered_date"
-    t.date     "tm1a_rederivation_started_date"
-    t.date     "tm1a_rederivation_complete_date"
-    t.date     "tm1a_cre_excision_started_date"
-    t.date     "tm1a_cre_excision_complete_date"
-    t.date     "tm1a_phenotyping_started_date"
-    t.date     "tm1a_phenotyping_experiments_started_date"
-    t.date     "tm1a_phenotyping_complete_date"
-    t.date     "tm1a_phenotype_attempt_aborted_date"
-    t.string   "tm1a_colony_name"
-    t.string   "tm1a_phenotyping_production_colony_name"
-    t.string   "tm1a_phenotyping_mi_attempt_consortium"
-    t.string   "tm1a_phenotyping_mi_attempt_production_centre"
-    t.integer  "distinct_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_genotype_confirmed_es_cells"
-    t.integer  "distinct_non_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_non_genotype_confirmed_es_cells"
-    t.integer  "total_pipeline_efficiency_gene_count"
-    t.integer  "total_old_pipeline_efficiency_gene_count"
-    t.integer  "gc_pipeline_efficiency_gene_count"
-    t.integer  "gc_old_pipeline_efficiency_gene_count"
-    t.datetime "created_at"
-    t.string   "sub_project"
-    t.string   "mutation_sub_type",                             :limit => 100
-  end
-
-  create_table "new_intermediate_report_summary_by_gene", :force => true do |t|
-    t.integer  "mi_plan_id"
-    t.integer  "mi_attempt_id"
-    t.integer  "mouse_allele_mod_id"
-    t.integer  "phenotyping_production_id"
-    t.string   "overall_status",                                :limit => 50
-    t.string   "mi_plan_status",                                :limit => 50
-    t.string   "mi_attempt_status",                             :limit => 50
-    t.string   "phenotype_attempt_status",                      :limit => 50
-    t.string   "gene",                                          :limit => 75, :null => false
-    t.string   "mgi_accession_id",                              :limit => 40
-    t.date     "gene_interest_date"
-    t.string   "mi_attempt_colony_name"
-    t.string   "mouse_allele_mod_colony_name"
-    t.string   "production_colony_name"
-    t.date     "assigned_date"
-    t.date     "assigned_es_cell_qc_in_progress_date"
-    t.date     "assigned_es_cell_qc_complete_date"
-    t.date     "aborted_es_cell_qc_failed_date"
-    t.date     "micro_injection_in_progress_date"
-    t.date     "chimeras_obtained_date"
-    t.date     "genotype_confirmed_date"
-    t.date     "micro_injection_aborted_date"
-    t.date     "phenotype_attempt_registered_date"
-    t.date     "rederivation_started_date"
-    t.date     "rederivation_complete_date"
-    t.date     "cre_excision_started_date"
-    t.date     "cre_excision_complete_date"
-    t.date     "phenotyping_started_date"
-    t.date     "phenotyping_experiments_started_date"
-    t.date     "phenotyping_complete_date"
-    t.date     "phenotype_attempt_aborted_date"
-    t.string   "phenotyping_mi_attempt_consortium"
-    t.string   "phenotyping_mi_attempt_production_centre"
-    t.string   "tm1b_phenotype_attempt_status"
-    t.date     "tm1b_phenotype_attempt_registered_date"
-    t.date     "tm1b_rederivation_started_date"
-    t.date     "tm1b_rederivation_complete_date"
-    t.date     "tm1b_cre_excision_started_date"
-    t.date     "tm1b_cre_excision_complete_date"
-    t.date     "tm1b_phenotyping_started_date"
-    t.date     "tm1b_phenotyping_experiments_started_date"
-    t.date     "tm1b_phenotyping_complete_date"
-    t.date     "tm1b_phenotype_attempt_aborted_date"
-    t.string   "tm1b_colony_name"
-    t.string   "tm1b_phenotyping_production_colony_name"
-    t.string   "tm1b_phenotyping_mi_attempt_consortium"
-    t.string   "tm1b_phenotyping_mi_attempt_production_centre"
-    t.string   "tm1a_phenotype_attempt_status"
-    t.date     "tm1a_phenotype_attempt_registered_date"
-    t.date     "tm1a_rederivation_started_date"
-    t.date     "tm1a_rederivation_complete_date"
-    t.date     "tm1a_cre_excision_started_date"
-    t.date     "tm1a_cre_excision_complete_date"
-    t.date     "tm1a_phenotyping_started_date"
-    t.date     "tm1a_phenotyping_experiments_started_date"
-    t.date     "tm1a_phenotyping_complete_date"
-    t.date     "tm1a_phenotype_attempt_aborted_date"
-    t.string   "tm1a_colony_name"
-    t.string   "tm1a_phenotyping_production_colony_name"
-    t.string   "tm1a_phenotyping_mi_attempt_consortium"
-    t.string   "tm1a_phenotyping_mi_attempt_production_centre"
-    t.integer  "distinct_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_genotype_confirmed_es_cells"
-    t.integer  "distinct_non_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_non_genotype_confirmed_es_cells"
-    t.integer  "total_pipeline_efficiency_gene_count"
-    t.integer  "total_old_pipeline_efficiency_gene_count"
-    t.integer  "gc_pipeline_efficiency_gene_count"
-    t.integer  "gc_old_pipeline_efficiency_gene_count"
-    t.datetime "created_at"
-  end
-
-  create_table "new_intermediate_report_summary_by_mi_plan", :force => true do |t|
-    t.integer  "mi_plan_id",                                                                      :null => false
-    t.string   "overall_status",                                :limit => 50
-    t.string   "mi_plan_status",                                :limit => 50
-    t.string   "mi_attempt_status",                             :limit => 50
-    t.string   "phenotype_attempt_status",                      :limit => 50
-    t.string   "consortium",                                                                      :null => false
-    t.string   "production_centre"
-    t.string   "sub_project"
-    t.string   "priority"
-    t.string   "gene"
-    t.string   "mgi_accession_id",                              :limit => 40
-    t.boolean  "is_bespoke_allele"
-    t.string   "ikmc_project_id"
-    t.string   "mutation_sub_type",                             :limit => 100
-    t.string   "allele_symbol"
-    t.string   "genetic_background"
-    t.string   "mi_attempt_colony_name"
-    t.string   "mouse_allele_mod_colony_name"
-    t.string   "production_colony_name"
-    t.date     "assigned_date"
-    t.date     "assigned_es_cell_qc_in_progress_date"
-    t.date     "assigned_es_cell_qc_complete_date"
-    t.date     "aborted_es_cell_qc_failed_date"
-    t.date     "micro_injection_in_progress_date"
-    t.date     "chimeras_obtained_date"
-    t.date     "genotype_confirmed_date"
-    t.date     "micro_injection_aborted_date"
-    t.date     "phenotype_attempt_registered_date"
-    t.date     "rederivation_started_date"
-    t.date     "rederivation_complete_date"
-    t.date     "cre_excision_started_date"
-    t.date     "cre_excision_complete_date"
-    t.date     "phenotyping_started_date"
-    t.date     "phenotyping_experiments_started_date"
-    t.date     "phenotyping_complete_date"
-    t.date     "phenotype_attempt_aborted_date"
-    t.string   "phenotyping_mi_attempt_consortium"
-    t.string   "phenotyping_mi_attempt_production_centre"
-    t.string   "tm1b_phenotype_attempt_status"
-    t.date     "tm1b_phenotype_attempt_registered_date"
-    t.date     "tm1b_rederivation_started_date"
-    t.date     "tm1b_rederivation_complete_date"
-    t.date     "tm1b_cre_excision_started_date"
-    t.date     "tm1b_cre_excision_complete_date"
-    t.date     "tm1b_phenotyping_started_date"
-    t.date     "tm1b_phenotyping_experiments_started_date"
-    t.date     "tm1b_phenotyping_complete_date"
-    t.date     "tm1b_phenotype_attempt_aborted_date"
-    t.string   "tm1b_colony_name"
-    t.string   "tm1b_phenotyping_production_colony_name"
-    t.string   "tm1b_phenotyping_mi_attempt_consortium"
-    t.string   "tm1b_phenotyping_mi_attempt_production_centre"
-    t.string   "tm1a_phenotype_attempt_status"
-    t.date     "tm1a_phenotype_attempt_registered_date"
-    t.date     "tm1a_rederivation_started_date"
-    t.date     "tm1a_rederivation_complete_date"
-    t.date     "tm1a_cre_excision_started_date"
-    t.date     "tm1a_cre_excision_complete_date"
-    t.date     "tm1a_phenotyping_started_date"
-    t.date     "tm1a_phenotyping_experiments_started_date"
-    t.date     "tm1a_phenotyping_complete_date"
-    t.date     "tm1a_phenotype_attempt_aborted_date"
-    t.string   "tm1a_colony_name"
-    t.string   "tm1a_phenotyping_production_colony_name"
-    t.string   "tm1a_phenotyping_mi_attempt_consortium"
-    t.string   "tm1a_phenotyping_mi_attempt_production_centre"
-    t.integer  "distinct_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_genotype_confirmed_es_cells"
-    t.integer  "distinct_non_genotype_confirmed_es_cells"
-    t.integer  "distinct_old_non_genotype_confirmed_es_cells"
-    t.integer  "total_pipeline_efficiency_gene_count"
-    t.integer  "total_old_pipeline_efficiency_gene_count"
-    t.integer  "gc_pipeline_efficiency_gene_count"
-    t.integer  "gc_old_pipeline_efficiency_gene_count"
-    t.datetime "created_at"
-    t.boolean  "mutagenesis_via_crispr_cas9",                                  :default => false
   end
 
   create_table "notifications", :force => true do |t|
@@ -889,84 +741,8 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.datetime "updated_at"
   end
 
-  create_table "phenotype_attempt_distribution_centres", :force => true do |t|
-    t.date     "start_date"
-    t.date     "end_date"
-    t.integer  "phenotype_attempt_id",                              :null => false
-    t.integer  "deposited_material_id",                             :null => false
-    t.integer  "centre_id",                                         :null => false
-    t.boolean  "is_distributed_by_emma", :default => false,         :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "distribution_network"
-    t.integer  "mouse_allele_mod_id"
-    t.string   "reconciled",             :default => "not checked", :null => false
-    t.datetime "reconciled_at"
-    t.boolean  "available",              :default => true,          :null => false
+  create_table "phenotype_attempt_ids", :force => true do |t|
   end
-
-  create_table "phenotype_attempt_status_stamps", :force => true do |t|
-    t.integer  "phenotype_attempt_id", :null => false
-    t.integer  "status_id",            :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "phenotype_attempt_status_stamps", ["status_id", "phenotype_attempt_id"], :name => "index_one_status_stamp_per_status_and_phenotype_attempt", :unique => true
-
-  create_table "phenotype_attempt_statuses", :force => true do |t|
-    t.string   "name",       :limit => 50, :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "order_by"
-    t.string   "code",       :limit => 10, :null => false
-  end
-
-  create_table "phenotype_attempts", :force => true do |t|
-    t.integer  "mi_attempt_id",                                                         :null => false
-    t.integer  "status_id",                                                             :null => false
-    t.boolean  "is_active",                                          :default => true,  :null => false
-    t.boolean  "rederivation_started",                               :default => false, :null => false
-    t.boolean  "rederivation_complete",                              :default => false, :null => false
-    t.integer  "number_of_cre_matings_started",                      :default => 0,     :null => false
-    t.integer  "number_of_cre_matings_successful",                   :default => 0,     :null => false
-    t.boolean  "phenotyping_started",                                :default => false, :null => false
-    t.boolean  "phenotyping_complete",                               :default => false, :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "mi_plan_id",                                                            :null => false
-    t.string   "colony_name",                         :limit => 125,                    :null => false
-    t.string   "mouse_allele_type",                   :limit => 3
-    t.integer  "deleter_strain_id"
-    t.integer  "colony_background_strain_id"
-    t.boolean  "cre_excision_required",                              :default => true,  :null => false
-    t.boolean  "tat_cre",                                            :default => false
-    t.boolean  "report_to_public",                                   :default => true,  :null => false
-    t.date     "phenotyping_experiments_started"
-    t.integer  "qc_southern_blot_id"
-    t.integer  "qc_five_prime_lr_pcr_id"
-    t.integer  "qc_five_prime_cassette_integrity_id"
-    t.integer  "qc_tv_backbone_assay_id"
-    t.integer  "qc_neo_count_qpcr_id"
-    t.integer  "qc_neo_sr_pcr_id"
-    t.integer  "qc_loa_qpcr_id"
-    t.integer  "qc_homozygous_loa_sr_pcr_id"
-    t.integer  "qc_lacz_sr_pcr_id"
-    t.integer  "qc_mutant_specific_sr_pcr_id"
-    t.integer  "qc_loxp_confirmation_id"
-    t.integer  "qc_three_prime_lr_pcr_id"
-    t.integer  "qc_lacz_count_qpcr_id"
-    t.integer  "qc_critical_region_qpcr_id"
-    t.integer  "qc_loxp_srpcr_id"
-    t.integer  "qc_loxp_srpcr_and_sequencing_id"
-    t.string   "allele_name"
-    t.string   "jax_mgi_accession_id"
-    t.date     "ready_for_website"
-    t.integer  "allele_id"
-    t.integer  "real_allele_id"
-  end
-
-  add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true
 
   create_table "phenotyping_production_status_stamps", :force => true do |t|
     t.integer  "phenotyping_production_id", :null => false
@@ -983,7 +759,6 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
 
   create_table "phenotyping_productions", :force => true do |t|
     t.integer  "mi_plan_id",                                         :null => false
-    t.integer  "mouse_allele_mod_id",                                :null => false
     t.integer  "status_id",                                          :null => false
     t.string   "colony_name"
     t.date     "phenotyping_experiments_started"
@@ -995,6 +770,10 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.datetime "created_at",                                         :null => false
     t.datetime "updated_at",                                         :null => false
     t.date     "ready_for_website"
+    t.integer  "parent_colony_id"
+    t.integer  "colony_background_strain_id"
+    t.boolean  "rederivation_started",            :default => false, :null => false
+    t.boolean  "rederivation_complete",           :default => false, :null => false
   end
 
   create_table "pipelines", :force => true do |t|
@@ -1012,8 +791,12 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.integer  "month"
     t.integer  "mi_goal"
     t.integer  "gc_goal"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
+    t.integer  "crispr_mi_goal"
+    t.integer  "crispr_gc_goal"
+    t.integer  "total_mi_goal"
+    t.integer  "total_gc_goal"
   end
 
   add_index "production_goals", ["consortium_id", "year", "month"], :name => "index_production_goals_on_consortium_id_and_year_and_month", :unique => true
@@ -1035,128 +818,6 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
   end
 
   add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
-
-  create_table "solr_alleles", :id => false, :force => true do |t|
-    t.text    "type"
-    t.integer "id"
-    t.text    "product_type"
-    t.integer "allele_id"
-    t.text    "order_from_names"
-    t.text    "order_from_urls"
-    t.text    "simple_allele_image_url"
-    t.text    "allele_image_url"
-    t.text    "genbank_file_url"
-    t.string  "mgi_accession_id",        :limit => 40
-    t.string  "marker_symbol",           :limit => 75
-    t.string  "allele_type",             :limit => 100
-    t.string  "strain",                  :limit => 25
-    t.text    "allele_name"
-    t.string  "project_ids"
-  end
-
-  add_index "solr_alleles", ["id"], :name => "solr_alleles_idx"
-
-  create_table "solr_centre_map", :id => false, :force => true do |t|
-    t.string "centre_name", :limit => 40
-    t.string "pref"
-    t.string "def"
-  end
-
-  create_table "solr_genes", :id => false, :force => true do |t|
-    t.integer  "id"
-    t.text     "type"
-    t.text     "allele_id"
-    t.string   "consortium"
-    t.string   "production_centre",       :limit => 100
-    t.string   "status",                  :limit => 50
-    t.datetime "effective_date"
-    t.string   "mgi_accession_id",        :limit => nil
-    t.text     "project_ids"
-    t.text     "project_statuses"
-    t.text     "project_pipelines"
-    t.text     "vector_project_ids"
-    t.text     "vector_project_statuses"
-    t.string   "marker_symbol",           :limit => 75
-    t.string   "marker_type"
-  end
-
-  add_index "solr_genes", ["id"], :name => "solr_genes_idx"
-
-  create_table "solr_ikmc_projects_details_agg", :id => false, :force => true do |t|
-    t.text    "projects"
-    t.text    "pipelines"
-    t.text    "statuses"
-    t.integer "gene_id"
-    t.text    "type"
-  end
-
-  create_table "solr_mi_attempts", :id => false, :force => true do |t|
-    t.integer "id"
-    t.text    "product_type"
-    t.text    "type"
-    t.string  "colony_name",                        :limit => 125
-    t.string  "marker_symbol",                      :limit => 75
-    t.string  "es_cell_name",                       :limit => 100
-    t.integer "allele_id"
-    t.string  "mgi_accession_id",                   :limit => 40
-    t.string  "production_centre",                  :limit => 100
-    t.string  "strain",                             :limit => 100
-    t.text    "genbank_file_url"
-    t.text    "allele_image_url"
-    t.text    "simple_allele_image_url"
-    t.string  "allele_type",                        :limit => 100
-    t.string  "project_ids"
-    t.text    "current_pa_status"
-    t.text    "allele_name"
-    t.text    "order_from_names"
-    t.text    "order_from_urls"
-    t.text    "best_status_pa_cre_ex_not_required"
-    t.text    "best_status_pa_cre_ex_required"
-  end
-
-  create_table "solr_options", :id => false, :force => true do |t|
-    t.text "key"
-    t.text "value"
-    t.text "mode"
-  end
-
-  create_table "solr_phenotype_attempts", :id => false, :force => true do |t|
-    t.integer "id"
-    t.text    "product_type"
-    t.text    "type"
-    t.string  "colony_name",                        :limit => 125
-    t.text    "allele_type"
-    t.text    "allele_name"
-    t.text    "order_from_names"
-    t.text    "order_from_urls"
-    t.integer "allele_id"
-    t.string  "strain",                             :limit => 100
-    t.string  "mgi_accession_id",                   :limit => 40
-    t.string  "production_centre",                  :limit => 100
-    t.text    "allele_image_url"
-    t.text    "simple_allele_image_url"
-    t.text    "genbank_file_url"
-    t.text    "project_ids"
-    t.string  "marker_symbol",                      :limit => 75
-    t.string  "parent_mi_attempt_colony_name",      :limit => 125
-    t.text    "best_status_pa_cre_ex_required"
-    t.text    "best_status_pa_cre_ex_not_required"
-    t.string  "current_pa_status",                  :limit => 50
-  end
-
-  create_table "solr_update_queue_items", :force => true do |t|
-    t.integer  "mi_attempt_id"
-    t.integer  "phenotype_attempt_id"
-    t.text     "action"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "allele_id"
-    t.integer  "gene_id"
-  end
-
-  add_index "solr_update_queue_items", ["allele_id"], :name => "index_solr_update_queue_items_on_allele_id", :unique => true
-  add_index "solr_update_queue_items", ["mi_attempt_id"], :name => "index_solr_update_queue_items_on_mi_attempt_id", :unique => true
-  add_index "solr_update_queue_items", ["phenotype_attempt_id"], :name => "index_solr_update_queue_items_on_phenotype_attempt_id", :unique => true
 
   create_table "strains", :force => true do |t|
     t.string   "name",                    :limit => 100, :null => false
@@ -1438,7 +1099,6 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
   end
 
   create_table "trace_calls", :force => true do |t|
-    t.integer  "colony_id",                                         :null => false
     t.text     "file_alignment"
     t.text     "file_filtered_analysis_vcf"
     t.text     "file_variant_effect_output_txt"
@@ -1459,7 +1119,7 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.integer  "trace_file_file_size"
     t.datetime "trace_file_updated_at"
     t.string   "exon_id"
-    t.integer  "mutagenesis_factor_id",                             :null => false
+    t.integer  "colony_allele_id"
   end
 
   create_table "trace_files", :force => true do |t|
@@ -1475,9 +1135,11 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
     t.date     "date"
     t.string   "goal_type"
     t.integer  "goal"
-    t.datetime "created_at",           :null => false
-    t.datetime "updated_at",           :null => false
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
     t.integer  "consortium_id"
+    t.integer  "crispr_goal",          :default => 0
+    t.integer  "total_goal",           :default => 0
   end
 
   create_table "users", :force => true do |t|
@@ -1500,42 +1162,22 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
 
   add_foreign_key "colonies", "mi_attempts", :name => "colonies_mi_attempt_fk"
+  add_foreign_key "colonies", "mouse_allele_mods", :name => "colonies_mouse_allele_mod_fk"
 
   add_foreign_key "colony_alleles", "colonies", :name => "colony_alleles_colony_id_fk"
   add_foreign_key "colony_alleles", "gene_targets", :name => "colony_alleles_gene_target_id_fk"
   add_foreign_key "colony_alleles", "targ_rep_real_alleles", :name => "colony_alleles_real_allele_fk", :column => "real_allele_id"
 
-  add_foreign_key "colony_qcs", "colonies", :name => "colony_qcs_colonies_fk"
-  add_foreign_key "colony_qcs", "mutagenesis_factors", :name => "colony_qcs_mutagenesis_factor_id_fk"
+  add_foreign_key "colony_qcs", "colony_alleles", :name => "colony_qcs_colony_allele_id_fk"
 
   add_foreign_key "gene_targets", "mi_attempts", :name => "gene_targets_mi_attempt_id_fk"
   add_foreign_key "gene_targets", "mi_plans", :name => "gene_targets_mi_plan_id_fk"
-
-  add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
-  add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
-  add_foreign_key "mi_attempt_distribution_centres", "mi_attempts", :name => "mi_attempt_distribution_centres_mi_attempt_id_fk"
+  add_foreign_key "gene_targets", "mutagenesis_factors", :name => "gene_targets_mutagenesis_factor_id_fk"
 
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk", :column => "status_id"
 
   add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk", :column => "status_id"
-  add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_critical_region_qpcr_id_fk", :column => "qc_critical_region_qpcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_five_prime_lr_pcr_id_fk", :column => "qc_five_prime_lr_pcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_homozygous_loa_sr_pcr_id_fk", :column => "qc_homozygous_loa_sr_pcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_lacz_sr_pcr_id_fk", :column => "qc_lacz_sr_pcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_loa_qpcr_id_fk", :column => "qc_loa_qpcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_loxp_confirmation_id_fk", :column => "qc_loxp_confirmation_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_loxp_srpcr_and_sequencing_id_fk", :column => "qc_loxp_srpcr_and_sequencing_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_loxp_srpcr_id_fk", :column => "qc_loxp_srpcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_mutant_specific_sr_pcr_id_fk", :column => "qc_mutant_specific_sr_pcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_neo_count_qpcr_id_fk", :column => "qc_neo_count_qpcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_neo_sr_pcr_id_fk", :column => "qc_neo_sr_pcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_southern_blot_id_fk", :column => "qc_southern_blot_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_three_prime_lr_pcr_id_fk", :column => "qc_three_prime_lr_pcr_id"
-  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_tv_backbone_assay_id_fk", :column => "qc_tv_backbone_assay_id"
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_blast_strain_id_fk", :column => "blast_strain_id"
-  add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
   add_foreign_key "mi_attempts", "targ_rep_alleles", :name => "mi_attempts_targ_rep_allele_id_fk", :column => "allele_id"
   add_foreign_key "mi_attempts", "targ_rep_real_alleles", :name => "mi_attempts_targ_rep_real_allele_id_fk", :column => "real_allele_id"
@@ -1557,73 +1199,21 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
   add_foreign_key "mouse_allele_mod_status_stamps", "mouse_allele_mod_statuses", :name => "mouse_allele_mod_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "mouse_allele_mod_status_stamps", "mouse_allele_mods", :name => "fk_mouse_allele_mods"
 
-  add_foreign_key "mouse_allele_mods", "mi_attempts", :name => "mouse_allele_mods_mi_attempt_id_fk"
   add_foreign_key "mouse_allele_mods", "mi_plans", :name => "mouse_allele_mods_mi_plan_id_fk"
   add_foreign_key "mouse_allele_mods", "mouse_allele_mod_statuses", :name => "mouse_allele_mods_status_id_fk", :column => "status_id"
-  add_foreign_key "mouse_allele_mods", "phenotype_attempts", :name => "mouse_allele_mods_phenotype_attempt_id_fk"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_critical_region_qpcr_id_fk", :column => "qc_critical_region_qpcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_five_prime_lr_pcr_id_fk", :column => "qc_five_prime_lr_pcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_homozygous_loa_sr_pcr_id_fk", :column => "qc_homozygous_loa_sr_pcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_lacz_count_qpcr_id_fk", :column => "qc_lacz_count_qpcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_lacz_sr_pcr_id_fk", :column => "qc_lacz_sr_pcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_loa_qpcr_id_fk", :column => "qc_loa_qpcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_loxp_confirmation_id_fk", :column => "qc_loxp_confirmation_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_loxp_srpcr_and_sequencing_id_fk", :column => "qc_loxp_srpcr_and_sequencing_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_loxp_srpcr_id_fk", :column => "qc_loxp_srpcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_mutant_specific_sr_pcr_id_fk", :column => "qc_mutant_specific_sr_pcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_neo_count_qpcr_id_fk", :column => "qc_neo_count_qpcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_neo_sr_pcr_id_fk", :column => "qc_neo_sr_pcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_southern_blot_id_fk", :column => "qc_southern_blot_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_three_prime_lr_pcr_id_fk", :column => "qc_three_prime_lr_pcr_id"
-  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_tv_backbone_assay_id_fk", :column => "qc_tv_backbone_assay_id"
-  add_foreign_key "mouse_allele_mods", "strains", :name => "mouse_allele_mods_colony_background_strain_id_fk", :column => "colony_background_strain_id"
+  add_foreign_key "mouse_allele_mods", "phenotype_attempt_ids", :name => "mouse_allele_mods_phenotype_attempt_id_fk", :column => "phenotype_attempt_id"
   add_foreign_key "mouse_allele_mods", "strains", :name => "mouse_allele_mods_deleter_strain_id_fk", :column => "deleter_strain_id"
   add_foreign_key "mouse_allele_mods", "targ_rep_alleles", :name => "mouse_allele_mods_targ_rep_allele_id_fk", :column => "allele_id"
   add_foreign_key "mouse_allele_mods", "targ_rep_real_alleles", :name => "mouse_allele_mods_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
-  add_foreign_key "mutagenesis_factors", "gene_targets", :name => "mutagenesis_factors_gene_target_id_fk"
-  add_foreign_key "mutagenesis_factors", "mi_attempts", :name => "mutagenesis_factors_mi_attempt_id_fk"
-
   add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
   add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
-
-  add_foreign_key "phenotype_attempt_distribution_centres", "centres", :name => "phenotype_attempt_distribution_centres_centre_id_fk"
-  add_foreign_key "phenotype_attempt_distribution_centres", "deposited_materials", :name => "phenotype_attempt_distribution_centres_deposited_material_id_fk"
-  add_foreign_key "phenotype_attempt_distribution_centres", "mouse_allele_mods", :name => "fk_mouse_allele_mod_distribution_centres"
-  add_foreign_key "phenotype_attempt_distribution_centres", "phenotype_attempts", :name => "phenotype_attempt_distribution_centres_phenotype_attempt_id_fk"
-
-  add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempt_statuses", :name => "phenotype_attempt_status_stamps_status_id_fk", :column => "status_id"
-  add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempts", :name => "phenotype_attempt_status_stamps_phenotype_attempt_id_fk"
-
-  add_foreign_key "phenotype_attempts", "mi_plans", :name => "phenotype_attempts_mi_plan_id_fk"
-  add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_critical_region_qpcr_id_fk", :column => "qc_critical_region_qpcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_five_prime_lr_pcr_id_fk", :column => "qc_five_prime_lr_pcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_homozygous_loa_sr_pcr_id_fk", :column => "qc_homozygous_loa_sr_pcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_lacz_count_qpcr_id_fk", :column => "qc_lacz_count_qpcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_lacz_sr_pcr_id_fk", :column => "qc_lacz_sr_pcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_loa_qpcr_id_fk", :column => "qc_loa_qpcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_loxp_confirmation_id_fk", :column => "qc_loxp_confirmation_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_loxp_srpcr_and_sequencing_id_fk", :column => "qc_loxp_srpcr_and_sequencing_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_loxp_srpcr_id_fk", :column => "qc_loxp_srpcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_mutant_specific_sr_pcr_id_fk", :column => "qc_mutant_specific_sr_pcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_neo_count_qpcr_id_fk", :column => "qc_neo_count_qpcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_neo_sr_pcr_id_fk", :column => "qc_neo_sr_pcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_southern_blot_id_fk", :column => "qc_southern_blot_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_three_prime_lr_pcr_id_fk", :column => "qc_three_prime_lr_pcr_id"
-  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_tv_backbone_assay_id_fk", :column => "qc_tv_backbone_assay_id"
-  add_foreign_key "phenotype_attempts", "strains", :name => "phenotype_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
-  add_foreign_key "phenotype_attempts", "targ_rep_alleles", :name => "phenotype_attempts_targ_rep_allele_id_fk", :column => "allele_id"
-  add_foreign_key "phenotype_attempts", "targ_rep_real_alleles", :name => "phenotype_attempts_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_production_statuses", :name => "phenotyping_production_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_productions", :name => "fk_phenotyping_productions"
 
   add_foreign_key "phenotyping_productions", "mi_plans", :name => "phenotyping_productions_mi_plan_id_fk"
-  add_foreign_key "phenotyping_productions", "mouse_allele_mods", :name => "phenotyping_productions_mouse_allele_mod_id_fk"
-  add_foreign_key "phenotyping_productions", "phenotype_attempts", :name => "phenotyping_productions_phenotype_attempt_id_fk"
+  add_foreign_key "phenotyping_productions", "phenotype_attempt_ids", :name => "phenotyping_productions_phenotype_attempt_id_fk", :column => "phenotype_attempt_id"
   add_foreign_key "phenotyping_productions", "phenotyping_production_statuses", :name => "phenotyping_productions_status_id_fk", :column => "status_id"
 
   add_foreign_key "targ_rep_allele_sequence_annotations", "targ_rep_alleles", :name => "targ_rep_allele_sequence_annotations_allele_id_fk", :column => "allele_id"
@@ -1638,8 +1228,7 @@ ActiveRecord::Schema.define(:version => 20150527130000) do
 
   add_foreign_key "trace_call_vcf_modifications", "trace_calls", :name => "trace_call_vcf_modifications_trace_calls_fk"
 
-  add_foreign_key "trace_calls", "colonies", :name => "trace_calls_colonies_fk"
-  add_foreign_key "trace_calls", "mutagenesis_factors", :name => "trace_calls_mutagenesis_factor_id_fk"
+  add_foreign_key "trace_calls", "colony_alleles", :name => "trace_calls_colony_allele_id_fk"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

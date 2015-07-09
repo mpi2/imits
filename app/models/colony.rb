@@ -115,17 +115,22 @@ end
 #
 # Table name: colonies
 #
-#  id                          :integer          not null, primary key
-#  name                        :string(255)      not null
-#  mi_attempt_id               :integer
-#  genotype_confirmed          :boolean          default(FALSE)
-#  report_to_public            :boolean          default(FALSE)
-#  unwanted_allele             :boolean          default(FALSE)
-#  unwanted_allele_description :text
-#  mgi_allele_id               :string(255)
-#  allele_name                 :string(255)
+#  id                                 :integer          not null, primary key
+#  name                               :string(255)      not null
+#  mi_attempt_id                      :integer
+#  genotype_confirmed                 :boolean          default(FALSE)
+#  report_to_public                   :boolean          default(FALSE)
+#  unwanted_allele                    :boolean          default(FALSE)
+#  unwanted_allele_description        :text
+#  mgi_allele_id                      :string(255)
+#  allele_name                        :string(255)
+#  mouse_allele_mod_id                :integer
+#  mgi_allele_symbol_superscript      :string(255)
+#  allele_symbol_superscript_template :string(255)
+#  allele_type                        :string(255)
+#  background_strain_id               :integer
 #
 # Indexes
 #
-#  colony_name_index  (name) UNIQUE
+#  mouse_allele_mod_colony_name_uniqueness_index  (name,mi_attempt_id,mouse_allele_mod_id) UNIQUE
 #

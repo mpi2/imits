@@ -39,14 +39,18 @@ end
 #
 # Table name: production_goals
 #
-#  id            :integer          not null, primary key
-#  consortium_id :integer
-#  year          :integer
-#  month         :integer
-#  mi_goal       :integer
-#  gc_goal       :integer
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
+#  id             :integer          not null, primary key
+#  consortium_id  :integer
+#  year           :integer
+#  month          :integer
+#  mi_goal        :integer
+#  gc_goal        :integer
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  crispr_mi_goal :integer
+#  crispr_gc_goal :integer
+#  total_mi_goal  :integer
+#  total_gc_goal  :integer
 #
 # Indexes
 #

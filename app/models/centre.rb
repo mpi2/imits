@@ -39,6 +39,7 @@ end
 #  contact_name  :string(100)
 #  contact_email :string(100)
 #  code          :string(255)
+#  superscript   :string(255)
 #
 # Indexes
 #

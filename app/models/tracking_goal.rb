@@ -108,4 +108,6 @@ end
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  consortium_id        :integer
+#  crispr_goal          :integer          default(0)
+#  total_goal           :integer          default(0)
 #

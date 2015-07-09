@@ -54,7 +54,8 @@ end
 #
 # Table name: gene_targets
 #
-#  id            :integer          not null, primary key
-#  mi_plan_id    :integer          not null
-#  mi_attempt_id :integer          not null
+#  id                    :integer          not null, primary key
+#  mi_plan_id            :integer          not null
+#  mi_attempt_id         :integer          not null
+#  mutagenesis_factor_id :integer
 #

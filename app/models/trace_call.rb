@@ -359,7 +359,6 @@ end
 # Table name: trace_calls
 #
 #  id                             :integer          not null, primary key
-#  colony_id                      :integer          not null
 #  file_alignment                 :text
 #  file_filtered_analysis_vcf     :text
 #  file_variant_effect_output_txt :text
@@ -380,5 +379,5 @@ end
 #  trace_file_file_size           :integer
 #  trace_file_updated_at          :datetime
 #  exon_id                        :string(255)
-#  mutagenesis_factor_id          :integer          not null
+#  colony_allele_id               :integer
 #

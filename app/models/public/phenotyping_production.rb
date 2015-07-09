@@ -10,7 +10,12 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     mi_plan_id
     consortium_name
     production_centre_name
+    production_colony_name
+    mouse_allele_symbol
     colony_name
+    rederivation_started
+    rederivation_complete
+    colony_background_strain_name
     phenotyping_experiments_started
     phenotyping_started
     phenotyping_complete
@@ -22,8 +27,8 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
 
   READABLE_ATTRIBUTES = %w{
     id
+    phenotype_attempt_id
     status_name
-    mouse_allele_mod_status_name
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -43,9 +48,16 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     }
   end
 
+  def production_colony_name
+    parent_colony_name
+  end
+
+  def production_colony_name=(arg)
+    parent_colony_name = arg
+  end
+
   def status_name; status.name; end
 
-  def mouse_allele_mod_status_name; mouse_allele_mod.status.name; end
 end
 
 # == Schema Information

@@ -69,17 +69,17 @@
             </tr>
             <tr>
               <td style="width:10%">&nbsp;</td>
-              <td><label for="q[mi_plans_phenotype_attempts_id_not_null]">Phenotype in progress:</label></td>
-              <% pa_default = params[:q][:mi_plans_phenotype_attempts_id_not_null] && params[:q][:mi_plans_phenotype_attempts_id_not_null] == '1' ? "checked" : "unchecked" %>
+              <td><label for="q[mi_plans_mouse_allele_mods_id_or_mi_plans_phenotyping_productions_id_not_null]">Phenotype in progress:</label></td>
+              <% pa_default = params[:q][:mi_plans_mouse_allele_mods_id_or_mi_plans_phenotyping_productions_id_not_null] && params[:q][:mi_plans_mouse_allele_mods_id_or_mi_plans_phenotyping_productions_id_not_null] == '1' ? "checked" : "unchecked" %>
               <td style="width:10%">&nbsp;</td>
-              <td><%= check_box :q, :mi_plans_phenotype_attempts_id_not_null, {:checked => pa_default} %></td>
+              <td><%= check_box :q, :mi_plans_mouse_allele_mods_id_or_mi_plans_phenotyping_productions_id_not_null, {:checked => pa_default} %></td>
             </tr>
             <tr>
               <td style="width:10%">&nbsp;</td>
-              <td><label for="q[mi_plans_phenotype_attempts_status_stamps_status_id_in]">CreExised Phenotype:</label></td>
-              <% pa_default = params[:q][:mi_plans_phenotype_attempts_status_stamps_status_id_in] && params[:q][:mi_plans_phenotype_attempts_status_stamps_status_id_in] == '6' ? "checked" : "unchecked" %>
+              <td><label for="q[mi_plans_mouse_allele_mods_status_id_in]">CreExised Phenotype:</label></td>
+              <% pa_default = params[:q][:mi_plans_mouse_allele_mods_status_id_in] && params[:q][:mi_plans_mouse_allele_mods_status_id_in] == '6' ? "checked" : "unchecked" %>
               <td style="width:10%">&nbsp;</td>
-              <td><%= check_box :q, :mi_plans_phenotype_attempts_status_stamps_status_id_in, {:checked => pa_default}, '6','' %></td>
+              <td><%= check_box :q, :mi_plans_mouse_allele_mods_status_id_in, {:checked => pa_default}, '6','' %></td>
             </tr>
           </table>
         </div>

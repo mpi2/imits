@@ -1,8 +1,8 @@
 class NetworkGraph::NodeWithStates < NetworkGraph::Node
   def initialize(object, params)
     super(object, params)
-    @consortium  = object.consortium.try(:name).to_s
-    @centre = object.production_centre.try(:name).to_s
+    @consortium  = object.consortium_name.to_s
+    @centre = object.production_centre_name.to_s
   end
 
   def find_statuses(object)

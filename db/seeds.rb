@@ -175,17 +175,6 @@ Seeds.load MiPlan::Priority, [
 ]
 
 
-Seeds.load PhenotypeAttempt::Status, [
-  {:code => 'abt', :id =>  1, :name => 'Phenotype Attempt Aborted', :order_by => 310},
-  {:code => 'par', :id =>  2, :name => 'Phenotype Attempt Registered', :order_by => 320},
-  {:code => 'res', :id =>  3, :name => 'Rederivation Started', :order_by => 330},
-  {:code => 'rec', :id =>  4, :name => 'Rederivation Complete', :order_by => 340},
-  {:code => 'ces', :id =>  5, :name => 'Cre Excision Started', :order_by => 350},
-  {:code => 'cec', :id =>  6, :name => 'Cre Excision Complete', :order_by => 360},
-  {:code => 'pds', :id =>  7, :name => 'Phenotyping Started', :order_by => 370},
-  {:code => 'pdc', :id =>  8, :name => 'Phenotyping Complete', :order_by => 380}
-]
-
 Seeds.load DeleterStrain, [
   {:id => 1, :name => 'MGI:2176052: Tg(Zp3-cre)3Mrt'},
   {:id => 2, :name => 'MGI:3046308: Hprt<tm1(CMV-cre)Brd>'},

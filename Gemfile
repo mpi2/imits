@@ -6,6 +6,7 @@ gem 'rails', '~> 3.2.11'
 gem 'rack', '~> 1.4.0'
 gem 'hoptoad_notifier', '2.4.11'
 gem 'jammit', '0.6.5'
+gem 'json'
 
 gem 'pg', '0.14.1'
 gem 'foreigner', '1.0.3'

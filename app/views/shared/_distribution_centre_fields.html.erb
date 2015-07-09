@@ -3,24 +3,15 @@
         <%= f.select :centre_name, Centre.all.map(&:name), :include_blank => true %>
     </td>
     <td>
-        <%= f.select :distribution_network, MiAttempt::DistributionCentre::DISTRIBUTION_NETWORKS, :include_blank => true %>
+        <%= f.select :distribution_network, ApplicationModel::DistributionCentre::DISTRIBUTION_NETWORKS, :include_blank => true %>
     </td>
     <td>
         <%= f.select :deposited_material_name, DepositedMaterial.all.map(&:name), :include_blank => true %>
     </td>
     <td>
-        <%= f.text_field :start_date, :label => 'Start Date', :class => 'date-field' %>
+        Start: <%= f.text_field :start_date, :label => 'Start Date', :class => 'date-field' %>
+        End:   <%= f.text_field :end_date, :label => 'End Date', :class => 'date-field' %>
     </td>
-    <td>
-        <%= f.text_field :end_date, :label => 'End Date', :class => 'date-field' %>
-    </td>
-    <td><%= f.object.available %></td>
-    <td><%= f.object.reconciled %></td>
-    <% if f.object.reconciled_at.nil? %>
-        <td></td>
-    <% else %>
-        <td><%= f.object.reconciled_at.strftime('%d/%m/%Y') %></td>
-    <% end %>
     <td>
         <% if @new_object != nil %>
             <%= f.hidden_field :_destroy, :class => 'destroy-field' %>

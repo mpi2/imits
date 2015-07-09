@@ -23,6 +23,7 @@ function onItemClick(item){
                     // filter cas9 inactivated
                     grid.deactivateCrisprFilter();
                     break;
+                case 'ES Cell Summary':
                 case 'ES Cell Transfer Details':
                 case 'ES Cell Litter Details':
                 case 'ES Cell Chimera Mating Details':
@@ -31,6 +32,7 @@ function onItemClick(item){
                     // filter cas9 off
                     grid.activateCrisprFilterWithValue(false);
                     break;
+                case 'Crispr Summary':
                 case 'Crispr Transfer Details':
                 case 'Crispr Founder Details':
                 case 'Crispr F1 Details':
@@ -179,6 +181,7 @@ Ext.define('Imits.widget.MiGridCommon', {
                     var viewColumns = Ext.pluck(viewColumnConfigs, 'dataIndex');
                     views[viewName] = viewColumns;
                   break;
+                case 'ES Cell Summary':
                 case 'ES Cell Transfer Details':
                 case 'ES Cell Litter Details':
                 case 'ES Cell Chimera Mating Details':
@@ -187,6 +190,7 @@ Ext.define('Imits.widget.MiGridCommon', {
                     views[viewName] = Ext.Array.merge(commonColumns, esCellCommonColumns, viewColumns);
                     esCellAllDetailView = Ext.Array.merge(commonColumns, esCellCommonColumns, esCellAllDetailView, viewColumns);
                     break;
+                case 'Crispr Summary':
                 case 'Crispr Transfer Details':
                 case 'Crispr Founder Details':
                 case 'Crispr F1 Details':
@@ -204,7 +208,7 @@ Ext.define('Imits.widget.MiGridCommon', {
 
         var grid = this;
         Ext.Object.each(this.additionalViewColumns, function(viewName) {
-            views[viewName] = Ext.Array.merge(commonColumns, esCellCommonColumns, crisprCommonColumns, grid.additionalViewColumns[viewName], views[viewName]);
+            views[viewName] = Ext.Array.merge(commonColumns, grid.additionalViewColumns[viewName], views[viewName]);
         });
         this.views = views;
     },
@@ -256,6 +260,7 @@ Ext.define('Imits.widget.MiGridCommon', {
         ];
 
         var esCellsMenuConfig = [
+            { text:'ES Cell Summary', handler: onItemClick },
             { text:'ES Cell All Details', handler: onItemClick },
             { text:'ES Cell Transfer Details', handler: onItemClick },
             { text:'ES Cell Litter Details', handler: onItemClick },
@@ -264,6 +269,7 @@ Ext.define('Imits.widget.MiGridCommon', {
         ];
 
         var crisprsMenuConfig = [
+            { text:'Crispr Summary', handler: onItemClick },
             { text:'Crispr All Details', handler: onItemClick },
             { text:'Crispr Transfer Details', handler: onItemClick },
             { text:'Crispr Founder Details', handler: onItemClick }//,
@@ -347,6 +353,13 @@ Ext.define('Imits.widget.MiGridCommon', {
 
         'common': [
         {
+            dataIndex: 'marker_symbol',
+            header: 'Marker Symbol',
+            width: 85,
+            readOnly: true,
+            sortable: false,
+        },
+        {
             dataIndex: 'consortium_name',
             header: 'Consortium',
             readOnly: true,
@@ -370,17 +383,14 @@ Ext.define('Imits.widget.MiGridCommon', {
             sortable: false
         },
         {
-            dataIndex: 'marker_symbol',
-            header: 'Marker Symbol',
-            width: 85,
-            readOnly: true,
-            sortable: false,
-        },
-        {
-            xtype: 'simpledatecolumn',
-            dataIndex: 'mi_date',
-            header: 'MI Date',
-            width: 90
+            dataIndex: 'colony_name',
+            header: 'MI External Ref/ Colony Name',
+            width: 180,
+            editor: 'textfield',
+            filter: {
+                type: 'string',
+                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'colony_name')
+            }
         },
         {
             dataIndex: 'status_name',
@@ -395,14 +405,28 @@ Ext.define('Imits.widget.MiGridCommon', {
             }
         },
         {
-            dataIndex: 'colony_name',
-            header: 'Colony Name',
-            width: 200,
+            dataIndex: 'genotyped_confirmed_colony_names',
+            header: 'Genotype Confirmed Colonies',
+            width: 180,
             editor: 'textfield',
-            filter: {
-                type: 'string',
-                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'colony_name')
-            }
+            renderer: function(value, metaData, record){
+                var genotype_confirmed_colony_names = record.get('genotyped_confirmed_colony_names').toString().replace('[', '').replace(']', '').split(',');
+                var textToDisplay = genotype_confirmed_colony_names.join('<br><br>')
+                return textToDisplay
+                },
+            sortable: false
+        },
+        {
+            dataIndex: 'genotype_confirmed_allele_symbols',
+            header: 'Mouse Allele Symbol',
+            width: 180,
+            readOnly: true,
+            renderer: function(value, metaData, record){
+                var genotype_confirmed_colony_names = record.get('genotype_confirmed_allele_symbols').toString().replace('[', '').replace(']', '').split(',');
+                var textToDisplay = genotype_confirmed_colony_names.join('<br><br>')
+                return textToDisplay
+                },
+            sortable: false
         }
         ],
 
@@ -417,8 +441,15 @@ Ext.define('Imits.widget.MiGridCommon', {
             }
         }
         ],
+        'Crispr Summary': [],
+        'ES Cell Summary': [],
         'es_cell_common': [
-
+        {
+            xtype: 'simpledatecolumn',
+            dataIndex: 'mi_date',
+            header: 'MI Date',
+            width: 90
+        },
         {
             dataIndex: 'es_cell_name',
             header: 'ES Cell',
@@ -440,6 +471,12 @@ Ext.define('Imits.widget.MiGridCommon', {
         ],
 
         'crispr_common': [
+        {
+            xtype: 'simpledatecolumn',
+            dataIndex: 'mi_date',
+            header: 'MI Date',
+            width: 90
+        }
         ],
 
         'ES Cell Transfer Details': [
@@ -650,12 +687,6 @@ Ext.define('Imits.widget.MiGridCommon', {
                     minWidth: 300
                 }
             }
-        },
-        {
-            dataIndex: 'mouse_allele_symbol',
-            header: 'Mouse Allele Symbol',
-            width: 180,
-            readOnly: true
         }
         ],
 
@@ -888,9 +919,7 @@ Ext.define('Imits.widget.MiGridCommon', {
 
     additionalViewColumns: {
         'Summary': [
-        'emma_status',
-        'mouse_allele_type',
-        'mouse_allele_symbol'
+        'emma_status'
         ]
     }
 // END COLUMN DEFINITION - ALWAYS keep at bottom of file for easier organization

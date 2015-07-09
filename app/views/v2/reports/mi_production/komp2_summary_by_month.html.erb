@@ -1,7 +1,7 @@
 <% @title = 'KOMP2 Summary by month' %>
 
-<h1><%= @title %></h1>
-
+<h1><%= @title %> (Displaying <%= @category.titlecase %> Data)</h1>
+<p><span style="font-weight:bold;">Switch</span> report to include: <a href=<%="?category=es%20cell"%>>ES Cell Data</a> | <a href=<%="?category=crispr"%>>Crispr Data</a> | <a href=<%="?category=all"%>>All Data</a></p></br>
 <p><%= link_to 'Download as CSV', report_csv_path %></p>
 
 <div class='report'>
@@ -23,7 +23,7 @@
       </thead>
       <tbody>
 
-        <% @summary_by_month[:dates].keys.each do |year| %>
+        <% @summary_by_month[:dates].keys.reverse.each do |year| %>
           <% count = 0 %>
           <% months = @summary_by_month[:dates][year].uniq %>
           <% months.each do |date| %>

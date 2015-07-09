@@ -14,12 +14,12 @@
       <div>
         <div class="marker-symbol">
           <div class="label">Marker Symbol</div>
-          <div><%= @mi_attempt.es_cell.marker_symbol %></div>
+          <div><%= @mi_attempt.es_cell.try(:marker_symbol) %></div>
         </div>
 
         <div class="es-cell-name">
           <div class="label">ES Cell Name</div>
-          <div><%= @mi_attempt.es_cell.name %></div>
+          <div><%= @mi_attempt.es_cell.try(:name) %></div>
         </div>
       </div>
     </fieldset>
@@ -29,7 +29,7 @@
       <legend>Universal Details</legend>
       <div>
         <label>MI Attempt Colony Name</label>
-        <span><%= @mi_attempt.colony_name %></span>
+        <span><%=@parent_colony.name %></span>
       </div>
       <div>
         <label>Phenotype Experiments Started On</label>
@@ -52,7 +52,7 @@
     <fieldset class="collapsible" id="distribution_centres">
       <legend>Distribution Centres</legend>
         <div class="distribution_centres">
-          <% if @phenotype_attempt.status.try(:name) == "Cre Excision Complete" && @phenotype_attempt.distribution_centres.length > 0%>
+          <% if @phenotype_attempt.status_name == "Cre Excision Complete" && @phenotype_attempt.distribution_centres.length > 0%>
             <table id="distribution_centres_table" class="report_table">
               <thead class="title">
                 <tr>

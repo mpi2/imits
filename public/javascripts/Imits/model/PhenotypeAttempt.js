@@ -33,6 +33,9 @@ Ext.define('Imits.model.PhenotypeAttempt', {
         name: 'is_active'
     },
     {
+        name: 'report_to_public'
+    },
+    {
         name: 'status_name',
         persist: false,
         readOnly: true

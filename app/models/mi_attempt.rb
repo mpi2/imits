@@ -9,25 +9,6 @@ class MiAttempt < ApplicationModel
   include MiAttempt::WarningGenerator
   include ApplicationModel::HasStatuses
 
-  QC_FIELDS = [
-    :qc_southern_blot,
-    :qc_five_prime_lr_pcr,
-    :qc_five_prime_cassette_integrity,
-    :qc_tv_backbone_assay,
-    :qc_neo_count_qpcr,
-    :qc_lacz_count_qpcr,
-    :qc_neo_sr_pcr,
-    :qc_loa_qpcr,
-    :qc_homozygous_loa_sr_pcr,
-    :qc_lacz_sr_pcr,
-    :qc_mutant_specific_sr_pcr,
-    :qc_loxp_confirmation,
-    :qc_three_prime_lr_pcr,
-    :qc_critical_region_qpcr,
-    :qc_loxp_srpcr,
-    :qc_loxp_srpcr_and_sequencing
-  ].freeze
-
   CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze
 
   belongs_to :real_allele
@@ -35,27 +16,19 @@ class MiAttempt < ApplicationModel
   belongs_to :status
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain'
-  belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
 
-  has_one    :colony, inverse_of: :mi_attempt
+  has_one    :colony, inverse_of: :mi_attempt, dependent: :destroy
 
-  has_many   :mutagenesis_factors
   has_many   :gene_targets
-  has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
-  has_many   :phenotype_attempts
   has_many   :mouse_allele_mods
+  has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC", dependent: :destroy
   has_many   :colonies, inverse_of: :mi_attempt
-  has_many   :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
-  has_many   :crisprs, through: :mutagenesis_factors
-  has_many   :genotype_primers, through: :mutagenesis_factors
-  has_many   :mi_plans, through: :gene_targets
 
   access_association_by_attribute :blast_strain, :name
-  access_association_by_attribute :colony_background_strain, :name
   access_association_by_attribute :test_cross_strain, :name
 
-  QC_FIELDS.each do |qc_field|
+  ColonyQc::QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
 
     define_method("#{qc_field}_result=") do |arg|
@@ -63,6 +36,7 @@ class MiAttempt < ApplicationModel
     end
 
     define_method("#{qc_field}_result") do
+      return nil if es_cell.blank?
       if !instance_variable_get("@#{qc_field}_result").blank?
         return instance_variable_get("@#{qc_field}_result")
       elsif !colony.blank? and !colony.try(:colony_qc).try(qc_field.to_sym).blank?
@@ -73,14 +47,16 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  accepts_nested_attributes_for :status_stamps, :mutagenesis_factors, :colony
+
+  accepts_nested_attributes_for :status_stamps
+  accepts_nested_attributes_for :colony, :update_only =>true
   accepts_nested_attributes_for :colonies, :allow_destroy => true
 
   protected :status=
 
   validates :status, :presence => true
   validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
-  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
+#  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
   validates :assay_type, :inclusion => { :in => CRISPR_ASSAY_TYPES}, :allow_nil => true
 
@@ -90,12 +66,29 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  # validate mi plan
   validate do |mi_attempt|
-    if !mi_attempt.phenotype_attempts.blank? and
-              mi_attempt.status != MiAttempt::Status.genotype_confirmed
-      mi_attempt.errors.add(:status, 'cannot be changed - phenotype attempts exist')
+    if validate_plan #test whether to continue with validations
+      if mi_attempt.mi_plan.phenotype_only
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
+      end
+      if mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.es_cell.blank?
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (crispr plan)')
+      end
+
+      if !mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.mutagenesis_factor.blank?
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (requires crispr plan)')
+      end
     end
   end
+
+
+#  validate do |mi_attempt|
+#    if !colony.blank? and (!mi_attempt.colony.allele_modifications.blank? or mi_attempt.colony.phenotyping_productions.blank?) and
+#              mi_attempt.status != MiAttempt::Status.genotype_confirmed
+#      mi_attempt.errors.add(:status, 'cannot be changed - phenotype attempts exist')
+#    end
+#  end
 
   validate do |mi|
     if !mi.es_cell.blank? and mi.colonies.length > 1
@@ -138,7 +131,6 @@ class MiAttempt < ApplicationModel
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
   before_save :make_mi_date_and_in_progress_status_consistent
-  after_save :add_default_distribution_centre
   after_save :manage_status_stamps
 
   def consortium_name
@@ -167,6 +159,11 @@ class MiAttempt < ApplicationModel
     @mi_plan_ids = arg
   end
 
+  def reload
+    @distribution_centres_attributes = []
+    super
+  end
+
   def colony
     if !es_cell.blank?
       super
@@ -183,8 +180,24 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  def distribution_centres_attributes
+    return nil if es_cell.blank?
+    return @distribution_centres_attributes unless @distribution_centres_attributes.blank?
+    return distribution_centres.map(&:as_json) unless distribution_centres.blank?
+    return nil
+  end
+
+  def distribution_centres_attributes=(arg)
+    @distribution_centres_attributes = arg
+  end
+
+  def distribution_centres
+    return [] if es_cell.blank?
+    colony.try(:distribution_centres)
+  end
+
   def set_blank_qc_fields_to_na
-    QC_FIELDS.each do |qc_field|
+    ColonyQc::QC_FIELDS.each do |qc_field|
       if self.send("#{qc_field}_result").blank?
         self.send("#{qc_field}_result=", 'na')
       end
@@ -203,27 +216,6 @@ class MiAttempt < ApplicationModel
     end
   end
   protected :set_es_cell_from_es_cell_name
-
-  def add_default_distribution_centre
-    if ['gtc'].include?(self.status.try(:code)) and self.distribution_centres.count == 0
-      centre = production_centre_name
-      if centre == 'UCD'
-        centre = 'KOMP Repo'
-      end
-      distribution_centre = MiAttempt::DistributionCentre.new({:mi_attempt_id => self.id, :centre_name => centre, :deposited_material_name => 'Live mice'})
-      if centre == 'TCP' && consortium_name == 'NorCOMM2'
-        distribution_centre.distribution_network = 'CMMR'
-      elsif centre == 'TCP' && ['UCD-KOMP', 'DTCC'].include?(consortium_name)
-        distribution_centre.centre = Centre.find_by_name('KOMP Repo')
-      elsif centre == 'WTSI' and !es_cell.blank? and ['EUCOMM', 'EUCOMMTools'].include?(es_cell.pipeline.try(:name))
-        distribution_centre.distribution_network = 'EMMA'
-      end
-      raise "Could not save DEFAULT distribution Centre" if !distribution_centre.valid?
-      distribution_centre.save
-    end
-  end
-  protected :add_default_distribution_centre
-
 
 
   def set_cassette_transmission_verified
@@ -286,18 +278,25 @@ class MiAttempt < ApplicationModel
       colony_attr_hash[:genotype_confirmed] = false
     end
 
-    colony_attr_hash[:id] = colony.id if !colony.blank?
-    colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
-    colony_attr_hash[:colony_qc_attributes][:id] = colony.colony_qc.id if !colony.blank? and !colony.try(:colony_qc).try(:id).blank?
+    if self.colony_background_strain_name != colony.try(:background_strain_name)
+      colony_attr_hash[:background_strain_name] = self.colony_background_strain_name
+    end
 
-    QC_FIELDS.each do |qc_field|
+    if self.mouse_allele_type != colony.try(:allele_type)
+      colony_attr_hash[:allele_type] = self.mouse_allele_type
+      puts "HELLO"
+    end
+
+    colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?
+
+    colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
+
+    ColonyQc::QC_FIELDS.each do |qc_field|
       if colony.try(:colony_qc).blank? or self.send("#{qc_field}_result") != colony.colony_qc.send(qc_field)
         colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
       end
     end
-
     self.colony_attributes = colony_attr_hash
-
   end
   protected :manage_colony_for_es_cell_micro_injections_qc_data
 
@@ -360,15 +359,6 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  def create_phenotype_attempt_for_komp2
-    consortia_to_check = ["BaSH", "DTCC", "JAX"]
-    if self.status.name == "Genotype confirmed" && consortia_to_check.include?(self.consortium_name)
-      if self.phenotype_attempts.empty?
-        self.phenotype_attempts.create!
-      end
-    end
-  end
-
   def add_status_stamp(new_status)
     self.status_stamps.create!(:status => new_status)
     self.status_stamps.reload
@@ -386,33 +376,13 @@ class MiAttempt < ApplicationModel
   end
 
   def mouse_allele_symbol_superscript
-    if mouse_allele_type.nil? or es_cell.nil? or es_cell.allele_symbol_superscript_template.nil?
-      return nil
-    else
-      return es_cell.allele_symbol_superscript_template.sub(
-        TargRep::EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
-    end
+    return nil unless colony
+    return colony.allele_symbol_superscript
   end
 
   def mouse_allele_symbol
-    if es_cell.blank?
-      return nil
-
-    elsif mouse_allele_symbol_superscript
-      return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
-
-    else
-      return nil
-    end
-  end
-
-  def allele_symbol
-    mi_attempt_allele_symbol_override = mouse_allele_symbol
-    if mi_attempt_allele_symbol_override
-      return mi_attempt_allele_symbol_override
-    else
-      return es_cell.allele_symbol unless es_cell.blank?
-    end
+    return nil unless colony
+    return colony.allele_symbol
   end
 
   def gene
@@ -454,6 +424,30 @@ class MiAttempt < ApplicationModel
   def blast_strain_mgi_name
     return blast_strain.try(:mgi_strain_name)
   end
+
+  def mouse_allele_type=(arg)
+    @mouse_allele_type = arg unless es_cell.blank? || arg == ''
+  end
+
+  def mouse_allele_type
+    return @mouse_allele_type if defined? @mouse_allele_type
+    return colony.allele_type unless es_cell.blank? || colony.blank?
+  end
+
+  def colony_background_strain
+    colony.try(:background_strain)
+  end
+
+  def colony_background_strain_name
+    return @colony_background_strain_name unless @colony_background_strain_name.blank?
+    return colony.background_strain.try(:name) unless es_cell.blank? || colony.blank?
+    return nil
+  end
+
+  def colony_background_strain_name=(arg)
+    @colony_background_strain_name = arg unless es_cell.blank?
+  end
+
 
   def colony_background_strain_mgi_accession
     return colony_background_strain.try(:mgi_strain_accession_id)
@@ -527,9 +521,8 @@ class MiAttempt < ApplicationModel
     return {
       'es_cell_marker_symbol'   => 'es_cell_allele_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_allele_symbol',
-      'consortium_name'         => 'gene_targets_mi_plan_consortium_name',
-      'production_centre_name'  => 'gene_targets_mi_plan_production_centre_name',
-      'colony_name'             => 'external_ref'
+      'consortium_name'         => 'mi_plan_consortium_name',
+      'production_centre_name'  => 'mi_plan_production_centre_name'
     }
   end
 

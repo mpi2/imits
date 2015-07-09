@@ -221,7 +221,7 @@ class QcGridReport
         consortia.name AS consortium,
         centres.name AS production_centre,
         genes.marker_symbol AS gene,
-        mi_attempts.external_ref AS colony_name,
+        colonies.name AS colony_name,
         targ_rep_es_cells.name AS es_cell,
         targ_rep_mutation_types.name AS mutation_type,
         targ_rep_es_cells.user_qc_map_test,
@@ -252,7 +252,6 @@ class QcGridReport
         targ_rep_distribution_qcs.chr11a,
         targ_rep_distribution_qcs.chr11b,
         targ_rep_distribution_qcs.chry,
-
         colony_qcs.qc_southern_blot AS qc_southern_blot,
         colony_qcs.qc_five_prime_lr_pcr AS qc_five_prime_lr_pcr,
         colony_qcs.qc_five_prime_cassette_integrity AS qc_five_prime_cassette_integrity,
@@ -270,25 +269,19 @@ class QcGridReport
         colony_qcs.qc_loxp_srpcr AS qc_loxp_srpcr,
         colony_qcs.qc_loxp_srpcr_and_sequencing AS qc_loxp_srpcr_and_sequencing
 
-
-
       FROM mi_attempts
+        JOIN (colonies LEFT JOIN colony_qcs ON colony_qcs.colony_id = colonies.id) ON colonies.mi_attempt_id = mi_attempts.id
+        JOIN mi_plans  ON mi_attempts.mi_plan_id = mi_plans.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
+        JOIN centres   ON centres.id = mi_plans.production_centre_id
+        JOIN consortia ON consortia.id = mi_plans.consortium_id
+        JOIN genes     ON genes.id = mi_plans.gene_id
+        JOIN targ_rep_es_cells   ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+        JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id
+        JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
 
-      JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id
-      JOIN mi_plans  ON mi_attempts.mi_plan_id = mi_plans.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
-      JOIN centres   ON centres.id = mi_plans.production_centre_id
-      JOIN consortia ON consortia.id = mi_plans.consortium_id
-      JOIN genes     ON genes.id = mi_plans.gene_id
-      JOIN targ_rep_es_cells   ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-      JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id
-      JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
-
-      LEFT JOIN targ_rep_mutation_types ON targ_rep_alleles.mutation_type_id = targ_rep_mutation_types.id
-
-      LEFT JOIN targ_rep_distribution_qcs ON targ_rep_distribution_qcs.es_cell_id = targ_rep_es_cells.id
-      LEFT JOIN targ_rep_es_cell_distribution_centres ON targ_rep_es_cell_distribution_centres.id = targ_rep_distribution_qcs.es_cell_distribution_centre_id
-
-      LEFT JOIN colony_qcs ON colonies.id = colony_qcs.colony_id
+        LEFT JOIN targ_rep_mutation_types ON targ_rep_alleles.mutation_type_id = targ_rep_mutation_types.id
+        LEFT JOIN targ_rep_distribution_qcs ON targ_rep_distribution_qcs.es_cell_id = targ_rep_es_cells.id
+        LEFT JOIN targ_rep_es_cell_distribution_centres ON targ_rep_es_cell_distribution_centres.id = targ_rep_distribution_qcs.es_cell_distribution_centre_id
 
       WHERE mi_attempt_statuses.code = 'gtc'
 

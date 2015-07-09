@@ -10,7 +10,7 @@ Ext.define('Imits.widget.grid.PhenotypeAttemptRansackFiltersFeature', {
 
         if(!Ext.isEmpty(terms)) {
             terms = terms.split("\n");
-            params['q[marker_symbol_ci_in][]'] = terms;
+            params['q[colony_name_or_mi_plan_gene_marker_symbol_or_parent_colony_name_ci_in][]'] = terms;
         }
 
         return params;

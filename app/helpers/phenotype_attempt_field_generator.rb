@@ -2,7 +2,7 @@ class PhenotypeAttemptFieldGenerator < FieldGenerator
 
   def qc_fields
     qc_statuses = QcResult.all
-    PhenotypeAttempt::QC_FIELDS.map {|qc_field| qc_field(qc_field, qc_statuses, :description, :description) }.join.html_safe
+    ColonyQc::QC_FIELDS.map {|qc_field| qc_field(qc_field, qc_statuses, :description, :description) }.join.html_safe
   end
 
   def qc_field(qc_field, collection, key, value, options = {})
@@ -16,6 +16,13 @@ class PhenotypeAttemptFieldGenerator < FieldGenerator
     form_field(name+'_name', nil, field_html)
   end
 
+  def strains_field_no_label(name)
+    element_classes = []
+    name = name.to_s
+    field_html = @form.collection_select(name+'_name', Strain.order(:name), :name, :pretty_drop_down, :include_blank => true)
+
+    return content_tag(:div, field_html.html_safe, :class => element_classes.join(' ')).html_safe
+  end
   def deleter_strains_field(name)
     name = name.to_s
     field_html = @form.collection_select(name+'_name', DeleterStrain.order(:name), :name, :name, :include_blank => true)

@@ -7,26 +7,18 @@ class PhenotypingProductionsController < ApplicationController
   before_filter :authenticate_user!
 
   def create
-    @phenotyping_production =  Public::PhenotypingProduction.new
-    @mouse_allele_mod = Public::MouseAlleleMod.find(params['phenotyping_production']['mouse_allele_mod_id'])
-
-    return if @mouse_allele_mod.blank?
-    params[:phenotyping_production][:phenotype_attempt_id] = @mouse_allele_mod.phenotype_attempt_id
-
-    # update through phenotype_attempt. This ensures pheotype_attempt and phenotype_production records remain consistent.
-    phenotype_attempt = Public::PhenotypeAttempt.find(@mouse_allele_mod.phenotype_attempt.id)
-    phenotyping_attempt_json = JSON.parse(phenotype_attempt.to_json)
-
-    phenotyping_attempt_json['phenotyping_productions_attributes'] << params['phenotyping_production']
-    phenotype_attempt.update_attributes(phenotyping_attempt_json)
+    @phenotyping_production =  Public::PhenotypingProduction.new(params[:phenotyping_production])
+#    @phenotyping_production.updated_by = current_user
+    return unless authorize_user_production_centre(@phenotyping_production)
+    return if empty_payload?(params[:phenotyping_production])
 
     respond_with @phenotyping_production do |format|
       format.json do
-        if phenotype_attempt.valid?
-          @phenotyping_production = phenotype_attempt.phenotyping_productions.where("colony_name = '#{params['phenotyping_production']['colony_name']}'").first
+        if @phenotyping_production.valid? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotyping_production)
+          @phenotyping_production.save
           render :json => @phenotyping_production
         else
-          render :json => phenotype_attempt.errors.messages
+          render :json => @phenotyping_production.errors.messages
         end
       end
     end
@@ -37,41 +29,21 @@ class PhenotypingProductionsController < ApplicationController
     @phenotyping_production =  Public::PhenotypingProduction.find(params['id'])
 
     return if @phenotyping_production.blank?
-    # update through phenotype_attempt. This ensures pheotype_attempt and phenotype_production records remain consistent.
-    phenotype_attempt = Public::PhenotypeAttempt.find(@phenotyping_production.phenotype_attempt.id)
-    phenotyping_attempt_json = JSON.parse(phenotype_attempt.to_json)
+    return unless authorize_user_production_centre(@phenotyping_production)
+    return if empty_payload?(params[:phenotyping_production])
 
-    puts "HELLO"
-    phenotyping_attempt_json['phenotyping_productions_attributes'].each do |pp|
-      puts "#{pp}"
-      if pp['id'] == @phenotyping_production.id
-        pp.each do |key, value|
-          if params[:phenotyping_production].keys.include?(key) && PhenotypingProduction.attribute_names.include?(key)
-            pp[key] = params[:phenotyping_production][key]
-          elsif key != 'id'
-            pp.delete(key)
-          end
-        end
-        puts "#{pp}"
-      end
-    end
-
-    puts "We are here #{phenotyping_attempt_json}"
-    phenotype_attempt.update_attributes(phenotyping_attempt_json)
+    @phenotyping_production.update_attributes(params[:phenotyping_production]) if user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotyping_production)
 
     respond_with @phenotyping_production do |format|
       format.json do
-        if phenotype_attempt.valid?
-          @phenotyping_production.reload
+        if @phenotyping_production.valid? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotyping_production)
           render :json => @phenotyping_production
         else
-          render :json => phenotype_attempt.errors.messages
+          render :json => @phenotyping_production.errors.messages
         end
       end
     end
   end
-
-
 
   def show
     @phenotyping_production = Public::PhenotypingProduction.find(params[:id])
@@ -98,4 +70,22 @@ class PhenotypingProductionsController < ApplicationController
       end
     end
   end
+
+  def user_is_allowed_to_update_phenotyping_dataflow_fields?(phenotyping_production)
+
+    if phenotyping_production.changes.has_key?(:phenotyping_started) && current_user.allowed_to_update_phenotyping_data_flow_fields
+      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Phenotyping Started'
+      return false
+    end
+    if phenotyping_production.changes.has_key?(:phenotyping_complete) && current_user.allowed_to_update_phenotyping_data_flow_fields
+      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Phenotyping Started'
+      return false
+    end
+    if phenotyping_production.changes.has_key?(:ready_for_website) && current_user.allowed_to_update_phenotyping_data_flow_fields
+      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Ready For Website date'
+      return false
+    end
+    return true
+  end
+  private :user_is_allowed_to_update_phenotyping_dataflow_fields?
 end

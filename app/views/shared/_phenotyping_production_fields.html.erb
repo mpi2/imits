@@ -1,3 +1,4 @@
+<% generator = PhenotypeAttemptFieldGenerator.new(f) %>
 <tr>
     <td>
         <%= f.select :consortium_name, Consortium.all.map(&:name), :include_blank => true %>
@@ -9,8 +10,19 @@
       <%= f.text_field(:colony_name,:class => 'x-form-text', :size => 20) %>
     </td>
     <td>
-        <%= f.text_field(:phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
+      <%= f.object.status_name%>
     </td>
+
+    <td>
+    <table>
+      <tr><th>Rederivation Started</th><td><%= f.check_box :rederivation_started %></td></tr>
+      <tr><th>Rederivation Complete</th><td><%= f.check_box :rederivation_complete %></td></tr>
+      <tr><th>Phenotyping Experiments Started</th><td><%= f.text_field(:phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %></td></tr>
+      <tr><th>Colony Background Strain</th><td><%= generator.strains_field_no_label :colony_background_strain %></td></tr>
+      <tr><th>Is Active</th><td><%= f.check_box :is_active %></td></tr>
+    </table>
+    </td>
+
     <td>
         <% if f.object.new_record? %>
             <%= f.hidden_field :_destroy, :class => 'destroy-field' %>

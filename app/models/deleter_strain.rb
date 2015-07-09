@@ -2,6 +2,7 @@ class DeleterStrain < ActiveRecord::Base
   acts_as_reportable
 
   validates :name, :uniqueness => true
+  validates :excision_type, :presence => true
 
   has_many :phenotype_attempt
 end

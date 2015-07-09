@@ -16,19 +16,16 @@ begin
 
       task :part3 => [:environment] do
         ApplicationModel.audited_transaction do
-          Reports::MiProduction::Intermediate.new.cache
         end
       end
 
       task :part4 => [:environment] do
         ApplicationModel.audited_transaction do
-          Reports::ImpcGeneList.new.cache
         end
       end
 
       task :part5 => [:environment] do
         ApplicationModel.audited_transaction do
-          Reports::MiAttemptsList.new.cache
         end
       end
 
@@ -39,11 +36,11 @@ begin
       end
 
       task :intermediate_report => [:environment] do
-        NewIntermediateReportSummaryByGene::Generate.cache
-        NewIntermediateReportSummaryByMiPlan::Generate.cache
-        NewIntermediateReportSummaryByCentreAndConsortia::Generate.cache
-        NewIntermediateReportSummaryByConsortia::Generate.cache
-        NewIntermediateReportSummaryByCentre::Generate.cache
+        IntermediateReport::SummaryByMiPlan::Generate.cache
+        IntermediateReport::SummaryByCentreAndConsortia::Generate.cache
+        IntermediateReport::SummaryByConsortia::Generate.cache
+        IntermediateReport::SummaryByCentre::Generate.cache
+        IntermediateReport::SummaryByGene::Generate.cache
       end
 
       task :ikmc_project_update => [:environment] do

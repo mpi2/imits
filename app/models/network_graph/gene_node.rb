@@ -7,7 +7,7 @@ class NetworkGraph::GeneNode < NetworkGraph::Node
 
   def label_html
     html = "<<table>" +
-             "<tr><td colspan=\"2\">Gene</td></tr>" +
+             "<tr><td colspan=\"2\" border=\"0\" font-weight=\"bold\">Gene</td></tr>" +
              "<tr><td>Marker Symbol:</td><td>#{CGI.escapeHTML(@marker_symbol)}</td></tr>" +
            "</table>>"
     return html

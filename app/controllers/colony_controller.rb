@@ -77,12 +77,13 @@ class ColonyController < ApplicationController
 
   end
 
-  def index
-    @colonies = Colony.all
+  def phenotype_attempts_new
+    @colony = Colony.find_by_name(params[:mi_attempt_colony_name])
+
+    redirect_to :controller => 'phenotype_attempts', :action => :new, :colony_id => @colony.try(:id)
   end
 
   def mut_nucleotide_sequences
-    puts "in colony controller : mut_nucleotide_sequences"
     @colony = Colony.find_by_id(params[:id])
 
     @mutsequences = @colony.get_mutant_nucleotide_sequence_features

@@ -8,6 +8,25 @@ class MiPlan < ApplicationModel
   include MiPlan::StatusManagement
   include ApplicationModel::HasStatuses
 
+  FUNDING = {'IMPC' => {
+                 'HMGU' => ['Helmholtz GMC'],
+                 'ICS' => ['Phenomin', 'Helmholtz GMC'],
+                 'Harwell' => ['BaSH', 'MRC'],
+                 'UCD' =>['DTCC'],
+                 'WTSI' =>['MGP', 'BaSH'],
+                 'Monterotondo' =>['Monterotondo'],
+                 'BCM' => 'all',
+                 'TCP' => 'all',
+                 'JAX' => 'all',
+                 'RIKEN BRC' => 'all'
+                },
+            'KOMP' => [
+                'BaSH',
+                'DTCC',
+                'JAX'
+               ]
+           }
+
   belongs_to :sub_project
   belongs_to :gene
   belongs_to :consortium
@@ -21,7 +40,6 @@ class MiPlan < ApplicationModel
   has_many :gene_targets
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
-  has_many :phenotype_attempts
   has_many :mouse_allele_mods
   has_many :phenotyping_productions
   has_many :es_cell_qcs, :dependent => :delete_all
@@ -64,7 +82,7 @@ class MiPlan < ApplicationModel
     if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
 
       plan.phenotype_attempts.each do |phenotype_attempt|
-        if phenotype_attempt.status.code != 'abt'
+        if phenotype_attempt.status_name != 'Phenotype Attempt Aborted'
           plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
           return
         end
@@ -243,11 +261,7 @@ class MiPlan < ApplicationModel
   end
 
   def products
-   @products ||= {:mi_attempts => mi_attempts.where("mi_attempts.is_active = true"), :phenotype_attempts => phenotype_attempts.where("is_active = true")}
-  end
-
-  def mi_attempts
-    MiAttempt.joins(gene_targets: :mi_plan).where("mi_plans.id = #{self.id}")
+   @products ||= {:mi_attempts => mi_attempts.where("is_active = true"), :phenotype_attempts => phenotype_attempts.reject{|pa| !pa.is_active}}
   end
 
   def latest_relevant_mi_attempt
@@ -266,7 +280,9 @@ class MiPlan < ApplicationModel
   end
 
   def best_status_phenotype_attempt
-    ordered_pas = phenotype_attempts.all.sort { |pa1, pa2| pa2.status.order_by <=> pa1.status.order_by }
+    status_sort_order =  Public::PhenotypeAttempt.status_order
+
+    ordered_pas = phenotype_attempts.sort { |pa1, pa2| status_sort_order[pa2.status_name] <=> status_sort_order[pa1.status.order_by] }
 
     if ordered_pas.empty?
       return nil
@@ -277,11 +293,11 @@ class MiPlan < ApplicationModel
 
   def latest_relevant_phenotype_attempt
 
-    status_sort_order =  PhenotypeAttempt::Status.status_order
+    status_sort_order =  Public::PhenotypeAttempt.status_order
 
-    ordered_pas = phenotype_attempts.all.sort do |pi1, pi2|
-      [status_sort_order[pi1.public_status], pi2.in_progress_date] <=>
-              [status_sort_order[pi2.public_status], pi1.in_progress_date]
+    ordered_pas = phenotype_attempts.sort do |pi1, pi2|
+      [status_sort_order[pi1.public_status_name], pi2.in_progress_date] <=>
+              [status_sort_order[pi2.public_status_name], pi1.in_progress_date]
     end
     if ordered_pas.empty?
       return nil
@@ -306,6 +322,16 @@ class MiPlan < ApplicationModel
     end
 
     return retval
+  end
+
+  def phenotype_attempts
+    pas = []
+    phenotype_attempt_ids = []
+    phenotype_attempt_ids << mouse_allele_mods.map{|mam| mam.phenotype_attempt_id}.reject { |c| c.blank? }
+    phenotype_attempt_ids << phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.reject { |c| c.blank? }
+
+    pas = phenotype_attempt_ids.flatten.uniq.reject { |c| c.blank? }.map{ |pa_id| Public::PhenotypeAttempt.find(pa_id)}
+    return pas
   end
 
   def self.with_mi_attempt
@@ -567,6 +593,42 @@ class MiPlan < ApplicationModel
 
     return false
   end
+
+  def impc_activity?
+    return false if self.production_centre.blank? || self.consortium.blank?
+
+    if !FUNDING['IMPC'][self.production_centre.name].blank? && (FUNDING['IMPC'][self.production_centre.name] == 'all' || FUNDING['IMPC'][self.production_centre.name].include?(self.consortium.name))
+      return true
+    else
+      return false
+    end
+  end
+
+  def komp_activity?
+    return false if self.consortium.blank? || !FUNDING['KOMP'].include?(self.consortium.name)
+    return true
+  end
+
+  def self.impc_activity_sql_where
+
+    where_array = []
+    FUNDING['IMPC'].each do |key, value|
+      where_clause = "(centres.name = '#{key}' "
+      if value != 'all'
+        where_clause += "AND consortia.name IN ('#{value.join("', '")}')"
+      end
+      where_clause += ") "
+      where_array << where_clause
+    end
+    return where_array.join(" OR ")
+  end
+
+  def self.komp_activity_sql_where
+    where_array = FUNDING['KOMP']
+    return "consortia.name IN ('#{where_array.join("', '")}')"
+  end
+
+
 end
 
 # == Schema Information

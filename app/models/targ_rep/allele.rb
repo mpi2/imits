@@ -3,6 +3,8 @@ class TargRep::Allele < ActiveRecord::Base
   acts_as_audited
 
   extend AccessAssociationByAttribute
+  TEMPLATE_CHARACTER = '@'
+
   ##
   ## Associations
   ##
@@ -176,6 +178,29 @@ class TargRep::Allele < ActiveRecord::Base
   def self.hdr_allele?; false; end
   def self.nhej_allele?; false; end
   def self.crispr_targeted_allele?; false; end
+
+  def self.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
+    symbol_superscript_template = nil
+    type = nil
+    errors = []
+
+    md = /\A(tm\d+)([a-e]|.\d+)?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
+
+    if md
+      symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
+      type = md[2]
+    else
+      md = /\AGt\(\w+\)\w+\Z/.match(mgi_allele_symbol_superscript)
+      if md
+        symbol_superscript_template = mgi_allele_symbol_superscript
+        type = nil
+      else
+        errors << [:allele_symbol_superscript, "Bad allele symbol superscript '#{mgi_allele_symbol_superscript}'"]
+      end
+    end
+
+    return [symbol_superscript_template, type, errors]
+  end
   ##
   ## Methods
   ##

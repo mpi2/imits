@@ -2,7 +2,7 @@ class V2::ReportsController < ApplicationController
 
   helper :reports
 
-  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report]
+  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report, :mgi_es_cell_allele_report, :mgi_mixed_allele_report, :mgi_crispr_allele_report]
 
   before_filter do
     if params[:format] == 'csv'
@@ -73,13 +73,40 @@ class V2::ReportsController < ApplicationController
     end
   end
 
+
   def mgi_modification_allele_report
-    report = PhenotypeAttemptAlleleLoadReport.new
-    @phenotype_attempt_mgi_allele = report.phenotype_attempt_mgi_allele
+    @report = MgiAlleleLoad::MouseAlleleModReport.new
+    @mgi_allele = @report.phenotype_attempt_mgi_allele
     respond_to do |format|
-      format.tsv
+      format.tsv {render :mgi_allele_report}
     end
   end
+
+  def mgi_es_cell_allele_report
+    @report = MgiAlleleLoad::EsCellReport.new
+    @mgi_allele = @report.es_cell_mgi_allele
+    respond_to do |format|
+      format.tsv {render :mgi_allele_report}
+    end
+  end
+
+  def mgi_mixed_allele_report
+    @report = MgiAlleleLoad::MixedCloneAlleleReport.new
+    @mgi_allele = @report.mixed_clone_mgi_allele
+    respond_to do |format|
+      format.tsv {render :mgi_allele_report}
+    end
+  end
+
+  def mgi_crispr_allele_report
+    @report = MgiAlleleLoad::CrisprAlleleReport.new
+    @mgi_allele = @report.crispr_mgi_allele
+    respond_to do |format|
+      format.tsv {render :mgi_allele_report}
+    end
+  end
+
+
 
   def mi_attempt_repository_reconciled_summary
     report = MiAttemptRepositoryReconciledSummaryReport.new

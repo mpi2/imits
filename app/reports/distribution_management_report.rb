@@ -3,8 +3,9 @@ class DistributionManagementReport
 
   attr_accessor :klass, :results, :results_by_distribution
 
-  def initialize(klass)
-    @klass = klass
+  def initialize(model_table_name)
+    @klass = Colony::DistributionCentre
+    @model_table_name = model_table_name
     results
   end
 
@@ -15,7 +16,7 @@ class DistributionManagementReport
   def results_by_distribution
     return @results_by_distribution if @results_by_distribution
     results_by_distribution = {}
-    
+
     results.each do |r|
       if row = results_by_distribution["#{r['consortium_name']}-#{r['pc_name']}"]
         row["#{r['distribution_network']}-#{r['dc_name']}"] = r['count']
@@ -92,16 +93,16 @@ class DistributionManagementReport
   end
 
   def foreign_key
-    @klass.parent.table_name.gsub(/s/, '_id')
+    @model_table_name.gsub(/s$/, '_id')
   end
 
   def status_id
-    @klass.parent.table_name == 'mi_attempts' ? 2 : [6, 7, 8].join(', ')
+    @model_table_name == 'mi_attempts' ? 2 : [6, 7, 8].join(', ')
   end
 
   def raw_sql
     sql = <<-EOF
-      SELECT 
+      SELECT
       consortia.name AS consortium_name,
       pc.name AS pc_name,
       dc.name AS dc_name,
@@ -111,8 +112,9 @@ class DistributionManagementReport
       JOIN mi_plans ON mi_plans.gene_id = genes.id
       JOIN consortia ON consortia.id = mi_plans.consortium_id
       JOIN centres pc ON mi_plans.production_centre_id = pc.id
-      JOIN #{@klass.parent.table_name} ON (#{@klass.parent.table_name}.mi_plan_id = mi_plans.id and #{@klass.parent.table_name}.status_id IN (#{status_id}))
-      LEFT OUTER JOIN #{@klass.table_name} midc ON midc.#{foreign_key} = #{@klass.parent.table_name}.id
+      JOIN #{@model_table_name} ON (#{@model_table_name}.mi_plan_id = mi_plans.id and #{@model_table_name}.status_id IN (#{status_id}))
+      JOIN colonies ON colonies.#{foreign_key} = #{@model_table_name}.id
+      LEFT OUTER JOIN colony_distribution_centres midc ON midc.colony_id = colonies.id
       LEFT OUTER JOIN centres dc ON dc.id = midc.centre_id
       GROUP BY consortium_name, pc_name, midc.distribution_network,dc_name
       ORDER BY  consortium_name, pc_name, midc.distribution_network,dc_name;

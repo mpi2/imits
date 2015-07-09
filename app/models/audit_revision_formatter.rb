@@ -30,28 +30,31 @@ attr_accessor :model
       translations[easy_fkey] = proc {|values| values.map {|i| klass.find_by_id(i).try(attr) } }
     end
 
-    [
-      'status_id',
-      'priority_id',
-      'sub_project_id',
-      'es_cell_id'
-    ].each do |fkey|
-      klass_name = fkey.gsub(/_id$/, '').camelize
-      translations[fkey] = proc do |values|
-        values.map do |i|
-          if ['EsCell', 'TargRep::EsCell'].include?(klass_name)
-            klass_name = "TargRep::EsCell"
-          elsif ['Status', 'Priority', 'SubProject'].include?(klass_name)
-            klass_name = "#{model.to_s}::#{klass_name}"
+    puts "MODEL #{model}"
+    if model != Public::PhenotypeAttempt
+      puts 'WHY ARE WE HERE'
+      [
+        'status_id',
+        'priority_id',
+        'sub_project_id',
+        'es_cell_id'
+      ].each do |fkey|
+        klass_name = fkey.gsub(/_id$/, '').camelize
+        translations[fkey] = proc do |values|
+          values.map do |i|
+            if ['EsCell', 'TargRep::EsCell'].include?(klass_name)
+              klass_name = "TargRep::EsCell"
+            elsif ['Status', 'Priority', 'SubProject'].include?(klass_name)
+              klass_name = "#{model.to_s}::#{klass_name}"
+            end
+
+            Rails.logger.info klass_name
+
+            klass_name.constantize.find_by_id(i).try(:name)
           end
-
-          Rails.logger.info klass_name
-
-          klass_name.constantize.find_by_id(i).try(:name)
         end
       end
     end
-
   end
 
 

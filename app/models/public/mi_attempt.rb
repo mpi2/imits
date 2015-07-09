@@ -1,8 +1,6 @@
 class Public::MiAttempt < ::MiAttempt
 
   include ::Public::Serializable
-  include ::Public::DistributionCentresAttributes
-  include ::Public::MutagenesisFactorsAttributes
   include ::Public::ColonyAttributes
   include ::ApplicationModel::BelongsToMiPlan::Public
 
@@ -79,6 +77,7 @@ class Public::MiAttempt < ::MiAttempt
     real_allele_id
     external_ref
     colonies_attributes
+    experimental
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -102,6 +101,11 @@ class Public::MiAttempt < ::MiAttempt
     test_cross_strain_mgi_accession
     test_cross_strain_mgi_name
     mgi_accession_id
+    mutagenesis_factor_external_ref
+    genotyped_confirmed_colony_names
+    genotyped_confirmed_colony_phenotype_attempts_count
+    genotype_confirmed_allele_symbols
+    genotype_confirmed_distribution_centres
 
   } + FULL_ACCESS_ATTRIBUTES
 
@@ -109,8 +113,6 @@ class Public::MiAttempt < ::MiAttempt
   } + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
-
-  accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
 
   def status_name; status.name; end
 
@@ -123,11 +125,33 @@ class Public::MiAttempt < ::MiAttempt
   end
 
   def phenotype_attempts_count
-    self.phenotype_attempts.count
+    return 0 if self.colony.blank?
+    self.colony.allele_modifications.length + self.colony.phenotyping_productions.length
   end
 
   def pipeline_name
     try(:es_cell).try(:pipeline).try(:name)
+  end
+
+  def genotyped_confirmed_colony_names
+    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
+    return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.name}.join(',') + ']'
+  end
+
+  def genotyped_confirmed_colony_phenotype_attempts_count
+    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
+    return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.phenotype_attempts_count}.join(',') + ']'
+  end
+
+  def genotype_confirmed_allele_symbols
+    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
+    return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.allele_symbol}.join(',') + ']'
+  end
+
+  def genotype_confirmed_distribution_centres
+    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
+    return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.distribution_centres.count > 0 ? c.distribution_centres_formatted_display : '[]'}.join(',') + ']'
+
   end
 end
 

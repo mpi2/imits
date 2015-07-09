@@ -1,16 +1,5 @@
 TarMits::Application.routes.draw do
 
-  get "mutagenesis_factor/crisprs/:id" => 'mutagenesis_factor#crisprs'
-  get "mutagenesis_factor/vector/:id"  => 'mutagenesis_factor#vector'
-  get "mutagenesis_factor/oligo/:id"   => 'mutagenesis_factor#oligo'
-
-  get "colony/show/:id" => 'colony#show'
-  get "colony/show/:id/:filename" => 'colony#show'
-  #get "colony/:id" => 'colony#show'
-  #get "colony/:id/:filename" => 'colony#show'
-  get "colony" => 'colony#index'
-  get "/colony/mut_nucleotide_sequences/:id" => 'colony#mut_nucleotide_sequences'
-
   root :to => "root#index"
 
   get 'admin' => 'Admin::Base#index', :as => :admin
@@ -73,6 +62,20 @@ TarMits::Application.routes.draw do
     end
   end
 
+  get "colony/show/:id" => 'colony#show'
+  get "colony/show/:id/:filename" => 'colony#show'
+  get "colony/:mi_attempt_colony_name/phenotype_attempts/new" => 'colony#phenotype_attempts_new'
+
+
+  #get "colony/:id" => 'colony#show'
+  #get "colony/:id/:filename" => 'colony#show'
+  get "colony" => 'colony#index'
+  get "/colony/mut_nucleotide_sequences/:id" => 'colony#mut_nucleotide_sequences'
+
+  get "mutagenesis_factor/crisprs/:id" => 'mutagenesis_factor#crisprs'
+  get "mutagenesis_factor/vector/:id"  => 'mutagenesis_factor#vector'
+  get "mutagenesis_factor/oligo/:id"   => 'mutagenesis_factor#oligo'
+
   namespace :mi_attempts do
     resources :distribution_centres do
       collection do
@@ -82,7 +85,6 @@ TarMits::Application.routes.draw do
   end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
-    resource :phenotype_attempts, :only => [:new]
     collection do
       get 'attributes'
     end
@@ -96,11 +98,12 @@ TarMits::Application.routes.draw do
     end
   end
 
-  resources :phenotype_attempts, :only => [:index, :create, :show, :update] do
-    collection do
-      get 'attributes'
-    end
-  end
+
+  get 'phenotype_attempts'      => 'phenotype_attempts#index', :as => 'index'
+  get 'phenotype_attempts/new'  => 'phenotype_attempts#new', :as => 'new'
+  get 'phenotype_attempts/:id'  => 'phenotype_attempts#show', :as => 'show'
+  put 'phenotype_attempts/:id' => 'phenotype_attempts#update', :as => 'update'
+  post 'phenotype_attempts/' => 'phenotype_attempts#create', :as => 'create'
 
   resources :mouse_allele_mods, :only => [:show, :index]
   match 'mouse_allele_mods/colony_name/:colony_name' => 'mouse_allele_mods#colony_name'
@@ -167,14 +170,6 @@ TarMits::Application.routes.draw do
   resources :report_caches, :only => [:show]
 
   match ':controller/:id/history' => ':controller#history'
-
-  namespace :solr_update do
-    namespace :queue do
-      resources :items, :only => [:index, :destroy] do
-        post :run, :on => :member
-      end
-    end
-  end
 
   get '/javascripts/dynamic_esc_qc_conflict_selects' => 'javascripts#dynamic_esc_qc_conflict_selects'
 
@@ -268,7 +263,8 @@ TarMits::Application.routes.draw do
     end
 
     resources :mi_attempts, :only => [:index, :show]
-    resources :phenotype_attempts, :only => [:index, :show]
+    get '/phenotype_attempts'      => 'phenotype_attempts#index', :as => 'index'
+    get '/phenotype_attempts/:id'  => 'phenotype_attempts#show', :as => 'show'
     resources :genes, :only => [:index] do
       member do
         get 'network_graph'

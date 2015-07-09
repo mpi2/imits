@@ -12,48 +12,55 @@ Ext.define('Imits.widget.MiGrid', {
     additionalColumns: {
         'common' :
             [
-            {'position': 9, 'data': {
+            {'position': 7, 'data': {
                 header: 'Distribution Centres',
-                dataIndex: 'distribution_centres_formatted_display',
+                dataIndex: 'genotype_confirmed_distribution_centres',
                 readOnly: true,
                 sortable: false,
                 width: 230,
                 renderer: function(value, metaData, record){
                     var miId = record.getId();
-                    var distribution_centres = record.get('distribution_centres_formatted_display');
-                    if (distribution_centres != '') {
-                        return Ext.String.format('<a href="{0}/mi_attempts/{1}#distribution_centres" target="_blank">{2}</a>', window.basePath, miId, distribution_centres);
-                    } else {
-                        return Ext.String.format('{0}', distribution_centres);
+                    var distribution_centres = record.get('genotype_confirmed_distribution_centres').toString().replace('[[', '[').replace(']]', ']').replace('],[', ']\t[').split('\t');
+                    var textToDisplayArray = [];
+                    var textToDisplay = '';
+                    if (distribution_centres.length > 0 && distribution_centres[0].length > 2) {
+                        for (var i = 0, len = distribution_centres.length; i < len; i++)
+                            {
+                            if (distribution_centres != '') {
+                                textToDisplayArray.push( Ext.String.format('<a href="{0}/mi_attempts/{1}#distribution_centres" target="_blank">{2}</a>', window.basePath, miId, distribution_centres[i]) );
+                            } else {
+                                textToDisplayArray.push('');
+                            }
+                        }
                     }
-                }
-                }
+                    else {
+                        textToDisplayArray.push('');
+                    }
+                    textToDisplay = textToDisplayArray.join('<br><br>');
+                    return textToDisplay;
+                }}
             },
-            {'position' : 0, 'data' : {
+            {'position' : 6, 'data' : {
                 header: '# Active Phenotypes',
                 dataIndex: 'phenotype_attempt_new_link',
-                width: 110,
+                width: 115,
                 renderer: function(value, metaData, record){
-                    var miId = record.getId();
-                    var statusName = record.get('status_name');
-                    var phenotypeCount = record.get('phenotype_attempts_count');
-                    var geneSymbol = record.get('marker_symbol');
-                    var productionCentre = record.get('production_centre_name');
-
-                    var textToDisplay = ''
-                    if (statusName == "Genotype confirmed") {
-
-                        if (phenotypeCount != 0) {
-                            textToDisplay = Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={1}&q[production_centre_name]={2}">({3})</a>', window.basePath, geneSymbol, productionCentre, phenotypeCount);
-                        } else {
-                            textToDisplay = '(0)';
-                        }
-                        textToDisplay +=  Ext.String.format(' / <a href="{0}/mi_attempts/{1}/phenotype_attempts/new">Create</a>', window.basePath, miId);
+                    var genotype_confirmed_colony_names = record.get('genotyped_confirmed_colony_names').toString().replace('[', '').replace(']', '').split(',');
+                    var phenotype_attempts_count = record.get('genotyped_confirmed_colony_phenotype_attempts_count').toString().replace('[', '').replace(']', '').split(',');
+                    var textToDisplayArray = [];
+                    var textToDisplay = '';
+                    console.log(genotype_confirmed_colony_names);
+                    if (genotype_confirmed_colony_names.length > 0 && genotype_confirmed_colony_names[0].length > 0) {
+                        for (var i = 0, len = genotype_confirmed_colony_names.length; i < len; i++)
+                            {
+                              textToDisplayArray.push( Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={2}">({1})</a> / <a href="{0}/colony/{2}/phenotype_attempts/new">Create</a>', window.basePath, phenotype_attempts_count[i], genotype_confirmed_colony_names[i]) );
+                            }
                     }
                     else {
 
                     }
-                    return textToDisplay
+                    textToDisplay = textToDisplayArray.join('<br><br>');
+                    return textToDisplay;
                 },
                 sortable: false
                 }

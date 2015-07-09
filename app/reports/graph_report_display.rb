@@ -1,6 +1,6 @@
 class GraphReportDisplay < BaseSummaryByMonthReport
 
-  def initialize(consortia_list=nil)
+  def initialize(consortia_list=nil, category = 'es cell', approach = 'all', allele_type = nil)
     @chart_file_names = {}
     super
     graph_data = self.generate_graphs
@@ -27,7 +27,7 @@ class GraphReportDisplay < BaseSummaryByMonthReport
     report_date = date_previous_month.to_date.at_beginning_of_month
 
     sql = <<-EOF
-      SELECT consortia.name AS consortium, production_goals.gc_goal AS gc_goal, to_date( production_goals.year || ' ' || production_goals.month || ' 01', 'YYYY MM DD') AS date
+      SELECT consortia.name AS consortium, production_goals.gc_goal AS gc_goal, production_goals.crispr_gc_goal AS crispr_gc_goal, production_goals.total_gc_goal AS total_gc_goal, to_date( production_goals.year || ' ' || production_goals.month || ' 01', 'YYYY MM DD') AS date
       FROM production_goals
         JOIN consortia ON consortia.id = production_goals.consortium_id
       WHERE to_date( production_goals.year || ' ' || production_goals.month || ' 01', 'YYYY MM DD')  >= '#{report_date}'
@@ -36,12 +36,23 @@ class GraphReportDisplay < BaseSummaryByMonthReport
     report_data = ActiveRecord::Base.connection.execute(sql)
     future_goals = {}
     report_data.each do |report_row|
+
+      if @category == 'crispr'
+        gc_goal = report_row['crispr_gc_goal']
+      elsif @category == 'all'
+        gc_goal = report_row['total_gc_goal']
+      else
+        gc_goal = report_row['gc_goal']
+      end
+
+      next if gc_goal.nil?
+
       if ! future_goals.has_key?(report_row['consortium'])
         future_goals[report_row['consortium']] = []
       end
-      future_goals[report_row['consortium']] << {:date => report_row['date'].to_date,  :goal => report_row['gc_goal'].to_i}
-    end
 
+      future_goals[report_row['consortium']] << {:date => report_row['date'].to_date,  :goal => gc_goal.to_i}
+    end
 
     while report_date >= cut_off_date do
       dates.insert(0, report_date)
@@ -66,13 +77,13 @@ class GraphReportDisplay < BaseSummaryByMonthReport
       dates.each do |date|
         dataset[consortium]['mi_goal_data'].append(@report_hash["#{consortium}-#{date}-MI Goal"].to_i)
         dataset[consortium]['mi_data'].append(@report_hash["#{consortium}-#{date}-Cumulative MIs"].to_i)
-        dataset[consortium]['pos_mi_diff_data'].append([0, @report_hash["#{consortium}-#{date}-MI Goal"].to_i - @report_hash["#{consortium}-#{date}-Cumulative MIs"].to_i].max)
-        dataset[consortium]['neg_mi_diff_data'].append(([0, @report_hash["#{consortium}-#{date}-MI Goal"].to_i - @report_hash["#{consortium}-#{date}-Cumulative MIs"].to_i].min)*(-1))
+        dataset[consortium]['pos_mi_diff_data'].append([0, dataset[consortium]['mi_goal_data'][-1] - dataset[consortium]['mi_data'][-1]].max)
+        dataset[consortium]['neg_mi_diff_data'].append(([0, dataset[consortium]['mi_goal_data'][-1] - dataset[consortium]['mi_data'][-1]].min)*(-1))
 
         dataset[consortium]['gc_goal_data'].append(@report_hash["#{consortium}-#{date}-GC Goal"].to_i)
         dataset[consortium]['gc_data'].append(@report_hash["#{consortium}-#{date}-Cumulative genotype confirmed"].to_i)
-        dataset[consortium]['pos_gc_diff_data'].append([0, @report_hash["#{consortium}-#{date}-GC Goal"].to_i - @report_hash["#{consortium}-#{date}-Cumulative genotype confirmed"].to_i].max)
-        dataset[consortium]['neg_gc_diff_data'].append(([0, @report_hash["#{consortium}-#{date}-GC Goal"].to_i - @report_hash["#{consortium}-#{date}-Cumulative genotype confirmed"].to_i].min)*(-1))
+        dataset[consortium]['pos_gc_diff_data'].append([0, dataset[consortium]['gc_goal_data'][-1] - dataset[consortium]['gc_data'][-1]].max)
+        dataset[consortium]['neg_gc_diff_data'].append(([0, dataset[consortium]['gc_goal_data'][-1] - dataset[consortium]['gc_data'][-1]].min)*(-1))
 
         dataset[consortium]['cre_excised_data'].append(@report_hash["#{consortium}-#{date}-Cumulative Cre Excision Complete"].to_i)
         dataset[consortium]['x_data'].append([rowno,"#{Date::ABBR_MONTHNAMES[date.month]}-#{date.year.to_s[2..3]}"])
@@ -90,13 +101,9 @@ class GraphReportDisplay < BaseSummaryByMonthReport
         last_date_so_far = dates.last
         last_date = "2016-07-01".to_date
         future_goals[consortium].insert(0, {:date => dates.last , :goal => dataset[consortium]['extended_gc_goals'].last})
-        if future_goals[consortium].last[:date] < last_date and dates.last < last_date
-          future_goals[consortium] << { :date => last_date.to_date, :goal => 820}
-        end
-
         if future_goals[consortium].count > 0
-          loop_number = future_goals[consortium].count - 1
-          for i in 1..loop_number
+          loop_number = future_goals[consortium].count - 2
+          for i in 0..loop_number
 
             number_of_month_diffences = (future_goals[consortium][i+1][:date].year - future_goals[consortium][i][:date].year) * 12 + (future_goals[consortium][i+1][:date].month - future_goals[consortium][i][:date].month)
             if number_of_month_diffences > 1

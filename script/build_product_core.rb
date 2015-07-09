@@ -48,27 +48,20 @@ class BuildProductCore
   EOF
 
   DISTRIBUTION_CENTRES_SQL= <<-EOF
-    SELECT all_dis_centres.mi_attempt_id, all_dis_centres.phenotype_attempt_id, array_agg(all_dis_centres.centre_name) AS centre_names, array_agg(all_dis_centres.distribution_network) AS distribution_networks,
-           array_agg(all_dis_centres.start_date) AS start_dates, array_agg(all_dis_centres.end_date) AS end_dates, array_agg(all_dis_centres.reconciled) AS reconciled, array_agg(all_dis_centres.available) AS available
-    FROM
-    (
-      SELECT mi_attempt_id AS mi_attempt_id, NULL AS phenotype_attempt_id, centres.name AS centre_name, distribution_network, start_date, end_date, reconciled, available
-      FROM mi_attempt_distribution_centres
-      LEFT JOIN centres ON centres.id = mi_attempt_distribution_centres.centre_id
-      UNION ALL
-      SELECT NULL AS mi_attempt_id, phenotype_attempt_id AS phenotype_attempt_id, centres.name AS centre_name, distribution_network, start_date, end_date, reconciled, available
-      FROM phenotype_attempt_distribution_centres
-      LEFT JOIN centres ON centres.id = phenotype_attempt_distribution_centres.centre_id
-    ) AS all_dis_centres
-    GROUP BY all_dis_centres.mi_attempt_id, all_dis_centres.phenotype_attempt_id
+    SELECT colony_distribution_centres.colony_id, array_agg(centres.name) AS centre_names, array_agg(colony_distribution_centres.distribution_network) AS distribution_networks,
+           array_agg(colony_distribution_centres.start_date) AS start_dates, array_agg(colony_distribution_centres.end_date) AS end_dates, array_agg(colony_distribution_centres.reconciled) AS reconciled, array_agg(colony_distribution_centres.available) AS available
+    FROM colony_distribution_centres
+      LEFT JOIN centres ON centres.id = colony_distribution_centres.centre_id
+    GROUP BY colony_distribution_centres.colony_id
   EOF
 
   def self.es_cell_sql
     sql = <<-EOF
       WITH es_cells AS (#{ES_CELL_SQL}),
       mouse_colonies AS (
-        SELECT mi_attempts.es_cell_id AS es_cell_id, array_agg(mi_attempts.external_ref) AS list
+        SELECT mi_attempts.es_cell_id AS es_cell_id, array_agg(colonies.name) AS list
         FROM mi_attempts
+        JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id AND colonies.genotype_confirmed = true
         GROUP BY mi_attempts.es_cell_id
       ),
       distribution_qcs AS (
@@ -213,7 +206,6 @@ class BuildProductCore
       distribution_centres AS (#{DISTRIBUTION_CENTRES_SQL})
 
       SELECT 'M' || mi_attempts.id AS product_id,
-        es_cells.allele_id AS allele_id,
         'MiAttempt' AS type,
         '' AS mouse_allele_mod_allele_type,
         mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
@@ -253,29 +245,27 @@ class BuildProductCore
         distribution_centres.reconciled AS distribution_reconciled,
         distribution_centres.available AS distribution_available,
         plans.gene_id AS imits_gene_id,
-        ARRAY[MI_ATTEMPT_QC_RESULTS] AS qc_data
+        ARRAY[COLONY_QC_RESULTS] AS qc_data
       FROM (mi_attempts
-        JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id
-        JOIN colony_qcs ON colonies.id = colony_qcs.colony_id
+        LEFT JOIN (colonies JOIN colony_qcs ON colonies.id = colony_qcs.colony_id) ON colonies.mi_attempt_id = mi_attempts.id
         JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
         JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = mi_attempts.status_id
         JOIN plans ON plans.id = mi_attempts.mi_plan_id
         )
-        LEFT JOIN strains AS cb_strain ON cb_strain.id = mi_attempts.colony_background_strain_id
+        LEFT JOIN strains AS cb_strain ON cb_strain.id = colonies.background_strain_id
         LEFT JOIN strains AS test_strain ON test_strain.id = mi_attempts.test_cross_strain_id
         LEFT JOIN es_cells ON es_cells.id = mi_attempts.es_cell_id
-        LEFT JOIN distribution_centres ON distribution_centres.mi_attempt_id = mi_attempts.id
-      WHERE mi_attempts.report_to_public = true AND mi_attempts.is_active = true AND (mi_attempts.mutagenesis_factor_id IS NULL OR colonies.genotype_confirmed = true)
+        LEFT JOIN distribution_centres ON distribution_centres.colony_id = colonies.id
+      WHERE mi_attempts.report_to_public = true AND mi_attempts.is_active = true AND (mi_attempts.mutagenesis_factor_id IS NULL OR (colonies.genotype_confirmed = true AND colonies.report_to_public = true))
 
       UNION ALL
 
       SELECT 'P' || mouse_allele_mods.id AS product_id,
-        es_cells.allele_id AS allele_id,
         'MouseAlleleModification' AS type,
-        mouse_allele_mods.mouse_allele_type AS mouse_allele_mod_allele_type,
-        mi_attempts.mouse_allele_type AS mi_attempt_mouse_allele_type,
+        colonies.allele_type AS mouse_allele_mod_allele_type,
+        mi_colony.allele_type AS mi_attempt_mouse_allele_type,
         es_cells.allele_type AS es_cell_allele_type,
-        mouse_allele_mods.allele_name AS mam_mgi_allele_symbol_superscript,
+        colonies.allele_name AS mam_mgi_allele_symbol_superscript,
         '' AS mi_mgi_allele_symbol_superscript,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
         plans.production_centre_name AS production_centre,
@@ -284,8 +274,8 @@ class BuildProductCore
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
         false AS crispr_plan,
         NULL AS mutagenesis_factor_id,
-        mouse_allele_mods.colony_name AS colony_name,
-        mi_attempts.external_ref AS parent_colony_name,
+        colonies.name AS colony_name,
+        mi_colony.name AS parent_colony_name,
         mouse_allele_mod_statuses.name AS mouse_status,
         mouse_allele_mod_status_stamps.created_at AS mouse_status_date,
         '' AS es_cell_name,
@@ -310,32 +300,29 @@ class BuildProductCore
         distribution_centres.reconciled AS distribution_reconciled,
         distribution_centres.available AS distribution_available,
         plans.gene_id AS imits_gene_id,
-        ARRAY[PHENOTYPE_ATTEMPT_QC_RESULTS] AS qc_data
+        ARRAY[COLONY_QC_RESULTS] AS qc_data
       FROM (mouse_allele_mods
+        LEFT JOIN (colonies JOIN colony_qcs ON colonies.id = colony_qcs.colony_id) ON colonies.mouse_allele_mod_id = mouse_allele_mods.id
         JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
         JOIN mouse_allele_mod_status_stamps ON mouse_allele_mod_status_stamps.mouse_allele_mod_id = mouse_allele_mods.id AND mouse_allele_mod_status_stamps.status_id = mouse_allele_mods.status_id
         JOIN plans ON plans.id = mouse_allele_mods.mi_plan_id
-        JOIN mi_attempts ON mi_attempts.id = mouse_allele_mods.mi_attempt_id
+        JOIN colonies mi_colony ON mi_colony.id = mouse_allele_mods.parent_colony_id
+        JOIN mi_attempts ON mi_attempts.id = mi_colony.mi_attempt_id
         LEFT JOIN es_cells ON mi_attempts.es_cell_id = es_cells.id)
-        LEFT JOIN strains AS cb_strain ON cb_strain.id = mouse_allele_mods.colony_background_strain_id
+        LEFT JOIN strains AS cb_strain ON cb_strain.id = colonies.background_strain_id
         LEFT JOIN deleter_strains AS del_strain ON del_strain.id = mouse_allele_mods.deleter_strain_id
-        LEFT JOIN distribution_centres ON distribution_centres.phenotype_attempt_id = mouse_allele_mods.phenotype_attempt_id
-      WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.is_active = true AND mouse_allele_mods.cre_excision = true
+        LEFT JOIN distribution_centres ON distribution_centres.colony_id = colonies.mouse_allele_mod_id
+      WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.is_active = true
     EOF
 
-    mi_attempts_qc_fields = ColonyQc::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || colony_qcs.#{field.to_s}"}.join(', ')
-    sql['MI_ATTEMPT_QC_RESULTS'] = mi_attempts_qc_fields
-
-    phenotype_attempts_qc_fields = PhenotypeAttempt::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || mouse_allele_mods.#{field.to_s}_id"}.join(', ')
-    sql['PHENOTYPE_ATTEMPT_QC_RESULTS'] = phenotype_attempts_qc_fields
-
+    colonies_qc_fields = ColonyQc::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || colony_qcs.#{field.to_s}"}.join(', ')
+    sql.gsub!(/COLONY_QC_RESULTS/, colonies_qc_fields)
     return sql
   end
 
 
 
   def initialize (show_eucommtoolscre = false)
-    @config = YAML.load_file("#{Rails.root}/script/build_allele2_v2.yml")
     @solr_update = YAML.load_file("#{Rails.root}/config/solr_update.yml")
 
     @show_eucommtoolscre = show_eucommtoolscre
@@ -347,13 +334,13 @@ class BuildProductCore
     end
 
     puts "#### #{@solr_url}/admin/"
-    @solr_user = @config['options']['SOLR_USER']
-    @solr_password = @config['options']['SOLR_PASSWORD']
+    @solr_user = @solr_update[Rails.env]['user']
+    @solr_password = @solr_update[Rails.env]['password']
     @dataset_max_size = 80000
-    @process_mice = true
+    @process_mice = false
     @process_es_cells = true
-    @process_targeting_vectors = true
-    @process_intermediate_vectors = true
+    @process_targeting_vectors = false
+    @process_intermediate_vectors = false
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',
@@ -382,17 +369,14 @@ class BuildProductCore
   end
 
   def build_json data
-    list = []
-    data.each do |row|
-      item = {'add' => {'doc' => row }}
-      list.push item.to_json
-    end
-    return list
+#    list = []
+#    data.each do |row|
+#      item = {'add' => {'doc' => row }}
+#      list.push JSON.fast_generate(item)
+#    end
+#    return list
+    return JSON.generate(data)
   end
-
-#  def build_json data
-#    return MultiJson.dump(data)
-#  end
 
 
   def delete_index type
@@ -407,7 +391,7 @@ class BuildProductCore
   def send_to_index data
     puts "sending data #{Time.now}"
     proxy = SolrConnect::Proxy.new(@solr_url)
-    proxy.update(data.join, @solr_user, @solr_password)
+    proxy.update(data, @solr_user, @solr_password)
     proxy.update({'commit' => {}}.to_json, @solr_user, @solr_password)
     puts "Commit Completed #{Time.now}"
     nil

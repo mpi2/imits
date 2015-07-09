@@ -16,7 +16,7 @@ class Open::MiAttemptsController < OpenApplicationController
         @access = false
         render 'mi_attempts/index' # renders the apps/views/mi_attempts/index.html.erb view.
       end
-      format.json { render :json => data_for_serialized(:json) }
+      format.json {render :json => data_for_serialized(:json) }
     end
   end
 
@@ -24,10 +24,6 @@ class Open::MiAttemptsController < OpenApplicationController
     @mi_attempt = Public::MiAttempt.find(params[:id])
 
     if @mi_attempt.report_to_public
-
-      if @mi_attempt.has_status?(:gtc) && @mi_attempt.distribution_centres.length == 0
-        @mi_attempt.distribution_centres.build
-      end
       respond_with @mi_attempt
     else
       redirect_to open_mi_attempts_path,  :alert => "No mouse production exists with id #{params[:id]}."

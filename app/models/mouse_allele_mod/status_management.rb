@@ -6,7 +6,7 @@ module MouseAlleleMod::StatusManagement
   ss = ApplicationModel::StatusManager.new(MouseAlleleMod)
 
   ss.add('Mouse Allele Modification Registered') do |pt|
-    pt.no_modification_required == false
+    pt.cre_excision == true
   end
 
   ss.add('Phenotype Attempt Registered') { |pt| true }
@@ -24,7 +24,7 @@ module MouseAlleleMod::StatusManagement
   end
 
   ss.add('Cre Excision Complete', 'Cre Excision Started') do |pt|
-    ((!pt.deleter_strain.blank? && pt.number_of_cre_matings_successful.to_i > 0) || pt.tat_cre) && ['b', '.1', 'e.1', 'c', 'd'].include?(pt.mouse_allele_type) && ! pt.colony_background_strain.nil?
+    ((!pt.deleter_strain.blank? && pt.number_of_cre_matings_successful.to_i > 0) || pt.tat_cre) && ['b', '.1', 'e.1', 'c', 'd'].include?(pt.mouse_allele_type) && ! pt.colony_background_strain_name.nil?
   end
 
   ss.add('Mouse Allele Modification Aborted') do |pt|

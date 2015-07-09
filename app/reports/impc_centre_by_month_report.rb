@@ -2,12 +2,13 @@ class ImpcCentreByMonthReport
 
   attr_accessor :report_rows
 
-  def initialize
+  def initialize(options = {})
     ## It's easier to display the report, if we create all the report rows while building the report.
     @report_rows = {
       ## Store an array of uniq dates to display in the report.
       :dates => []
     }
+    @category = options.has_key?('category') && ['es cell', 'crispr', 'all'].include?(options['category']) ? options['category'] : 'es cell'
 
     self.generate_report
   end
@@ -16,16 +17,24 @@ class ImpcCentreByMonthReport
     @by_month_clones ||= ActiveRecord::Base.connection.execute(self.class.by_month_clones_sql).to_a
   end
 
+  def by_month_mis
+    @by_month_mi ||= ActiveRecord::Base.connection.execute(self.class.by_month_mi_sql( @category == 'crispr' ? 'true' : 'false')).to_a
+  end
+
   def by_month_genes
-    @by_month_genes ||= ActiveRecord::Base.connection.execute(self.class.by_month_genes_sql).to_a
+    @by_month_genes ||= ActiveRecord::Base.connection.execute(self.class.by_month_genes_sql( @category == 'crispr' ? 'true' : 'false')).to_a
   end
 
   def cumulative_clones
     @cumulative_clones ||= ActiveRecord::Base.connection.execute(self.class.cumulative_clones_sql(self.class.real_start_date) ).to_a
   end
 
+  def cumulative_mis
+    @cumulative_mis ||= ActiveRecord::Base.connection.execute(self.class.cumulative_mi_sql(self.class.real_start_date, @category == 'crispr' ? 'true' : 'false')).to_a
+  end
+
   def cumulative_genes
-    @cumulative_cre ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.real_start_date) ).to_a
+    @cumulative_cre ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.real_start_date, @category == 'crispr' ? 'true' : 'false') ).to_a
   end
 
   def cumulative_received
@@ -47,11 +56,12 @@ class ImpcCentreByMonthReport
   def generate_cumulatives
     total_to_date = {}
 
-    to_date_cumulative ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.end_date) ).to_a
+    to_date_cumulative ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.end_date, @category == 'crispr' ? 'true' : 'false') ).to_a
     to_date_clones = ActiveRecord::Base.connection.execute(self.class.cumulative_clones_sql(self.class.end_date) ).to_a
+    to_date_mis ||= ActiveRecord::Base.connection.execute(self.class.cumulative_mi_sql(self.class.end_date, @category == 'crispr' ? 'true' : 'false') ).to_a
     to_date_received = ActiveRecord::Base.connection.execute(self.class.cumulative_received_sql(self.class.end_date) ).to_a
 
-    (to_date_clones + to_date_cumulative).each do |report_row|
+    (to_date_mis + to_date_clones + to_date_cumulative).each do |report_row|
       centre = report_row['production_centre']
       total_to_date[centre] = {} if ! total_to_date[centre]
       self.class.columns.each do |column, key|
@@ -81,7 +91,7 @@ class ImpcCentreByMonthReport
 
     @report_rows[:dates] << "To #{start_date}"
 
-    (cumulative_clones + cumulative_genes).each do |report_row|
+    (cumulative_mis + cumulative_clones + cumulative_genes).each do |report_row|
       centre = report_row['production_centre']
 
       self.class.columns.each do |column, key|
@@ -95,7 +105,7 @@ class ImpcCentreByMonthReport
       end
     end
 
-    (by_month_clones + by_month_genes).each do |report_row|
+    (by_month_mis + by_month_clones + by_month_genes).each do |report_row|
       date = Date.parse(report_row['date']).strftime('%b %Y')
       centre = report_row['production_centre']
 
@@ -156,7 +166,8 @@ class ImpcCentreByMonthReport
 
     def columns
       {
-        'Injected' => 'mi_in_progress_count',
+        'Injected' => 'clones_in_progress_count',
+        ' Injected' => 'mi_in_progress_count',
         'Genotype confirmed' => 'genotype_confirmed_count',
         'Cre excised' => 'cre_excised_or_better_count',
         'Phenotype experiments started' => 'phenotype_experiments_started_count',
@@ -225,6 +236,53 @@ class ImpcCentreByMonthReport
       ]
     end
 
+
+    def cumulative_mi_sql(cut_off_date, category_condition = 'false')
+      <<-EOF
+        WITH
+          counts AS (
+            SELECT
+              centres.name AS production_centre,
+              count(*) AS mi_in_progress_count
+            FROM mi_attempts
+              JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
+              JOIN centres ON centres.id = mi_plans.production_centre_id
+              JOIN consortia ON consortia.id = mi_plans.consortium_id
+              JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at <= '#{cut_off_date}'
+
+            WHERE
+              #{filter_by_centre_consortium.map{|key, value| "(centres.name = '#{key}' AND consortia.name IN ('#{value.join('\', \'')}'))"}.join(' OR ')}
+
+            GROUP BY
+              centres.name
+            ORDER BY
+              centres.name ASC
+          )
+
+          SELECT
+            counts.production_centre,
+            counts.mi_in_progress_count,
+            clone_goals.mip_goals AS mi_in_progress_count_goal
+
+          FROM counts
+            JOIN centres ON centres.name = production_centre
+            LEFT JOIN
+            (
+              SELECT
+                production_centre_id,
+                SUM(CASE WHEN tracking_goals.goal_type = 'total_injected_clones' THEN tracking_goals.#{ category_condition ? 'crispr_goal' : 'goal'} ELSE 0 END) AS mip_goals
+              FROM tracking_goals
+              WHERE tracking_goals.date IS NULL OR to_number(to_char(tracking_goals.date, 'YYYYMM'),'999999' ) <= (#{(cut_off_date.to_date.strftime('%Y%m'))})
+                AND tracking_goals.goal_type = 'total_injected_clones' AND tracking_goals.consortium_id IS NULL
+              GROUP BY production_centre_id
+
+            ) AS clone_goals ON clone_goals.production_centre_id = centres.id
+
+          ORDER BY
+            production_centre ASC
+      EOF
+    end
+
     def cumulative_clones_sql(cut_off_date)
       <<-EOF
         WITH
@@ -232,7 +290,7 @@ class ImpcCentreByMonthReport
             SELECT
               targ_rep_es_cells.id AS es_cell_id,
               centres.name AS production_centre,
-              count(*) AS mi_in_progress_count,
+              count(*) AS clones_in_progress_count,
               SUM(mi_plans.number_of_es_cells_received) as es_cells_received
 
             FROM targ_rep_es_cells
@@ -256,10 +314,10 @@ class ImpcCentreByMonthReport
           SELECT
             injected_es_cells.production_centre,
             SUM(CASE
-              WHEN injected_es_cells.mi_in_progress_count > 0
+              WHEN injected_es_cells.clones_in_progress_count > 0
               THEN 1
               ELSE 0
-            END) as mi_in_progress_count,
+            END) as clones_in_progress_count,
             SUM(injected_es_cells.es_cells_received) as es_cells_received
 
           FROM injected_es_cells
@@ -272,9 +330,9 @@ class ImpcCentreByMonthReport
 
           SELECT
             counts.production_centre,
-            counts.mi_in_progress_count,
+            counts.clones_in_progress_count,
             counts.es_cells_received,
-            clone_goals.mip_goals AS mi_in_progress_count_goal
+            clone_goals.mip_goals AS clones_in_progress_count_goal
 
           FROM counts
 
@@ -296,7 +354,7 @@ class ImpcCentreByMonthReport
       EOF
     end
 
-    def cumulative_genes_sql (cut_off_date)
+    def cumulative_genes_sql (cut_off_date, category_condition = 'false')
       <<-EOF
 
         WITH
@@ -307,7 +365,7 @@ class ImpcCentreByMonthReport
                   centres.name AS production_centre_name,
                   consortia.name AS consortium_name
                 FROM genes
-                JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
+                JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
                 JOIN centres ON centres.id = mi_plans.production_centre_id
                 JOIN consortia ON consortia.id = mi_plans.consortium_id
 
@@ -364,21 +422,29 @@ class ImpcCentreByMonthReport
 
         phenotyping_production_gene_centres AS (
           SELECT
-            genes_with_plans.gene_id as gene_id,
-            genes_with_plans.production_centre_name as production_centre,
+            mi_plans.gene_id as gene_id,
+            centres.name as production_centre,
             count(ps_stamps.*) as phenotype_started_or_better_count,
             count(pc_stamps.*) as phenotype_complete_count,
             SUM(CASE WHEN phenotyping_experiments_started <= '#{cut_off_date}' THEN 1 ELSE 0 END) AS phenotype_experiments_started_count
-          FROM genes_with_plans
-          JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 5
+          FROM phenotyping_productions
+          JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
+          JOIN centres ON centres.id = mi_plans.production_centre_id
+          JOIN colonies ON colonies.id = phenotyping_productions.parent_colony_id
+
+          JOIN mouse_allele_mods ON mouse_allele_mods.id = colonies.mouse_allele_mod_id
+          JOIN colonies mi_colony ON mi_colony.id = mouse_allele_mods.parent_colony_id
+          JOIN mi_attempts ON mi_attempts.id = mi_colony.mi_attempt_id
+
+          JOIN genes_with_plans ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id AND phenotyping_productions.status_id != 5
           LEFT JOIN phenotyping_production_status_stamps as ps_stamps ON phenotyping_productions.id = ps_stamps.phenotyping_production_id AND ps_stamps.status_id = 3 AND ps_stamps.created_at <= '#{cut_off_date}'
           LEFT JOIN phenotyping_production_status_stamps as pc_stamps ON phenotyping_productions.id = pc_stamps.phenotyping_production_id AND pc_stamps.status_id = 4 AND pc_stamps.created_at <= '#{cut_off_date}'
 
           GROUP BY
-            genes_with_plans.gene_id,
-            genes_with_plans.production_centre_name
+            mi_plans.gene_id,
+            centres.name
 
-          ORDER BY genes_with_plans.production_centre_name ASC
+          ORDER BY centres.name ASC
         ),
 
         phenotype_centres AS (
@@ -432,11 +498,11 @@ class ImpcCentreByMonthReport
           (
           SELECT
             production_centre_id,
-            SUM(CASE WHEN tracking_goals.goal_type = 'total_glt_genes' THEN tracking_goals.goal ELSE 0 END) AS gtc_goals,
-            SUM(CASE WHEN tracking_goals.goal_type = 'cre_exicised_genes' THEN tracking_goals.goal ELSE 0 END) AS cre_goals,
-            SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_experiment_started_genes' THEN tracking_goals.goal ELSE 0 END) AS phenotype_started_goals,
-            SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_started_genes' THEN tracking_goals.goal ELSE 0 END) AS ps_goals,
-            SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_complete_genes' THEN tracking_goals.goal ELSE 0 END) AS pc_goals
+            SUM(CASE WHEN tracking_goals.goal_type = 'total_glt_genes' THEN tracking_goals.#{ category_condition ? "crispr_goal" : "crispr_goal"} ELSE 0 END) AS gtc_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'cre_exicised_genes' THEN tracking_goals.#{ category_condition ? "crispr_goal" : "crispr_goal"} ELSE 0 END) AS cre_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_experiment_started_genes' THEN tracking_goals.#{ category_condition ? "crispr_goal" : "crispr_goal"} ELSE 0 END) AS phenotype_started_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_started_genes' THEN tracking_goals.#{ category_condition ? "crispr_goal" : "crispr_goal"} ELSE 0 END) AS ps_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_complete_genes' THEN tracking_goals.#{ category_condition ? "crispr_goal" : "crispr_goal"} ELSE 0 END) AS pc_goals
           FROM tracking_goals
           WHERE tracking_goals.date IS NULL OR to_number(to_char(tracking_goals.date, 'YYYYMM'),'999999' ) <= (#{(cut_off_date.to_date.strftime('%Y%m'))})
                 AND tracking_goals.goal_type IN ('total_glt_genes', 'cre_exicised_genes', 'phenotype_experiment_started_genes', 'phenotype_started_genes', 'phenotype_complete_genes' )
@@ -445,6 +511,66 @@ class ImpcCentreByMonthReport
 
         ) AS gene_goals ON gene_goals.production_centre_id = centres.id
 
+      EOF
+    end
+
+    def by_month_mi_sql(category_condition = 'false')
+      <<-EOF
+        WITH series AS (
+          SELECT generate_series('#{start_date}', '#{end_date}', interval '1 month')::date as date
+        ),
+        mi_with_plans AS (
+        SELECT
+          mi_attempts.id AS mi_attempt_id,
+          centres.name AS production_centre,
+          date_trunc('MONTH', mip_stamps.created_at) as mip_date
+        FROM mi_attempts
+        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
+        JOIN centres ON centres.id = mi_plans.production_centre_id
+        JOIN consortia ON consortia.id = mi_plans.consortium_id
+
+        JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at >= '#{start_date}'
+
+        WHERE
+          #{filter_by_centre_consortium.map{|key, value| "(centres.name = '#{key}' AND consortia.name IN ('#{value.join('\', \'')}'))"}.join(' OR ')}
+
+        GROUP BY
+          mi_attempts.id,
+          centres.name,
+          mip_stamps.created_at
+        ),
+
+        counts AS (
+          SELECT
+            series.date,
+            mi_with_plans.production_centre,
+            SUM(CASE
+              WHEN mi_with_plans.mip_date = series.date
+              THEN 1
+              ELSE 0
+            END) as mi_in_progress_count
+
+          FROM mi_with_plans
+          CROSS JOIN series
+          GROUP BY
+            series.date,
+            mi_with_plans.production_centre
+          ORDER BY series.date ASC
+        )
+
+
+        SELECT
+          counts.date,
+          counts.production_centre,
+          counts.mi_in_progress_count,
+          mip_goals.#{category_condition ? 'crispr_goal' : 'goal'} AS mi_in_progress_count_goal
+
+        FROM counts
+        JOIN centres ON centres.name = counts.production_centre
+
+        LEFT JOIN tracking_goals AS mip_goals ON counts.date = mip_goals.date AND centres.id = mip_goals.production_centre_id AND mip_goals.goal_type = 'total_injected_clones' AND mip_goals.consortium_id IS NULL
+
+        ORDER BY counts.date ASC, counts.production_centre ASC
       EOF
     end
 
@@ -485,7 +611,7 @@ class ImpcCentreByMonthReport
               WHEN clones_with_plans.mip_date = series.date
               THEN 1
               ELSE 0
-            END) as mi_in_progress_count
+            END) as clones_in_progress_count
 
           FROM clones_with_plans
           CROSS JOIN series
@@ -499,8 +625,8 @@ class ImpcCentreByMonthReport
         SELECT
           counts.date,
           counts.production_centre,
-          counts.mi_in_progress_count,
-          mip_goals.goal AS mi_in_progress_count_goal
+          counts.clones_in_progress_count,
+          mip_goals.goal AS clones_in_progress_count_goal
 
         FROM counts
         JOIN centres ON centres.name = counts.production_centre
@@ -511,7 +637,7 @@ class ImpcCentreByMonthReport
       EOF
     end
 
-    def by_month_genes_sql
+    def by_month_genes_sql( category_condition = 'false' )
       <<-EOF
         WITH series AS (
           SELECT generate_series('#{start_date}', '#{end_date}', interval '1 month')::date as date
@@ -523,7 +649,7 @@ class ImpcCentreByMonthReport
           centres.name AS production_centre_name,
           consortia.name AS consortium_name
         FROM genes
-        JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
+        JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
         JOIN centres ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
 

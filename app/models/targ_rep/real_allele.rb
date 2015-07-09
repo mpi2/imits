@@ -78,6 +78,9 @@ class TargRep::RealAllele < ActiveRecord::Base
     end
   end
 
+  def self.types
+    ['a','b','c','d','e','e.1','.1','.2', '', 'gt']
+  end
 end
 
 # == Schema Information

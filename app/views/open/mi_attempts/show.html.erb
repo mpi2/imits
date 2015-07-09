@@ -10,12 +10,12 @@
     <div>
       <div class="marker-symbol">
         <div class="label">Marker Symbol</div>
-        <span><%= @mi_attempt.es_cell.marker_symbol %></span>
+        <span><%= @mi_attempt.es_cell.try(:marker_symbol) %></span>
       </div>
 
       <div class="es-cell-name">
         <div class="label">ES Cell Name</div>
-        <span><%= @mi_attempt.es_cell.name %></span>
+        <span><%= @mi_attempt.es_cell.try(:name) %></span>
       </div>
     </div>
   </fieldset>
@@ -60,8 +60,6 @@
                 <th>Deposited material</th>
                 <th>Start date</th>
                 <th>End date</th>
-                <th>Reconciled</th>
-                <th>Reconciled date</th>
               </tr>
             </thead>
             <tbody class="distribution_centres">
@@ -72,12 +70,6 @@
                   <td><%= distribution_centre.deposited_material_name %></td>
                   <td><%= distribution_centre.start_date %></td>
                   <td><%= distribution_centre.end_date %></td>
-                  <td><%= distribution_centre.reconciled %></td>
-                  <% if distribution_centre.object.reconciled_at.nil? %>
-                      <td></td>
-                  <% else %>
-                      <td><%= distribution_centre.object.reconciled_at.strftime('%d/%m/%Y') %></td>
-                  <% end %>
                 </tr>
               <% end %>
             </tbody>
@@ -195,7 +187,7 @@
         <% statuses[a.id] = a.description %>
       <% end %>
 
-      <% MiAttempt::QC_FIELDS.map do |qc_field| %>
+      <% ColonyQc::QC_FIELDS.map do |qc_field| %>
         <div class="label"><%= qc_field.to_s.gsub('_', ' ') %></div>
         <span><%= statuses[@mi_attempt[qc_field.to_s + '_id']] %></span>
       <% end %>

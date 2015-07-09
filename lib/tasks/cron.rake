@@ -33,8 +33,8 @@ namespace :cron do
     ApplicationModel.audited_transaction do
       log = "RAILS_ENV=#{Rails.env} rake cron:create_komp2_phenotype_attempts\n"
 
-      MiAttempt.all.each do |mi|
-        mi.create_phenotype_attempt_for_komp2
+      Colony.where("mi_attempt_id IS NOT NULL AND genotype_confirmed = true").each do |col|
+        col.create_phenotype_attempt_for_komp2
       end
 
       Rails.logger.info(log)

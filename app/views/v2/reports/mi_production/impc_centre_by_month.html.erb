@@ -17,22 +17,28 @@
         <tr>
           <th rowspan='3'>Date</th>
           <th rowspan='3' style= 'border-right: 2px solid; border-color: #999'>Production centre</th>
-          <th colspan=<%= (@es_cell_columns.keys.size)*2 %> style='text-align:center;'>ES Cell supply (number of clones)</th>
-          <th colspan=2 style= 'border-left: 2px solid; border-color: #999'>Total Clones</th>
+          <% if @category != 'crispr' %>
+            <th colspan=<%= (@es_cell_columns.keys.size)*2 %> style='text-align:center;'>ES Cell supply (number of clones)</th>
+          <% end %>
+          <th colspan=2 style= 'border-left: 2px solid; border-color: #999'><% if @category != 'crispr' %> Total Clones <% else %> Total Micro Injections <% end %></th>
           <th colspan=10 style= 'border-left: 2px solid; border-color: #999'>Total Genes</th>
         </tr>
         <tr>
-          <% @es_cell_columns.keys.each do |column| %>
-            <th colspan=2><%= column %></th>
+          <% if @category != 'crispr' %>
+            <% @es_cell_columns.keys.each do |column| %>
+              <th colspan=2><%= column %></th>
+            <% end %>
           <% end %>
           <% @columns.keys.each do |column| %>
             <th colspan=2 style= 'border-left: 2px solid; border-color: #999'><%= column %></th>
           <% end %>
         </tr>
         <tr>
-          <% @es_cell_columns.keys.each do |column| %>
-            <th>Requested</th>
-            <th>Received</th>
+          <% if @category != 'crispr' %>
+            <% @es_cell_columns.keys.each do |column| %>
+              <th>Requested</th>
+              <th>Received</th>
+            <% end %>
           <% end %>
           <% @columns.each do |column, key| %>
             <th style= 'border-left: 2px solid; border-color: #999'>Actual</th>
@@ -45,9 +51,11 @@
           <tr>
             <td><%= date %></td>
             <td style= 'border-right: 2px solid; border-color: #999'><%= centre %></td>
-            <% @es_cell_columns.each do |column, key| %>
-              <td><%= @centre_by_month["#{date}-#{centre}-#{column}-required"] %></td>
-              <td style='background-color: #eeeeee;'><%= @centre_by_month["#{date}-#{centre}-#{column}-received"] %></td>
+            <% if @category != 'crispr' %>
+              <% @es_cell_columns.each do |column, key| %>
+                <td><%= @centre_by_month["#{date}-#{centre}-#{column}-required"] %></td>
+                <td style='background-color: #eeeeee;'><%= @centre_by_month["#{date}-#{centre}-#{column}-received"] %></td>
+              <% end %>
             <% end %>
             <% @columns.each do |column, key| %>
               <td style= 'border-left: 2px solid; border-color: #999'><%= @centre_by_month["#{date}-#{centre}-#{column}"] %></td>
@@ -59,10 +67,11 @@
       <tfoot>
         <tr>
           <td colspan='2' style= 'border-right: 2px solid; border-color: #999'>Total to date</td>
-
-          <% @es_cell_columns.each do |key, column| %>
-            <td><%= @cumulative_totals[centre]["#{column[0]}_cumulative"] %></td>
-            <td style='background-color: #eeeeee;'><%= @cumulative_totals[centre]["#{column[1]}_cumulative"] %></td>
+          <% if @category != 'crispr' %>
+            <% @es_cell_columns.each do |key, column| %>
+              <td><%= @cumulative_totals[centre]["#{column[0]}_cumulative"] %></td>
+              <td style='background-color: #eeeeee;'><%= @cumulative_totals[centre]["#{column[1]}_cumulative"] %></td>
+            <% end %>
           <% end %>
 
           <% @columns.each do |key, column| %>

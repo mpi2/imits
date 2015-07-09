@@ -13,7 +13,7 @@ class MiAttemptFieldGenerator < FieldGenerator
 
   def qc_fields
     qc_statuses = QcResult.all
-    MiAttempt::QC_FIELDS.map {|qc_field| qc_field(qc_field, qc_statuses, :description, :description) }.join.html_safe
+    ColonyQc::QC_FIELDS.map {|qc_field| qc_field(qc_field, qc_statuses, :description, :description) }.join.html_safe
   end
 
   def qc_field(qc_field, collection, key, value, options = {})

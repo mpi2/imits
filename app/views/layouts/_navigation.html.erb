@@ -6,14 +6,10 @@
     ['Create MI Attempt', new_mi_attempt_path],
     ['Mouse Production', mi_attempts_path('q[production_centre_name]' => current_user.production_centre.name)],
 #    ['Genotype Verification', quality_overview_groupings_path],
-    ['Phenotyping', phenotype_attempts_path('q[production_centre_name]' => current_user.production_centre.name)],
+    ['Phenotyping', "#{root_path}phenotype_attempts?q[production_centre_name]=#{current_user.production_centre.name}"],
     ['Reports', reports_path],
     ['Manual', request.env['SCRIPT_NAME'].to_s+'/manual.pdf']
   ]
-
-  if current_user.admin?
-    navigation_links.push ['Solr Update Queue', solr_update_queue_items_path]
-  end
 
   @tab2 = @tab
   @tab2 = 'Gene Selection' if @tab == 'Gene Summary'

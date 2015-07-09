@@ -1,6 +1,6 @@
 Date, Year, Month, Consortium, <%= @clone_columns.map{|header| header + ' (genes)'}.join(', ') %>, <%= @phenotype_columns.map{|header| header + ' (genes)'}.join(', ') %>
 <% @consortia.each do |consortium| %>
-<% @summary_by_month[:dates].keys.each do |year| %>
+<% @summary_by_month[:dates].keys.reverse.each do |year| %>
 <% months = @summary_by_month[:dates][year].uniq %>
 <% months.each do |date| %>
 <% if date.to_s != '2011-05-01' %>

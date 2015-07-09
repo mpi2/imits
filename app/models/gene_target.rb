@@ -11,6 +11,7 @@ class GeneTarget < ApplicationModel
 
   belongs_to :mi_plan
   belongs_to :mi_attempt
+  belongs_to :mutagenesis_factor
 
   has_many   :colony_alleles
 
@@ -37,7 +38,7 @@ class GeneTarget < ApplicationModel
         gt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (crispr plan)')
       end
 
-      if !mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.mutagenesis_factor.blank?
+      if !mi_plan.mutagenesis_via_crispr_cas9 and !mutagenesis_factor.blank?
         gt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (requires crispr plan)')
       end
     end

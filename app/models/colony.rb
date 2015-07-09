@@ -6,18 +6,17 @@ class Colony < ActiveRecord::Base
   acts_as_reportable
 
   belongs_to :mi_attempt
+  belongs_to :colony_background_strain, , :class_name => 'Strain'
 
-  has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy
-  has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
+  has_many :colony_allele, :inverse_of => :colony, :dependent => :destroy
 
   accepts_nested_attributes_for :colony_qc
   accepts_nested_attributes_for :trace_call
 
+  access_association_by_attribute :colony_background_strain, :name
+
   validates :name, :presence => true, :uniqueness => true
 
-  # has_attached_file :trace_file, :storage => :database
-
-  # do_not_validate_attachment_file_type :trace_file
 
   validate do |colony|
     if !mi_attempt_id.blank? and !mi_attempt.es_cell_id.blank?

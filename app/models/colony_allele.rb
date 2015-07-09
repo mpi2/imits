@@ -4,6 +4,10 @@ class ColonyAllele < ActiveRecord::Base
 
   belongs_to :colony
   belongs_to :gene_target
+  belongs_to :real_allele
+
+  has_one :trace_call
+  has_one :colony_qc
 
   validates :colony, :presence => true
   validates :gene_target, :presence => true
@@ -15,6 +19,22 @@ class ColonyAllele < ActiveRecord::Base
     if(other_ids.count != 0)
       ca.errors.add(:colony, "Can only have one allele per gene")
     end
+  end
+
+  def mutagenesis_factor
+    gene_target.try(:mutagenesis_factor)
+  end
+
+  def es_cell
+    mi_attempt.try(:es_cell)
+  end
+
+  def mi_attempt
+    gene_target.try(:mi_attempt)
+  end
+
+  def gene
+    gene_target.mi_plan.try(:gene)
   end
 
 end

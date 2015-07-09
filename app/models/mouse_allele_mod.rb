@@ -16,7 +16,6 @@ class MouseAlleleMod < ApplicationModel
   belongs_to :phenotype_attempt
   belongs_to :status
   belongs_to :deleter_strain
-  belongs_to :colony_background_strain, :class_name => 'Strain'
 
   has_many   :status_stamps, :order => "#{MouseAlleleMod::StatusStamp.table_name}.created_at ASC", dependent: :destroy
   has_many   :phenotyping_productions

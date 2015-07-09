@@ -3,7 +3,7 @@ class TraceCall < ActiveRecord::Base
   acts_as_audited
   acts_as_reportable
 
-  belongs_to :colony
+  belongs_to :colony_allele
   has_many :trace_call_vcf_modifications
 
   has_attached_file :trace_file, :storage => :database
@@ -28,6 +28,23 @@ class TraceCall < ActiveRecord::Base
   USER                 = (ENV['USER'] || `whoami`).chomp
 
   FOLDER_IN = "/nfs/team87/imits/trace_files_output/#{Rails.env}/#{USER}"
+
+
+  def mutagenesis_factor
+    colony_allele.gene_target.try(:mutagenesis_factor)
+  end
+
+  def mi_attempt
+    colony_allele.gene_target.try(:mi_attempt)
+  end
+
+  def colony
+    colony_allele.try(:colony)
+  end
+
+  def gene
+    colony_allele.gene_target.mi_plan.try(:gene)
+  end
 
   def trace_data_pending
     file_alignment.blank? && ! self.trace_file_file_name.blank?
@@ -73,7 +90,7 @@ class TraceCall < ActiveRecord::Base
   def target_region
     s = 0
     e = 0
-    self.colony.mi_attempt.crisprs.each do |crispr|
+    self.mutagenesis_factor.crisprs.each do |crispr|
       s = crispr.start.to_i if s == 0 || crispr.start.to_i < s.to_i
       e = crispr.end.to_i if e == 0 || crispr.end.to_i > e  .to_i
     end
@@ -87,7 +104,7 @@ class TraceCall < ActiveRecord::Base
   def crispr_damage_analysis options = {}
 
     if ! options[:force] && ! self.file_alignment.blank?
-      puts "#### trace output already exists ( colony #{self.colony.id} trace call #{self.id})!" if VERBOSE
+      puts "#### trace output already exists ( colony_allele #{self.colony_allele.id} trace call #{self.id})!" if VERBOSE
       return
     end
 
@@ -104,9 +121,9 @@ class TraceCall < ActiveRecord::Base
       FileUtils.mkdir_p FOLDER_IN
 
       options[:remote] = true
-      options[:chr] = self.colony.mi_attempt.gene.chr if ! options[:chr]
+      options[:chr] = self.gene.chr if ! options[:chr]
 
-      strand_name = self.colony.mi_attempt.gene.strand_name == '-' ? '-' : ''
+      strand_name = self.gene.strand_name == '-' ? '-' : ''
       options[:strand] = "#{strand_name}1" if ! options[:strand]
 
       options[:species] = "Mouse"

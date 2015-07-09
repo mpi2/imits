@@ -21,9 +21,9 @@ class ColonyQc < ActiveRecord::Base
     :qc_loxp_srpcr_and_sequencing
   ].freeze
 
-  belongs_to :colony
+  belongs_to :colony_allele
 
-  validates :colony, :presence => true
+  validates :colony_allele, :presence => true
 
   possible_qc_values = ['na', 'pass', 'fail']
   QC_FIELDS.each do |qc_field|
@@ -40,6 +40,23 @@ class ColonyQc < ActiveRecord::Base
     end
   end
   protected :set_blank_qc_fields_to_na
+
+  def mutagenesis_factor
+    colony_allele.gene_target.try(:mutagenesis_factor)
+  end
+
+  def mi_attempt
+    colony_allele.gene_target.try(:mi_attempt)
+  end
+
+  def colony
+    colony_allele.try(:colony)
+  end
+
+  def gene
+    colony_allele.gene_target.mi_plan.try(:gene)
+  end
+
 
   def self.readable_name
     return 'colony_qc'

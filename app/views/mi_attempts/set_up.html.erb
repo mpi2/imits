@@ -1,0 +1,23 @@
+<% @tab = 'Create MI Attempt' %>
+
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('mi_attempts/shared') %>
+  <%= javascript_include_tag('mi_attempts/new') %>
+  <%= javascript_include_tag('mi_attempts/show') %>
+  <%= javascript_tag "NUCLEASES_OPTIONS = #{MutagenesisFactor::NUCLEASES.map{|nuc| nuc.blank? ? '' : nuc}.to_json}" %>
+<% end %>
+
+<%= form_tag nil do %>
+<!-- Display logic for javascript -->
+
+<div id="object-new-top" class="grid_8 prefix_2 suffix_2">
+    <fieldset class="collapsible">
+      <legend>Injection Details</legend>
+      <div>
+        <div id="es-cell-selector"></div>
+        <p>or</p>
+        <div id="mutagenesis-factor-selector"></div>
+      </div>
+    </fieldset>
+</div>
+<% end %>

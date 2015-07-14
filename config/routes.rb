@@ -84,6 +84,8 @@ TarMits::Application.routes.draw do
     end
   end
 
+  get "mi_attempts/set_up_new" => 'mi_attempts#set_up_new'
+
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
     collection do
       get 'attributes'

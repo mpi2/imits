@@ -27,8 +27,34 @@ class MiAttemptsController < ApplicationController
   end
   protected :data_for_serialized
 
+  def set_up_new
+    @parms_for_es_cell_pipeline = {}
+    @parms_for_crispr_pipeline = {}
+  end
+
   def new
-    @mi_attempt = Public::MiAttempt.new
+
+    if params[:set_up] || true
+      @parms_for_crispr_pipeline =  params[:strategy] == 'crispr' ? params.dup : {}
+      @parms_for_es_cell_pipeline =  params[:strategy] == 'es_cell' ? params.dup : {}
+
+      consortium_name = params['consortium']
+      production_centre_name = params['production_centre']
+      gene_list = params['gene_list'].lines.map(&:strip).select{|i|!i.blank?}
+
+      if consortium_name.blank? || production_centre_name.blank? || gene_list.blank?
+        flash.now[:alert] = "Micro-injection Set up details are incomplete - please enter a value for the 'Consortium', 'Production Centre' and 'Gene List'"
+        render :set_up_new
+      end
+
+      mi_plans = MiPlan.joins(:consortium, :production_centre, :gene).where("centres.name = '#{production_centre_name}' AND consortia.name = '#{consortium_name}' AND genes.marker_symbol IN ('#{gene_list.join("','")}') AND mi_plans.mutagenesis_via_crispr_cas9 = #{params[:strategy] == 'crispr' ? 'true' : 'false'}")
+      if mi_plans.length != gene_list.length
+        flash.now[:alert] = "Cannot proceed due to missing Mi Plans. Please create MI Plans for the following genes before continuing #{mi_plans.map{|mp| mp.gene.marker_symbol }}"
+        render :set_up_new
+      end
+    end
+
+    @mi_attempt = Public::MiAttempt.new(:mi_plan_ids => mi_plans.map{|plan| plan.id})
     @vector_option = []
   end
 

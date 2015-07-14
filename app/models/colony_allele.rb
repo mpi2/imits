@@ -3,26 +3,36 @@ class ColonyAllele < ActiveRecord::Base
   acts_as_reportable
 
   belongs_to :colony
-  belongs_to :gene_target
+  belongs_to :mutagenesis_factor
   belongs_to :real_allele
 
   has_one :trace_call
   has_one :colony_qc
 
   validates :colony, :presence => true
-  validates :gene_target, :presence => true
+
 
   validate do |ca|
+
+    if !es_cell.blank? && !mutagenesis_factor_id.blank?
+      ca.errors.add(:mutagenesis_factor, "must not be set for ES Cell Micro-Injections")
+    end
+
+    if es_cell.blank? && mutagenesis_factor_id.blank?
+      ca.errors.add(:mutagenesis_factor, "must be set for CRISPR mediated Micro-Injections")
+    end
+
     other_ids = ColonyAllele.where(:colony_id => ca.colony_id,
-      :gene_target_id => ca.gene_target_id).map(&:id)
+      :mutagenesis_factor_id => ca.mutagenesis_factor_id).map(&:id)
     other_ids -= [ca.id]
     if(other_ids.count != 0)
-      ca.errors.add(:colony, "Can only have one allele per gene")
+      ca.errors.add(:colony, "Can only have one allele per Mutagenesis Factor")
     end
   end
 
-  def mutagenesis_factor
-    gene_target.try(:mutagenesis_factor)
+
+  def gene_target
+    mutagenesis_factor.gene_target
   end
 
   def es_cell
@@ -30,11 +40,15 @@ class ColonyAllele < ActiveRecord::Base
   end
 
   def mi_attempt
-    gene_target.try(:mi_attempt)
+    colony.try(:mi_attempt)
   end
 
   def gene
-    gene_target.mi_plan.try(:gene)
+    if !es_cell.blank?
+      mi_attempt.gene_target.mi_plan.try(:gene)
+    else
+      gene_target.mi_plan.try(:gene)
+    end
   end
 
 end
@@ -43,8 +57,8 @@ end
 #
 # Table name: colony_alleles
 #
-#  id             :integer          not null, primary key
-#  colony_id      :integer          not null
-#  gene_target_id :integer
-#  real_allele_id :integer
+#  id                    :integer          not null, primary key
+#  colony_id             :integer          not null
+#  mutagenesis_factor_id :integer
+#  real_allele_id        :integer
 #

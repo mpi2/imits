@@ -11,10 +11,8 @@ class GeneTarget < ApplicationModel
 
   belongs_to :mi_plan
   belongs_to :mi_attempt
-  belongs_to :mutagenesis_factor
 
-  has_many   :colony_alleles
-
+  has_many   :mutagenesis_factors
 
   validates :mi_plan, :presence => true
   validates :mi_attempt, :presence => true
@@ -55,8 +53,7 @@ end
 #
 # Table name: gene_targets
 #
-#  id                    :integer          not null, primary key
-#  mi_plan_id            :integer          not null
-#  mi_attempt_id         :integer          not null
-#  mutagenesis_factor_id :integer
+#  id            :integer          not null, primary key
+#  mi_plan_id    :integer          not null
+#  mi_attempt_id :integer          not null
 #

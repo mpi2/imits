@@ -65,8 +65,8 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true
 
   create_table "colony_alleles", :force => true do |t|
-    t.integer "colony_id",      :null => false
-    t.integer "gene_target_id"
+    t.integer "colony_id",             :null => false
+    t.integer "mutagenesis_factor_id"
     t.integer "real_allele_id"
   end
 
@@ -164,9 +164,8 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true
 
   create_table "gene_targets", :force => true do |t|
-    t.integer "mi_plan_id",            :null => false
-    t.integer "mi_attempt_id",         :null => false
-    t.integer "mutagenesis_factor_id"
+    t.integer "mi_plan_id",    :null => false
+    t.integer "mi_attempt_id", :null => false
   end
 
   create_table "genes", :force => true do |t|
@@ -728,6 +727,7 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
     t.integer "vector_id"
     t.string  "external_ref"
     t.text    "nuclease"
+    t.integer "gene_target_id"
   end
 
   create_table "notifications", :force => true do |t|
@@ -1165,14 +1165,13 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   add_foreign_key "colonies", "mouse_allele_mods", :name => "colonies_mouse_allele_mod_fk"
 
   add_foreign_key "colony_alleles", "colonies", :name => "colony_alleles_colony_id_fk"
-  add_foreign_key "colony_alleles", "gene_targets", :name => "colony_alleles_gene_target_id_fk"
+  add_foreign_key "colony_alleles", "mutagenesis_factors", :name => "colony_alleles_mutagenesis_factor_id_fk"
   add_foreign_key "colony_alleles", "targ_rep_real_alleles", :name => "colony_alleles_real_allele_fk", :column => "real_allele_id"
 
   add_foreign_key "colony_qcs", "colony_alleles", :name => "colony_qcs_colony_allele_id_fk"
 
   add_foreign_key "gene_targets", "mi_attempts", :name => "gene_targets_mi_attempt_id_fk"
   add_foreign_key "gene_targets", "mi_plans", :name => "gene_targets_mi_plan_id_fk"
-  add_foreign_key "gene_targets", "mutagenesis_factors", :name => "gene_targets_mutagenesis_factor_id_fk"
 
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk", :column => "status_id"
 
@@ -1205,6 +1204,8 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   add_foreign_key "mouse_allele_mods", "strains", :name => "mouse_allele_mods_deleter_strain_id_fk", :column => "deleter_strain_id"
   add_foreign_key "mouse_allele_mods", "targ_rep_alleles", :name => "mouse_allele_mods_targ_rep_allele_id_fk", :column => "allele_id"
   add_foreign_key "mouse_allele_mods", "targ_rep_real_alleles", :name => "mouse_allele_mods_targ_rep_real_allele_id_fk", :column => "real_allele_id"
+
+  add_foreign_key "mutagenesis_factors", "gene_targets", :name => "mutagenesis_factors_gene_target_id_fk"
 
   add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
   add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"

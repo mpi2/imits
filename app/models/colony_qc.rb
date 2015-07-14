@@ -42,11 +42,15 @@ class ColonyQc < ActiveRecord::Base
   protected :set_blank_qc_fields_to_na
 
   def mutagenesis_factor
-    colony_allele.gene_target.try(:mutagenesis_factor)
+    colony_allele.try(:mutagenesis_factor)
+  end
+
+  def es_cell
+    colony_allele.try(:es_cell)
   end
 
   def mi_attempt
-    colony_allele.gene_target.try(:mi_attempt)
+    colony_allele.try(:mi_attempt)
   end
 
   def colony
@@ -54,9 +58,8 @@ class ColonyQc < ActiveRecord::Base
   end
 
   def gene
-    colony_allele.gene_target.mi_plan.try(:gene)
+    colony_allele.try(:gene)
   end
-
 
   def self.readable_name
     return 'colony_qc'

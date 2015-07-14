@@ -1,0 +1,39 @@
+<% @tab = 'Create MI Attempt' %>
+
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('mi_attempts/shared') %>
+  <%= javascript_include_tag('mi_attempts/new') %>
+  <%= javascript_include_tag('mi_attempts/show') %>
+  <%= javascript_tag "NUCLEASES_OPTIONS = #{MutagenesisFactor::NUCLEASES.map{|nuc| nuc.blank? ? '' : nuc}.to_json}" %>
+<% end %>
+
+<!-- Display logic for javascript -->
+
+<div id="object-new-top" class="container_12">
+  <div class="container_10 prefix_1 suffix_1"><h1>Mi Injection Set Up</h1><div>
+  <div class="grid_5"><h5>Option 1: Injection of ES Cell</h5></div><div class="grid_5"><h5>Option 2: Injection of mutagenesis factor (CRISPR CAS9)</h5></div>
+      <div class="grid_5 prefix_1">
+        <%= form_tag("new", method: "get") do %>
+          <%= label_tag(:consortium, "Consortium") %>
+          <%= text_field_tag(:consortium, @parms_for_es_cell_pipeline[:consortium]) %>
+          <%= label_tag(:production_centre, "Production Centre") %>
+          <%= text_field_tag(:production_centre, @parms_for_es_cell_pipeline[:production_centre]) %>
+          <%= label_tag(:gene_list, "Gene Marker Symbol") %>
+          <%= text_field_tag(:gene_list, @parms_for_es_cell_pipeline[:gene_list]) %>
+          <%= hidden_field_tag(:strategy, 'es_cell') %>
+          <div><%= submit_tag("Create ES Cell Micro-injection") %></div>
+        <% end %>
+      </div>
+      <div class="grid_5 prefix_1">
+        <%= form_tag("new", method: "get") do %>
+          <%= label_tag(:consortium, "Consortium") %>
+          <%= text_field_tag(:consortium, @parms_for_crispr_pipeline[:consortium]) %>
+          <%= label_tag(:production_centre, "Production Centre") %>
+          <%= text_field_tag(:production_centre, @parms_for_crispr_pipeline[:production_centre]) %>
+          <%= label_tag(:gene_list, "List of Targeted Gene's (please puts each Marker symbol on a new line)") %>
+          <%= text_area_tag(:gene_list, @parms_for_crispr_pipeline[:gene_list]) %>
+          <%= hidden_field_tag(:strategy, 'crispr') %>
+          <div><%= submit_tag("Create CRISPR Micro-injection") %></div>
+        <% end %>
+      </div>
+</div>

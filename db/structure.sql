@@ -817,7 +817,7 @@ ALTER SEQUENCE colonies_id_seq OWNED BY colonies.id;
 CREATE TABLE colony_alleles (
     id integer NOT NULL,
     colony_id integer NOT NULL,
-    gene_target_id integer,
+    mutagenesis_factor_id integer,
     real_allele_id integer
 );
 
@@ -1133,8 +1133,7 @@ ALTER SEQUENCE es_cells_id_seq OWNED BY es_cells.id;
 CREATE TABLE gene_targets (
     id integer NOT NULL,
     mi_plan_id integer NOT NULL,
-    mi_attempt_id integer NOT NULL,
-    mutagenesis_factor_id integer
+    mi_attempt_id integer NOT NULL
 );
 
 
@@ -2161,7 +2160,8 @@ CREATE TABLE mutagenesis_factors (
     id integer NOT NULL,
     vector_id integer,
     external_ref character varying(255),
-    nuclease text
+    nuclease text,
+    gene_target_id integer
 );
 
 
@@ -4963,11 +4963,11 @@ ALTER TABLE ONLY colony_alleles
 
 
 --
--- Name: colony_alleles_gene_target_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: colony_alleles_mutagenesis_factor_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY colony_alleles
-    ADD CONSTRAINT colony_alleles_gene_target_id_fk FOREIGN KEY (gene_target_id) REFERENCES gene_targets(id);
+    ADD CONSTRAINT colony_alleles_mutagenesis_factor_id_fk FOREIGN KEY (mutagenesis_factor_id) REFERENCES mutagenesis_factors(id);
 
 
 --
@@ -5016,14 +5016,6 @@ ALTER TABLE ONLY gene_targets
 
 ALTER TABLE ONLY gene_targets
     ADD CONSTRAINT gene_targets_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
-
-
---
--- Name: gene_targets_mutagenesis_factor_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY gene_targets
-    ADD CONSTRAINT gene_targets_mutagenesis_factor_id_fk FOREIGN KEY (mutagenesis_factor_id) REFERENCES mutagenesis_factors(id);
 
 
 --
@@ -5216,6 +5208,14 @@ ALTER TABLE ONLY mouse_allele_mods
 
 ALTER TABLE ONLY mouse_allele_mods
     ADD CONSTRAINT mouse_allele_mods_targ_rep_real_allele_id_fk FOREIGN KEY (real_allele_id) REFERENCES targ_rep_real_alleles(id);
+
+
+--
+-- Name: mutagenesis_factors_gene_target_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mutagenesis_factors
+    ADD CONSTRAINT mutagenesis_factors_gene_target_id_fk FOREIGN KEY (gene_target_id) REFERENCES gene_targets(id);
 
 
 --

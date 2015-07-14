@@ -84,8 +84,9 @@ end
 #
 # Table name: mutagenesis_factors
 #
-#  id           :integer          not null, primary key
-#  vector_id    :integer
-#  external_ref :string(255)
-#  nuclease     :text
+#  id             :integer          not null, primary key
+#  vector_id      :integer
+#  external_ref   :string(255)
+#  nuclease       :text
+#  gene_target_id :integer
 #

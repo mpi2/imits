@@ -48,7 +48,7 @@ class MiAttempt < ApplicationModel
   end
 
 
-  accepts_nested_attributes_for :status_stamps
+  accepts_nested_attributes_for :status_stamps, :gene_targets
   accepts_nested_attributes_for :colony, :update_only =>true
   accepts_nested_attributes_for :colonies, :allow_destroy => true
 

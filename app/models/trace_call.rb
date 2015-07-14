@@ -13,6 +13,8 @@ class TraceCall < ActiveRecord::Base
 
   before_save :check_changed
 
+  validates :colony_allele, :presence => true
+
   def check_changed
     if trace_file_file_name_changed?
       self.file_alignment = nil
@@ -31,11 +33,11 @@ class TraceCall < ActiveRecord::Base
 
 
   def mutagenesis_factor
-    colony_allele.gene_target.try(:mutagenesis_factor)
+    colony_allele.try(:mutagenesis_factor)
   end
 
   def mi_attempt
-    colony_allele.gene_target.try(:mi_attempt)
+    colony_allele.try(:mi_attempt)
   end
 
   def colony
@@ -43,7 +45,7 @@ class TraceCall < ActiveRecord::Base
   end
 
   def gene
-    colony_allele.gene_target.mi_plan.try(:gene)
+    colony_allele.mi_plan.try(:gene)
   end
 
   def trace_data_pending

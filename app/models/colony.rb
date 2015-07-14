@@ -62,6 +62,7 @@ class Colony < ApplicationModel
     end
   end
 
+  before_save :set_default_background_strain_for_crispr_produced_colonies
   before_save :set_genotype_confirmed
   after_save :add_default_distribution_centre
   before_save :set_crispr_allele
@@ -76,6 +77,16 @@ class Colony < ApplicationModel
     end
   end
   protected :set_genotype_confirmed
+
+
+  def set_default_background_strain_for_crispr_produced_colonies
+    return unless self.background_strain_id.blank?
+    return if self.mi_attempt_id.blank?
+    return unless self.mi_attempt.es_cell.blank?
+
+    self.background_strain_name = 'C57BL/6N'
+  end
+  protected :set_default_background_strain_for_crispr_produced_colonies
 
   def add_default_distribution_centre
     puts 'HELLO'
@@ -127,7 +138,11 @@ class Colony < ApplicationModel
       if mi_attempt.es_cell_id
         return mi_attempt.es_cell.allele_symbol_superscript_template
       elsif mi_attempt.mutagenesis_factor
-        return "em1#{mi_attempt.production_centre.superscript}"
+        if !allele_name.blank?
+          return allele_name
+        else
+          return "em1#{mi_attempt.production_centre.superscript}"
+        end
       else
         return nil
       end
@@ -239,6 +254,11 @@ class Colony < ApplicationModel
   def pipeline_name
     return mouse_allele_mod.parent_colony.pipeline_name unless mouse_allele_mod.blank?
     return mi_attempt.es_cell.try(:pipeline).try(:name) unless mi_attempt.blank? || mi_attempt.es_cell.blank?
+    return nil
+  end
+
+  def distribution_centres_attributes
+    return distribution_centres.map(&:as_json) unless distribution_centres.blank?
     return nil
   end
 

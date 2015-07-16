@@ -96,7 +96,7 @@ class PlannedMicroinjectionList #< Reports::Base
         WHEN mi_plan_summary.mi_plan_status = 'Conflict' THEN  'Other MI plans for: '
         ELSE ''
       END AS conflict_reason_text,
-      string_agg(status_conflict_options.consortium_name, ', ') AS conflict_reason,
+      string_agg(status_conflict_options.consortium_name, ' & ') AS conflict_reason,
       mi_plan_summary.mi_aborted_count AS plan_aborted_count,
       to_char(mi_plan_summary.mi_aborted_max_date, 'dd/mm/yyyy') AS plan_aborted_max_date
 

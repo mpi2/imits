@@ -545,7 +545,7 @@ class Gene < ActiveRecord::Base
       data['full_data'][production_record['mi_plan_id']][:status_count] += production_record['status_count'].to_i
 
 
-      if ['Micro-injection in progress', 'Chimeras obtained'].include?(production_record['status_name'])
+      if ['Micro-injection in progress', 'Chimeras obtained', 'Founder obtained'].include?(production_record['status_name'])
         if !data['in progress mi attempts'].has_key?(production_record['mi_plan_id'])
           data['in progress mi attempts'][production_record['mi_plan_id']] = {:marker_symbol => production_record['marker_symbol'], :mi_plan_id => production_record['mi_plan_id'], :consortium => production_record['consortium'], :centre => production_record['centre'], :status_name => production_record['status_name'], :status_count => 0}
         end

@@ -1,6 +1,6 @@
 class V2::Reports::MiProductionController < ApplicationController
 
-  before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary, :planned_microinjection_list, :notifications_by_gene, :planned_crispr_microinjection_list, :notifications_by_gene_for_idg]
+  before_filter :params_cleaned_for_search, :only => [:gene_production_detail, :mi_plan_production_detail, :centre_and_consortia_production_detail, :consortia_production_detail, :centre_production_detail]
 
   before_filter :authenticate_user!, :except => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
   before_filter :authenticate_user_if_not_sanger, :only => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
@@ -15,41 +15,52 @@ class V2::Reports::MiProductionController < ApplicationController
     end
   end
 
-  def production_detail
-    if params[:type] =~ /Tm1a/
-      @display = 'tm1a_'
-    elsif params[:type] =~ /Tm1b/
-      @display = 'tm1b_'
-    else
-      @display = ''
-    end
+  def gene_production_detail
+    category = params[:category]
+    params[:q].delete("category")
+    @approach = 'all' if @approach.blank?
 
-    @intermediate_report = NewIntermediateReportSummaryByMiPlan.search(params[:q]).result.order('id asc')
+    @intermediate_table = IntermediateReportSummaryByGene.new
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByGene.where_sql(category, @approach, nil, params[:q]))
+    render :template => 'v2/reports/mi_production/production_detail'
   end
 
-  def gene_production_detail
-    if params[:type] =~ /Tm1a/
-      @display = 'tm1a_'
-    elsif params[:type] =~ /Tm1b/
-      @display = 'tm1b_'
-    else
-      @display = ''
-    end
+  def mi_plan_production_detail
+    category = params[:category]
+    params[:q].delete("category")
+    @approach = 'all' if @approach.blank?
 
-    @intermediate_report = NewIntermediateReportSummaryByCentreAndConsortia.search(params[:q]).result.order('id asc')
+    @intermediate_table = IntermediateReportSummaryByMiPlan.new
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByMiPlan.where_sql(category, @approach, nil, params[:q]))
+  end
+
+  def centre_and_consortia_production_detail
+    category = params[:category]
+    params[:q].delete("category")
+    @approach = 'all' if @approach.blank?
+
+    @intermediate_table = IntermediateReportSummaryByCentreAndConsortia.new
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByCentreAndConsortia.where_sql(category, @approach, nil, params[:q]))
     render :template => 'v2/reports/mi_production/production_detail'
   end
 
   def consortia_production_detail
-    if params[:type] =~ /Tm1a/
-      @display = 'tm1a_'
-    elsif params[:type] =~ /Tm1b/
-      @display = 'tm1b_'
-    else
-      @display = ''
-    end
+    category = params[:category]
+    params[:q].delete("category")
+    @approach = 'all' if @approach.blank?
 
-    @intermediate_report = NewIntermediateReportSummaryByConsortia.search(params[:q]).result.order('id asc')
+    @intermediate_table = IntermediateReportSummaryByConsortia.new
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByConsortia.where_sql(category, @approach, nil, params[:q]))
+    render :template => 'v2/reports/mi_production/production_detail'
+  end
+
+  def centre_production_detail
+    category = params[:category]
+    params[:q].delete("category")
+    @approach = 'all' if @approach.blank?
+
+    @intermediate_table = IntermediateReportSummaryByCentre.new
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByCentre.where_sql(category, approach, nil, params[:q]))
     render :template => 'v2/reports/mi_production/production_detail'
   end
 
@@ -441,10 +452,15 @@ class V2::Reports::MiProductionController < ApplicationController
   def sliding_efficiency
     @consortium_name = params[:consortium] || params[:consortium_name] || params[:consortia]
     @production_centre_name = params[:centre] || params[:production_centre_name] || params[:centre_name]
-    @report = SlidingEfficiencyReport.new(@consortium_name, @production_centre_name)
+
+    @category = params[:category || 'es cell']
+
+    @report = SlidingEfficiencyReport.new(@category, @consortium_name, @production_centre_name)
+
     bpr = BaseProductionReport.new
     bpr.class.available_consortia = [@consortium_name]
     @effort_efficiency_totals = bpr.effort_efficiency_totals
+
   end
 
   private
@@ -469,34 +485,21 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def translated_param_keys
+
     return {
-      'consortium'                    => 'consortium_eq',
-      'sub_project'                   => 'sub_project_eq',
-      'priority'                      => 'priority_eq',
-      'pcentre'                       => 'production_centre_eq',
-      'production_centre'             => 'production_centre_eq',
-      'gene'                          => 'gene_eq',
-      'mgi_accession_id'              => 'mgi_accession_id_eq',
-      'ikmc_project_id'               => 'ikmc_project_id_eq',
-      'status'                        => 'mi_plan_status_eq',
-      'overall_status'                => 'overall_status_eq',
-      'mi_plan_status'                => 'mi_plan_status_eq',
-      'mi_attempt_status'             => 'mi_attempt_status_eq',
-      'phenotype_attempt_status'      => 'phenotype_attempt_status_eq',
-      'ikmc_project_id'               => 'ikmc_project_id_eq',
-      'mutation_sub_type'             => 'mutation_sub_type_eq',
-      'allele_symbol'                 => 'allele_symbol_eq',
-      'genetic_background'            => 'genetic_background_eq',
-      'mi_attempt_colony_name'        => 'mi_attempt_colony_name_eq',
-      'mi_attempt_consortium'         => 'mi_attempt_consortium_eq',
-      'mi_attempt_production_centre'  => 'mi_attempt_production_centre_eq',
-      'phenotype_attempt_colony_name' => 'phenotype_attempt_colony_name_eq',
-      'cre_excision_required'         => 'phenotype_attempt_cre_excision_required_eq'
+     'gene'                                   => 'gene_eq',
+     'mgi_accession_id'                       => 'mgi_accession_id_eq',
+     'consortium'                             => 'consortium_eq',
+     'production_centre'                      => 'production_centre_eq',
+     'pcentre'                                => 'production_centre_eq',
+     'mi_plan_status'                         => 'mi_plan_status_eq',
+     'mi_attempt_status'                      => 'mi_attempt_status_eq',
+     'mouse_allele_mod_status'                => 'mouse_allele_mod_status_eq',
+     'phenotyping_status'                     => 'phenotyping_status_eq'
     }
   end
 
   def translate_param_values(hash)
-
     if hash['no_limit']
       lower_limit = true
     else
@@ -522,7 +525,7 @@ class V2::Reports::MiProductionController < ApplicationController
       translate_date(hash, hash['mi_plan_status_eq'], lower_limit)
 
     elsif hash['type'].to_s.downcase == 'microinjections'
-      hash['mi_attempt_status_ci_in'] = ['Micro-injection in progress', 'Chimeras obtained', 'Genotype confirmed', 'Micro-injection aborted']
+      hash['mi_attempt_status_nnull'] = 1
       translate_date(hash, 'Micro-injection in progress', lower_limit)
 
     elsif ['micro-injection in progress', 'cumulative mis'].include?(hash['type'].to_s.downcase)
@@ -533,6 +536,10 @@ class V2::Reports::MiProductionController < ApplicationController
       hash['mi_attempt_status_eq'] = 'Chimeras obtained'
       translate_date(hash, hash['mi_attempt_status_eq'], lower_limit)
 
+    elsif ['founders produced', 'founders obtained', 'founders'].include?(hash['type'].to_s.downcase)
+      hash['mi_attempt_status_eq'] = 'Founder obtained'
+      translate_date(hash, hash['mi_attempt_status_eq'], lower_limit)
+
     elsif ['genotype confirmed mice', 'genotype confirmed', 'cumulative genotype confirmed'].include?(hash['type'].to_s.downcase)
       hash['mi_attempt_status_eq'] = 'Genotype confirmed'
       translate_date(hash, hash['mi_attempt_status_eq'], lower_limit)
@@ -541,53 +548,55 @@ class V2::Reports::MiProductionController < ApplicationController
       hash['mi_attempt_status_eq'] = 'Micro-injection aborted'
       translate_date(hash, hash['mi_attempt_status_eq'], lower_limit)
 
-    elsif ['phenotype attempt registered', 'cumulative phenotype registered'].include?(hash['type'].to_s.downcase)
-      hash['phenotype_attempt_status_eq'] = 'Phenotype Attempt Registered'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+#    elsif ['phenotype attempt registered', 'cumulative phenotype registered'].include?(hash['type'].to_s.downcase)
+#      hash['mouse_allele_mod_status_eq'] = 'Phenotype Attempt Registered'
+#      translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
-    elsif ['intent to phenotype', 'registered for phenotyping'].include?(hash['type'].to_s.downcase)
-      hash['phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
-      translate_date(hash, 'Phenotype Attempt Registered', lower_limit)
+#    elsif ['intent to phenotype', 'registered for phenotyping'].include?(hash['type'].to_s.downcase)
+#      hash['mouse_allele_mod_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+#      translate_date(hash, 'Phenotype Attempt Registered', lower_limit)
 
     elsif hash['type'].to_s.downcase == 'rederivation started'
-      hash['phenotype_attempt_status_eq'] = 'Rederivation Started'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      hash['mouse_allele_mod_status_eq'] = 'Rederivation Started'
+      translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
     elsif hash['type'].to_s.downcase == 'rederivation completed'
-      hash['phenotype_attempt_status_eq'] = 'Rederivation Complete'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      hash['mouse_allele_mod_status_eq'] = 'Rederivation Complete'
+      translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
     elsif hash['type'].to_s.downcase == 'cre excision started'
-      hash['phenotype_attempt_status_eq'] = 'Cre Excision Started'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      hash['mouse_allele_mod_status_eq'] = 'Cre Excision Started'
+      translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
     elsif ['cre excision completed', 'cre excision complete', 'cumulative cre excision complete'].include?(hash['type'].to_s.downcase)
-      hash['phenotype_attempt_status_eq'] = 'Cre Excision Complete'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      hash['mouse_allele_mod_status_eq'] = 'Cre Excision Complete'
+      translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
     elsif ['phenotyping started', 'cumulative phenotype started'].include?(hash['type'].to_s.downcase)
-      hash['phenotype_attempt_status_eq'] = 'Phenotyping Started'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      hash['phenotyping_status_eq'] = 'Phenotyping Started'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif ['phenotyping experiments started', 'cumulative phenotyping experiments started'].include?(hash['type'].to_s.downcase)
-      hash['phenotyping_experiments_started_date_not_null'] = "1"
+      hash['phenotyping_experiments_started_date_nnull'] = "1"
       translate_date(hash, 'Phenotyping Experiments Started', lower_limit)
 
     elsif ['tm1a phenotype experiments started'].include?(hash['type'].to_s.downcase)
-      hash['tm1a_phenotyping_experiments_started_date_not_null'] = "1"
-      translate_date(hash, 'Tm1a Phenotyping Experiments Started', lower_limit)
+      @approach = 'micro-injection'
+      hash['phenotyping_experiments_started_date_nnull'] = "1"
+      translate_date(hash, 'Phenotyping Experiments Started', lower_limit)
 
     elsif ['tm1b phenotype experiments started'].include?(hash['type'].to_s.downcase)
-      hash['tm1b_phenotyping_experiments_started_date_not_null'] = "1"
-      translate_date(hash, 'Tm1b Phenotyping Experiments Started', lower_limit)
+      @approach = 'mouse allele modification'
+      hash['phenotyping_experiments_started_date_nnull'] = "1"
+      translate_date(hash, 'Phenotyping Experiments Started', lower_limit)
 
     elsif ['phenotyping completed', 'phenotyping complete', 'cumulative phenotype complete'].include?(hash['type'].to_s.downcase)
-      hash['phenotype_attempt_status_eq'] = 'Phenotyping Complete'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      hash['phenotyping_status_eq'] = 'Phenotyping Complete'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
-    elsif ['phenotyping aborted', 'phenotype attempt aborted'].include?(hash['type'].to_s.downcase)
-      hash['phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+#    elsif ['phenotyping aborted', 'phenotype attempt aborted'].include?(hash['type'].to_s.downcase)
+#      hash['phenotyping_status_eq'] = 'Phenotype Attempt Aborted'
+#      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif ['genotype confirmed mice 6 months'].include?(hash['type'].to_s.downcase)
       hash['mi_attempt_status_eq'] = 'Genotype confirmed'
@@ -598,84 +607,99 @@ class V2::Reports::MiProductionController < ApplicationController
       hash['micro_injection_aborted_date_gteq'] = 6.months.ago.to_date
 
     elsif ['tm1b phenotype attempt registered', 'cumulative tm1b phenotype registered'].include?(hash['type'].to_s.downcase)
-      hash['tm1b_phenotype_attempt_status_eq'] = 'Phenotype Attempt Registered'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'mouse allele modification'
+      hash['phenotyping_status_eq'] = 'Phenotype Attempt Registered'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif ['tm1b intent to phenotype'].include?(hash['type'].to_s.downcase)
-      hash['tm1b_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
-      translate_date(hash, 'Phenotype Attempt Registered', lower_limit)
+      @approach = 'mouse allele modification'
+      hash['mouse_allele_mod_status_nnull'] = 1
+      translate_date(hash, 'Phenotyping Production Registered', lower_limit)
+
+    elsif ['tm1b intent to excise'].include?(hash['type'].to_s.downcase)
+      @approach = 'mouse allele modification'
+      hash['phenotyping_status_nnull'] = 1
+      translate_date(hash, 'Phenotyping Production Registered', lower_limit)
 
     elsif hash['type'].to_s.downcase == 'tm1b rederivation started'
-      hash['tm1b_phenotype_attempt_status_eq'] = 'Rederivation Started'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'mouse allele modification'
+      hash['mouse_allele_mod_status_eq'] = 'Rederivation Started'
+      translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
     elsif hash['type'].to_s.downcase == 'tm1b rederivation completed'
-      hash['tm1b_phenotype_attempt_status_eq'] = 'Rederivation Complete'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'mouse allele modification'
+      hash['mouse_allele_mod_status_eq'] = 'Rederivation Complete'
+      translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
     elsif hash['type'].to_s.downcase == 'tm1b cre excision started'
-      hash['tm1b_phenotype_attempt_status_eq'] = 'Cre Excision Started'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'mouse allele modification'
+      hash['mouse_allele_mod_status_eq'] = 'Cre Excision Started'
+      translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
     elsif ['tm1b cre excision completed', 'tm1b cre excision complete', 'cumulative tm1b cre excision complete'].include?(hash['type'].to_s.downcase)
-      hash['tm1b_phenotype_attempt_status_eq'] = 'Cre Excision Complete'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'mouse allele modification'
+      hash['mouse_allele_mod_status_eq'] = 'Cre Excision Complete'
+      translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
     elsif hash['type'].to_s.downcase == 'tm1b phenotyping started'
-      hash['tm1b_phenotype_attempt_status_eq'] = 'Phenotyping Started'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'mouse allele modification'
+      hash['phenotyping_status_eq'] = 'Phenotyping Started'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif ['tm1b phenotyping completed', 'tm1b phenotyping complete', 'cumulative tm1b phenotype complete'].include?(hash['type'].to_s.downcase)
-      hash['tm1b_phenotype_attempt_status_eq'] = 'Phenotyping Complete'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'mouse allele modification'
+      hash['phenotyping_status_eq'] = 'Phenotyping Complete'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif ['tm1b phenotyping aborted', 'tm1b phenotype attempt aborted'].include?(hash['type'].to_s.downcase)
-      hash['tm1b_phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'mouse allele modification'
+      hash['phenotyping_status_eq'] = 'Phenotype Production Aborted'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif ['tm1a phenotype attempt registered', 'cumulative tm1a phenotype registered'].include?(hash['type'].to_s.downcase)
-      hash['tm1a_phenotype_attempt_status_eq'] = 'Phenotype Attempt Registered'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'micro-injection'
+      hash['phenotyping_status_eq'] = 'Phenotype Attempt Registered'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif ['tm1a intent to phenotype'].include?(hash['type'].to_s.downcase)
-      hash['tm1a_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+      @approach = 'micro-injection'
+      hash['phenotyping_status_nnull'] = 1
       translate_date(hash, 'Phenotype Attempt Registered', lower_limit)
 
     elsif hash['type'].to_s.downcase == 'tm1a rederivation started'
-      hash['tm1a_phenotype_attempt_status_eq'] = 'Rederivation Started'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'micro-injection'
+      hash['phenotyping_status_eq'] = 'Rederivation Started'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif hash['type'].to_s.downcase == 'tm1a rederivation completed'
-      hash['tm1a_phenotype_attempt_status_eq'] = 'Rederivation Complete'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
-
-    elsif hash['type'].to_s.downcase == 'tm1a cre excision started'
-      hash['tm1a_phenotype_attempt_status_eq'] = 'Cre Excision Started'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
-
-    elsif ['tm1a cre excision completed', 'tm1a cre excision complete', 'cumulative tm1a cre excision complete'].include?(hash['type'].to_s.downcase)
-      hash['tm1a_phenotype_attempt_status_eq'] = 'Cre Excision Complete'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'micro-injection'
+      hash['phenotyping_status_eq'] = 'Rederivation Complete'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif hash['type'].to_s.downcase == 'tm1a phenotyping started'
-      hash['tm1a_phenotype_attempt_status_eq'] = 'Phenotyping Started'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'micro-injection'
+      hash['phenotyping_status_eq'] = 'Phenotyping Started'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif ['tm1a phenotyping completed', 'tm1a phenotyping complete', 'cumulative tm1a phenotype complete'].include?(hash['type'].to_s.downcase)
-      hash['tm1a_phenotype_attempt_status_eq'] = 'Phenotyping Complete'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'micro-injection'
+      hash['phenotyping_status_eq'] = 'Phenotyping Complete'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
     elsif ['tm1a phenotyping aborted', 'tm1a phenotype attempt aborted'].include?(hash['type'].to_s.downcase)
-      hash['tm1a_phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
-      translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+      @approach = 'micro-injection'
+      hash['phenotyping_status_eq'] = 'Phenotype Production Aborted'
+      translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
-    elsif hash['type'].to_s.downcase == 'tm1b phenotype attempt mi attempt plan confliction'
-      hash['tm1b_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
-      hash['tm1b_mi_attempt_consortium_or_tm1b_mi_attempt_production_centre_not_in'] = [params[:q]['consortium_eq'],params[:q]['production_centre_eq']]
+#    elsif hash['type'].to_s.downcase == 'tm1b phenotype attempt mi attempt plan confliction'
+#      @approach = 'mouse allele modification'
+#      hash['phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+#      hash['tm1b_mi_attempt_consortium_or_tm1b_mi_attempt_production_centre_not_in'] = [params[:q]['consortium_eq'],params[:q]['production_centre_eq']]
 
-    elsif hash['type'].to_s.downcase == 'tm1a phenotype attempt mi attempt plan confliction'
-      hash['tm1a_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
-      hash['tm1a_mi_attempt_consortium_or_tm1a_mi_attempt_production_centre_not_in'] = [params[:q]['consortium_eq'],params[:q]['production_centre_eq']]
+#    elsif hash['type'].to_s.downcase == 'tm1a phenotype attempt mi attempt plan confliction'
+#      @approach = 'micro-injection'
+#      hash['phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+#      hash['tm1a_mi_attempt_consortium_or_tm1a_mi_attempt_production_centre_not_in'] = [params[:q]['consortium_eq'],params[:q]['production_centre_eq']]
     end
 
     ##
@@ -701,6 +725,9 @@ class V2::Reports::MiProductionController < ApplicationController
     return if hash['date'].blank?
     month_begins = Date.parse(hash['date'])
     next_month = month_begins + 1.month
+
+    month_begins = month_begins.to_s
+    next_month = next_month.to_s
 
     if type == 'Aborted - ES Cell QC Failed'
       if !no_lower_limit
@@ -738,6 +765,12 @@ class V2::Reports::MiProductionController < ApplicationController
       end
       hash['chimeras_obtained_date_lt'] = next_month
 
+    elsif type == 'Founders obtained'
+      if !no_lower_limit
+        hash['founder_obtained_date_gteq'] = month_begins
+      end
+      hash['founder_obtained_date_lt'] = next_month
+
     elsif type == 'Genotype confirmed'
       if !no_lower_limit
         hash['genotype_confirmed_date_gteq'] = month_begins
@@ -756,17 +789,11 @@ class V2::Reports::MiProductionController < ApplicationController
       end
       hash['phenotyping_registered_date_lt'] = next_month
 
-    elsif type == 'Tm1b Phenotype Attempt Registered'
+    elsif type == 'Mouse Allele Mod Registered'
       if !no_lower_limit
-        hash['tm1b_phenotyping_registered_date_gteq'] = month_begins
+        hash['mouse_allele_mod_registered_date_gteq'] = month_begins
       end
-      hash['tm1b_phenotyping_registered_date_lt'] = next_month
-
-    elsif type == 'Tm1a Phenotype Attempt Registered'
-      if !no_lower_limit
-        hash['tm1a_phenotyping_registered_date_gteq'] = month_begins
-      end
-      hash['tm1a_phenotyping_registered_date_lt'] = next_month
+      hash['mouse_allele_mod_registered_date_lt'] = next_month
 
     elsif type == 'Rederivation Started'
       if !no_lower_limit
@@ -804,19 +831,6 @@ class V2::Reports::MiProductionController < ApplicationController
       end
       hash['phenotyping_experiments_started_date_lt'] = next_month
 
-
-    elsif type == 'Tm1b Phenotyping Experiments Started'
-      if !no_lower_limit
-        hash['tm1b_phenotyping_experiments_started_date_gteq'] = month_begins
-      end
-      hash['tm1b_phenotyping_experiments_started_date_lt'] = next_month
-
-    elsif type == 'Tm1a Phenotyping Experiments Started'
-      if !no_lower_limit
-        hash['tm1a_phenotyping_experiments_started_date_gteq'] = month_begins
-      end
-      hash['tm1a_phenotyping_experiments_started_date_lt'] = next_month
-
     elsif type == 'Phenotyping Complete'
       if !no_lower_limit
         hash['phenotyping_complete_date_gteq'] = month_begins
@@ -825,9 +839,9 @@ class V2::Reports::MiProductionController < ApplicationController
 
     elsif type == 'Phenotype Attempt Aborted'
       if !no_lower_limit
-        hash['phenotype_attempt_aborted_date_gteq'] = month_begins
+        hash['phenotyping_aborted_date_gteq'] = month_begins
       end
-      hash['phenotype_attempt_aborted_date_lt'] = next_month
+      hash['phenotyping_aborted_date_lt'] = next_month
     end
 
 

@@ -158,6 +158,9 @@ TarMits::Application.routes.draw do
   match 'v2/reports/mi_production/production_detail(.:format)' => "v2/reports/mi_production#production_detail", as: 'production_detail'
   match 'v2/reports/mi_production/gene_production_detail(.:format)' => "v2/reports/mi_production#gene_production_detail", as: 'gene_production_detail'
   match 'v2/reports/mi_production/consortia_production_detail(.:format)' => "v2/reports/mi_production#consortia_production_detail", as: 'consortia_production_detail'
+  match 'v2/reports/mi_production/centre_and_consortia_production_detail(.:format)' => "v2/reports/mi_production#centre_and_consortia_production_detail", as: 'centre_and_consortia_production_detail'
+  match 'v2/reports/mi_production/centre_production_detail(.:format)' => "v2/reports/mi_production#centre_production_detail", as: 'centre_production_detail'
+  match 'v2/reports/mi_production/mi_plan_production_detail(.:format)' => "v2/reports/mi_production#mi_plan_production_detail", as: 'mi_plan_production_detail'
 
   match 'v2/reports/mi_production/sliding_efficiency(.:format)' => "v2/reports/mi_production#sliding_efficiency", as: 'sliding_efficiency'
   match 'v2/reports/mi_production/genes_gt_mi_attempt_summary(.:format)' => "v2/reports/mi_production#genes_gt_mi_attempt_summary", as: 'genes_gt_mi_attempt_summary'

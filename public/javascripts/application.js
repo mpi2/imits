@@ -267,6 +267,7 @@ $.fn.efficiencyGraph = function() {
         var $lineFrame = $(this);
         var id = $lineFrame.attr('id');
 
+        var max = $($('.wrap')[0]).data().graphmax;
         var $bars = $('.bar');
 
         var y = [];
@@ -297,12 +298,12 @@ $.fn.efficiencyGraph = function() {
         var chart = new CanvasJS.Chart(id, {
             axisY: {
                 title: 'Efficiency',
-                maximum: 1,
+                maximum: max,
                 minimum: 0
             },
 
             title:{
-                text: "Average Efficiency, based on a moving 50 - microinjection window"
+                text: "Average Efficiency, based on a moving microinjection window"
             },
             data: [
                 {

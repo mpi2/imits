@@ -43,6 +43,11 @@ class TargRep::RealAllele < ActiveRecord::Base
     :in => ['a','b','c','d','e','e.1','.1','.2', '', 'gt'],
     :message => "Allele Type can only be 'a','b','c','d','e','e.1','.1','.2', 'gt' or an empty string (for deletions), or nil"
 
+    GUESS_MAPPING = {'a'                        => 'b',
+                      'e'                        => 'e.1',
+                      ''                         => '.1'
+                     }
+
   # set allele type from allele name
   def check_allele_type
     unless allele_name.blank?
@@ -81,6 +86,50 @@ class TargRep::RealAllele < ActiveRecord::Base
   def self.types
     ['a','b','c','d','e','e.1','.1','.2', '', 'gt']
   end
+
+
+
+  def self.calculate_allele_information( data = {} )
+
+    allele_type =  calculate_allele_type(data)
+    allele_symbol = calculate_allele_symbol(allele_type, data)
+
+    return {:allele_type => allele_type, :allele_symbol => allele_symbol}
+  end
+
+  private_class_method def self.calculate_allele_type(data)
+    allele_type = 'None'
+    allele_type = data['mutation_type_code'] if !data['mutation_type_code'].blank?
+    allele_type = data['es_cell_allele_type'] if !data['es_cell_allele_type'].nil?
+    allele_type = data['colony_allele_type'] if !data['colony_allele_type'].blank?
+
+    parent_colony_type = !data['parent_colony_allele_type'].blank? ? data['parent_colony_allele_type'] : data['es_cell_allele_type']
+
+    if data['colony_allele_type'].blank? && data['excised']
+      if !parent_colony_type.blank? and !['a', 'e', ''].include?(parent_colony_type)
+        # cre version of the mi_attempt allele
+        allele_type =  GUESS_MAPPING[row1['allele_type']] if GUESS_MAPPING.has_key?(row1['allele_type'])
+      end
+    end
+
+  end
+
+  private_class_method def self.calculate_allele_symbol(allele_type, data)
+
+    # if crisprs allele type NHEJ HDR HR Del do not substitute allele_type
+    allele_type_exists = ['None', 'NHEJ', 'HDR', 'HR', 'Del'].include?(allele_type) ? false : true
+
+    row1['allele_symbol'] = 'None'
+    row1['allele_symbol'] = data['mutation_method_code'] + data['design_id'] + allele_type + '(' + data['cassette'] + ')' if !data['mutation_method_code'].blank? && allele_type_exists && !data['design_id'].blank? && !data['cassette'].blank?
+    row1['allele_symbol'] = data['allele_symbol_superscript_template'].to_s.gsub(/\@/, allele_type.to_s) if allele_type_exists && ! data['allele_symbol_superscript_template'].to_s.empty?
+    row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
+
+  end
+
+
+
+
+
 end
 
 # == Schema Information

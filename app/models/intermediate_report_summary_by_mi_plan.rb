@@ -5,6 +5,7 @@ class IntermediateReportSummaryByMiPlan < ActiveRecord::Base
 
   class << self
 
+
     def es_cell_and_crsipr_sql
       <<-EOF
         SELECT intermediate_report_summary_by_mi_plan.*

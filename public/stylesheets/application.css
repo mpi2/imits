@@ -100,6 +100,10 @@ strong { font-weight: bold; }
     margin-top: 1em;
 }
 
+.bold {
+    font-weight:bold;
+}
+
 /* @end */
 
 /* @group Links */
@@ -377,6 +381,10 @@ div#messages {
 }
 
 .report.production_summary h2 {
+  margin-top:1em;
+}
+
+.report.production_summary h3 {
   margin-top:1em;
 }
 

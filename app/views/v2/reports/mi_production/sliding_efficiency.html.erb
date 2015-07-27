@@ -5,21 +5,23 @@
 <% @title = "#{@consortium_name} / #{@production_centre_name} Moving Pipeline Efficiency" %>
 
 <div class='report sliding-efficiency'>
-  <% @effort_efficiency_totals.each do |efficiency| %>
-    <% if efficiency['production_centre_name'] == @production_centre_name %>
-      <h2>Overall Pipeline Efficiency</h2>
+  <% if @category != 'crispr' %>
+    <% @effort_efficiency_totals.each do |efficiency| %>
+      <% if efficiency['production_centre_name'] == @production_centre_name %>
+        <h2>Overall Pipeline Efficiency</h2>
 
-      <p>The Overall Pipeline Efficiency = (Unique number of Genes for Genotype Confirmed MI's whose mi_date is older than 6 month ago) / (Total number of MI's  whose mi_date is older than 6 month ago)</p>
+        <p>The Overall Pipeline Efficiency = (Unique number of Genes for Genotype Confirmed MI's whose mi_date is older than 6 month ago) / (Total number of MI's  whose mi_date is older than 6 month ago)</p>
 
-      <table align="center"><tr>
-        <th>Total GC genes > 6 months</th>
-        <th>All Microinjections > 6 months</th>
-        <th>Overall Pipeline efficiency</th>
-      </tr><tr>
-        <td><%= link_to(efficiency["gene_count"].to_i, genes_gt_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
-        <td><%= link_to(efficiency["total_injections"].to_i, all_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
-        <td><%= (efficiency["gene_count"].to_f / efficiency["total_injections"].to_f).round(2) %></td>
-      </tr></table>
+        <table align="center"><tr>
+          <th>Total GC genes > 6 months</th>
+          <th>All Microinjections > 6 months</th>
+          <th>Overall Pipeline efficiency</th>
+        </tr><tr>
+          <td><%= link_to(efficiency["gene_count"].to_i, genes_gt_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
+          <td><%= link_to(efficiency["total_injections"].to_i, all_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
+          <td><%= (efficiency["gene_count"].to_f / efficiency["total_injections"].to_f).round(2) %></td>
+        </tr></table>
+      <% end %>
     <% end %>
   <% end %>
 </div></br>
@@ -39,36 +41,68 @@
     The date visible on the x-axis is the date of the earliest MI in each bin"
   </p></br>
 
-  <div class='wrap'>
-    <% left = 0 %>
-    <% width = 4 %>
-    <% group_amount = 50.0 %>
-    <% gtc_genes = @report.mi_attempts.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id} %>
-    <% gtc_gene_count = gtc_genes.uniq.size %>
-    <% mis = @report.mi_attempts %>
-    <% mis_count = mis.size %>
+  <% if @category == 'crispr' %>
+    <div class='wrap' data-graphmax='200'>
+      <% left = 0 %>
+      <% width = 4 %>
+      <% group_amount = 10.0 %>
+      <% mis = @report.mi_attempts %>
+      <% mis_count = mis.size %>
 
-    <% mis_count.times do |group| %>
-        <% subset = mis[group..(group+(group_amount-1))] %>
-        <% break if subset.blank? %>
-        <% subset_genes = subset.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id}.uniq.size %>
-        <% next if subset.size < group_amount && group > 0 %>
-        <% efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>
+      <% mis_count.times do |group| %>
+          <% subset = mis[group..(group+(group_amount-1))] %>
+          <% break if subset.blank? %>
+          <% subset_genes = 0 %>
+          <% subset.each{|s| subset_genes += s.crsp_total_embryos_injected.to_i} %>
+          <% next if subset.size < group_amount && group > 0 %>
+          <% efficiency = (subset_genes.to_f / (subset.size.to_f)).round(2) %>
 
-      <div class='bin'
-        data-number='<%= group + 1 %>'>
+        <div class='bin'
+          data-number='<%= group + 1 %>'>
 
-        <div class='bar'
-          data-first='<%= subset.first.id %>'
-          data-last='<%= subset.last.id %>'
-          data-date='<%= subset.last.mi_date %>'
-          data-mi-total='<%= subset.size %>'
-          data-gene-total='<%= subset_genes %>'
-          data-efficiency='<%= efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>'
-          data-height='width:2px; height:<%= efficiency * 200 %>px;'></div>
-      </div>
-    <% end %>
-  </div>
+          <div class='bar'
+            data-first='<%= subset.first.id %>'
+            data-last='<%= subset.last.id %>'
+            data-date='<%= subset.last.mi_date %>'
+            data-mi-total='<%= subset.size %>'
+            data-gene-total='<%= subset_genes %>'
+            data-efficiency='<%= efficiency %>'
+            data-height='width:2px; height:<%= efficiency %>px;'></div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class='wrap' data-graphmax='1'>
+      <% left = 0 %>
+      <% width = 4 %>
+      <% group_amount = 50.0 %>
+      <% gtc_genes = @report.mi_attempts.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id} %>
+      <% gtc_gene_count = gtc_genes.uniq.size %>
+      <% mis = @report.mi_attempts %>
+      <% mis_count = mis.size %>
+
+      <% mis_count.times do |group| %>
+          <% subset = mis[group..(group+(group_amount-1))] %>
+          <% break if subset.blank? %>
+          <% subset_genes = subset.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id}.uniq.size %>
+          <% next if subset.size < group_amount && group > 0 %>
+          <% efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>
+
+        <div class='bin'
+          data-number='<%= group + 1 %>'>
+
+          <div class='bar'
+            data-first='<%= subset.first.id %>'
+            data-last='<%= subset.last.id %>'
+            data-date='<%= subset.last.mi_date %>'
+            data-mi-total='<%= subset.size %>'
+            data-gene-total='<%= subset_genes %>'
+            data-efficiency='<%= efficiency %>'
+            data-height='width:2px; height:<%= efficiency * 200 %>px;'></div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
   <div class='graph' id='line_graph'></div>
   <!--<div class='graph' id='new_bar_graph'></div>-->

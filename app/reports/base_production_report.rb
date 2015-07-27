@@ -518,12 +518,12 @@ class BaseProductionReport
         SELECT consortia.name AS consortium_name,
                centres.name AS production_centre_name,
                sum(mi_attempts.crsp_total_embryos_injected) AS number_embryos_injected,
-               sum(CASE WHEN mi_attempts.status_id = 2 THEN 1 ELSE 0 END) AS number_genotype_confirmed
+               count(DISTINCT mi_attempts.id) AS number_genotype_confirmed
         FROM mi_attempts
         JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
         JOIN centres ON centres.id = mi_plans.production_centre_id
-        WHERE mutagenesis_factor_id IS NOT NULL AND mi_date <= '#{Time.now - 3.months}'
+        WHERE mutagenesis_factor_id IS NOT NULL AND mi_attempts.status_id = 2 AND mi_attempts.experimental = false
         GROUP BY consortia.name, centres.name
       EOF
 

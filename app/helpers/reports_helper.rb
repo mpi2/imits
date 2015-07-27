@@ -65,6 +65,7 @@ module ReportsHelper
 
   def report_link_to(hash, filter, type, options = {})
     options = {:type => type, :filter_by => :consortium}.merge(options)
+    options[:category] = @category unless @category.blank?
 
     if options[:centre]
       value = hash["#{filter}-#{options[:centre]}-#{type}"].to_i
@@ -96,6 +97,15 @@ module ReportsHelper
       when 'consortia'
         options.delete(:production_group)
         consortia_production_detail_path(options)
+      when 'centre_and_consortia'
+        options.delete(:production_group)
+        centre_and_consortia_production_detail_path(options)
+      when 'centre'
+        options.delete(:production_group)
+        centre_production_detail_path(options)
+      when 'mi_plan'
+        options.delete(:production_group)
+        mi_plan_production_detail_path(options)
       else
         options.delete(:production_group)
         production_detail_path(options)

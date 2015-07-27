@@ -14,22 +14,23 @@
     <thead>
       <tr>
         <th>Consortium</th>
-        <% if @intermediate_report.accessible_attributes.include?('sub_project') and current_user.can_see_sub_project? %> <th>Sub-Project</th> <% end %>
-        <% if @intermediate_report.accessible_attributes.include?('is_bespoke_allele') %> <th>Is Bespoke Allele</th>  <% end %>
-        <% if @intermediate_report.accessible_attributes.include?('priority') %> <th>Priority</th>  <% end %>
-        <% if @intermediate_report.accessible_attributes.include?('production_centre') %> <th>Production Centre</th>  <% end %>
+        <% if @intermediate_table.attributes.include?('sub_project') and current_user.can_see_sub_project? %> <th>Sub-Project</th> <% end %>
+        <% if @intermediate_table.attributes.include?('is_bespoke_allele') %> <th>Is Bespoke Allele</th>  <% end %>
+        <% if @intermediate_table.attributes.include?('priority') %> <th>Priority</th>  <% end %>
+        <% if @intermediate_table.attributes.include?('production_centre') %> <th>Production Centre</th>  <% end %>
         <th>Gene</th>
         <th>MGI Accession ID</th>
         <th>Status</th>
-        <% if @intermediate_report.accessible_attributes.include?('ikmc_project_id') %> <th>IKMC Project ID</th>  <% end %>
-        <% if @intermediate_report.accessible_attributes.include?('mutation_sub_type') %> <th>Mutation Type</th>  <% end %>
-        <% if @intermediate_report.accessible_attributes.include?('allele_symbol') %> <th>Allele Symbol</th>  <% end %>
-        <% if @intermediate_report.accessible_attributes.include?('genetic_background') %> <th>Genetic Background</th>  <% end %>
+        <% if @intermediate_table.attributes.include?('ikmc_project_id') %> <th>IKMC Project ID</th>  <% end %>
+        <% if @intermediate_table.attributes.include?('mutation_sub_type') %> <th>Mutation Type</th>  <% end %>
+        <% if @intermediate_table.attributes.include?('allele_symbol') %> <th>Allele Symbol</th>  <% end %>
+        <% if @intermediate_table.attributes.include?('genetic_background') %> <th>Genetic Background</th>  <% end %>
         <th>Assigned Date</th>
         <th>Assigned - ES Cell QC in Progress Date</th>
         <th>Assigned - ES Cell QC Complete Date</th>
         <th>Micro-injection in progress Date</th>
         <th>Chimeras obtained Date</th>
+        <th>Founders obtained Date</th>
         <th>Genotype confirmed Date</th>
         <th>Micro-injection aborted Date</th>
         <th>Phenotype Attempt Registered Date</th>
@@ -37,6 +38,7 @@
         <th>Rederivation Complete Date</th>
         <th>Cre Excision Started Date</th>
         <th>Cre Excision Complete Date</th>
+        <th>Phenotyping Experiment Started Date</th>
         <th>Phenotyping Started Date</th>
         <th>Phenotyping Complete Date</th>
         <th>Phenotype Attempt Aborted Date</th>
@@ -46,52 +48,54 @@
         <th>Total old Pipeline Efficiency Gene Count</th>
         <th>GC old Pipeline Efficiency Gene Count</th>
         <th>Aborted - ES Cell QC Failed Date</th>
-        <% if @intermediate_report.accessible_attributes.include?("{@display}phenotyping_mi_attempt_colony_name") %> <th>MiAttempt Colony Name</th> <% end %>
-        <% if @intermediate_report.accessible_attributes.include?("{@display}phenotyping_mi_attempt_consortium") %> <th>MiAttempt Consortium</th> <% end %>
-        <% if @intermediate_report.accessible_attributes.include?("{@display}phenotyping_mi_attempt_production_centre") %> <th>MiAttempt Production Centre</th> <% end %>
-        <% if @intermediate_report.accessible_attributes.include?("{@display}phenotype_attempt_colony_name") %> <th>PhenotypeAttempt Colony Name</th> <% end %>
+        <% if @intermediate_table.attributes.include?("phenotyping_mi_attempt_colony_name") %> <th>MiAttempt Colony Name</th> <% end %>
+        <% if @intermediate_table.attributes.include?("phenotyping_mi_attempt_consortium") %> <th>MiAttempt Consortium</th> <% end %>
+        <% if @intermediate_table.attributes.include?("phenotyping_mi_attempt_production_centre") %> <th>MiAttempt Production Centre</th> <% end %>
+        <% if @intermediate_table.attributes.include?("phenotype_attempt_colony_name") %> <th>PhenotypeAttempt Colony Name</th> <% end %>
       </tr>
     </thead>
     <tbody>
       <% for report_row in @intermediate_report %>
         <tr>
-          <td><%= report_row.consortium %></td>
-          <% if @intermediate_report.accessible_attributes.include?('sub_project') %> <td><%= report_row.sub_project %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?('is_bespoke_allele') %> <td><%= boolean_to_text(report_row.is_bespoke_allele) %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?('priority') %> <td><%= report_row.priority %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?('production_centre') %> <td><%= report_row.production_centre %></td> <% end %>
-          <td><%= report_row.gene %></td>
-          <td><%= report_row.mgi_accession_id %></td>
-          <td><%= report_row.overall_status %></td>
-          <% if @intermediate_report.accessible_attributes.include?('ikmc_project_id') %> <td><%= report_row.ikmc_project_id %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?('mutation_sub_type') %> <td><%= report_row.mutation_sub_type %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?('allele_symbol') %> <td><%= report_row.allele_symbol.to_s.html_safe %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?('genetic_background') %> <td><%= report_row.genetic_background %></td> <% end %>
-          <td><%= report_row.assigned_date %></td>
-          <td><%= report_row.assigned_es_cell_qc_in_progress_date %></td>
-          <td><%= report_row.assigned_es_cell_qc_complete_date %></td>
-          <td><%= report_row.micro_injection_in_progress_date %></td>
-          <td><%= report_row.chimeras_obtained_date %></td>
-          <td><%= report_row.genotype_confirmed_date %></td>
-          <td><%= report_row.micro_injection_aborted_date %></td>
-          <td><%= report_row["#{@display}phenotype_attempt_registered_date"] %></td>
-          <td><%= report_row["#{@display}rederivation_started_date"] %></td>
-          <td><%= report_row["#{@display}rederivation_complete_date"] %></td>
-          <td><%= report_row["#{@display}cre_excision_started_date"] %></td>
-          <td><%= report_row["#{@display}cre_excision_complete_date"] %></td>
-          <td><%= report_row["#{@display}phenotyping_started_date"] %></td>
-          <td><%= report_row["#{@display}phenotyping_complete_date"] %></td>
-          <td><%= report_row["#{@display}phenotype_attempt_aborted_date"] %></td>
-          <td><%= report_row.distinct_old_genotype_confirmed_es_cells.to_i %></td>
-          <td><%= report_row.distinct_old_non_genotype_confirmed_es_cells.to_i %></td>
-          <td><%= report_row.mi_plan_id %></td>
-          <td><%= report_row.total_old_pipeline_efficiency_gene_count.to_i %></td>
-          <td><%= report_row.gc_old_pipeline_efficiency_gene_count.to_i %></td>
-          <td><%= report_row.aborted_es_cell_qc_failed_date %></td>
-          <% if @intermediate_report.accessible_attributes.include?("{@display}phenotyping_mi_attempt_colony_name") %> <td><%= report_row["{@display}phenotyping_mi_attempt_colony_name"] %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?("{@display}phenotyping_mi_attempt_consortium") %> <td><%= report_row["{@display}phenotyping_mi_attempt_consortium"] %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?("{@display}phenotyping_mi_attempt_production_centre") %> <td><%= report_row["{@display}phenotyping_mi_attempt_production_centre"] %></td> <% end %>
-          <% if @intermediate_report.accessible_attributes.include?("{@display}phenotype_attempt_colony_name") %> <td><%= report_row["{@display}phenotype_attempt_colony_name"] %> </td> <% end %>
+          <td><%= report_row['consortium'] %></td>
+          <% if @intermediate_table.attributes.include?('sub_project') %> <td><%= report_row['sub_project'] %></td> <% end %>
+          <% if @intermediate_table.attributes.include?('is_bespoke_allele') %> <td><%= boolean_to_text(report_row['is_bespoke_allele']) %></td> <% end %>
+          <% if @intermediate_table.attributes.include?('priority') %> <td><%= report_row['priority'] %></td> <% end %>
+          <% if @intermediate_table.attributes.include?('production_centre') %> <td><%= report_row['production_centre'] %></td> <% end %>
+          <td><%= report_row['gene'] %></td>
+          <td><%= report_row['mgi_accession_id'] %></td>
+          <td><%= report_row['overall_status'] %></td>
+          <% if @intermediate_table.attributes.include?('ikmc_project_id') %> <td><%= report_row['ikmc_project_id'] %></td> <% end %>
+          <% if @intermediate_table.attributes.include?('mutation_sub_type') %> <td><%= report_row['mutation_sub_type'] %></td> <% end %>
+          <% if @intermediate_table.attributes.include?('allele_symbol') %> <td><%= report_row['allele_symbol'].to_s.html_safe %></td> <% end %>
+          <% if @intermediate_table.attributes.include?('genetic_background') %> <td><%= report_row['genetic_background'] %></td> <% end %>
+          <td><%= report_row['assigned_date'] %></td>
+          <td><%= report_row['assigned_es_cell_qc_in_progress_date'] %></td>
+          <td><%= report_row['assigned_es_cell_qc_complete_date'] %></td>
+          <td><%= report_row['micro_injection_in_progress_date'] %></td>
+          <td><%= report_row['chimeras_obtained_date'] %></td>
+          <td><%= report_row['founder_obtained_date'] %></td>
+          <td><%= report_row['genotype_confirmed_date'] %></td>
+          <td><%= report_row['micro_injection_aborted_date'] %></td>
+          <td><%= report_row["phenotype_attempt_registered_date"] %></td>
+          <td><%= report_row["rederivation_started_date"] %></td>
+          <td><%= report_row["rederivation_complete_date"] %></td>
+          <td><%= report_row["cre_excision_started_date"] %></td>
+          <td><%= report_row["cre_excision_complete_date"] %></td>
+          <td><%= report_row["phenotyping_experiments_started_date"] %></td>
+          <td><%= report_row["phenotyping_started_date"] %></td>
+          <td><%= report_row["phenotyping_complete_date"] %></td>
+          <td><%= report_row["phenotype_attempt_aborted_date"] %></td>
+          <td><%= report_row['distinct_old_genotype_confirmed_es_cells'].to_i %></td>
+          <td><%= report_row['distinct_old_non_genotype_confirmed_es_cells'].to_i %></td>
+          <td><%= report_row['mi_plan_id'] %></td>
+          <td><%= report_row['total_old_pipeline_efficiency_gene_count'].to_i %></td>
+          <td><%= report_row['gc_old_pipeline_efficiency_gene_count'].to_i %></td>
+          <td><%= report_row['aborted_es_cell_qc_failed_date'] %></td>
+          <% if @intermediate_table.attributes.include?("phenotyping_mi_attempt_colony_name") %> <td><%= report_row["phenotyping_mi_attempt_colony_name"] %></td> <% end %>
+          <% if @intermediate_table.attributes.include?("phenotyping_mi_attempt_consortium") %> <td><%= report_row["phenotyping_mi_attempt_consortium"] %></td> <% end %>
+          <% if @intermediate_table.attributes.include?("phenotyping_mi_attempt_production_centre") %> <td><%= report_row["phenotyping_mi_attempt_production_centre"] %></td> <% end %>
+          <% if @intermediate_table.attributes.include?("phenotype_attempt_colony_name") %> <td><%= report_row["phenotype_attempt_colony_name"] %> </td> <% end %>
         </tr>
       <% end %>
     </tbody>

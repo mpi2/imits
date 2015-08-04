@@ -1,8 +1,6 @@
 class IntermediateReportSummaryByMiPlan < ActiveRecord::Base
   self.table_name = :intermediate_report_summary_by_mi_plan
 
-  acts_as_reportable
-
   class << self
 
 

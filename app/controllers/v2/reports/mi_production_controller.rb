@@ -512,15 +512,15 @@ class V2::Reports::MiProductionController < ApplicationController
     elsif ['gene interest', 'cumulative gene interest'].include?(hash['type'].to_s.downcase)
       translate_date(hash, 'gene_interest_date', lower_limit)
 
-    elsif ['es qc confirmed', 'es cell qc complete', 'cumulative es cell qc complete'].include?(hash['type'].to_s.downcase)
+    elsif ['es qc confirmed', 'es cell qc complete'].include?(hash['type'].to_s.downcase)
       hash['mi_plan_status_eq'] = 'Assigned - ES Cell QC Complete'
       translate_date(hash, hash['mi_plan_status_eq'], lower_limit)
 
-    elsif ['es cell qc in progress', 'cumulative es starts'].include?(hash['type'].to_s.downcase)
+    elsif ['es cell qc in progress'].include?(hash['type'].to_s.downcase)
       hash['mi_plan_status_eq'] = 'Assigned - ES Cell QC In Progress'
       translate_date(hash, hash['mi_plan_status_eq'], lower_limit)
 
-    elsif ['es cell qc failed', 'es qc failed', 'cumulative es cell qc failed'].include?(hash['type'].to_s.downcase)
+    elsif ['es cell qc failed', 'es qc failed'].include?(hash['type'].to_s.downcase)
       hash['mi_plan_status_eq'] = 'Aborted - ES Cell QC Failed'
       translate_date(hash, hash['mi_plan_status_eq'], lower_limit)
 
@@ -528,7 +528,7 @@ class V2::Reports::MiProductionController < ApplicationController
       hash['mi_attempt_status_nnull'] = 1
       translate_date(hash, 'Micro-injection in progress', lower_limit)
 
-    elsif ['micro-injection in progress', 'cumulative mis'].include?(hash['type'].to_s.downcase)
+    elsif ['micro-injection in progress'].include?(hash['type'].to_s.downcase)
       hash['mi_attempt_status_eq'] = 'Micro-injection in progress'
       translate_date(hash, hash['mi_attempt_status_eq'], lower_limit)
 
@@ -540,7 +540,7 @@ class V2::Reports::MiProductionController < ApplicationController
       hash['mi_attempt_status_eq'] = 'Founder obtained'
       translate_date(hash, hash['mi_attempt_status_eq'], lower_limit)
 
-    elsif ['genotype confirmed mice', 'genotype confirmed', 'cumulative genotype confirmed'].include?(hash['type'].to_s.downcase)
+    elsif ['genotype confirmed mice', 'genotype confirmed'].include?(hash['type'].to_s.downcase)
       hash['mi_attempt_status_eq'] = 'Genotype confirmed'
       translate_date(hash, hash['mi_attempt_status_eq'], lower_limit)
 
@@ -568,15 +568,15 @@ class V2::Reports::MiProductionController < ApplicationController
       hash['mouse_allele_mod_status_eq'] = 'Cre Excision Started'
       translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
-    elsif ['cre excision completed', 'cre excision complete', 'cumulative cre excision complete'].include?(hash['type'].to_s.downcase)
+    elsif ['cre excision completed'].include?(hash['type'].to_s.downcase)
       hash['mouse_allele_mod_status_eq'] = 'Cre Excision Complete'
       translate_date(hash, hash['mouse_allele_mod_status_eq'], lower_limit)
 
-    elsif ['phenotyping started', 'cumulative phenotype started'].include?(hash['type'].to_s.downcase)
+    elsif ['phenotyping started'].include?(hash['type'].to_s.downcase)
       hash['phenotyping_status_eq'] = 'Phenotyping Started'
       translate_date(hash, hash['phenotyping_status_eq'], lower_limit)
 
-    elsif ['phenotyping experiments started', 'cumulative phenotyping experiments started'].include?(hash['type'].to_s.downcase)
+    elsif ['phenotyping experiments started'].include?(hash['type'].to_s.downcase)
       hash['phenotyping_experiments_started_date_nnull'] = "1"
       translate_date(hash, 'Phenotyping Experiments Started', lower_limit)
 
@@ -605,6 +605,35 @@ class V2::Reports::MiProductionController < ApplicationController
     elsif ['microinjection aborted 6 months'].include?(hash['type'].to_s.downcase)
       hash['mi_attempt_status_eq'] = 'Micro-injection aborted'
       hash['micro_injection_aborted_date_gteq'] = 6.months.ago.to_date
+
+
+    elsif ['cumulative es starts'].include?(hash['type'].to_s.downcase)
+      translate_date(hash, 'Assigned - ES Cell QC In Progress', lower_limit)
+
+    elsif ['cumulative es cell qc complete'].include?(hash['type'].to_s.downcase)
+      translate_date(hash, 'Assigned - ES Cell QC Complete', lower_limit)
+
+    elsif ['cumulative es cell qc failed'].include?(hash['type'].to_s.downcase)
+      translate_date(hash, 'Aborted - ES Cell QC Failed', lower_limit)
+
+    elsif ['cumulative mis'].include?(hash['type'].to_s.downcase)
+      translate_date(hash, 'Micro-injection in progress', lower_limit)
+
+    elsif ['cumulative genotype confirmed'].include?(hash['type'].to_s.downcase)
+      translate_date(hash, 'Genotype confirmed', lower_limit)
+
+    elsif ['cumulative cre excision complete', 'Cre Excision Complete'].include?(hash['type'].to_s.downcase)
+      translate_date(hash, 'Cre Excision Complete', lower_limit)
+
+    elsif ['cumulative phenotype started'].include?(hash['type'].to_s.downcase)
+      translate_date(hash, 'Phenotyping Started', lower_limit)
+
+    elsif ['cumulative phenotyping experiments started'].include?(hash['type'].to_s.downcase)
+      translate_date(hash, 'Phenotyping Experiments Started', lower_limit)
+
+    elsif ['cumulative phenotype complete'].include?(hash['type'].to_s.downcase)
+      translate_date(hash, 'Phenotyping Complete', lower_limit)
+
 
     elsif ['tm1b phenotype attempt registered', 'cumulative tm1b phenotype registered'].include?(hash['type'].to_s.downcase)
       @approach = 'mouse allele modification'

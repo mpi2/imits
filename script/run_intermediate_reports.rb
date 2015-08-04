@@ -1,5 +1,5 @@
-#NewIntermediateReportSummaryByGene::Generate.cache
-NewIntermediateReportSummaryByMiPlan::Generate.cache
-NewIntermediateReportSummaryByCentreAndConsortia::Generate.cache
-NewIntermediateReportSummaryByConsortia::Generate.cache
-NewIntermediateReportSummaryByCentre::Generate.cache
+IntermediateReport::SummaryByGene::Generate.cache
+IntermediateReport::SummaryByMiPlan::Generate.cache
+IntermediateReport::SummaryByCentreAndConsortia::Generate.cache
+IntermediateReport::SummaryByConsortia::Generate.cache
+IntermediateReport::SummaryByCentre::Generate.cache

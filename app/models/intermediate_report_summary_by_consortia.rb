@@ -1,7 +1,13 @@
-class IntermediateReportSummaryByConsortia < IntermediateReportBase
+class IntermediateReportSummaryByConsortia < ActiveRecord::Base
+
+  extend IntermediateReport::QueryBase
+
   self.table_name = :intermediate_report_summary_by_consortia
 
-  acts_as_reportable
+  def self.distinct_fields
+    return {'consortia' => 1
+            }
+  end
 
 end
 

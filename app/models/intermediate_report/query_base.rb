@@ -1,8 +1,4 @@
-class IntermediateReportBase < ActiveRecord::Base
-
-  acts_as_reportable
-
-  class << self
+module IntermediateReport::QueryBase
 
     def select_sql(category = 'es cell', approach = 'all', allele_type = 'all')
 
@@ -95,7 +91,7 @@ class IntermediateReportBase < ActiveRecord::Base
       where = []
       sql = <<-EOF
         SELECT #{select_fields(display)}
-        FROM (SELECT DISTINCT mi_plans.gene_id, #{self.distinct_fields.has_key?('consortia') ? 'mi_plans.consortium_id' : ''}, #{self.distinct_fields.has_key?('centre') ? 'mi_plans.production_centre_id' : ''} FROM mi_plans) AS distinct_gene_consortia_centre
+        FROM (SELECT DISTINCT mi_plans.gene_id #{self.distinct_fields.has_key?('consortia') ? ', mi_plans.consortium_id' : ''} #{self.distinct_fields.has_key?('centre') ? ', mi_plans.production_centre_id' : ''} FROM mi_plans) AS distinct_gene_consortia_centre
         JOIN genes ON genes.id = distinct_gene_consortia_centre.gene_id
         #{self.distinct_fields.has_key?('consortia') ? 'JOIN consortia ON consortia.id = distinct_gene_consortia_centre.consortium_id' : ''}
         #{self.distinct_fields.has_key?('centre') ? 'JOIN centres ON centres.id = distinct_gene_consortia_centre.production_centre_id' : ''}
@@ -153,7 +149,7 @@ class IntermediateReportBase < ActiveRecord::Base
                plan_summary.mi_plan_id,
                plan_summary.mgi_accession_id,
                plan_summary.mi_plan_status,
-               plan_summary.gene_interest_date,
+               #{self.table_name != 'intermediate_report_summary_by_gene' ? 'plan_summary.gene_interest_date,' : ''}
                plan_summary.assigned_date,
                plan_summary.assigned_es_cell_qc_in_progress_date,
                plan_summary.assigned_es_cell_qc_complete_date,
@@ -224,16 +220,12 @@ class IntermediateReportBase < ActiveRecord::Base
     end
 
     def distinct_fields
-      return {'consortia' => 1,
-              'centre' => 1,
-              }
+      return {}
     end
 
     def on_clause
       return "@.gene = genes.marker_symbol #{self.distinct_fields.has_key?('consortia') ?  'AND @.consortium = consortia.name ' : '' } #{self.distinct_fields.has_key?('centre') ?  ' AND @.production_centre = centres.name' : ''}"
     end
-
-  end
 
 end
 

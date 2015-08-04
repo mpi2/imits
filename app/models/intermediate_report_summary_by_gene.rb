@@ -1,7 +1,12 @@
-class IntermediateReportSummaryByGene < IntermediateReportBase
+class IntermediateReportSummaryByGene < ActiveRecord::Base
+
+  extend IntermediateReport::QueryBase
+
   self.table_name = :intermediate_report_summary_by_gene
 
-  acts_as_reportable
+  def self.distinct_fields
+    return {}
+  end
 
 end
 

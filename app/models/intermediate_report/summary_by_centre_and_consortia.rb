@@ -117,7 +117,7 @@ module IntermediateReport::SummaryByCentreAndConsortia
                     FROM phenotyping_productions
                       JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
                       JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
-                      JOIN colonies ON colonies.id = phenotyping_productions.parent_colony_id #{!excision__condition.blank? ? (excision__condition ? "AND colonies.mouse_allele_mod_id IS NOT NULL" : "AND colonies.mouse_allele_mod_id IS NULL") : ''}
+                      JOIN colonies ON colonies.id = phenotyping_productions.parent_colony_id #{!excision__condition.blank? ? (excision__condition == 'true' ? "AND colonies.mouse_allele_mod_id IS NOT NULL" : "AND colonies.mouse_allele_mod_id IS NULL") : ''}
                       LEFT JOIN (mouse_allele_mods JOIN colonies mam_colonies ON mam_colonies.mouse_allele_mod_id = mouse_allele_mods.id) ON mam_colonies.id = phenotyping_productions.parent_colony_id
                       LEFT JOIN colonies mouse_allele_mod_colonies ON mouse_allele_mod_colonies.id = mouse_allele_mods.parent_colony_id
                       JOIN mi_attempts ON mi_attempts.id = mouse_allele_mod_colonies.mi_attempt_id OR colonies.mi_attempt_id = mi_attempts.id

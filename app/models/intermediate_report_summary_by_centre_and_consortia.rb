@@ -1,7 +1,8 @@
-class IntermediateReportSummaryByCentreAndConsortia < IntermediateReportBase
-  self.table_name = :intermediate_report_summary_by_centre_and_consortia
+class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
 
-  acts_as_reportable
+  extend IntermediateReport::QueryBase
+
+  self.table_name = :intermediate_report_summary_by_centre_and_consortia
 
   class << self
 
@@ -35,6 +36,12 @@ class IntermediateReportSummaryByCentreAndConsortia < IntermediateReportBase
       generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => true})
     end
 
+  end
+
+  def self.distinct_fields
+    return {'consortia' => 1,
+            'centre' => 1,
+            }
   end
 
 end

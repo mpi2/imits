@@ -133,9 +133,19 @@ class MiAttempt < ApplicationModel
 
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
+  before_save :set_default_background_strain_for_crispr_produced_colonies
   before_save :make_mi_date_and_in_progress_status_consistent
   after_save :manage_status_stamps
   after_save :reload_mi_plan_mi_attempts
+
+  def set_default_background_strain_for_crispr_produced_colonies
+    return unless self.blast_strain_id.blank?
+    return unless self.es_cell.blank?
+
+    self.blast_strain_name = 'C57BL/6N'
+  end
+  protected :set_default_background_strain_for_crispr_produced_colonies
+
 
   def reload
     @distribution_centres_attributes = []

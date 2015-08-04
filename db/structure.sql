@@ -2786,7 +2786,8 @@ CREATE TABLE targ_rep_mutation_types (
     name character varying(100) NOT NULL,
     code character varying(100) NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    allele_code character varying(5)
 );
 
 
@@ -2958,7 +2959,8 @@ CREATE TABLE targ_rep_mutation_methods (
     name character varying(100) NOT NULL,
     code character varying(100) NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    allele_prefix character varying(5)
 );
 
 
@@ -4674,6 +4676,27 @@ CREATE INDEX irscen_catagory ON intermediate_report_summary_by_centre USING btre
 
 
 --
+-- Name: irscen_gene_centre; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_gene_centre ON intermediate_report_summary_by_centre USING btree (gene, production_centre);
+
+
+--
+-- Name: irscen_gene_centre_consortia; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_gene_centre_consortia ON intermediate_report_summary_by_centre_and_consortia USING btree (gene, production_centre, consortium);
+
+
+--
+-- Name: irscen_gene_consortia; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_gene_consortia ON intermediate_report_summary_by_consortia USING btree (gene, consortium);
+
+
+--
 -- Name: irscen_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4720,6 +4743,13 @@ CREATE INDEX irsg_approach ON intermediate_report_summary_by_gene USING btree (a
 --
 
 CREATE INDEX irsg_catagory ON intermediate_report_summary_by_gene USING btree (catagory);
+
+
+--
+-- Name: irsg_gene; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsg_gene ON intermediate_report_summary_by_gene USING btree (gene);
 
 
 --
@@ -5628,3 +5658,7 @@ INSERT INTO schema_migrations (version) VALUES ('20150529151000');
 INSERT INTO schema_migrations (version) VALUES ('20150612115302');
 
 INSERT INTO schema_migrations (version) VALUES ('20150707115302');
+
+INSERT INTO schema_migrations (version) VALUES ('20150724125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20150728125302');

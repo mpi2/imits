@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150707115302) do
+ActiveRecord::Schema.define(:version => 20150728125302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -285,6 +285,7 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   add_index "intermediate_report_summary_by_centre", ["allele_type"], :name => "irscen_allele_type"
   add_index "intermediate_report_summary_by_centre", ["approach"], :name => "irscen_approach"
   add_index "intermediate_report_summary_by_centre", ["catagory"], :name => "irscen_catagory"
+  add_index "intermediate_report_summary_by_centre", ["gene", "production_centre"], :name => "irscen_gene_centre"
   add_index "intermediate_report_summary_by_centre", ["mi_attempt_id"], :name => "irscen_mi_attempts"
   add_index "intermediate_report_summary_by_centre", ["mi_plan_id"], :name => "irscen_mi_plans"
   add_index "intermediate_report_summary_by_centre", ["mouse_allele_mod_id"], :name => "irscen_mouse_allele_mods"
@@ -339,6 +340,7 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   add_index "intermediate_report_summary_by_centre_and_consortia", ["allele_type"], :name => "irscc_allele_type"
   add_index "intermediate_report_summary_by_centre_and_consortia", ["approach"], :name => "irscc_approach"
   add_index "intermediate_report_summary_by_centre_and_consortia", ["catagory"], :name => "irscc_catagory"
+  add_index "intermediate_report_summary_by_centre_and_consortia", ["gene", "production_centre", "consortium"], :name => "irscen_gene_centre_consortia"
   add_index "intermediate_report_summary_by_centre_and_consortia", ["mi_attempt_id"], :name => "irscc_mi_attempts"
   add_index "intermediate_report_summary_by_centre_and_consortia", ["mi_plan_id"], :name => "irscc_mi_plans"
   add_index "intermediate_report_summary_by_centre_and_consortia", ["mouse_allele_mod_id"], :name => "irscc_mouse_allele_mods"
@@ -392,6 +394,7 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   add_index "intermediate_report_summary_by_consortia", ["allele_type"], :name => "irsc_allele_type"
   add_index "intermediate_report_summary_by_consortia", ["approach"], :name => "irsc_approach"
   add_index "intermediate_report_summary_by_consortia", ["catagory"], :name => "irsc_catagory"
+  add_index "intermediate_report_summary_by_consortia", ["gene", "consortium"], :name => "irscen_gene_consortia"
   add_index "intermediate_report_summary_by_consortia", ["mi_attempt_id"], :name => "irsc_mi_attempts"
   add_index "intermediate_report_summary_by_consortia", ["mi_plan_id"], :name => "irsc_mi_plans"
   add_index "intermediate_report_summary_by_consortia", ["mouse_allele_mod_id"], :name => "irsc_mouse_allele_mods"
@@ -443,6 +446,7 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   add_index "intermediate_report_summary_by_gene", ["allele_type"], :name => "irsg_allele_type"
   add_index "intermediate_report_summary_by_gene", ["approach"], :name => "irsg_approach"
   add_index "intermediate_report_summary_by_gene", ["catagory"], :name => "irsg_catagory"
+  add_index "intermediate_report_summary_by_gene", ["gene"], :name => "irsg_gene"
   add_index "intermediate_report_summary_by_gene", ["mi_attempt_id"], :name => "irsg_mi_attempts"
   add_index "intermediate_report_summary_by_gene", ["mi_plan_id"], :name => "irsg_mi_plans"
   add_index "intermediate_report_summary_by_gene", ["mouse_allele_mod_id"], :name => "irsg_mouse_allele_mods"
@@ -1011,10 +1015,11 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   end
 
   create_table "targ_rep_mutation_methods", :force => true do |t|
-    t.string   "name",       :limit => 100, :null => false
-    t.string   "code",       :limit => 100, :null => false
-    t.datetime "created_at",                :null => false
-    t.datetime "updated_at",                :null => false
+    t.string   "name",          :limit => 100, :null => false
+    t.string   "code",          :limit => 100, :null => false
+    t.datetime "created_at",                   :null => false
+    t.datetime "updated_at",                   :null => false
+    t.string   "allele_prefix", :limit => 5
   end
 
   create_table "targ_rep_mutation_subtypes", :force => true do |t|
@@ -1025,10 +1030,11 @@ ActiveRecord::Schema.define(:version => 20150707115302) do
   end
 
   create_table "targ_rep_mutation_types", :force => true do |t|
-    t.string   "name",       :limit => 100, :null => false
-    t.string   "code",       :limit => 100, :null => false
-    t.datetime "created_at",                :null => false
-    t.datetime "updated_at",                :null => false
+    t.string   "name",        :limit => 100, :null => false
+    t.string   "code",        :limit => 100, :null => false
+    t.datetime "created_at",                 :null => false
+    t.datetime "updated_at",                 :null => false
+    t.string   "allele_code", :limit => 5
   end
 
   create_table "targ_rep_pipelines", :force => true do |t|

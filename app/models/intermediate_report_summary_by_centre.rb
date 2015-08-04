@@ -58,6 +58,7 @@ end
 #  irscen_allele_type              (allele_type)
 #  irscen_approach                 (approach)
 #  irscen_catagory                 (catagory)
+#  irscen_gene_centre              (gene,production_centre)
 #  irscen_mi_attempts              (mi_attempt_id)
 #  irscen_mi_plans                 (mi_plan_id)
 #  irscen_mouse_allele_mods        (mouse_allele_mod_id)

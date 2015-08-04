@@ -62,4 +62,5 @@ end
 #  irsc_mi_plans                 (mi_plan_id)
 #  irsc_mouse_allele_mods        (mouse_allele_mod_id)
 #  irsc_phenotyping_productions  (phenotyping_production_id)
+#  irscen_gene_consortia         (gene,consortium)
 #

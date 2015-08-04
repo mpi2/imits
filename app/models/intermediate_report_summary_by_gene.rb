@@ -56,6 +56,7 @@ end
 #  irsg_allele_type              (allele_type)
 #  irsg_approach                 (approach)
 #  irsg_catagory                 (catagory)
+#  irsg_gene                     (gene)
 #  irsg_mi_attempts              (mi_attempt_id)
 #  irsg_mi_plans                 (mi_plan_id)
 #  irsg_mouse_allele_mods        (mouse_allele_mod_id)

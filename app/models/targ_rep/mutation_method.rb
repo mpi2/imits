@@ -13,9 +13,10 @@ end
 #
 # Table name: targ_rep_mutation_methods
 #
-#  id         :integer          not null, primary key
-#  name       :string(100)      not null
-#  code       :string(100)      not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id            :integer          not null, primary key
+#  name          :string(100)      not null
+#  code          :string(100)      not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  allele_prefix :string(5)
 #

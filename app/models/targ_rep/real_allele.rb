@@ -88,44 +88,93 @@ class TargRep::RealAllele < ActiveRecord::Base
   end
 
 
+  def self.mutagenesis_url(data = {})
+    mgi_accession_id = data['mgi_accession_id'] || nil
+    allele_symbol = data['allele_symbol'] || nil
+    allele_type = data['allele_type'] || nil
+    if !data['pipeline'].blank?
+      if data['pipeline'].class.name == Array
+        pipelines = data['pipeline']
+      else
+        pipelines = [data['pipeline']]
+      end
+    else
+      pipelines = data['pipeline'] || nil
+    end
+
+    return '' if mgi_accession_id.blank? || allele_symbol.blank?
+    return '' if allele_type.nil? || pipelines.blank?
+    return '' if pipelines.all?{|pipeline| ['NorCOMM', 'EUCOMMToolsCre', 'Mirko', 'KOMP-Regeneron'].include?(pipeline)}
+    return '' unless ['a', 'c', 'e', ''].include?(allele_type)
+
+    return "https://www.mousephenotype.org/phenotype-archive/mutagenesis/#{mgi_accession_id}/#{allele_symbol}"
+  end
+
+  def self.lrpcr_genotype_primers(mgi_accession_id, allele_symbol, allele_type)
+    return '' if mgi_accession_id.blank? || allele_symbol.blank? || allele_type.blank? || !['a', 'e', ''].include?(allele_type)
+    return "https://www.mousephenotype.org/phenotype-archive/lrpcr/#{mgi_accession_id}/#{allele_symbol}"
+  end
+
+  def self.genotype_primers_url(mgi_accession_id, allele_symbol, allele_type)
+    return '' if mgi_accession_id.blank? || allele_symbol.blank? || allele_type.blank? || !['a', 'e', ''].include?(allele_type)
+    return "https://www.mousephenotype.org/phenotype-archive/genotyping_primers/#{mgi_accession_id}/#{allele_symbol}"
+  end
 
   def self.calculate_allele_information( data = {} )
 
     allele_type =  calculate_allele_type(data)
     allele_symbol = calculate_allele_symbol(allele_type, data)
 
-    return {:allele_type => allele_type, :allele_symbol => allele_symbol}
+    return {'allele_type' => allele_type, 'allele_symbol' => allele_symbol}
   end
 
-  private_class_method def self.calculate_allele_type(data)
+  def self.calculate_allele_type(data)
+
+    mutation_type_allele_code = data['mutation_type_allele_code'] || nil
+    es_cell_allele_type = data['es_cell_allele_type'] || nil
+    parent_colony_allele_type = data['parent_colony_allele_type'] || nil
+    colony_allele_type = data['colony_allele_type'] || nil
+    excised = data['excised'] || nil
+
     allele_type = 'None'
-    allele_type = data['mutation_type_code'] if !data['mutation_type_code'].blank?
-    allele_type = data['es_cell_allele_type'] if !data['es_cell_allele_type'].nil?
-    allele_type = data['colony_allele_type'] if !data['colony_allele_type'].blank?
+    allele_type = mutation_type_allele_code if !mutation_type_allele_code.blank?
+    allele_type = es_cell_allele_type if !es_cell_allele_type.nil?
+    allele_type = colony_allele_type if !colony_allele_type.blank?
 
-    parent_colony_type = !data['parent_colony_allele_type'].blank? ? data['parent_colony_allele_type'] : data['es_cell_allele_type']
+    if parent_colony_allele_type.nil? && !data['es_cell_allele_type'].blank?
+      parent_colony_allele_type = data['es_cell_allele_type']
+    end
 
-    if data['colony_allele_type'].blank? && data['excised']
-      if !parent_colony_type.blank? and !['a', 'e', ''].include?(parent_colony_type)
+    if colony_allele_type.nil? && excised == true
+      if !parent_colony_allele_type.nil? and ['a', 'e', ''].include?(parent_colony_allele_type)
         # cre version of the mi_attempt allele
-        allele_type =  GUESS_MAPPING[row1['allele_type']] if GUESS_MAPPING.has_key?(row1['allele_type'])
+        allele_type =  GUESS_MAPPING[parent_colony_allele_type] if GUESS_MAPPING.has_key?(parent_colony_allele_type)
       end
     end
 
+    return allele_type
   end
+  private_class_method :calculate_allele_type
 
-  private_class_method def self.calculate_allele_symbol(allele_type, data)
+  def self.calculate_allele_symbol(allele_type, data)
+
+    mutation_method_code = 'tm'
+    design_id = data['design_id'] || nil
+    cassette = data['cassette'] || nil
+    allele_symbol_superscript_template = data['allele_symbol_superscript_template'] || nil
+    mgi_allele_symbol_superscript = data['mgi_allele_symbol_superscript'] || nil
 
     # if crisprs allele type NHEJ HDR HR Del do not substitute allele_type
     allele_type_exists = ['None', 'NHEJ', 'HDR', 'HR', 'Del'].include?(allele_type) ? false : true
 
-    row1['allele_symbol'] = 'None'
-    row1['allele_symbol'] = data['mutation_method_code'] + data['design_id'] + allele_type + '(' + data['cassette'] + ')' if !data['mutation_method_code'].blank? && allele_type_exists && !data['design_id'].blank? && !data['cassette'].blank?
-    row1['allele_symbol'] = data['allele_symbol_superscript_template'].to_s.gsub(/\@/, allele_type.to_s) if allele_type_exists && ! data['allele_symbol_superscript_template'].to_s.empty?
-    row1['allele_symbol'] = row1['mgi_allele_symbol_superscript'] if ! row1['mgi_allele_symbol_superscript'].to_s.empty?
+    allele_symbol = 'None'
+    allele_symbol = mutation_method_code + design_id + allele_type + '(' + cassette + ')' if !mutation_method_code.blank? && allele_type_exists && !design_id.blank? && !cassette.blank?
+    allele_symbol = allele_symbol_superscript_template.to_s.gsub(/\@/, allele_type.to_s) if allele_type_exists && ! allele_symbol_superscript_template.to_s.empty?
+    allele_symbol = mgi_allele_symbol_superscript if ! mgi_allele_symbol_superscript.to_s.empty?
 
+    return allele_symbol
   end
-
+  private_class_method :calculate_allele_symbol
 
 
 

@@ -5,6 +5,16 @@ class TargRep::Allele < ActiveRecord::Base
   extend AccessAssociationByAttribute
   TEMPLATE_CHARACTER = '@'
 
+  GENBANK_FILE_TRANSFORMATIONS = {'a'   => '',
+                                  'e'   => '',
+                                  ''    => '',
+                                  'b'   => 'cre',
+                                  'e.1' => 'cre',
+                                  '.1'  => 'cre',
+                                  'c'   => 'flp',
+                                  'd'   => 'flp-cre'
+                                 }
+
   ##
   ## Associations
   ##
@@ -255,7 +265,6 @@ class TargRep::Allele < ActiveRecord::Base
       marker_symbol = options.has_key?('marker_symbol') ? options['marker_symbol'] : nil
       cassette       = options.has_key?('cassette') ? options['cassette'] : nil
       allele_type   = options.has_key?('allele_type') ? options['allele_type'] : nil
-      colony_name   = options.has_key?('colony_name') ? options['colony_name'] : nil
       crispr_mutation_description = options.has_key?('crispr_mutation_description') ? options['crispr_mutation_description'] : nil
       exon_id = options.has_key?('exon_id') ? options['exon_id'] : nil
 
@@ -298,6 +307,28 @@ class TargRep::Allele < ActiveRecord::Base
       return allele_descriptions['tm.2'] if allele_type == '.2'
 
     end
+
+    def self.genbank_file_url(allele_id, modified_allele_type = nil)
+      return "" if allele_id.blank?
+
+      transformation = GENBANK_FILE_TRANSFORMATIONS[modified_allele_type]
+      return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/escell-clone-#{!transformation.blank? ? transformation + '-' : ''}genbank-file"
+    end
+
+    def self.allele_image_url(allele_id, modified_allele_type = nil)
+      return "" if allele_id.blank?
+
+      transformation = GENBANK_FILE_TRANSFORMATIONS[modified_allele_type]
+      return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{!transformation.blank? ? '-' + transformation : ''}"
+    end
+
+    def self.simple_allele_image_url(allele_id, modified_allele_type = nil)
+      return "" if allele_id.blank?
+
+      transformation = GENBANK_FILE_TRANSFORMATIONS[modified_allele_type]
+      return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{!transformation.blank? ? '-' + transformation : ''}?simple=true.jpg"
+    end
+
 end
 
 # == Schema Information

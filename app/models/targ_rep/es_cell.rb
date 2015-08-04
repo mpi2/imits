@@ -212,6 +212,11 @@ class TargRep::EsCell < ActiveRecord::Base
       end
     end
 
+    def self.southern_tools_url(es_cell_name)
+      return '' if es_cell_name.blank?
+      return "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=#{es_cell_name}&iframe=true&width=100%&height=100%"
+    end
+
   protected
 
     # Convert any blank attribute strings to nil...

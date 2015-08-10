@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150728125302) do
+ActiveRecord::Schema.define(:version => 20150806125302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -594,6 +594,7 @@ ActiveRecord::Schema.define(:version => 20150728125302) do
     t.integer  "founder_num_positive_results"
     t.text     "assay_type"
     t.boolean  "experimental",                                                   :default => false, :null => false
+    t.string   "allele_target"
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true

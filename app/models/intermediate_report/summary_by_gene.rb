@@ -14,19 +14,26 @@ module IntermediateReport::SummaryByGene
       mouse_pipelines = {'micro-injection' => 'false',
                          'mouse allele modification' => 'true',
                          'all' => ''}
+
       experiment_types = {'es cell' => 'false',
                          'crispr' => 'true',
                          'all' => ''}
-#      allele_type = {'a' => '',
-#                    'e' => '',
-#                    '' => '',
-#                    'b' => '',
-#                    'c' => '',
-#                    'e.1' => '',
-#                    '.1' => '',
-#                    'd' => '',
-#                    'ALL' => ''}
-      super(experiment_types, mouse_pipelines)
+
+      allele_types = {'a' => [],
+                    'e' => [],
+#                    '' => [],
+                    'b' => [],
+                    'c' => [],
+                    'e.1' => [],
+                    '.1' => [],
+                    '.2' => [],
+                    'd' => [],
+                    'NHEJ' => ['multiplex', ''],
+                    'Deletion' => ['1 cut', '2 cut', '3 cut', ''],
+                    'HDR' => ['1 doner', '2 donor', ''],
+                    'HR' => []}
+
+      super(experiment_types, mouse_pipelines, allele_types)
     end
 
      def self.experiment_report_logic(experiment_type, plan_condition)
@@ -42,21 +49,37 @@ module IntermediateReport::SummaryByGene
        return sql
      end
 
-     def self.production_sql
+     def self.production_sql(allele_type = nil)
        sql = <<-EOF
                   SELECT mi_attempts.id AS mi_attempt_id, NULL AS mouse_allele_mods_id, mi_attempts.mi_plan_id AS mi_plan_id,
-                    mi_attempt_statuses.name AS production_status, mi_attempt_statuses.order_by AS production_status_order, mi_attempt_status_stamps.created_at AS production_status_order_status_stamp_created_at, false AS allele_modification
+                    mi_attempt_statuses.name AS production_status, mi_attempt_statuses.order_by AS production_status_order, mi_attempt_status_stamps.created_at AS production_status_order_status_stamp_created_at, false AS allele_modification,
+                    #{allele_type.nil? ? 'true' : "CASE WHEN mi_attempts.allele_target = mi_colony.allele_type THEN true ELSE false END"} AS same_allele_types,
+                    '' AS injection_type
                   FROM mi_attempts
                     JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
                     JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = mi_attempts.status_id
+                    LEFT JOIN colonies mi_colony ON mi_colony.mi_attempt_id = mi_attempts.id
+
+                  #{ allele_type.nil? ? '' : <<-EOF
+                    LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+                  WHERE (mi_attempts.allele_target = '#{allele_type}' AND mi_attempts.es_cell_id IS NULL) OR (mi_colony.allele_type = '#{allele_type}' AND mi_attempts.es_cell_id IS NOT NULL) OR (mi_colony.allele_type IS NULL AND targ_rep_es_cells.id IS NOT NULL AND targ_rep_es_cells.allele_type = '#{allele_type}')
+                  EOF
+                  }
+
                   UNION
 
                   SELECT NULL AS mi_attempt_id, mouse_allele_mods.id AS mouse_allele_mods_id, mouse_allele_mods.mi_plan_id AS mi_plan_id,
-                    mouse_allele_mod_statuses.name AS production_status, mouse_allele_mod_statuses.order_by AS production_status_order, mouse_allele_mod_status_stamps.created_at AS production_status_order_status_stamp_created_at, true AS allele_modification
+                    mouse_allele_mod_statuses.name AS production_status, mouse_allele_mod_statuses.order_by AS production_status_order, mouse_allele_mod_status_stamps.created_at AS production_status_order_status_stamp_created_at, true AS allele_modification,
+                    true AS same_allele_types,  '' AS injection_type
                   FROM mouse_allele_mods
                     JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
                     JOIN mouse_allele_mod_status_stamps ON mouse_allele_mod_status_stamps.mouse_allele_mod_id = mouse_allele_mods.id AND mouse_allele_mod_status_stamps.status_id = mouse_allele_mods.status_id
-                EOF
+
+                  #{ allele_type.nil? ? '' : <<-EOF
+                    JOIN colonies mam_colony ON mam_colony.mouse_allele_mod_id = mouse_allele_mods.id AND mam_colony.allele_type = '#{allele_type}'
+                  EOF
+                  }
+                    EOF
        return sql
      end
 
@@ -75,6 +98,7 @@ module IntermediateReport::SummaryByGene
             ORDER BY
               filtered_plans.gene_id,
               filtered_production.production_status_order DESC,
+              filtered_production.same_allele_types,
               filtered_production.production_status_order_status_stamp_created_at ASC
           ),
 
@@ -95,7 +119,7 @@ module IntermediateReport::SummaryByGene
         return sql
      end
 
-     def self.best_phenotyping_sql(crispr_condition = nil, excision__condition = nil)
+     def self.best_phenotyping_sql(crispr_condition = nil, excision__condition = nil, allele_type = nil)
        sql = <<-EOF
                   -- Statement description
                   -- 1. Select phenotyping either from crispr or es_cell experimental pipelines OR all phenotyping if condition is remove
@@ -114,6 +138,13 @@ module IntermediateReport::SummaryByGene
                       LEFT JOIN colonies mouse_allele_mod_colonies ON mouse_allele_mod_colonies.id = mouse_allele_mods.parent_colony_id
                       JOIN mi_attempts ON mi_attempts.id = mouse_allele_mod_colonies.mi_attempt_id OR colonies.mi_attempt_id = mi_attempts.id
                       JOIN mi_plans crispr_plan ON crispr_plan.id = mi_attempts.mi_plan_id #{!crispr_condition.blank? ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr_condition}" : ''}
+
+                    #{ allele_type.nil? ? '' : <<-EOF
+                      LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+                    WHERE colonies.allele_type = '#{allele_type}' OR (colonies.allele_type IS NULL AND targ_rep_es_cells.id IS NOT NULL AND targ_rep_es_cells.allele_type = '#{allele_type}' AND mouse_allele_mod_colonies.id IS NULL)
+                    EOF
+                    }
+
                     ORDER BY
                       mi_plans.gene_id,
                       phenotyping_production_statuses.order_by DESC
@@ -222,15 +253,15 @@ module IntermediateReport::SummaryByGene
         EOF
       end
 
-      def self.best_production_report_sql(experiment_type, approach, plan_condition = nil , production_condition = nil)
+      def self.best_production_report_sql(experiment_type, approach, plan_condition = nil , production_condition = nil, allele_type = nil)
         <<-EOF
           --
-          WITH filtered_plans AS (#{filter_plans_sql(plan_condition)}), filtered_production AS (SELECT * FROM (#{production_sql}) AS production #{!production_condition.blank? ? "WHERE production.allele_modification = #{production_condition}" : ""} ), #{best_production_sql}, #{best_phenotyping_sql(plan_condition, production_condition)}
+          WITH filtered_plans AS (#{filter_plans_sql(plan_condition)}), filtered_production AS (SELECT * FROM (#{production_sql(allele_type)}) AS production #{!production_condition.blank? ? "WHERE production.allele_modification = #{production_condition}" : ""} ), #{best_production_sql}, #{best_phenotyping_sql(plan_condition, production_condition, allele_type)}
 
           SELECT
               '#{experiment_type}' AS catagory,
               '#{approach}' AS approach,
-              'all' AS allele_type,
+              '#{allele_type.nil? ? 'all' : allele_type}' AS allele_type,
 
               genes.marker_symbol AS gene,
               genes.mgi_accession_id AS mgi_accession_id,
@@ -249,6 +280,7 @@ module IntermediateReport::SummaryByGene
               mi_attempts.id AS mi_attempt_id,
               in_progress_stamps.created_at::date AS micro_injection_in_progress_date,
               chimearic_stamps.created_at::date AS chimeras_obtained_date,
+              founder_stamps.created_at::date AS founder_obtained_date,
               gc_stamps.created_at::date AS genotype_confirmed_date,
               aborted_stamps.created_at::date AS micro_injection_aborted_date,
 
@@ -287,6 +319,7 @@ module IntermediateReport::SummaryByGene
           LEFT JOIN mi_attempt_status_stamps AS gc_stamps          ON gc_stamps.mi_attempt_id = mi_attempts.id          AND gc_stamps.status_id = 2
           LEFT JOIN mi_attempt_status_stamps AS aborted_stamps     ON aborted_stamps.mi_attempt_id = mi_attempts.id     AND aborted_stamps.status_id = 3
           LEFT JOIN mi_attempt_status_stamps AS chimearic_stamps   ON chimearic_stamps.mi_attempt_id = mi_attempts.id   AND chimearic_stamps.status_id = 4
+          LEFT JOIN mi_attempt_status_stamps AS founder_stamps     ON founder_stamps.mi_attempt_id = mi_attempts.id   AND founder_stamps.status_id = 5
 
           LEFT JOIN mouse_allele_mod_statuses ON mouse_allele_mods.status_id = mouse_allele_mod_statuses.id
           LEFT JOIN mouse_allele_mod_status_stamps AS mam_aborted_statuses ON mam_aborted_statuses.mouse_allele_mod_id = mouse_allele_mods.id AND mam_aborted_statuses.status_id = 7

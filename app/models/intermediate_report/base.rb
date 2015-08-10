@@ -38,27 +38,44 @@ class IntermediateReport::Base
 
 
   def insert_report
+    return if report_rows.length == 0
+
     begin
-      sql =  <<-EOF
-        BEGIN;
 
-        TRUNCATE #{self.class.table};
 
-        INSERT INTO #{self.class.table} (#{self.class.columns.join(', ')}) VALUES
-      EOF
+## batch up insert statement into 10000 records. Do this inside a Active record transaction ensures all the insert statements are executed in the same transaction.
+## This sorts out memory bloating/ out of memory issue. I think it creates a transaction (BEGIN COMMIT STATEMENT) in postgres and sends the batch insert sql statements one at a time.
+## These smaller queries are evalutated by postgres using much less memory.
+## This ensures the memory ruby uses for its variables does not bloat and the memory postgres uses to store the sql statement prior and during evaluation does not bloat.
+      ActiveRecord::Base.connection.transaction do
 
-      values = Array.new.tap do |v|
+        ActiveRecord::Base.connection.execute("TRUNCATE #{self.class.table};")
+
+        i = 0
+        sql =''
+
         report_rows.each do |report_row|
-          v << "(#{self.class.row_for_sql(report_row)})"
+          i += 1
+          if  (i-1) % 10000 == 0
+            sql = "INSERT INTO #{self.class.table} (#{self.class.columns.join(', ')}) VALUES"
+          end
+
+          sql << "\n(#{self.class.row_for_sql(report_row)}),"
+
+          if i % 10000 == 0
+            sql = sql.strip().chomp(',')
+            sql << ';'
+            ActiveRecord::Base.connection.execute(sql)
+            sql = ''
+          end
         end
+
+        sql = sql.strip().chomp(',')
+        sql << ';'
+        ActiveRecord::Base.connection.execute(sql)
+
+
       end
-
-      sql << values.join(",\n")
-      return if values.empty?
-
-      sql << "; COMMIT;"
-
-      ActiveRecord::Base.connection.execute(sql)
 
       INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] Report generation successful."
       puts "[#{Time.now}] Report generation successful."
@@ -94,7 +111,7 @@ class IntermediateReport::Base
   class << self
 
 
-    def report_sql(experiment_types, mouse_pipelines, allele_type = [])
+    def report_sql(experiment_types, mouse_pipelines, allele_types = [])
       data = []
 
       # GENERIC SQL RULES:
@@ -105,12 +122,21 @@ class IntermediateReport::Base
       experiment_types.each do |experiment_type, experiment_type_condition|
         #'ES CELL', 'CRISPR', 'ALL'
         data += experiment_report_logic(experiment_type, experiment_type_condition)
+
         mouse_pipelines.each do |mouse_pipeline, mouse_pipeline_condition|
           #'micro-injection', 'mouse allele modification', 'ALL'
           data += ActiveRecord::Base.connection.execute(best_production_report_sql(experiment_type, mouse_pipeline, experiment_type_condition, mouse_pipeline_condition)).to_a
-#          allele_type.each do ||
-#          end
         end
+
+        allele_types.keys.each do |allele_type|
+          #{'a', 'e', 'b', '', 'c', 'e.1', '.1', '.2', 'd', 'NHEJ', 'Deletion', 'HDR', 'HR'
+          data += ActiveRecord::Base.connection.execute(best_production_report_sql(experiment_type, 'all', experiment_type_condition, nil, allele_type)).to_a
+
+          allele_types[allele_type].each do |allele_experiment_type|
+#            data += ActiveRecord::Base.connection.execute(best_production_report_sql(experiment_type, allele_experiment_type, experiment_type_condition, nil, allele_type)).to_a
+          end
+        end
+
       end
       return data
     end

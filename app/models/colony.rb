@@ -33,7 +33,7 @@ class Colony < ApplicationModel
   validates_uniqueness_of :name, scope: :mi_attempt_id
   validates_uniqueness_of :name, scope: :mouse_allele_mod_id
 
-  validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
+  validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys + CRISPR_MOUSE_ALLELE_OPTIONS.keys }
   validate :set_allele_symbol_superscript
 
 #  validate do |colony|

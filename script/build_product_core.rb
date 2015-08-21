@@ -122,7 +122,7 @@ class BuildProductCore
     #es_cell_names finds all es_cells created from the targeting vector and orders them by the allele_type (tm1, tm1a then tm1e).This will allow your to determine the targeting vector allele_type by selecting the first allele_type off the list
     <<-EOF
       WITH es_cell_names AS (
-        SELECT es_cells.targeting_vector_id AS targeting_vector_id, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(CASE WHEN es_cells.allele_type IS NULL THEN '' ELSE es_cells.allele_type) AS allele_types, array_agg(es_cells.name) AS list
+        SELECT es_cells.targeting_vector_id AS targeting_vector_id, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(es_cells.allele_type) AS allele_types, array_agg(es_cells.name) AS list
         FROM
           (SELECT targ_rep_es_cells.*
           FROM targ_rep_es_cells
@@ -349,10 +349,10 @@ class BuildProductCore
 #    @solr_user = @solr_update[Rails.env]['user']
 #    @solr_password = @solr_update[Rails.env]['password']
     @dataset_max_size = 80000
-    @process_mice = false
-    @process_es_cells = false
+    @process_mice = true
+    @process_es_cells = true
     @process_targeting_vectors = true
-    @process_intermediate_vectors = false
+    @process_intermediate_vectors = true
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',

@@ -380,7 +380,7 @@ end
 #  genotype_confirmed                 :boolean          default(FALSE)
 #  report_to_public                   :boolean          default(FALSE)
 #  unwanted_allele                    :boolean          default(FALSE)
-#  unwanted_allele_description        :text
+#  allele_description                 :text
 #  mgi_allele_id                      :string(255)
 #  allele_name                        :string(255)
 #  mouse_allele_mod_id                :integer
@@ -388,6 +388,8 @@ end
 #  allele_symbol_superscript_template :string(255)
 #  allele_type                        :string(255)
 #  background_strain_id               :integer
+#  allele_description_summary         :text
+#  auto_allele_description            :text
 #
 # Indexes
 #

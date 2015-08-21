@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150806125302) do
+ActiveRecord::Schema.define(:version => 20150812125302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -52,7 +52,7 @@ ActiveRecord::Schema.define(:version => 20150806125302) do
     t.boolean "genotype_confirmed",                 :default => false
     t.boolean "report_to_public",                   :default => false
     t.boolean "unwanted_allele",                    :default => false
-    t.text    "unwanted_allele_description"
+    t.text    "allele_description"
     t.string  "mgi_allele_id"
     t.string  "allele_name"
     t.integer "mouse_allele_mod_id"
@@ -60,6 +60,8 @@ ActiveRecord::Schema.define(:version => 20150806125302) do
     t.string  "allele_symbol_superscript_template"
     t.string  "allele_type"
     t.integer "background_strain_id"
+    t.text    "allele_description_summary"
+    t.text    "auto_allele_description"
   end
 
   add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true

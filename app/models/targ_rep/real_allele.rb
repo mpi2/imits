@@ -124,7 +124,6 @@ class TargRep::RealAllele < ActiveRecord::Base
 
     allele_type =  calculate_allele_type(data)
     allele_symbol = calculate_allele_symbol(allele_type, data)
-
     return {'allele_type' => allele_type, 'allele_symbol' => allele_symbol}
   end
 
@@ -135,10 +134,12 @@ class TargRep::RealAllele < ActiveRecord::Base
     parent_colony_allele_type = data['parent_colony_allele_type'] || nil
     colony_allele_type = data['colony_allele_type'] || nil
     excised = data['excised'] || nil
+    mi_allele_target = data['mi_allele_target'] || nil
 
     allele_type = 'None'
-    allele_type = mutation_type_allele_code if !mutation_type_allele_code.blank?
+    allele_type = mutation_type_allele_code if !mutation_type_allele_code.nil?
     allele_type = es_cell_allele_type if !es_cell_allele_type.nil?
+    allele_type = mi_allele_target if !mi_allele_target.nil?
     allele_type = colony_allele_type if !colony_allele_type.blank?
 
     if parent_colony_allele_type.nil? && !data['es_cell_allele_type'].blank?
@@ -158,16 +159,22 @@ class TargRep::RealAllele < ActiveRecord::Base
 
   def self.calculate_allele_symbol(allele_type, data)
 
-    mutation_method_code = 'tm'
+    allele_id = data['allele_id'] || nil
+    crispr_allele_name = data['allele_name'] || nil
+    mutation_method_code = data['mutation_method_allele_prefix'] || 'tm'
     design_id = data['design_id'] || nil
     cassette = data['cassette'] || nil
     allele_symbol_superscript_template = data['allele_symbol_superscript_template'] || nil
     mgi_allele_symbol_superscript = data['mgi_allele_symbol_superscript'] || nil
 
+
     # if crisprs allele type NHEJ HDR HR Del do not substitute allele_type
-    allele_type_exists = ['None', 'NHEJ', 'HDR', 'HR', 'Del'].include?(allele_type) ? false : true
+    return data['crispr_allele_name'] if ['None', 'NHEJ', 'HDR', 'HR', 'Deletion'].include?(allele_type) && data.has_key?('crispr_allele_name') && !data.has_key?('crispr_allele_name').blank?
+
+    allele_type_exists = ['None', 'NHEJ', 'HDR', 'HR', 'Deletion'].include?(allele_type) ? false : true
 
     allele_symbol = 'None'
+    allele_symbol = mutation_method_code + allele_id  if !mutation_method_code.blank? && !allele_id.blank?
     allele_symbol = mutation_method_code + design_id + allele_type + '(' + cassette + ')' if !mutation_method_code.blank? && allele_type_exists && !design_id.blank? && !cassette.blank?
     allele_symbol = allele_symbol_superscript_template.to_s.gsub(/\@/, allele_type.to_s) if allele_type_exists && ! allele_symbol_superscript_template.to_s.empty?
     allele_symbol = mgi_allele_symbol_superscript if ! mgi_allele_symbol_superscript.to_s.empty?

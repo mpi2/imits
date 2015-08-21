@@ -1,5 +1,5 @@
 require 'pp'
-require "#{Rails.root}/script/build_allele2_v2.rb"
+require "#{Rails.root}/script/build_allele2.rb"
 #require 'zipruby'
 
 namespace :solr_allele2 do

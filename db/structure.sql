@@ -780,14 +780,16 @@ CREATE TABLE colonies (
     genotype_confirmed boolean DEFAULT false,
     report_to_public boolean DEFAULT false,
     unwanted_allele boolean DEFAULT false,
-    unwanted_allele_description text,
+    allele_description text,
     mgi_allele_id character varying(255),
     allele_name character varying(255),
     mouse_allele_mod_id integer,
     mgi_allele_symbol_superscript character varying(255),
     allele_symbol_superscript_template character varying(255),
     allele_type character varying(255),
-    background_strain_id integer
+    background_strain_id integer,
+    allele_description_summary text,
+    auto_allele_description text
 );
 
 
@@ -5665,3 +5667,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150724125302');
 INSERT INTO schema_migrations (version) VALUES ('20150728125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20150806125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20150812125302');

@@ -321,8 +321,22 @@ class TargRep::Allele < ActiveRecord::Base
       return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/escell-clone-#{!transformation.blank? ? transformation + '-' : ''}genbank-file"
     end
 
-    def self.allele_image_url(allele_id, modified_allele_type = nil)
-      return "" if modified_allele_type.blank?
+    def self.allele_image_url(marker_symbol, allele_id, modified_allele_type = nil)
+      return "" if modified_allele_type.nil? || marker_symbol.blank?
+
+      if marker_symbol =~ /CGI/
+        if modified_allele_type == ''
+          return "https://www.i-dcc.org/imits/images/targ_rep/nc_rna_tm1.jpg"
+        elsif modified_allele_type == '.1'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_1.jpg"
+        elsif modified_allele_type == '.2'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_2.jpg"
+        elsif modified_allele_type == '.3'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_3.jpg"
+        else
+          ""
+        end
+      end
 
       if ["NHEJ", "Deletion", "HR"].include?(modified_allele_type)
         return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg"
@@ -336,8 +350,22 @@ class TargRep::Allele < ActiveRecord::Base
       return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{!transformation.blank? ? '-' + transformation : ''}"
     end
 
-    def self.simple_allele_image_url(allele_id, modified_allele_type = nil)
-      return "" if modified_allele_type.blank?
+    def self.simple_allele_image_url(marker_symbol, allele_id, modified_allele_type = nil)
+      return "" if modified_allele_type.nil? || marker_symbol.blank?
+
+      if marker_symbol =~ /CGI/
+        if modified_allele_type == ''
+          return "https://www.i-dcc.org/imits/images/targ_rep/nc_rna_tm1.jpg"
+        elsif modified_allele_type == '.1'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_1.jpg"
+        elsif modified_allele_type == '.2'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_2.jpg"
+        elsif modified_allele_type == '.3'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_3.jpg"
+        else
+          ""
+        end
+      end
 
       if ["NHEJ", "Deletion", "HR"].include?(modified_allele_type)
         return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg"

@@ -3,7 +3,7 @@
 
 <div class="grid_12">
   <h2><% if !@allele.gene.marker_symbol.blank? %>Marker Symbol: <%= @allele.gene.marker_symbol %> | <% end%><%= @allele.mgi_accession_id %><% if !@allele.project_design_id.blank? %> | Project Design ID: <%= @allele.project_design_id %> <% end%></h2>
-  <a href= <%= "/targ_rep/alleles/#{@allele.id}/history" %> >History</a>
+  <a href= <%= "targ_rep/alleles/#{@allele.id}/history" %> >History</a>
 </div>
 
 

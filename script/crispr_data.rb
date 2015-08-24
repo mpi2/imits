@@ -113,7 +113,8 @@ end
 
 sql =<<-EOF
 
-SELECT centres.name AS production_centre,
+SELECT mi_attempts.id AS id,
+centres.name AS production_centre,
 genes.marker_symbol AS marker_symbol,
 mi_attempts.report_to_public AS repeat_report_to_public,
 mi_attempts.experimental AS experimental,
@@ -188,10 +189,10 @@ data.each do |row|
     process_data["#{row['production_centre']}_#{comment_info['genes']}_m_#{row['mi_date']}"]['founder_info'] = get_process_data(row, comment_info)['founder_info']
     process_data["#{row['production_centre']}_#{comment_info['genes']}_m_#{row['mi_date']}"][marker_symbol] = get_process_data(row, comment_info)['gene']
   else
-    process_data["#{row['production_centre']}_#{row['marker_symbol']}_s_#{row['mi_date']}"] = {} unless process_data.has_key? ("#{row['production_centre']}_#{row['marker_symbol']}_s_#{row['mi_date']}")
+    process_data["#{row['production_centre']}_#{row['marker_symbol']}_s_#{row['id']}"] = {} unless process_data.has_key? ("#{row['production_centre']}_#{row['marker_symbol']}_s_#{row['id']}")
 
-    process_data["#{row['production_centre']}_#{row['marker_symbol']}_s_#{row['mi_date']}"]['founder_info'] = get_process_data(row, comment_info)['founder_info']
-    process_data["#{row['production_centre']}_#{row['marker_symbol']}_s_#{row['mi_date']}"][marker_symbol] = get_process_data(row, comment_info)['gene']
+    process_data["#{row['production_centre']}_#{row['marker_symbol']}_s_#{row['id']}"]['founder_info'] = get_process_data(row, comment_info)['founder_info']
+    process_data["#{row['production_centre']}_#{row['marker_symbol']}_s_#{row['id']}"][marker_symbol] = get_process_data(row, comment_info)['gene']
   end
 
 end

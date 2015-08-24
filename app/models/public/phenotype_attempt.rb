@@ -126,7 +126,7 @@ class Public::PhenotypeAttempt
 
    def phenotyping_productions_attributes
      return @phenotyping_productions_attributes.as_json unless @phenotyping_productions_attributes.nil?
-     return phenotyping_productions.as_json(:except => ["created_at", "updated_at", "status_id", "phenotype_attempt_id", "parent_colony_id", "colony_background_strain_id"], :methods => ["consortium_name", "production_centre_name", "parent_colony_name", "status_name", "colony_background_strain_name"]) unless phenotyping_productions.blank?
+     return phenotyping_productions.as_json(:except => ["created_at", "updated_at", "status_id", "phenotype_attempt_id", "parent_colony_id", "colony_background_strain_id"], :methods => ["consortium_name", "phenotyping_centre_name", "parent_colony_name", "status_name", "colony_background_strain_name"]) unless phenotyping_productions.blank?
      return []
    end
 
@@ -194,7 +194,7 @@ class Public::PhenotypeAttempt
   def production_centre_name
     return @production_centre_name unless @production_centre_name.nil?
     return mouse_allele_mod.production_centre_name unless mouse_allele_mod.blank?
-    return linked_phenotyping_production.production_centre_name unless linked_phenotyping_production.blank?
+    return linked_phenotyping_production.phenotyping_centre_name unless linked_phenotyping_production.blank?
     return nil
   end
 
@@ -492,7 +492,7 @@ class Public::PhenotypeAttempt
     if !mouse_allele_mod.blank? && destroy_mam == false
       mouse_allele_mod.parent_colony_name = mi_attempt_colony_name
       mouse_allele_mod.colony_name = colony_name
-      mouse_allele_mod.production_centre_name = production_centre_name || linked_phenotyping_production.try(:production_centre_name)
+      mouse_allele_mod.production_centre_name = production_centre_name || linked_phenotyping_production.try(:phenotyping_centre_name)
       mouse_allele_mod.consortium_name = consortium_name || linked_phenotyping_production.try(:consortium_name)
       mouse_allele_mod.mi_plan_id = mi_plan_id
 
@@ -506,7 +506,7 @@ class Public::PhenotypeAttempt
     elsif !linked_phenotyping_production.blank?
       linked_phenotyping_production.parent_colony_name = mi_attempt_colony_name
       linked_phenotyping_production.colony_name = colony_name
-      linked_phenotyping_production.production_centre_name = production_centre_name
+      linked_phenotyping_production.phenotyping_centre_name = production_centre_name
       linked_phenotyping_production.consortium_name = consortium_name
       linked_phenotyping_production.mi_plan_id = mi_plan_id
 
@@ -586,7 +586,7 @@ class Public::PhenotypeAttempt
 
     elsif !mouse_allele_mod.blank? && !linked_phenotyping_production.blank?
       linked_phenotyping_production.colony_name = mouse_allele_mod.colony_name
-      linked_phenotyping_production.production_centre_name = mouse_allele_mod.production_centre_name
+      linked_phenotyping_production.phenotyping_centre_name = mouse_allele_mod.production_centre_name
       linked_phenotyping_production.consortium_name = mouse_allele_mod.consortium_name
       linked_phenotyping_production.mi_plan_id = mouse_allele_mod.mi_plan_id
       linked_phenotyping_production.parent_colony = mouse_allele_mod.colony

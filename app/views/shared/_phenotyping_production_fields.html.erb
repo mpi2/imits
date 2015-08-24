@@ -4,7 +4,7 @@
         <%= f.select :consortium_name, Consortium.all.map(&:name), :include_blank => true %>
     </td>
     <td>
-        <%= f.select :production_centre_name, Centre.all.map(&:name), :include_blank => true %>
+        <%= f.select :phenotyping_centre_name, Centre.all.map(&:name), :include_blank => true %>
     </td>
     <td>
       <%= f.text_field(:colony_name,:class => 'x-form-text', :size => 20) %>

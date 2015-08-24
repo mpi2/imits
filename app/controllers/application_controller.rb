@@ -200,7 +200,9 @@ class ApplicationController < ActionController::Base
   def authorize_user_production_centre(object)
     return true unless request.format == :json
 
-    if object.production_centre_name.present?
+    if object.phenotyping_centre_name.present?
+      production_centre_name = object.phenotyping_centre_name
+    elsif object.production_centre_name.present?
       production_centre_name = object.production_centre_name
     elsif object.mi_plan.present? and object.mi_plan.production_centre.present?
       production_centre_name = object.mi_plan.production_centre.name

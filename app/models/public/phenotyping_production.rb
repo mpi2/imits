@@ -9,7 +9,7 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
   FULL_ACCESS_ATTRIBUTES = %w{
     mi_plan_id
     consortium_name
-    production_centre_name
+    phenotyping_centre_name
     production_colony_name
     mouse_allele_symbol
     colony_name
@@ -28,6 +28,8 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
   READABLE_ATTRIBUTES = %w{
     id
     phenotype_attempt_id
+    production_centre_name
+    production_consortium_name
     status_name
   } + FULL_ACCESS_ATTRIBUTES
 
@@ -44,8 +46,12 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     return {
       'marker_symbol' => 'mi_plan_gene_marker_symbol',
       'consortium' => 'mi_plan_consortium',
-      'production_centre' => 'mi_plan_production_centre'
+      'production_consortium_name'  => 'parent_colony_mouse_allele_mod_mi_plan_consortium_name_or_parent_colony_mi_attempt_mi_plan_consortium_name',
+      'production_centre_name'      => 'parent_colony_mouse_allele_mod_mi_plan_production_centre_name_or_parent_colony_mi_attempt_mi_plan_production_centre_name',
+      'phenotyping_consortium_name' => 'mi_plan_consortium_name',
+      'phenotyping_centre_name'     => 'mi_plan_production_centre_name'
     }
+
   end
 
   def production_colony_name

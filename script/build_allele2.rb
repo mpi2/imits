@@ -313,7 +313,7 @@ class BuildAllele2
     rows = ActiveRecord::Base.connection.execute(@gene_sql)
 
     rows.each do |row|
-      puts "PROCESSING ROW #{row['marker_symbol']}"
+      puts "PROCESSING ROW #{row['marker_symbol']}" unless @marker_symbol.nil?
       #pp row
       @gene_data[row['mgi_accession_id']] = create_new_default_gene_doc(row)
     end
@@ -333,7 +333,7 @@ class BuildAllele2
       next if !row['mi_status_name'].blank? && row['mi_status_name'] == 'Micro-injection aborted'
 
       # Update gene doc
-      puts "Grab gene doc for #{row['marker_symbol']} and update mouse information"
+      #puts "Grab gene doc for #{row['marker_symbol']} and update mouse information"
       doc = get_gene_doc(row['gene_mgi_accession_id'])
       mouse_gene_update_doc(doc, row)
 
@@ -355,7 +355,7 @@ class BuildAllele2
                                                                         })
 
       # Update allele doc
-      puts "Grab allele doc for #{allele_details['allele_symbol']} and update mouse information"
+      #puts "Grab allele doc for #{allele_details['allele_symbol']} and update mouse information"
       doc = get_allele_doc(row, allele_details)
       mouse_allele_update_doc(doc, row)
     end
@@ -387,11 +387,11 @@ class BuildAllele2
       row['tv_pipelines'] = self.class.convert_to_array("{#{row['tv_pipelines_not_distinct']}}").uniq
 
       # Update gene doc
-      puts "Grab gene doc for #{row['marker_symbol']} and update ES Cell information"
+      #puts "Grab gene doc for #{row['marker_symbol']} and update ES Cell information"
       doc = get_gene_doc(row['gene_mgi_accession_id'])
       es_cell_gene_update_doc(doc, row)
 
-      puts "Calculating allele"
+      #puts "Calculating allele"
 
       allele_details = TargRep::RealAllele.calculate_allele_information( {'mutation_method_allele_prefix' => row['allele_prefix'] || nil,
                                                                           'mutation_type_allele_code' => row['mutation_type_allele_code'] || nil,
@@ -404,7 +404,7 @@ class BuildAllele2
                                                                         })
 
       # Update allele doc
-      puts "Grab allele doc for #{allele_details['allele_symbol']} and update ES Cell information"
+      #puts "Grab allele doc for #{allele_details['allele_symbol']} and update ES Cell information"
       doc = get_allele_doc(row, allele_details)
       es_cell_allele_update_doc(doc, row)
     end
@@ -464,7 +464,7 @@ class BuildAllele2
   end
 
   def get_gene_doc(mgi_accession_id)
-    puts "GENE ID: #{mgi_accession_id}"
+    #puts "GENE ID: #{mgi_accession_id}"
     doc =  @gene_data[mgi_accession_id]
     if doc.blank?
       raise "gene doc not found for #{mgi_accession_id}"
@@ -777,6 +777,7 @@ class BuildAllele2
   ## NOTE 1 END
 
   def delete_index
+    puts 'DELETE INDEX'
 
     if @marker_symbol.nil?
       @proxy.update({'delete' => {'query' => '*:*'}}.to_json, @solr_user, @solr_password)
@@ -785,15 +786,24 @@ class BuildAllele2
         @proxy.update({'delete' => {'query' => "marker_symbol_str:#{marker_symbol}"}}.to_json, @solr_user, @solr_password)
       end
     end
+
+    puts 'DELETE INDEX - COMPLETED'
   end
 
   def send_to_index data
+    puts 'SEND DATA TO INDEX'
     #pp data
     @proxy.update(data.join, @solr_user, @solr_password)
+
+    puts 'SEND DATA TO INDEX - COMPLETED'
   end
 
   def commit_index_changes
+    puts 'COMMITING DATA TO SOLR'
+
     @proxy.update({'commit' => {}}.to_json, @solr_user, @solr_password)
+
+    puts 'DATA COMMITED'
   end
 
   def build_json data

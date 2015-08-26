@@ -16,51 +16,57 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def gene_production_detail
-    category = params[:category]
-    params[:q].delete("category")
-    @approach = 'all' if @approach.blank?
+    report_filters
+    params[:q].delete("category") if params.has_key?("category")
+    params[:q].delete("approach") if params.has_key?("approach")
+    params[:q].delete("allele_type") if params.has_key?("allele_type")
 
     @intermediate_table = IntermediateReportSummaryByGene.new
-    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByGene.where_sql(category, @approach, nil, params[:q]))
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByGene.where_sql(@category, @approach, @allele_type, params[:q]))
     render :template => 'v2/reports/mi_production/production_detail'
   end
 
   def mi_plan_production_detail
-    category = params[:category]
-    params[:q].delete("category")
-    @approach = 'all' if @approach.blank?
+    report_filters
+    params[:q].delete("category") if params.has_key?("category")
+    params[:q].delete("approach") if params.has_key?("approach")
+    params[:q].delete("allele_type") if params.has_key?("allele_type")
 
     @intermediate_table = IntermediateReportSummaryByMiPlan.new
-    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByMiPlan.where_sql(category, @approach, nil, params[:q]))
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByMiPlan.where_sql(@category, @approach, @allele_type, params[:q]))
   end
 
   def centre_and_consortia_production_detail
-    category = params[:category]
-    params[:q].delete("category")
-    @approach = 'all' if @approach.blank?
+    report_filters
+    params[:q].delete("category") if params.has_key?("category")
+    params[:q].delete("approach") if params.has_key?("approach")
+    params[:q].delete("allele_type") if params.has_key?("allele_type")
 
+    puts "HERE #{@category}, #{@approach}, #{@allele_type}"
     @intermediate_table = IntermediateReportSummaryByCentreAndConsortia.new
-    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByCentreAndConsortia.where_sql(category, @approach, nil, params[:q]))
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByCentreAndConsortia.where_sql(@category, @approach, @allele_type, params[:q]))
     render :template => 'v2/reports/mi_production/production_detail'
   end
 
   def consortia_production_detail
-    category = params[:category]
-    params[:q].delete("category")
-    @approach = 'all' if @approach.blank?
+    report_filters
+    params[:q].delete("category") if params.has_key?("category")
+    params[:q].delete("approach") if params.has_key?("approach")
+    params[:q].delete("allele_type") if params.has_key?("allele_type")
 
     @intermediate_table = IntermediateReportSummaryByConsortia.new
-    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByConsortia.where_sql(category, @approach, nil, params[:q]))
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByConsortia.where_sql(@category, @approach, @allele_type, params[:q]))
     render :template => 'v2/reports/mi_production/production_detail'
   end
 
   def centre_production_detail
-    category = params[:category]
-    params[:q].delete("category")
-    @approach = 'all' if @approach.blank?
+    report_filters
+    params[:q].delete("category") if params.has_key?("category")
+    params[:q].delete("approach") if params.has_key?("approach")
+    params[:q].delete("allele_type") if params.has_key?("allele_type")
 
     @intermediate_table = IntermediateReportSummaryByCentre.new
-    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByCentre.where_sql(category, approach, nil, params[:q]))
+    @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByCentre.where_sql(@category, @approach, @allele_type, params[:q]))
     render :template => 'v2/reports/mi_production/production_detail'
   end
 
@@ -466,9 +472,9 @@ class V2::Reports::MiProductionController < ApplicationController
   private
 
   def report_filters
-    @category = !params[:category].blank? && ['crispr', 'es cell', 'all'].include?(params[:category]) ? params[:category] : 'es cell'
-    @approach = !params[:approach].blank? && ['micro injection', 'mouse allele modification'].include?(params[:approach]) ? params[:approach] : 'all'
-    @allele_type = !params[:allele_type].nil? && TargRepRealAllele.types.include?(params[:allele_type]) ? params[:allele_type] : nil
+    @category = !params[:category].blank? && ['crispr', 'es cell', 'all'].include?(params[:category]) ? params[:category] : 'es cell' if @category.blank?
+    @approach = !params[:approach].blank? && ['micro injection', 'mouse allele modification'].include?(params[:approach]) ? params[:approach] : 'all' if @approach.blank?
+    @allele_type = !params[:allele_type].nil? && TargRepRealAllele.types.include?(params[:allele_type]) ? params[:allele_type] : 'all' if @allele_type.blank?
   end
 
   def params_cleaned_for_search
@@ -622,7 +628,7 @@ class V2::Reports::MiProductionController < ApplicationController
     elsif ['cumulative genotype confirmed'].include?(hash['type'].to_s.downcase)
       translate_date(hash, 'Genotype confirmed', lower_limit)
 
-    elsif ['cumulative cre excision complete', 'Cre Excision Complete'].include?(hash['type'].to_s.downcase)
+    elsif ['cumulative cre excision complete', 'cre excision complete'].include?(hash['type'].to_s.downcase)
       translate_date(hash, 'Cre Excision Complete', lower_limit)
 
     elsif ['cumulative phenotype started'].include?(hash['type'].to_s.downcase)
@@ -642,12 +648,12 @@ class V2::Reports::MiProductionController < ApplicationController
 
     elsif ['tm1b intent to phenotype'].include?(hash['type'].to_s.downcase)
       @approach = 'mouse allele modification'
-      hash['mouse_allele_mod_status_nnull'] = 1
+      hash['phenotyping_status_nnull'] = 1
       translate_date(hash, 'Phenotyping Production Registered', lower_limit)
 
     elsif ['tm1b intent to excise'].include?(hash['type'].to_s.downcase)
       @approach = 'mouse allele modification'
-      hash['phenotyping_status_nnull'] = 1
+      hash['mouse_allele_mod_status_nnull'] = 1
       translate_date(hash, 'Phenotyping Production Registered', lower_limit)
 
     elsif hash['type'].to_s.downcase == 'tm1b rederivation started'
@@ -746,8 +752,6 @@ class V2::Reports::MiProductionController < ApplicationController
 
     hash.delete('type')
     hash.delete('no_limit')
-
-    puts params.inspect
   end
 
   def translate_date(hash, type, no_lower_limit = false)
@@ -889,8 +893,6 @@ class V2::Reports::MiProductionController < ApplicationController
     centre = params[:centre]
     type = params[:type]
 
-    #puts "#### centre: '#{centre}' - type: '#{type}'"
-
     mmrrc_reports = MmrrcNew.new.get_files
 
     filename = mmrrc_reports[centre][type]
@@ -900,8 +902,6 @@ class V2::Reports::MiProductionController < ApplicationController
     response.headers['Content-Length'] = data.size.to_s
 
     ofilename = "#{centre.gsub(/\s+/, '-')}-#{type.gsub(/\s+/, '-')}-#{Time.now.strftime('%d-%m-%y--%H-%M')}.tsv".downcase
-
-    #puts "#### ofilename: '#{ofilename}'"
 
     send_data data,
       :type => 'text/tsv; charset=iso-8859-1; header=present',

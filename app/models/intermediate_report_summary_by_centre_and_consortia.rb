@@ -7,32 +7,54 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
   class << self
 
     def plan_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell'}
+                  puts "HELLO1 #{ options}"
+      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
+                      'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all'
+                     }
       generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => false})
     end
 
     def mi_production_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell'}
+            puts "HELLO2 #{ options}"
+
+      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
+                      'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all'
+                     }
       generate_sql(where_clause, {'mi_production' => true, 'allele_mod_production' => false, 'phenotyping' => false})
     end
 
     def mi_phenotyping_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell', 'phenotyping_approach' => 'micro-injection'}
+                  puts "HELLO3 #{ options}"
+      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
+                      'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all',
+                      'phenotyping_approach' => 'micro-injection'
+                     }
       generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => true})
     end
 
     def mam_production_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell'}
+                  puts "HELLO4 #{ options}"
+      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
+                      'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all'
+                      }
       generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => true, 'phenotyping' => false})
     end
 
     def mam_phenotyping_summary(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell', 'phenotyping_approach' => 'mouse allele modification'}
+                  puts "HELLO5 #{ options}"
+      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
+                      'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all',
+                      'phenotyping_approach' => 'mouse allele modification'
+                     }
       generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => true})
     end
 
     def phenotyping_summary_include_everything(options)
-      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell', 'phenotyping_approach' => nil}
+                  puts "HELLO6 #{ options}"
+      where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
+                      'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all',
+                      'phenotyping_approach' => nil
+                     }
       generate_sql(where_clause, {'mi_production' => false, 'allele_mod_production' => false, 'phenotyping' => true})
     end
 

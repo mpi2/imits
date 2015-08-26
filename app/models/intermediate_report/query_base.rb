@@ -2,18 +2,17 @@ module IntermediateReport::QueryBase
 
     def select_sql(category = 'es cell', approach = 'all', allele_type = 'all')
 
-      on_clause_criteria = {'category' => category }
+      on_clause_criteria = {'category' => category,
+                            'allele_type' => allele_type
+                            }
 
       selection_type = {'all'                       => {'mi_production'=> true, 'allele_mod_production' => true, 'phenotyping' => true},
                         'micro-injection'           => {'mi_production' => true, 'allele_mod_production' => false, 'phenotyping' => true},
                         'mouse allele modification' => {'mi_production' => false, 'allele_mod_production' => true, 'phenotyping' => true}
                         }
 
-      if !allele_type.nil? && allele_type != 'all'
-        return ""
-      else
-        return generate_sql(on_clause_criteria, selection_type[approach])
-      end
+      return generate_sql(on_clause_criteria, selection_type[approach])
+
     end
 
 
@@ -70,12 +69,14 @@ module IntermediateReport::QueryBase
 
 
     def generate_sql( where_clauses = {}, display = {})
+
       display['plan'] = true
       display['mi_production'] = true if !display.has_key?('mi_production')
       display['allele_mod_production'] = true if !display.has_key?('allele_mod_production')
       display['phenotyping'] = true if !display.has_key?('phenotyping')
 
       where_clauses['category'] = 'es cell' if !where_clauses.has_key?('category')
+      where_clauses['allele_type'] = 'all' if !where_clauses.has_key?('allele_type')
 
       if !where_clauses.has_key?('phenotyping_approach')
         where_clauses['phenotyping_approach'] = 'all'
@@ -97,7 +98,7 @@ module IntermediateReport::QueryBase
         #{self.distinct_fields.has_key?('centre') ? 'JOIN centres ON centres.id = distinct_gene_consortia_centre.production_centre_id' : ''}
         LEFT JOIN (SELECT *
                FROM #{self.table_name}
-               WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.approach = 'plan'
+               WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type = '#{where_clauses['allele_type']}' AND #{self.table_name}.approach = 'plan'
              ) AS plan_summary ON #{on_clause.gsub('@', 'plan_summary')}
       EOF
       where << "plan_summary.mi_plan_status IS NOT NULL"
@@ -106,7 +107,7 @@ module IntermediateReport::QueryBase
         sql += <<-EOF
           LEFT JOIN (SELECT *
                      FROM #{self.table_name}
-                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.approach = 'micro-injection'
+                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type = '#{where_clauses['allele_type']}' AND #{self.table_name}.approach = 'micro-injection'
                     ) AS mi_production_summary ON #{on_clause.gsub('@', 'mi_production_summary')}
         EOF
         where << "mi_production_summary.mi_attempt_status IS NOT NULL"
@@ -116,7 +117,7 @@ module IntermediateReport::QueryBase
         sql += <<-EOF
           LEFT JOIN (SELECT *
                      FROM #{self.table_name}
-                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.approach = 'mouse allele modification'
+                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type = '#{where_clauses['allele_type']}' AND #{self.table_name}.approach = 'mouse allele modification'
                     ) AS allele_mod_production_summary ON #{on_clause.gsub('@', 'allele_mod_production_summary')}
         EOF
         where << "allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL"
@@ -126,7 +127,7 @@ module IntermediateReport::QueryBase
         sql += <<-EOF
           LEFT JOIN (SELECT *
                      FROM #{self.table_name}
-                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' #{!where_clauses['phenotyping_approach'].nil? ? "AND #{self.table_name}.approach = '#{where_clauses['phenotyping_approach']}'" : ''}
+                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type = '#{where_clauses['allele_type']}'  #{!where_clauses['phenotyping_approach'].nil? ? "AND #{self.table_name}.approach = '#{where_clauses['phenotyping_approach']}'" : ''}
                     ) AS phenotyping_production_summary ON #{on_clause.gsub('@', 'phenotyping_production_summary')}
         EOF
         where << "phenotyping_production_summary.phenotyping_status IS NOT NULL"

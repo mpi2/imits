@@ -44,13 +44,11 @@ class Colony < ApplicationModel
 
   validate do |colony|
     if !mouse_allele_mod.blank?
-      puts 'OH DEAR'
       not_uniq_col = ActiveRecord::Base.connection.execute("SELECT  1 AS one FROM colonies  WHERE colonies.name = 'BL649' AND colonies.mouse_allele_mod_id IS NOT NULL #{self.id.blank? ? '' : "AND colonies.id != #{self.id}"} LIMIT 1")
       colony.errors.add :base, 'phenotype attempt colony.name has already been taken.' if not_uniq_col.count > 0
     end
 
     if !mi_attempt.blank?
-      puts 'HOW ANOYING'
       not_uniq_col = ActiveRecord::Base.connection.execute("SELECT  1 AS one FROM colonies  WHERE colonies.name = 'BL649' AND colonies.mi_attempt_id IS NOT NULL #{self.id.blank? ? '' : "AND colonies.id != #{self.id}"} LIMIT 1")
       colony.errors.add :base, 'phenotype attempt colony.name has already been taken.' if not_uniq_col.count == 0
     end

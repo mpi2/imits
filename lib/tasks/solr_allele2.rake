@@ -9,7 +9,8 @@ namespace :solr_allele2 do
 
   desc 'Build the allele2 core'
   task 'build' => [:environment] do
-    BuildAllele2.new.run
+    BuildAllele2.new
+    BuildAllele2.new(true)
   end
 
   desc 'Ping the solr'

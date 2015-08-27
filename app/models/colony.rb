@@ -27,11 +27,23 @@ class Colony < ApplicationModel
   # would have liked to do
   ##  validates_uniqueness_of :name, conditions: -> { where("mi_attempt_id  IS NOT NULL") }
   ##  validates_uniqueness_of :name, conditions: -> { where("mouse_allele_mod_id  IS NOT NULL") }
-  validates_uniqueness_of :name, scope: :mi_attempt_id
-  validates_uniqueness_of :name, scope: :mouse_allele_mod_id
+#  validates_uniqueness_of :name, scope: :mi_attempt_id
+#  validates_uniqueness_of :name, scope: :mouse_allele_mod_id
 
-  validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
+  validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys + CRISPR_MOUSE_ALLELE_OPTIONS.keys }
   validate :set_allele_symbol_superscript
+
+  validate do |colony|
+    if !mouse_allele_mod.blank?
+      not_uniq_col = ActiveRecord::Base.connection.execute("SELECT  1 AS one FROM colonies  WHERE colonies.name = 'BL649' AND colonies.mouse_allele_mod_id IS NOT NULL #{self.id.blank? ? '' : "AND colonies.id != #{self.id}"} LIMIT 1")
+      colony.errors.add :base, 'phenotype attempt colony.name has already been taken.' if not_uniq_col.count > 0
+    end
+
+    if !mi_attempt.blank?
+      not_uniq_col = ActiveRecord::Base.connection.execute("SELECT  1 AS one FROM colonies  WHERE colonies.name = 'BL649' AND colonies.mi_attempt_id IS NOT NULL #{self.id.blank? ? '' : "AND colonies.id != #{self.id}"} LIMIT 1")
+      colony.errors.add :base, 'phenotype attempt colony.name has already been taken.' if not_uniq_col.count == 0
+    end
+  end
 
   validate do |colony|
     if !mouse_allele_mod_id.blank? and !mi_attempt_id.blank?
@@ -53,6 +65,7 @@ class Colony < ApplicationModel
     end
   end
 
+  before_save :set_default_background_strain_for_crispr_produced_colonies
   before_save :set_genotype_confirmed
   after_save :add_default_distribution_centre
   before_save :set_crispr_allele
@@ -67,6 +80,16 @@ class Colony < ApplicationModel
     end
   end
   protected :set_genotype_confirmed
+
+
+  def set_default_background_strain_for_crispr_produced_colonies
+    return unless self.background_strain_id.blank?
+    return if self.mi_attempt_id.blank?
+    return unless self.mi_attempt.es_cell.blank?
+
+    self.background_strain_name = 'C57BL/6N'
+  end
+  protected :set_default_background_strain_for_crispr_produced_colonies
 
   def add_default_distribution_centre
     puts 'HELLO'
@@ -118,7 +141,11 @@ class Colony < ApplicationModel
       if mi_attempt.es_cell_id
         return mi_attempt.es_cell.allele_symbol_superscript_template
       elsif mi_attempt.mutagenesis_factor
-        return "em1#{mi_attempt.production_centre.superscript}"
+        if !allele_name.blank?
+          return allele_name
+        else
+          return "em1#{mi_attempt.production_centre.superscript}"
+        end
       else
         return nil
       end
@@ -230,6 +257,11 @@ class Colony < ApplicationModel
   def pipeline_name
     return mouse_allele_mod.parent_colony.pipeline_name unless mouse_allele_mod.blank?
     return mi_attempt.es_cell.try(:pipeline).try(:name) unless mi_attempt.blank? || mi_attempt.es_cell.blank?
+    return nil
+  end
+
+  def distribution_centres_attributes
+    return distribution_centres.map(&:as_json) unless distribution_centres.blank?
     return nil
   end
 
@@ -351,7 +383,7 @@ end
 #  genotype_confirmed                 :boolean          default(FALSE)
 #  report_to_public                   :boolean          default(FALSE)
 #  unwanted_allele                    :boolean          default(FALSE)
-#  unwanted_allele_description        :text
+#  allele_description                 :text
 #  mgi_allele_id                      :string(255)
 #  allele_name                        :string(255)
 #  mouse_allele_mod_id                :integer
@@ -359,6 +391,8 @@ end
 #  allele_symbol_superscript_template :string(255)
 #  allele_type                        :string(255)
 #  background_strain_id               :integer
+#  allele_description_summary         :text
+#  auto_allele_description            :text
 #
 # Indexes
 #

@@ -40,7 +40,6 @@ class TargRep::TargetedAllele < TargRep::Allele
         update_attribute(:type, 'TargRep::GeneTrap')
       end
     end
-
 end
 
 # == Schema Information

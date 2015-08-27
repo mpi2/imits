@@ -15,6 +15,13 @@ class ApplicationModel < ActiveRecord::Base
     '.2' => '.2 - Promoter excision from Deletion/Point Mutation '
   }.freeze
 
+  CRISPR_MOUSE_ALLELE_OPTIONS = {
+    'NHEJ' => 'Mutation resulted from Non Homology End Joining',
+    'Deletion' => 'Exon Deletion resulted from Non Homology End Joining',
+    'HR' => 'Homology directed repair with introduced targeting vector',
+    'HDR' => 'Homology directed repair with introduced oligos',
+  }.freeze
+
   COMPLETION_NOTE ={
     nil => '[none]',
     'Handoff complete' => 'Handoff complete',

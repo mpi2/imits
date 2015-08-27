@@ -5,6 +5,16 @@ class TargRep::Allele < ActiveRecord::Base
   extend AccessAssociationByAttribute
   TEMPLATE_CHARACTER = '@'
 
+  GENBANK_FILE_TRANSFORMATIONS = {'a'   => '',
+                                  'e'   => '',
+                                  ''    => '',
+                                  'b'   => 'cre',
+                                  'e.1' => 'cre',
+                                  '.1'  => 'cre',
+                                  'c'   => 'flp',
+                                  'd'   => 'flp-cre'
+                                 }
+
   ##
   ## Associations
   ##
@@ -184,7 +194,7 @@ class TargRep::Allele < ActiveRecord::Base
     type = nil
     errors = []
 
-    md = /\A(tm\d+)([a-e]|.\d+|e.\d+)?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
+    md = /\A(tm\d+|em\d+)([a-e]|.\d+|e.\d+)?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
 
     if md
       symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
@@ -255,9 +265,7 @@ class TargRep::Allele < ActiveRecord::Base
       marker_symbol = options.has_key?('marker_symbol') ? options['marker_symbol'] : nil
       cassette       = options.has_key?('cassette') ? options['cassette'] : nil
       allele_type   = options.has_key?('allele_type') ? options['allele_type'] : nil
-      colony_name   = options.has_key?('colony_name') ? options['colony_name'] : nil
-      crispr_mutation_description = options.has_key?('crispr_mutation_description') ? options['crispr_mutation_description'] : nil
-      exon_id = options.has_key?('exon_id') ? options['exon_id'] : nil
+      allele_description_summary = options.has_key?('allele_description_summary') ? options['allele_description_summary'] : nil
 
       return '' if allele_type.nil?
 
@@ -275,7 +283,10 @@ class TargRep::Allele < ActiveRecord::Base
                               'tmCGI'   => "Truncation cassette with conditional potential",
                               'gt'      => "Gene Trap",
                               'Gene Trap' => "Gene Trap",
-                              'em'      => "#{if !exon_id.blank? && !crispr_mutation_description.blank?;"Frameshift mutation caused by a #{crispr_mutation_description}  in #{exon_id}" ; else; "Frameshift mutation"; end}"
+                              'NHEJ'     => "#{if !allele_description_summary.blank?; allele_description_summary; else; "Frameshift Mutation"; end}",
+                              'Deletion' => "Deletion of an Exon / Partial Exon deletion",
+                              'HDR'      => "Point Mutation#{allele_description_summary.blank? ? ": #{allele_description_summary}" : ''}",
+                              'HR'       => "Wild type floxed exon"
                             }
 
       return allele_descriptions['tmCGI'] if !marker_symbol.blank? && marker_symbol =~ /CGI/
@@ -286,7 +297,10 @@ class TargRep::Allele < ActiveRecord::Base
       return allele_descriptions['tmd'] if allele_type == 'd'
       return allele_descriptions['tme'] if allele_type == 'e'
       return allele_descriptions['gt'] if allele_type == 'gt'
-      return allele_descriptions['em'] if allele_type == 'em'
+      return allele_descriptions['NHEJ'] if allele_type == 'NHEJ'
+      return allele_descriptions['Deletion'] if allele_type == 'Deletion'
+      return allele_descriptions['HDR'] if allele_type == 'HDR'
+      return allele_descriptions['HR'] if allele_type == 'HR'
 
       if !cassette.blank? && cassette =~ /Cre/
         return allele_descriptions['tmCreSC'] if allele_type == ''
@@ -297,6 +311,88 @@ class TargRep::Allele < ActiveRecord::Base
       return allele_descriptions['tm.1'] if allele_type == '.1'
       return allele_descriptions['tm.2'] if allele_type == '.2'
 
+    end
+
+    def self.genbank_file_url(allele_id, modified_allele_type = nil)
+
+      return "" if allele_id.blank?
+
+      transformation = GENBANK_FILE_TRANSFORMATIONS[modified_allele_type]
+      return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/escell-clone-#{!transformation.blank? ? transformation + '-' : ''}genbank-file"
+    end
+
+    def self.allele_image_url(marker_symbol, allele_id, modified_allele_type = nil)
+      return "" if modified_allele_type.nil? || marker_symbol.blank?
+
+      if marker_symbol =~ /CGI/
+        if modified_allele_type == ''
+          return "https://www.i-dcc.org/imits/images/targ_rep/nc_rna_tm1.jpg"
+        elsif modified_allele_type == '.1'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_1.jpg"
+        elsif modified_allele_type == '.2'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_2.jpg"
+        elsif modified_allele_type == '.3'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_3.jpg"
+        else
+          ""
+        end
+      end
+
+      if ["NHEJ", "Deletion", "HR"].include?(modified_allele_type)
+        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg"
+      elsif modified_allele_type == 'HDR'
+        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_hdr_map.jpg"
+      end
+
+      return "" if allele_id.blank?
+
+      transformation = GENBANK_FILE_TRANSFORMATIONS[modified_allele_type]
+      return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{!transformation.blank? ? '-' + transformation : ''}"
+    end
+
+    def self.simple_allele_image_url(marker_symbol, allele_id, modified_allele_type = nil)
+      return "" if modified_allele_type.nil? || marker_symbol.blank?
+
+      if marker_symbol =~ /CGI/
+        if modified_allele_type == ''
+          return "https://www.i-dcc.org/imits/images/targ_rep/nc_rna_tm1.jpg"
+        elsif modified_allele_type == '.1'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_1.jpg"
+        elsif modified_allele_type == '.2'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_2.jpg"
+        elsif modified_allele_type == '.3'
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_3.jpg"
+        else
+          ""
+        end
+      end
+
+      if ["NHEJ", "Deletion", "HR"].include?(modified_allele_type)
+        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg"
+      elsif modified_allele_type == 'HDR'
+        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_hdr_map.jpg"
+      end
+
+      return "" if allele_id.blank?
+
+      transformation = GENBANK_FILE_TRANSFORMATIONS[modified_allele_type]
+      return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{!transformation.blank? ? '-' + transformation : ''}?simple=true.jpg"
+    end
+
+
+    def self.targeting_vector_genbank_file_url(allele_id)
+      return "" if allele_id.blank?
+      return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/targeting-vector-genbank-file"
+    end
+
+    def self.vector_image_url(allele_id)
+      return "" if allele_id.blank?
+      return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/vector-image"
+    end
+
+    def self.design_url(design_id)
+      return "" if design_id.blank?
+      return "http://www.sanger.ac.uk/htgt/htgt2/design/designedit/refresh_design?design_id=#{design_id}"
     end
 end
 

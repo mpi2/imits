@@ -130,7 +130,9 @@ class MiAttempt < ApplicationModel
 
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
+  before_save :set_default_background_strain_for_crispr_produced_colonies
   before_save :make_mi_date_and_in_progress_status_consistent
+  before_save :crispr_autofill_allele_target
   after_save :manage_status_stamps
 
   def consortium_name
@@ -158,6 +160,32 @@ class MiAttempt < ApplicationModel
     arg = [arg] unless arg.class == Array
     @mi_plan_ids = arg
   end
+
+  def set_default_background_strain_for_crispr_produced_colonies
+    return unless self.blast_strain_id.blank?
+    return unless self.es_cell.blank?
+
+    self.blast_strain_name = 'C57BL/6N'
+  end
+  protected :set_default_background_strain_for_crispr_produced_colonies
+
+  def crispr_autofill_allele_target
+    return unless self.es_cell_id.blank? # Only continue if mi_attempt belongs to crispr pipeline
+
+    crispr_count = self.mutagenesis_factor.crisprs.count
+    nuclease = self.mutagenesis_factor.nuclease
+    has_vector = self.mutagenesis_factor.vector.blank? ? false : true
+    vector_type = self.mutagenesis_factor.vector.try(:allele).try(:type)
+
+    self.allele_target =  nil
+    self.allele_target = 'NHEJ' if crispr_count == 1  && has_vector == false
+    self.allele_target = 'Deletion' if crispr_count >= 2 && ['CAS9 mRNA', 'CAS9 Protein'].include?(nuclease) && has_vector == false
+    self.allele_target = 'NHEJ' if crispr_count == 2 && ['D10A mRNA', 'D10A Protein'].include?(nuclease) && has_vector == false
+    self.allele_target = 'Deletion' if crispr_count == 4 && ['D10A mRNA', 'D10A Protein'].include?(nuclease) && has_vector == false
+    self.allele_target = 'HDR' if has_vector == true && vector_type == 'TargRep::HdrAllele'
+    self.allele_target = 'HR' if has_vector == true && ['TargRep::TargetedAllele', 'TargRep::CrisprTargetedAllele'].include?(vector_type)
+  end
+  protected :crispr_autofill_allele_target
 
   def reload
     @distribution_centres_attributes = []
@@ -640,6 +668,7 @@ end
 #  founder_num_positive_results                    :integer
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
+#  allele_target                                   :string(255)
 #
 # Indexes
 #

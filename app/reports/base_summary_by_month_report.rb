@@ -7,10 +7,11 @@ class BaseSummaryByMonthReport
 
   attr_accessor :report_hash, :category, :approach, :allele_type
 
-  def initialize(consortia_list=nil, category = 'es cell', approach = 'all', allele_type = nil)
-    @category = category
-    @approach = approach
-    @allele_type = nil
+  def initialize(consortia_list=nil, category = 'es cell', approach = 'all', allele_type = 'all')
+    @category = category || 'es cell'
+    @approach = approach || 'all'
+    @allele_type = allele_type || 'all'
+
     self.available_consortia = consortia_list
     @report_hash = {
       :dates => {}
@@ -171,6 +172,7 @@ class BaseSummaryByMonthReport
   end
 
   def summary_by_month_sql(previous_month = false)
+    puts "CATEGORIES FDS #{@category}, #{@approach}, #{@allele_type}"
     from_date = '2011-06-01'.to_datetime
     from_date_minus_a_month = from_date - 1.month
 
@@ -183,7 +185,6 @@ class BaseSummaryByMonthReport
     end
 
 
-    #IntermediateReportSummaryByConsortia.crispr_sql IntermediateReportSummaryByConsortia.es_cell_and_crsipr_sql
     sql = <<-EOF
       WITH
         goals AS (

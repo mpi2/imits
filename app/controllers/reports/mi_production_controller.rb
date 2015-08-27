@@ -8,13 +8,14 @@ class Reports::MiProductionController < ApplicationController
 
   def detail
     if request.format == :csv
-      if current_user && current_user.can_see_sub_project?
-        report = Reports::MiProduction::Detail.generate
-      else
-        report = Reports::MiProduction::Detail.generate
-        report.remove_column('Sub-Project')
-      end
-      send_data_csv('mi_production_detail.csv', report.to_csv)
+
+      category = 'es cell'
+      @approach = 'all'
+
+      @intermediate_table = IntermediateReportSummaryByCentreAndConsortia.new
+      @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByCentreAndConsortia.where_sql(category, @approach, nil, {}))
+      render :template => 'v2/reports/mi_production/production_detail'
+
     end
   end
 

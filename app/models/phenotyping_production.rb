@@ -42,14 +42,13 @@ class PhenotypingProduction < ApplicationModel
   end
 
   def allow_override_of_plan
-    return if self.consortium_name.blank? or self.production_centre_name.blank? or self.gene.blank?
-    set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
-      puts "LETS SEE #{pa.attributes} : #{pa.parent_colony_name}"
+    return if self.consortium_name.blank? or self.phenotyping_centre_name.blank? or self.gene.blank?
+    set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.phenotyping_centre_name, :phenotype_only => true}) do |pa|
       plan = pa.parent_colony.mi_plan
-      if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
+      if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.phenotyping_centre_name
         plan = [plan]
       else
-        plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
+        plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.phenotyping_centre_name}' AND phenotype_only = true")
       end
     end
     self.mi_plan = set_plan
@@ -132,7 +131,7 @@ class PhenotypingProduction < ApplicationModel
     begin
       i += 1
       j = i > 0 ? "-#{i}" : ""
-      new_colony_name = "#{self.parent_colony.name}_#{mi_plan.production_centre_name}#{j}"
+      new_colony_name = "#{self.parent_colony.name}_#{mi_plan.phenotyping_centre_name}#{j}"
     end until self.class.find_by_colony_name(new_colony_name).blank?
     self.colony_name = new_colony_name
   end
@@ -163,6 +162,75 @@ class PhenotypingProduction < ApplicationModel
     return nil if parent_colony.blank?
     parent_colony.try(:allele_symbol)
   end
+
+
+
+
+
+
+  def phenotyping_consortium_name
+    consortium_name
+  end
+
+  def consortium_name
+    # override included method
+    if @consortium_name.blank?
+      mi_plan.try(:consortium).try(:name)
+    else
+      return @consortium_name
+    end
+  end
+
+  def phenotyping_consortium_name=(arg)
+    consortium_name = arg
+  end
+
+  def consortium_name=(arg)
+    # override included method
+    @consortium_name = arg
+    if @consortium_name != self.mi_plan.try(:consortium).try(:name)
+      # this forces the changed methods to record a change.
+      self.changed_attributes['consortium_name'] = arg
+    end
+  end
+
+  def phenotyping_centre_name
+    if @phenotyping_centre_name.blank?
+      mi_plan.try(:production_centre).try(:name)
+    else
+      return @phenotyping_centre_name
+    end
+  end
+
+  def phenotyping_centre_name=(arg)
+    @phenotyping_centre_name = arg
+    if @phenotyping_centre_name != self.mi_plan.try(:production_centre).try(:name)
+      # this forces the changed methods to record a change.
+      self.changed_attributes['production_centre_name'] = arg
+    end
+  end
+
+  def production_centre_name=(arg)
+    # override included method
+    nil
+  end
+
+  def production_centre_name
+    # override included method
+    return nil if parent_colony.blank?
+    return parent_colony.mouse_allele_mod.production_centre_name unless parent_colony.mouse_allele_mod.blank?
+    return parent_colony.mi_attempt.production_centre_name unless parent_colony.mi_attempt.blank?
+    return nil
+  end
+
+  def production_consortium_name
+    # override included method
+    return nil if parent_colony.blank?
+    return parent_colony.mouse_allele_mod.consortium_name unless parent_colony.mouse_allele_mod.blank?
+    return parent_colony.mi_attempt.consortium_name unless parent_colony.mi_attempt.blank?
+    return nil
+  end
+
 
 ## CLASS METHODS
 

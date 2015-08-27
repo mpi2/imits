@@ -780,14 +780,16 @@ CREATE TABLE colonies (
     genotype_confirmed boolean DEFAULT false,
     report_to_public boolean DEFAULT false,
     unwanted_allele boolean DEFAULT false,
-    unwanted_allele_description text,
+    allele_description text,
     mgi_allele_id character varying(255),
     allele_name character varying(255),
     mouse_allele_mod_id integer,
     mgi_allele_symbol_superscript character varying(255),
     allele_symbol_superscript_template character varying(255),
     allele_type character varying(255),
-    background_strain_id integer
+    background_strain_id integer,
+    allele_description_summary text,
+    auto_allele_description text
 );
 
 
@@ -1767,7 +1769,8 @@ CREATE TABLE mi_attempts (
     founder_num_assays integer,
     founder_num_positive_results integer,
     assay_type text,
-    experimental boolean DEFAULT false NOT NULL
+    experimental boolean DEFAULT false NOT NULL,
+    allele_target character varying(255)
 );
 
 
@@ -2846,7 +2849,8 @@ CREATE TABLE targ_rep_mutation_types (
     name character varying(100) NOT NULL,
     code character varying(100) NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    allele_code character varying(5)
 );
 
 
@@ -3018,7 +3022,8 @@ CREATE TABLE targ_rep_mutation_methods (
     name character varying(100) NOT NULL,
     code character varying(100) NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    allele_prefix character varying(5)
 );
 
 
@@ -4757,6 +4762,27 @@ CREATE INDEX irscen_catagory ON intermediate_report_summary_by_centre USING btre
 
 
 --
+-- Name: irscen_gene_centre; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_gene_centre ON intermediate_report_summary_by_centre USING btree (gene, production_centre);
+
+
+--
+-- Name: irscen_gene_centre_consortia; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_gene_centre_consortia ON intermediate_report_summary_by_centre_and_consortia USING btree (gene, production_centre, consortium);
+
+
+--
+-- Name: irscen_gene_consortia; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irscen_gene_consortia ON intermediate_report_summary_by_consortia USING btree (gene, consortium);
+
+
+--
 -- Name: irscen_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4803,6 +4829,13 @@ CREATE INDEX irsg_approach ON intermediate_report_summary_by_gene USING btree (a
 --
 
 CREATE INDEX irsg_catagory ON intermediate_report_summary_by_gene USING btree (catagory);
+
+
+--
+-- Name: irsg_gene; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX irsg_gene ON intermediate_report_summary_by_gene USING btree (gene);
 
 
 --
@@ -5753,3 +5786,11 @@ INSERT INTO schema_migrations (version) VALUES ('20150529151000');
 INSERT INTO schema_migrations (version) VALUES ('20150612115302');
 
 INSERT INTO schema_migrations (version) VALUES ('20150707115302');
+
+INSERT INTO schema_migrations (version) VALUES ('20150724125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20150728125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20150806125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20150812125302');

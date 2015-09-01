@@ -12,7 +12,7 @@ module PhenotypingProduction::StatusManagement
   ss.add('Phenotype Attempt Registered') { |pt| true }
 
   ss.add('Rederivation Started') do |pt|
-    pt.rederivation_started == true
+    pt.rederivation_started == true && pt.parent_colony.genotype_confirmed == true
   end
 
   ss.add('Rederivation Complete', 'Rederivation Started') do |pt|
@@ -20,7 +20,7 @@ module PhenotypingProduction::StatusManagement
   end
 
   ss.add('Phenotyping Started') do |pt|
-    pt.phenotyping_started?
+    pt.phenotyping_started? && pt.parent_colony.genotype_confirmed == true
   end
 
   ss.add('Phenotyping Complete', 'Phenotyping Started') do |pt|

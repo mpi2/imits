@@ -44,13 +44,13 @@ class Colony < ApplicationModel
 
   validate do |colony|
     if !mouse_allele_mod.blank?
-      not_uniq_col = ActiveRecord::Base.connection.execute("SELECT  1 AS one FROM colonies  WHERE colonies.name = 'BL649' AND colonies.mouse_allele_mod_id IS NOT NULL #{self.id.blank? ? '' : "AND colonies.id != #{self.id}"} LIMIT 1")
-      colony.errors.add :base, 'phenotype attempt colony.name has already been taken.' if not_uniq_col.count > 0
+      not_uniq_col = ActiveRecord::Base.connection.execute("SELECT  1 AS one FROM colonies  WHERE colonies.name = '#{self.name}' AND colonies.mouse_allele_mod_id IS NOT NULL #{self.id.blank? ? '' : "AND colonies.id != #{self.id}"} LIMIT 1")
+      colony.errors.add :name, 'has already been taken.' if not_uniq_col.count > 0
     end
 
     if !mi_attempt.blank?
-      not_uniq_col = ActiveRecord::Base.connection.execute("SELECT  1 AS one FROM colonies  WHERE colonies.name = 'BL649' AND colonies.mi_attempt_id IS NOT NULL #{self.id.blank? ? '' : "AND colonies.id != #{self.id}"} LIMIT 1")
-      colony.errors.add :base, 'phenotype attempt colony.name has already been taken.' if not_uniq_col.count == 0
+      not_uniq_col = ActiveRecord::Base.connection.execute("SELECT  1 AS one FROM colonies  WHERE colonies.name = '#{self.name}' AND colonies.mi_attempt_id IS NOT NULL #{self.id.blank? ? '' : "AND colonies.id != #{self.id}"} LIMIT 1")
+      colony.errors.add :name, 'has already been taken.' if not_uniq_col.count > 0
     end
   end
 
@@ -80,6 +80,7 @@ class Colony < ApplicationModel
   before_save :set_crispr_allele
 
   def set_genotype_confirmed
+    return if self.changes.has_key?('genotype_confirmed')
     if !mi_attempt.blank? && !mi_attempt.status.blank?
       if !mi_attempt.es_cell.blank? && mi_attempt.status.code == 'gtc'
         self.genotype_confirmed = true

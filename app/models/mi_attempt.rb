@@ -159,7 +159,7 @@ class MiAttempt < ApplicationModel
     self.allele_target = 'NHEJ' if crispr_count == 1  && has_vector == false
     self.allele_target = 'Deletion' if crispr_count >= 2 && ['CAS9 mRNA', 'CAS9 Protein'].include?(nuclease) && has_vector == false
     self.allele_target = 'NHEJ' if crispr_count == 2 && ['D10A mRNA', 'D10A Protein'].include?(nuclease) && has_vector == false
-    self.allele_target = 'Deletion' if crispr_count == 4 && ['D10A mRNA', 'D10A Protein'].include?(nuclease) && has_vector == false
+    self.allele_target = 'Deletion' if crispr_count >= 4 && ['D10A mRNA', 'D10A Protein'].include?(nuclease) && has_vector == false
     self.allele_target = 'HDR' if has_vector == true && vector_type == 'TargRep::HdrAllele'
     self.allele_target = 'HR' if has_vector == true && ['TargRep::TargetedAllele', 'TargRep::CrisprTargetedAllele'].include?(vector_type)
   end

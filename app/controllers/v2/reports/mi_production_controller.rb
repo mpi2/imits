@@ -70,6 +70,27 @@ class V2::Reports::MiProductionController < ApplicationController
     render :template => 'v2/reports/mi_production/production_detail'
   end
 
+  def allele_centre_production_summary
+    report_filters
+
+    @title = BaseAlleleProductionReport.title
+
+    @report = BaseAlleleProductionReport.new({'category' => @category, 'allele_type' => @allele_type})
+    @centre_allele_type_distinct_gene_count = @report.centre_allele_type_distinct_gene_count
+#    @consortium_by_status        = @report.generate_consortium_by_status
+#    @consortium_centre_by_status = @report.generate_consortium_centre_by_status
+#    @consortium_centre_by_tm1b_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
+#    @consortium_centre_by_tm1a_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
+#    @distribution_centre_counts = @report.generate_distribution_centre_counts
+#    @phenotyping_counts = @report.generate_phenotyping_counts
+#    @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
+#    @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
+#    @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
+#    @crispr_effort_efficiency_totals = @report.generate_crispr_efficiency_totals
+#    @mi_plan_statuses = Komp2ProductionReport.mi_plan_statuses
+
+  end
+
   def komp2_production_summary
     report_filters
 

@@ -7,7 +7,6 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
   class << self
 
     def plan_summary(options)
-                  puts "HELLO1 #{ options}"
       where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
                       'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all'
                      }
@@ -15,8 +14,6 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
     end
 
     def mi_production_summary(options)
-            puts "HELLO2 #{ options}"
-
       where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
                       'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all'
                      }
@@ -24,7 +21,6 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
     end
 
     def mi_phenotyping_summary(options)
-                  puts "HELLO3 #{ options}"
       where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
                       'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all',
                       'phenotyping_approach' => 'micro-injection'
@@ -33,7 +29,6 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
     end
 
     def mam_production_summary(options)
-                  puts "HELLO4 #{ options}"
       where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
                       'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all'
                       }
@@ -41,7 +36,6 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
     end
 
     def mam_phenotyping_summary(options)
-                  puts "HELLO5 #{ options}"
       where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
                       'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all',
                       'phenotyping_approach' => 'mouse allele modification'
@@ -50,7 +44,6 @@ class IntermediateReportSummaryByCentreAndConsortia < ActiveRecord::Base
     end
 
     def phenotyping_summary_include_everything(options)
-                  puts "HELLO6 #{ options}"
       where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
                       'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'all',
                       'phenotyping_approach' => nil

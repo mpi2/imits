@@ -7,36 +7,42 @@ class BaseAlleleProductionReport
   ##
 
   attr_accessor :category
-#  attr_accessor :allele_type
-  attr_accessor :consortium_by_status
-  attr_accessor :consortium_centre_by_status
-  attr_accessor :consortium_centre_micro_injecions_by_mi_attempt
-  attr_accessor :consortium_centre_micro_injecions_by_clones
-  attr_accessor :consortium_by_distinct_gene
-  attr_accessor :gene_efficiency_totals
-  attr_accessor :clone_efficiency_totals
-  attr_accessor :most_advanced_gt_mi_for_gene
-  attr_accessor :micro_injection_list
-  attr_accessor :consortium_centre_by_phenotyping_status_tm1b
-  attr_accessor :consortium_centre_by_mam_status_tm1b
-  attr_accessor :consortium_centre_by_phenotyping_status_tm1a
-  attr_accessor :mi_attempt_distribution_centre_counts
-  attr_accessor :phenotyping_counts
-  attr_accessor :phenotype_attempt_distribution_centre_counts
-  attr_accessor :crispr_efficiency_totals
+  attr_accessor :allele_type
+
+#  attr_accessor :consortium_by_status
+
+#  attr_accessor :consortium_centre_by_status
+#  attr_accessor :consortium_centre_micro_injecions_by_mi_attempt
+#  attr_accessor :consortium_centre_micro_injecions_by_clones
+  attr_accessor :centre_allele_type_distinct_gene_count
+#  attr_accessor :gene_efficiency_totals
+#  attr_accessor :clone_efficiency_totals
+#  attr_accessor :most_advanced_gt_mi_for_gene
+#  attr_accessor :micro_injection_list
+#  attr_accessor :consortium_centre_by_phenotyping_status_tm1b
+#  attr_accessor :consortium_centre_by_mam_status_tm1b
+#  attr_accessor :consortium_centre_by_phenotyping_status_tm1a
+#  attr_accessor :mi_attempt_distribution_centre_counts
+#  attr_accessor :phenotyping_counts
+#  attr_accessor :phenotype_attempt_distribution_centre_counts
+#  attr_accessor :crispr_efficiency_totals
 
   def initialize(options = {})
     options.has_key?('category') && ['all', 'es cell', 'crispr'].include?(options['category']) ? @category = options['category'] : @category = 'es cell'
-#    option.has_key('allele_type') && ['all'].include?(option['allele_type']) ? @allele_type = option['allele_type'] : @allele_type = 'all'
+    options.has_key?('allele_type') && ['all'].include?(options['allele_type']) ? @allele_type = options['allele_type'] : @allele_type = 'all'
   end
 
 
-  def consortium_by_status
-    @consortium_by_status ||= ActiveRecord::Base.connection.execute(self.class.consortium_by_status_sql(category))
-  end
+#  def consortium_by_status
+#    @consortium_by_status ||= ActiveRecord::Base.connection.execute(self.class.consortium_by_status_sql(category))
+#  end
 
-  def consortium_centre_by_status
-    @consortium_centre_by_status ||= ActiveRecord::Base.connection.execute(self.class.consortium_centre_by_status_sql(category))
+#  def consortium_centre_by_status
+#    @consortium_centre_by_status ||= ActiveRecord::Base.connection.execute(self.class.consortium_centre_by_status_sql(category))
+#  end
+
+  def centre_by_status
+    @centre_by_status ||= ActiveRecord::Base.connection.execute(self.class.centre_by_status_sql(category))
   end
 
   def consortium_centre_micro_injecions_by_mi_attempt
@@ -59,8 +65,8 @@ class BaseAlleleProductionReport
     @consortium_centre_by_phenotyping_status_tm1a ||= ActiveRecord::Base.connection.execute(self.class.consortium_centre_by_phenotyping_status_tm1a_sql(category))
   end
 
-  def consortium_by_distinct_gene
-    @consortium_by_distinct_gene ||= ActiveRecord::Base.connection.execute(self.class.consortium_by_distinct_gene_sql(category))
+  def centre_allele_type_distinct_gene_count
+    @centre_allele_type_distinct_gene_count ||= ActiveRecord::Base.connection.execute(self.class.centre_allele_type_distinct_gene_count_sql(category))
   end
 
   def gene_efficiency_totals
@@ -393,30 +399,31 @@ class BaseAlleleProductionReport
       @available_production_centres = array
     end
 
-    def consortium_by_distinct_gene_sql(category = 'es cell' )
+    def centre_allele_type_distinct_gene_count_sql(category = 'es cell' )
       sql = <<-EOF
         SELECT
-        consortium_summary.consortium,
-        COUNT(distinct(consortium_summary.gene))
-        FROM (#{IntermediateReportSummaryByCentreAndConsortia.plan_summary({'category' => category})}) AS consortium_summary
-        WHERE consortium_summary.consortium in ('#{available_consortia.join('\', \'')}')
-        GROUP BY consortium_summary.consortium;
+        centre_summary.production_centre,
+        centre_summary.allele_type,
+        COUNT(distinct(centre_summary.gene))
+        FROM (#{IntermediateReportSummaryByCentre.allele_summary({'category' => category})}) AS centre_summary
+        WHERE centre_summary.allele_type != 'all'
+        GROUP BY centre_summary.production_centre, centre_summary.allele_type;
       EOF
     end
 
     # WHAT DOES THIS DO
-    def consortium_by_status_sql(category = 'es cell' )
-      sql = <<-EOF
-        SELECT
-        consortium AS consortium,
-        mi_plan_status AS mi_plan_status,
-        COUNT(*)
-        FROM (#{IntermediateReportSummaryByCentreAndConsortia.plan_summary({'category' => category})}) AS consortium_summary
-        WHERE consortium in ('#{available_consortia.join('\', \'')}')
-        GROUP BY consortium, mi_plan_status
-        ORDER BY consortium;
-      EOF
-    end
+#    def consortium_by_status_sql(category = 'es cell' )
+#      sql = <<-EOF
+#        SELECT
+#        consortium AS consortium,
+#        mi_plan_status AS mi_plan_status,
+#        COUNT(*)
+#        FROM (#{IntermediateReportSummaryByCentreAndConsortia.plan_summary({'category' => category})}) AS consortium_summary
+#        WHERE consortium in ('#{available_consortia.join('\', \'')}')
+#        GROUP BY consortium, mi_plan_status
+#        ORDER BY consortium;
+#      EOF
+#    end
 
     def consortium_centre_micro_injecions_by_clones_sql(category = 'es cell' )
       sql = <<-EOF
@@ -436,17 +443,38 @@ class BaseAlleleProductionReport
       EOF
     end
 
-    def consortium_centre_by_status_sql(category = 'es cell' )
+#    def consortium_centre_by_status_sql(category = 'es cell' )
+#      sql = <<-EOF
+#        SELECT
+#        consortium,
+#        production_centre,
+#        mi_attempt_status,
+#        COUNT(*) AS count
+#        FROM (#{IntermediateReportSummaryByCentreAndConsortia.mi_production_summary({'category' => category})}) AS consortium_centre_summary
+#        WHERE consortium in ('#{available_consortia.join('\', \'')}')
+#        GROUP BY consortium, production_centre, mi_attempt_status
+#        ORDER BY consortium, production_centre;
+#      EOF
+#    end
+
+    def centre_by_status_sql(category = 'es cell')
       sql = <<-EOF
         SELECT
-        consortium,
         production_centre,
+        allele_type,
         mi_attempt_status,
-        COUNT(*) AS count
-        FROM (#{IntermediateReportSummaryByCentreAndConsortia.mi_production_summary({'category' => category})}) AS consortium_centre_summary
-        WHERE consortium in ('#{available_consortia.join('\', \'')}')
-        GROUP BY consortium, production_centre, mi_attempt_status
-        ORDER BY consortium, production_centre;
+        COUNT(*) AS count,
+        SUM(mi_attempts.crsp_total_embryos_injected) AS num_embryos_injected,
+        SUM(mi_attempts.crsp_total_embryos_survived) AS num_embryos_survived,
+        SUM(mi_attempts.crsp_total_transfered) AS num_transfered,
+        SUM(mi_attempts.crsp_no_founder_pups) AS num_founder_pups,
+        SUM(mi_attempts.crsp_total_num_mutant_founders) AS num_mutant_founders,
+        SUM(mi_attempts.crsp_num_founders_selected_for_breading) AS num_founders_selected_for_breading
+
+        FROM (#{IntermediateReportSummaryByCentreAndConsortia.mi_production_summary({'category' => category})}) AS centre_summary
+        LEFT JOIN mi_attempts ON mi_attempts.id = centre_summary.mi_attempt_id
+        GROUP BY production_centre, allele_type ,mi_attempt_status
+        ORDER BY production_centre;
       EOF
     end
 

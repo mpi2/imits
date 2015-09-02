@@ -9,6 +9,14 @@ class IntermediateReportSummaryByCentre < ActiveRecord::Base
             }
   end
 
+  def self.allele_summary(options)
+    where_clause = {'category' => options.has_key?('category') ? options['category'] : 'es cell',
+                    'approach' => 'all',
+                    'allele_type' => options.has_key?('allele_type') ? options['allele_type'] : 'not_all'
+                   }
+    generate_sql(where_clause, {'mi_production' => true, 'allele_mod_production' => false, 'phenotyping' => false, 'show_allele_type' => true})
+  end
+
 end
 
 # == Schema Information

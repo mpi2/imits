@@ -6,9 +6,9 @@ module IntermediateReport::QueryBase
                             'allele_type' => allele_type
                             }
 
-      selection_type = {'all'                       => {'mi_production'=> true, 'allele_mod_production' => true, 'phenotyping' => true},
-                        'micro-injection'           => {'mi_production' => true, 'allele_mod_production' => false, 'phenotyping' => true},
-                        'mouse allele modification' => {'mi_production' => false, 'allele_mod_production' => true, 'phenotyping' => true}
+      selection_type = {'all'                       => {'mi_production'=> true, 'allele_mod_production' => true, 'phenotyping' => true, 'plan' => true},
+                        'micro-injection'           => {'mi_production' => true, 'allele_mod_production' => false, 'phenotyping' => true, 'plan' => true},
+                        'mouse allele modification' => {'mi_production' => false, 'allele_mod_production' => true, 'phenotyping' => true, 'plan' => true}
                         }
 
       return generate_sql(on_clause_criteria, selection_type[approach])
@@ -70,7 +70,7 @@ module IntermediateReport::QueryBase
 
     def generate_sql( where_clauses = {}, display = {})
 
-      display['plan'] = true
+      display['plan'] = true if !display.has_key?('plan')
       display['mi_production'] = true if !display.has_key?('mi_production')
       display['allele_mod_production'] = true if !display.has_key?('allele_mod_production')
       display['phenotyping'] = true if !display.has_key?('phenotyping')
@@ -96,18 +96,24 @@ module IntermediateReport::QueryBase
         JOIN genes ON genes.id = distinct_gene_consortia_centre.gene_id
         #{self.distinct_fields.has_key?('consortia') ? 'JOIN consortia ON consortia.id = distinct_gene_consortia_centre.consortium_id' : ''}
         #{self.distinct_fields.has_key?('centre') ? 'JOIN centres ON centres.id = distinct_gene_consortia_centre.production_centre_id' : ''}
-        LEFT JOIN (SELECT *
-               FROM #{self.table_name}
-               WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type = '#{where_clauses['allele_type']}' AND #{self.table_name}.approach = 'plan'
-             ) AS plan_summary ON #{on_clause.gsub('@', 'plan_summary')}
+
       EOF
-      where << "plan_summary.mi_plan_status IS NOT NULL"
+
+      if display.has_key?('plan') && display['plan'] == true && where_clauses['allele_type'] == 'all'
+        sql += <<-EOF
+          LEFT JOIN (SELECT *
+                 FROM #{self.table_name}
+                 WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.approach = 'plan'
+               ) AS plan_summary ON #{on_clause.gsub('@', 'plan_summary')}
+        EOF
+        where << "plan_summary.mi_plan_status IS NOT NULL"
+      end
 
       if display.has_key?('mi_production') && display['mi_production'] == true
         sql += <<-EOF
           LEFT JOIN (SELECT *
                      FROM #{self.table_name}
-                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type = '#{where_clauses['allele_type']}' AND #{self.table_name}.approach = 'micro-injection'
+                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type #{where_clauses['allele_type'] == 'not_all' ? " != 'all'" : " = '#{where_clauses['allele_type']}'"} AND #{self.table_name}.approach = 'micro-injection'
                     ) AS mi_production_summary ON #{on_clause.gsub('@', 'mi_production_summary')}
         EOF
         where << "mi_production_summary.mi_attempt_status IS NOT NULL"
@@ -117,7 +123,7 @@ module IntermediateReport::QueryBase
         sql += <<-EOF
           LEFT JOIN (SELECT *
                      FROM #{self.table_name}
-                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type = '#{where_clauses['allele_type']}' AND #{self.table_name}.approach = 'mouse allele modification'
+                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type #{where_clauses['allele_type'] == 'not_all' ? " != 'all'" : " = '#{where_clauses['allele_type']}'"} AND #{self.table_name}.approach = 'mouse allele modification'
                     ) AS allele_mod_production_summary ON #{on_clause.gsub('@', 'allele_mod_production_summary')}
         EOF
         where << "allele_mod_production_summary.mouse_allele_mod_status IS NOT NULL"
@@ -127,7 +133,7 @@ module IntermediateReport::QueryBase
         sql += <<-EOF
           LEFT JOIN (SELECT *
                      FROM #{self.table_name}
-                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type = '#{where_clauses['allele_type']}'  #{!where_clauses['phenotyping_approach'].nil? ? "AND #{self.table_name}.approach = '#{where_clauses['phenotyping_approach']}'" : ''}
+                     WHERE #{self.table_name}.catagory = '#{where_clauses['category']}' AND #{self.table_name}.allele_type #{where_clauses['allele_type'] == 'not_all' ? " != 'all'" : " = '#{where_clauses['allele_type']}'"}  #{!where_clauses['phenotyping_approach'].nil? ? "AND #{self.table_name}.approach = '#{where_clauses['phenotyping_approach']}'" : ''}
                     ) AS phenotyping_production_summary ON #{on_clause.gsub('@', 'phenotyping_production_summary')}
         EOF
         where << "phenotyping_production_summary.phenotyping_status IS NOT NULL"
@@ -137,18 +143,31 @@ module IntermediateReport::QueryBase
       return sql
     end
 
-    def select_fields(display = {'mi_production' => true, 'allele_mod_production' => true, 'phenotyping' => true})
-      display['plan'] = true
+    def select_fields(display = {'mi_production' => true, 'allele_mod_production' => true, 'phenotyping' => true, 'plan' => true, 'show_allele_type' => false})
       #confiuration of fields that should be returned
       sql = ''
-
-      if display.has_key?('plan') && display['plan'] == true
-        sql += <<-EOF
+      sql += <<-EOF
                genes.marker_symbol AS gene,
+               genes.mgi_accession_id,
                #{self.distinct_fields.has_key?('consortia') ? 'consortia.name AS consortium,' : ''}
-               #{self.distinct_fields.has_key?('centre') ? 'centres.name AS production_centre,' : ''}
-               plan_summary.mi_plan_id,
-               plan_summary.mgi_accession_id,
+               #{self.distinct_fields.has_key?('centre') ? 'centres.name AS production_centre' : ''}
+               EOF
+
+      if display.has_key?('show_allele_type') && display['show_allele_type'] == true
+
+        if display.has_key?('mi_production') && display['mi_production'] == true
+          sql += <<-EOF
+            ,mi_production_summary.allele_type AS allele_type
+          EOF
+        elsif display.has_key?('allele_mod_production') && display['allele_mod_production'] == true
+          sql += <<-EOF
+            ,allele_mod_production_summary.allele_type AS allele_type
+          EOF
+        end
+
+      elsif display.has_key?('plan') && display['plan'] == true
+        sql += <<-EOF
+               ,plan_summary.mi_plan_id,
                plan_summary.mi_plan_status,
                #{self.table_name != 'intermediate_report_summary_by_gene' ? 'plan_summary.gene_interest_date,' : ''}
                plan_summary.assigned_date,

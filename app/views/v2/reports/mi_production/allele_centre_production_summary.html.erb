@@ -1,0 +1,45 @@
+<h1><%= @title %> (Displaying <%= @category.titlecase %> Data)</h1>
+<p><span style="font-weight:bold;">Switch</span> report to include: <a href=<%="?category=es%20cell"%>>ES Cell Data</a> | <a href=<%="?category=crispr"%>>Crispr Data</a> | <a href=<%="?category=all"%>>All Data</a></p>
+<p><%#= link_to 'Download as CSV', report_csv_path %></p>
+
+<div class="report production_summary">
+
+  <h2 class = "bold">Micro-Injected Mouse production summary</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th width="150" rowspan=2>Production Centre</th>
+        <th rowspan=2>Allele Type</th>
+        <th rowspan=2>Experiment Strategy</th>
+        <th rowspan=2>MI (gene)</th>
+        <th rowspan=1 colspan=5>F0 Founders</th>
+        <th rowspan=1 colspan=6>F1 animals</th>
+      </tr>
+      <tr>
+        <th rowspan=1>Pups born (gene)</th>
+        <th rowspan=1>Ave # pups</th>
+        <th rowspan=1>mutant F0s (gene)</th>
+        <th rowspan=1>Ave # mutant F0s</th>
+        <th rowspan=1>Success rate</th>
+        <th rowspan=1>F1 Allele Type</th>
+        <th rowspan=1>Founder Efficiency (embryos/F0)</th>
+        <th rowspan=1>F1 pups assayed (gene)</th>
+        <th rowspan=1>GLT</th>
+        <th rowspan=1>Success rate</th>
+        <th rowspan=1>GLT Efficiency (embryos/GLT)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @centre_allele_type_distinct_gene_count.each do |row| %>
+        <tr>
+          <td><%= @centre_allele_type_distinct_gene_count[row['production_centre']] %></td>
+          <td><%= @centre_allele_type_distinct_gene_count[row['production_centre']] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+
+</div>
+

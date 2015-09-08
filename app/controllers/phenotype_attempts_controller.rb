@@ -30,7 +30,7 @@ class PhenotypeAttemptsController < ApplicationController
                           'marker_symbol'                    => 'marker_symbol',
                           'colony_name'                      => 'colony_name',
                           'status_name'                      => 'status_name',
-                          'production_centre_name'           => 'production_centre_name',
+                          'production_centre_name'           => 'phenotyping_centre_name',
                           'consortium_name'                  => 'consortium_name',
                           'parent_colony_name'               => 'parent_colony_name',
                           'rederivation_started'             => 'rederivation_started',

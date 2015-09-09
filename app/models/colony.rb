@@ -75,21 +75,8 @@ class Colony < ApplicationModel
   end
 
   before_save :set_default_background_strain_for_crispr_produced_colonies
-  before_save :set_genotype_confirmed
   after_save :add_default_distribution_centre
   before_save :set_crispr_allele
-
-  def set_genotype_confirmed
-    return if self.changes.has_key?('genotype_confirmed')
-    if !mi_attempt.blank? && !mi_attempt.status.blank?
-      if !mi_attempt.es_cell.blank? && mi_attempt.status.code == 'gtc'
-        self.genotype_confirmed = true
-      end
-    elsif !mouse_allele_mod.blank? && !mouse_allele_mod.status.blank? && mouse_allele_mod.status.code == 'cec'
-      self.genotype_confirmed = true
-    end
-  end
-  protected :set_genotype_confirmed
 
 
   def set_default_background_strain_for_crispr_produced_colonies

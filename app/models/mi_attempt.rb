@@ -271,7 +271,6 @@ class MiAttempt < ApplicationModel
 
     if self.mouse_allele_type != colony.try(:allele_type)
       colony_attr_hash[:allele_type] = self.mouse_allele_type
-      puts "HELLO"
     end
 
     colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?

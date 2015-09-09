@@ -21,9 +21,8 @@ class MouseAlleleMod < ApplicationModel
   has_many   :status_stamps, :order => "#{MouseAlleleMod::StatusStamp.table_name}.created_at ASC", dependent: :destroy
 
   access_association_by_attribute :deleter_strain, :name
-  access_association_by_attribute :colony, :name
-  access_association_by_attribute :parent_colony, :name
   access_association_by_attribute :status, :name
+
 
   ColonyQc::QC_FIELDS.each do |qc_field|
 
@@ -137,6 +136,33 @@ class MouseAlleleMod < ApplicationModel
   def colony_name=(arg)
     @colony_name = arg
   end
+
+  def parent_colony_name
+    return parent_colony.name unless parent_colony.blank?
+    return nil
+  end
+
+  def parent_colony_name=(arg)
+    return nil if arg.blank?
+
+    if !arg.respond_to?(:to_str)
+      errors.add(:parent_colony_name, "value is invalid")
+      return
+    end
+
+    parent_colony_model = Colony.where("name = '#{arg}' AND mi_attempt_id IS NOT NULL")
+
+    if parent_colony_model.count == 0
+      errors.add(:parent_colony_name, "#{arg} does not exist")
+      return
+    end
+
+    raise "Multiple Colonies found with the name equal to #{arg}" if parent_colony_model.length > 1
+
+    self.parent_colony = Colony.find(parent_colony_model.first.id)
+    return arg
+  end
+
 
   def deleter_strain_excision_type
     return nil if deleter_strain_id.blank?

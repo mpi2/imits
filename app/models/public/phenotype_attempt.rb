@@ -114,7 +114,7 @@ class Public::PhenotypeAttempt
     if mouse_allele_mod.blank?
       pp = phenotyping_productions
     else
-      pp = PhenotypingProduction.joins(mi_plan: [:consortium, :production_centre]).where("parent_colony_id = #{self.mouse_allele_mod.colony.id} AND consortia.name = '#{self.mouse_allele_mod.consortium_name}' AND centres.name = '#{self.mouse_allele_mod.production_centre_name}'")
+      pp = PhenotypingProduction.joins(mi_plan: [:consortium, :production_centre]).where("colony_name = '#{self.mouse_allele_mod.colony_name}' AND consortia.name = '#{self.mouse_allele_mod.consortium_name}' AND centres.name = '#{self.mouse_allele_mod.production_centre_name}'")
     end
     if pp.count > 1 or pp.count == 0
       return nil
@@ -224,7 +224,7 @@ class Public::PhenotypeAttempt
 
   def mi_attempt
     return nil if new_record?
-    return mouse_allele_mod.parent_colony.mi_attempt unless mouse_allele_mod.blank?
+    return mouse_allele_mod.parent_colony.mi_attempt unless mouse_allele_mod.blank? || mouse_allele_mod.parent_colony.blank?
     return linked_phenotyping_production.parent_colony.mi_attempt unless linked_phenotyping_production.blank?
   end
 
@@ -334,7 +334,18 @@ class Public::PhenotypeAttempt
   end
 
   def excision_required=(arg)
+
+    mouse_allele_mod_fields_required = (excision_required == false && self.class.to_true_or_false(arg) == true ? true : false)
     @excision_required = self.class.to_true_or_false(arg)
+
+    if mouse_allele_mod_fields_required
+      mi_attempt_colony_name = linked_phenotyping_production.parent_colony_name
+      colony_background_strain_name = linked_phenotyping_production.colony_background_strain_name
+      mi_plan_id = linked_phenotyping_production.mi_plan_id
+      colony_name = linked_phenotyping_production.colony_name
+    end
+
+    return @excision_required
   end
 
 
@@ -504,7 +515,7 @@ class Public::PhenotypeAttempt
       mouse_allele_mod.number_of_cre_matings_successful = number_of_cre_matings_successful
 
     elsif !linked_phenotyping_production.blank?
-      linked_phenotyping_production.parent_colony_name = mi_attempt_colony_name
+      linked_phenotyping_production.mi_parent_colony_name = mi_attempt_colony_name
       linked_phenotyping_production.colony_name = colony_name
       linked_phenotyping_production.phenotyping_centre_name = production_centre_name
       linked_phenotyping_production.consortium_name = consortium_name
@@ -535,6 +546,7 @@ class Public::PhenotypeAttempt
         !linked_phenotyping_production.send("#{field}=", self.send("#{field}")) unless self.send("#{field}").nil?
       end
     end
+
   end
 
 
@@ -553,6 +565,7 @@ class Public::PhenotypeAttempt
 
   def valid?
     @errors.clear
+
     set_models_attributes
 
     if !destroy_mam && !mouse_allele_mod.blank? && mouse_allele_mod.valid? == false
@@ -627,7 +640,6 @@ class Public::PhenotypeAttempt
     phenotyping_productions.each{|pp| pp.reload}
     linked_phenotyping_production.try(:reload) unless linked_phenotyping_production.blank?
 
-
     return false unless valid?
 
     begin
@@ -635,6 +647,7 @@ class Public::PhenotypeAttempt
         if destroy_mam
           #reparent phenotyping production to mi_attempt colony before mam deletion
           mouse_allele_mod.colony.phenotyping_productions.each{|pp| pp.parent_colony_id = mouse_allele_mod.parent_colony_id; pp.save}
+          linked_phenotyping_production.parent_colony_id = mouse_allele_mod.parent_colony_id unless linked_phenotyping_production.blank?
           mouse_allele_mod.destroy
         else
           #ensure pp and mam phenotype_attempt_id match. Can get out of sync if mam is deleted and then recreated for example.
@@ -644,7 +657,6 @@ class Public::PhenotypeAttempt
 
           if !mouse_allele_mod.blank?
             mouse_allele_mod.save(validate: false)
-
             mouse_allele_mod.colony.phenotyping_productions.each do |pp|
               if pp.parent_colony_id != mouse_allele_mod.colony.id
                 pp.parent_colony_id = mouse_allele_mod.colony.id
@@ -655,6 +667,7 @@ class Public::PhenotypeAttempt
         end
 
         linked_phenotyping_production.save! unless linked_phenotyping_production.blank? || !linked_phenotyping_production.changed?
+
         phenotyping_productions.each do |pp|
           if pp.marked_for_destruction?
             @linked_phenotyping_production = nil if !linked_phenotyping_production.blank? && linked_phenotyping_production.id == pp.id

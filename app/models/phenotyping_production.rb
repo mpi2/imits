@@ -16,7 +16,6 @@ class PhenotypingProduction < ApplicationModel
 
   has_many   :status_stamps, :order => "#{PhenotypingProduction::StatusStamp.table_name}.created_at ASC", dependent: :destroy
 
-  access_association_by_attribute :parent_colony, :name
   access_association_by_attribute :colony_background_strain, :name
 
   accepts_nested_attributes_for :status_stamps
@@ -44,7 +43,7 @@ class PhenotypingProduction < ApplicationModel
   def allow_override_of_plan
     return if self.consortium_name.blank? or self.phenotyping_centre_name.blank? or self.gene.blank?
     set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.phenotyping_centre_name, :phenotype_only => true}) do |pa|
-      plan = pa.parent_colony.mi_plan
+      plan = pa.try(:parent_colony).try(:mi_plan)
       if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.phenotyping_centre_name
         plan = [plan]
       else
@@ -138,6 +137,51 @@ class PhenotypingProduction < ApplicationModel
 
 
 ## METHODS
+
+  def parent_colony_name
+    return parent_colony.name unless parent_colony.blank?
+    return nil
+  end
+
+  def parent_colony_name=(arg)
+    set_parent_colony_name(arg)
+  end
+
+  def mi_parent_colony_name=(arg)
+    set_parent_colony_name(arg, 'mi_attempt')
+  end
+
+  def mam_parent_colony_name=(arg)
+    set_parent_colony_name(arg, 'mouse_allele_mod')
+  end
+
+  def set_parent_colony_name(arg, filter = nil)
+    return nil if arg.blank?
+
+    if !arg.respond_to?(:to_str)
+      errors.add(:parent_colony_name, "value is invalid")
+      return
+    end
+
+    if filter == 'mi_attempt'
+      parent_colony_model = Colony.where("name = '#{arg}' AND mi_attempt_id IS NOT NULL")
+    elsif filter == 'mouse_allele_mod'
+      parent_colony_model = Colony.where("name = '#{arg}' AND mouse_allele_mod_id IS NOT NULL")
+    else
+      parent_colony_model = Colony.where("name = '#{arg}'")
+    end
+
+    if parent_colony_model.count == 0
+      errors.add(:parent_colony_name, "#{arg} does not exist")
+    end
+
+    raise "Multiple Colonies found with the name equal to #{arg}" if parent_colony_model.length > 1
+
+    self.parent_colony_id = parent_colony_model.first.id
+    return arg
+  end
+  private :set_parent_colony_name
+
   def gene
     if mi_plan.try(:gene)
       return mi_plan.gene

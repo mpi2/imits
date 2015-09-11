@@ -35,27 +35,35 @@ class MiAttemptsController < ApplicationController
   def new
 
     if params[:set_up] || true
+      @strategy = params[:strategy]
       @parms_for_crispr_pipeline =  params[:strategy] == 'crispr' ? params.dup : {}
       @parms_for_es_cell_pipeline =  params[:strategy] == 'es_cell' ? params.dup : {}
 
       consortium_name = params['consortium']
       production_centre_name = params['production_centre']
-      gene_list = params['gene_list'].lines.map(&:strip).select{|i|!i.blank?}
+      gene_list = params['gene_list'].lines.map(&:strip).select{|i|!i.blank?}.map{|a| a.upcase}
 
       if consortium_name.blank? || production_centre_name.blank? || gene_list.blank?
         flash.now[:alert] = "Micro-injection Set up details are incomplete - please enter a value for the 'Consortium', 'Production Centre' and 'Gene List'"
         render :set_up_new
-      end
-
-      mi_plans = MiPlan.joins(:consortium, :production_centre, :gene).where("centres.name = '#{production_centre_name}' AND consortia.name = '#{consortium_name}' AND genes.marker_symbol IN ('#{gene_list.join("','")}') AND mi_plans.mutagenesis_via_crispr_cas9 = #{params[:strategy] == 'crispr' ? 'true' : 'false'}")
-      if mi_plans.length != gene_list.length
-        flash.now[:alert] = "Cannot proceed due to missing Mi Plans. Please create MI Plans for the following genes before continuing #{mi_plans.map{|mp| mp.gene.marker_symbol }}"
-        render :set_up_new
+      else
+        mi_plans = MiPlan.joins(:consortium, :production_centre, :gene).where("UPPER(centres.name) = '#{production_centre_name.upcase}' AND UPPER(consortia.name) = '#{consortium_name.upcase}' AND UPPER(genes.marker_symbol) IN ('#{gene_list.join("','")}') AND mi_plans.mutagenesis_via_crispr_cas9 = #{params[:strategy] == 'crispr' ? 'true' : 'false'} AND mi_plans.phenotype_only = false")
+        if mi_plans.map{|p| p.gene.marker_symbol}.uniq.length != gene_list.length
+          flash.now[:alert] = "Cannot proceed due to missing Mi Plans. Please create #{params[:strategy] == 'crispr' ? 'a CRISPR' : 'an ES Cell'} MI Plans for the following genes before continuing #{gene_list - mi_plans.map{|mp| mp.gene.marker_symbol.upcase }}"
+          render :set_up_new
+        else
+          # if set up is valid new form will be renderd with these expected global variables
+          @mi_attempt = Public::MiAttempt.new(:mi_plans_ids => mi_plans.map{|plan| plan.id},
+                                              :marker_symbols => mi_plans.map{|plan| plan.marker_symbol},
+                                              :consortium_name => mi_plans.first.consortium_name,
+                                              :production_centre_name => mi_plans.first.production_centre_name
+                                              )
+          @vector_option = []
+        end
       end
     end
 
-    @mi_attempt = Public::MiAttempt.new(:mi_plan_ids => mi_plans.map{|plan| plan.id})
-    @vector_option = []
+
   end
 
   def create

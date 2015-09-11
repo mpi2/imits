@@ -17,6 +17,8 @@ class Colony < ApplicationModel
   has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :dependent => :destroy
   has_many :colony_allele, :inverse_of => :colony, :dependent => :destroy
 
+  has_one :trace_call
+
   access_association_by_attribute :background_strain, :name
 
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true

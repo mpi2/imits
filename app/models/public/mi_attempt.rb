@@ -9,6 +9,7 @@ class Public::MiAttempt < ::MiAttempt
     mi_date
     colony_name
     consortium_name
+    marker_symbols
     production_centre_name
     blast_strain_name
     total_blasts_injected
@@ -60,7 +61,8 @@ class Public::MiAttempt < ::MiAttempt
     comments
     genotyping_comment
     distribution_centres_attributes
-    mi_plan_ids
+    mi_plans_ids
+    mi_plan_id
     status_stamps_attributes
     mutagenesis_factors_attributes
     cassette_transmission_verified

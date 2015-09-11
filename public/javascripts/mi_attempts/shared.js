@@ -41,187 +41,53 @@ function initDateFields() {
 }
 
 function displayAndHideFormContents(){
-    var esCellName = Ext.get('mi_attempt_es_cell_name').getValue();
-    var mutagenesisShow = Ext.get('mutagenesis-show').getValue();
-    var MarkerSymbolValue = Ext.get('marker_symbol').getValue();
+//    var esCellName = Ext.get('mi_attempt_es_cell_name').getValue();
+//    var mutagenesisShow = Ext.get('mutagenesis-show').getValue();
+//    var MarkerSymbolValue = Ext.get('marker_symbol').getValue();
 
-    var esCellName = Ext.get('mi_attempt_es_cell_name').getValue();
-    var mutagenesisShow = Ext.get('mutagenesis-show').getValue();
-    var divTop = Ext.get('object-new-top');
-    var restOfFormDiv = Ext.get('rest-of-form');
+//    var esCellName = Ext.get('mi_attempt_es_cell_name').getValue();
+//    var mutagenesisShow = Ext.get('mutagenesis-show').getValue();
+//    var divTop = Ext.get('object-new-top');
+//    var restOfFormDiv = Ext.get('rest-of-form');
 
-    if(esCellName == '' && mutagenesisShow != 'true') {
-        divTop.setVisible(true, true);
-        divTop.hidden = false;
+//    if(esCellName == '' && mutagenesisShow != 'true') {
+//        divTop.setVisible(true, true);
+//        divTop.hidden = false;
 
-        restOfFormDiv.setVisible(false, 'display');
-        restOfFormDiv.hidden = true;
-    } else {
-        divTop.setVisible(false, 'display');
-        divTop.hidden = true;
-    }
+//        restOfFormDiv.setVisible(false, 'display');
+//        restOfFormDiv.hidden = true;
+//    } else {
+//        divTop.setVisible(false, 'display');
+//        divTop.hidden = true;
+//    }
 
-    if(esCellName != ''){
-       $('.object-es-cell').show();
-       if (MarkerSymbolValue){
-          listView.set_mi_plan_selection(MarkerSymbolValue);
-      }
-    } else {
-        $('.object-es-cell').hide();
-    }
+//    if(esCellName != ''){
+//       $('.object-es-cell').show();
+//       if (MarkerSymbolValue){
+//          listView.set_mi_plan_selection(MarkerSymbolValue);
+//      }
+//    } else {
+//        $('.object-es-cell').hide();
+//    }
 
-    if(mutagenesisShow != 'true') {
-        $('.object-crispr').hide();
-    } else {
-        $('.object-crispr').show();
+//    if(mutagenesisShow != 'true') {
+//        $('.object-crispr').hide();
+//    } else {
+//        $('.object-crispr').show();
 
-        if (MarkerSymbolValue){
-           var crispr = 'true';
-           listView.set_mi_plan_selection(MarkerSymbolValue, crispr);
-       }
-    }
+//        if (MarkerSymbolValue){
+//           var crispr = 'true';
+//           listView.set_mi_plan_selection(MarkerSymbolValue, crispr);
+//       }
+//    }
 
 }
 
-function changePlanButton(){
-    Ext.create('Ext.Button', {
-        minHeight: 20,
-        text: 'Change Mi Plan',
-        renderTo: 'change_plan',
-        handler: function() {
-
-                var planChanger= Ext.get('change_plan');
-                planChanger.setVisible(false, 'display');
-                planChanger.hidden = true;
-
-                var planChanger= Ext.get('mi_plan_preious_selection');
-                planChanger.setVisible(false, 'display');
-                planChanger.hidden = true;
-
-                var planSelector= Ext.get('mi_plan_selection_div');
-                planSelector.setVisible(true, true);
-                planSelector.hidden = false;
-
-                var mi_plan_id = Ext.get('mi_attempt_mi_plan_id').getValue();
-                var recordIndex = listView.store.find('id', mi_plan_id);
-                if (recordIndex != -1) {
-                    listView.getSelectionModel().select(recordIndex);
-                }
-            }
-        });
-}
-
-function miPlanSelectionList(){
-
-    listView = Ext.create('Imits.MiAttempts.Shared.ListView')
-}
-
-Ext.define('Imits.MiAttempts.Shared.ListView', {
-
-    set_mi_plan_selection: function(MarkerSymbol, crispr){
-        crispr = crispr || false;
-        if (MarkerSymbol){
-            this.store.load({params: {marker_symbol: MarkerSymbol, crispr: crispr}});
-        };
-    },
-    store: Ext.create('Ext.data.JsonStore', {
-               model: 'MiPlanListViewModel',
-               storeId: 'store',
-               proxy: {
-                    type: 'ajax',
-                    url: window.basePath + '/mi_plans/search_for_available_mi_attempt_plans.json'
-               },
-    }),
-    extend: 'Ext.grid.Panel',
-    width:1000,
-    height:250,
-    title:'Select a Plan',
-    renderTo: 'mi_plan_list',
-    multiSelect: false,
-    viewConfig: {
-        emptyText: 'No images to display'
-    },
-
-    columns: [{
-        text: 'Consortium',
-        flex: 50,
-        dataIndex: 'consortium_name',
-        height: 20
-    },{
-        text: 'Production Centre',
-        flex: 50,
-        dataIndex: 'production_centre_name',
-        height: 20
-    },{
-        text: 'Sub Project',
-        flex: 40,
-        dataIndex: 'sub_project_name',
-        height: 20
-    },{
-        text: 'Knockout First Tm1a',
-        flex: 60,
-        dataIndex: 'is_conditional_allele',
-        height: 20
-    },{
-        text: 'Conditional tm1c',
-        flex: 50,
-        dataIndex: 'conditional_tm1c',
-        height: 20
-    },{
-        text: 'Deletion',
-        flex: 30,
-        dataIndex: 'is_deletion_allele',
-        height: 20
-    },{
-        text: 'Cre Knock In',
-        flex: 40,
-        dataIndex: 'is_cre_knock_in_allele',
-        height: 20
-    },{
-        text: 'Cre Bac',
-        flex: 30,
-        dataIndex: 'is_cre_bac_allele',
-        height: 20
-    },{
-        text: 'Point Mutation',
-        flex: 40,
-        dataIndex: 'point_mutation',
-        height: 20
-    },{
-        text: 'Conditional Point Mutation',
-        flex: 70,
-        dataIndex: 'conditional_point_mutation',
-        height: 20
-    },{
-        text: 'Active',
-        flex: 40,
-        dataIndex: 'is_active',
-        height: 20
-    }],
-
-    listeners : {
-        afterrender : function(panel) {
-            var header = panel.header;
-            header.setHeight(40);
-        }
-    },
-
-    initComponent: function() {
-        this.callParent();
-        this.addListener('selectionchange', function(view, nodes) {
-            if (nodes.length > 0){
-              Ext.get("mi_attempt_mi_plan_id").set({ value: nodes[0].get('id') });
-            }
-        });
-    }
-});
 
 Ext.onReady(function() {
-    miPlanSelectionList()
     initNumberFields();
     initDateFields();
     displayAndHideFormContents();
-    changePlanButton();
 });
 
 $(function() {

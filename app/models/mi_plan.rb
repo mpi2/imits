@@ -43,6 +43,7 @@ class MiPlan < ApplicationModel
   has_many :mouse_allele_mods
   has_many :phenotyping_productions
   has_many :es_cell_qcs, :dependent => :delete_all
+  has_many :mi_attempts, through: :gene_targets
 
   accepts_nested_attributes_for :status_stamps
 
@@ -108,14 +109,6 @@ class MiPlan < ApplicationModel
       :consortium_id => plan.consortium_id,
       :production_centre_id => plan.production_centre_id,
       :sub_project_id => plan.sub_project_id,
-      :is_bespoke_allele => plan.is_bespoke_allele,
-      :is_conditional_allele => plan.is_conditional_allele,
-      :is_deletion_allele => plan.is_deletion_allele,
-      :is_cre_knock_in_allele => plan.is_cre_knock_in_allele,
-      :is_cre_bac_allele => plan.is_cre_bac_allele,
-      :conditional_tm1c => plan.conditional_tm1c,
-      :point_mutation => plan.point_mutation,
-      :conditional_point_mutation => plan.conditional_point_mutation,
       :mutagenesis_via_crispr_cas9 => plan.mutagenesis_via_crispr_cas9,
       :phenotype_only => plan.phenotype_only).map(&:id)
     other_ids -= [plan.id]

@@ -20,39 +20,61 @@
   <% end %>
 <% end %>
 
-<%= form_tag nil do %>
-<!-- Display logic for javascript -->
 
 <div id="object-new-top" class="grid_8 prefix_2 suffix_2">
+<!-- Display logic for javascript -->
     <fieldset class="collapsible">
       <legend>Injection Details</legend>
       <div>
-        <div id="es-cell-selector"></div>
-        <p>or</p>
-        <div id="mutagenesis-factor-selector"></div>
+        <% if @strategy == 'crispr'%>
+          <div id="mutagenesis-factor-selector"></div>
+        <% else %>
+          <div id="es-cell-selector"></div>
+        <% end %>
       </div>
     </fieldset>
 </div>
-<% end %>
 
 <div id="object-new-bottom" class="grid_8 prefix_2 suffix_2">
   <%= form_for @mi_attempt, :as => :mi_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
     <%= form.error_messages %>
 
-    <div id="rest-of-form">
-      <div id="object-es-cell" class="object-es-cell">
-        <%= form_tag nil do %>
-          <fieldset class="collapsible">
-            <legend>ES Cell Details</legend>
-            <div>
-              <div id="es-cell-details"></div>
+    <fieldset class="collapsible">
+      <legend>MI Plan Details</legend>
+      <div>
+        <div id="mi_plan_preious_selection" class="grid_12 alpha omega">
+          <div class="grid_3">
+            <div class="marker_symbols">
+              <div class="label">Marker Symbols</div>
+              <div><%= @mi_attempt.marker_symbols.to_sentence %></div>
+              <div id="marker_symbol" style=display:none;><%= @mi_attempt.marker_symbol %></div>
             </div>
-          </fieldset>
-        <% end %>
+          </div>
+          <div class="grid_3">
+            <div class="consortium-name">
+              <div class="label">Consortium</div>
+              <div><%= @mi_attempt.consortium_name %></div>
+            </div>
+          </div>
+          <div class="grid_3">
+            <div class="production-centre-name">
+              <div class="label">Production Centre</div>
+              <div><%= @mi_attempt.production_centre_name %></div>
+            </div>
+          </div>
+        </div>
       </div>
+    </fieldset>
 
+    <fieldset class="collapsible">
+      <legend>Injection Details</legend>
+      <div>
+        <div id="es-cell-details"></div>
+      </div>
+    </fieldset>
+
+    <div id="rest-of-form">
       <%= render 'form_contents', :form => form %>
-
       <div>
          <button id="mi_attempt_submit">Create</button>
       </div>

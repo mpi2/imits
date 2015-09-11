@@ -21,9 +21,9 @@ class MiAttempt < ApplicationModel
   has_one    :colony, inverse_of: :mi_attempt, dependent: :destroy
 
   has_many   :gene_targets
-  has_many   :mouse_allele_mods
   has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC", dependent: :destroy
   has_many   :colonies, inverse_of: :mi_attempt
+  has_many   :mutagenesis_factors, through: :gene_targets
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :test_cross_strain, :name
@@ -136,30 +136,62 @@ class MiAttempt < ApplicationModel
   after_save :manage_status_stamps
 
   def consortium_name
+    return @consortium_name unless @consortium_name.blank?
     return gene_targets.first.mi_plan.try(:consortium).try(:name) unless gene_targets.blank?
     return nil
   end
 
+  def consortium_name=(arg)
+    return nil if arg.blank?
+    @consortium_name = arg
+  end
+
   def production_centre_name
+    return @production_centre_name unless @production_centre_name.blank?
     return gene_targets.first.mi_plan.try(:production_centre).try(:name) unless gene_targets.blank?
     return nil
   end
 
+  def production_centre_name=(arg)
+    return nil if arg.blank?
+    @production_centre_name = arg
+  end
+
+
   def marker_symbols
+    return @marker_symbols unless @marker_symbols.blank?
     return nil if gene_targets.blank?
     return gene_targets.map{|gt| gt.marker_symbol}
   end
 
-  def mi_plan_ids
+  def marker_symbols=(arg)
+    arg = [arg] unless arg.class == Array
+    @marker_symbols = arg
+  end
+
+  def mi_plans_ids
     return @mi_plan_ids unless @mi_plan_ids.blank?
     return gene_targets.map{|gt| gt.mi_plan_id}
     return []
   end
 
-  def mi_plan_ids=(arg)
+  def mi_plans_ids=(arg)
     arg = [arg] unless arg.class == Array
     @mi_plan_ids = arg
   end
+
+  def mi_plan_id
+    if mi_plans_ids.length == 1
+      return mi_plans_ids
+    else
+      return nil
+    end
+  end
+
+  def mi_plan_id=(arg)
+    mi_plans_ids = arg
+  end
+
 
   def set_default_background_strain_for_crispr_produced_colonies
     return unless self.blast_strain_id.blank?

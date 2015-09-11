@@ -3,7 +3,8 @@ class TraceCall < ActiveRecord::Base
   acts_as_audited
   acts_as_reportable
 
-  belongs_to :colony_allele
+  belongs_to :colony
+  belongs_to :gene_target
   has_many :trace_call_vcf_modifications
 
   has_attached_file :trace_file, :storage => :database
@@ -428,5 +429,5 @@ end
 #  trace_file_file_size           :integer
 #  trace_file_updated_at          :datetime
 #  exon_id                        :string(255)
-#  colony_allele_id               :integer
+#  gene_target_id                 :integer
 #

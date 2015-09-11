@@ -10,11 +10,10 @@ class NewCrisprMiExperimentalDesign < ActiveRecord::Migration
     create_table :colony_alleles do |t|
       t.integer :colony_id, :null => false
       t.integer :mutagenesis_factor_id, :null => true
-      t.integer :real_allele_id, :null => true
     end
 
     add_column :colony_qcs, :colony_allele_id, :integer
-    add_column :trace_calls, :colony_allele_id, :integer
+    add_column :trace_calls, :gene_target_id, :integer
     add_column :mutagenesis_factors, :gene_target_id, :integer
 
     add_foreign_key :gene_targets, :mi_plans
@@ -24,10 +23,9 @@ class NewCrisprMiExperimentalDesign < ActiveRecord::Migration
 
     add_foreign_key :colony_alleles, :colonies
     add_foreign_key :colony_alleles, :mutagenesis_factors
-    add_foreign_key :colony_alleles, :targ_rep_real_alleles, :column => :real_allele_id, :name => 'colony_alleles_real_allele_fk'
 
     add_foreign_key :colony_qcs, :colony_alleles
-    add_foreign_key :trace_calls, :colony_alleles
+    add_foreign_key :trace_calls, :gene_targets
 
     sql = <<-EOF
 
@@ -49,9 +47,11 @@ class NewCrisprMiExperimentalDesign < ActiveRecord::Migration
         FROM colony_alleles
         WHERE colony_alleles.colony_id = colony_qcs.colony_id;
 
-        UPDATE trace_calls SET colony_allele_id = colony_alleles.id
-        FROM colony_alleles
-        WHERE colony_alleles.colony_id = trace_calls.colony_id;
+        UPDATE trace_calls SET gene_target_id = gene_targets.id
+        FROM colonies
+        JOIN mi_attempts ON mi_attempts.id = colonies.mi_attempt_id
+        JOIN gene_targets ON gene_targets.mi_attempt_id = mi_attempts.id
+        WHERE colonies.id = trace_calls.colony_id;
 
     EOF
 

@@ -2,12 +2,22 @@ Ext.namespace('Imits.MiAttempts.New');
 Ext.onReady(function() {
     processRestOfForm();
 
-    EsCellPanel = Ext.create('Imits.MiAttempts.New.EsCellSelectorForm', {
-        renderTo: 'es-cell-selector'
-    });
-    mutagensisFactorPanel = Ext.create('Imits.MiAttempts.New.MutagenesisFactorSelectorForm', {
-        renderTo: 'mutagenesis-factor-selector'
-    });
+    if ($('#es-cell-selector').length){
+      EsCellPanel = Ext.create('Imits.MiAttempts.New.EsCellSelectorForm', {
+          renderTo: 'es-cell-selector'
+      });
+      EsCellPanel.window.markerSymbolSearchTab.searchBox.setValue('Cbx1');
+      EsCellPanel.window.markerSymbolSearchTab.performSearch();
+      EsCellPanel.window.markerSymbolSearchTab.searchBox.disable()
+      EsCellPanel.window.markerSymbolSearchTab.searchButton.disable()
+    }
+
+    if ($('#mutagenesis-factor-selector').length){
+      mutagensisFactorPanel = Ext.create('Imits.MiAttempts.New.MutagenesisFactorSelectorForm', {
+          renderTo: 'mutagenesis-factor-selector'
+      });
+    }
+
     var ignoreWarningsButton = Ext.get('ignore-warnings');
     if(ignoreWarningsButton) {
         ignoreWarningsButton.addListener('click', function() {
@@ -99,7 +109,7 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
         });
 
         this.esCellLable =Ext.create('Ext.form.Label', {
-            text: 'Create ES Cell MI',
+            text: 'Select ES Cell Clone',
             margins: {
                 left: 5,
                 right: 0,
@@ -165,13 +175,9 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
     onEsCellNameSelected: function(esCellName, esCellMarkerSymbol) {
         this.esCellNameTextField.setValue(esCellName);
         this.esCellMarkerSymbolDiv.update(esCellMarkerSymbol);
-        mutagensisFactorPanel.MutagenesisFactorCreateSelect.disable();
+//        mutagensisFactorPanel.MutagenesisFactorCreateSelect.disable();
         this.window.hide();
 
-        listView.set_mi_plan_selection(esCellMarkerSymbol);
-        Ext.get('mi_attempt_mi_plan_id').set({
-            value: ''
-        });
         Imits.MiAttempts.New.restOfForm.setEsCellDetails(esCellName, esCellMarkerSymbol);
         var top = Ext.get('object-new-top');
         top.setVisible(false ,'display');
@@ -258,7 +264,6 @@ Ext.define('Imits.MiAttempts.New.SearchTab', {
     performSearch: function() {
         var urlParams = {}
         urlParams[this.initialConfig.searchParam] = this.searchBox.getValue();
-        this.esCellSelectorForm.window.showLoadMask();
         Ext.Ajax.request({
             method: 'GET',
             url: window.basePath + '/targ_rep/es_cells/mart_search.json',
@@ -266,7 +271,6 @@ Ext.define('Imits.MiAttempts.New.SearchTab', {
             success: function(response) {
                 var data = Ext.decode(response.responseText);
                 this.esCellsList.getStore().loadData(data, false);
-                this.esCellSelectorForm.window.hideLoadMask();
             },
             scope: this
         });
@@ -298,7 +302,7 @@ Ext.define('Imits.MiAttempts.New.SearchTab', {
             }
         }));
 
-        this.add(Ext.create('Ext.panel.Panel', {
+        this.searchButton = this.add(Ext.create('Ext.panel.Panel', {
             layout: {
                 type: 'hbox'
             },
@@ -345,7 +349,7 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
     extend: 'Ext.grid.Panel',
     height: 150,
     store: {
-        fields: ['name', 'marker_symbol', 'pipeline_name', 'mutation_subtype', 'production_qc_loxp_screen'],
+        fields: ['name', 'marker_symbol', 'pipeline_name', 'mgi_allele_symbol_superscript', 'production_qc_loxp_screen'],
         data: {
             'rows': []
         },
@@ -379,9 +383,9 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
         width: 80
     },
     {
-        header: 'Mutation Subtype',
-        dataIndex: 'mutation_subtype',
-        flex: 1
+        header: 'Allele Symbol Superscript',
+        dataIndex: 'mgi_allele_symbol_superscript',
+        width: 180
     },
     {
         header: 'LoxP Screen',
@@ -630,14 +634,6 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                 listeners: {
                     'click':  function() {
                         var MarkerSymbol = mutagensisFactorPanel.window.crisprSearch.searchBox.getValue()
-                        if (MarkerSymbol){
-                          Ext.get('marker_symbol').set({
-                              value: MarkerSymbol
-                          });
-                          var crispr = 'true';
-                          listView.set_mi_plan_selection(MarkerSymbol, crispr);
-                        }
-
                         var crisprTable = Ext.get('crispr-table');
                         var recordStore = mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore()
                         var newRecords = recordStore.getNewRecords();
@@ -725,8 +721,6 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
 
                         mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().removeAll()
 
-                        EsCellPanel.esCellNameTextField.disable();
-                        EsCellPanel.esCellNameSelect.disable();
                         mutagensisFactorPanel.window.crisprSearch.searchBox.disable();
                         mutagensisFactorPanel.window.crisprSearch.searchButton.disable();
 

@@ -69,7 +69,6 @@ ActiveRecord::Schema.define(:version => 20150812125302) do
   create_table "colony_alleles", :force => true do |t|
     t.integer "colony_id",             :null => false
     t.integer "mutagenesis_factor_id"
-    t.integer "real_allele_id"
   end
 
   create_table "colony_distribution_centres", :force => true do |t|
@@ -1128,7 +1127,7 @@ ActiveRecord::Schema.define(:version => 20150812125302) do
     t.integer  "trace_file_file_size"
     t.datetime "trace_file_updated_at"
     t.string   "exon_id"
-    t.integer  "colony_allele_id"
+    t.integer  "gene_target_id"
   end
 
   create_table "trace_files", :force => true do |t|
@@ -1175,7 +1174,6 @@ ActiveRecord::Schema.define(:version => 20150812125302) do
 
   add_foreign_key "colony_alleles", "colonies", :name => "colony_alleles_colony_id_fk"
   add_foreign_key "colony_alleles", "mutagenesis_factors", :name => "colony_alleles_mutagenesis_factor_id_fk"
-  add_foreign_key "colony_alleles", "targ_rep_real_alleles", :name => "colony_alleles_real_allele_fk", :column => "real_allele_id"
 
   add_foreign_key "colony_qcs", "colony_alleles", :name => "colony_qcs_colony_allele_id_fk"
 
@@ -1238,7 +1236,7 @@ ActiveRecord::Schema.define(:version => 20150812125302) do
 
   add_foreign_key "trace_call_vcf_modifications", "trace_calls", :name => "trace_call_vcf_modifications_trace_calls_fk"
 
-  add_foreign_key "trace_calls", "colony_alleles", :name => "trace_calls_colony_allele_id_fk"
+  add_foreign_key "trace_calls", "gene_targets", :name => "trace_calls_gene_target_id_fk"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

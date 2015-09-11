@@ -819,8 +819,7 @@ ALTER SEQUENCE colonies_id_seq OWNED BY colonies.id;
 CREATE TABLE colony_alleles (
     id integer NOT NULL,
     colony_id integer NOT NULL,
-    mutagenesis_factor_id integer,
-    real_allele_id integer
+    mutagenesis_factor_id integer
 );
 
 
@@ -3299,7 +3298,7 @@ CREATE TABLE trace_calls (
     trace_file_file_size integer,
     trace_file_updated_at timestamp without time zone,
     exon_id character varying(255),
-    colony_allele_id integer
+    gene_target_id integer
 );
 
 
@@ -5004,14 +5003,6 @@ ALTER TABLE ONLY colony_alleles
 
 
 --
--- Name: colony_alleles_real_allele_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY colony_alleles
-    ADD CONSTRAINT colony_alleles_real_allele_fk FOREIGN KEY (real_allele_id) REFERENCES targ_rep_real_alleles(id);
-
-
---
 -- Name: colony_qcs_colony_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5356,11 +5347,11 @@ ALTER TABLE ONLY trace_call_vcf_modifications
 
 
 --
--- Name: trace_calls_colony_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: trace_calls_gene_target_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY trace_calls
-    ADD CONSTRAINT trace_calls_colony_allele_id_fk FOREIGN KEY (colony_allele_id) REFERENCES colony_alleles(id);
+    ADD CONSTRAINT trace_calls_gene_target_id_fk FOREIGN KEY (gene_target_id) REFERENCES gene_targets(id);
 
 
 --

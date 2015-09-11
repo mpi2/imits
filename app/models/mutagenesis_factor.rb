@@ -9,7 +9,7 @@ class MutagenesisFactor < ActiveRecord::Base
   has_many :crisprs, :class_name => 'TargRep::Crispr', :inverse_of => :mutagenesis_factor, dependent: :destroy
   has_many :genotype_primers, :class_name => 'TargRep::GenotypePrimer', :inverse_of => :mutagenesis_factor, dependent: :destroy
 
-  belongs_to :mi_attempt
+  belongs_to :gene_target
   belongs_to :vector, :class_name => 'TargRep::TargetingVector'
 
   accepts_nested_attributes_for :crisprs

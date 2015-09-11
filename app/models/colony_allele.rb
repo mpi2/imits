@@ -4,9 +4,7 @@ class ColonyAllele < ActiveRecord::Base
 
   belongs_to :colony
   belongs_to :mutagenesis_factor
-  belongs_to :real_allele
 
-  has_one :trace_call
   has_one :colony_qc
 
   validates :colony, :presence => true
@@ -60,5 +58,4 @@ end
 #  id                    :integer          not null, primary key
 #  colony_id             :integer          not null
 #  mutagenesis_factor_id :integer
-#  real_allele_id        :integer
 #

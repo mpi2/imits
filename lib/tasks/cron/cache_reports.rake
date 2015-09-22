@@ -45,8 +45,8 @@ begin
 
       task :ikmc_project_update => [:environment] do
         ApplicationModel.audited_transaction do
-          TargRep::IkmcProject::IkmcProjectGenerator::Generate.update_ikmc_projects
           Gene.update_gene_list
+          TargRep::IkmcProject::IkmcProjectGenerator::Generate.update_ikmc_projects
         end
       end
 

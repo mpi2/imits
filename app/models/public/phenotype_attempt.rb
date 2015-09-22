@@ -537,6 +537,7 @@ class Public::PhenotypeAttempt
       end
       pp_attributes.each do |patr, pval|
         pp.mark_for_destruction if patr == '_destroy' && self.class.to_true_or_false(pval) == true
+        patr = 'mam_parent_colony_name' if patr == 'parent_colony_name'
         pp.send("#{patr}=".to_sym, pval) unless !pp.methods.include?("#{patr}=".to_sym)
       end
     end

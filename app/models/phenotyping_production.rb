@@ -8,6 +8,7 @@ class PhenotypingProduction < ApplicationModel
   include PhenotypingProduction::StatusManagement
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
+  include ApplicationModel::BelongsToMiPlan::Public
 
   belongs_to :mi_plan
   belongs_to :parent_colony, :class_name => 'Colony'
@@ -26,6 +27,7 @@ class PhenotypingProduction < ApplicationModel
   before_validation :allow_override_of_plan
   before_validation :change_status
 
+  before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_colony_background_strain
   before_save :set_phenotyping_experiments_started_if_blank
   before_save :set_phenotype_attempt_id

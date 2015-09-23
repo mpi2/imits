@@ -13,6 +13,7 @@ class Colony < ApplicationModel
 
   has_many :allele_modifications, :class_name => 'MouseAlleleMod', :foreign_key => 'parent_colony_id'
   has_many :phenotyping_productions, :class_name => 'PhenotypingProduction', :foreign_key => 'parent_colony_id'
+
   has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :dependent => :destroy
 
   has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy

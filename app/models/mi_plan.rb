@@ -75,7 +75,7 @@ class MiPlan < ApplicationModel
   end
 
   validate do |plan|
-
+puts "PLAN: #{plan.attributes}"
     statuses = MiPlan::Status.all_non_assigned
 
     if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0

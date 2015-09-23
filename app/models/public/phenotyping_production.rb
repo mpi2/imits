@@ -62,7 +62,7 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     parent_colony_name = arg
   end
 
-  def status_name; status.name; end
+  def status_name; status.try(:name); end
 
 end
 

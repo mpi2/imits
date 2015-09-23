@@ -642,7 +642,7 @@ class Gene < ActiveRecord::Base
       vega_ids_index = 5
       file.each_line do |line|
         row = line.strip.gsub(/\"/, '').split("\t")
-        genes_data[row[mgi_accession_id_index]]['vega_ids'] << row[vega_ids_index]
+        genes_data[row[mgi_accession_id_index]]['vega_ids'] << row[vega_ids_index] if genes_data.has_key?(row[mgi_accession_id_index])
       end
     end
 
@@ -654,7 +654,7 @@ class Gene < ActiveRecord::Base
       ens_ids_index = 5
       file.each_line do |line|
         row = line.strip.gsub(/\"/, '').split("\t")
-        genes_data[row[mgi_accession_id_index]]['ens_ids'] << row[ens_ids_index]
+        genes_data[row[mgi_accession_id_index]]['ens_ids'] << row[ens_ids_index] if genes_data.has_key?(row[mgi_accession_id_index])
       end
     end
 

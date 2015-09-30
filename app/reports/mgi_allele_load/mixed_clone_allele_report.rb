@@ -40,7 +40,7 @@ class MgiAlleleLoad::MixedCloneAlleleReport
 
       FROM mi_attempts
         JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id AND colonies.allele_type IS NOT NULL
-        JOIN strains background_strains ON background_strains.id = colonies.background_strain_id
+        LEFT JOIN strains background_strains ON background_strains.id = colonies.background_strain_id
         JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
         JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
         JOIN genes ON genes.id = mi_plans.gene_id

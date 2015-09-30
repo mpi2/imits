@@ -1,4 +1,4 @@
 <%= @report.class.show_columns.map{|column| column['title']}.join("\t") %>
 <% @mgi_allele.each do |record| %>
-<%= @report.class.show_columns.map{|column| record[column['field']]}.join("\t") %>
+<%= @report.class.show_columns.map{|column| record[column['field']]}.join("\t").html_safe %>
 <% end %>

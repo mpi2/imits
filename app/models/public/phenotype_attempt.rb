@@ -533,7 +533,7 @@ class Public::PhenotypeAttempt
       phenotyping_productions.each{|p| pp = p if p.id.to_s == pp_attributes['id'].to_s}
 
       if pp.blank?
-        pp = Public::phenotyping_productions.build
+        pp = phenotyping_productions.build
       end
       pp_attributes.each do |patr, pval|
         pp.mark_for_destruction if patr == '_destroy' && self.class.to_true_or_false(pval) == true

@@ -69,19 +69,19 @@ namespace :jax_phenotypes do
         log "cannot find '#{row['Colony name']}' - #{row.to_s}" if ! col
         failures += 1 if ! col
         next if ! col
-        before = "#{col.id}; #{col.name}; #{col.mgi_allele_id}; #{col.allele_name}"
+        before = "#{col.id}; #{col.name}; #{col.mgi_allele_id}; #{col.mgi_allele_symbol_superscript}"
 
         if DIFF
-          diff = col.mgi_allele_id != row['MGI accession id'] || col.allele_name != row['Allele name']
+          diff = col.mgi_allele_id != row['MGI accession id'] || col.mgi_allele_symbol_superscript != row['Allele name']
           next if ! diff
           diffed += 1
         end
 
-        col.allele_name = row['Allele name']
+        col.mgi_allele_symbol_superscript = row['Allele name']
         col.mgi_allele_id = row['MGI accession id']
         col.save!
         col.reload
-        after = "#{col.id}; #{col.name}; #{col.mgi_allele_id}; #{col.allele_name}"
+        after = "#{col.id}; #{col.name}; #{col.mgi_allele_id}; #{col.mgi_allele_symbol_superscript}"
         log "before: #{before} - after: #{after}"
       end
       puts  "#### results: #{failures}/#{diffed}/#{data.size}"

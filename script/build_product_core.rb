@@ -22,7 +22,7 @@ class BuildProductCore
     WHERE mi_plans.report_to_public = true AND consortia.name SUBS_EUCOMMTOOLSCRE
   EOF
 
-
+# NOTES Remove Gene Trap alleles by only selecting TargetedAlleles
   ES_CELL_SQL= <<-EOF
     SELECT targ_rep_es_cells.*,
       targ_rep_targeting_vectors.name AS targeting_vector_name,
@@ -47,7 +47,7 @@ class BuildProductCore
       LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
       LEFT JOIN targ_rep_mutation_methods ON targ_rep_mutation_methods.id = targ_rep_alleles.mutation_method_id
       LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = targ_rep_es_cells.targeting_vector_id
-    WHERE targ_rep_pipelines.name SUBS_EUCOMMTOOLSCRE
+    WHERE targ_rep_alleles.type = 'TargRep::TargetedAllele' AND targ_rep_pipelines.name SUBS_EUCOMMTOOLSCRE
   EOF
 
   DISTRIBUTION_CENTRES_SQL= <<-EOF
@@ -267,7 +267,7 @@ class BuildProductCore
         LEFT JOIN strains AS test_strain ON test_strain.id = mi_attempts.test_cross_strain_id
         LEFT JOIN es_cells ON es_cells.id = mi_attempts.es_cell_id
         LEFT JOIN distribution_centres ON distribution_centres.colony_id = colonies.id
-      WHERE mi_attempts.report_to_public = true AND mi_attempts.is_active = true AND (mi_attempts.mutagenesis_factor_id IS NULL OR (colonies.genotype_confirmed = true AND colonies.report_to_public = true))
+      WHERE mi_attempts.report_to_public = true AND mi_attempts.is_active = true AND (es_cells.id IS NOT NULL OR (mi_attempts.mutagenesis_factor_id IS NOT NULL AND colonies.genotype_confirmed = true AND colonies.report_to_public = true))
 
       UNION ALL
 
@@ -349,10 +349,10 @@ class BuildProductCore
 #    @solr_user = @solr_update[Rails.env]['user']
 #    @solr_password = @solr_update[Rails.env]['password']
     @dataset_max_size = 80000
-    @process_mice = true
-    @process_es_cells = true
+    @process_mice = false
+    @process_es_cells = false
     @process_targeting_vectors = true
-    @process_intermediate_vectors = true
+    @process_intermediate_vectors = false
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',
@@ -511,8 +511,8 @@ class BuildProductCore
                                                                 'mgi_allele_symbol_superscript' => row['colonies_mgi_allele_symbol_superscript'] || nil
                                                               })
 
-#puts "HELLO #{allele_symbol}, #{allele_type},e_temp:#{row['es_cell_allele_superscript_template']},mi_temp:#{row['mi_colony_allele_symbol_superscript_template']},c_temp:#{row['colony_allele_symbol_superscript_template']},e_type:#{row['es_cell_allele_type']},p_type:#{row['parent_mouse_allele_type']},c_type:#{row['colony_allele_type']},a_id:#{row['allele_id']},a_target:#{row['allele_target']},c_allele_name:#{row['colony_allele_name']},excised:#{row['excised']},a_template:#{allele_template},c_mgi_symbol:#{row['colonies_mgi_allele_symbol_superscript']}"
-
+#puts "HELLO #{allele_info['allele_symbol']}, #{allele_info['allele_type']},e_temp:#{row['es_cell_allele_superscript_template']},mi_temp:#{row['mi_colony_allele_symbol_superscript_template']},c_temp:#{row['colony_allele_symbol_superscript_template']},e_type:#{row['es_cell_allele_type']},p_type:#{row['parent_mouse_allele_type']},c_type:#{row['colony_allele_type']},a_id:#{row['allele_id']},a_target:#{row['allele_target']},c_allele_name:#{row['colony_allele_name']},excised:#{row['excised']},a_template:#{allele_template},c_mgi_symbol:#{row['colonies_mgi_allele_symbol_superscript']}"
+#raise "Oops"
     doc = {"product_id"                 => row["product_id"],
      "allele_id"                        => row["allele_id"],
      "marker_symbol"                    => row["marker_symbol"],

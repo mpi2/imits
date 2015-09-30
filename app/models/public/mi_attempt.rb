@@ -60,11 +60,13 @@ class Public::MiAttempt < ::MiAttempt
     is_released_from_genotyping
     comments
     genotyping_comment
-    distribution_centres_attributes
     mi_plans_ids
     mi_plan_id
+    distribution_centres_attributes
     status_stamps_attributes
     mutagenesis_factors_attributes
+    colonies_attributes
+    gene_targets_attributes
     cassette_transmission_verified
     cassette_transmission_verified_auto_complete
     crsp_total_embryos_injected
@@ -78,7 +80,6 @@ class Public::MiAttempt < ::MiAttempt
     crsp_num_founders_selected_for_breading
     real_allele_id
     external_ref
-    colonies_attributes
     experimental
   }
 

@@ -27,27 +27,54 @@
       <div id="blast_strain-container">
         <%= generator.strains_field :blast_strain %>
       </div>
-
-      <div id="vector-container">
-      </div>
       <div id="nuclease-container">
+      </div>
+      <div id="vector-container">
       </div>
 
       <div>
-        <label for="mi_attempts_mutagenesis_factors_crisprs">Crisprs</label>
-        <table id="mutagenesis_factor_table" class="report_table">
+        <table class="report_table">
           <thead class="title">
-            <tr>
-              <th>Sequence</th>
-              <th>Chr</th>
-              <th>Chr Start</th>
-              <th>Chr End</th>
-            </tr>
+          <tr>
+            <th rowspan="2">Marker Symbol</th>
+            <th rowspan="2">MF External Ref</th>
+            <th colspan="2">Mutagenesis Factors</th>
+          </tr>
+          <tr>
+            <th>Crisprs</th>
+            <th>Vector/Oligo</th>
+          </tr>
           </thead>
-          <tbody class="distribution_centres"  id="crispr-table">
+          <tbody>
+
+          <%= form.fields_for :gene_targets do |gene_builder| %>
+            <% if gene_builder.object.mutagenesis_factors.length > 0 %>
+              <%= gene_builder.fields_for :mutagenesis_factors do |mf_builder| %>
+              <tr>
+                <td><%= gene_builder.object.marker_symbol %></td>
+                <td><%= "#{mf_builder.object.external_ref.blank? ? 'new' : mf_builder.object.external_ref}" %></td>
+                <td>
+                  <table id="mutagenesis_factor_table" class="report_table">
+                    <thead class="title">
+                      <tr>
+                        <th>Sequence</th>
+                        <th>Chr</th>
+                        <th>Chr Start</th>
+                        <th>Chr End</th>
+                      </tr>
+                    </thead>
+                    <tbody class="distribution_centres"  id="crispr-table">
+                    </tbody>
+                  </table>
+                </td>
+                <td><%=mf_builder.object.vector_name %></td>
+              </tr>
+              <% end %>
+            <% end %>
+          <% end %>
           </tbody>
+          <div id="crispr_edit_button"></div>
         </table>
-        <div id="crispr_edit_button"></div>
       </div>
     </div>
   </fieldset>

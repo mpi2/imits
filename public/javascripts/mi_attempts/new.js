@@ -6,10 +6,12 @@ Ext.onReady(function() {
       EsCellPanel = Ext.create('Imits.MiAttempts.New.EsCellSelectorForm', {
           renderTo: 'es-cell-selector'
       });
-      EsCellPanel.window.markerSymbolSearchTab.searchBox.setValue('Cbx1');
+      marker_symbol = $('#marker_symbol').html();
+      EsCellPanel.window.markerSymbolSearchTab.searchBox.setValue(marker_symbol);
       EsCellPanel.window.markerSymbolSearchTab.performSearch();
-      EsCellPanel.window.markerSymbolSearchTab.searchBox.disable()
-      EsCellPanel.window.markerSymbolSearchTab.searchButton.disable()
+      EsCellPanel.window.markerSymbolSearchTab.searchBox.disable();
+      EsCellPanel.window.markerSymbolSearchTab.searchButton.disable();
+      EsCellPanel.window.show();
     }
 
     if ($('#mutagenesis-factor-selector').length){
@@ -138,31 +140,6 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
 
 
 
-        this.esCellNameSelect = Ext.create('Ext.panel.Panel', {
-            layout: {
-                type: 'hbox'
-            },
-            ui: 'plain',
-            items: [
-            this.esCellLable,
-            {
-                xtype: 'button',
-                margins: {
-                    left: 5,
-                    right: 0,
-                    top: 0,
-                    bottom: 0
-                },
-                text: 'Select Clone',
-                listeners: {
-                    click: function() {
-                        this.window.show();
-                    },
-                    scope: this
-                }
-            }
-            ]
-        });
 
         this.add(this.esCellNameSelect);
         this.addListener('render', this.renderHandler, this);
@@ -417,43 +394,6 @@ Ext.define('Imits.MiAttempts.New.MutagenesisFactorSelectorForm', {
     initComponent: function() {
         this.callParent();
 
-        this.MutagenesisFactorField = this.add(Ext.create('Ext.form.Label', {
-            text: 'Create Crispr MI',
-            padding: '0 0 5 0',
-            margins: {
-                    left: 5,
-                    right: 0,
-                    top: 5,
-                    bottom: 0
-                }
-        }));
-
-        this.MutagenesisFactorCreateSelect = this.add(Ext.create('Ext.panel.Panel', {
-            layout: {
-                type: 'hbox'
-            },
-            ui: 'plain',
-            items: [
-            this.MutagenesisFactorField,
-            {
-                xtype: 'button',
-                margins: {
-                    left: 10,
-                    right: 0,
-                    top: 0,
-                    bottom: 0
-                },
-                text: 'Select Crisprs',
-                listeners: {
-                    click: function() {
-                        this.window.show();
-                    },
-                    scope: this
-                }
-            }
-            ]
-        }));
-
         Ext.create('Ext.Button', {
             minHeight: 20,
             text: 'Edit Crispr Selection',
@@ -523,7 +463,6 @@ Ext.define('Imits.MiAttempts.New.MutagenesisFactorSelectorWindow', {
 
 
 Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
-//Ext.define('Imits.MiAttempts.New.SearchForCrisprsTab', {
     extend: 'Ext.panel.Panel',
     ui: 'plain',
     layout: {

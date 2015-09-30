@@ -14,6 +14,8 @@ class GeneTarget < ApplicationModel
 
   has_many   :mutagenesis_factors
 
+  accepts_nested_attributes_for :mutagenesis_factors
+
   validates :mi_plan, :presence => true
   validates :mi_attempt, :presence => true
 

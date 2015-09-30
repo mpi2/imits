@@ -47,17 +47,30 @@ class MiAttemptsController < ApplicationController
         flash.now[:alert] = "Micro-injection Set up details are incomplete - please enter a value for the 'Consortium', 'Production Centre' and 'Gene List'"
         render :set_up_new
       else
-        mi_plans = MiPlan.joins(:consortium, :production_centre, :gene).where("UPPER(centres.name) = '#{production_centre_name.upcase}' AND UPPER(consortia.name) = '#{consortium_name.upcase}' AND UPPER(genes.marker_symbol) IN ('#{gene_list.join("','")}') AND mi_plans.mutagenesis_via_crispr_cas9 = #{params[:strategy] == 'crispr' ? 'true' : 'false'} AND mi_plans.phenotype_only = false")
+        mi_plans = MiPlan.joins(:consortium, :production_centre, :gene).where("UPPER(centres.name) = '#{production_centre_name.upcase}' AND UPPER(consortia.name) = '#{consortium_name.upcase}' AND UPPER(genes.marker_symbol) IN ('#{gene_list.join("','")}') AND mi_plans.mutagenesis_via_crispr_cas9 = #{params[:strategy] == 'crispr' ? 'true' : 'false'} AND mi_plans.phenotype_only = false AND is_active = true")
         if mi_plans.map{|p| p.gene.marker_symbol}.uniq.length != gene_list.length
           flash.now[:alert] = "Cannot proceed due to missing Mi Plans. Please create #{params[:strategy] == 'crispr' ? 'a CRISPR' : 'an ES Cell'} MI Plans for the following genes before continuing #{gene_list - mi_plans.map{|mp| mp.gene.marker_symbol.upcase }}"
           render :set_up_new
         else
           # if set up is valid new form will be renderd with these expected global variables
-          @mi_attempt = Public::MiAttempt.new(:mi_plans_ids => mi_plans.map{|plan| plan.id},
-                                              :marker_symbols => mi_plans.map{|plan| plan.marker_symbol},
-                                              :consortium_name => mi_plans.first.consortium_name,
-                                              :production_centre_name => mi_plans.first.production_centre_name
+          if params[:strategy] == 'crispr'
+            gene_targets = []
+            i=0
+            mi_plans.each{|plan| gene_targets << GeneTarget.new(mi_plan_id: plan.id).attributes}
+            puts "GENE TARGETS: #{gene_targets}"
+            gene_targets.each{|gt| gt["mutagenesis_factors_attributes"] = [{"external_ref" => nil}] }
+            @mi_attempt = Public::MiAttempt.new( :gene_targets_attributes => gene_targets,
+                                                 :marker_symbols => mi_plans.map{|plan| plan.marker_symbol},
+                                                 :consortium_name => mi_plans.first.consortium_name,
+                                                 :production_centre_name => mi_plans.first.production_centre_name
                                               )
+          else
+            @mi_attempt = Public::MiAttempt.new(:mi_plans_ids => mi_plans.map{|plan| plan.id},
+                                                :marker_symbols => mi_plans.map{|plan| plan.marker_symbol},
+                                                :consortium_name => mi_plans.first.consortium_name,
+                                                :production_centre_name => mi_plans.first.production_centre_name
+                                              )
+          end
           @vector_option = []
         end
       end

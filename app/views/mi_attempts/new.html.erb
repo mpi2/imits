@@ -21,19 +21,13 @@
 <% end %>
 
 
-<div id="object-new-top" class="grid_8 prefix_2 suffix_2">
 <!-- Display logic for javascript -->
-    <fieldset class="collapsible">
-      <legend>Injection Details</legend>
-      <div>
-        <% if @strategy == 'crispr'%>
-          <div id="mutagenesis-factor-selector"></div>
-        <% else %>
-          <div id="es-cell-selector"></div>
-        <% end %>
-      </div>
-    </fieldset>
-</div>
+<% if @strategy == 'crispr'%>
+  <div id="mutagenesis-factor-selector"></div>
+<% else %>
+  <div id="es-cell-selector"></div>
+<% end %>
+
 
 <div id="object-new-bottom" class="grid_8 prefix_2 suffix_2">
   <%= form_for @mi_attempt, :as => :mi_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>

@@ -61,6 +61,27 @@ class MutagenesisFactor < ActiveRecord::Base
   protected :set_external_ref_if_blank
 
 
+  def marker_symbol
+    return gene_target.marker_symbol unless gene_target.blank?
+    plan = MiPlan.find(mi_plan_id)
+    return nil if mi_plan.blank?
+    return plan.marker_symbol
+  end
+
+  def mi_plan_id
+    @mi_plan_id unless @mi_plan_id.blank?
+    return nil if gene_target.blank?
+    return gene_target.mi_plan_id
+  end
+
+  def mi_plan_id=(arg)
+    return nil if arg.class.name != 'Fixnum'
+    plan = MiPlan.find(arg)
+    return nil if plan.blank?
+
+    @mi_plan_id = plan.id
+  end
+
   def vector_name
     if @vector_name
       return @vector_name

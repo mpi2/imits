@@ -47,8 +47,9 @@ class MgiAlleleLoad::CrisprAlleleReport
         centres.name AS production_centre,
         'Deletion' AS mutation_type,
         mutagenesis_factor_summary.mutagenesis_details AS mutagenesis_details,
-        'example description) This allele from project Adad2-5594J-B was generated at The Jackson Laboratory by injecting Cas9 RNA and guide sequence CCCATGCTCAGCGGTCCTAG, which resulted in an 8 bp deletion CTAGGACC and a 4 bp insertion ATGA in exon1 beginning at Chromosome 8 positive strand position 119612902 bp (GRCm38) and is predicted to cause a frameshift mutation with early truncation' AS allele_description
-
+        'example description) This allele from project Adad2-5594J-B was generated at The Jackson Laboratory by injecting Cas9 RNA and guide sequence CCCATGCTCAGCGGTCCTAG, which resulted in an 8 bp deletion CTAGGACC and a 4 bp insertion ATGA in exon1 beginning at Chromosome 8 positive strand position 119612902 bp (GRCm38) and is predicted to cause a frameshift mutation with early truncation' AS allele_description,
+        colonies.mgi_allele_id AS mgi_allele_accession,
+        colonies.mgi_allele_symbol_superscript AS mgi_allele_name
       FROM mi_attempts
         JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id AND colonies.genotype_confirmed = true
         JOIN mutagenesis_factor_summary ON mutagenesis_factor_summary.mi_attempt_id = mi_attempts.id

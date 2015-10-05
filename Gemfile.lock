@@ -261,3 +261,6 @@ DEPENDENCIES
   unicorn (= 4.3.0)
   will_paginate (~> 3.0.pre2)
   zipruby (~> 0.3.6)
+
+BUNDLED WITH
+   1.10.6

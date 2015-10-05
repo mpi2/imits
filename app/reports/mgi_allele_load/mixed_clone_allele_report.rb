@@ -33,10 +33,13 @@ class MgiAlleleLoad::MixedCloneAlleleReport
         colonies.name AS colony_name, colonies.allele_type AS mutation_type, colonies.mgi_allele_id AS mgi_allele_accession, colonies.mgi_allele_symbol_superscript AS mgi_allele_name,
         background_strains.name AS colony_background_strain,
         centres.name AS production_centre,
+        colonies.allele_type AS mutation_type,
         targ_rep_es_cells.name AS mi_attempt_es_cell_name,
         targ_rep_es_cells.mgi_allele_symbol_superscript AS mi_attempt_es_cell_allele_symbol,
         targ_rep_es_cells.mgi_allele_id AS mi_attempt_es_cell_mgi_allele_accession,
-        targ_rep_es_cells.parental_cell_line AS mi_attempt_es_cell_line
+        targ_rep_es_cells.parental_cell_line AS mi_attempt_es_cell_line,
+        colonies.mgi_allele_id AS mgi_allele_accession,
+        colonies.mgi_allele_symbol_superscript AS mgi_allele_name
 
       FROM mi_attempts
         JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id AND colonies.allele_type IS NOT NULL

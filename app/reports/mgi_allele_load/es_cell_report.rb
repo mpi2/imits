@@ -53,6 +53,8 @@ class MgiAlleleLoad::EsCellReport
         JOIN genes ON genes.id = targ_rep_alleles.gene_id
         LEFT JOIN clones_injected ON clones_injected.es_cell_id = targ_rep_es_cells.id
 
+      WHERE targ_rep_es_cells.report_to_public = true OR clones_injected.es_cell_id IS NOT NULL
+
       ORDER BY genes.mgi_accession_id
       EOF
     end

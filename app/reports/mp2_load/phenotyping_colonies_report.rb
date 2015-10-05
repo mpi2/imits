@@ -18,8 +18,8 @@ class Mp2Load::PhenotypingColoniesReport
                                                                                           'es_cell_allele_type' => row['es_cell_allele_type'],
                                                                                           'colony_allele_type' => !row['allele_type'].blank? ? row['allele_type'] : nil,
                                                                                           'mi_allele_target' => !row['crispr_allele_target'].blank? ? row['crispr_allele_target'] : nil,
-                                                                                          'mutation_method_allele_prefix' => !row['es_cell_allele_mutation_method_allele_prefix'].blank? ? row['es_cell_allele_mutation_method_allele_prefix'] : nil,
-                                                                                          'mutation_type_allele_code' => !row['es_cell_allele_mutation_type'].blank? ? row['es_cell_allele_mutation_type'] : nil
+                                                                                          'mutation_method_allele_prefix' => !row['es_cell_allele_mutation_method_allele_prefix'].nil? ? row['es_cell_allele_mutation_method_allele_prefix'] : nil,
+                                                                                          'mutation_type_allele_code' => !row['es_cell_allele_mutation_type'].nil? ? row['es_cell_allele_mutation_type'] : nil
                                                                                          })['allele_symbol']
       process_data << processed_row
     end
@@ -75,7 +75,7 @@ class Mp2Load::PhenotypingColoniesReport
           targ_rep_mutation_methods.allele_prefix AS es_cell_allele_mutation_method_allele_prefix,
           mi_attempts.allele_target AS crispr_allele_target
         FROM colonies
-          JOIN strains cb_strain ON cb_strain.id = colonies.background_strain_id
+          LEFT JOIN strains cb_strain ON cb_strain.id = colonies.background_strain_id
           LEFT JOIN mi_attempts ON mi_attempts.id = colonies.mi_attempt_id
           LEFT JOIN mouse_allele_mods ON mouse_allele_mods.id = colonies.mouse_allele_mod_id
           LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id

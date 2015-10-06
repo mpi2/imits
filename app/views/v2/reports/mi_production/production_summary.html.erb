@@ -76,7 +76,12 @@
             <% if @category != 'crispr'%>
               <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-effort_efficiency"].to_f.round(2), sliding_efficiency_path(:production_centre_name => centre, :consortium_name => row['consortium'])) %></td>
             <% else %>
-              <td><%= link_to(@crispr_effort_efficiency_totals["#{row['consortium']}-#{centre}-crispr_effort_efficiency"].to_f.round(0), sliding_efficiency_path(:production_centre_name => centre, :consortium_name => row['consortium'], :category => @category)) %></td>
+              <td><%= link_to(@crispr_effort_efficiency_totals["#{row['consortium']}-#{centre}-crispr_effort_efficiency"].to_f.round(0), sliding_efficiency_path(:production_centre_name => centre, :consortium_name => row['consortium'], :category => @category)) %>
+                  [<%= @crispr_effort_efficiency_totals["#{row['consortium']}-#{centre}-crispr_effort_efficiency_by_mutant_founders"].to_f.round(0) %>]
+              </td>
+
+
+              
             <% end %>
           </tr>
 
@@ -283,7 +288,9 @@
       <% else %>
       <tr>
         <th>Effort based efficiency <span>*New*</span></th>
-        <td>(# of embros injected) / (# of Genotype Confirmed MI's)</td>
+        <td><strong>1. #</strong> of embros injected / <strong>#</strong> of Genotype Confirmed MI's
+          <br /><strong>2. #</strong> of embros injected / <strong>#</strong> of Mutant Founder. 
+          <br />Both calculations only consider Micro injection which produced a GLT Mouse.</td>
       </tr>
       <% end %>
     </tbody>

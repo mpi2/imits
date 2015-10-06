@@ -12,7 +12,7 @@ class Mp2Load::PhenotypingColoniesReport
 
     data.each do |row|
       processed_row = row.dup
-      processed_row['allele_symbol'] = TargRep::RealAllele.calculate_allele_information({ 'allele_name' => !row['crispr_allele_name'].blank? ? row['crispr_allele_name'] : nil,
+      processed_row['allele_symbol_superscript'] = TargRep::RealAllele.calculate_allele_information({ 'allele_name' => !row['crispr_allele_name'].blank? ? row['crispr_allele_name'] : nil,
                                                                                           'allele_symbol_superscript_template' => !row['allele_symbol_superscript_template'].blank? ? row['allele_symbol_superscript_template'] : row['es_cell_allele_symbol_superscript_template'],
                                                                                           'mgi_allele_symbol_superscript' => !row['mgi_allele_symbol_superscript'].blank? ? row['mgi_allele_symbol_superscript'] : nil,
                                                                                           'es_cell_allele_type' => row['es_cell_allele_type'],
@@ -21,6 +21,8 @@ class Mp2Load::PhenotypingColoniesReport
                                                                                           'mutation_method_allele_prefix' => !row['es_cell_allele_mutation_method_allele_prefix'].nil? ? row['es_cell_allele_mutation_method_allele_prefix'] : nil,
                                                                                           'mutation_type_allele_code' => !row['es_cell_allele_mutation_type'].nil? ? row['es_cell_allele_mutation_type'] : nil
                                                                                          })['allele_symbol']
+
+      processed_row['allele_symbol'] = "#{processed_row['gene_marker_symbol']}<#{processed_row['allele_symbol_superscript']}>"
       process_data << processed_row
     end
 
@@ -36,7 +38,8 @@ class Mp2Load::PhenotypingColoniesReport
       [{'title' => 'Marker Symbol', 'field' => 'gene_marker_symbol'},
        {'title' => 'MGI Accession ID', 'field' => 'gene_mgi_accession_id'},
        {'title' => 'Colony Name', 'field' => 'phenotyping_colony_name'},
-       {'title' => 'Colony Background Strian', 'field' => 'background_strain_name'},
+       {'title' => 'Es Cell Name', 'field' => 'es_cell_name'},
+       {'title' => 'Colony Background Strain', 'field' => 'background_strain_name'},
        {'title' => 'Production Centre', 'field' => 'production_centre'},
        {'title' => 'Production Consortium', 'field' => 'production_consortia'},
        {'title' => 'Phenotyping Centre', 'field' => 'phenotyping_centre'},
@@ -68,6 +71,7 @@ class Mp2Load::PhenotypingColoniesReport
           cb_strain.name AS background_strain_name,
           CASE WHEN mam_plan.id IS NOT NULL THEN mam_plan.consortium_name ELSE m_plan.consortium_name END AS consortium_name,
           CASE WHEN mam_plan.id IS NOT NULL THEN mam_plan.centre_name ELSE m_plan.centre_name END AS centre_name,
+          targ_rep_es_cells.name AS es_cell_name,
           targ_rep_es_cells.mgi_allele_symbol_superscript AS es_cell_mgi_allele_symbol_superscript,
           targ_rep_es_cells.allele_type AS es_cell_allele_type,
           targ_rep_es_cells.allele_symbol_superscript_template AS es_cell_allele_symbol_superscript_template,
@@ -99,6 +103,8 @@ class Mp2Load::PhenotypingColoniesReport
         pp_plans.consortium_name AS phenotyping_consortia,
 
         CASE WHEN pp_cb_strains.name IS NOT NULL THEN pp_cb_strains.name ELSE colony.background_strain_name END AS background_strain_name,
+
+        CASE WHEN colony.es_cell_name IS NOT NULL AND colony.es_cell_name != '' THEN colony.es_cell_name ELSE mam_colony.es_cell_name END AS es_cell_name, 
         CASE WHEN colony.mgi_allele_symbol_superscript IS NOT NULL AND colony.mgi_allele_symbol_superscript != '' THEN colony.mgi_allele_symbol_superscript ELSE mam_colony.mgi_allele_symbol_superscript END AS mgi_allele_symbol_superscript,
         CASE WHEN colony.allele_symbol_superscript_template IS NOT NULL AND colony.allele_symbol_superscript_template != '' THEN colony.allele_symbol_superscript_template ELSE mam_colony.allele_symbol_superscript_template END AS allele_symbol_superscript_template,
         CASE WHEN colony.allele_type IS NOT NULL AND colony.allele_type != '' THEN colony.allele_type ELSE mam_colony.allele_type END AS allele_type,

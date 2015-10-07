@@ -337,7 +337,7 @@ class BuildAllele2
       doc = get_gene_doc(row['gene_mgi_accession_id'])
       mouse_gene_update_doc(doc, row)
 
-      puts "Calculating allele"
+      #puts "Calculating allele"
       allele_template = nil
       allele_template = row['es_cell_allele_superscript_template'] unless row['es_cell_allele_superscript_template'].blank?
       allele_template = row['mi_colony_allele_symbol_superscript_template'] unless row['mi_colony_allele_symbol_superscript_template'].blank?

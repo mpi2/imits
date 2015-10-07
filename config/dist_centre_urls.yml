@@ -15,8 +15,8 @@ Monterotondo:
   :preferred: ''
   :default: ''
 JAX:
-  :preferred: ''
-  :default: 'http://jaxmice.jax.org/list/komp_strains'
+  :preferred: 'https://www.jax.org/mouse-search?searchTerm=MARKER_SYMBOL'
+  :default: 'https://www.jax.org/mouse-search'
 Oulu:
   :preferred: ''
   :default: ''

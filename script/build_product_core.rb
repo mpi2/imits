@@ -351,8 +351,8 @@ class BuildProductCore
     @dataset_max_size = 80000
     @process_mice = true
     @process_es_cells = true
-    @process_targeting_vectors = true
-    @process_intermediate_vectors = true
+    @process_targeting_vectors = false
+    @process_intermediate_vectors = false
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',
@@ -505,7 +505,7 @@ class BuildProductCore
                                                                 'colony_allele_type' => row['colony_allele_type'] || nil,
                                                                 'allele_id' => row['allele_id'] || nil, #
                                                                 'mi_allele_target'   => row['allele_target'] || nil,
-                                                                'crispr_allele_name' => row['colony_allele_name'] || nil,
+                                                                'allele_name' => row['colony_allele_name'] || nil,
                                                                 'excised' => row['excised'] == 't' ? true : false, #
                                                                 'allele_symbol_superscript_template' => allele_template || nil, #
                                                                 'mgi_allele_symbol_superscript' => row['colonies_mgi_allele_symbol_superscript'] || nil
@@ -528,7 +528,7 @@ class BuildProductCore
      "status"                           => row["mouse_status"],
      "status_date"                      => row["mouse_status_date"].to_date.to_s,
      "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; if !@qc_results.has_key?(qc_data[2].to_i) && qc_data[2] != 'na'; "#{qc_data[0]}:#{qc_data[1]}:#{qc_data[2]}" ; else @qc_results.has_key?(qc_data[2].to_i) && @qc_results[qc_data[2].to_i] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{@qc_results[qc_data[2].to_i]}" : nil ; end}.compact,
-     "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == 't' ? 'Casp9/Crispr' : 'ES Cell'}"],
+     "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == 't' ? 'Cas9/Crispr' : 'ES Cell'}"],
      "associated_product_es_cell_name"  => row["es_cell_name"],
      "associated_product_colony_name"   => row["parent_colony_name"],
      "associated_product_vector_name"   => row["vector_name"],

@@ -28,6 +28,7 @@ class MgiAlleleLoad::EsCellReport
        ]
     end
 
+# Exclude ES Cell that are not 'Targeted Alleles' (i.e. exclude Gene Trap alleles)
     def mgi_allele_sql
       <<-EOF
       WITH clones_injected AS (
@@ -53,7 +54,8 @@ class MgiAlleleLoad::EsCellReport
         JOIN genes ON genes.id = targ_rep_alleles.gene_id
         LEFT JOIN clones_injected ON clones_injected.es_cell_id = targ_rep_es_cells.id
 
-      WHERE targ_rep_es_cells.report_to_public = true OR clones_injected.es_cell_id IS NOT NULL
+      WHERE (targ_rep_es_cells.report_to_public = true OR clones_injected.es_cell_id IS NOT NULL)
+        AND targ_rep_alleles.type = 'TargRep::TargetedAllele'
 
       ORDER BY genes.mgi_accession_id
       EOF

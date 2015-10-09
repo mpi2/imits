@@ -22,6 +22,7 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     report_to_public
     is_active
     ready_for_website
+    cohort_production_centre_name
     _destroy
 }
 
@@ -87,4 +88,5 @@ end
 #  colony_background_strain_id     :integer
 #  rederivation_started            :boolean          default(FALSE), not null
 #  rederivation_complete           :boolean          default(FALSE), not null
+#  cohort_production_centre_id     :integer
 #

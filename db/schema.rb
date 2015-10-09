@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150812125302) do
+ActiveRecord::Schema.define(:version => 20151009125302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -773,6 +773,7 @@ ActiveRecord::Schema.define(:version => 20150812125302) do
     t.integer  "colony_background_strain_id"
     t.boolean  "rederivation_started",            :default => false, :null => false
     t.boolean  "rederivation_complete",           :default => false, :null => false
+    t.integer  "cohort_production_centre_id"
   end
 
   create_table "pipelines", :force => true do |t|

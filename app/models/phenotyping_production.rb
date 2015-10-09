@@ -25,6 +25,7 @@ class PhenotypingProduction < ApplicationModel
   protected :status=
 
   before_validation :allow_override_of_plan
+  before_validation :check_and_set_cohort_centre
   before_validation :change_status
 
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
@@ -53,6 +54,36 @@ class PhenotypingProduction < ApplicationModel
       end
     end
     self.mi_plan = set_plan
+  end
+
+  def check_and_set_cohort_centre
+    return if @cohort_production_centre_name.nil?
+    if @cohort_production_centre_name.blank?
+      self.cohort_production_centre_id = nil
+    else
+      centre = Centre.find_by_name(@cohort_production_centre_name)
+      if !centre.blank?
+        if centre.name == phenotyping_centre_name && centre.name != production_centre_name
+          self.rederivation_started = true
+          self.rederivation_complete = true
+          self.cohort_production_centre_id = nil
+        elsif centre.name == production_centre_name && self.rederivation_started == false
+          self.cohort_production_centre_id = nil
+        elsif self.rederivation_started == false
+          self.cohort_production_centre_id = centre.id
+        end
+      else
+        self.error.add(:cohort_production_centre_name, 'invalid centre name')
+        return
+      end
+    end
+
+    if !self.cohort_production_centre_id.blank? && Centre.find(self.cohort_production_centre_id).name != phenotyping_centre_name
+      puts "HELLO"
+      self.rederivation_started = false
+      self.rederivation_complete = false
+    end
+    return true
   end
 
 ## VALIDATION
@@ -184,6 +215,23 @@ class PhenotypingProduction < ApplicationModel
   end
   private :set_parent_colony_name
 
+
+  def cohort_production_centre_name=(arg)
+    if arg.blank?
+      @cohort_production_centre_name = '' if arg.blank?
+    else
+      @cohort_production_centre_name = arg
+    end
+  end
+
+  def cohort_production_centre_name
+    return @cohort_production_centre_name unless @cohort_production_centre_name.blank?
+    return Centre.find(cohort_production_centre_id).name unless cohort_production_centre_id.blank?
+    return phenotyping_centre_name if rederivation_started == true
+    return production_centre_name
+  end
+
+
   def gene
     if mi_plan.try(:gene)
       return mi_plan.gene
@@ -307,4 +355,5 @@ end
 #  colony_background_strain_id     :integer
 #  rederivation_started            :boolean          default(FALSE), not null
 #  rederivation_complete           :boolean          default(FALSE), not null
+#  cohort_production_centre_id     :integer
 #

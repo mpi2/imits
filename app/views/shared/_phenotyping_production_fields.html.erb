@@ -15,6 +15,7 @@
 
     <td>
     <table>
+      <tr><th>Cohort Production Centre Name</th><td><%= f.select :cohort_production_centre_name, Centre.all.map(&:name), :include_blank => true %></td></tr>
       <tr><th>Rederivation Started</th><td><%= f.check_box :rederivation_started %></td></tr>
       <tr><th>Rederivation Complete</th><td><%= f.check_box :rederivation_complete %></td></tr>
       <tr><th>Phenotyping Experiments Started</th><td><%= f.text_field(:phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %></td></tr>

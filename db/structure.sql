@@ -2275,7 +2275,8 @@ CREATE TABLE phenotyping_productions (
     parent_colony_id integer,
     colony_background_strain_id integer,
     rederivation_started boolean DEFAULT false NOT NULL,
-    rederivation_complete boolean DEFAULT false NOT NULL
+    rederivation_complete boolean DEFAULT false NOT NULL,
+    cohort_production_centre_id integer
 );
 
 
@@ -2799,7 +2800,11 @@ CREATE TABLE targ_rep_mutation_types (
 --
 
 CREATE VIEW targ_rep_es_cell_mutation_types AS
-SELECT es.id AS es_cell_id, types.name AS mutation_type FROM ((targ_rep_es_cells es LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id))) LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
+ SELECT es.id AS es_cell_id,
+    types.name AS mutation_type
+   FROM ((targ_rep_es_cells es
+     LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id)))
+     LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
 
 
 --
@@ -5669,3 +5674,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150728125302');
 INSERT INTO schema_migrations (version) VALUES ('20150806125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20150812125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20151009125302');

@@ -348,7 +348,7 @@ class BuildAllele2
                                                                           'colony_allele_type' => row['colony_allele_type'] || nil,
                                                                           'allele_id' => row['allele_id'] || nil,
                                                                           'mi_allele_target'   => row['mi_allele_target'] || nil,
-                                                                          'crispr_allele_name' => row['colony_allele_name'] || nil,
+                                                                          'allele_name' => row['colony_allele_name'] || nil,
                                                                           'excised' => row['excised'] == 't' ? true : false,
                                                                           'allele_symbol_superscript_template' => allele_template || nil,
                                                                           'mgi_allele_symbol_superscript' => row['colony_mgi_allele_symbol_superscript'] || nil

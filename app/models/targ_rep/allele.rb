@@ -324,7 +324,7 @@ class TargRep::Allele < ActiveRecord::Base
     def self.allele_image_url(marker_symbol, allele_id, modified_allele_type = nil)
       return "" if modified_allele_type.nil? || marker_symbol.blank?
 
-      if marker_symbol =~ /CGI/
+      if marker_symbol =~ /Cpgi/
         if modified_allele_type == ''
           return "https://www.i-dcc.org/imits/images/targ_rep/nc_rna_tm1.jpg"
         elsif modified_allele_type == '.1'
@@ -353,7 +353,7 @@ class TargRep::Allele < ActiveRecord::Base
     def self.simple_allele_image_url(marker_symbol, allele_id, modified_allele_type = nil)
       return "" if modified_allele_type.nil? || marker_symbol.blank?
 
-      if marker_symbol =~ /CGI/
+      if marker_symbol =~ /Cpgi/
         if modified_allele_type == ''
           return "https://www.i-dcc.org/imits/images/targ_rep/nc_rna_tm1.jpg"
         elsif modified_allele_type == '.1'

@@ -641,6 +641,7 @@ puts "PLAN: #{plan.attributes}"
 
 end
 
+
 # == Schema Information
 #
 # Table name: mi_plans

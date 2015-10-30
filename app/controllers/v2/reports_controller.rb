@@ -2,7 +2,7 @@ class V2::ReportsController < ApplicationController
 
   helper :reports
 
-  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report, :mgi_es_cell_allele_report, :mgi_mixed_allele_report, :mgi_crispr_allele_report, :mp2_load_phenotyping_colonies_report]
+  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report, :mgi_es_cell_allele_report, :mgi_mixed_allele_report, :mgi_crispr_allele_report, :mp2_load_phenotyping_colonies_report, :emma_distribution_report]
 
   before_filter do
     if params[:format] == 'csv'
@@ -78,6 +78,14 @@ class V2::ReportsController < ApplicationController
     @phenotyping_colonies = @report.phenotyping_colonies
     respond_to do |format|
       format.tsv {render :mp2_load_phenotyping_colonies_report}
+    end
+  end
+
+  def emma_distribution_report
+    @report = Emma::DistributedReport.new
+    @distribution_data = @report.distribution_data
+    respond_to do |format|
+      format.tsv {render :emma_distribution_data_report}
     end
   end
 

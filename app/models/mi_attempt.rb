@@ -414,7 +414,7 @@ class MiAttempt < ApplicationModel
   end
 
   def mouse_allele_type=(arg)
-    @mouse_allele_type = arg unless es_cell.blank? || arg == ''
+    @mouse_allele_type = arg unless es_cell.nil?
   end
 
   def mouse_allele_type

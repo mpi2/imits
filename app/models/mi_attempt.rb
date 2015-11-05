@@ -115,7 +115,7 @@ class MiAttempt < ApplicationModel
     return true unless ( ! mi.colony.blank? ) && ( ! mi.colony.colony_qc.blank? ) && mi.colony.colony_qc.qc_loxp_confirmation_changed?
     return true if !mi.allele.blank? and mi.allele.mutation_type.try(:code) == 'cki'
 
-    if mi.qc_loxp_confirmation_result == 'fail'
+    if mi.qc_loxp_confirmation_result == 'fail' && mi.allele.mutation_type.try(:allele_code) == 'a'
       self.mouse_allele_type = 'e'
     elsif self.mouse_allele_type == 'e' and (mi.qc_loxp_confirmation_result == 'pass')
       self.mouse_allele_type = nil

@@ -139,7 +139,9 @@ class Colony < ApplicationModel
       if mi_attempt.es_cell_id
         return mi_attempt.es_cell.allele_symbol_superscript_template
       elsif mi_attempt.mutagenesis_factor
-        if !allele_name.blank?
+        if !mgi_allele_symbol_superscript.blank?
+          return mgi_allele_symbol_superscript
+        elsif !allele_name.blank?
           return allele_name
         else
           return "em1#{mi_attempt.production_centre.superscript}"
@@ -202,7 +204,7 @@ class Colony < ApplicationModel
   def set_allele_symbol_superscript
     return if self.allele_symbol_superscript_template_changed?
 
-    if self.mgi_allele_symbol_superscript.blank?
+    if self.mgi_allele_symbol_superscript.blank? || self.mgi_allele_symbol_superscript =~ /em/
       self.allele_symbol_superscript_template = nil
       return
     end

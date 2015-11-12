@@ -29,10 +29,10 @@ class TraceCall < ActiveRecord::Base
     allele_mutation_summary = {}
 
     [colony.trace_call].each do |tc|
-      next if self.trace_call_vcf_modifications.count == 0
+      next if tc.trace_call_vcf_modifications.count == 0
 
       allele_mutation_summary[self.exon_id] = {'ins' => 0, 'del' => 0}
-      self.trace_call_vcf_modifications.each do |tcvm|
+      tc.trace_call_vcf_modifications.each do |tcvm|
 
         next unless ['ins', 'del'].include?(tcvm.mod_type)
         allele_mutation_summary[self.exon_id][tcvm.mod_type] += (tcvm.alt_seq.length - tcvm.ref_seq.length).abs

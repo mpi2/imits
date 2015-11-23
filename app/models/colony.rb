@@ -10,7 +10,6 @@ class Colony < ApplicationModel
   belongs_to :mi_attempt
   belongs_to :mouse_allele_mod
   belongs_to :background_strain, :class_name => 'Strain'
-  belongs_to :targeting_vector_genbank_file, :dependent => :destroy, :class_name => "TargRep::GenbankFile"
 
   has_many :allele_modifications, :class_name => 'MouseAlleleMod', :foreign_key => 'parent_colony_id'
   has_many :phenotyping_productions, :class_name => 'PhenotypingProduction', :foreign_key => 'parent_colony_id'
@@ -18,7 +17,7 @@ class Colony < ApplicationModel
 
   has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy
   has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
-
+  has_one :targeting_vector_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'clone'}:dependent => :destroy
 
   access_association_by_attribute :background_strain, :name
 
@@ -37,12 +36,6 @@ class Colony < ApplicationModel
 
   validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys + CRISPR_MOUSE_ALLELE_OPTIONS.keys }
   validate :set_allele_symbol_superscript
-
-#  validate do |colony|
-#    if mouse_allele_mod_id.blank? and mi_attempt_id.blank?
-#      colony.errors.add :base, 'A Colony can only be produced via a Micro-Injection or an Allele Modification.'
-#    end
-#  end
 
   validate do |colony|
     if !mouse_allele_mod.blank?

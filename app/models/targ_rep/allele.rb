@@ -28,7 +28,7 @@ class TargRep::Allele < ActiveRecord::Base
   access_association_by_attribute :mutation_type,    :name
   access_association_by_attribute :mutation_subtype, :name
 
-  has_one    :genbank_file,      :dependent => :destroy, :foreign_key => 'allele_id'
+  has_one    :genbank_file,      :class_name => 'TargRep::AllelesGenbankFileCollection', :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :targeting_vectors, :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :allele_sequence_annotations, :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :es_cells,          :dependent => :destroy, :foreign_key => 'allele_id' do

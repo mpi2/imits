@@ -2,27 +2,62 @@ class TargRep::AllelesGenbankFileCollection < ActiveRecord::Base
 
   attr_accessor :nested
 
-  TargRep::AllelesGenbankFileCollections.include_root_in_json = false
+  TargRep::AllelesGenbankFileCollection.include_root_in_json = false
 
   ##
   ## Associations
   ##
 
   belongs_to :allele
-  belongs_to :targeting_vector_genbank_file, :class_name => "TargRep::GenbankFile", :dependent => :destroy
-  belongs_to :clone_genbank_file, :class_name => "TargRep::GenbankFile", :dependent => :destroy
-  belongs_to :cre_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :dependent => :destroy
-  belongs_to :flp_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :dependent => :destroy
-  belongs_to :flp_cre_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :dependent => :destroy
+  has_one :targeting_vector_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'targeting_vector'}, :dependent => :destroy
+  has_one :clone_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'clone'}, :dependent => :destroy
+  has_one :cre_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'cre_excised_clone'}, :dependent => :destroy
+  has_one :flp_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'flp_excised_clone'}, :dependent => :destroy
+  has_one :flp_cre_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'flp_cre_excised_clone'}, :dependent => :destroy
 
   ##
   ## Validations
   ##
 
+  before_save :delete_genbank_files_if_changed
+  after_save :create_genbank_file_if_data_present
+
   validates :allele_id,
     :presence => true,
     :uniqueness => true,
     :unless => :nested
+
+
+  ##
+  ## Before Save Methods
+  ##
+
+  def delete_genbank_files_if_changed
+    if self.changes.has_key?('escell_clone')
+      self.clone_genbank_file.destroy
+      self.cre_excised_clone_genbank_file.destroy
+      self.flp_excised_clone_genbank_file.destroy
+      self.flp_cre_excised_clone_genbank_file.destroy
+      
+    end
+
+    if self.changes.has_key?('targeting_vector')
+      self.targeting_vector_genbank_file.destroy
+    end
+  end
+
+
+  ##
+  ## After Save Methods
+  ##
+
+  def create_genbank_file_if_data_present
+
+  end
+
+  ##
+  ## Instance Methods
+  ##
 
   def escell_clone_cre
     return site_specific_recombination(self.escell_clone, 'apply_cre')

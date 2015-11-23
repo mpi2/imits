@@ -10,14 +10,15 @@ class Colony < ApplicationModel
   belongs_to :mi_attempt
   belongs_to :mouse_allele_mod
   belongs_to :background_strain, :class_name => 'Strain'
+  belongs_to :targeting_vector_genbank_file, :dependent => :destroy, :class_name => "TargRep::GenbankFile"
 
   has_many :allele_modifications, :class_name => 'MouseAlleleMod', :foreign_key => 'parent_colony_id'
   has_many :phenotyping_productions, :class_name => 'PhenotypingProduction', :foreign_key => 'parent_colony_id'
-
   has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :dependent => :destroy
 
   has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy
   has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
+
 
   access_association_by_attribute :background_strain, :name
 

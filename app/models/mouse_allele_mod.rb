@@ -103,6 +103,12 @@ class MouseAlleleMod < ApplicationModel
     end
   end
 
+  validate do |mam|
+    if mam.changes.has_key?('status_id') && ! mam.status_name != 'Cre Excision Complete' && mam.colony.phenotyping_productions.any?{|pp| pp.status.order_by >= PhenotypingProduction::Status.find_by_code('pds').order_by} #Phenotype Started
+      mam.errors.add(:phenotype_attempt, "Once phenotyping has started the following fields can not be set to null: Mouse Allele type, Number Of Cre Matings Successful, Deleter Strain Name or Cre Excision via TAT-Cre")
+    end
+  end
+
 ## BEFORE SAVE METHODS
 
   def set_phenotype_attempt_id

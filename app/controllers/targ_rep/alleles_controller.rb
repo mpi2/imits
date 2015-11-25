@@ -618,16 +618,13 @@ class TargRep::AllelesController < TargRep::BaseController
         allele_params[:targeting_vectors_attributes] = allele_params.delete(:targeting_vectors)
       end
 
-
-      allele_params[:es_cells_attributes].each do |key, attrs|
-        puts attrs
+      es_cell_attributes = allele_params[:es_cells_attributes].blank? ? [] : allele_params[:es_cells_attributes]
+      es_cell_attributes.each do |key, attrs|
         if current_user != 'htgt@sanger.ac.uk'
           if !attrs.has_key?("id")
             attrs["production_centre_auto_update"] = false
           else
             es_cell = TargRep::EsCell.find(attrs["id"])
-            puts es_cell.report_to_public
-            puts attrs["report_to_public"]
             if attrs.has_key?("report_to_public") && es_cell.report_to_public != (attrs["report_to_public"] == '1')
               attrs["production_centre_auto_update"] = false
             end
@@ -635,23 +632,17 @@ class TargRep::AllelesController < TargRep::BaseController
         end
       end
 
-      allele_params[:targeting_vectors_attributes].each do |key, attrs|
-        puts "HTGT USER?"
+      targeting_vector_attributes = allele_params[:targeting_vectors_attributes].blank? ? [] : allele_params[:targeting_vectors_attributes]
+      targeting_vector_attributes.each do |key, attrs|
         if current_user != 'htgt@sanger.ac.uk'
-          puts "YES"
           if !attrs.has_key?("id")
-            puts "NEW"
             attrs["production_centre_auto_update"] = false
           else
-            puts "EXISTING"
             targeting_vector = TargRep::TargetingVector.find(attrs["id"])
-            puts targeting_vector.report_to_public
-            puts attrs["report_to_public"]
             if attrs.has_key?("report_to_public") && targeting_vector.report_to_public != (attrs["report_to_public"] == '1')
               attrs["production_centre_auto_update"] = false
             end
           end
-          puts "AUTO UPDATE #{attrs["production_centre_auto_update"]}"
         end
       end
       ##

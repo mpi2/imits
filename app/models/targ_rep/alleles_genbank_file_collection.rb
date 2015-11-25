@@ -9,11 +9,12 @@ class TargRep::AllelesGenbankFileCollection < ActiveRecord::Base
   ##
 
   belongs_to :allele
-  has_one :targeting_vector_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'targeting_vector'}, :dependent => :destroy
-  has_one :clone_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'clone'}, :dependent => :destroy
-  has_one :cre_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'cre_excised_clone'}, :dependent => :destroy
-  has_one :flp_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'flp_excised_clone'}, :dependent => :destroy
-  has_one :flp_cre_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'flp_cre_excised_clone'}, :dependent => :destroy
+  has_one :cassette_genbank_file, :class_name => "TargRep::GenbankFile", :foreign_key => 'genbank_file_collection_id', :conditions => {:sequence_type => 'cassette'}, :dependent => :destroy
+  has_one :targeting_vector_genbank_file, :class_name => "TargRep::GenbankFile", :foreign_key => 'genbank_file_collection_id', :conditions => {:sequence_type => 'targeting_vector'}, :dependent => :destroy
+  has_one :clone_genbank_file, :class_name => "TargRep::GenbankFile", :foreign_key => 'genbank_file_collection_id', :conditions => {:sequence_type => 'clone'}, :dependent => :destroy
+  has_one :cre_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :foreign_key => 'genbank_file_collection_id', :conditions => {:sequence_type => 'cre_excised_clone'}, :dependent => :destroy
+  has_one :flp_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :foreign_key => 'genbank_file_collection_id', :conditions => {:sequence_type => 'flp_excised_clone'}, :dependent => :destroy
+  has_one :flp_cre_excised_clone_genbank_file, :class_name => "TargRep::GenbankFile", :foreign_key => 'genbank_file_collection_id', :conditions => {:sequence_type => 'flp_cre_excised_clone'}, :dependent => :destroy
 
   ##
   ## Validations
@@ -38,6 +39,8 @@ class TargRep::AllelesGenbankFileCollection < ActiveRecord::Base
       self.cre_excised_clone_genbank_file.destroy unless self.cre_excised_clone_genbank_file.blank?
       self.flp_excised_clone_genbank_file.destroy unless self.flp_excised_clone_genbank_file.blank?
       self.flp_cre_excised_clone_genbank_file.destroy unless self.flp_cre_excised_clone_genbank_file.blank?
+      self.cassette_genbank_file.destroy unless self.cassette_genbank_file.blank?
+
       
     end
 
@@ -49,20 +52,21 @@ class TargRep::AllelesGenbankFileCollection < ActiveRecord::Base
 
   ##
   ## After Save Methods
-  ##
 
   def create_genbank_file_if_data_present
     if !escell_clone.blank?
-      create_genbank_file(self.clone_genbank_file) = escell_clone if self.clone_genbank_file.blank? && !escell_clone.blank?
-      create_genbank_file(self.cre_excised_clone_genbank_file) = escell_clone_cre if self.cre_excised_clone_genbank_file.blank? && !escell_clone_cre.blank?
-      create_genbank_file(self.flp_excised_clone_genbank_file) = escell_clone_flp if self.flp_excised_clone_genbank_file.blank? && !escell_clone_flp.blank?
-      create_genbank_file(self.flp_cre_excised_clone_genbank_file) = escell_clone_flp_cre if self.flp_cre_excised_clone_genbank_file.blank? && !escell_clone_flp_cre.blank?
+      create_genbank_file(self.escell_clone, 'clone')  if self.clone_genbank_file.blank? && !escell_clone.blank?
+      create_genbank_file(self.escell_clone_cre, 'cre_excised_clone') if self.cre_excised_clone_genbank_file.blank? && !escell_clone_cre.blank?
+      create_genbank_file(self.escell_clone_flp, 'flp_excised_clone')  if self.flp_excised_clone_genbank_file.blank? && !escell_clone_flp.blank?
+      create_genbank_file(self.escell_clone_flp_cre, 'flp_cre_excised_clone') if self.flp_cre_excised_clone_genbank_file.blank? && !escell_clone_flp_cre.blank?
+      create_genbank_file(self.escell_clone, 'cassette')  if self.clone_genbank_file.blank? && !escell_clone.blank?
     end
 
     if !targeting_vector.blank?
-      self.targeting_vector_genbank_file = targeting_vector if self.targeting_vector_genbank_file
+      create_genbank_file(self.targeting_vector, 'targeting_vector') if self.targeting_vector_genbank_file.blank?
     end
 
+    self.reload
   end
 
 
@@ -158,42 +162,42 @@ private
     end
   end
 
-  def create_genbank_file (genebank_file, sequence_type)
-    raise "Genebank File must be provided along with Sequence Type" if genebank_file.blank? || sequence_type.blank?
+  def create_genbank_file (genbank_file, sequence_type)
+    raise "Genebank File must be provided along with Sequence Type" if genbank_file.blank? || sequence_type.blank?
 
+    options = {:mutation_type => allele.mutation_type_name}
+
+    if sequence_type == 'cassette'
+      options[:cassetteonly] = true
+    end
+    
     begin
-      image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name}).render.to_blob { self.format = "PNG" }
+      image = AlleleImage2::Image.new(genbank_file, options).render.to_blob { self.format = "PNG" }
     rescue
       image = nil
     end
 
+    options[:simple] = true
     begin
-      simple_image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name}).render.to_blob { self.format = "PNG" }
+      simple_image = AlleleImage2::Image.new(genbank_file, options).render.to_blob { self.format = "PNG" }
     rescue
       simple_image = nil
     end
 
-    begin
-      cassette_image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name, :cassetteonly => true}}).render.to_blob { self.format = "PNG" }
-    rescue
-      cassette_image = nil
-    end
-
-    gb = TargRep::GenbankFile.new(:sequence_type => sequence_type, :file => genbank_file, :image => image, :simple_image => simple_image)
+    gb = TargRep::GenbankFile.new(:genbank_file_collection_id => id, :sequence_type => sequence_type, :file => genbank_file, :image => image, :simple_image => simple_image)
 
     if gb.valid?
       gb.save
     else
-      raise 'ERROR: Generating Genbank Files'
+      raise "ERROR: Generating Genbank Files #{gb.errors.messages}"
     end
   end
-    
-  end
+
 end
 
 # == Schema Information
 #
-# Table name: targ_rep_genbank_files
+# Table name: targ_rep_alleles_genbank_file_collections
 #
 #  id                  :integer          not null, primary key
 #  allele_id           :integer          not null

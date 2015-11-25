@@ -9,16 +9,15 @@ class ChangeGenbankFileDataStructure < ActiveRecord::Migration
       t.integer :colony_id
       t.string :sequence_type
       t.text :file
-      t.text :image
-      t.text :simple_image
-
+      t.binary :image
+      t.binary :simple_image
       t.timestamps
     end
 
   end
 
   def self.down
-    rename_table :targ_rep_alleles_genbank_file_collections, :targ_rep_genbank_files
     drop_table :targ_rep_genbank_files
+    rename_table :targ_rep_alleles_genbank_file_collections, :targ_rep_genbank_files
   end
 end

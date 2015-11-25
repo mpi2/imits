@@ -2556,6 +2556,40 @@ CREATE TABLE targ_rep_alleles (
 
 
 --
+-- Name: targ_rep_alleles_genbank_file_collections; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_alleles_genbank_file_collections (
+    id integer NOT NULL,
+    allele_id integer NOT NULL,
+    escell_clone text,
+    targeting_vector text,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone,
+    allele_genbank_file text
+);
+
+
+--
+-- Name: targ_rep_alleles_genbank_file_collections_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_alleles_genbank_file_collections_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_alleles_genbank_file_collections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_alleles_genbank_file_collections_id_seq OWNED BY targ_rep_alleles_genbank_file_collections.id;
+
+
+--
 -- Name: targ_rep_alleles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -2800,11 +2834,7 @@ CREATE TABLE targ_rep_mutation_types (
 --
 
 CREATE VIEW targ_rep_es_cell_mutation_types AS
- SELECT es.id AS es_cell_id,
-    types.name AS mutation_type
-   FROM ((targ_rep_es_cells es
-     LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id)))
-     LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
+SELECT es.id AS es_cell_id, types.name AS mutation_type FROM ((targ_rep_es_cells es LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id))) LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
 
 
 --
@@ -2832,12 +2862,14 @@ ALTER SEQUENCE targ_rep_es_cells_id_seq OWNED BY targ_rep_es_cells.id;
 
 CREATE TABLE targ_rep_genbank_files (
     id integer NOT NULL,
-    allele_id integer NOT NULL,
-    escell_clone text,
-    targeting_vector text,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone,
-    allele_genbank_file text
+    genbank_file_collection_id integer,
+    colony_id integer,
+    sequence_type character varying(255),
+    file text,
+    image bytea,
+    simple_image bytea,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -3691,6 +3723,13 @@ ALTER TABLE ONLY targ_rep_alleles ALTER COLUMN id SET DEFAULT nextval('targ_rep_
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY targ_rep_alleles_genbank_file_collections ALTER COLUMN id SET DEFAULT nextval('targ_rep_alleles_genbank_file_collections_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY targ_rep_centre_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_centre_pipelines_id_seq'::regclass);
 
 
@@ -4230,8 +4269,16 @@ ALTER TABLE ONLY targ_rep_es_cells
 -- Name: targ_rep_genbank_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY targ_rep_genbank_files
+ALTER TABLE ONLY targ_rep_alleles_genbank_file_collections
     ADD CONSTRAINT targ_rep_genbank_files_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_genbank_files_pkey1; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_genbank_files
+    ADD CONSTRAINT targ_rep_genbank_files_pkey1 PRIMARY KEY (id);
 
 
 --
@@ -4386,7 +4433,7 @@ CREATE INDEX es_cells_pipeline_id_fk ON targ_rep_es_cells USING btree (pipeline_
 -- Name: genbank_files_allele_id_fk; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE INDEX genbank_files_allele_id_fk ON targ_rep_genbank_files USING btree (allele_id);
+CREATE INDEX genbank_files_allele_id_fk ON targ_rep_alleles_genbank_file_collections USING btree (allele_id);
 
 
 --
@@ -5676,3 +5723,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150806125302');
 INSERT INTO schema_migrations (version) VALUES ('20150812125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20151009125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20151123112302');

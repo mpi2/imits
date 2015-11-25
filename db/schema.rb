@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20151009125302) do
+ActiveRecord::Schema.define(:version => 20151123112302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -877,6 +877,17 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.string   "wildtype_oligos_sequence"
   end
 
+  create_table "targ_rep_alleles_genbank_file_collections", :force => true do |t|
+    t.integer  "allele_id",           :null => false
+    t.text     "escell_clone"
+    t.text     "targeting_vector"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.text     "allele_genbank_file"
+  end
+
+  add_index "targ_rep_alleles_genbank_file_collections", ["allele_id"], :name => "genbank_files_allele_id_fk"
+
   create_table "targ_rep_centre_pipelines", :force => true do |t|
     t.string   "name"
     t.text     "centres"
@@ -985,15 +996,15 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
   add_index "targ_rep_es_cells", ["pipeline_id"], :name => "es_cells_pipeline_id_fk"
 
   create_table "targ_rep_genbank_files", :force => true do |t|
-    t.integer  "allele_id",           :null => false
-    t.text     "escell_clone"
-    t.text     "targeting_vector"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.text     "allele_genbank_file"
+    t.integer  "genbank_file_collection_id"
+    t.integer  "colony_id"
+    t.string   "sequence_type"
+    t.text     "file"
+    t.binary   "image"
+    t.binary   "simple_image"
+    t.datetime "created_at",                 :null => false
+    t.datetime "updated_at",                 :null => false
   end
-
-  add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
 
   create_table "targ_rep_genotype_primers", :force => true do |t|
     t.string  "sequence",                 :null => false

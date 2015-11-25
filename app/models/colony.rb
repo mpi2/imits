@@ -17,7 +17,7 @@ class Colony < ApplicationModel
 
   has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy
   has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
-  has_one :targeting_vector_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'clone'}:dependent => :destroy
+  has_one :targeting_vector_genbank_file, :class_name => "TargRep::GenbankFile", :conditions => {:sequence_description => 'clone'}, :dependent => :destroy
 
   access_association_by_attribute :background_strain, :name
 

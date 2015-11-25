@@ -618,8 +618,8 @@ class TargRep::AllelesController < TargRep::BaseController
         allele_params[:targeting_vectors_attributes] = allele_params.delete(:targeting_vectors)
       end
 
-
-      allele_params[:es_cells_attributes].each do |key, attrs|
+      es_cell_attributes = allele_params[:es_cells_attributes] || []
+      es_cell_attributes do |key, attrs|
         puts attrs
         if current_user != 'htgt@sanger.ac.uk'
           if !attrs.has_key?("id")
@@ -635,7 +635,8 @@ class TargRep::AllelesController < TargRep::BaseController
         end
       end
 
-      allele_params[:targeting_vectors_attributes].each do |key, attrs|
+      targeting_vector_attributes = allele_params[:targeting_vectors_attributes] || []
+      targeting_vector_attributes do |key, attrs|
         puts "HTGT USER?"
         if current_user != 'htgt@sanger.ac.uk'
           puts "YES"

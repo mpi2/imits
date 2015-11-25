@@ -53,10 +53,10 @@ class TargRep::AllelesGenbankFileCollection < ActiveRecord::Base
 
   def create_genbank_file_if_data_present
     if !escell_clone.blank?
-      self.clone_genbank_file = escell_clone if self.clone_genbank_file
-      self.cre_excised_clone_genbank_file = escell_clone_cre if self.cre_excised_clone_genbank_file
-      self.flp_excised_clone_genbank_file = escell_clone_flp if self.flp_excised_clone_genbank_file
-      self.flp_cre_excised_clone_genbank_file = escell_clone_flp_cre if self.flp_cre_excised_clone_genbank_file
+      create_genbank_file(self.clone_genbank_file) = escell_clone if self.clone_genbank_file.blank? && !escell_clone.blank?
+      create_genbank_file(self.cre_excised_clone_genbank_file) = escell_clone_cre if self.cre_excised_clone_genbank_file.blank? && !escell_clone_cre.blank?
+      create_genbank_file(self.flp_excised_clone_genbank_file) = escell_clone_flp if self.flp_excised_clone_genbank_file.blank? && !escell_clone_flp.blank?
+      create_genbank_file(self.flp_cre_excised_clone_genbank_file) = escell_clone_flp_cre if self.flp_cre_excised_clone_genbank_file.blank? && !escell_clone_flp_cre.blank?
     end
 
     if !targeting_vector.blank?
@@ -71,27 +71,51 @@ class TargRep::AllelesGenbankFileCollection < ActiveRecord::Base
   ##
 
   def escell_clone_cre
-    return site_specific_recombination(self.escell_clone, 'apply_cre')
+    begin
+      return site_specific_recombination(self.escell_clone, 'apply_cre')
+    rescue
+      return nil
+    end
   end
 
   def targeting_vector_cre
-    return site_specific_recombination(self.targeting_vector, 'apply_cre')
+    begin
+      return site_specific_recombination(self.targeting_vector, 'apply_cre')
+    rescue
+      return nil
+    end
   end
 
   def escell_clone_flp
-    return site_specific_recombination(self.escell_clone, 'apply_flp')
+    begin
+      return site_specific_recombination(self.escell_clone, 'apply_flp')
+    rescue
+      return nil
+    end
   end
 
   def targeting_vector_flp
-    return site_specific_recombination(self.targeting_vector, 'apply_flp')
+    begin
+      return site_specific_recombination(self.targeting_vector, 'apply_flp')
+    rescue
+      return nil
+    end
   end
 
   def escell_clone_flp_cre
-    return site_specific_recombination(self.escell_clone, 'apply_flp_cre')
+    begin
+      return site_specific_recombination(self.escell_clone, 'apply_flp_cre')
+    rescue
+      return nil
+    end
   end
 
   def targeting_vector_flp_cre
-    return site_specific_recombination(self.targeting_vector, 'apply_flp_cre')
+    begin
+      return site_specific_recombination(self.targeting_vector, 'apply_flp_cre')
+    rescue
+      return nil
+    end
   end
 
   def cre_excised_genbank_file
@@ -134,14 +158,28 @@ private
     end
   end
 
-  def create_genbank_file (genebank_file, type)
-    sequence_type = type
-    file = genebank_file
-    image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name}).render.to_blob { self.format = "PNG" }
-    simple_image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name}).render.to_blob { self.format = "PNG" }
-    cassette_image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name, :cassetteonly => true}}).render.to_blob { self.format = "PNG" }
+  def create_genbank_file (genebank_file, sequence_type)
+    raise "Genebank File must be provided along with Sequence Type" if genebank_file.blank? || sequence_type.blank?
 
-    gb = TargRep::GenbankFile.new(:sequence_type => sequence_type, :file => file, :image => image, :simple_image => simple_image)
+    begin
+      image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name}).render.to_blob { self.format = "PNG" }
+    rescue
+      image = nil
+    end
+
+    begin
+      simple_image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name}).render.to_blob { self.format = "PNG" }
+    rescue
+      simple_image = nil
+    end
+
+    begin
+      cassette_image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name, :cassetteonly => true}}).render.to_blob { self.format = "PNG" }
+    rescue
+      cassette_image = nil
+    end
+
+    gb = TargRep::GenbankFile.new(:sequence_type => sequence_type, :file => genbank_file, :image => image, :simple_image => simple_image)
 
     if gb.valid?
       gb.save

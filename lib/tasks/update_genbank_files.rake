@@ -5,5 +5,3 @@ namespace :genbank_files do
      AlleleGenebankFileCollection.all.each{|g| g.save}
   end
 end
-
-end

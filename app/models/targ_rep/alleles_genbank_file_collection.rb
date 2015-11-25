@@ -34,15 +34,15 @@ class TargRep::AllelesGenbankFileCollection < ActiveRecord::Base
 
   def delete_genbank_files_if_changed
     if self.changes.has_key?('escell_clone')
-      self.clone_genbank_file.destroy
-      self.cre_excised_clone_genbank_file.destroy
-      self.flp_excised_clone_genbank_file.destroy
-      self.flp_cre_excised_clone_genbank_file.destroy
+      self.clone_genbank_file.destroy unless self.clone_genbank_file.blank?
+      self.cre_excised_clone_genbank_file.destroy unless self.cre_excised_clone_genbank_file.blank?
+      self.flp_excised_clone_genbank_file.destroy unless self.flp_excised_clone_genbank_file.blank?
+      self.flp_cre_excised_clone_genbank_file.destroy unless self.flp_cre_excised_clone_genbank_file.blank?
       
     end
 
     if self.changes.has_key?('targeting_vector')
-      self.targeting_vector_genbank_file.destroy
+      self.targeting_vector_genbank_file.destroy unless self.targeting_vector_genbank_file.blank?
     end
   end
 
@@ -52,8 +52,19 @@ class TargRep::AllelesGenbankFileCollection < ActiveRecord::Base
   ##
 
   def create_genbank_file_if_data_present
+    if !escell_clone.blank?
+      self.clone_genbank_file = escell_clone if self.clone_genbank_file
+      self.cre_excised_clone_genbank_file = escell_clone_cre if self.cre_excised_clone_genbank_file
+      self.flp_excised_clone_genbank_file = escell_clone_flp if self.flp_excised_clone_genbank_file
+      self.flp_cre_excised_clone_genbank_file = escell_clone_flp_cre if self.flp_cre_excised_clone_genbank_file
+    end
+
+    if !targeting_vector.blank?
+      self.targeting_vector_genbank_file = targeting_vector if self.targeting_vector_genbank_file
+    end
 
   end
+
 
   ##
   ## Instance Methods
@@ -123,6 +134,23 @@ private
     end
   end
 
+  def create_genbank_file (genebank_file, type)
+    sequence_type = type
+    file = genebank_file
+    image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name}).render.to_blob { self.format = "PNG" }
+    simple_image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name}).render.to_blob { self.format = "PNG" }
+    cassette_image = AlleleImage2::Image.new(genbank_file, {:mutation_type => allele.mutation_type_name, :cassetteonly => true}}).render.to_blob { self.format = "PNG" }
+
+    gb = TargRep::GenbankFile.new(:sequence_type => sequence_type, :file => file, :image => image, :simple_image => simple_image)
+
+    if gb.valid?
+      gb.save
+    else
+      raise 'ERROR: Generating Genbank Files'
+    end
+  end
+    
+  end
 end
 
 # == Schema Information

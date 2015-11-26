@@ -4,7 +4,7 @@ namespace :genbank_files do
   task 'update' => [:environment] do
     n = 0
     while n < 10
-      TargRep::AllelesGenbankFileCollection.joins('LEFT JOIN targ_rep_genbank_files ON targ_rep_genbank_files.genbank_file_collection_id = targ_rep_alleles_genbank_file_collections.id').where('targ_rep_genbank_files.id IS NOT NULL').order('id').limit(1000).offset(0).each do |g|
+      TargRep::AllelesGenbankFileCollection.joins('LEFT JOIN targ_rep_genbank_files ON targ_rep_genbank_files.genbank_file_collection_id = targ_rep_alleles_genbank_file_collections.id').where('targ_rep_genbank_files.id IS NULL').order('id').limit(1000).offset(0).each do |g|
         begin
           if g.valid?
             puts "Saving Genbank Collection ID: #{g.id}"

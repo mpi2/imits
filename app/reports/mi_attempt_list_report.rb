@@ -1,11 +1,13 @@
 class MiAttemptListReport
 
   def initialize(options={})
+
+
     @consortia = options['consortia']
     @production_centres = options['production_centres']
 
-    if @crispr.blank?
-      @crispr = nil
+    if !options.has_key?('crispr')
+      @crispr = false
     else
       @crispr = [true, 'true'].include?(options['crispr']) ? true : false
     end
@@ -85,10 +87,10 @@ class MiAttemptListReport
     @mi_attempt_list ||= ActiveRecord::Base.connection.execute(self.class.mi_attempt_list_sql(@consortia, @production_centres, @crispr, @group))
   end
 
-  def self.mi_attempt_list_sql(consortia = [], production_centres = [], crisprs = nil, group_by = nil)
+  def self.mi_attempt_list_sql(consortia = [], production_centres = [], crisprs = false, group_by = nil)
 
-    if ['consortium', 'production_centre'].include?(group_by)
-      group_by = {'consortium' => 'consortia.name', 'production_centre' => 'centres.name'}[group_by]
+    if ['Consortium', 'Production Centre'].include?(group_by)
+      group_by = {'Consortium' => 'consortia.name', 'Production Centre' => 'centres.name'}[group_by]
     else
       group_by = 'genes.marker_symbol'
     end
@@ -102,7 +104,7 @@ class MiAttemptListReport
       where_condition << "centres.name IN ('#{production_centres.join("','")}')"
     end
 
-    unless crisprs.blank? && ['true', 'false'].include?(crisprs)
+    if [true, false].include?(crisprs)
       where_condition << "mi_plans.mutagenesis_via_crispr_cas9 = #{crisprs}"
     end
 

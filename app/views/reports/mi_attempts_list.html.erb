@@ -10,10 +10,28 @@
 
 <% unless params[:commit].blank? %>
   <div class="report grid_12">
-    <% if @cached %>
-      <%= @report.data.to_s.html_safe %>
+    <% if @report.nil? %>
+      <p><em>Sorry, no <%= label %> found</em></p>
     <% else %>
-      <%= render :partial => '/reports/report_with_counts', :locals => { :report => @report, :label => 'micro-injection attempts' } %>
+      <table>
+        <tr>
+        <% for column in @columns.keys %>
+          <th><%= column %></th>
+        <% end %>
+      </tr>
+
+      <% for data_row in @report %>
+        <tr>
+        <% for key, col in @columns %>
+          <td>
+          <%= data_row[col] %>
+          </td>
+        <% end %>
+        </tr>
+      <% end %>
+      </table>
     <% end %>
   </div>
 <% end %>
+
+

@@ -86,48 +86,17 @@ class ReportsController < ApplicationController
 
     unless params[:commit].blank?
 
-      if full_report?
-        @cached = true
+      options = {}
+      options['consortia'] = params[:consortium_id].select{|id| !id.blank? }.map{|id| Consortium.find(id).name} if params.has_key?(:consortium_id) && params[:consortium_id].length > 0
+      options['production_centres'] = params[:production_centre_id].select{|id| !id.blank? }.map{|id| Centre.find(id).name} if params.has_key?(:production_centre_id) && params[:production_centre_id].length > 0
+      options['crispr'] = params[:crispr] if params.has_key?(:crispr)
+      options['group'] = params[:grouping] if params.has_key?(:grouping)
+      
+      report_generator = MiAttemptListReport.new(options)
 
-        if request.format == :csv
-          if cached_report = ReportCache.find_by_name_and_format('full_mi_attempts_list', 'csv')
-            send_data(
-              cached_report.data,
-              :type     => 'text/csv; charset=utf-8; header=present',
-              :filename => 'full_mi_attempts_list.csv'
-            )  and return
-
-          else
-            @cached = false
-          end
-        else
-          @report = ReportCache.find_by_name_and_format('full_mi_attempts_list', 'html')
-
-          if @report.blank?
-            @cached = false
-          end
-        end
-      end
-
-      unless @cached
-        @report = generate_mi_list_report( params )
-
-        if @report.nil?
-          redirect_to cleaned_redirect_params( :mi_attempts_list, params ) if request.format == :csv
-          return
-        end
-
-        @report.sort_rows_by!( 'Injection Date', :order => :descending )
-        @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
-
-        if request.format == :csv
-          send_data(
-            @report.to_csv,
-            :type     => 'text/csv; charset=utf-8; header=present',
-            :filename => 'mi_attempts_list.csv'
-          )
-        end
-      end
+      @report = report_generator.mi_attempt_list
+      @columns = {}
+      report_generator.columns.each{|c, logic| @columns[c] = logic[:data] if logic[:show]}
     end
   end
 

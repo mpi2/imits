@@ -1,0 +1,7 @@
+<% @title = 'Micro-Injection Attempts' %>
+<%= @title %>
+
+<%= @columns.keys.join(',') %>
+<% @report.each do |row| %>
+  <%= @columns.map{|key, col| row[col].to_s.gsub(/(?:\n\r?|\r\n?)/, '; ')}.join(',').html_safe %>
+<% end %>

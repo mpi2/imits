@@ -50,11 +50,11 @@ class Mp2Load::PhenotypingColoniesReport
 
     def phenotyping_colonies_sql
       <<-EOF
-      WITH plans AS (
-        SELECT mi_plans.gene_id AS gene_id, mi_plans.id AS id, centres.name AS centre_name, consortia.name AS consortium_name
-        FROM mi_plans
-          JOIN consortia ON consortia.id = mi_plans.consortium_id
-          JOIN centres ON centres.id = mi_plans.production_centre_id
+      WITH plans_summarised AS (
+        SELECT plans.gene_id AS gene_id, plans.id AS id, centres.name AS centre_name, consortia.name AS consortium_name
+        FROM plans
+          JOIN consortia ON consortia.id = plans.consortium_id
+          JOIN centres ON centres.id = plans.production_centre_id
       ),
 
       colony_summary AS (
@@ -86,8 +86,8 @@ class Mp2Load::PhenotypingColoniesReport
           LEFT JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
           LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
           LEFT JOIN targ_rep_mutation_methods ON targ_rep_mutation_methods.id = targ_rep_alleles.mutation_method_id
-          LEFT JOIN plans m_plan ON m_plan.id = mi_attempts.mi_plan_id
-          LEFT JOIN plans mam_plan ON mam_plan.id = mouse_allele_mods.mi_plan_id
+          LEFT JOIN plans_summarised m_plan ON m_plan.id = mi_attempts.plan_id
+          LEFT JOIN plans_summarised mam_plan ON mam_plan.id = mouse_allele_mods.plan_id
       )
 
       SELECT
@@ -116,7 +116,7 @@ class Mp2Load::PhenotypingColoniesReport
         CASE WHEN colony.es_cell_allele_mutation_type IS NOT NULL THEN colony.es_cell_allele_mutation_type ELSE mam_colony.es_cell_allele_mutation_type END AS es_cell_allele_mutation_type,
         CASE WHEN colony.es_cell_allele_mutation_method_allele_prefix IS NOT NULL THEN colony.es_cell_allele_mutation_method_allele_prefix ELSE mam_colony.es_cell_allele_mutation_method_allele_prefix END AS es_cell_allele_mutation_method_allele_prefix
       FROM phenotyping_productions
-        JOIN plans pp_plans ON pp_plans.id = phenotyping_productions.mi_plan_id
+        JOIN plans_summarised pp_plans ON pp_plans.id = phenotyping_productions.plan_id
         JOIN genes ON genes.id = pp_plans.gene_id
         JOIN colony_summary colony ON colony.id = phenotyping_productions.parent_colony_id
         LEFT JOIN strains pp_cb_strains ON pp_cb_strains.id = phenotyping_productions.colony_background_strain_id

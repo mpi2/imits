@@ -38,10 +38,10 @@ class PhenotypeAttemptKompUnreconciledListReport
             JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
             JOIN mouse_allele_mods ON mouse_allele_mods.id = colonies.mouse_allele_mod_id
             JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
-            JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id
-            JOIN centres ON centres.id = mi_plans.production_centre_id
-            JOIN genes ON genes.id = mi_plans.gene_id
-            JOIN consortia ON mi_plans.consortium_id = consortia.id
+            JOIN plans ON plans.id = mouse_allele_mods.plan_id
+            JOIN centres ON centres.id = plans.production_centre_id
+            JOIN genes ON genes.id = plans.gene_id
+            JOIN consortia ON plans.consortium_id = consortia.id
             JOIN colonies mi_colony ON mi_colony.id = mouse_allele_mods.parent_colony_id
             JOIN mi_attempts ON mi_attempts.id = mi_colony.mi_attempt_id
             JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id

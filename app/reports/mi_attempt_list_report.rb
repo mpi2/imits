@@ -192,10 +192,10 @@ class MiAttemptListReport
 
       FROM mi_attempts
         JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
-        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-        JOIN genes ON genes.id = mi_plans.gene_id
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
-        JOIN centres ON centres.id = mi_plans.production_centre_id
+        JOIN plans ON plans.id = mi_attempts.plan_id
+        JOIN genes ON genes.id = plans.gene_id
+        JOIN consortia ON consortia.id = plans.consortium_id
+        JOIN centres ON centres.id = plans.production_centre_id
         LEFT JOIN strains blast_strain ON blast_strain.id = mi_attempts.blast_strain_id
         LEFT JOIN strains test_strain ON test_strain.id = mi_attempts.test_cross_strain_id
         LEFT JOIN (targ_rep_es_cells es_cells LEFT JOIN targ_rep_pipelines pipelines ON pipelines.id = es_cells.pipeline_id) ON es_cells.id = mi_attempts.es_cell_id

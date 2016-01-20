@@ -123,37 +123,33 @@ class MicroInjectionSummaryAndConflictsReport
       <<-EOF
         SELECT
           consortia.name AS consortium,
-          mi_plan_sub_projects.name AS sub_project,
-          mi_plans.is_bespoke_allele,
+          '' AS sub_project,
           centres.name AS production_centre,
           genes.marker_symbol AS marker_symbol,
           genes.mgi_accession_id AS mgi_accession_id,
-          mi_plan_priorities.name AS priority,
+          '' AS priority,
           ARRAY(
             SELECT regexp_replace(conflicting_consortia.name, ' ', '_')
-            FROM mi_plans AS conflicting_mi_plans
-            JOIN consortia AS conflicting_consortia ON conflicting_consortia.id = conflicting_mi_plans.consortium_id
+            FROM plans AS conflicting_plans
+            JOIN consortia AS conflicting_consortia ON conflicting_consortia.id = conflicting_plans.consortium_id
 
             WHERE
-              conflicting_mi_plans.id != mi_plans.id
+              conflicting_plans.id != plans.id
               AND
-              genes.id = conflicting_mi_plans.gene_id 
+              genes.id = conflicting_plans.gene_id 
               AND
-              conflicting_mi_plans.id not in (SELECT distinct(mi_plan_id) FROM mi_attempts WHERE mi_attempts.is_active = true)
+              conflicting_plans.id not in (SELECT distinct(plan_id) FROM mi_attempts WHERE mi_attempts.is_active = true)
             
           ) AS reason_for_conflict
           
+        FROM plans
+        JOIN consortia ON consortia.id = plans.consortium_id
+        LEFT JOIN plan_sub_projects ON plan_sub_projects.id = plans.sub_project_id
+        LEFT JOIN centres ON centres.id = plans.production_centre_id
+        JOIN genes ON genes.id = plans.gene_id
+        JOIN plan_statuses ON plan_statuses.id = plans.status_id
 
-        FROM mi_plans
-
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
-        LEFT JOIN mi_plan_sub_projects ON mi_plan_sub_projects.id = mi_plans.sub_project_id
-        LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
-        JOIN genes ON genes.id = mi_plans.gene_id
-        JOIN mi_plan_priorities ON mi_plan_priorities.id = mi_plans.priority_id
-        JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id
-
-        WHERE mi_plan_statuses.code = 'con'
+        WHERE plan_statuses.code = 'con'
 
         ORDER BY consortia.name
       EOF
@@ -163,36 +159,33 @@ class MicroInjectionSummaryAndConflictsReport
       <<-EOF
         SELECT
           consortia.name AS consortium,
-          mi_plan_sub_projects.name AS sub_project,
-          mi_plans.is_bespoke_allele,
+          '' AS sub_project,
           centres.name AS production_centre,
           genes.marker_symbol AS marker_symbol,
           genes.mgi_accession_id AS mgi_accession_id,
-          mi_plan_priorities.name AS priority,
+          '' AS priority,
           ARRAY(
             SELECT regexp_replace(conflicting_consortia.name, ' ', '_')
-            FROM mi_plans AS conflicting_mi_plans
-            JOIN consortia AS conflicting_consortia ON conflicting_consortia.id = conflicting_mi_plans.consortium_id
+            FROM plans AS conflicting_plans
+            JOIN consortia AS conflicting_consortia ON conflicting_consortia.id = conflicting_plans.consortium_id
 
             WHERE
-        conflicting_mi_plans.id != mi_plans.id
+        conflicting_plans.id != plans.id
       AND
-        genes.id = conflicting_mi_plans.gene_id 
+        genes.id = conflicting_plans.gene_id 
       AND
-        conflicting_mi_plans.id not in (SELECT distinct(mi_plan_id) FROM mi_attempts WHERE mi_attempts.is_active = true)
+        conflicting_plans.id not in (SELECT distinct(plan_id) FROM mi_attempts WHERE mi_attempts.is_active = true)
       AND
-        conflicting_mi_plans.status_id in (1, 8, 9)
+        conflicting_plans.status_id in (1, 8, 9)
             
           ) AS reason_for_conflict
           
 
-        FROM mi_plans
+        FROM plans
 
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
-        LEFT JOIN mi_plan_sub_projects ON mi_plan_sub_projects.id = mi_plans.sub_project_id
-        LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
-        JOIN genes ON genes.id = mi_plans.gene_id
-        JOIN mi_plan_priorities ON mi_plan_priorities.id = mi_plans.priority_id
+        JOIN consortia ON consortia.id = plans.consortium_id
+        LEFT JOIN centres ON centres.id = plans.production_centre_id
+        JOIN genes ON genes.id = plans.gene_id
         JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id
 
         WHERE mi_plan_statuses.code = 'ins-con'
@@ -205,39 +198,38 @@ class MicroInjectionSummaryAndConflictsReport
       <<-EOF
         SELECT
           consortia.name AS consortium,
-          mi_plan_sub_projects.name AS sub_project,
-          mi_plans.is_bespoke_allele,
+          '' AS sub_project,
           centres.name AS production_centre,
           genes.marker_symbol AS marker_symbol,
           genes.mgi_accession_id AS mgi_accession_id,
-          mi_plan_priorities.name AS priority,
+          '' AS priority,
           ARRAY(
             SELECT
               regexp_replace(conflicting_centre.name, ' ', '_') || '_(' || regexp_replace(conflicting_consortia.name, ' ', '_') || ')'
-            FROM mi_plans AS conflicting_mi_plans
-            JOIN consortia AS conflicting_consortia ON conflicting_consortia.id = conflicting_mi_plans.consortium_id
-            JOIN centres AS conflicting_centre ON conflicting_centre.id = conflicting_mi_plans.production_centre_id
+            FROM plans AS conflicting_plans
+            JOIN consortia AS conflicting_consortia ON conflicting_consortia.id = conflicting_plans.consortium_id
+            JOIN centres AS conflicting_centre ON conflicting_centre.id = conflicting_plans.production_centre_id
 
             WHERE
-              conflicting_mi_plans.id != mi_plans.id
+              conflicting_plans.id != plans.id
               AND
-              genes.id = conflicting_mi_plans.gene_id 
+              genes.id = conflicting_plans.gene_id 
               AND
-              conflicting_mi_plans.id in (SELECT distinct(mi_plan_id) FROM mi_attempts)
+              conflicting_plans.id in (SELECT distinct(plan_id) FROM mi_attempts)
             
           ) AS reason_for_conflict
           
 
-        FROM mi_plans
+        FROM plans
 
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
-        LEFT JOIN mi_plan_sub_projects ON mi_plan_sub_projects.id = mi_plans.sub_project_id
-        LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
-        JOIN genes ON genes.id = mi_plans.gene_id
-        JOIN mi_plan_priorities ON mi_plan_priorities.id = mi_plans.priority_id
-        JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id
+        JOIN consortia ON consortia.id = plans.consortium_id
+        LEFT JOIN plan_sub_projects ON plan_sub_projects.id = plans.sub_project_id
+        LEFT JOIN centres ON centres.id = plans.production_centre_id
+        JOIN genes ON genes.id = plans.gene_id
+        JOIN plan_priorities ON plan_priorities.id = plans.priority_id
+        JOIN plan_statuses ON plan_statuses.id = plans.status_id
 
-        WHERE mi_plan_statuses.code = 'ins-mip'
+        WHERE plan_statuses.code = 'ins-mip'
 
         ORDER BY consortia.name
       EOF
@@ -247,39 +239,38 @@ class MicroInjectionSummaryAndConflictsReport
       <<-EOF
         SELECT
           consortia.name AS consortium,
-          mi_plan_sub_projects.name AS sub_project,
-          mi_plans.is_bespoke_allele,
+          '' AS sub_project,
           centres.name AS production_centre,
           genes.marker_symbol AS marker_symbol,
           genes.mgi_accession_id AS mgi_accession_id,
-          mi_plan_priorities.name AS priority,
+          plan_priorities.name AS priority,
           ARRAY(
             SELECT
               regexp_replace(conflicting_centre.name, ' ', '_') || '_(' || regexp_replace(conflicting_consortia.name, ' ', '_') || ')'
-            FROM mi_plans AS conflicting_mi_plans
-            JOIN consortia AS conflicting_consortia ON conflicting_consortia.id = conflicting_mi_plans.consortium_id
-            JOIN centres AS conflicting_centre ON conflicting_centre.id = conflicting_mi_plans.production_centre_id
+            FROM plans AS conflicting_plans
+            JOIN consortia AS conflicting_consortia ON conflicting_consortia.id = conflicting_plans.consortium_id
+            JOIN centres AS conflicting_centre ON conflicting_centre.id = conflicting_plans.production_centre_id
 
             WHERE
-              conflicting_mi_plans.id != mi_plans.id
+              conflicting_plans.id != plans.id
               AND
-              genes.id = conflicting_mi_plans.gene_id 
+              genes.id = conflicting_plans.gene_id 
               AND
-              conflicting_mi_plans.id in (SELECT distinct(mi_plan_id) FROM mi_attempts WHERE mi_attempts.status_id = 2)
+              conflicting_plans.id in (SELECT distinct(plan_id) FROM mi_attempts WHERE mi_attempts.status_id = 2)
             
           ) AS reason_for_conflict
           
 
-        FROM mi_plans
+        FROM plans
 
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
-        LEFT JOIN mi_plan_sub_projects ON mi_plan_sub_projects.id = mi_plans.sub_project_id
-        LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
-        JOIN genes ON genes.id = mi_plans.gene_id
-        JOIN mi_plan_priorities ON mi_plan_priorities.id = mi_plans.priority_id
-        JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id
+        JOIN consortia ON consortia.id = plans.consortium_id
+        LEFT JOIN plan_sub_projects ON plan_sub_projects.id = plans.sub_project_id
+        LEFT JOIN centres ON centres.id = plans.production_centre_id
+        JOIN genes ON genes.id = plans.gene_id
+        JOIN plan_priorities ON plan_priorities.id = plans.priority_id
+        JOIN plan_statuses ON plan_statuses.id = plans.status_id
 
-        WHERE mi_plan_statuses.code = 'ins-gtc'
+        WHERE plan_statuses.code = 'ins-gtc'
 
         ORDER BY consortia.name      
       EOF

@@ -35,12 +35,12 @@ class ReadOnlyIndexReport
         to_char(mi_date, 'DD Mon YYYY') as mi_date,
         to_char(mi_attempt_status_stamps.created_at, 'DD Mon YYYY') as gc_date,
         DATE_PART('day', current_date - mi_attempt_status_stamps.created_at) || ' days' as other_date
-      from mi_attempts join mi_plans on mi_attempts.mi_plan_id = mi_plans.id
-      join consortia on consortia.id = mi_plans.consortium_id and consortia.name != 'EUCOMMToolsCre'
-      join centres on centres.id = mi_plans.production_centre_id
-      join genes on genes.id = mi_plans.gene_id
+      from mi_attempts join plans on mi_attempts.plan_id = plans.id
+      join consortia on consortia.id = plans.consortium_id and consortia.name != 'EUCOMMToolsCre'
+      join centres on centres.id = plans.production_centre_id
+      join genes on genes.id = plans.gene_id
       join mi_attempt_status_stamps on mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id and mi_attempt_status_stamps.status_id = 2
-      where mi_attempts.report_to_public = true and mi_plans.report_to_public = true
+      where mi_attempts.report_to_public = true and plans.report_to_public = true
       order by gc_date2 desc limit #{ROW_LIMIT}
     }
 

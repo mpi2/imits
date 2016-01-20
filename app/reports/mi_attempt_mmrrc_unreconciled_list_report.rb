@@ -37,10 +37,10 @@ class MiAttemptMmrrcUnreconciledListReport
               JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
               JOIN mi_attempts ON mi_attempts.id = colonies.mi_attempt_id
               JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
-              JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-              JOIN centres ON centres.id = mi_plans.production_centre_id
-              JOIN genes ON genes.id = mi_plans.gene_id
-              JOIN consortia ON mi_plans.consortium_id = consortia.id
+              JOIN plans ON plans.id = mi_attempts.plan_id
+              JOIN centres ON centres.id = plans.production_centre_id
+              JOIN genes ON genes.id = plans.gene_id
+              JOIN consortia ON plans.consortium_id = consortia.id
               JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
               JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
               LEFT OUTER JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id

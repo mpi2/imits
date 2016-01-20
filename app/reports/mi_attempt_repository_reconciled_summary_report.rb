@@ -46,9 +46,9 @@ class MiAttemptRepositoryReconciledSummaryReport
             JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
             JOIN mi_attempts ON mi_attempts.id = colonies.mi_attempt_id
             JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-            JOIN centres ON centres.id = mi_plans.production_centre_id
-            JOIN consortia ON mi_plans.consortium_id = consortia.id
+            JOIN plans ON plans.id = mi_attempts.plan_id
+            JOIN centres ON centres.id = plans.production_centre_id
+            JOIN consortia ON plans.consortium_id = consortia.id
             WHERE mi_attempt_statuses.name = 'Genotype confirmed'
             AND colony_distribution_centres.centre_id = #{repo_centre_id}
             AND consortia.id in ( #{consortia_ids_to_include.join(',')} )
@@ -73,9 +73,9 @@ class MiAttemptRepositoryReconciledSummaryReport
             JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
             JOIN mi_attempts ON mi_attempts.id = colonies.mi_attempt_id
             JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-            JOIN centres ON centres.id = mi_plans.production_centre_id
-            JOIN consortia ON mi_plans.consortium_id = consortia.id
+            JOIN plans ON plans.id = mi_attempts.plan_id
+            JOIN centres ON centres.id = plans.production_centre_id
+            JOIN consortia ON plans.consortium_id = consortia.id
             WHERE mi_attempt_statuses.name = 'Genotype confirmed'
             AND colony_distribution_centres.distribution_network = '#{dist_network_name}'
             AND consortia.id in ( #{consortia_ids_to_include.join(',')} )

@@ -73,7 +73,7 @@ class PlannedMicroinjectionWtsiList     #< PlannedMicroinjectionList
     plan_summary.mgi_accession_id AS mgi_accession_id,
     string_agg(plan_summary.consortium, '|') AS consortium_name,
     string_agg(plan_summary.production_centre, '|') AS centre_name,
-    string_agg(plan_summary.mi_plan_status, '|') AS mi_plan_status,
+    string_agg(plan_summary.plan_status, '|') AS plan_status,
     string_agg(plan_summary.mi_attempt_status, '|') AS mi_attempt_status,
     string_agg(plan_summary.mouse_allele_mod_status, '|') AS mouse_allele_mod_status,
     string_agg(plan_summary.phenotyping_status, '|') AS phenotyping_status,

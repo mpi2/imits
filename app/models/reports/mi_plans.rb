@@ -24,15 +24,15 @@ class Reports::MiPlans
           COALESCE(centres.name, 'NONE') as centres_name,
           consortia.name as consortia_name
         from mi_attempts
-          join mi_plans on (mi_attempts.mi_plan_id = mi_plans.id and mi_attempts.is_active = true)
-          join centres on mi_plans.production_centre_id = centres.id
-          join consortia on mi_plans.consortium_id = consortia.id
-          join genes on mi_plans.gene_id = genes.id
-        where mi_plans.gene_id in (
+          join plans on (mi_attempts.plan_id = plans.id and mi_attempts.is_active = true)
+          join centres on plans.production_centre_id = centres.id
+          join consortia on plans.consortium_id = consortia.id
+          join genes on plans.gene_id = genes.id
+        where plans.gene_id in (
           select gene_id
-          from mi_plans join mi_attempts on (mi_plans.id = mi_attempts.mi_plan_id and mi_attempts.is_active = true)
+          from plans join mi_attempts on (plans.id = mi_attempts.plan_id and mi_attempts.is_active = true)
           group by gene_id
-          having (count(distinct(mi_plans.production_centre_id)) > 1 or count(distinct(mi_plans.consortium_id)) > 1)
+          having (count(distinct(plans.production_centre_id)) > 1 or count(distinct(plans.consortium_id)) > 1)
         )
         order by marker_symbol
       SQL
@@ -64,26 +64,26 @@ class Reports::MiPlans
       sql = <<-"SQL"
         select
           marker_symbol as marker_symbol,
-          mi_plan_statuses.name as mi_plan_statuses_name,
+          plan_statuses.name as mi_plan_statuses_name,
           COALESCE(centres.name, 'NONE') as centres_name,
           consortia.name as consortia_name,
           mi_attempts.mi_date as mi_attempts_mi_date,
           mi_attempt_statuses.name as mi_attempt_statuses_name,
           targ_rep_es_cells.name es_cell_name,
           targ_rep_es_cells.mutation_subtype mutation_type
-        from mi_plans
-          join mi_plan_statuses on mi_plans.status_id = mi_plan_statuses.id
-          join mi_attempts on (mi_plans.id = mi_attempts.mi_plan_id and mi_attempts.is_active = true)
+        from plans
+          join mi_plan_statuses on plans.status_id = mi_plan_statuses.id
+          join mi_attempts on (plans.id = mi_attempts.plan_id and mi_attempts.is_active = true)
           join mi_attempt_statuses on mi_attempts.status_id = mi_attempt_statuses.id
           join targ_rep_es_cells on targ_rep_es_cells.id = mi_attempts.es_cell_id
-          join consortia on mi_plans.consortium_id = consortia.id
-          join centres on mi_plans.production_centre_id = centres.id
-          join genes on mi_plans.gene_id = genes.id
-        where mi_plans.gene_id in (
+          join consortia on plans.consortium_id = consortia.id
+          join centres on plans.production_centre_id = centres.id
+          join genes on plans.gene_id = genes.id
+        where plans.gene_id in (
           select gene_id
-          from mi_plans join mi_attempts on (mi_plans.id = mi_attempts.mi_plan_id and mi_attempts.is_active = true)
+          from plans join mi_attempts on (plans.id = mi_attempts.plan_id and mi_attempts.is_active = true)
           group by gene_id
-          having (count(distinct(mi_plans.production_centre_id)) > 1 or count(distinct(mi_plans.consortium_id)) > 1)
+          having (count(distinct(plans.production_centre_id)) > 1 or count(distinct(plans.consortium_id)) > 1)
         )
         order by marker_symbol, consortia_name
       SQL

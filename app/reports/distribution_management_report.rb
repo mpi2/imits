@@ -109,10 +109,10 @@ class DistributionManagementReport
       midc.distribution_network,
       COUNT(*)
       FROM genes
-      JOIN mi_plans ON mi_plans.gene_id = genes.id
-      JOIN consortia ON consortia.id = mi_plans.consortium_id
-      JOIN centres pc ON mi_plans.production_centre_id = pc.id
-      JOIN #{@model_table_name} ON (#{@model_table_name}.mi_plan_id = mi_plans.id and #{@model_table_name}.status_id IN (#{status_id}))
+      JOIN plans ON plans.gene_id = genes.id
+      JOIN consortia ON consortia.id = plans.consortium_id
+      JOIN centres pc ON plans.production_centre_id = pc.id
+      JOIN #{@model_table_name} ON (#{@model_table_name}.plan_id = plans.id and #{@model_table_name}.status_id IN (#{status_id}))
       JOIN colonies ON colonies.#{foreign_key} = #{@model_table_name}.id
       LEFT OUTER JOIN colony_distribution_centres midc ON midc.colony_id = colonies.id
       LEFT OUTER JOIN centres dc ON dc.id = midc.centre_id

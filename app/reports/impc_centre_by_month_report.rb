@@ -245,9 +245,11 @@ class ImpcCentreByMonthReport
               centres.name AS production_centre,
               count(*) AS mi_in_progress_count
             FROM mi_attempts
-              JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
-              JOIN centres ON centres.id = mi_plans.production_centre_id
-              JOIN consortia ON consortia.id = mi_plans.consortium_id
+              JOIN plans ON plans.id = mi_attempts.plan_id 
+              #{category_condition == 'true' ? "JOIN plan_intentions ON plan_intentions.plan_id = plans.id AND plan_intentions.intention_id = 4" : ""}
+              #{category_condition == 'false' ? "JOIN plan_intentions ON plan_intentions.plan_id = plans.id AND plan_intentions.intention_id = 3" : ""}
+              JOIN centres ON centres.id = plans.production_centre_id
+              JOIN consortia ON consortia.id = plans.consortium_id
               JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at <= '#{cut_off_date}'
 
             WHERE
@@ -295,9 +297,9 @@ class ImpcCentreByMonthReport
 
             FROM targ_rep_es_cells
             JOIN mi_attempts ON mi_attempts.es_cell_id = targ_rep_es_cells.id
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
-            JOIN centres ON centres.id = mi_plans.production_centre_id
-            JOIN consortia ON consortia.id = mi_plans.consortium_id
+            JOIN plans ON plans.id = mi_attempts.plan_id
+            JOIN centres ON centres.id = plans.production_centre_id
+            JOIN consortia ON consortia.id = plans.consortium_id
 
             JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at <= '#{cut_off_date}'
 
@@ -365,9 +367,11 @@ class ImpcCentreByMonthReport
                   centres.name AS production_centre_name,
                   consortia.name AS consortium_name
                 FROM genes
-                JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
-                JOIN centres ON centres.id = mi_plans.production_centre_id
-                JOIN consortia ON consortia.id = mi_plans.consortium_id
+                JOIN plans ON plans.gene_id = genes.id
+                #{category_condition == 'true' ? "JOIN plan_intentions ON plan_intentions.plan_id = plans.id AND plan_intentions.intention_id = 4" : ""}
+                #{category_condition == 'false' ? "JOIN plan_intentions ON plan_intentions.plan_id = plans.id AND plan_intentions.intention_id = 3" : ""}
+                JOIN centres ON centres.id = plans.production_centre_id
+                JOIN consortia ON consortia.id = plans.consortium_id
 
                 WHERE
                   #{filter_by_centre_consortium.map{|key, value| "(centres.name = '#{key}' AND consortia.name IN ('#{value.join('\', \'')}'))"}.join(' OR ')}
@@ -422,26 +426,26 @@ class ImpcCentreByMonthReport
 
         phenotyping_production_gene_centres AS (
           SELECT
-            mi_plans.gene_id as gene_id,
+            plans.gene_id as gene_id,
             centres.name as production_centre,
             count(ps_stamps.*) as phenotype_started_or_better_count,
             count(pc_stamps.*) as phenotype_complete_count,
             SUM(CASE WHEN phenotyping_experiments_started <= '#{cut_off_date}' THEN 1 ELSE 0 END) AS phenotype_experiments_started_count
           FROM phenotyping_productions
-          JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
-          JOIN centres ON centres.id = mi_plans.production_centre_id
+          JOIN plans ON plans.id = phenotyping_productions.plan_id
+          JOIN centres ON centres.id = plans.production_centre_id
           JOIN colonies ON colonies.id = phenotyping_productions.parent_colony_id
 
           JOIN mouse_allele_mods ON mouse_allele_mods.id = colonies.mouse_allele_mod_id
           JOIN colonies mi_colony ON mi_colony.id = mouse_allele_mods.parent_colony_id
           JOIN mi_attempts ON mi_attempts.id = mi_colony.mi_attempt_id
 
-          JOIN genes_with_plans ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id AND phenotyping_productions.status_id != 5
+          JOIN genes_with_plans ON genes_with_plans.plan_id = mi_attempts.plan_id AND phenotyping_productions.status_id != 5
           LEFT JOIN phenotyping_production_status_stamps as ps_stamps ON phenotyping_productions.id = ps_stamps.phenotyping_production_id AND ps_stamps.status_id = 3 AND ps_stamps.created_at <= '#{cut_off_date}'
           LEFT JOIN phenotyping_production_status_stamps as pc_stamps ON phenotyping_productions.id = pc_stamps.phenotyping_production_id AND pc_stamps.status_id = 4 AND pc_stamps.created_at <= '#{cut_off_date}'
 
           GROUP BY
-            mi_plans.gene_id,
+            plans.gene_id,
             centres.name
 
           ORDER BY centres.name ASC
@@ -525,9 +529,11 @@ class ImpcCentreByMonthReport
           centres.name AS production_centre,
           date_trunc('MONTH', mip_stamps.created_at) as mip_date
         FROM mi_attempts
-        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
-        JOIN centres ON centres.id = mi_plans.production_centre_id
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
+        JOIN plans ON plans.id = mi_attempts.plan_id
+        #{category_condition == 'true' ? "JOIN plan_intentions ON plan_intentions.plan_id = plans.id AND plan_intentions.intention_id = 4" : ""}
+        #{category_condition == 'false' ? "JOIN plan_intentions ON plan_intentions.plan_id = plans.id AND plan_intentions.intention_id = 3" : ""}
+        JOIN centres ON centres.id = plans.production_centre_id
+        JOIN consortia ON consortia.id = plans.consortium_id
 
         JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at >= '#{start_date}'
 
@@ -582,14 +588,14 @@ class ImpcCentreByMonthReport
         clones_with_plans AS (
         SELECT
           targ_rep_es_cells.id AS es_cell_id,
-          mi_plans.id AS mi_plan_id,
+          plans.id AS mi_plan_id,
           centres.name AS production_centre,
           date_trunc('MONTH', mip_stamps.created_at) as mip_date
         FROM targ_rep_es_cells
         JOIN mi_attempts ON mi_attempts.es_cell_id = targ_rep_es_cells.id
-        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
-        JOIN centres ON centres.id = mi_plans.production_centre_id
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
+        JOIN plans ON plans.id = mi_attempts.plan_id
+        JOIN centres ON centres.id = plans.production_centre_id
+        JOIN consortia ON consortia.id = plans.consortium_id
 
         JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at >= '#{start_date}'
 
@@ -598,7 +604,7 @@ class ImpcCentreByMonthReport
 
         GROUP BY
           targ_rep_es_cells.id,
-          mi_plans.id,
+          plans.id,
           centres.name,
           mip_stamps.created_at
         ),
@@ -649,7 +655,9 @@ class ImpcCentreByMonthReport
           centres.name AS production_centre_name,
           consortia.name AS consortium_name
         FROM genes
-        JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
+        JOIN plans ON plans.gene_id = genes.id 
+        #{category_condition == 'true' ? "JOIN plan_intentions ON plan_intentions.plan_id = plans.id AND plan_intentions.intention_id = 4" : ""}
+        #{category_condition == 'false' ? "JOIN plan_intentions ON plan_intentions.plan_id = plans.id AND plan_intentions.intention_id = 3" : ""}
         JOIN centres ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
 
@@ -663,7 +671,7 @@ class ImpcCentreByMonthReport
             genes_with_plans.production_centre_name as production_centre,
             date_trunc('MONTH', gtc_stamps.created_at) as gtc_date
           FROM genes_with_plans
-          JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id AND mi_attempts.status_id != 3
+          JOIN mi_attempts ON genes_with_plans.plan_id = mi_attempts.plan_id AND mi_attempts.status_id != 3
           LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at >= '#{start_date}'
 
           GROUP BY
@@ -713,7 +721,7 @@ class ImpcCentreByMonthReport
                 mouse_allele_mod_status_stamps.status_id AS mams_id,
                 date_trunc('MONTH', mouse_allele_mod_status_stamps.created_at) as mam_date
               FROM genes_with_plans
-              JOIN mouse_allele_mods ON genes_with_plans.mi_plan_id = mouse_allele_mods.mi_plan_id AND mouse_allele_mods.status_id != 7 --not aborted
+              JOIN mouse_allele_mods ON genes_with_plans.plan_id = mouse_allele_mods.plan_id AND mouse_allele_mods.status_id != 7 --not aborted
               JOIN mouse_allele_mod_status_stamps ON mouse_allele_mods.id = mouse_allele_mod_status_stamps.mouse_allele_mod_id AND mouse_allele_mod_status_stamps.status_id IN (6) AND mouse_allele_mod_status_stamps.created_at >= '#{start_date}'
               ORDER BY genes_with_plans.gene_id, genes_with_plans.production_centre_name ASC
               ) AS mam_status_by_month
@@ -735,7 +743,7 @@ class ImpcCentreByMonthReport
               genes_with_plans.production_centre_name as production_centre,
               date_trunc('MONTH', phenotyping_experiments_started) as series_date
             FROM genes_with_plans
-            JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 5 AND phenotyping_productions.phenotyping_experiments_started >= '#{start_date}'
+            JOIN phenotyping_productions ON genes_with_plans.plan_id = phenotyping_productions.plan_id AND phenotyping_productions.status_id != 5 AND phenotyping_productions.phenotyping_experiments_started >= '#{start_date}'
             ORDER BY genes_with_plans.gene_id, genes_with_plans.production_centre_name ASC
             ) AS pp_counts
           GROUP BY production_centre, series_date
@@ -764,7 +772,7 @@ class ImpcCentreByMonthReport
                 phenotyping_production_status_stamps.status_id AS pps_id,
                 date_trunc('MONTH', phenotyping_production_status_stamps.created_at) as pps_date
               FROM genes_with_plans
-              JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 5
+              JOIN phenotyping_productions ON genes_with_plans.plan_id = phenotyping_productions.plan_id AND phenotyping_productions.status_id != 5
               JOIN phenotyping_production_status_stamps ON phenotyping_production_status_stamps.phenotyping_production_id = phenotyping_productions.id AND phenotyping_production_status_stamps.created_at >= '#{start_date}' AND phenotyping_production_status_stamps.status_id IN (3,4)
               ORDER BY genes_with_plans.gene_id, genes_with_plans.production_centre_name ASC
               ) AS pp_status_by_month

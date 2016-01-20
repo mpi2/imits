@@ -91,9 +91,9 @@ class QcGridReport
           centres.name AS production_centre
 
         FROM mi_attempts
-        JOIN mi_plans ON mi_attempts.mi_plan_id = mi_plans.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
-        JOIN centres   ON centres.id = mi_plans.production_centre_id
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
+        JOIN plans ON mi_attempts.plan_id = plans.id AND plans.mutagenesis_via_crispr_cas9 = false
+        JOIN centres   ON centres.id = plans.production_centre_id
+        JOIN consortia ON consortia.id = plans.consortium_id
         JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id
 
         WHERE
@@ -271,10 +271,10 @@ class QcGridReport
 
       FROM mi_attempts
         JOIN (colonies LEFT JOIN colony_qcs ON colony_qcs.colony_id = colonies.id) ON colonies.mi_attempt_id = mi_attempts.id
-        JOIN mi_plans  ON mi_attempts.mi_plan_id = mi_plans.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
-        JOIN centres   ON centres.id = mi_plans.production_centre_id
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
-        JOIN genes     ON genes.id = mi_plans.gene_id
+        JOIN plans  ON mi_attempts.plan_id = plans.id AND plans.mutagenesis_via_crispr_cas9 = false
+        JOIN centres   ON centres.id = plans.production_centre_id
+        JOIN consortia ON consortia.id = plans.consortium_id
+        JOIN genes     ON genes.id = plans.gene_id
         JOIN targ_rep_es_cells   ON targ_rep_es_cells.id = mi_attempts.es_cell_id
         JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id
         JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id

@@ -46,9 +46,9 @@ class PhenotypeAttemptRepositoryReconciledSummaryReport
             JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
             JOIN mouse_allele_mods ON mouse_allele_mods.id = colonies.mouse_allele_mod_id
             JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
-            JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id
-            JOIN centres ON centres.id = mi_plans.production_centre_id
-            JOIN consortia ON mi_plans.consortium_id = consortia.id
+            JOIN plans ON plans.id = mouse_allele_mods.plan_id
+            JOIN centres ON centres.id = plans.production_centre_id
+            JOIN consortia ON plans.consortium_id = consortia.id
             WHERE mouse_allele_mod_statuses.name = 'Cre Excision Complete'
             AND colony_distribution_centres.centre_id = 35
             AND consortia.id in ( #{consortia_ids_to_include.join(',')} )
@@ -73,9 +73,9 @@ class PhenotypeAttemptRepositoryReconciledSummaryReport
             JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
             JOIN mouse_allele_mods ON mouse_allele_mods.id = colonies.mouse_allele_mod_id
             JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
-            JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id
-            JOIN centres ON centres.id = mi_plans.production_centre_id
-            JOIN consortia ON mi_plans.consortium_id = consortia.id
+            JOIN plans ON plans.id = mouse_allele_mods.plan_id
+            JOIN centres ON centres.id = plans.production_centre_id
+            JOIN consortia ON plans.consortium_id = consortia.id
             WHERE mouse_allele_mod_statuses.name = 'Cre Excision Complete'
             AND colony_distribution_centres.distribution_network = '#{dist_network_name}'
             AND consortia.id in ( #{consortia_ids_to_include.join(',')} )

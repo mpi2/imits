@@ -92,7 +92,7 @@ module IntermediateReport::QueryBase
       where = []
       sql = <<-EOF
         SELECT #{select_fields(display)}
-        FROM (SELECT DISTINCT mi_plans.gene_id #{self.distinct_fields.has_key?('consortia') ? ', mi_plans.consortium_id' : ''} #{self.distinct_fields.has_key?('centre') ? ', mi_plans.production_centre_id' : ''} FROM mi_plans) AS distinct_gene_consortia_centre
+        FROM (SELECT DISTINCT plans.gene_id #{self.distinct_fields.has_key?('consortia') ? ', plans.consortium_id' : ''} #{self.distinct_fields.has_key?('centre') ? ', plans.production_centre_id' : ''} FROM plans) AS distinct_gene_consortia_centre
         JOIN genes ON genes.id = distinct_gene_consortia_centre.gene_id
         #{self.distinct_fields.has_key?('consortia') ? 'JOIN consortia ON consortia.id = distinct_gene_consortia_centre.consortium_id' : ''}
         #{self.distinct_fields.has_key?('centre') ? 'JOIN centres ON centres.id = distinct_gene_consortia_centre.production_centre_id' : ''}
@@ -147,7 +147,7 @@ module IntermediateReport::QueryBase
                genes.marker_symbol AS gene,
                #{self.distinct_fields.has_key?('consortia') ? 'consortia.name AS consortium,' : ''}
                #{self.distinct_fields.has_key?('centre') ? 'centres.name AS production_centre,' : ''}
-               plan_summary.mi_plan_id,
+               plan_summary.plan_id,
                plan_summary.mgi_accession_id,
                plan_summary.mi_plan_status,
                #{self.table_name != 'intermediate_report_summary_by_gene' ? 'plan_summary.gene_interest_date,' : ''}

@@ -55,9 +55,9 @@ class MgiAlleleLoad::CrisprAlleleReport
         JOIN mutagenesis_factor_summary ON mutagenesis_factor_summary.mi_attempt_id = mi_attempts.id
         LEFT JOIN strains blast_strains ON blast_strains.id = mi_attempts.blast_strain_id
         LEFT JOIN strains background_strains ON background_strains.id = colonies.background_strain_id
-        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-        JOIN genes ON genes.id = mi_plans.gene_id
-        JOIN centres ON centres.id = mi_plans.production_centre_id
+        JOIN plans ON plans.id = mi_attempts.plan_id
+        JOIN genes ON genes.id = plans.gene_id
+        JOIN centres ON centres.id = plans.production_centre_id
       WHERE colonies.genotype_confirmed = true
       ORDER BY mgi_accession_id
       EOF

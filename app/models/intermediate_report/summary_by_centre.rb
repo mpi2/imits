@@ -44,14 +44,14 @@ module IntermediateReport::SummaryByCentre
 
      def self.filter_plans_sql(condition = nil)
        sql = <<-EOF
-                  SELECT mi_plans.id, gene_id, consortium_id, production_centre_id, status_id FROM mi_plans #{!condition.blank? ? "WHERE mi_plans.mutagenesis_via_crispr_cas9 = #{condition}" : ''}
+                  SELECT plans.id, gene_id, consortium_id, production_centre_id, status_id FROM plans #{!condition.blank? ? "WHERE plans.mutagenesis_via_crispr_cas9 = #{condition}" : ''}
               EOF
        return sql
      end
 
      def self.production_sql(allele_type = nil)
        sql = <<-EOF
-                  SELECT mi_attempts.id AS mi_attempt_id, NULL AS mouse_allele_mods_id, mi_attempts.mi_plan_id AS mi_plan_id,
+                  SELECT mi_attempts.id AS mi_attempt_id, NULL AS mouse_allele_mods_id, mi_attempts.plan_id AS plan_id,
                     mi_attempt_statuses.name AS production_status, mi_attempt_statuses.order_by AS production_status_order, mi_attempt_status_stamps.created_at AS production_status_order_status_stamp_created_at, false AS allele_modification,
                     #{allele_type.nil? ? 'true' : "CASE WHEN mi_attempts.allele_target = mi_colony.allele_type THEN true ELSE false END"} AS same_allele_types,
                     '' AS injection_type
@@ -68,7 +68,7 @@ module IntermediateReport::SummaryByCentre
 
                   UNION
 
-                  SELECT NULL AS mi_attempt_id, mouse_allele_mods.id AS mouse_allele_mods_id, mouse_allele_mods.mi_plan_id AS mi_plan_id,
+                  SELECT NULL AS mi_attempt_id, mouse_allele_mods.id AS mouse_allele_mods_id, mouse_allele_mods.plan_id AS plan_id,
                     mouse_allele_mod_statuses.name AS production_status, mouse_allele_mod_statuses.order_by AS production_status_order, mouse_allele_mod_status_stamps.created_at AS production_status_order_status_stamp_created_at, true AS allele_modification,
                     true AS same_allele_types, '' AS injection_type
                   FROM mouse_allele_mods
@@ -130,18 +130,18 @@ module IntermediateReport::SummaryByCentre
 
                   phenotype_production_for_gene_centre_and_status AS (
                     SELECT
-                      mi_plans.gene_id,
-                      mi_plans.production_centre_id,
+                      plans.gene_id,
+                      plans.production_centre_id,
                       phenotyping_production_statuses.order_by,
                       phenotyping_productions.id as phenotype_productions_id
                     FROM phenotyping_productions
-                      JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
+                      JOIN plans ON plans.id = phenotyping_productions.plan_id
                       JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
                       JOIN colonies ON colonies.id = phenotyping_productions.parent_colony_id #{!excision__condition.blank? ? (excision__condition == 'true' ? "AND colonies.mouse_allele_mod_id IS NOT NULL" : "AND colonies.mouse_allele_mod_id IS NULL") : ''}
                       LEFT JOIN (mouse_allele_mods JOIN colonies mam_colonies ON mam_colonies.mouse_allele_mod_id = mouse_allele_mods.id) ON mam_colonies.id = phenotyping_productions.parent_colony_id
                       LEFT JOIN colonies mouse_allele_mod_colonies ON mouse_allele_mod_colonies.id = mouse_allele_mods.parent_colony_id
                       JOIN mi_attempts ON mi_attempts.id = mouse_allele_mod_colonies.mi_attempt_id OR colonies.mi_attempt_id = mi_attempts.id
-                      JOIN mi_plans crispr_plan ON crispr_plan.id = mi_attempts.mi_plan_id #{!crispr_condition.blank? ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr_condition}" : ''}
+                      JOIN plans crispr_plan ON crispr_plan.id = mi_attempts.plan_id #{!crispr_condition.blank? ? "AND plans.mutagenesis_via_crispr_cas9 = #{crispr_condition}" : ''}
 
                     #{ allele_type.nil? ? '' : <<-EOF
                       LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
@@ -150,8 +150,8 @@ module IntermediateReport::SummaryByCentre
                     }
 
                     ORDER BY
-                      mi_plans.gene_id,
-                      mi_plans.production_centre_id,
+                      plans.gene_id,
+                      plans.production_centre_id,
                       phenotyping_production_statuses.order_by DESC
                   ),
 
@@ -194,7 +194,7 @@ module IntermediateReport::SummaryByCentre
                 WHEN mi_plan_statuses.name = 'Assigned - ES Cell QC Complete'    THEN 4
                 ELSE 0
               END) As order_by,
-              filtered_plans.id as mi_plan_id
+              filtered_plans.id as plan_id
             FROM filtered_plans
               JOIN mi_plan_statuses ON mi_plan_statuses.id = filtered_plans.status_id AND mi_plan_statuses.name in ('Aborted - ES Cell QC Failed', 'Assigned', 'Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete')
               JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = filtered_plans.id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
@@ -210,14 +210,14 @@ module IntermediateReport::SummaryByCentre
               best_plans_for_gene_centre_and_status.gene_id,
               best_plans_for_gene_centre_and_status.production_centre_id,
               best_plans_for_gene_centre_and_status.order_by,
-              first_value(best_plans_for_gene_centre_and_status.mi_plan_id) OVER (PARTITION BY best_plans_for_gene_centre_and_status.gene_id, best_plans_for_gene_centre_and_status.production_centre_id) AS mi_plan_id
+              first_value(best_plans_for_gene_centre_and_status.plan_id) OVER (PARTITION BY best_plans_for_gene_centre_and_status.gene_id, best_plans_for_gene_centre_and_status.production_centre_id) AS plan_id
             FROM best_plans_for_gene_centre_and_status
           ),
 
           top_mi_plans AS (
             SELECT DISTINCT filtered_plans.*
               FROM filtered_plans
-                JOIN att ON filtered_plans.id = att.mi_plan_id
+                JOIN att ON filtered_plans.id = att.plan_id
           )
 
           SELECT
@@ -253,7 +253,7 @@ module IntermediateReport::SummaryByCentre
             NULL AS mouse_line_colony_name,
             NULL AS phenotyping_colony_name
           FROM top_mi_plans
-            JOIN genes ON genes.id = top_mi_plans.gene_id
+            JOIN genes ON genes.id = top_plans.gene_id
             JOIN centres ON centres.id = top_mi_plans.production_centre_id
             LEFT JOIN mi_plan_status_stamps AS assigned          ON assigned.mi_plan_id = top_mi_plans.id          AND assigned.status_id = 1
             LEFT JOIN mi_plan_status_stamps AS es_qc_in_progress ON es_qc_in_progress.mi_plan_id = top_mi_plans.id AND es_qc_in_progress.status_id = 8
@@ -367,7 +367,8 @@ module IntermediateReport::SummaryByCentre
           'production_centre',                           # plan data
 
 
-          'mi_plan_id',                                  # ids
+          'plan_id',                                    # ids
+          'es_cell_qc_id',
           'mi_attempt_id',
           'mouse_allele_mod_id',
           'phenotyping_production_id',
@@ -379,21 +380,24 @@ module IntermediateReport::SummaryByCentre
           'phenotyping_production_colony_name',
 
 
-          'mi_plan_status',
-          'assigned_date',                               # plan statuses
-          'assigned_es_cell_qc_in_progress_date',
-          'assigned_es_cell_qc_complete_date',
+          'es_cell_status',                              # es_cell_qc statuses
+          'date_assigned_for_es_cell_qc_production',
+          'es_cell_qc_in_progress_date',
+          'es_cell_qc_complete_date',
           'aborted_es_cell_qc_failed_date',
 
 
           'mi_attempt_status',
+          'date_assigned_for_micro_injection_production',
           'micro_injection_in_progress_date',            # mi_attempt statuses
           'chimeras_obtained_date',
           'founder_obtained_date',
           'genotype_confirmed_date',
           'micro_injection_aborted_date',
 
+
           'mouse_allele_mod_status',
+          'date_assigned_for_mouse_allele_mod_production',
           'mouse_allele_mod_registered_date',           # mouse_allele_mod_statuses
           'rederivation_started_date',
           'rederivation_complete_date',
@@ -402,6 +406,7 @@ module IntermediateReport::SummaryByCentre
 
 
           'phenotyping_status',
+          'date_assigned_for_phenotyping_production'
           'phenotyping_registered_date',                # phenotyping_statuses
           'phenotyping_rederivation_started_date',
           'phenotyping_rederivation_complete_date',

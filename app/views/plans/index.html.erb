@@ -1,0 +1,12 @@
+<% @tab = 'Plans' %>
+
+<%= render 'plans/plan_editor_js_constants' %>
+
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag 'plans/index' %>
+  <%= javascript_tag "FULL_ACCESS = #{@access}" %>
+<% end %>
+
+<div class="clear"></div>
+
+<div id="plans-grid"></div>

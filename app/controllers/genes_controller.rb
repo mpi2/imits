@@ -24,18 +24,6 @@ class GenesController < ApplicationController
     end
   end
 
-  def relationship_tree
-    @gene = Gene.find_by_mgi_accession_id!(params[:id])
-
-    respond_to do |format|
-      format.json do
-        render :json => @gene.to_extjs_relationship_tree_structure
-      end
-
-      format.html {}
-    end
-  end
-
   def vectors
     marker_symbol = params[:marker_symbol]
     gene = nil

@@ -1,20 +1,9 @@
 # encoding: utf-8
 
 class MiPlansController < ApplicationController
-  respond_to :html, :only => [:gene_selection, :index, :show, :destroy]
-  respond_to :json, :except => [:gene_selection]
+  respond_to :html, :only => [ :index, :show, :destroy]
   before_filter :authenticate_user!
 
-  def gene_selection
-    q = params[:q] ||= {}
-
-    q[:marker_symbol_or_mgi_accession_id_ci_in] ||= ''
-    q[:marker_symbol_or_mgi_accession_id_ci_in] =
-            q[:marker_symbol_or_mgi_accession_id_ci_in].
-            lines.map(&:strip).select{|i|!i.blank?}.join("\n")
-
-    @access = true
-  end
 
   def show
     set_centres_and_consortia

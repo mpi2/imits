@@ -1,0 +1,38 @@
+<% @title = "Edit Intentions for #{@plan.marker_symbol}" %>
+
+<div id="object-box" class="grid_8 prefix_2 suffix_2">
+  <h2><%= @title %></h2>
+
+  <%= form_for @plan, :html => {:class => 'edit show plan'} do |form| %>
+
+  <div id="object-new-top" class="grid_8 prefix_2 suffix_2"></div>
+
+    <%= form.error_messages %>
+    <div id="object-es-cell" class="object-es-cell">
+      <fieldset class="collapsible">
+        <legend>Plan Details</legend>
+        <div>
+          <div class="marker-symbol">
+            <div class="label">Marker Symbol</div>
+            <div><%= @plan.marker_symbol %></div>
+          </div>
+          <div class="consortium">
+            <div class="label">Consortium</div>
+            <div><%= @plan.consortium_name %></div>
+          </div>
+          <div class="production_centre">
+            <div class="label">Production Centre</div>
+            <div><%= @plan.production_centre_name %></div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <%= render 'form_contents', :form => form %>
+
+    <div>
+      <%= form.submit 'Update', :class => 'disable-on-submit', :id => 'plan_submit' %>
+    </div>
+
+  <% end %>
+</div>

@@ -1,0 +1,213 @@
+<fieldset class="collapsible">
+  <legend>Manage Intentions
+  </legend>
+  <div>
+    <div class="label">Plan's Current Intentions</div>
+    <p>Here are the current intentions of this plan.</p>
+    <table class="report_table">
+      <thead><tr>
+        <th>Intention</th>
+        <th>Status</th>
+        <th>Conflict</th>
+        <th>Assigned</th>
+        <th>Withdrawn</th>
+        <th>Sub Project</th>
+        <th>Allele Structure</th>
+      </tr></thead>
+      <tbody>
+        <% @intentions.each do |intention| %>
+        <tr>
+          <td><%= intention.intention.name %></td>
+          <td><%= intention.status.name %></td>
+          <td><%= intention.conflict %></td>
+          <td><%= intention.assign %></td>
+          <td><%= intention.withdrawn %></td>
+          <td><%= intention.sub_project.try(:name) %></td>
+          <td>Allele Structure</td>
+        </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <div class="label">Consortia Intention</div>
+    <p>Lists all the intentions currently assigned to the <%= @plan.consortium_name %> consortium. These intentions can be reassigned to this plan/Center.</p>
+    <%if @consortium_intentions.length == 0%>
+      <p>No other Intentions for the the consortium <%= @plan.consortium_name %></p>
+    <% else %>
+      <table class="report_table">
+        <thead><tr>
+          <th>Intention</th>
+          <th>Consortium</th>
+          <th>Production Centre</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody>
+          <% @consortium_intentions.each do |con_intn| %>
+          <tr>
+            <td><%= con_intn.intention.name %></td>
+            <td><%= con_intn.consortium_name %></td>
+            <td><%= con_intn.production_centre_name %></td>
+            <td><%= con_intn.status.name %></td>
+          </tr>
+          <% end %>
+        </tbody>
+      </table>
+  <% end %>
+  </div>
+
+  <div>
+    <div class="label">This Plan's Conflicting Intentions</div>
+    <p>Lists all the Intentions made by other Centers, for the gene <%= @plan.marker_symbol %>, which conflict with the intentions of this plan. To prevent duplication of work the Centers should regularly communicate with one another to remove these conflicts.</p>
+    <%if @intentions_causing_conflicts.length == 0%>
+      <p>No Conflicting Intentions</p>
+    <% else %>
+      <table class="report_table">
+        <thead><tr>
+          <th>Intention</th>
+          <th>Consortium</th>
+          <th>Production Centre</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody>
+          <% @intentions_causing_conflicts.each do |cnflt_intn| %>
+          <tr>
+            <td><%= cnflt_intn.intention.name %></td>
+            <td><%= cnflt_intn.consortium_name %></td>
+            <td><%= cnflt_intn.production_centre_name %></td>
+            <td><%= cnflt_intn.status.name %></td>
+          </tr>
+          <% end %>
+        </tbody>
+      </table>
+  <% end %>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Production Summary
+  </legend>
+  <div>
+    <div>
+      <div class="label">ES Cell Delivery and QC</div>
+      <% if @plan.es_cell_qcs.length == 0 %>
+        <p>No Es Cell QC has commenced</p>
+      <% else %>
+        <table class="report_table">
+          <thead><tr>
+            <th>External Ref</th>
+            <th>Status</th>
+            <th>ES Cells Delivery Info</th>
+            <th>ES Cells QC</th>
+            <th>Comment</th>
+          </tr></thead>
+          <tbody>
+            <% @plan.es_cell_qcs.each do |es_qc|%>
+            <tr>
+              <td style="text-align: center;vertical-align: top;"><div style="padding:30px 0px 0px 0px"><a href= "/es_cell_qc/<%= es_qc.id %>"><%= es_qc.id %></a></div></td>
+              <td style="text-align: center;vertical-align: top;"><div style="padding:30px 0px 0px 0px"><%= es_qc.status.name %></div></td>
+              <td style="text-align: left;vertical-align: top;"><fieldset>
+                  <legend>ES Cells Received</legend>
+                  <div class="received_es_cell">
+                    <div class="label">Date Received</div>
+                    <div><%= es_qc.es_cells_received_on %></div>
+                    <div class="label">Number of ES Cells</div>
+                    <div><%= es_qc.number_of_es_cells_received %></div>
+                    <div class="label">Received From</div>
+                    <div><%= es_qc.es_cells_received_from_name %></div>
+                  </div>
+                  </fieldset>
+              </td>
+              <td  style="text-align: left;vertical-align: top;"><fieldset>
+                  <legend>QC Details</legend>
+                  <div class="es_cell_qc">
+                    <div class="label">Starting QC</div>
+                    <div><%= es_qc.number_of_es_cells_starting_qc %></div>
+                    <div class="label">Passing QC</div>
+                    <div><%= es_qc.number_of_es_cells_passing_qc %></div>
+                  </div>
+                </fieldset>
+              </td>
+              <td style="text-align: center;vertical-align: top;"><%= es_qc.comment_id %></td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+    <div>
+      <div class="label">Micro Injection Production</div>
+      <% if @plan.mi_attempts.length == 0 %>
+        <p>No Micro Injection Attempts</p>
+      <% else %>
+        <table class="report_table">
+          <thead><tr>
+            <th>External Ref</th>
+            <th>Pipeline</th>
+            <th>Status</th>
+            <th>Mi Date</th>
+          </tr></thead>
+          <tbody>
+            <% @plan.mi_attempts.each do |mi|%>
+              <tr>
+                <td><a href= "/mi_attempts/<%= mi.id %>"> <%= mi.external_ref %> </a></td>
+                <td><%= mi.es_cell_id.blank? ? 'CRISPR' : 'ES Cell' %></td>
+                <td><%= mi.status.name %></td>
+                <td><%= mi.mi_date %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+    <div>
+      <div class="label">Excision Production</div>
+      <% if @plan.mouse_allele_mods.length == 0 %>
+        <p>No Mouse Allele Modifications commenced</p>
+      <% else %>
+        <table class="report_table">
+          <thead><tr>
+            <th>External Ref</th>
+            <th>Status</th>
+            <th>Excision Date</th>
+          </tr></thead>
+          <tbody>
+            <% @plan.mouse_allele_mods.each do |mam|%>
+              <tr>
+                <td><a href= "/phenotype_attempts/<%= mam.phenotype_attempt_id %>"> <%= mam.colony_name %> </a></td>
+                <td><%= mam.status.name %></td>
+                <td><%= mam.status_stamps.select{|ss| ss.status.name == 'Cre Excision Started'}.map{|s| s.try(:created_at).try(:to_date)}.join('') %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+    <div>
+      <div class="label">Phenotyping Production</div>
+      <% if @plan.phenotyping_productions.length == 0 %>
+        <p>No Phenotyping Experiments have commenced</p>
+      <% else %>
+        <table class="report_table">
+          <thead><tr>
+            <th>External Ref</th>
+            <th>Allele</th>
+            <th>Status</th>
+            <th>Experiments Started</th>
+          </tr></thead>
+          <tbody>
+            <% @plan.phenotyping_productions.each do |pp|%>
+              <tr>
+                <td><a href= "/phenotype_attempts/<%= pp.phenotype_attempt_id %>"> <%= pp.colony_name %> </a></td>
+                <td><%= "" %></td>
+                <td><%= pp.status.name %></td>
+                <td><%= pp.phenotyping_experiments_started %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+  </div>
+</fieldset>

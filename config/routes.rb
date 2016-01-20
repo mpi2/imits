@@ -62,6 +62,9 @@ TarMits::Application.routes.draw do
     end
   end
 
+
+
+
   get "colony/show/:id" => 'colony#show'
   get "colony/show/:id/:filename" => 'colony#show'
   get "colony/:mi_attempt_colony_name/phenotype_attempts/new" => 'colony#phenotype_attempts_new'
@@ -81,6 +84,12 @@ TarMits::Application.routes.draw do
       collection do
         get 'grid_redirect'
       end
+    end
+  end
+
+  resources :plans, :only => [:index, :show, :update] do
+    collection do
+      get 'gene_summary'
     end
   end
 

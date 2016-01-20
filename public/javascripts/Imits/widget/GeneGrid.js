@@ -1,4 +1,4 @@
-// gene grid with edit functionality
+ // gene grid with edit functionality
 Ext.define('Imits.widget.GeneGrid', {
     extend: 'Imits.widget.GeneGridCommon',
     requires: [
@@ -184,17 +184,7 @@ Ext.define('Imits.widget.GeneGrid', {
         var consortiumName       = grid.consortiumCombo.getSubmitValue();
         var productionCentreName = grid.centreCombo.getSubmitValue();
         var subProjectName       = grid.subprojectCombo.getSubmitValue();
-        var PhenotypeOnly        = grid.phenotypeonlyCheck.getSubmitValue() || false;
-        var Crispr               = grid.crisprCheck.getSubmitValue() || false;
         var priorityName         = grid.priorityCombo.getSubmitValue();
-        var isBespokeAllele      = grid.isbespokealleleCheck.getSubmitValue() || false;
-        var isConditionalAllele  = grid.isconditionalalleleCheck.getSubmitValue() || false;
-        var isDeletionAllele     = grid.isdeletionalleleCheck.getSubmitValue() || false;
-        var isCreKnockInAllele   = grid.iscreknockinalleleCheck.getSubmitValue() || false;
-        var isCreBacAllele       = grid.iscrebacalleleCheck.getSubmitValue() || false;
-        var conditionalTm1c      = grid.conditionaltm1cCheck.getSubmitValue() || false;
-        var pointMutation        = grid.pointmutationCheck.getSubmitValue() || false;
-        var conditionalPointMutation = grid.conditionalpointmutationCheck.getSubmitValue() || false;
 
         if(selectedGenes.length == 0) {
             alert('You must select some genes to register interest in');
@@ -218,17 +208,12 @@ Ext.define('Imits.widget.GeneGrid', {
                 'consortium_name'        : consortiumName,
                 'production_centre_name' : productionCentreName,
                 'sub_project_name'       : subProjectName,
-                'phenotype_only'         : PhenotypeOnly,
-                'mutagenesis_via_crispr_cas9' : Crispr,
+                'es_cell_qc'             : esCellQc,
+                'mouse_production'       : PhenotypeOnly,
+                'mouse_allele_modification' : Crispr,
+                'Phenotype'              : isBespokeAllele,
                 'priority_name'          : priorityName,
-                'is_bespoke_allele'      : isBespokeAllele,
-                'is_conditional_allele'  : isConditionalAllele,
-                'is_deletion_allele'     : isDeletionAllele,
-                'is_cre_knock_in_allele' : isCreKnockInAllele,
-                'is_cre_bac_allele'      : isCreBacAllele,
-                'conditional_tm1c'       : conditionalTm1c,
-                'point_mutation'         : pointMutation,
-                'conditional_point_mutation' : conditionalPointMutation
+                'pipeline'               : Pipeline
             });
             miPlan.save({
                 failure: function() {
@@ -263,49 +248,50 @@ Ext.define('Imits.widget.GeneGrid', {
         }
 
         // Add the top (gene selection) toolbar
-        grid.consortiumCombo  = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_OPTIONS, false, false);
-        grid.centreCombo      = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_OPTIONS, true, false);
-        grid.subprojectCombo  = grid.createComboBox('sub_project', 'Sub Project', 65, window.SUB_PROJECT_OPTIONS, false, isSubProjectHidden);
-        grid.priorityCombo    = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS, false, false);
-        grid.phenotypeonlyCheck     = grid.createCheckBox('phenotype_only', 'Phenotype Only', 95, false);
-        grid.crisprCheck              = grid.createCheckBox('mutagenesis_via_crispr_cas9', 'Mutagenesis Via Crispr/Cas9?', 95, false);
-        grid.isbespokealleleCheck     = grid.createCheckBox('is_bespoke_allele', 'Bespoke', 52, false);
-        grid.isconditionalalleleCheck = grid.createCheckBox('is_conditional_allele', 'Knockout First Tm1a', 120, false);
-        grid.isdeletionalleleCheck    = grid.createCheckBox('is_deletion_allele', 'Deletion', 57, false);
-        grid.iscreknockinalleleCheck  = grid.createCheckBox('is_cre_knock_in_allele', 'Cre Knock In', 80, false);
-        grid.iscrebacalleleCheck      = grid.createCheckBox('is_cre_bac_allele', 'Cre Bac', 55, false);
-        grid.conditionaltm1cCheck      = grid.createCheckBox('conditional_tm1c', 'Conditional tm1c', 100, false);
-        grid.pointmutationCheck      = grid.createCheckBox('point_mutation', 'Point Mutation', 80, false);
-        grid.conditionalpointmutationCheck      = grid.createCheckBox('conditional_point_mutation', 'Conditional Point Mutation', 135, false);
+        grid.consortiumCombo              = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_OPTIONS, false, false);
+        grid.centreCombo                  = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_OPTIONS, true, false);
+        grid.subprojectCombo              = grid.createComboBox('sub_project', 'Sub Project', 65, window.SUB_PROJECT_OPTIONS, false, isSubProjectHidden);
+        grid.escellqccheck                = grid.createCheckBox('es_cell_qc', 'QC ES Cells', 60, false);
+        grid.priorityCombo                = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS, false, false);
+        grid.pipelineCombo                = grid.createComboBox('pipeline', 'Pipeline', 47, window.PRIORITY_OPTIONS, false, false);
+        grid.mouseproductionCheck         = grid.createCheckBox('mouse_production', 'Produce Mouse via Micro-Injection', 95, false);
+        grid.mouseallelemodificationCheck = grid.createCheckBox('mouse_allele_modification', 'Modify Mouse Allele', 85, false);
+        grid.phenotypeCheck               = grid.createCheckBox('phenotype', 'Phenotype', 65, false);
+
 
         grid.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
             items: [
+            'Use check boxes below to assign genes to ...',
             grid.consortiumCombo,
             grid.centreCombo,
-            grid.subprojectCombo,
-            grid.priorityCombo,
-            grid.phenotypeonlyCheck,
-            grid.crisprCheck
+            grid.subprojectCombo
             ]
         }));
 
         grid.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
             items: [
-            grid.isbespokealleleCheck,
-            grid.isconditionalalleleCheck,
-            grid.conditionaltm1cCheck,
-            grid.isdeletionalleleCheck,
-            grid.iscreknockinalleleCheck,
-            grid.iscrebacalleleCheck,
-            grid.pointmutationCheck,
-            grid.conditionalpointmutationCheck,
             '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            'With the intention(s) to ...',
+            grid.escellqccheck,
+            grid.mouseproductionCheck,
+            grid.mouseallelemodificationCheck,
+            grid.phenotypeCheck,
+            grid.priorityCombo,
+            grid.pipelineCombo,
             '',
             {
                 id: 'register_interest_button',
-                text: 'Register Interest',
+                text: 'Assign Genes',
                 cls:'x-btn-text-icon',
                 iconCls: 'icon-add',
                 grid: grid,
@@ -314,6 +300,6 @@ Ext.define('Imits.widget.GeneGrid', {
                 }
             }
             ]
-        }));
+       }));
     }
 });

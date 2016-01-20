@@ -12,7 +12,7 @@ class MouseAlleleMod < ApplicationModel
   belongs_to :parent_colony, :class_name => 'Colony'
   belongs_to :allele
   belongs_to :real_allele
-  belongs_to :mi_plan
+  belongs_to :plan
   belongs_to :status
   belongs_to :deleter_strain
 
@@ -48,11 +48,26 @@ class MouseAlleleMod < ApplicationModel
 
   before_validation :remove_spaces_from_colony_name
   before_validation :set_blank_qc_fields_to_na
-  before_validation :allow_override_of_plan
   before_validation :change_status
   before_validation :manage_colony_and_qc_data
 
-  before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
+  before_save :manage_plan_and_intentions do
+    pam_intention = plan.allele_modification_intention
+    if pam_intention.blank?
+      pam_intention = Plan::Intention.new(:plan => self.plan, :intention_name => 'Allele Modification', :assign => true)
+    else
+      #ensure allele modification intention is assigned and not withdrawn if production is active
+      if is_active == true
+        pam_intention.assign = true
+        pam_intention.withdrawn = false
+      end
+    end
+
+    raise 'Could not save new Allele Modification Intention' unless pam_intention.save
+    #set sub_project_id if blank to intention default.
+    self.sub_project_id = pam_intention.sub_project_id if self.sub_project_id.blank?
+  end  # this method is in belongs_to_mi_plan
+
   before_save :generate_colony_name_if_blank
   before_save :set_phenotype_attempt_id
 
@@ -197,20 +212,6 @@ class MouseAlleleMod < ApplicationModel
   end
   protected :set_blank_qc_fields_to_na
 
-  def allow_override_of_plan
-    return if self.consortium_name.blank? or self.production_centre_name.blank? or self.gene.blank?
-    set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
-      plan = pa.parent_colony.mi_plan
-      if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
-        plan = [plan]
-      else
-        plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
-      end
-    end
-
-    self.mi_plan = set_plan
-  end
-  protected :allow_override_of_plan
 
   def manage_colony_and_qc_data
 
@@ -339,4 +340,6 @@ end
 #  allele_id                        :integer
 #  real_allele_id                   :integer
 #  parent_colony_id                 :integer
+#  sub_project_id                   :integer
+#  plan_id                          :integer
 #

@@ -1,12 +1,10 @@
 # encoding: utf-8
 
-class MiPlan < ApplicationModel
+class Plan < ApplicationModel
   acts_as_audited
   acts_as_reportable
 
   extend AccessAssociationByAttribute
-  include MiPlan::StatusManagement
-  include ApplicationModel::HasStatuses
 
   FUNDING = {'IMPC' => {
                  'HMGU' => ['Helmholtz GMC'],
@@ -27,159 +25,48 @@ class MiPlan < ApplicationModel
                ]
            }
 
-  belongs_to :sub_project
   belongs_to :gene
   belongs_to :consortium
-  belongs_to :status
-  belongs_to :priority
   belongs_to :production_centre, :class_name => 'Centre'
-  belongs_to :es_qc_comment
 
-  belongs_to :es_cells_received_from, :class_name => 'TargRep::CentrePipeline'
-
+  has_many :es_cell_qcs
   has_many :mi_attempts
-  has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
-          :dependent => :destroy
   has_many :mouse_allele_mods
   has_many :phenotyping_productions
-  has_many :es_cell_qcs, :dependent => :delete_all
 
-  accepts_nested_attributes_for :status_stamps
+  has_many :plan_intentions, :class_name => 'PlanIntention'
 
-  access_association_by_attribute :es_cells_received_from, :name
+  has_many :qc_es_cell_intention, :class_name => 'PlanIntention', :conditions => "intention_id = 1"
+  has_many :micro_injected_es_cell_intention, :class_name => 'PlanIntention', :conditions => "intention_id = 3"
+  has_many :micro_injected_crispr_intention, :class_name => 'PlanIntention', :conditions => "intention_id = 4"
+  has_many :modify_mice_allele_intention, :class_name => 'PlanIntention', :conditions => "intention_id = 5"
+  has_many :phenotype_mice_intention, :class_name => 'PlanIntention', :conditions => "intention_id = 6"
+
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
 
   delegate :marker_symbol, :to => :gene
 
-  protected :status=
+
+
+  
+# BEGIN Callbacks
+  #before_validation
+
+  ## VALIDATION
+  validates :gene, :presence => true
 
   validate do |plan|
-    if plan.is_active == false
-      plan.mi_attempts.each do |mi_attempt|
-        if mi_attempt.is_active?
-          plan.errors.add :is_active, "cannot be set to false as active micro-injection attempt '#{mi_attempt.colony_name}' is associated with this plan"
-        end
-      end
-    end
-  end
-
-  validate do |plan|
-    if plan.is_active == false
-      plan.phenotype_attempts.each do |phenotype_attempt|
-        if phenotype_attempt.is_active?
-          plan.errors.add :is_active, "cannot be set to false as active phenotype attempt '#{phenotype_attempt.colony_name}' is associated with this plan"
-        end
-      end
-    end
-  end
-
-  validate do |plan|
-puts "PLAN: #{plan.attributes}"
-    statuses = MiPlan::Status.all_non_assigned
-
-    if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
-
-      plan.phenotype_attempts.each do |phenotype_attempt|
-        if phenotype_attempt.status_name != 'Phenotype Attempt Aborted'
-          plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
-          return
-        end
-      end
-
-    end
-
-    if statuses.include?(plan.status) and plan.mi_attempts.length != 0
-
-      plan.mi_attempts.each do |mi_attempt|
-        if mi_attempt.status.code != 'abt'
-          plan.errors.add(:status, 'cannot be changed - micro-injection attempts exist')
-          return
-        end
-      end
-
-    end
-
-  end
-
-  validate do |plan|
-    other_ids = MiPlan.where(:gene_id => plan.gene_id,
+    other_ids = Plan.where(:gene_id => plan.gene_id,
       :consortium_id => plan.consortium_id,
-      :production_centre_id => plan.production_centre_id,
-      :sub_project_id => plan.sub_project_id,
-      :is_bespoke_allele => plan.is_bespoke_allele,
-      :is_conditional_allele => plan.is_conditional_allele,
-      :is_deletion_allele => plan.is_deletion_allele,
-      :is_cre_knock_in_allele => plan.is_cre_knock_in_allele,
-      :is_cre_bac_allele => plan.is_cre_bac_allele,
-      :conditional_tm1c => plan.conditional_tm1c,
-      :point_mutation => plan.point_mutation,
-      :conditional_point_mutation => plan.conditional_point_mutation,
-      :mutagenesis_via_crispr_cas9 => plan.mutagenesis_via_crispr_cas9,
-      :phenotype_only => plan.phenotype_only).map(&:id)
+      :production_centre_id => plan.production_centre_id)
     other_ids -= [plan.id]
     if(other_ids.count != 0)
-      plan.errors.add(:gene, 'already has a plan by that consortium/production centre and allele discription')
+      plan.errors.add(:gene, 'already has a plan by that consortium/production centre')
     end
   end
 
-  validate do |plan|
-    # if new record can be withdrawn
-    if ( self.new_record? )
-      return true
-    end
 
-    # if we want to set the withdrawn state, do further checks
-    if ( self.withdrawn == true )
-      unless plan.validate_withdrawal_allowed?
-        plan.errors.add(:withdrawn, 'cannot be set - plan is not currently in a withdrawable state')
-      end
-    end
-  end
-
-  validate do |plan|
-    update_es_cell_received
-
-    if !plan.number_of_es_cells_received.blank?
-      if es_cells_received_on.blank?
-        plan.errors.add(:es_cells_received_on, 'cannot be blank if \'number_of_es_cells_received\' has a value')
-      end
-
-      if es_cells_received_from_id.blank?
-        plan.errors.add(:es_cells_received_from, 'cannot be blank if \'number_of_es_cells_received\' has a value')
-      end
-    end
-  end
-
-  validate do |plan|
-    if !plan.completion_comment.blank? and plan.completion_note.blank?
-      plan.errors.add(:completion_note, 'cannot be blank if a Completion Comment has been added')
-    end
-  end
-
-  # BEGIN Callbacks
-
-  before_validation :set_default_number_of_es_cells_starting_qc
-  before_validation :check_number_of_es_cells_passing_qc
-  before_validation :set_default_sub_project
-
-  before_validation :change_status
-  before_validation :check_completion_note
-
-  after_save :manage_status_stamps
-  after_save :conflict_resolve_others
-
-  after_save :reset_status_stamp_created_at
-
-  after_destroy :conflict_resolve_others
-
-  before_save :update_es_cell_qc
-
-  before_save :update_es_cell_received
-
-  scope :phenotype_only, where(:phenotype_only => true)
-
-  private
 
   def update_es_cell_qc
 
@@ -643,44 +530,10 @@ end
 
 # == Schema Information
 #
-# Table name: mi_plans
+# Table name: plans
 #
-#  id                             :integer          not null, primary key
-#  gene_id                        :integer          not null
-#  consortium_id                  :integer          not null
-#  status_id                      :integer          not null
-#  priority_id                    :integer
-#  production_centre_id           :integer
-#  created_at                     :datetime
-#  updated_at                     :datetime
-#  number_of_es_cells_starting_qc :integer
-#  number_of_es_cells_passing_qc  :integer
-#  sub_project_id                 :integer          not null
-#  is_active                      :boolean          default(TRUE), not null
-#  is_bespoke_allele              :boolean          default(FALSE), not null
-#  is_conditional_allele          :boolean          default(FALSE), not null
-#  is_deletion_allele             :boolean          default(FALSE), not null
-#  is_cre_knock_in_allele         :boolean          default(FALSE), not null
-#  is_cre_bac_allele              :boolean          default(FALSE), not null
-#  comment                        :text
-#  withdrawn                      :boolean          default(FALSE), not null
-#  es_qc_comment_id               :integer
-#  phenotype_only                 :boolean          default(FALSE)
-#  completion_note                :string(100)
-#  recovery                       :boolean
-#  conditional_tm1c               :boolean          default(FALSE), not null
-#  ignore_available_mice          :boolean          default(FALSE), not null
-#  number_of_es_cells_received    :integer
-#  es_cells_received_on           :date
-#  es_cells_received_from_id      :integer
-#  point_mutation                 :boolean          default(FALSE), not null
-#  conditional_point_mutation     :boolean          default(FALSE), not null
-#  allele_symbol_superscript      :text
-#  report_to_public               :boolean          default(TRUE), not null
-#  completion_comment             :text
-#  mutagenesis_via_crispr_cas9    :boolean          default(FALSE)
-#
-# Indexes
-#
-#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id,is_bespoke_allele,is_conditional_allele,is_deletion_allele,is_cre_knock_in_allele,is_cre_bac_allele,conditional_tm1c,phenotype_only,mutagenesis_via_crispr_cas9) UNIQUE
+#  id                   :integer          not null, primary key
+#  gene_id              :integer          not null
+#  consortium_id        :integer
+#  production_centre_id :integer
 #

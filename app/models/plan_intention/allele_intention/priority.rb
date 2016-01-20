@@ -1,15 +1,15 @@
 # encoding: utf-8
 
-class MiPlan::Priority < ActiveRecord::Base
+class PlanIntention::AlleleIntention::Priority < ActiveRecord::Base
   acts_as_reportable
 
-  has_many :mi_plans
+  has_many :plan_intentions
   validates :name, :presence => true, :uniqueness => true
 end
 
 # == Schema Information
 #
-# Table name: mi_plan_priorities
+# Table name: plan_intention_allele_intention_priorities
 #
 #  id          :integer          not null, primary key
 #  name        :string(10)       not null
@@ -19,5 +19,5 @@ end
 #
 # Indexes
 #
-#  index_mi_plan_priorities_on_name  (name) UNIQUE
+#  index_plan_intention_allele_intention_priorities_on_name  (name) UNIQUE
 #

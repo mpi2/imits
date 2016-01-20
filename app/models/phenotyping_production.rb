@@ -8,9 +8,8 @@ class PhenotypingProduction < ApplicationModel
   include PhenotypingProduction::StatusManagement
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
-  include ApplicationModel::BelongsToMiPlan::Public
 
-  belongs_to :mi_plan
+  belongs_to :plan
   belongs_to :parent_colony, :class_name => 'Colony'
   belongs_to :status
   belongs_to :colony_background_strain, :class_name => 'Strain'
@@ -28,7 +27,23 @@ class PhenotypingProduction < ApplicationModel
   before_validation :check_and_set_cohort_centre
   before_validation :change_status
 
-  before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
+  before_save :manage_plan_and_intentions do
+    pp_intention = plan.phenotyping_intention
+    if pp_intention.blank?
+      pp_intention = Plan::Intention.new(:plan => self.plan, :intention_name => 'Phenotyping', :assign => true)
+    else
+      #ensure allele modification intention is assigned and not withdrawn if production is active
+      if is_active == true
+        pp_intention.assign = true
+        pp_intention.withdrawn = false
+      end
+    end
+
+    raise 'Could not save new Phenotyping Intention' unless pp_intention.save
+    #set sub_project_id if blank to intention default.
+    self.sub_project_id = pp_intention.sub_project_id if self.sub_project_id.blank?
+  end  # this method is in belongs_to_mi_plan
+
   before_save :set_colony_background_strain
   before_save :set_phenotyping_experiments_started_if_blank
   before_save :set_phenotype_attempt_id
@@ -356,4 +371,6 @@ end
 #  rederivation_started            :boolean          default(FALSE), not null
 #  rederivation_complete           :boolean          default(FALSE), not null
 #  cohort_production_centre_id     :integer
+#  sub_project_id                  :integer
+#  plan_id                         :integer
 #

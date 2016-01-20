@@ -1,10 +1,10 @@
 class Gene < ActiveRecord::Base
   acts_as_reportable
 
-  has_many :mi_plans
-  has_many :mi_attempts, :through => :mi_plans
-  has_many :mouse_allele_mods, :through => :mi_plans
-  has_many :phenotyping_productions, :through => :mi_plans
+  has_many :plans
+  has_many :mi_attempts, :through => :plans
+  has_many :mouse_allele_mods, :through => :plans
+  has_many :phenotyping_productions, :through => :plans
   has_many :notifications
   has_many :contacts, :through => :notifications
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20151009125302) do
+ActiveRecord::Schema.define(:version => 20151014115302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -145,6 +145,41 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.datetime "updated_at",   :null => false
   end
 
+  create_table "es_cell_qc_comments", :force => true do |t|
+    t.string   "name",       :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "es_cell_qc_comments", ["name"], :name => "index_es_cell_qc_comments_on_name", :unique => true
+
+  create_table "es_cell_qc_status_stamps", :force => true do |t|
+    t.integer  "es_cell_qc_id", :null => false
+    t.integer  "status_id",     :null => false
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
+  create_table "es_cell_qc_statuses", :force => true do |t|
+    t.string  "name",        :limit => 50, :null => false
+    t.string  "description"
+    t.integer "order_by"
+  end
+
+  add_index "es_cell_qc_statuses", ["name"], :name => "index_es_cell_qc_statuses_on_name", :unique => true
+
+  create_table "es_cell_qcs", :force => true do |t|
+    t.integer "plan_id",                        :null => false
+    t.integer "sub_project_id"
+    t.integer "status_id",                      :null => false
+    t.integer "number_of_es_cells_received"
+    t.date    "es_cells_received_on"
+    t.integer "es_cells_received_from_id"
+    t.integer "number_of_es_cells_starting_qc"
+    t.integer "number_of_es_cells_passing_qc"
+    t.integer "comment_id"
+  end
+
   create_table "es_cells", :force => true do |t|
     t.string   "name",                               :limit => 100, :null => false
     t.string   "allele_symbol_superscript_template", :limit => 75
@@ -193,6 +228,11 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
   add_index "genes", ["mgi_accession_id"], :name => "index_genes_on_mgi_accession_id", :unique => true
+
+  create_table "intentions", :force => true do |t|
+    t.string "name",        :null => false
+    t.string "description"
+  end
 
   create_table "intermediate_report", :force => true do |t|
     t.string   "consortium",                                                  :null => false
@@ -597,6 +637,8 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.text     "assay_type"
     t.boolean  "experimental",                                                   :default => false, :null => false
     t.string   "allele_target"
+    t.integer  "sub_project_id"
+    t.integer  "plan_id"
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -608,23 +650,6 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.datetime "created_at",         :null => false
     t.datetime "updated_at",         :null => false
   end
-
-  create_table "mi_plan_es_qc_comments", :force => true do |t|
-    t.string   "name",       :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "mi_plan_es_qc_comments", ["name"], :name => "index_mi_plan_es_qc_comments_on_name", :unique => true
-
-  create_table "mi_plan_priorities", :force => true do |t|
-    t.string   "name",        :limit => 10,  :null => false
-    t.string   "description", :limit => 100
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "mi_plan_priorities", ["name"], :name => "index_mi_plan_priorities_on_name", :unique => true
 
   create_table "mi_plan_status_stamps", :force => true do |t|
     t.integer  "mi_plan_id", :null => false
@@ -721,6 +746,8 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.integer  "allele_id"
     t.integer  "real_allele_id"
     t.integer  "parent_colony_id"
+    t.integer  "sub_project_id"
+    t.integer  "plan_id"
   end
 
   create_table "mutagenesis_factors", :force => true do |t|
@@ -774,6 +801,8 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.boolean  "rederivation_started",            :default => false, :null => false
     t.boolean  "rederivation_complete",           :default => false, :null => false
     t.integer  "cohort_production_centre_id"
+    t.integer  "sub_project_id"
+    t.integer  "plan_id"
   end
 
   create_table "pipelines", :force => true do |t|
@@ -784,6 +813,62 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
   end
 
   add_index "pipelines", ["name"], :name => "index_pipelines_on_name", :unique => true
+
+  create_table "plan_intention_allele_intention_priorities", :force => true do |t|
+    t.string   "name",        :limit => 10,  :null => false
+    t.string   "description", :limit => 100
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "plan_intention_allele_intention_priorities", ["name"], :name => "index_plan_intention_allele_intention_priorities_on_name", :unique => true
+
+  create_table "plan_intention_allele_intentions", :force => true do |t|
+    t.integer "plan_intention_id",                         :null => false
+    t.integer "priority_id"
+    t.boolean "bespoke_allele",         :default => false, :null => false
+    t.boolean "recovery_allele",        :default => false, :null => false
+    t.boolean "conditional_allele",     :default => false, :null => false
+    t.boolean "non_conditional_allele", :default => false, :null => false
+    t.boolean "cre_knock_in_allele",    :default => false, :null => false
+    t.boolean "cre_bac_allele",         :default => false, :null => false
+    t.boolean "deletion_allele",        :default => false, :null => false
+    t.boolean "point_mutation",         :default => false, :null => false
+    t.text    "comment"
+  end
+
+  create_table "plan_intention_status_stamps", :force => true do |t|
+    t.integer "plan_intention_id", :null => false
+    t.integer "status_id",         :null => false
+  end
+
+  create_table "plan_intention_statuses", :force => true do |t|
+    t.string  "name",        :limit => 50, :null => false
+    t.string  "description"
+    t.integer "order_by"
+  end
+
+  add_index "plan_intention_statuses", ["name"], :name => "index_plan_intention_statuses_on_name", :unique => true
+
+  create_table "plan_intentions", :force => true do |t|
+    t.integer "plan_id",                                  :null => false
+    t.integer "sub_project_id"
+    t.integer "status_id",                                :null => false
+    t.integer "intention_id",                             :null => false
+    t.boolean "assign",                :default => true,  :null => false
+    t.boolean "conflict",              :default => true,  :null => false
+    t.boolean "withdrawn",             :default => true,  :null => false
+    t.text    "comment"
+    t.text    "completion_comment"
+    t.boolean "ignore_available_mice", :default => false, :null => false
+    t.boolean "report_to_public",      :default => true,  :null => false
+  end
+
+  create_table "plans", :force => true do |t|
+    t.integer "gene_id",              :null => false
+    t.integer "consortium_id"
+    t.integer "production_centre_id"
+  end
 
   create_table "production_goals", :force => true do |t|
     t.integer  "consortium_id"
@@ -1168,6 +1253,12 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
 
   add_foreign_key "colony_qcs", "colonies", :name => "colony_qcs_colonies_fk"
 
+  add_foreign_key "es_cell_qc_status_stamps", "es_cell_qc_statuses", :name => "es_cell_qc_status_stamps_status_id_fk", :column => "status_id"
+  add_foreign_key "es_cell_qc_status_stamps", "es_cell_qcs", :name => "es_cell_qc_status_stamps_es_cell_qc_id_fk"
+
+  add_foreign_key "es_cell_qcs", "es_cell_qc_statuses", :name => "es_cell_qcs_status_id_fk", :column => "status_id"
+  add_foreign_key "es_cell_qcs", "plans", :name => "es_cell_qcs_plan_id_fk"
+
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk", :column => "status_id"
 
   add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk", :column => "status_id"
@@ -1185,11 +1276,11 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
 
   add_foreign_key "mi_plans", "centres", :name => "mi_plans_production_centre_id_fk", :column => "production_centre_id"
   add_foreign_key "mi_plans", "consortia", :name => "mi_plans_consortium_id_fk"
+  add_foreign_key "mi_plans", "es_cell_qc_comments", :name => "mi_plans_es_qc_comment_id_fk", :column => "es_qc_comment_id"
   add_foreign_key "mi_plans", "genes", :name => "mi_plans_gene_id_fk"
-  add_foreign_key "mi_plans", "mi_plan_es_qc_comments", :name => "mi_plans_es_qc_comment_id_fk", :column => "es_qc_comment_id"
-  add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk", :column => "priority_id"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"
+  add_foreign_key "mi_plans", "plan_intention_allele_intention_priorities", :name => "mi_plans_mi_plan_priority_id_fk", :column => "priority_id"
 
   add_foreign_key "mouse_allele_mod_status_stamps", "mouse_allele_mod_statuses", :name => "mouse_allele_mod_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "mouse_allele_mod_status_stamps", "mouse_allele_mods", :name => "fk_mouse_allele_mods"
@@ -1210,6 +1301,13 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
   add_foreign_key "phenotyping_productions", "mi_plans", :name => "phenotyping_productions_mi_plan_id_fk"
   add_foreign_key "phenotyping_productions", "phenotype_attempt_ids", :name => "phenotyping_productions_phenotype_attempt_id_fk", :column => "phenotype_attempt_id"
   add_foreign_key "phenotyping_productions", "phenotyping_production_statuses", :name => "phenotyping_productions_status_id_fk", :column => "status_id"
+
+  add_foreign_key "plan_intention_status_stamps", "plan_intention_statuses", :name => "plan_intention_status_stamps_status_id_fk", :column => "status_id"
+  add_foreign_key "plan_intention_status_stamps", "plan_intentions", :name => "plan_intention_status_stamps_plan_intention_id_fk"
+
+  add_foreign_key "plan_intentions", "intentions", :name => "plan_intentions_intention_id_fk"
+  add_foreign_key "plan_intentions", "plan_intention_statuses", :name => "plan_intentions_status_id_fk", :column => "status_id"
+  add_foreign_key "plan_intentions", "plans", :name => "plan_intentions_plan_id_fk"
 
   add_foreign_key "targ_rep_allele_sequence_annotations", "targ_rep_alleles", :name => "targ_rep_allele_sequence_annotations_allele_id_fk", :column => "allele_id"
 

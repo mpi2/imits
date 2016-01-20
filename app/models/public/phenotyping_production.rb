@@ -4,7 +4,6 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
 
   extend ::AccessAssociationByAttribute
   include ::Public::Serializable
-  include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
     mi_plan_id
@@ -89,4 +88,6 @@ end
 #  rederivation_started            :boolean          default(FALSE), not null
 #  rederivation_complete           :boolean          default(FALSE), not null
 #  cohort_production_centre_id     :integer
+#  sub_project_id                  :integer
+#  plan_id                         :integer
 #

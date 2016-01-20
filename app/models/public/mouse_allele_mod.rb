@@ -4,8 +4,6 @@ class Public::MouseAlleleMod < ::MouseAlleleMod
 
   extend ::AccessAssociationByAttribute
   include ::Public::Serializable
-#  include ::Public::DistributionCentresAttributes
-  include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
     mi_plan_id
@@ -102,4 +100,6 @@ end
 #  allele_id                        :integer
 #  real_allele_id                   :integer
 #  parent_colony_id                 :integer
+#  sub_project_id                   :integer
+#  plan_id                          :integer
 #

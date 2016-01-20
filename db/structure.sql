@@ -1059,6 +1059,137 @@ ALTER SEQUENCE email_templates_id_seq OWNED BY email_templates.id;
 
 
 --
+-- Name: es_cell_qc_comments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE es_cell_qc_comments (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
+);
+
+
+--
+-- Name: es_cell_qc_comments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE es_cell_qc_comments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: es_cell_qc_comments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE es_cell_qc_comments_id_seq OWNED BY es_cell_qc_comments.id;
+
+
+--
+-- Name: es_cell_qc_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE es_cell_qc_status_stamps (
+    id integer NOT NULL,
+    es_cell_qc_id integer NOT NULL,
+    status_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: es_cell_qc_status_stamps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE es_cell_qc_status_stamps_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: es_cell_qc_status_stamps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE es_cell_qc_status_stamps_id_seq OWNED BY es_cell_qc_status_stamps.id;
+
+
+--
+-- Name: es_cell_qc_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE es_cell_qc_statuses (
+    id integer NOT NULL,
+    name character varying(50) NOT NULL,
+    description character varying(255),
+    order_by integer
+);
+
+
+--
+-- Name: es_cell_qc_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE es_cell_qc_statuses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: es_cell_qc_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE es_cell_qc_statuses_id_seq OWNED BY es_cell_qc_statuses.id;
+
+
+--
+-- Name: es_cell_qcs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE es_cell_qcs (
+    id integer NOT NULL,
+    plan_id integer NOT NULL,
+    sub_project_id integer,
+    status_id integer NOT NULL,
+    number_of_es_cells_received integer,
+    es_cells_received_on date,
+    es_cells_received_from_id integer,
+    number_of_es_cells_starting_qc integer,
+    number_of_es_cells_passing_qc integer,
+    comment_id integer
+);
+
+
+--
+-- Name: es_cell_qcs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE es_cell_qcs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: es_cell_qcs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE es_cell_qcs_id_seq OWNED BY es_cell_qcs.id;
+
+
+--
 -- Name: es_cells; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -1150,6 +1281,36 @@ CREATE SEQUENCE genes_id_seq
 --
 
 ALTER SEQUENCE genes_id_seq OWNED BY genes.id;
+
+
+--
+-- Name: intentions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE intentions (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    description character varying(255)
+);
+
+
+--
+-- Name: intentions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE intentions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: intentions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE intentions_id_seq OWNED BY intentions.id;
 
 
 --
@@ -1711,7 +1872,9 @@ CREATE TABLE mi_attempts (
     founder_num_positive_results integer,
     assay_type text,
     experimental boolean DEFAULT false NOT NULL,
-    allele_target character varying(255)
+    allele_target character varying(255),
+    sub_project_id integer,
+    plan_id integer
 );
 
 
@@ -1765,69 +1928,6 @@ CREATE SEQUENCE mi_plan_es_cell_qcs_id_seq
 --
 
 ALTER SEQUENCE mi_plan_es_cell_qcs_id_seq OWNED BY mi_plan_es_cell_qcs.id;
-
-
---
--- Name: mi_plan_es_qc_comments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plan_es_qc_comments (
-    id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
-);
-
-
---
--- Name: mi_plan_es_qc_comments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE mi_plan_es_qc_comments_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: mi_plan_es_qc_comments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE mi_plan_es_qc_comments_id_seq OWNED BY mi_plan_es_qc_comments.id;
-
-
---
--- Name: mi_plan_priorities; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plan_priorities (
-    id integer NOT NULL,
-    name character varying(10) NOT NULL,
-    description character varying(100),
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
-);
-
-
---
--- Name: mi_plan_priorities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE mi_plan_priorities_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: mi_plan_priorities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE mi_plan_priorities_id_seq OWNED BY mi_plan_priorities.id;
 
 
 --
@@ -2073,7 +2173,9 @@ CREATE TABLE mouse_allele_mods (
     updated_at timestamp without time zone NOT NULL,
     allele_id integer,
     real_allele_id integer,
-    parent_colony_id integer
+    parent_colony_id integer,
+    sub_project_id integer,
+    plan_id integer
 );
 
 
@@ -2276,7 +2378,9 @@ CREATE TABLE phenotyping_productions (
     colony_background_strain_id integer,
     rederivation_started boolean DEFAULT false NOT NULL,
     rederivation_complete boolean DEFAULT false NOT NULL,
-    cohort_production_centre_id integer
+    cohort_production_centre_id integer,
+    sub_project_id integer,
+    plan_id integer
 );
 
 
@@ -2329,6 +2433,208 @@ CREATE SEQUENCE pipelines_id_seq
 --
 
 ALTER SEQUENCE pipelines_id_seq OWNED BY pipelines.id;
+
+
+--
+-- Name: plan_intention_allele_intention_priorities; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE plan_intention_allele_intention_priorities (
+    id integer NOT NULL,
+    name character varying(10) NOT NULL,
+    description character varying(100),
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
+);
+
+
+--
+-- Name: plan_intention_allele_intention_priorities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE plan_intention_allele_intention_priorities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: plan_intention_allele_intention_priorities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE plan_intention_allele_intention_priorities_id_seq OWNED BY plan_intention_allele_intention_priorities.id;
+
+
+--
+-- Name: plan_intention_allele_intentions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE plan_intention_allele_intentions (
+    id integer NOT NULL,
+    plan_intention_id integer NOT NULL,
+    priority_id integer,
+    bespoke_allele boolean DEFAULT false NOT NULL,
+    recovery_allele boolean DEFAULT false NOT NULL,
+    conditional_allele boolean DEFAULT false NOT NULL,
+    non_conditional_allele boolean DEFAULT false NOT NULL,
+    cre_knock_in_allele boolean DEFAULT false NOT NULL,
+    cre_bac_allele boolean DEFAULT false NOT NULL,
+    deletion_allele boolean DEFAULT false NOT NULL,
+    point_mutation boolean DEFAULT false NOT NULL,
+    comment text
+);
+
+
+--
+-- Name: plan_intention_allele_intentions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE plan_intention_allele_intentions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: plan_intention_allele_intentions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE plan_intention_allele_intentions_id_seq OWNED BY plan_intention_allele_intentions.id;
+
+
+--
+-- Name: plan_intention_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE plan_intention_status_stamps (
+    id integer NOT NULL,
+    plan_intention_id integer NOT NULL,
+    status_id integer NOT NULL
+);
+
+
+--
+-- Name: plan_intention_status_stamps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE plan_intention_status_stamps_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: plan_intention_status_stamps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE plan_intention_status_stamps_id_seq OWNED BY plan_intention_status_stamps.id;
+
+
+--
+-- Name: plan_intention_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE plan_intention_statuses (
+    id integer NOT NULL,
+    name character varying(50) NOT NULL,
+    description character varying(255),
+    order_by integer
+);
+
+
+--
+-- Name: plan_intention_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE plan_intention_statuses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: plan_intention_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE plan_intention_statuses_id_seq OWNED BY plan_intention_statuses.id;
+
+
+--
+-- Name: plan_intentions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE plan_intentions (
+    id integer NOT NULL,
+    plan_id integer NOT NULL,
+    sub_project_id integer,
+    status_id integer NOT NULL,
+    intention_id integer NOT NULL,
+    assign boolean DEFAULT true NOT NULL,
+    conflict boolean DEFAULT true NOT NULL,
+    withdrawn boolean DEFAULT true NOT NULL,
+    comment text,
+    completion_comment text,
+    ignore_available_mice boolean DEFAULT false NOT NULL,
+    report_to_public boolean DEFAULT true NOT NULL
+);
+
+
+--
+-- Name: plan_intentions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE plan_intentions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: plan_intentions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE plan_intentions_id_seq OWNED BY plan_intentions.id;
+
+
+--
+-- Name: plans; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE plans (
+    id integer NOT NULL,
+    gene_id integer NOT NULL,
+    consortium_id integer,
+    production_centre_id integer
+);
+
+
+--
+-- Name: plans_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE plans_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: plans_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE plans_id_seq OWNED BY plans.id;
 
 
 --
@@ -3453,6 +3759,34 @@ ALTER TABLE ONLY email_templates ALTER COLUMN id SET DEFAULT nextval('email_temp
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY es_cell_qc_comments ALTER COLUMN id SET DEFAULT nextval('es_cell_qc_comments_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY es_cell_qc_status_stamps ALTER COLUMN id SET DEFAULT nextval('es_cell_qc_status_stamps_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY es_cell_qc_statuses ALTER COLUMN id SET DEFAULT nextval('es_cell_qc_statuses_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY es_cell_qcs ALTER COLUMN id SET DEFAULT nextval('es_cell_qcs_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY es_cells ALTER COLUMN id SET DEFAULT nextval('es_cells_id_seq'::regclass);
 
 
@@ -3461,6 +3795,13 @@ ALTER TABLE ONLY es_cells ALTER COLUMN id SET DEFAULT nextval('es_cells_id_seq':
 --
 
 ALTER TABLE ONLY genes ALTER COLUMN id SET DEFAULT nextval('genes_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY intentions ALTER COLUMN id SET DEFAULT nextval('intentions_id_seq'::regclass);
 
 
 --
@@ -3531,20 +3872,6 @@ ALTER TABLE ONLY mi_attempts ALTER COLUMN id SET DEFAULT nextval('mi_attempts_id
 --
 
 ALTER TABLE ONLY mi_plan_es_cell_qcs ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_cell_qcs_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY mi_plan_es_qc_comments ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_qc_comments_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY mi_plan_priorities ALTER COLUMN id SET DEFAULT nextval('mi_plan_priorities_id_seq'::regclass);
 
 
 --
@@ -3643,6 +3970,48 @@ ALTER TABLE ONLY phenotyping_productions ALTER COLUMN id SET DEFAULT nextval('ph
 --
 
 ALTER TABLE ONLY pipelines ALTER COLUMN id SET DEFAULT nextval('pipelines_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intention_allele_intention_priorities ALTER COLUMN id SET DEFAULT nextval('plan_intention_allele_intention_priorities_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intention_allele_intentions ALTER COLUMN id SET DEFAULT nextval('plan_intention_allele_intentions_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intention_status_stamps ALTER COLUMN id SET DEFAULT nextval('plan_intention_status_stamps_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intention_statuses ALTER COLUMN id SET DEFAULT nextval('plan_intention_statuses_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intentions ALTER COLUMN id SET DEFAULT nextval('plan_intentions_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plans ALTER COLUMN id SET DEFAULT nextval('plans_id_seq'::regclass);
 
 
 --
@@ -3915,6 +4284,30 @@ ALTER TABLE ONLY email_templates
 
 
 --
+-- Name: es_cell_qc_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY es_cell_qc_status_stamps
+    ADD CONSTRAINT es_cell_qc_status_stamps_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: es_cell_qc_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY es_cell_qc_statuses
+    ADD CONSTRAINT es_cell_qc_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: es_cell_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY es_cell_qcs
+    ADD CONSTRAINT es_cell_qcs_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: es_cells_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -3928,6 +4321,14 @@ ALTER TABLE ONLY es_cells
 
 ALTER TABLE ONLY genes
     ADD CONSTRAINT genes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: intentions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY intentions
+    ADD CONSTRAINT intentions_pkey PRIMARY KEY (id);
 
 
 --
@@ -4014,7 +4415,7 @@ ALTER TABLE ONLY mi_plan_es_cell_qcs
 -- Name: mi_plan_es_qc_comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY mi_plan_es_qc_comments
+ALTER TABLE ONLY es_cell_qc_comments
     ADD CONSTRAINT mi_plan_es_qc_comments_pkey PRIMARY KEY (id);
 
 
@@ -4022,7 +4423,7 @@ ALTER TABLE ONLY mi_plan_es_qc_comments
 -- Name: mi_plan_priorities_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY mi_plan_priorities
+ALTER TABLE ONLY plan_intention_allele_intention_priorities
     ADD CONSTRAINT mi_plan_priorities_pkey PRIMARY KEY (id);
 
 
@@ -4136,6 +4537,46 @@ ALTER TABLE ONLY phenotyping_productions
 
 ALTER TABLE ONLY pipelines
     ADD CONSTRAINT pipelines_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: plan_intention_allele_intentions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY plan_intention_allele_intentions
+    ADD CONSTRAINT plan_intention_allele_intentions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: plan_intention_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY plan_intention_status_stamps
+    ADD CONSTRAINT plan_intention_status_stamps_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: plan_intention_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY plan_intention_statuses
+    ADD CONSTRAINT plan_intention_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: plan_intentions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY plan_intentions
+    ADD CONSTRAINT plan_intentions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: plans_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY plans
+    ADD CONSTRAINT plans_pkey PRIMARY KEY (id);
 
 
 --
@@ -4439,6 +4880,20 @@ CREATE UNIQUE INDEX index_distribution_qcs_centre_es_cell ON targ_rep_distributi
 
 
 --
+-- Name: index_es_cell_qc_comments_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_es_cell_qc_comments_on_name ON es_cell_qc_comments USING btree (name);
+
+
+--
+-- Name: index_es_cell_qc_statuses_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_es_cell_qc_statuses_on_name ON es_cell_qc_statuses USING btree (name);
+
+
+--
 -- Name: index_es_cells_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4474,20 +4929,6 @@ CREATE UNIQUE INDEX index_mi_attempts_on_colony_name ON mi_attempts USING btree 
 
 
 --
--- Name: index_mi_plan_es_qc_comments_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX index_mi_plan_es_qc_comments_on_name ON mi_plan_es_qc_comments USING btree (name);
-
-
---
--- Name: index_mi_plan_priorities_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX index_mi_plan_priorities_on_name ON mi_plan_priorities USING btree (name);
-
-
---
 -- Name: index_mi_plan_statuses_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4513,6 +4954,20 @@ CREATE UNIQUE INDEX index_one_status_stamp_per_status_and_mi_plan ON mi_plan_sta
 --
 
 CREATE UNIQUE INDEX index_pipelines_on_name ON pipelines USING btree (name);
+
+
+--
+-- Name: index_plan_intention_allele_intention_priorities_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_plan_intention_allele_intention_priorities_on_name ON plan_intention_allele_intention_priorities USING btree (name);
+
+
+--
+-- Name: index_plan_intention_statuses_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_plan_intention_statuses_on_name ON plan_intention_statuses USING btree (name);
 
 
 --
@@ -4918,6 +5373,38 @@ ALTER TABLE ONLY colony_qcs
 
 
 --
+-- Name: es_cell_qc_status_stamps_es_cell_qc_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY es_cell_qc_status_stamps
+    ADD CONSTRAINT es_cell_qc_status_stamps_es_cell_qc_id_fk FOREIGN KEY (es_cell_qc_id) REFERENCES es_cell_qcs(id);
+
+
+--
+-- Name: es_cell_qc_status_stamps_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY es_cell_qc_status_stamps
+    ADD CONSTRAINT es_cell_qc_status_stamps_status_id_fk FOREIGN KEY (status_id) REFERENCES es_cell_qc_statuses(id);
+
+
+--
+-- Name: es_cell_qcs_plan_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY es_cell_qcs
+    ADD CONSTRAINT es_cell_qcs_plan_id_fk FOREIGN KEY (plan_id) REFERENCES plans(id);
+
+
+--
+-- Name: es_cell_qcs_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY es_cell_qcs
+    ADD CONSTRAINT es_cell_qcs_status_id_fk FOREIGN KEY (status_id) REFERENCES es_cell_qc_statuses(id);
+
+
+--
 -- Name: fk_mouse_allele_mods; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5034,7 +5521,7 @@ ALTER TABLE ONLY mi_plans
 --
 
 ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_es_qc_comment_id_fk FOREIGN KEY (es_qc_comment_id) REFERENCES mi_plan_es_qc_comments(id);
+    ADD CONSTRAINT mi_plans_es_qc_comment_id_fk FOREIGN KEY (es_qc_comment_id) REFERENCES es_cell_qc_comments(id);
 
 
 --
@@ -5050,7 +5537,7 @@ ALTER TABLE ONLY mi_plans
 --
 
 ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_mi_plan_priority_id_fk FOREIGN KEY (priority_id) REFERENCES mi_plan_priorities(id);
+    ADD CONSTRAINT mi_plans_mi_plan_priority_id_fk FOREIGN KEY (priority_id) REFERENCES plan_intention_allele_intention_priorities(id);
 
 
 --
@@ -5179,6 +5666,46 @@ ALTER TABLE ONLY phenotyping_productions
 
 ALTER TABLE ONLY phenotyping_productions
     ADD CONSTRAINT phenotyping_productions_status_id_fk FOREIGN KEY (status_id) REFERENCES phenotyping_production_statuses(id);
+
+
+--
+-- Name: plan_intention_status_stamps_plan_intention_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intention_status_stamps
+    ADD CONSTRAINT plan_intention_status_stamps_plan_intention_id_fk FOREIGN KEY (plan_intention_id) REFERENCES plan_intentions(id);
+
+
+--
+-- Name: plan_intention_status_stamps_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intention_status_stamps
+    ADD CONSTRAINT plan_intention_status_stamps_status_id_fk FOREIGN KEY (status_id) REFERENCES plan_intention_statuses(id);
+
+
+--
+-- Name: plan_intentions_intention_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intentions
+    ADD CONSTRAINT plan_intentions_intention_id_fk FOREIGN KEY (intention_id) REFERENCES intentions(id);
+
+
+--
+-- Name: plan_intentions_plan_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intentions
+    ADD CONSTRAINT plan_intentions_plan_id_fk FOREIGN KEY (plan_id) REFERENCES plans(id);
+
+
+--
+-- Name: plan_intentions_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY plan_intentions
+    ADD CONSTRAINT plan_intentions_status_id_fk FOREIGN KEY (status_id) REFERENCES plan_intention_statuses(id);
 
 
 --
@@ -5676,3 +6203,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150806125302');
 INSERT INTO schema_migrations (version) VALUES ('20150812125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20151009125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20151014115302');

@@ -1,9 +1,8 @@
 # encoding: utf-8
-
-class MiPlan::EsQcComment < ActiveRecord::Base
+class EsCellQc::Comment < ActiveRecord::Base
   acts_as_reportable
 
-  has_many :mi_plans
+  has_many :es_cell_qcs
 
   validates :name, :uniqueness => true, :presence => true
 

@@ -3,7 +3,6 @@ class Public::MiAttempt < ::MiAttempt
   include ::Public::Serializable
   include ::Public::MutagenesisFactorAttributes
   include ::Public::ColonyAttributes
-  include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
     es_cell_name
@@ -226,6 +225,8 @@ end
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
+#  sub_project_id                                  :integer
+#  plan_id                                         :integer
 #
 # Indexes
 #

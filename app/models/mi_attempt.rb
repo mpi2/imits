@@ -13,7 +13,7 @@ class MiAttempt < ApplicationModel
   CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze
 
   belongs_to :real_allele
-  belongs_to :mi_plan
+  belongs_to :plan
   belongs_to :es_cell, :class_name => 'TargRep::EsCell'
   belongs_to :status
   belongs_to :updated_by, :class_name => 'User'
@@ -131,7 +131,35 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
+  before_save :manage_plan_and_intentions do
+    if self.es_cell.blank?
+      mi_intention = plan.crispr_micro_injection_intention
+      intention_name = 'CRIPSR Micro Injection'
+    else
+      mi_intention = plan.es_cell_micro_injection_intention
+      intention_name = 'ES Cell Micro Injection'
+    end
+
+    if mi_intention.blank?
+      mi_intention = plan.mouse_production_intention
+      mi_intention.intention_name = intention_name
+    end
+
+    if mi_intention.blank?
+      mi_intention = Plan::Intention.new(:plan => self.plan, :intention_name => intention_name, :assign => true)
+    else
+      #ensure Intention is assigned and not withdrawn if production is active
+      if is_active == true
+        mi_intention.assign = true
+        mi_intention.withdrawn = false
+      end
+    end
+
+    raise 'Could not save new Micro Injection Intention' unless mi_intention.save
+    #set sub_project_id if blank to intention default.
+    self.sub_project_id = mi_intention.sub_project_id if self.sub_project_id.blank?
+  end  # this method is in belongs_to_mi_plan
+
   before_save :set_cassette_transmission_verified
   before_save :set_default_background_strain_for_crispr_produced_colonies
   before_save :make_mi_date_and_in_progress_status_consistent
@@ -637,6 +665,8 @@ end
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
+#  sub_project_id                                  :integer
+#  plan_id                                         :integer
 #
 # Indexes
 #

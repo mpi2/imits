@@ -28,6 +28,11 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
 
   READABLE_ATTRIBUTES = %w{
     id
+
+    marker_symbol
+    mgi_accession_id
+    parent_colony_background_strain_name
+
     phenotype_attempt_id
     production_centre_name
     production_consortium_name

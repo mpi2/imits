@@ -79,7 +79,6 @@ class PhenotypingProduction < ApplicationModel
     end
 
     if !self.cohort_production_centre_id.blank? && Centre.find(self.cohort_production_centre_id).name != phenotyping_centre_name
-      puts "HELLO"
       self.rederivation_started = false
       self.rederivation_complete = false
     end
@@ -100,16 +99,19 @@ class PhenotypingProduction < ApplicationModel
       pp.errors[:mi_plan] << 'must be either the same as the mouse production plan OR phenotype_only'
     end
 
-    other_ids = []
-    other_ids = PhenotypingProduction.includes(:mi_plan).where("
-      mi_plans.consortium_id = #{pp.mi_plan.consortium_id} AND
-      mi_plans.production_centre_id = #{pp.mi_plan.production_centre_id} AND
-      parent_colony_id = #{pp.parent_colony_id}").map{|a| a.id} unless pp.parent_colony_id.blank?
+# REMOVED VALIDATION TO ALLOW CENTERS TO RE PHENOTYPE (POTENTIALLY USING DIFFERENT CONTROLS ANIMALS).
+# CAN BE RE ESTABLISHED BUT VALIDATION MUST BE IGNORED IF CONSORTIA ARE LEGACY LINES.
 
-    other_ids -= [self.id]
-    if(other_ids.count != 0)
-      pp.errors[:already] << 'has production for this consortium & production centre'
-    end
+#    other_ids = []
+#    other_ids = PhenotypingProduction.includes(:mi_plan).where("
+#      mi_plans.consortium_id = #{pp.mi_plan.consortium_id} AND
+#      mi_plans.production_centre_id = #{pp.mi_plan.production_centre_id} AND
+#      parent_colony_id = #{pp.parent_colony_id}").map{|a| a.id} unless pp.parent_colony_id.blank?
+
+#    other_ids -= [self.id]
+#    if(other_ids.count != 0)
+#      pp.errors[:already] << 'has production for this consortium & production centre'
+#    end
   end
 
   validates :parent_colony, :presence => true
@@ -170,6 +172,10 @@ class PhenotypingProduction < ApplicationModel
 
 
 ## METHODS
+
+  def parent_colony_background_strain_name
+    parent_colony.try(:background_strain_name)
+  end
 
   def parent_colony_name
     return parent_colony.name unless parent_colony.blank?
@@ -257,10 +263,13 @@ class PhenotypingProduction < ApplicationModel
     parent_colony.try(:allele_symbol)
   end
 
+  def marker_symbol
+    gene.try(:marker_symbol) 
+  end
 
-
-
-
+  def mgi_accession_id
+    gene.try(:mgi_accession_id) 
+  end
 
   def phenotyping_consortium_name
     consortium_name

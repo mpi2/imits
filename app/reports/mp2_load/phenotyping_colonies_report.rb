@@ -44,6 +44,7 @@ class Mp2Load::PhenotypingColoniesReport
        {'title' => 'Production Consortium', 'field' => 'production_consortia'},
        {'title' => 'Phenotyping Centre', 'field' => 'phenotyping_centre'},
        {'title' => 'Phenotyping Consortium', 'field' => 'phenotyping_consortia'},
+       {'title' => 'Cohort Production Centre', 'field' => 'cohort_production_centre_name'},
        {'title' => 'Allele Symbol', 'field' => 'allele_symbol'}
        ]
     end
@@ -103,6 +104,10 @@ class Mp2Load::PhenotypingColoniesReport
         pp_plans.consortium_name AS phenotyping_consortia,
 
         CASE WHEN pp_cb_strains.name IS NOT NULL THEN pp_cb_strains.name ELSE colony.background_strain_name END AS background_strain_name,
+        CASE WHEN cohort_centres.name IS NOT NULL THEN cohort_centres.name 
+             WHEN mouse_allele_mods.id IS NULL THEN pp_plans.centre_name
+             ELSE colony.centre_name 
+        END AS cohort_production_centre_name,
 
         CASE WHEN colony.es_cell_name IS NOT NULL AND colony.es_cell_name != '' THEN colony.es_cell_name ELSE mam_colony.es_cell_name END AS es_cell_name, 
         CASE WHEN colony.mgi_allele_symbol_superscript IS NOT NULL AND colony.mgi_allele_symbol_superscript != '' THEN colony.mgi_allele_symbol_superscript ELSE mam_colony.mgi_allele_symbol_superscript END AS mgi_allele_symbol_superscript,
@@ -120,6 +125,7 @@ class Mp2Load::PhenotypingColoniesReport
         JOIN genes ON genes.id = pp_plans.gene_id
         JOIN colony_summary colony ON colony.id = phenotyping_productions.parent_colony_id
         LEFT JOIN strains pp_cb_strains ON pp_cb_strains.id = phenotyping_productions.colony_background_strain_id
+        LEFT JOIN centres cohort_centres ON cohort_centres.id = phenotyping_productions.cohort_production_centre_id
         LEFT JOIN (mouse_allele_mods JOIN colony_summary mam_colony ON mam_colony.id = mouse_allele_mods.parent_colony_id) ON mouse_allele_mods.id = colony.mouse_allele_mod_id
       WHERE colony.genotype_confirmed = true AND phenotyping_productions.is_active = true
       ORDER BY phenotyping_colony_name

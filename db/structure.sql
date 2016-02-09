@@ -1711,7 +1711,8 @@ CREATE TABLE mi_attempts (
     founder_num_positive_results integer,
     assay_type text,
     experimental boolean DEFAULT false NOT NULL,
-    allele_target character varying(255)
+    allele_target character varying(255),
+    parent_colony_id integer
 );
 
 
@@ -2800,11 +2801,7 @@ CREATE TABLE targ_rep_mutation_types (
 --
 
 CREATE VIEW targ_rep_es_cell_mutation_types AS
- SELECT es.id AS es_cell_id,
-    types.name AS mutation_type
-   FROM ((targ_rep_es_cells es
-     LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id)))
-     LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
+SELECT es.id AS es_cell_id, types.name AS mutation_type FROM ((targ_rep_es_cells es LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id))) LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
 
 
 --
@@ -5652,6 +5649,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141218120401');
 INSERT INTO schema_migrations (version) VALUES ('20150121134401');
 
 INSERT INTO schema_migrations (version) VALUES ('20150123133119');
+
+INSERT INTO schema_migrations (version) VALUES ('20150209095302');
 
 INSERT INTO schema_migrations (version) VALUES ('20150303141000');
 

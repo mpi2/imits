@@ -597,6 +597,7 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.text     "assay_type"
     t.boolean  "experimental",                                                   :default => false, :null => false
     t.string   "allele_target"
+    t.integer  "parent_colony_id"
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true

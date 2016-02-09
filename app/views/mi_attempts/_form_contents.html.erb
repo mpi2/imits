@@ -54,6 +54,9 @@
           <% end %>
         </div>
       <% end %>
+      <div id="parent_colony-container">
+        <%= generator.text_field(:parent_colony_name, :class => 'x-form-text', :size => 20) %> <%= mi_attempt.parent_colony.try(:allele_symbol_superscript)%>
+      </div>
       <div id="blast_strain-container">
         <%= generator.strains_field :blast_strain %>
       </div>

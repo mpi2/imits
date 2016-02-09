@@ -20,6 +20,7 @@ class MiAttempt < ApplicationModel
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
   belongs_to :mutagenesis_factor, :inverse_of => :mi_attempt, dependent: :destroy
+  belongs_to :parent_colony, :class_name => 'Colony'
 
   has_one    :colony, inverse_of: :mi_attempt, dependent: :destroy
 
@@ -31,6 +32,7 @@ class MiAttempt < ApplicationModel
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :test_cross_strain, :name
+  access_association_by_attribute :parent_colony, :name
 
   ColonyQc::QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
@@ -97,6 +99,13 @@ class MiAttempt < ApplicationModel
   validate do |mi|
     if !mi.es_cell.blank? and mi.colonies.length > 1
       mi.errors.add :base, 'Multiple Colonies are not allowed for Mi Attempts micro-injected with an ES Cell clone'
+    end
+  end
+
+  validate do |mi|
+    return if mi.parent_colony.blank?
+    if mi.parent_colony.marker_symbol != mi.marker_symbol
+      mi.errors.add :base, "The Micro-Injection and the Parent Colony's mutant allele must target/be the same gene."
     end
   end
 
@@ -637,6 +646,7 @@ end
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
+#  parent_colony_id                                :integer
 #
 # Indexes
 #

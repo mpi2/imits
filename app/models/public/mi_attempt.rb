@@ -11,6 +11,7 @@ class Public::MiAttempt < ::MiAttempt
     colony_name
     consortium_name
     production_centre_name
+    parent_colony_name
     blast_strain_name
     total_blasts_injected
     total_transferred
@@ -226,6 +227,7 @@ end
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
+#  parent_colony_id                                :integer
 #
 # Indexes
 #

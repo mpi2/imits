@@ -349,7 +349,7 @@ class BuildProductCore
 #    @solr_user = @solr_update[Rails.env]['user']
 #    @solr_password = @solr_update[Rails.env]['password']
     @dataset_max_size = 80000
-    @process_mice = true
+    @process_mice = false
     @process_es_cells = true
     @process_targeting_vectors = false
     @process_intermediate_vectors = false
@@ -758,7 +758,7 @@ class BuildProductCore
       return {:urls => ["mailto:mouseinterest@sanger.ac.uk?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['Wtsi']}
 
     elsif 'NorCOMM' == pipeline
-      return {:urls => ['http://www.phenogenomics.ca/cmmr/services/escell.html'], :names => ['NorCOMM']}
+      return {:urls => ["http://www.cmmr.ca/gene-detail.php?gene=#{mgi_accession_id}"], :names => ['NorCOMM']}
 
     elsif 'TIGM' == pipeline
       return {:urls => ["mailto:info@tigm.org?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['TIGM']}

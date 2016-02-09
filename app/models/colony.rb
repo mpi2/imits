@@ -11,6 +11,7 @@ class Colony < ApplicationModel
   belongs_to :mouse_allele_mod
   belongs_to :background_strain, :class_name => 'Strain'
 
+  has_many :micro_injection_attempts, :class_name => 'MiAttempt', :foreign_key => 'parent_colony_id'
   has_many :allele_modifications, :class_name => 'MouseAlleleMod', :foreign_key => 'parent_colony_id'
   has_many :phenotyping_productions, :class_name => 'PhenotypingProduction', :foreign_key => 'parent_colony_id'
 

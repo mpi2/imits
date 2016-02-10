@@ -25,6 +25,9 @@ class BuildProductCore
 # NOTES Remove Gene Trap alleles by only selecting TargetedAlleles
   ES_CELL_SQL= <<-EOF
     SELECT targ_rep_es_cells.*,
+      CASE WHEN targ_rep_es_cells.allele_type IS NULL AND targ_rep_es_cells.allele_symbol_superscript_template IS NOT NULL THEN ''
+      ELSE targ_rep_es_cells.allele_type END
+      AS allele_type_v2,
       targ_rep_targeting_vectors.name AS targeting_vector_name,
       targ_rep_mutation_types.name AS mutation_type,
       targ_rep_mutation_types.allele_code AS mutation_type_allele_code,
@@ -95,7 +98,7 @@ class BuildProductCore
         es_cells.has_issue AS has_issue,
         es_cells.allele_symbol_superscript_template AS allele_symbol_superscript_template,
         es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
-        es_cells.allele_type AS es_cell_allele_type,
+        es_cells.allele_type_v2 AS es_cell_allele_type,
         es_cells.strain AS strain,
         mouse_colonies.list AS colonies,
         es_cells.pipeline AS pipeline,
@@ -122,7 +125,7 @@ class BuildProductCore
     #es_cell_names finds all es_cells created from the targeting vector and orders them by the allele_type (tm1, tm1a then tm1e).This will allow your to determine the targeting vector allele_type by selecting the first allele_type off the list
     <<-EOF
       WITH es_cell_names AS (
-        SELECT es_cells.targeting_vector_id AS targeting_vector_id, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(es_cells.allele_type) AS allele_types, array_agg(es_cells.name) AS list
+        SELECT es_cells.targeting_vector_id AS targeting_vector_id, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(es_cells.allele_type_v2) AS allele_types, array_agg(es_cells.name) AS list
         FROM
           (SELECT targ_rep_es_cells.*
           FROM targ_rep_es_cells
@@ -169,7 +172,7 @@ class BuildProductCore
   def self.intermediate_vectors_sql
     <<-EOF
       WITH es_cell_names AS (
-        SELECT es_cells.intermediate_vector AS intermediate_vector, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(es_cells.allele_type) AS allele_types
+        SELECT es_cells.intermediate_vector AS intermediate_vector, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(es_cells.allele_type_v2) AS allele_types
         FROM
           (SELECT targ_rep_es_cells.*, targ_rep_targeting_vectors.intermediate_vector AS intermediate_vector
           FROM targ_rep_es_cells
@@ -217,7 +220,7 @@ class BuildProductCore
         'MiAttempt' AS type,
         colonies.allele_type AS colony_allele_type,
         '' AS parent_mouse_allele_type,
-        es_cells.mutation_type_allele_code AS es_cell_allele_type,
+        es_cells.allele_type_v2 AS es_cell_allele_type,
         colonies.allele_name AS colony_allele_name,
         mi_attempts.allele_target AS allele_target,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
@@ -275,7 +278,7 @@ class BuildProductCore
         'MouseAlleleModification' AS type,
         colonies.allele_type AS colony_allele_type,
         mi_colony.allele_type AS parent_mouse_allele_type,
-        es_cells.mutation_type_allele_code AS es_cell_allele_type,
+        es_cells.allele_type_v2 AS es_cell_allele_type,
         colonies.allele_name AS colony_allele_name,
         '' AS allele_target,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
@@ -349,10 +352,10 @@ class BuildProductCore
 #    @solr_user = @solr_update[Rails.env]['user']
 #    @solr_password = @solr_update[Rails.env]['password']
     @dataset_max_size = 80000
-    @process_mice = false
+    @process_mice = true
     @process_es_cells = true
-    @process_targeting_vectors = false
-    @process_intermediate_vectors = false
+    @process_targeting_vectors = true
+    @process_intermediate_vectors = true
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',
@@ -781,7 +784,7 @@ if __FILE__ == $0
   BuildProductCore.new.run
   puts "## Completed Rebuild of the Product Core#{Time.now}"
 
-  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
-  BuildProductCore.new(true).run
-  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
+#  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
+#  BuildProductCore.new(true).run
+#  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
 end

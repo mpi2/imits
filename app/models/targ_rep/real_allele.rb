@@ -167,8 +167,6 @@ class TargRep::RealAllele < ActiveRecord::Base
     allele_symbol_superscript_template = data['allele_symbol_superscript_template'] || nil
     mgi_allele_symbol_superscript = data['mgi_allele_symbol_superscript'] || nil
 
-puts "#{crispr_allele_name}"
-
     # if crisprs allele type NHEJ HDR HR Del do not substitute allele_type
     return crispr_allele_name if ['None', 'NHEJ', 'HDR', 'HR', 'Deletion'].include?(allele_type) && data.has_key?('allele_name') && !data.has_key?('allele_name').blank?
 
@@ -178,8 +176,12 @@ puts "#{crispr_allele_name}"
     allele_symbol = mutation_method_code + allele_id  if !mutation_method_code.blank? && !allele_id.blank?
     allele_symbol = mutation_method_code + design_id + allele_type + '(' + cassette + ')' if !mutation_method_code.blank? && allele_type_exists && !design_id.blank? && !cassette.blank?
     allele_symbol = allele_symbol_superscript_template.to_s.gsub(/\@/, allele_type.to_s) if allele_type_exists && ! allele_symbol_superscript_template.to_s.empty?
-    allele_symbol = mgi_allele_symbol_superscript if ! mgi_allele_symbol_superscript.to_s.empty?
-
+    if ! mgi_allele_symbol_superscript.to_s.empty? 
+      md = /\A(tm\d+|em\d+)([a-e]|.\d+|e.\d+)?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript) 
+      if md.blank? || md[2] == allele_type || (md[2].nil? && ['', nil].include?(allele_type)) 
+        allele_symbol = mgi_allele_symbol_superscript
+      end
+    end
     return allele_symbol
   end
   private_class_method :calculate_allele_symbol

@@ -210,7 +210,14 @@ class Colony < ApplicationModel
       return
     end
 
-    self.allele_symbol_superscript_template, self.allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
+    new_template, new_allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
+
+    #prevent MGI from incorrectly overiding the allele name if the allele type does not match that stated by the centres.
+    if !self.allele_type.nil? && self.allele_type == new_allele_type
+      self.allele_symbol_superscript_template = new_template
+    else
+      self.mgi_allele_symbol_superscript = nil
+    end
 
     if errors.count > 0
       self.errors.add errors.first[0], errors.first[1]

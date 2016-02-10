@@ -328,7 +328,7 @@ class BuildProductCore
         LEFT JOIN es_cells ON mi_attempts.es_cell_id = es_cells.id)
         LEFT JOIN strains AS cb_strain ON cb_strain.id = colonies.background_strain_id
         LEFT JOIN deleter_strains AS del_strain ON del_strain.id = mouse_allele_mods.deleter_strain_id
-        LEFT JOIN distribution_centres ON distribution_centres.colony_id = colonies.mouse_allele_mod_id
+        LEFT JOIN distribution_centres ON distribution_centres.colony_id = colonies.id
       WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.is_active = true
     EOF
 
@@ -784,7 +784,7 @@ if __FILE__ == $0
   BuildProductCore.new.run
   puts "## Completed Rebuild of the Product Core#{Time.now}"
 
-#  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
-#  BuildProductCore.new(true).run
-#  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
+  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
+  BuildProductCore.new(true).run
+  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
 end

@@ -434,19 +434,20 @@ class BuildAllele2
     ## append additional data based on already collated data
     @gene_data.each do |key, gene_data_row|
 
+      gene_data_row['es_cell_status'] = 'No ES Cell Production' if gene_data_row['es_cell_status'].blank? && gene_data_row['feature_type'] == 'protein coding gene'
+
       gene_data_row['latest_es_cell_status'] = gene_data_row['es_cell_status']
       gene_data_row['latest_mouse_status'] = gene_data_row['mouse_status']
       gene_data_row['latest_phenotype_status'] = gene_data_row['phenotype_status']
-      gene_data_row['latest_project_status'] = gene_data_row['']
       gene_data_row['latest_production_centre'] = gene_data_row['production_centre']
       gene_data_row['latest_phenotyping_centre'] = gene_data_row['phenotyping_centre']
       gene_data_row['latest_phenotype_started'] = ['Phenotyping Started', 'Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false
       gene_data_row['latest_phenotype_complete'] = ['Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : true
 
-
       gene_data_row['latest_project_status'] = gene_data_row['es_cell_status']
       gene_data_row['latest_project_status'] = gene_data_row['mouse_status'] unless gene_data_row['mouse_status'].blank?
       gene_data_row['latest_project_status'] = gene_data_row['phenotype_status'] unless gene_data_row['phenotype_status'].blank?
+
 
       gene_data_row['latest_project_status_legacy'] = @translate_to_legacy_status[gene_data_row['latest_project_status']] if @translate_to_legacy_status.has_key?(gene_data_row['latest_project_status'])
     end

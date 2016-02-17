@@ -168,7 +168,16 @@ class TargRep::RealAllele < ActiveRecord::Base
     mgi_allele_symbol_superscript = data['mgi_allele_symbol_superscript'] || nil
 
     # if crisprs allele type NHEJ HDR HR Del do not substitute allele_type
-    return crispr_allele_name if ['None', 'NHEJ', 'HDR', 'HR', 'Deletion'].include?(allele_type) && data.has_key?('allele_name') && !data.has_key?('allele_name').blank?
+    if ['None', 'NHEJ', 'HDR', 'HR', 'Deletion'].include?(allele_type) 
+
+      if !mgi_allele_symbol_superscript.blank?
+        return mgi_allele_symbol_superscript
+      end
+        
+      if data.has_key?('allele_name') && !data.has_key?('allele_name').blank?
+        return crispr_allele_name
+      end 
+    end
 
     allele_type_exists = ['None', 'NHEJ', 'HDR', 'HR', 'Deletion'].include?(allele_type) ? false : true
 

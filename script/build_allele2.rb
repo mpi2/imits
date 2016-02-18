@@ -441,8 +441,8 @@ class BuildAllele2
       gene_data_row['latest_phenotype_status'] = gene_data_row['phenotype_status']
       gene_data_row['latest_production_centre'] = gene_data_row['production_centre']
       gene_data_row['latest_phenotyping_centre'] = gene_data_row['phenotyping_centre']
-      gene_data_row['latest_phenotype_started'] = ['Phenotyping Started', 'Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false
-      gene_data_row['latest_phenotype_complete'] = ['Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false
+      gene_data_row['latest_phenotype_started'] = (['Phenotyping Started', 'Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false) unless gene_data_row['phenotype_status'].blank?
+      gene_data_row['latest_phenotype_complete'] = (['Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false) unless gene_data_row['phenotype_status'].blank?
 
       gene_data_row['latest_project_status'] = gene_data_row['es_cell_status']
       gene_data_row['latest_project_status'] = gene_data_row['mouse_status'] unless gene_data_row['mouse_status'].blank?
@@ -811,6 +811,9 @@ class BuildAllele2
     list = []
     data.each do |key, row|
       hash = nil
+
+      # remove fields which contain null values.
+      row = row.select{|key, value| unless value.blank?}
 
       item = {'add' => {'doc' => row }}
       list.push item.to_json

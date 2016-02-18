@@ -53,7 +53,7 @@ group :development, :test do
   gem 'thin', '1.4.1', :require => nil
 end
 
-gem 'nokogiri', '1.5.6'
+gem 'nokogiri', '1.6'
 gem 'zipruby', '~> 0.3.6'
 gem "paperclip", "~> 4.1"
 gem "paperclip_database", "~> 2.0"

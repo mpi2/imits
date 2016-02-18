@@ -813,7 +813,7 @@ class BuildAllele2
       hash = nil
 
       # remove fields which contain null values.
-      row = row.select{|key, value| unless value.blank?}
+      row = row.select{|key, value| ! value.blank?}
 
       item = {'add' => {'doc' => row }}
       list.push item.to_json

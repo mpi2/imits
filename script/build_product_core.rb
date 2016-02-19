@@ -352,9 +352,9 @@ class BuildProductCore
 #    @solr_user = @solr_update[Rails.env]['user']
 #    @solr_password = @solr_update[Rails.env]['password']
     @dataset_max_size = 80000
-    @process_mice = false
-    @process_es_cells = false
-    @process_targeting_vectors = false
+    @process_mice = true
+    @process_es_cells = true
+    @process_targeting_vectors = true
     @process_intermediate_vectors = true
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
@@ -784,7 +784,7 @@ if __FILE__ == $0
   BuildProductCore.new.run
   puts "## Completed Rebuild of the Product Core#{Time.now}"
 
-  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
-  BuildProductCore.new(true).run
-  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
+#  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
+#  BuildProductCore.new(true).run
+#  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
 end

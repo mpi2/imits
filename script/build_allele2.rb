@@ -73,7 +73,7 @@ class BuildAllele2
            mam_centre.name AS mouse_allele_production_centre,
            phenotyping_production_summary.phenotyping_status_name AS phenotyping_status_name, phenotyping_production_summary.phenotyping_centre AS phenotyping_centre, phenotyping_production_summary.phenotyping_centres AS phenotyping_centres
     FROM colonies
-      JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
+      LEFT JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
       LEFT JOIN (mouse_allele_mods
                   JOIN mi_plans mam_plan ON mam_plan.id = mouse_allele_mods.mi_plan_id
                   JOIN centres mam_centre ON mam_centre.id = mam_plan.production_centre_id

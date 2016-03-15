@@ -222,6 +222,20 @@ Ext.onReady(function() {
     initDateFields();
     displayAndHideFormContents();
     changePlanButton();
+
+
+    Ext.select('#mi_attempt_individually_set_grna_concentrations').on("change", function(e) {
+      div = Ext.select('.grna_concentration');
+
+      if(this.checked) {
+        div.show();
+
+      } else {
+        div.hide();
+      }
+   });
+
+
 });
 
 $(function() {

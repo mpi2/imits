@@ -68,6 +68,10 @@ class Public::MiAttempt < ::MiAttempt
     mutagenesis_factor_attributes
     cassette_transmission_verified
     cassette_transmission_verified_auto_complete
+    nuclease
+    nuclease_concentration
+    individually_set_grna_concentrations
+    grna_conentration
     crsp_total_embryos_injected
     crsp_total_embryos_survived
     crsp_total_transfered
@@ -228,6 +232,10 @@ end
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
 #  parent_colony_id                                :integer
+#  individually_set_grna_concentrations            :boolean          default(FALSE), not null
+#  grna_conentration                               :float
+#  nuclease_concentration                          :float
+#  nuclease                                        :string(255)
 #
 # Indexes
 #

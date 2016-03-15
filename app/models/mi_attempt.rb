@@ -59,11 +59,16 @@ class MiAttempt < ApplicationModel
 
   protected :status=
 
+  before_validation do |mi|
+    mi.nuclease = nil if mi.nuclease.blank?
+  end
+
   validates :status, :presence => true
   validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
 #  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
   validates :assay_type, :inclusion => { :in => CRISPR_ASSAY_TYPES}, :allow_nil => true
+  validates :nuclease, :inclusion => { :in => MutagenesisFactor::NUCLEASES}, :allow_nil => true
 
   validate do |mi|
     if (mi.mutagenesis_factor.blank? and mi.es_cell.blank?) or (!mi.mutagenesis_factor.blank? and !mi.es_cell.blank?)
@@ -109,6 +114,24 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  # validate gRNA concentrations
+  validate do |mi|
+    return if mi.mutagenesis_factor.blank?
+    
+    if mi.individually_set_grna_concentrations
+      if mi.crisprs.any?{|c| c.grna_conentration.blank?}
+        mi.errors.add :base, "All individual gRNA require a concentration when you set 'Indivdually Set Concentrations' to true"
+      else
+        mi.grna_conentration = nil
+      end
+    else
+      if !mi.grna_conentration.blank? && mi.grna_conentration > 0
+        mi.crisprs.each{|c| c.grna_conentration = nil}
+      elsif mi.crisprs.any?{|c| !c.grna_conentration.blank?}
+        mi.errors.add :base, "You must set all individual gRNA concentrations to 0 if you are not going to individually set the gRNA concentrations"
+      end
+    end
+  end
   # BEGIN Callbacks
 
 
@@ -160,7 +183,6 @@ class MiAttempt < ApplicationModel
     return unless self.es_cell_id.blank? # Only continue if mi_attempt belongs to crispr pipeline
 
     crispr_count = self.mutagenesis_factor.crisprs.count
-    nuclease = self.mutagenesis_factor.nuclease
     has_vector = self.mutagenesis_factor.vector.blank? ? false : true
     vector_type = self.mutagenesis_factor.vector.try(:allele).try(:type)
 
@@ -647,6 +669,10 @@ end
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
 #  parent_colony_id                                :integer
+#  individually_set_grna_concentrations            :boolean          default(FALSE), not null
+#  grna_conentration                               :float
+#  nuclease_concentration                          :float
+#  nuclease                                        :string(255)
 #
 # Indexes
 #

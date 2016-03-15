@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20151009125302) do
+ActiveRecord::Schema.define(:version => 20160308125302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -598,6 +598,10 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.boolean  "experimental",                                                   :default => false, :null => false
     t.string   "allele_target"
     t.integer  "parent_colony_id"
+    t.boolean  "individually_set_grna_concentrations",                           :default => false, :null => false
+    t.float    "grna_conentration"
+    t.float    "nuclease_concentration"
+    t.string   "nuclease"
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -727,7 +731,7 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
   create_table "mutagenesis_factors", :force => true do |t|
     t.integer "vector_id"
     t.string  "external_ref"
-    t.text    "nuclease"
+    t.float   "vector_oligo_concentration"
   end
 
   create_table "notifications", :force => true do |t|
@@ -892,6 +896,7 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.integer  "start"
     t.integer  "end"
     t.datetime "created_at"
+    t.float    "grna_conentration"
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|

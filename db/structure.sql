@@ -1712,7 +1712,11 @@ CREATE TABLE mi_attempts (
     assay_type text,
     experimental boolean DEFAULT false NOT NULL,
     allele_target character varying(255),
-    parent_colony_id integer
+    parent_colony_id integer,
+    individually_set_grna_concentrations boolean DEFAULT false NOT NULL,
+    grna_conentration double precision,
+    nuclease_concentration double precision,
+    nuclease character varying(255)
 );
 
 
@@ -2105,7 +2109,7 @@ CREATE TABLE mutagenesis_factors (
     id integer NOT NULL,
     vector_id integer,
     external_ref character varying(255),
-    nuclease text
+    vector_oligo_concentration double precision
 );
 
 
@@ -2618,7 +2622,8 @@ CREATE TABLE targ_rep_crisprs (
     chr character varying(255),
     start integer,
     "end" integer,
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    grna_conentration double precision
 );
 
 
@@ -2801,7 +2806,11 @@ CREATE TABLE targ_rep_mutation_types (
 --
 
 CREATE VIEW targ_rep_es_cell_mutation_types AS
-SELECT es.id AS es_cell_id, types.name AS mutation_type FROM ((targ_rep_es_cells es LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id))) LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
+ SELECT es.id AS es_cell_id,
+    types.name AS mutation_type
+   FROM ((targ_rep_es_cells es
+     LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id)))
+     LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
 
 
 --
@@ -5675,3 +5684,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150806125302');
 INSERT INTO schema_migrations (version) VALUES ('20150812125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20151009125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20160308125302');

@@ -1,5 +1,16 @@
 Ext.namespace('Imits.MiAttempts.New');
 Ext.onReady(function() {
+
+    Ext.select('#mi_attempt_individually_set_grna_concentrations').on("change", function(e) {
+      div = Ext.select('.grna_concentration');
+
+      if(this.checked) {
+        div.show();
+      } else {
+        div.hide();
+      }
+   });
+
     processRestOfForm();
 
     EsCellPanel = Ext.create('Imits.MiAttempts.New.EsCellSelectorForm', {
@@ -464,6 +475,7 @@ Ext.define('Imits.MiAttempts.New.MutagenesisFactorSelectorForm', {
                     addCrispr['chr'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_chr').getValue();
                     addCrispr['chr_start'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_start').getValue();
                     addCrispr['chr_end'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_end').getValue();
+                    addCrispr['grna_conentration'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_grna_conentration').getValue();
 
                     this.window.crisprSearch.crisprSelectionList.createCrispr(addCrispr)
                 }
@@ -653,7 +665,9 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_chr' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][chr]' value= " + item.data['chr'] + " >" + item.data['chr'] + "</td>\
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_start' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][start]' value= " + item.data['chr_start'] + " >" + item.data['chr_start'] + "</td>\
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_end' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][end]' value= " +  item.data['chr_end'] + " >" +  item.data['chr_end'] + "</td>\
+<td><div class='hidden grna_concentration'><input id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_grna_conentration' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][grna_conentration]' value= " + " ></div></td>\
 </tr>";
+
                                 crisprTable.createChild(tableRow);
                                 count_n += 1
                             }
@@ -704,22 +718,21 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                             scope: this
                         });
 
-                        var nucleaseAttribute = Ext.get('mi_attempt_mutagenesis_factor_attributes_nuclease');
-                        var nucleaseValue = undefined;
-                        if (nucleaseAttribute) {nucleaseValue = nucleaseAttribute.getValue()};
-                        Ext.get('nuclease-container').dom.innerHTML = '';
+                        var vectorConcentrationAttribute = Ext.get('mi_attempt_mutagenesis_factor_attributes_vector_oligo_concentration');
+                        var vectorConcentrationValue = undefined;
+                        if (vectorConcentrationAttribute) {vectorConcentrationValue = vectorConcentrationAttribute.getValue()};
+                        Ext.get('grna-concentrations-equal-container').dom.innerHTML = '';
                         Ext.create('Ext.form.Label', {
-                            renderTo: 'nuclease-container',
-                            text: 'Nuclease',
+                            renderTo: 'grna-concentrations-equal-container',
+                            text: 'Vector Concentration (ng/uL)',
                             margin: '0 0 2 0'
                         });
-                        nucleaseOptions = '';
-                        if (nucleaseValue){nucleaseOptions += '<option value="' + nucleaseValue + '">' + nucleaseValue + '</option>'};
-                        NUCLEASES_OPTIONS.forEach( function(opt) { nucleaseOptions += '<option value="' + opt + '">' + opt + '</option>'} );
-                        nucleaseHtml = '<select id="mi_attempt_mutagenesis_factor_attributes_nuclease" name="mi_attempt[mutagenesis_factor_attributes][nuclease]">' + nucleaseOptions;
+                        vectorOligoConcentrationHtml = '<input id="mi_attempt_mutagenesis_factor_attributes_vector_oligo_concentration" name="mi_attempt[mutagenesis_factor_attributes][vector_oligo_concentration]" ';
+                        if (vectorConcentrationValue){vectorOligoConcentrationHtml += 'value = "' + vectorConcentrationValue + '"'};
+                        vectorOligoConcentrationHtml += ">"
                         Ext.create('Ext.Component', {
-                            renderTo: 'nuclease-container',
-                            html: nucleaseHtml,
+                            renderTo: 'grna-concentrations-equal-container',
+                            html: vectorOligoConcentrationHtml,
                             margin: '0 0 5 0'
                         });
 
@@ -1144,7 +1157,7 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
         bottom: 10
     },
     store: {
-        fields: ['chr', 'chr_end', 'chr_start', 'seq' ],
+        fields: ['chr', 'chr_end', 'chr_start', 'seq', 'grna_concentration' ],
         data: {
             'rows': []
         },
@@ -1182,6 +1195,12 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
     {
         header: 'Chr End',
         dataIndex: 'chr_end',
+        width: 155
+    },
+    {
+        header: 'gRNA Concentration',
+        dataIndex: 'grna_concentration',
+        hidden: true,
         width: 155
     },
     {

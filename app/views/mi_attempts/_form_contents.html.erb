@@ -61,20 +61,34 @@
         <%= generator.strains_field :blast_strain %>
       </div>
 
+
+
       <div id="vector-container">
         <%= form.fields_for :mutagenesis_factor do |builder| %>
-          <%= builder.label :vector_name%>
+          <%= builder.label :vector_name %>
           <%= builder.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: @vector_options[:selected]) %>
         <% end %>
       </div>
-      <div id="nuclease-container">
+
+      <div id="grna-concentrations-equal-container">
         <%= form.fields_for :mutagenesis_factor do |builder| %>
-          <%= builder.label :nuclease%>
-          <%= builder.select :nuclease , MutagenesisFactor::NUCLEASES%>
+          <%= builder.label :vector_oligo_concentration, 'Vector Concentration (ng/uL)' %>
+          <%= builder.text_field :vector_oligo_concentration %>
         <% end %>
       </div>
 
+      <div id="nuclease-container">
+          <%= form.label :nuclease %>
+          <%= form.select :nuclease , MutagenesisFactor::NUCLEASES%>
+      </div>
+
+      <div id="grna-concentrations-equal-container">
+        <%= form.label :nuclease_concentration, 'Nuclease Concentration (ng/uL)' %>
+        <%= form.text_field :nuclease_concentration %>
+      </div>
+
       <div>
+        <fieldset class="collapsible">
         <label for="mi_attempts_mutagenesis_factor_crisprs">Crisprs</label>
         <table id="mutagenesis_factor_table" class="report_table">
           <thead class="title">
@@ -83,6 +97,8 @@
               <th>Chr</th>
               <th>Chr Start</th>
               <th>Chr End</th>
+              <td>gRNA Concentration <%= form.text_field :grna_conentration %> ng/uL
+                </br><%= form.check_box :individually_set_grna_concentrations %> Individually Set Concentrations </td>
             </tr>
           </thead>
           <tbody class="distribution_centres"  id="crispr-table">
@@ -94,6 +110,7 @@
           </tbody>
         </table>
         <div id="crispr_edit_button"></div>
+        </fieldset>
       </div>
     </div>
   </fieldset>

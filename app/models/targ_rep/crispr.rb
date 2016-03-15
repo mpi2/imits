@@ -1,7 +1,7 @@
 class TargRep::Crispr < ActiveRecord::Base
   acts_as_audited
 
-  attr_accessible :mutagensis_factor_id, :sequence, :chr, :start, :end
+  attr_accessible :mutagensis_factor_id, :sequence, :chr, :start, :end, :grna_conentration
 
   belongs_to :mutagenesis_factor, :inverse_of => :crisprs
 
@@ -35,4 +35,5 @@ end
 #  start                 :integer
 #  end                   :integer
 #  created_at            :datetime
+#  grna_conentration     :float
 #

@@ -5,4 +5,9 @@
     <td><%= crispr.chr %><%= f.text_field :chr, :class=> 'hidden'%></td>
     <td><%= crispr.start %><%= f.text_field :start, :class=> 'hidden'%></td>
     <td><%= crispr.end %><%= f.text_field :end, :class=> 'hidden'%></td>
+    <% if f.object.mutagenesis_factor.mi_attempt.individually_set_grna_concentrations %>
+      <td><div class='grna_concentration'><%= f.text_field :grna_conentration %> ng/uL </div></td>
+    <% else %>
+      <td><div class='hidden grna_concentration'><%= f.text_field :grna_conentration %> ng/uL </div></td>
+    <% end %>
 </tr>

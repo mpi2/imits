@@ -3,7 +3,7 @@ class MutagenesisFactor < ActiveRecord::Base
 
   NUCLEASES = [nil, 'CAS9 mRNA', 'CAS9 Protein', 'D10A mRNA', 'D10A Protein'].freeze
 
-  attr_accessible :vector_name, :crisprs_attributes, :genotype_primers_attributes, :external_ref, :nuclease
+  attr_accessible :vector_name, :crisprs_attributes, :genotype_primers_attributes, :external_ref, :vector_oligo_concentration
 
   # NOTE! make sure that the crispr association always appears above the mi_attempt association. Changing the order will prevent the mi_attempt from saving. This results from the implimention of the nested_attributes method
   has_many :crisprs, :class_name => 'TargRep::Crispr', :inverse_of => :mutagenesis_factor, dependent: :destroy
@@ -24,12 +24,7 @@ class MutagenesisFactor < ActiveRecord::Base
     end
   end
 
-  before_validation do |mf|
-    mf.nuclease = nil if mf.nuclease.blank?
-  end
-
   validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
-  validates :nuclease, :inclusion => { :in => NUCLEASES}, :allow_nil => true
 
   validate do |m|
     if m.crisprs.length == 0
@@ -84,8 +79,8 @@ end
 #
 # Table name: mutagenesis_factors
 #
-#  id           :integer          not null, primary key
-#  vector_id    :integer
-#  external_ref :string(255)
-#  nuclease     :text
+#  id                         :integer          not null, primary key
+#  vector_id                  :integer
+#  external_ref               :string(255)
+#  vector_oligo_concentration :float
 #

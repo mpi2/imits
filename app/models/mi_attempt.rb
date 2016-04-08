@@ -172,11 +172,10 @@ class MiAttempt < ApplicationModel
     allele_target = 'NHEJ' if crispr_count < 3 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
     allele_target = 'Deletion' if crispr_count >= 4 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
     allele_target = 'HDR' if vector_count > 0
-    allele_target = 'HD' if vector_count > 0 && !self.mutagenesis_factor.vectors.first.try(:preparation).blank? && self.mutagenesis_factor.vectors.first.try(:preparation) != 'Oligo'
+    allele_target = 'HR' if vector_count > 0 && !self.mutagenesis_factor.vectors.first.try(:preparation).blank? && self.mutagenesis_factor.vectors.first.try(:preparation) != 'Oligo'
     allele_target = 'HDR' if vector_count > 0 && vector_type == 'TargRep::HdrAllele'
     allele_target = 'HR' if vector_count > 0 && ['TargRep::TargetedAllele', 'TargRep::CrisprTargetedAllele'].include?(vector_type)
     
-    puts "HELLO #{allele_target}"
   end
   protected :crispr_autofill_allele_target
 

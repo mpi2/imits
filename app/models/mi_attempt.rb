@@ -11,6 +11,7 @@ class MiAttempt < ApplicationModel
   include ApplicationModel::BelongsToMiPlan
 
   CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze
+  DELIVERY_METHODS = ['Cytoplasmic Injection', 'Pronuclear Injection', 'Electroporation'].freeze
 
   belongs_to :real_allele
   belongs_to :mi_plan
@@ -29,6 +30,7 @@ class MiAttempt < ApplicationModel
   has_many   :colonies, inverse_of: :mi_attempt
   has_many   :crisprs, through: :mutagenesis_factor
   has_many   :genotype_primers, through: :mutagenesis_factor
+  has_many   :reagents, :class_name => 'Reagent'
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :test_cross_strain, :name
@@ -56,19 +58,15 @@ class MiAttempt < ApplicationModel
   accepts_nested_attributes_for :status_stamps, :mutagenesis_factor
   accepts_nested_attributes_for :colony, :update_only =>true
   accepts_nested_attributes_for :colonies, :allow_destroy => true
+  accepts_nested_attributes_for :reagents, :allow_destroy => true
 
   protected :status=
-
-  before_validation do |mi|
-    mi.nuclease = nil if mi.nuclease.blank?
-  end
 
   validates :status, :presence => true
   validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
 #  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
   validates :assay_type, :inclusion => { :in => CRISPR_ASSAY_TYPES}, :allow_nil => true
-  validates :nuclease, :inclusion => { :in => MutagenesisFactor::NUCLEASES}, :allow_nil => true
 
   validate do |mi|
     if (mi.mutagenesis_factor.blank? and mi.es_cell.blank?) or (!mi.mutagenesis_factor.blank? and !mi.es_cell.blank?)
@@ -114,24 +112,6 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  # validate gRNA concentrations
-  validate do |mi|
-    return if mi.mutagenesis_factor.blank?
-    
-    if mi.individually_set_grna_concentrations
-      if mi.crisprs.any?{|c| c.grna_conentration.blank?}
-        mi.errors.add :base, "All individual gRNA require a concentration when you set 'Indivdually Set Concentrations' to true"
-      else
-        mi.grna_conentration = nil
-      end
-    else
-      if !mi.grna_conentration.blank? && mi.grna_conentration > 0
-        mi.crisprs.each{|c| c.grna_conentration = nil}
-      elsif mi.crisprs.any?{|c| !c.grna_conentration.blank?}
-        mi.errors.add :base, "You must set all individual gRNA concentrations to 0 if you are not going to individually set the gRNA concentrations"
-      end
-    end
-  end
   # BEGIN Callbacks
 
 
@@ -183,16 +163,20 @@ class MiAttempt < ApplicationModel
     return unless self.es_cell_id.blank? # Only continue if mi_attempt belongs to crispr pipeline
 
     crispr_count = self.mutagenesis_factor.crisprs.count
-    has_vector = self.mutagenesis_factor.vector.blank? ? false : true
-    vector_type = self.mutagenesis_factor.vector.try(:allele).try(:type)
+    vector_count = self.mutagenesis_factor.vectors.count
+    vector_type = self.mutagenesis_factor.vectors.blank? ? nil : self.mutagenesis_factor.vectors.first.vector.try(:allele).try(:type)
 
-    self.allele_target =  nil
-    self.allele_target = 'NHEJ' if crispr_count == 1  && has_vector == false
-    self.allele_target = 'Deletion' if crispr_count >= 2 && ['CAS9 mRNA', 'CAS9 Protein'].include?(nuclease) && has_vector == false
-    self.allele_target = 'NHEJ' if crispr_count == 2 && ['D10A mRNA', 'D10A Protein'].include?(nuclease) && has_vector == false
-    self.allele_target = 'Deletion' if crispr_count >= 4 && ['D10A mRNA', 'D10A Protein'].include?(nuclease) && has_vector == false
-    self.allele_target = 'HDR' if has_vector == true && vector_type == 'TargRep::HdrAllele'
-    self.allele_target = 'HR' if has_vector == true && ['TargRep::TargetedAllele', 'TargRep::CrisprTargetedAllele'].include?(vector_type)
+    allele_target =  nil
+    allele_target = 'NHEJ' if crispr_count == 1  && vector_count == 0
+    allele_target = 'Deletion' if crispr_count >= 2 && [mrna_nuclease, protein_nuclease].include?('CAS9') && vector_count == 0
+    allele_target = 'NHEJ' if crispr_count < 3 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
+    allele_target = 'Deletion' if crispr_count >= 4 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
+    allele_target = 'HDR' if vector_count > 0
+    allele_target = 'HD' if vector_count > 0 && !self.mutagenesis_factor.vectors.first.try(:preparation).blank? && self.mutagenesis_factor.vectors.first.try(:preparation) != 'Oligo'
+    allele_target = 'HDR' if vector_count > 0 && vector_type == 'TargRep::HdrAllele'
+    allele_target = 'HR' if vector_count > 0 && ['TargRep::TargetedAllele', 'TargRep::CrisprTargetedAllele'].include?(vector_type)
+    
+    puts "HELLO #{allele_target}"
   end
   protected :crispr_autofill_allele_target
 
@@ -542,6 +526,10 @@ class MiAttempt < ApplicationModel
 
   delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
 
+  def reagents_attributes
+    return reagents
+  end
+
   def self.translations
     return {
       'es_cell_marker_symbol'   => 'es_cell_allele_gene_marker_symbol',
@@ -651,28 +639,20 @@ end
 #  crsp_total_embryos_survived                     :integer
 #  crsp_total_transfered                           :integer
 #  crsp_no_founder_pups                            :integer
-#  founder_pcr_num_assays                          :integer
-#  founder_pcr_num_positive_results                :integer
-#  founder_surveyor_num_assays                     :integer
-#  founder_surveyor_num_positive_results           :integer
-#  founder_t7en1_num_assays                        :integer
-#  founder_t7en1_num_positive_results              :integer
 #  crsp_total_num_mutant_founders                  :integer
 #  crsp_num_founders_selected_for_breading         :integer
-#  founder_loa_num_assays                          :integer
-#  founder_loa_num_positive_results                :integer
 #  allele_id                                       :integer
 #  real_allele_id                                  :integer
 #  founder_num_assays                              :integer
-#  founder_num_positive_results                    :integer
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
 #  parent_colony_id                                :integer
-#  individually_set_grna_concentrations            :boolean          default(FALSE), not null
-#  grna_conentration                               :float
-#  nuclease_concentration                          :float
-#  nuclease                                        :string(255)
+#  mrna_nuclease                                   :string(255)
+#  mrna_nuclease_concentration                     :float
+#  protein_nuclease                                :string(255)
+#  protein_nuclease_concentration                  :float
+#  delivery_method                                 :string(255)
 #
 # Indexes
 #

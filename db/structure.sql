@@ -1695,28 +1695,20 @@ CREATE TABLE mi_attempts (
     crsp_total_embryos_survived integer,
     crsp_total_transfered integer,
     crsp_no_founder_pups integer,
-    founder_pcr_num_assays integer,
-    founder_pcr_num_positive_results integer,
-    founder_surveyor_num_assays integer,
-    founder_surveyor_num_positive_results integer,
-    founder_t7en1_num_assays integer,
-    founder_t7en1_num_positive_results integer,
     crsp_total_num_mutant_founders integer,
     crsp_num_founders_selected_for_breading integer,
-    founder_loa_num_assays integer,
-    founder_loa_num_positive_results integer,
     allele_id integer,
     real_allele_id integer,
     founder_num_assays integer,
-    founder_num_positive_results integer,
     assay_type text,
     experimental boolean DEFAULT false NOT NULL,
     allele_target character varying(255),
     parent_colony_id integer,
-    individually_set_grna_concentrations boolean DEFAULT false NOT NULL,
-    grna_conentration double precision,
-    nuclease_concentration double precision,
-    nuclease character varying(255)
+    mrna_nuclease character varying(255),
+    mrna_nuclease_concentration double precision,
+    protein_nuclease character varying(255),
+    protein_nuclease_concentration double precision,
+    delivery_method character varying(255)
 );
 
 
@@ -2102,14 +2094,47 @@ ALTER SEQUENCE mouse_allele_mods_id_seq OWNED BY mouse_allele_mods.id;
 
 
 --
+-- Name: mutagenesis_factor_vectors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE mutagenesis_factor_vectors (
+    id integer NOT NULL,
+    mutagenesis_factor_id integer NOT NULL,
+    vector_id integer,
+    concentration double precision,
+    preparation character varying(255)
+);
+
+
+--
+-- Name: mutagenesis_factor_vectors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE mutagenesis_factor_vectors_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: mutagenesis_factor_vectors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE mutagenesis_factor_vectors_id_seq OWNED BY mutagenesis_factor_vectors.id;
+
+
+--
 -- Name: mutagenesis_factors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE mutagenesis_factors (
     id integer NOT NULL,
-    vector_id integer,
     external_ref character varying(255),
-    vector_oligo_concentration double precision
+    individually_set_grna_concentrations boolean DEFAULT false NOT NULL,
+    guides_generated_in_plasmid boolean DEFAULT false NOT NULL,
+    grna_concentration double precision
 );
 
 
@@ -2407,6 +2432,67 @@ ALTER SEQUENCE qc_results_id_seq OWNED BY qc_results.id;
 
 
 --
+-- Name: reagent_names; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE reagent_names (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    description text
+);
+
+
+--
+-- Name: reagent_names_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE reagent_names_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: reagent_names_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE reagent_names_id_seq OWNED BY reagent_names.id;
+
+
+--
+-- Name: reagents; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE reagents (
+    id integer NOT NULL,
+    mi_attempt_id integer NOT NULL,
+    reagent_id character varying(255) NOT NULL,
+    concentration double precision
+);
+
+
+--
+-- Name: reagents_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE reagents_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: reagents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE reagents_id_seq OWNED BY reagents.id;
+
+
+--
 -- Name: report_caches; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2623,7 +2709,8 @@ CREATE TABLE targ_rep_crisprs (
     start integer,
     "end" integer,
     created_at timestamp without time zone,
-    grna_conentration double precision
+    truncated_guide boolean DEFAULT false,
+    grna_concentration double precision
 );
 
 
@@ -3606,6 +3693,13 @@ ALTER TABLE ONLY mouse_allele_mods ALTER COLUMN id SET DEFAULT nextval('mouse_al
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY mutagenesis_factor_vectors ALTER COLUMN id SET DEFAULT nextval('mutagenesis_factor_vectors_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY mutagenesis_factors ALTER COLUMN id SET DEFAULT nextval('mutagenesis_factors_id_seq'::regclass);
 
 
@@ -3663,6 +3757,20 @@ ALTER TABLE ONLY production_goals ALTER COLUMN id SET DEFAULT nextval('productio
 --
 
 ALTER TABLE ONLY qc_results ALTER COLUMN id SET DEFAULT nextval('qc_results_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY reagent_names ALTER COLUMN id SET DEFAULT nextval('reagent_names_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY reagents ALTER COLUMN id SET DEFAULT nextval('reagents_id_seq'::regclass);
 
 
 --
@@ -4089,6 +4197,14 @@ ALTER TABLE ONLY mouse_allele_mods
 
 
 --
+-- Name: mutagenesis_factor_vectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY mutagenesis_factor_vectors
+    ADD CONSTRAINT mutagenesis_factor_vectors_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: mutagenesis_factors_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4158,6 +4274,22 @@ ALTER TABLE ONLY production_goals
 
 ALTER TABLE ONLY qc_results
     ADD CONSTRAINT qc_results_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: reagent_names_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY reagent_names
+    ADD CONSTRAINT reagent_names_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: reagents_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY reagents
+    ADD CONSTRAINT reagents_pkey PRIMARY KEY (id);
 
 
 --

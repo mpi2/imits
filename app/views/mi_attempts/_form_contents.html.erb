@@ -15,7 +15,7 @@
 <%= form.hidden_field 'es_cell_name' %>
 <%= form.hidden_field 'es_cell_marker_symbol' %>
 <%= form.hidden_field 'mi_plan_id' %>
-<input id="mutagenesis-show" type="hidden" value="<%= if !@mi_attempt.mutagenesis_factor.blank? then 'true' else 'false' end %>">
+<input id="mutagenesis-show" type="hidden" value="<%= if @mi_attempt.es_cell_name.blank? && (!@mi_attempt.marker_symbol.blank? || !@mi_attempt.mutagenesis_factor.try(:crisprs).blank?) then 'true' else 'false' end %>">
 <input id="es_cell-show" type="hidden" value="<%= if !@mi_attempt.es_cell_name.blank? then 'true' else 'false' end %>">
 
 <fieldset class="collapsible">
@@ -54,66 +54,129 @@
           <% end %>
         </div>
       <% end %>
-      <div id="parent_colony-container">
-        <%= generator.text_field(:parent_colony_name, :class => 'x-form-text', :size => 20) %> <%= mi_attempt.parent_colony.try(:allele_symbol_superscript)%>
-      </div>
-      <div id="blast_strain-container">
-        <%= generator.strains_field :blast_strain %>
+      <div> 
+        <%= form.label :delivery_method, 'Delivery Method' %>
+        <%= form.select :delivery_method, MiAttempt::DELIVERY_METHODS, :include_blank => true; %>
       </div>
 
+      <fieldset class="collapsible">
+        <div>1. Strain Injected</div>
+        <div id="blast_strain-container">
+          <%= generator.strains_field :blast_strain, :label => 'Zygote / Blast Strain Name' %>
+        </div>
+        <div id="parent_colony-container">
+          <%= generator.text_field(:parent_colony_name, :class => 'x-form-text', :size => 20, :label => 'Parent Colony Name of Mutant Allele') %> <%= mi_attempt.parent_colony.try(:allele_symbol_superscript)%>
+        </div>
+      </fieldset>
 
-
-      <div id="vector-container">
-        <%= form.fields_for :mutagenesis_factor do |builder| %>
-          <%= builder.label :vector_name %>
-          <%= builder.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: @vector_options[:selected]) %>
-        <% end %>
-      </div>
-
-      <div id="grna-concentrations-equal-container">
-        <%= form.fields_for :mutagenesis_factor do |builder| %>
-          <%= builder.label :vector_oligo_concentration, 'Vector Concentration (ng/uL)' %>
-          <%= builder.text_field :vector_oligo_concentration %>
-        <% end %>
-      </div>
-
-      <div id="nuclease-container">
-          <%= form.label :nuclease %>
-          <%= form.select :nuclease , MutagenesisFactor::NUCLEASES%>
-      </div>
-
-      <div id="grna-concentrations-equal-container">
-        <%= form.label :nuclease_concentration, 'Nuclease Concentration (ng/uL)' %>
-        <%= form.text_field :nuclease_concentration %>
-      </div>
+      <fieldset class="collapsible">
+        <div>2. Nucleases</div>
+        <table class="horizontal_fields"><tr>
+          <td>
+            <div id="nuclease-container">
+              <%= form.label :mrna_nuclease, 'mRNA Nuclease' %>
+              <%= form.select :mrna_nuclease , MutagenesisFactor::NUCLEASES%>
+            </div>
+          </td><td>
+            <div id="mrna_nuclease-concentrations">
+              <%= form.label :mrna_nuclease_concentration, 'Concentration' %>
+              <%= form.text_field :mrna_nuclease_concentration, :onchange => 'validateFloatKeyPress(this)' %> ng/uL
+            </div>
+          </td>
+          </tr><tr>
+          <td>
+            <div id="nuclease-container">
+              <%= form.label :protein_nuclease, 'Protein Nuclease' %>
+              <%= form.select :protein_nuclease , MutagenesisFactor::NUCLEASES%>
+            </div>
+          </td><td>
+            <div id="protein-nuclease-concentrations">
+              <%= form.label :protein_nuclease_concentration, 'Concentration' %>
+              <%= form.text_field :protein_nuclease_concentration, :onchange => 'validateFloatKeyPress(this)'%> ng/uL
+            </div>
+          </td>
+          </tr>
+        </table>
+      </fieldset>
 
       <div>
-        <fieldset class="collapsible">
-        <label for="mi_attempts_mutagenesis_factor_crisprs">Crisprs</label>
-        <table id="mutagenesis_factor_table" class="report_table">
-          <thead class="title">
-            <tr>
-              <th>Sequence</th>
-              <th>Chr</th>
-              <th>Chr Start</th>
-              <th>Chr End</th>
-              <td>gRNA Concentration <%= form.text_field :grna_conentration %> ng/uL
-                </br><%= form.check_box :individually_set_grna_concentrations %> Individually Set Concentrations </td>
-            </tr>
-          </thead>
-          <tbody class="distribution_centres"  id="crispr-table">
-              <%= form.fields_for :mutagenesis_factor do |builder| %>
-                <%= builder.fields_for :crisprs do |builder2| %>
-                 <%= render '/shared/crisprs_fields', f: builder2 %>
-                <% end %>
+        <%= form.fields_for :mutagenesis_factor do |builder| %>
+          <fieldset class="collapsible">
+          <label "mi_attempts_mutagenesis_factor_crisprs">3. Crisprs</label>
+          <div id = 'grna_concentrations'>
+            </br>gRNA Concentration <%= builder.text_field :grna_concentration, :onchange => 'validateFloatKeyPress(this)' %> ng/uL
+          </div>
+          <div>
+            <%= builder.check_box :individually_set_grna_concentrations %> Individually Set Concentrations </td>
+          </div>
+          <table id="mutagenesis_factor_table" class="report_table">
+            <thead class="title">
+              <tr>
+                <th>Sequence</th>
+                <th>Chr</th>
+                <th>Chr Start</th>
+                <th>Chr End</th>
+                <th>Truncated Guide</th>
+                <th class='grna_concentration_col <%= builder.object.individually_set_grna_concentrations ? '' : 'hidden' %>'>gRNA Concentration</th>
+              </tr>
+            </thead>
+            <tbody class="distribution_centres"  id="crispr-table">
+              <%= builder.fields_for :crisprs do |builder2| %>
+                <%= render '/shared/crisprs_fields', f: builder2 %>
               <% end %>
-          </tbody>
-        </table>
-        <div id="crispr_edit_button"></div>
-        </fieldset>
+            </tbody>
+          </table>
+          <div id="crispr_edit_button"></div>
+          </fieldset>
+        <% end %>
       </div>
+
+      <%= form.fields_for :mutagenesis_factor do |builder| %>
+        <fieldset id="vector_field_set">
+          <label>4. Vectors/Oligos</label>
+          <div id="vector-container">
+            <table id="vectors_<%= builder.object_id %>_table" class="report_table">
+              <thead><tr>
+                <th>Vector Name</th>
+                <th>Concentration</th>
+                <th>Preparation</th>
+                <th>Action</th>
+              </tr></thead>
+              <tbody class="distribution_centres">
+                <tr></tr>
+                <%= builder.fields_for :vectors do |builder2| %>
+                  <%= render '/shared/vector_fields', f: builder2 %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <%= link_to_add_fields "Add Vector/Oligo", builder, :vectors %>
+        </fieldset>
+      <% end %>
+
+      <fieldset id="reagent_field_set">
+        <label>5. Reagents (inhibitors etc.)</label>
+        <div id="reagent-container">
+          <table id="reagents_<%= form.object_id %>_table" class="report_table">
+            <thead><tr>
+              <th>Name</th>
+              <th>Concentration</th>
+              <th>Action</th>
+            </tr></thead>
+            <tbody class="distribution_centres">
+              <tr></tr>
+              <%= form.fields_for :reagents do |builder| %>
+                <%= render '/shared/reagent_fields', f: builder %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <%= link_to_add_fields "Add Reagent", form, :reagents %>
+      </fieldset>
+
     </div>
   </fieldset>
+
 </div>
 
 <fieldset class="collapsible">
@@ -143,6 +206,7 @@
   </div>
 </fieldset>
 
+<div id="object-crispr" class="object-crispr">
 <%= form.fields_for :mutagenesis_factor do |builder| %>
   <fieldset id="genotype_primer_field_set" class="collapsible"
     <% if @mi_attempt.mutagenesis_factor.blank? %>style="display: none;"<% end %>>
@@ -172,6 +236,7 @@
     </div>
   </fieldset>
 <% end %>
+</div>
 
 <% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
   <%= render 'status_change_history', :mi_attempt => mi_attempt %>
@@ -197,7 +262,6 @@
       <%= form.label :assay_type%>
       <%= form.select :assay_type, MiAttempt::CRISPR_ASSAY_TYPES, :include_blank => true %>
       <%= generator.number_field :founder_num_assays, {:label => 'Number of Founders Assayed'} %>
-      <%= generator.number_field :founder_num_positive_results, {:label => 'Number of Founders with confirmed mutation'} %>
       <%= generator.number_field :crsp_total_num_mutant_founders, {:label => 'Number of Mutant Founders'} %>
       <%= generator.number_field :crsp_num_founders_selected_for_breading, {:label => 'Number of Founders Selected For Breading'} %>
     </div>

@@ -58,7 +58,8 @@ class MiAttemptListReport
         ''                                                            => {:data => 'number_of_chimeras_with_glt_from_cct', :show => @crispr != true},
 
         'Mutagenesis Factor Ref'                                      => {:data => 'mutagenesis_factor_ids', :show => @crispr == true},
-        'Nuclease'                                                    => {:data => 'nucleases', :show => @crispr == true},
+        'mRNA Nuclease'                                               => {:data => 'mrna_nuclease', :show => @crispr == true},
+        'Protein Nuclease'                                            => {:data => 'protein_nuclease', :show => @crispr == true},
         'Vector Name'                                                 => {:data => 'vector_names', :show => @crispr == true},
         'Crisprs'                                                     => {:data => 'crispr_groups', :show => @crispr == true},
 
@@ -66,11 +67,10 @@ class MiAttemptListReport
         'Total Embryos Survived'                                      => {:data => 'crsp_total_embryos_survived', :show => @crispr == true},
         'Total Transfered'                                            => {:data => 'crsp_total_transfered', :show => @crispr == true},
         '# Founder Pups'                                              => {:data => 'crsp_no_founder_pups', :show => @crispr == true},
-        '# Founders Selected For Breading'                            => {:data => 'crsp_num_founders_selected_for_breading', :show => @crispr == true},
-        '# Founders Selected For Breading'                                                 => {:data => 'Founder Assay Type''assay_type', :show => @crispr == true},
+        '# Founders Assay Type'                                       => {:data => 'assay_type', :show => @crispr == true},
         '# Founders Assayed'                                          => {:data => 'founder_num_assays', :show => @crispr == true},
-        '# Founder with Positive Assay'                               => {:data => 'founder_num_positive_results', :show => @crispr == true},
         'Total # Mutant Founders'                                     => {:data => 'crsp_total_num_mutant_founders', :show => @crispr == true},
+        '# Founders Selected For Breading'                            => {:data => 'crsp_num_founders_selected_for_breading', :show => @crispr == true},
 
  #       'is_suitable_for_emma'                                        => 'Suitable for EMMA?',
         'Experimental?'                                               => {:data => 'experimental', :show => true},
@@ -109,17 +109,24 @@ class MiAttemptListReport
     end
 
     sql = <<-EOF
-      WITH mutagenesis_factor_summary AS (
-        SELECT grouped_crisprs.mi_attempt_id, array_agg(grouped_crisprs.mutagenesis_factor_id) AS mutagenesis_factor_ids, array_agg(grouped_crisprs.nucleases) AS nucleases, array_agg(grouped_crisprs.vector_name) AS vector_names, array_agg(array_to_string(grouped_crisprs.crisprs, ',')) AS crispr_groups
+      WITH mutagenesis_factors_vectors_summary AS (
+        SELECT mutagenesis_factor_vectors.mutagenesis_factor_id AS mutagenesis_factor_id, string_agg(targ_rep_targeting_vectors.name, ', ') AS vector_names
+        FROM mutagenesis_factor_vectors
+        JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = mutagenesis_factor_vectors.vector_id
+        GROUP BY mutagenesis_factor_vectors.mutagenesis_factor_id
+        ),
+
+         mutagenesis_factor_summary AS (
+        SELECT grouped_crisprs.mi_attempt_id, array_agg(grouped_crisprs.mutagenesis_factor_id) AS mutagenesis_factor_ids, array_agg(grouped_crisprs.vector_name) AS vector_names, grouped_crisprs.mrna_nuclease AS mrna_nuclease, grouped_crisprs.protein_nuclease AS protein_nuclease, array_agg(array_to_string(grouped_crisprs.crisprs, ',')) AS crispr_groups
         FROM
-          (SELECT mutagenesis_factors.id AS mutagenesis_factor_id, targ_rep_targeting_vectors.name AS vector_name, mutagenesis_factors.nuclease AS nucleases, mi_attempts.id AS mi_attempt_id, array_agg(targ_rep_crisprs.sequence) AS crisprs
+          (SELECT mutagenesis_factors.id AS mutagenesis_factor_id, mutagenesis_factors_vectors_summary.vector_names AS vector_name, mi_attempts.mrna_nuclease AS mrna_nuclease, mi_attempts.protein_nuclease AS protein_nuclease, mi_attempts.id AS mi_attempt_id, array_agg(targ_rep_crisprs.sequence) AS crisprs
           FROM mutagenesis_factors
             JOIN mi_attempts ON mi_attempts.mutagenesis_factor_id = mutagenesis_factors.id
             JOIN targ_rep_crisprs ON targ_rep_crisprs.mutagenesis_factor_id = mutagenesis_factors.id
-            LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = mutagenesis_factors.vector_id
-          GROUP BY mutagenesis_factors.id, targ_rep_targeting_vectors.name, mi_attempts.id
+            LEFT JOIN mutagenesis_factors_vectors_summary ON mutagenesis_factors_vectors_summary.mutagenesis_factor_id = mutagenesis_factors.id
+          GROUP BY mutagenesis_factors.id, mutagenesis_factors_vectors_summary.vector_names, mi_attempts.id
           ) AS grouped_crisprs
-        GROUP BY grouped_crisprs.mi_attempt_id
+        GROUP BY grouped_crisprs.mi_attempt_id, grouped_crisprs.mrna_nuclease, grouped_crisprs.protein_nuclease
       ),
 
       grouped_colonies AS (
@@ -169,7 +176,9 @@ class MiAttemptListReport
             mi_attempts.comments                                        As comments,
 
             mutagenesis_factor_summary.mutagenesis_factor_ids           AS mutagenesis_factor_ids,
-            mutagenesis_factor_summary.nucleases                        AS nucleases,
+            mutagenesis_factor_summary.mrna_nuclease                    AS mrna_nuclease,
+            mutagenesis_factor_summary.protein_nuclease                 AS protein_nuclease,
+            
             mutagenesis_factor_summary.vector_names                     AS vector_names,
             mutagenesis_factor_summary.crispr_groups                    AS crispr_groups,
 
@@ -180,7 +189,6 @@ class MiAttemptListReport
             mi_attempts.crsp_total_num_mutant_founders                  AS crsp_total_num_mutant_founders,
             mi_attempts.crsp_num_founders_selected_for_breading         AS crsp_num_founders_selected_for_breading,
             mi_attempts.founder_num_assays                              AS founder_num_assays,
-            mi_attempts.founder_num_positive_results                    AS founder_num_positive_results,
             mi_attempts.assay_type                                      AS assay_type,
 
             blast_strain.name                                           AS blast_strain_name,

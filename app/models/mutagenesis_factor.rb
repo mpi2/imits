@@ -1,21 +1,20 @@
 class MutagenesisFactor < ActiveRecord::Base
   acts_as_audited
 
-  NUCLEASES = [nil, 'CAS9 mRNA', 'CAS9 Protein', 'D10A mRNA', 'D10A Protein'].freeze
+  NUCLEASES = [nil, 'CAS9', 'D10A'].freeze
 
-  attr_accessible :vector_name, :crisprs_attributes, :genotype_primers_attributes, :external_ref, :vector_oligo_concentration
+  attr_accessible :crisprs_attributes, :genotype_primers_attributes, :external_ref, :grna_concentration, :individually_set_grna_concentrations, :crisprs_attributes, :vectors_attributes
 
   # NOTE! make sure that the crispr association always appears above the mi_attempt association. Changing the order will prevent the mi_attempt from saving. This results from the implimention of the nested_attributes method
   has_many :crisprs, :class_name => 'TargRep::Crispr', :inverse_of => :mutagenesis_factor, dependent: :destroy
+  has_many :vectors, :class_name => 'MutagenesisFactor::Vector', dependent: :destroy
   has_many :genotype_primers, :class_name => 'TargRep::GenotypePrimer', :inverse_of => :mutagenesis_factor, dependent: :destroy
 
   has_one :mi_attempt, :inverse_of => :mutagenesis_factor
-  belongs_to :vector, :class_name => 'TargRep::TargetingVector'
 
   accepts_nested_attributes_for :crisprs
+  accepts_nested_attributes_for :vectors, :allow_destroy => true
   accepts_nested_attributes_for :genotype_primers, :allow_destroy => true
-
-  before_validation :set_vector_from_vector_name
 
   before_validation do |mi|
     if ! mi.external_ref.nil?
@@ -32,15 +31,24 @@ class MutagenesisFactor < ActiveRecord::Base
     end
   end
 
-  before_save :set_external_ref_if_blank
-
-  def set_vector_from_vector_name
-    if self.vector.nil? or self.vector.name != vector_name
-      self.vector = TargRep::TargetingVector.find_by_name(self.vector_name)
+  # validate gRNA concentrations
+  validate do |mf| 
+    if mf.individually_set_grna_concentrations
+      if mf.crisprs.any?{|c| c.grna_concentration.blank?}
+        mf.errors.add :base, "All individual gRNA require a concentration when you set 'Indivdually Set Concentrations' to true"
+      else
+        mf.grna_concentration = nil
+      end
+    else
+      if !mf.grna_concentration.blank? && mf.grna_concentration > 0
+        mf.crisprs.each{|c| c.grna_concentration = nil}
+      elsif mf.crisprs.any?{|c| !c.grna_concentration.blank?}
+        mf.errors.add :base, "You must set all individual gRNA concentrations to 0 if you are not going to individually set the gRNA concentrations"
+      end
     end
   end
-  protected :set_vector_from_vector_name
 
+  before_save :set_external_ref_if_blank
 
   def set_external_ref_if_blank
     if self.external_ref.blank?
@@ -55,32 +63,26 @@ class MutagenesisFactor < ActiveRecord::Base
   end
   protected :set_external_ref_if_blank
 
-
-  def vector_name
-    if @vector_name
-      return @vector_name
-    elsif self.vector
-      return self.vector.name
-    else
-      return nil
-    end
+  def crisprs_attributes
+    return crisprs
   end
 
-
-  def vector_name=(arg)
-    if self.vector.nil? or self.vector.name != arg
-      @vector_name = arg
-    end
+  def vectors_attributes
+    return vectors
   end
 
+  def genotype_primers_attributes
+    return genotype_primers
+  end
 end
 
 # == Schema Information
 #
 # Table name: mutagenesis_factors
 #
-#  id                         :integer          not null, primary key
-#  vector_id                  :integer
-#  external_ref               :string(255)
-#  vector_oligo_concentration :float
+#  id                                   :integer          not null, primary key
+#  external_ref                         :string(255)
+#  individually_set_grna_concentrations :boolean          default(FALSE), not null
+#  guides_generated_in_plasmid          :boolean          default(FALSE), not null
+#  grna_concentration                   :float
 #

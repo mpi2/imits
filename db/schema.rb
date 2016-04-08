@@ -580,28 +580,20 @@ ActiveRecord::Schema.define(:version => 20160308125302) do
     t.integer  "crsp_total_embryos_survived"
     t.integer  "crsp_total_transfered"
     t.integer  "crsp_no_founder_pups"
-    t.integer  "founder_pcr_num_assays"
-    t.integer  "founder_pcr_num_positive_results"
-    t.integer  "founder_surveyor_num_assays"
-    t.integer  "founder_surveyor_num_positive_results"
-    t.integer  "founder_t7en1_num_assays"
-    t.integer  "founder_t7en1_num_positive_results"
     t.integer  "crsp_total_num_mutant_founders"
     t.integer  "crsp_num_founders_selected_for_breading"
-    t.integer  "founder_loa_num_assays"
-    t.integer  "founder_loa_num_positive_results"
     t.integer  "allele_id"
     t.integer  "real_allele_id"
     t.integer  "founder_num_assays"
-    t.integer  "founder_num_positive_results"
     t.text     "assay_type"
     t.boolean  "experimental",                                                   :default => false, :null => false
     t.string   "allele_target"
     t.integer  "parent_colony_id"
-    t.boolean  "individually_set_grna_concentrations",                           :default => false, :null => false
-    t.float    "grna_conentration"
-    t.float    "nuclease_concentration"
-    t.string   "nuclease"
+    t.string   "mrna_nuclease"
+    t.float    "mrna_nuclease_concentration"
+    t.string   "protein_nuclease"
+    t.float    "protein_nuclease_concentration"
+    t.string   "delivery_method"
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -728,10 +720,18 @@ ActiveRecord::Schema.define(:version => 20160308125302) do
     t.integer  "parent_colony_id"
   end
 
-  create_table "mutagenesis_factors", :force => true do |t|
+  create_table "mutagenesis_factor_vectors", :force => true do |t|
+    t.integer "mutagenesis_factor_id", :null => false
     t.integer "vector_id"
+    t.float   "concentration"
+    t.string  "preparation"
+  end
+
+  create_table "mutagenesis_factors", :force => true do |t|
     t.string  "external_ref"
-    t.float   "vector_oligo_concentration"
+    t.boolean "individually_set_grna_concentrations", :default => false, :null => false
+    t.boolean "guides_generated_in_plasmid",          :default => false, :null => false
+    t.float   "grna_concentration"
   end
 
   create_table "notifications", :force => true do |t|
@@ -814,6 +814,17 @@ ActiveRecord::Schema.define(:version => 20160308125302) do
 
   add_index "qc_results", ["description"], :name => "index_qc_results_on_description", :unique => true
 
+  create_table "reagent_names", :force => true do |t|
+    t.string "name",        :null => false
+    t.text   "description"
+  end
+
+  create_table "reagents", :force => true do |t|
+    t.integer "mi_attempt_id", :null => false
+    t.string  "reagent_id",    :null => false
+    t.float   "concentration"
+  end
+
   create_table "report_caches", :force => true do |t|
     t.text     "name",       :null => false
     t.text     "data",       :null => false
@@ -890,13 +901,14 @@ ActiveRecord::Schema.define(:version => 20160308125302) do
   end
 
   create_table "targ_rep_crisprs", :force => true do |t|
-    t.integer  "mutagenesis_factor_id", :null => false
-    t.string   "sequence",              :null => false
+    t.integer  "mutagenesis_factor_id",                    :null => false
+    t.string   "sequence",                                 :null => false
     t.string   "chr"
     t.integer  "start"
     t.integer  "end"
     t.datetime "created_at"
-    t.float    "grna_conentration"
+    t.boolean  "truncated_guide",       :default => false
+    t.float    "grna_concentration"
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|

@@ -1,7 +1,6 @@
 class Public::MiAttempt < ::MiAttempt
 
   include ::Public::Serializable
-  include ::Public::MutagenesisFactorAttributes
   include ::Public::ColonyAttributes
   include ::ApplicationModel::BelongsToMiPlan::Public
 
@@ -61,30 +60,31 @@ class Public::MiAttempt < ::MiAttempt
     is_released_from_genotyping
     comments
     genotyping_comment
-    distribution_centres_attributes
     mi_plan_id
-    status_stamps_attributes
     mutagenesis_factor_id
-    mutagenesis_factor_attributes
     cassette_transmission_verified
     cassette_transmission_verified_auto_complete
-    nuclease
-    nuclease_concentration
-    individually_set_grna_concentrations
-    grna_conentration
+    mrna_nuclease
+    mrna_nuclease_concentration
+    protein_nuclease
+    protein_nuclease_concentration
+    delivery_method
     crsp_total_embryos_injected
     crsp_total_embryos_survived
     crsp_total_transfered
     crsp_no_founder_pups
     founder_num_assays
     assay_type
-    founder_num_positive_results
     crsp_total_num_mutant_founders
     crsp_num_founders_selected_for_breading
     real_allele_id
     external_ref
-    colonies_attributes
     experimental
+    distribution_centres_attributes
+    colonies_attributes
+    reagents_attributes
+    mutagenesis_factor_attributes
+    status_stamps_attributes
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -160,6 +160,13 @@ class Public::MiAttempt < ::MiAttempt
     return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.distribution_centres.count > 0 ? c.distribution_centres_formatted_display : '[]'}.join(',') + ']'
 
   end
+
+  def mutagenesis_factor_attributes
+    json_options = {
+    :methods => ['crisprs_attributes', 'vectors_attributes', 'genotype_primers_attributes']
+    }
+    return mutagenesis_factor.as_json(json_options)
+  end
 end
 
 # == Schema Information
@@ -214,28 +221,20 @@ end
 #  crsp_total_embryos_survived                     :integer
 #  crsp_total_transfered                           :integer
 #  crsp_no_founder_pups                            :integer
-#  founder_pcr_num_assays                          :integer
-#  founder_pcr_num_positive_results                :integer
-#  founder_surveyor_num_assays                     :integer
-#  founder_surveyor_num_positive_results           :integer
-#  founder_t7en1_num_assays                        :integer
-#  founder_t7en1_num_positive_results              :integer
 #  crsp_total_num_mutant_founders                  :integer
 #  crsp_num_founders_selected_for_breading         :integer
-#  founder_loa_num_assays                          :integer
-#  founder_loa_num_positive_results                :integer
 #  allele_id                                       :integer
 #  real_allele_id                                  :integer
 #  founder_num_assays                              :integer
-#  founder_num_positive_results                    :integer
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
 #  parent_colony_id                                :integer
-#  individually_set_grna_concentrations            :boolean          default(FALSE), not null
-#  grna_conentration                               :float
-#  nuclease_concentration                          :float
-#  nuclease                                        :string(255)
+#  mrna_nuclease                                   :string(255)
+#  mrna_nuclease_concentration                     :float
+#  protein_nuclease                                :string(255)
+#  protein_nuclease_concentration                  :float
+#  delivery_method                                 :string(255)
 #
 # Indexes
 #

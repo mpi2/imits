@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160308125302) do
+ActiveRecord::Schema.define(:version => 201604011125302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -821,7 +821,7 @@ ActiveRecord::Schema.define(:version => 20160308125302) do
 
   create_table "reagents", :force => true do |t|
     t.integer "mi_attempt_id", :null => false
-    t.string  "reagent_id",    :null => false
+    t.integer "reagent_id",    :null => false
     t.float   "concentration"
   end
 

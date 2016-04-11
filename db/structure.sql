@@ -2468,7 +2468,7 @@ ALTER SEQUENCE reagent_names_id_seq OWNED BY reagent_names.id;
 CREATE TABLE reagents (
     id integer NOT NULL,
     mi_attempt_id integer NOT NULL,
-    reagent_id character varying(255) NOT NULL,
+    reagent_id integer NOT NULL,
     concentration double precision
 );
 
@@ -5818,3 +5818,5 @@ INSERT INTO schema_migrations (version) VALUES ('20150812125302');
 INSERT INTO schema_migrations (version) VALUES ('20151009125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20160308125302');
+
+INSERT INTO schema_migrations (version) VALUES ('201604011125302');

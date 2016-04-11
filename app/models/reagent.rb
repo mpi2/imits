@@ -19,6 +19,6 @@ end
 #
 #  id            :integer          not null, primary key
 #  mi_attempt_id :integer          not null
-#  reagent_id    :string(255)      not null
+#  reagent_id    :integer          not null
 #  concentration :float
 #

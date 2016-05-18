@@ -42,7 +42,7 @@ WTSI:
   :preferred: 'mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for MARKER_SYMBOL'
   :default: ''
 EMMA:
-  :preferred: 'http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL'
+  :preferred: 'https://www.infrafrontier.eu/search?keyword=MARKER_SYMBOL'
   :default: ''
 MMRRC:
   :preferred: 'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL'

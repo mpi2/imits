@@ -1,4 +1,4 @@
-class GraphReportDisplay < BaseSummaryByMonthReport
+class GraphReportDisplay < BaseSummaryByMonthReportV2
 
   def initialize(consortia_list=nil, category = 'es cell', approach = 'all', allele_type = nil)
     @chart_file_names = {}

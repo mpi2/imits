@@ -43,6 +43,8 @@ TarMits::Application.routes.draw do
 
   resources :strains
 
+  resources :goals
+
   resources :genes, :only => [:index] do
     member do
       get 'network_graph'

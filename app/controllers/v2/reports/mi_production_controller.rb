@@ -95,6 +95,11 @@ class V2::Reports::MiProductionController < ApplicationController
   def impc_production_summary
     report_filters
 
+    @csv_data = 'Tm1a'
+    if params.has_key?(:data_type) && params[:data_type] == 'tm1b'
+      @csv_data = 'Tm1b'
+    end
+
     @title = ImpcProductionReport.title
     @report = ImpcProductionReport.new({'category' => @category, 'allele_type' => @allele_type})
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene

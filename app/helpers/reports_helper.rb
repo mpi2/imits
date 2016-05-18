@@ -20,15 +20,24 @@ module ReportsHelper
     end
   end
 
-  def report_csv_path
+  def report_csv_path(options = {})
     return '?format=csv' if request.env['REQUEST_URI'].blank?
 
     uri = request.env['REQUEST_URI']
+
+
+
     if uri =~ /\?/
-      uri + '&format=csv'
+      uri += '&format=csv'
     else
-      uri + '?format=csv'
+      uri += '?format=csv'
     end
+    
+    if options.has_key?(:ps)
+      options[:ps].each{|key, value| uri += "&#{key}=#{value}"}
+    end
+
+    return uri
   end
 
   def boolean_to_text(bool)

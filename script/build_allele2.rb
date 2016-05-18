@@ -12,16 +12,23 @@ class BuildAllele2
 
 
   MICE_ALLELE_SQL = <<-EOF
-    WITH mutagenesis_factor_summary AS (
+    WITH mutagenesis_factors_vectors_summary AS (
+        SELECT mutagenesis_factor_vectors.mutagenesis_factor_id AS mutagenesis_factor_id, string_agg(targ_rep_targeting_vectors.name, ', ') AS vector_names
+        FROM mutagenesis_factor_vectors
+        JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = mutagenesis_factor_vectors.vector_id
+        GROUP BY mutagenesis_factor_vectors.mutagenesis_factor_id
+        ),
 
-      SELECT mi_attempts.id AS mi_attempt_id, array_agg(mutagenesis_factors.id), array_agg('vector_name:' || CASE WHEN targ_rep_targeting_vectors.name IS NULL THEN '' ELSE  targ_rep_targeting_vectors.name END || ', ' || crispr_details) AS mutagenesis_details
+      mutagenesis_factor_summary AS (
+
+      SELECT mi_attempts.id AS mi_attempt_id, array_agg(mutagenesis_factors.id), array_agg('vector_name:' || CASE WHEN mutagenesis_factors_vectors_summary.vector_names IS NULL THEN '' ELSE  mutagenesis_factors_vectors_summary.vector_names END || ', ' || crispr_details) AS mutagenesis_details
         FROM mutagenesis_factors
           JOIN mi_attempts ON mi_attempts.mutagenesis_factor_id = mutagenesis_factors.id
           JOIN (SELECT targ_rep_crisprs.mutagenesis_factor_id AS mutagenesis_factor_id, string_agg('crispr_seq:' || targ_rep_crisprs.sequence || ', crispr_chromosome:' || targ_rep_crisprs.start || ', crispr_start_co_ordinate:' || targ_rep_crisprs.start || ', crispr_end_co_ordinate:' || targ_rep_crisprs.end, ',') AS crispr_details
                   FROM targ_rep_crisprs
                 GROUP BY targ_rep_crisprs.mutagenesis_factor_id
                ) AS crispr_summary ON mutagenesis_factors.id = crispr_summary.mutagenesis_factor_id
-          LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = mutagenesis_factors.vector_id
+          LEFT JOIN mutagenesis_factors_vectors_summary ON mutagenesis_factors_vectors_summary.mutagenesis_factor_id = mutagenesis_factors.id
         GROUP BY mi_attempts.id
     ),
 
@@ -68,7 +75,7 @@ class BuildAllele2
     SELECT CASE WHEN colonies.mouse_allele_mod_id IS NOT NULL THEN 'MouseAlleleMod' ELSE 'MiAttempt' END AS colony_created_by,
            colonies.name AS colony_name, colonies.mgi_allele_id AS colony_mgi_allele_id, colonies.allele_name AS colony_allele_name, colonies.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript, colonies.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template, colonies.allele_type AS colony_allele_type, colony_background_strain.name AS colony_background_strain_name,
            colonies.allele_description_summary AS allele_description_summary, colonies.auto_allele_description AS auto_allele_description,
-           mouse_allele_mod_statuses.name AS mouse_allele_status_name, deleter_strain.name AS mouse_allele_mod_deleter_strain, mouse_allele_mods.cre_excision AS excised,
+           mouse_allele_mod_statuses.name AS mouse_allele_status_name, deleter_strain.name AS mouse_allele_mod_deleter_strain, mouse_allele_mods.cre_excision AS excised, mouse_allele_mods.report_to_public,
            mi_attempt_summary.*,
            mam_centre.name AS mouse_allele_production_centre,
            phenotyping_production_summary.phenotyping_status_name AS phenotyping_status_name, phenotyping_production_summary.phenotyping_centre AS phenotyping_centre, phenotyping_production_summary.phenotyping_centres AS phenotyping_centres
@@ -79,8 +86,8 @@ class BuildAllele2
                   JOIN centres mam_centre ON mam_centre.id = mam_plan.production_centre_id
                   LEFT JOIN strains deleter_strain ON deleter_strain.id = mouse_allele_mods.deleter_strain_id
                   JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
-                ) ON mouse_allele_mods.id = colonies.mouse_allele_mod_id AND mouse_allele_mods.report_to_public = true
-      JOIN mi_attempt_summary ON mi_attempt_summary.mi_colony_id = mouse_allele_mods.parent_colony_id OR (mi_attempt_summary.mi_colony_id = colonies.id AND mi_attempt_summary.mi_report_to_public = true)
+                ) ON mouse_allele_mods.id = colonies.mouse_allele_mod_id
+      JOIN mi_attempt_summary ON mi_attempt_summary.mi_colony_id = mouse_allele_mods.parent_colony_id OR mi_attempt_summary.mi_colony_id = colonies.id
       LEFT JOIN phenotyping_production_summary ON phenotyping_production_summary.parent_colony_id = colonies.id
     WHERE (colonies.report_to_public = true AND colonies.genotype_confirmed = true) OR mi_mutagenesis_factor_details IS NULL
   EOF
@@ -433,7 +440,6 @@ class BuildAllele2
 
     ## append additional data based on already collated data
     @gene_data.each do |key, gene_data_row|
-
       gene_data_row['es_cell_status'] = 'No ES Cell Production' if gene_data_row['es_cell_status'].blank? && gene_data_row['feature_type'] == 'protein coding gene'
 
       gene_data_row['latest_es_cell_status'] = gene_data_row['es_cell_status']
@@ -514,17 +520,33 @@ class BuildAllele2
   end
 
   def mouse_allele_update_doc(doc, data_row)
+    # NOTE must compile phenotpye statuses even if mouse report_to_public is set to false
 
     doc['allele_mgi_accession_id'] = data_row['colony_mgi_allele_id'] unless data_row['colony_mgi_allele_id'].blank?
     doc['allele_description'] = data_row['auto_allele_description'].blank? ? data_row['allele_description_summary'] : data_row['auto_allele_description']
 
     # set Mouse status
-    mouse_status = data_row['mouse_allele_status_name'] || data_row['mi_status_name']
-    mouse_production_centre = data_row['mouse_allele_production_centre'] || data_row['mi_production_centre']
+    mouse_status = nil
+    mouse_production_centre = nil
+    # set Mouse status
+    if !data_row['mouse_allele_status_name'].blank?
+      mouse_status = data_row['mouse_allele_status_name']
+      mouse_report_to_public = data_row['mouse_allele_mod_report_to_public']
+      mouse_production_centre = data_row['mouse_allele_production_centre']
+    elsif !data_row['mi_status_name'].blank?
+      mouse_status = data_row['mi_status_name']
+      mouse_report_to_public = data_row['mi_report_to_public']
+      mouse_production_centre = data_row['mi_production_centre']
+    end
 
-    if doc['mouse_status'].blank? || mouse_status_is_more_adavanced(mouse_status, doc['mouse_status'])
-      doc['mouse_status'] = mouse_status
-      doc['production_centre'] = mouse_production_centre
+    if mouse_report_to_public
+      if doc['mouse_status'].blank? || mouse_status_is_more_adavanced(mouse_status, doc['mouse_status'])
+        doc['mouse_status'] = mouse_status
+        doc['production_centre'] = mouse_production_centre
+      end
+
+      doc['production_centres'] << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
+      doc['production_centres'] << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
     end
 
     if doc['phenotype_status'].blank? || mouse_status_is_more_adavanced(data_row['phenotyping_status_name'], doc['phenotype_status'])
@@ -532,8 +554,6 @@ class BuildAllele2
       doc['phenotyping_centre'] = data_row['phenotyping_centre']
     end
 
-    doc['production_centres'] << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
-    doc['production_centres'] << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
     self.class.convert_to_array(data_row['phenotyping_centres']).each{|phenotyping_centre| doc['phenotyping_centres'] << phenotyping_centre}
 
     doc['production_centres'] = doc['production_centres'].uniq
@@ -623,14 +643,29 @@ class BuildAllele2
   end
 
   def mouse_gene_update_doc(doc, data_row)
+    # NOTE must compile phenotpye statuses even if mouse report_to_public is set to false
 
+    mouse_status = nil
+    mouse_production_centre = nil
     # set Mouse status
-    mouse_status = data_row['mouse_allele_status_name'] || data_row['mi_status_name']
-    mouse_production_centre = data_row['mouse_allele_production_centre'] || data_row['mi_production_centre']
+    if !data_row['mouse_allele_status_name'].blank?
+      mouse_status = data_row['mouse_allele_status_name']
+      mouse_report_to_public = data_row['mouse_allele_mod_report_to_public']
+      mouse_production_centre = data_row['mouse_allele_production_centre']
+    elsif !data_row['mi_status_name'].blank?
+      mouse_status = data_row['mi_status_name']
+      mouse_report_to_public = data_row['mi_report_to_public']
+      mouse_production_centre = data_row['mi_production_centre']
+    end
 
-    if doc['mouse_status'].blank? || mouse_status_is_more_adavanced(mouse_status, doc['mouse_status'])
-      doc['mouse_status'] = mouse_status
-      doc['production_centre'] = mouse_production_centre
+    if mouse_report_to_public
+      if doc['mouse_status'].blank? || mouse_status_is_more_adavanced(mouse_status, doc['mouse_status'])
+        doc['mouse_status'] = mouse_status
+        doc['production_centre'] = mouse_production_centre
+      end
+
+      doc['production_centres'] << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
+      doc['production_centres'] << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
     end
 
     if doc['phenotype_status'].blank? || mouse_status_is_more_adavanced(data_row['phenotyping_status_name'], doc['phenotype_status'])
@@ -638,8 +673,6 @@ class BuildAllele2
       doc['phenotyping_centre'] = data_row['phenotyping_centre']
     end
 
-    doc['production_centres'] << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
-    doc['production_centres'] << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
     self.class.convert_to_array(data_row['phenotyping_centres']).each{|phenotyping_centre| doc['phenotyping_centres'] << phenotyping_centre}
 
     doc['production_centres'] = doc['production_centres'].uniq

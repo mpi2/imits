@@ -42,6 +42,12 @@ module ApplicationModel::BelongsToMiPlan
   end
   protected :deal_with_unassigned_or_inactive_plans
 
+  def assign_credit
+    if subcontracted_by.blank? && credited_to_id.blank?
+      credited_to_id = mi_plan_id
+    end
+  end
+  protected :assign_credit
 
   #COMMON METHODS
   def consortium_name
@@ -73,6 +79,17 @@ module ApplicationModel::BelongsToMiPlan
     if @production_centre_name != self.mi_plan.try(:production_centre).try(:name)
       # this forces the changed methods to record a change.
       self.changed_attributes['production_centre_name'] = arg
+    end
+  end
+
+  def subcontracted_plan_id
+    return credited_to_id unless credited_to_id.blank? || credited_to_id != mi_plan_id
+    return nil
+  end
+
+  def subcontracted_plan_id=(arg)
+    if MiPlan.find(arg)
+      credited_to_id = arg
     end
   end
 

@@ -10,6 +10,7 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     mi_plan_id
     consortium_name
     phenotyping_centre_name
+    subcontracted_plan_id
     production_colony_name
     mouse_allele_symbol
     colony_name

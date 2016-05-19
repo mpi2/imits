@@ -55,6 +55,7 @@ class MouseAlleleMod < ApplicationModel
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
   before_save :set_phenotype_attempt_id
+  before_save :assign_credit
 
   after_save :manage_status_stamps
 

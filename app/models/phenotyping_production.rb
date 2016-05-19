@@ -32,6 +32,7 @@ class PhenotypingProduction < ApplicationModel
   before_save :set_colony_background_strain
   before_save :set_phenotyping_experiments_started_if_blank
   before_save :set_phenotype_attempt_id
+  before_save :assign_credit
   after_save :manage_status_stamps
 
 

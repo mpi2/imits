@@ -10,6 +10,7 @@ class Public::MiAttempt < ::MiAttempt
     colony_name
     consortium_name
     production_centre_name
+    subcontracted_plan_id
     parent_colony_name
     blast_strain_name
     total_blasts_injected

@@ -51,7 +51,7 @@ module IntermediateReport::SummaryByCentre
 
      def self.production_sql(allele_type = nil)
        sql = <<-EOF
-                  SELECT mi_attempts.id AS mi_attempt_id, NULL AS mouse_allele_mods_id, mi_attempts.mi_plan_id AS mi_plan_id,
+                  SELECT mi_attempts.id AS mi_attempt_id, NULL AS mouse_allele_mods_id, mi_attempts.accredited_to_id AS mi_plan_id,
                     mi_attempt_statuses.name AS production_status, mi_attempt_statuses.order_by AS production_status_order, mi_attempt_status_stamps.created_at AS production_status_order_status_stamp_created_at, false AS allele_modification,
                     #{allele_type.nil? ? 'true' : "CASE WHEN mi_attempts.allele_target = mi_colony.allele_type THEN true ELSE false END"} AS same_allele_types,
                     '' AS injection_type
@@ -68,7 +68,7 @@ module IntermediateReport::SummaryByCentre
 
                   UNION
 
-                  SELECT NULL AS mi_attempt_id, mouse_allele_mods.id AS mouse_allele_mods_id, mouse_allele_mods.mi_plan_id AS mi_plan_id,
+                  SELECT NULL AS mi_attempt_id, mouse_allele_mods.id AS mouse_allele_mods_id, mouse_allele_mods.accredited_to_id AS mi_plan_id,
                     mouse_allele_mod_statuses.name AS production_status, mouse_allele_mod_statuses.order_by AS production_status_order, mouse_allele_mod_status_stamps.created_at AS production_status_order_status_stamp_created_at, true AS allele_modification,
                     true AS same_allele_types, '' AS injection_type
                   FROM mouse_allele_mods
@@ -135,13 +135,13 @@ module IntermediateReport::SummaryByCentre
                       phenotyping_production_statuses.order_by,
                       phenotyping_productions.id as phenotype_productions_id
                     FROM phenotyping_productions
-                      JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
+                      JOIN mi_plans ON mi_plans.id = phenotyping_productions.accredited_to_id
                       JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
                       JOIN colonies ON colonies.id = phenotyping_productions.parent_colony_id #{!excision__condition.blank? ? (excision__condition == 'true' ? "AND colonies.mouse_allele_mod_id IS NOT NULL" : "AND colonies.mouse_allele_mod_id IS NULL") : ''}
                       LEFT JOIN (mouse_allele_mods JOIN colonies mam_colonies ON mam_colonies.mouse_allele_mod_id = mouse_allele_mods.id) ON mam_colonies.id = phenotyping_productions.parent_colony_id
                       LEFT JOIN colonies mouse_allele_mod_colonies ON mouse_allele_mod_colonies.id = mouse_allele_mods.parent_colony_id
                       JOIN mi_attempts ON mi_attempts.id = mouse_allele_mod_colonies.mi_attempt_id OR colonies.mi_attempt_id = mi_attempts.id
-                      JOIN mi_plans crispr_plan ON crispr_plan.id = mi_attempts.mi_plan_id #{!crispr_condition.blank? ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr_condition}" : ''}
+                      JOIN mi_plans crispr_plan ON crispr_plan.id = mi_attempts.accredited_to_id #{!crispr_condition.blank? ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr_condition}" : ''}
 
                     #{ allele_type.nil? ? '' : <<-EOF
                       LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id

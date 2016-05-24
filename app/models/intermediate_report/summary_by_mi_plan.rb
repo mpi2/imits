@@ -45,7 +45,7 @@ module IntermediateReport::SummaryByMiPlan
 
       def production_sql(allele_type = nil)
         sql = <<-EOF
-                  SELECT mi_attempts.id AS mi_attempt_id, NULL AS mouse_allele_mods_id, mi_attempts.mi_plan_id AS mi_plan_id,
+                  SELECT mi_attempts.id AS mi_attempt_id, NULL AS mouse_allele_mods_id, mi_attempts.accredited_to_id AS mi_plan_id,
                     mi_attempt_statuses.name AS mi_attempt_status,  mi_attempt_status_stamps.created_at AS mi_attempt_status_date, NULL AS mouse_allele_mod_status, NULL AS mouse_allele_mod_status_date,
                     mi_attempt_statuses.name AS production_status, mi_attempt_statuses.order_by AS production_status_order, mi_attempt_status_stamps.created_at AS production_status_order_status_stamp_created_at, false AS allele_modification
                   FROM mi_attempts
@@ -53,7 +53,7 @@ module IntermediateReport::SummaryByMiPlan
                     JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = mi_attempts.status_id
                   UNION
 
-                  SELECT NULL AS mi_attempt_id, mouse_allele_mods.id AS mouse_allele_mods_id, mouse_allele_mods.mi_plan_id AS mi_plan_id,
+                  SELECT NULL AS mi_attempt_id, mouse_allele_mods.id AS mouse_allele_mods_id, mouse_allele_mods.accredited_to_id AS mi_plan_id,
                     NULL AS mi_attempt_status, NULL AS mi_attempt_status_date, mouse_allele_mod_statuses.name AS mouse_allele_mod_status, mouse_allele_mod_status_stamps.created_at AS mouse_allele_mod_status_date,
                     mouse_allele_mod_statuses.name AS production_status, mouse_allele_mod_statuses.order_by AS production_status_order, mouse_allele_mod_status_stamps.created_at AS production_status_order_status_stamp_created_at, true AS allele_modification
                   FROM mouse_allele_mods
@@ -115,15 +115,15 @@ module IntermediateReport::SummaryByMiPlan
         sql = <<-EOF
                   phenotyping_productions_grouped AS (
                     SELECT
-                      phenotyping_productions.mi_plan_id AS mi_plan_id,
+                      phenotyping_productions.accredited_to_id AS mi_plan_id,
                       phenotyping_production_statuses.order_by,
-                      first_value(phenotyping_productions.id) OVER (PARTITION BY phenotyping_productions.mi_plan_id) AS phenotyping_production_id
+                      first_value(phenotyping_productions.id) OVER (PARTITION BY phenotyping_productions.accredited_to_id) AS phenotyping_production_id
                     FROM phenotyping_productions
                       JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
                   ),
 
                   top_phenotyping_production AS (
-                    SELECT DISTINCT phenotyping_productions_grouped.mi_plan_id, phenotyping_productions_grouped.phenotyping_production_id
+                    SELECT DISTINCT phenotyping_productions_grouped.accredited_to_id, phenotyping_productions_grouped.phenotyping_production_id
                     FROM phenotyping_productions_grouped
                   )
 

@@ -245,7 +245,7 @@ class ImpcCentreByMonthReport
               centres.name AS production_centre,
               count(*) AS mi_in_progress_count
             FROM mi_attempts
-              JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
+              JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
               JOIN centres ON centres.id = mi_plans.production_centre_id
               JOIN consortia ON consortia.id = mi_plans.consortium_id
               JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at <= '#{cut_off_date}'
@@ -295,7 +295,7 @@ class ImpcCentreByMonthReport
 
             FROM targ_rep_es_cells
             JOIN mi_attempts ON mi_attempts.es_cell_id = targ_rep_es_cells.id
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
+            JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id AND mi_plans.mutagenesis_via_crispr_cas9 = false
             JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
 

@@ -13,6 +13,7 @@ class MouseAlleleMod < ApplicationModel
   belongs_to :allele
   belongs_to :real_allele
   belongs_to :mi_plan
+  belongs_to :accredited_to, :class_name => 'MiPlan'
   belongs_to :status
   belongs_to :deleter_strain
 

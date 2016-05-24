@@ -11,6 +11,7 @@ class PhenotypingProduction < ApplicationModel
   include ApplicationModel::BelongsToMiPlan::Public
 
   belongs_to :mi_plan
+  belongs_to :accredited_to, :class_name => 'MiPlan'
   belongs_to :parent_colony, :class_name => 'Colony'
   belongs_to :status
   belongs_to :colony_background_strain, :class_name => 'Strain'

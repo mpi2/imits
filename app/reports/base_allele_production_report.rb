@@ -427,7 +427,7 @@ class BaseAlleleProductionReport
         FROM targ_rep_es_cells
         JOIN mi_attempts ON mi_attempts.es_cell_id = targ_rep_es_cells.id
         JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = 1
-        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+        JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
         JOIN centres ON centres.id = mi_plans.production_centre_id
         WHERE consortia.name in ('#{available_consortia.join('\', \'')}') AND mi_plans.mutagenesis_via_crispr_cas9 = false
@@ -459,7 +459,7 @@ class BaseAlleleProductionReport
         SUM(CASE WHEN mi_attempts.status_id = 1 THEN 1 ELSE 0 END) As count_mi_attempts_in_progress
         FROM mi_attempts
         JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = 1
-        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+        JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
         JOIN centres ON centres.id = mi_plans.production_centre_id
         WHERE consortia.name in ('#{available_consortia.join('\', \'')}')
@@ -520,7 +520,7 @@ class BaseAlleleProductionReport
                sum(mi_attempts.crsp_total_embryos_injected) AS number_embryos_injected,
                count(DISTINCT mi_attempts.id) AS number_genotype_confirmed
         FROM mi_attempts
-        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+        JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
         JOIN centres ON centres.id = mi_plans.production_centre_id
         WHERE mutagenesis_factor_id IS NOT NULL AND mi_attempts.status_id = 2 AND mi_attempts.experimental = false
@@ -547,7 +547,7 @@ class BaseAlleleProductionReport
           JOIN targ_rep_alleles ON genes.id = targ_rep_alleles.gene_id
           JOIN targ_rep_es_cells ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
           JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
           LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
@@ -576,7 +576,7 @@ class BaseAlleleProductionReport
           1 as c
           FROM targ_rep_es_cells
           JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
           LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
@@ -610,7 +610,7 @@ class BaseAlleleProductionReport
             JOIN targ_rep_alleles ON genes.id = targ_rep_alleles.gene_id
             JOIN targ_rep_es_cells ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
             JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+            JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
             LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
 
@@ -639,7 +639,7 @@ class BaseAlleleProductionReport
             centres.name AS production_centre_name,
             count(*) AS total_injections
           FROM mi_attempts
-          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
 
@@ -723,7 +723,7 @@ class BaseAlleleProductionReport
                   FROM mi_attempts
                   JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id AND mi_attempt_statuses.id = 2
                   JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = 1
-                  JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+                  JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
                   JOIN consortia ON consortia.id = mi_plans.consortium_id
                   JOIN centres On centres.id = mi_plans.production_centre_id
                   WHERE
@@ -788,7 +788,7 @@ class BaseAlleleProductionReport
           JOIN centres AS dis_centre ON dis_centre.id = colony_distribution_centres.centre_id
           JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
           JOIN mi_attempts ON mi_attempts.id = colonies.mi_attempt_id
-          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
           #{category == 'crispr' ? "AND mi_plans.mutagenesis_via_crispr_cas9 = true" : ""}
           #{category == 'es cell' ? "AND mi_plans.mutagenesis_via_crispr_cas9 = false" : ""}
           JOIN consortia ON consortia.id  = mi_plans.consortium_id
@@ -842,7 +842,7 @@ class BaseAlleleProductionReport
           JOIN centres AS dis_centre ON dis_centre.id = colony_distribution_centres.centre_id
           JOIN colonies ON colonies.id = colony_distribution_centres.colony_id
           JOIN mouse_allele_mods ON mouse_allele_mods.id = colonies.mouse_allele_mod_id
-          JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id
+          JOIN mi_plans ON mi_plans.id = mouse_allele_mods.accredited_to_id
           #{category == 'crispr' ? "AND mi_plans.mutagenesis_via_crispr_cas9 = true" : ""}
           #{category == 'es cell' ? "AND mi_plans.mutagenesis_via_crispr_cas9 = false" : ""}
           JOIN consortia ON consortia.id  = mi_plans.consortium_id
@@ -897,7 +897,7 @@ class BaseAlleleProductionReport
 
           FROM mi_attempts
             JOIN grouped_colonies ON grouped_colonies.mi_attempt_id = mi_attempts.id
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+            JOIN mi_plans ON mi_plans.id = mi_attempts.accredited_to_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
             LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id

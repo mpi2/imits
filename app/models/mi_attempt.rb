@@ -15,6 +15,7 @@ class MiAttempt < ApplicationModel
 
   belongs_to :real_allele
   belongs_to :mi_plan
+  belongs_to :accredited_to, :class_name => 'MiPlan'
   belongs_to :es_cell, :class_name => 'TargRep::EsCell'
   belongs_to :status
   belongs_to :updated_by, :class_name => 'User'
@@ -148,6 +149,7 @@ class MiAttempt < ApplicationModel
   before_save :set_default_background_strain_for_crispr_produced_colonies
   before_save :make_mi_date_and_in_progress_status_consistent
   before_save :crispr_autofill_allele_target
+  before_save :assign_credit
   after_save :manage_status_stamps
   after_save :reload_mi_plan_mi_attempts
 

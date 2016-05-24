@@ -38,7 +38,7 @@ class ImpcCentreByMonthDetail
             mi_plans join consortia on mi_plans.consortium_id = consortia.id
             join centres on centres.id = mi_plans.production_centre_id
             join genes on genes.id = mi_plans.gene_id
-            join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
+            join mi_attempts on mi_attempts.accredited_to_id = mi_plans.id
             join colonies on colonies.mi_attempt_id = mi_attempts.id
             join mi_attempt_statuses on mi_attempts.status_id = mi_attempt_statuses.id
             join targ_rep_es_cells on mi_attempts.es_cell_id = targ_rep_es_cells.id
@@ -83,11 +83,11 @@ class ImpcCentreByMonthDetail
               (phenotyping_productions
                 join phenotyping_production_statuses on phenotyping_productions.status_id = phenotyping_production_statuses.id
                 join colonies pp_parent_colony ON pp_parent_colony.id = phenotyping_productions.parent_colony_id
-              ) ON mi_plans.id = phenotyping_productions.mi_plan_id
+              ) ON mi_plans.id = phenotyping_productions.accredited_to_id
 
             left join (mouse_allele_mods
                 join mouse_allele_mod_statuses on mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
-              ) ON mouse_allele_mods.id = pp_parent_colony.mouse_allele_mod_id OR (mouse_allele_mods.mi_plan_id = mi_plans.id AND phenotyping_productions.id IS NULL)
+              ) ON mouse_allele_mods.id = pp_parent_colony.mouse_allele_mod_id OR (mouse_allele_mods.accredited_to_id = mi_plans.id AND phenotyping_productions.id IS NULL)
 
           where
             #{insert_bit}

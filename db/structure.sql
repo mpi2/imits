@@ -1153,6 +1153,85 @@ ALTER SEQUENCE genes_id_seq OWNED BY genes.id;
 
 
 --
+-- Name: grant_goals; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE grant_goals (
+    id integer NOT NULL,
+    grant_id integer NOT NULL,
+    year integer NOT NULL,
+    month integer NOT NULL,
+    crispr_mi_goal integer,
+    crispr_gc_goal integer,
+    es_cell_mi_goal integer,
+    es_cell_gc_goal integer,
+    total_mi_goal integer,
+    total_gc_goal integer,
+    excision_goal integer,
+    phenotype_goal integer,
+    crispr_mi_goal_automatically_set boolean DEFAULT false NOT NULL,
+    crispr_gc_goal_automatically_set boolean DEFAULT false NOT NULL,
+    es_cell_mi_goal_automatically_set boolean DEFAULT false NOT NULL,
+    es_cell_gc_goal_automatically_set boolean DEFAULT false NOT NULL,
+    excision_goal_automatically_set boolean DEFAULT false NOT NULL,
+    phenotyping_goal_automatically_set boolean DEFAULT false NOT NULL
+);
+
+
+--
+-- Name: grant_goals_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE grant_goals_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: grant_goals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE grant_goals_id_seq OWNED BY grant_goals.id;
+
+
+--
+-- Name: grants; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE grants (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    funding character varying(255) NOT NULL,
+    consortium_id integer NOT NULL,
+    production_centre_id integer NOT NULL,
+    commence date NOT NULL,
+    "end" date NOT NULL
+);
+
+
+--
+-- Name: grants_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE grants_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: grants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE grants_id_seq OWNED BY grants.id;
+
+
+--
 -- Name: intermediate_report; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -1708,7 +1787,8 @@ CREATE TABLE mi_attempts (
     mrna_nuclease_concentration double precision,
     protein_nuclease character varying(255),
     protein_nuclease_concentration double precision,
-    delivery_method character varying(255)
+    delivery_method character varying(255),
+    accredited_to_id integer
 );
 
 
@@ -2070,7 +2150,8 @@ CREATE TABLE mouse_allele_mods (
     updated_at timestamp without time zone NOT NULL,
     allele_id integer,
     real_allele_id integer,
-    parent_colony_id integer
+    parent_colony_id integer,
+    accredited_to_id integer
 );
 
 
@@ -2306,7 +2387,8 @@ CREATE TABLE phenotyping_productions (
     colony_background_strain_id integer,
     rederivation_started boolean DEFAULT false NOT NULL,
     rederivation_complete boolean DEFAULT false NOT NULL,
-    cohort_production_centre_id integer
+    cohort_production_centre_id integer,
+    accredited_to_id integer
 );
 
 
@@ -3560,6 +3642,20 @@ ALTER TABLE ONLY genes ALTER COLUMN id SET DEFAULT nextval('genes_id_seq'::regcl
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY grant_goals ALTER COLUMN id SET DEFAULT nextval('grant_goals_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY grants ALTER COLUMN id SET DEFAULT nextval('grants_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY intermediate_report ALTER COLUMN id SET DEFAULT nextval('intermediate_report_id_seq'::regclass);
 
 
@@ -4042,6 +4138,22 @@ ALTER TABLE ONLY es_cells
 
 ALTER TABLE ONLY genes
     ADD CONSTRAINT genes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: grant_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY grant_goals
+    ADD CONSTRAINT grant_goals_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: grants_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY grants
+    ADD CONSTRAINT grants_pkey PRIMARY KEY (id);
 
 
 --
@@ -5820,3 +5932,7 @@ INSERT INTO schema_migrations (version) VALUES ('20151009125302');
 INSERT INTO schema_migrations (version) VALUES ('20160308125302');
 
 INSERT INTO schema_migrations (version) VALUES ('201604011125302');
+
+INSERT INTO schema_migrations (version) VALUES ('201604121125302');
+
+INSERT INTO schema_migrations (version) VALUES ('201605016125302');

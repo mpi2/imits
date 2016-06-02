@@ -95,4 +95,5 @@ end
 #  rederivation_started            :boolean          default(FALSE), not null
 #  rederivation_complete           :boolean          default(FALSE), not null
 #  cohort_production_centre_id     :integer
+#  accredited_to_id                :integer
 #

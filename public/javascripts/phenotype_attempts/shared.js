@@ -70,3 +70,68 @@ Ext.select('form #phenotype_attempt_tat_cre').on("change", function(e) {
   }
 })
 
+
+
+
+function processRestOfForm() {
+    var restOfForm = Ext.get('rest-of-form');
+
+    var subcontractstore = Ext.create('Ext.data.JsonStore', {
+        model: 'MiPlanListViewModel',
+        storeId: 'subcontractstore',
+        proxy: {
+            type: 'ajax',
+            url: window.basePath + '/mi_plans/search_for_available_plans.json'
+        },
+        reader: {
+            type: 'json'
+        }
+
+    });
+
+
+
+    var subcontractlistview = Ext.create('Ext.grid.Panel', {
+        id: 'sub_contract_list',
+        width:1060,
+        height:250,
+        title:'Multiple Plans Found. Select the Sub Contract Plan',
+        renderTo: 'mi_plan_list_phenotype',
+        store: subcontractstore,
+        singleSelect : true,
+        viewConfig: {
+            emptyText: 'No images to display'
+        },
+
+        columns: [{
+            text: 'Consortium',
+            flex: 50,
+            dataIndex: 'consortium_name'
+        },{
+            text: 'Production Centre',
+            flex: 50,
+            dataIndex: 'production_centre_name'
+        }
+        ]
+    });
+
+
+    miplanlistview.on('selectionchange', function(view, nodes){
+      restOfForm.getInputElement("phenotype_attempt[mi_plan_id]").set({ value: nodes[0].get('id') });
+      Ext.get("phenotype_attempt_production_centre_name").set({ value: nodes[0].get('production_centre_name') });
+    });
+
+    miplanstorephenotype.on('load', function(){
+
+        var recordIndex = miplanstorephenotype.find('id', restOfForm.getInputElement('phenotype_attempt[mi_plan_id]').getValue());
+        if (recordIndex != -1) {
+            miplanlistview.getSelectionModel().select(recordIndex);
+        }
+    });
+
+
+
+
+
+
+

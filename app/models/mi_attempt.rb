@@ -654,6 +654,7 @@ end
 #  protein_nuclease                                :string(255)
 #  protein_nuclease_concentration                  :float
 #  delivery_method                                 :string(255)
+#  accredited_to_id                                :integer
 #
 # Indexes
 #

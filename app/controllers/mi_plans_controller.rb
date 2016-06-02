@@ -22,6 +22,27 @@ class MiPlansController < ApplicationController
     respond_with @mi_plan
   end
 
+  def search_for_available_plans
+    #must pass params hash with :marker_symbol and a :mi_plan_id associated with an mi_attempt
+    sql = <<-SQL
+      SELECT mi_plans.* FROM mi_plans JOIN genes ON mi_plans.gene_id = genes.id JOIN centres ON centres.id = mi_plans.production_centre_id 
+      WHERE  (mi_plans.is_active AND (NOT mi_plans.withdrawn) AND genes.marker_symbol = '#{params[:marker_symbol]}' AND centres.name = '#{params[:centre_name]}')
+    SQL
+
+    @mi_plans = MiPlan.find_by_sql(sql)
+    params[:id_in] = []
+    @mi_plans.each do |mi_plan|
+      params[:id_in] << mi_plan.id
+    end
+    params.delete(:marker_symbol)
+    params[:id_in] = '[]' if params[:id_in].blank? #ensure empty array is returned if no plans are found
+    respond_to do |format|
+      format.json do
+        render :json => data_for_serialized(:json, 'consortium_name asc', Public::MiPlan, :public_search, false)
+      end
+    end    
+  end
+
   def search_for_available_phenotyping_plans
     #must pass params hash with :marker_symbol and a :mi_plan_id associated with an mi_attempt
     sql = <<-SQL

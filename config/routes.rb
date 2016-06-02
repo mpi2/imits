@@ -54,6 +54,7 @@ TarMits::Application.routes.draw do
 
   resources :mi_plans do
     collection do
+      get 'search_for_available_plans'
       get 'search_for_available_mi_attempt_plans'
       get 'search_for_available_phenotyping_plans'
       get 'gene_selection'

@@ -341,4 +341,5 @@ end
 #  allele_id                        :integer
 #  real_allele_id                   :integer
 #  parent_colony_id                 :integer
+#  accredited_to_id                 :integer
 #

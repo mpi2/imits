@@ -75,7 +75,6 @@ class Public::MiAttempt < ::MiAttempt
     crsp_no_founder_pups
     founder_num_assays
     assay_type
-    crsp_total_num_mutant_founders
     crsp_num_founders_selected_for_breading
     real_allele_id
     external_ref
@@ -84,6 +83,7 @@ class Public::MiAttempt < ::MiAttempt
     colonies_attributes
     reagents_attributes
     mutagenesis_factor_attributes
+    g0_screens_attributes
     status_stamps_attributes
   }
 
@@ -167,6 +167,15 @@ class Public::MiAttempt < ::MiAttempt
     }
     return mutagenesis_factor.as_json(json_options)
   end
+
+  def g0_screens_attributes
+    json_options = {
+    :only => ['no_g0_where_mutation_detected', 'no_nhej_g0_mutants', 'no_deletion_g0_mutants', 'no_hr_g0_mutants',
+              'no_hdr_g0_mutants', 'no_hdr_g0_mutants_all_donors_inserted', 'no_hdr_g0_mutants_subset_donors_inserted'],
+    :methods => ['marker_symbol']
+    }
+    mutagenesis_factor.as_json(json_options)
+  end
 end
 
 # == Schema Information
@@ -221,7 +230,6 @@ end
 #  crsp_total_embryos_survived                     :integer
 #  crsp_total_transfered                           :integer
 #  crsp_no_founder_pups                            :integer
-#  crsp_total_num_mutant_founders                  :integer
 #  crsp_num_founders_selected_for_breading         :integer
 #  allele_id                                       :integer
 #  real_allele_id                                  :integer
@@ -235,6 +243,10 @@ end
 #  protein_nuclease                                :string(255)
 #  protein_nuclease_concentration                  :float
 #  delivery_method                                 :string(255)
+#  voltage                                         :float
+#  number_of_pulses                                :integer
+#  crsp_embryo_transfer_day                        :string(255)
+#  crsp_embryo_2_cell                              :integer
 #
 # Indexes
 #

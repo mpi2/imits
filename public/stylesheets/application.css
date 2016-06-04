@@ -456,6 +456,48 @@ table.report_table tr.odd td, .report table tr.odd td {
 }
 
 
+
+table.input_table {
+  margin-bottom: 20px;
+}
+
+table.input_table th   {
+  border: 1px solid #999;
+  text-align: left;
+  background-color: #ccc;
+}
+
+
+
+table.input_table>tbody>tr>td  {
+  border: 1px solid #999;
+}
+
+table.input_table table.date-field td {
+  border-width:0;
+  padding:0;
+}
+
+table.input_table th {
+  padding: 3px 3px;
+}
+
+table.input_table td {
+  padding: 3px 3px;
+}
+
+table.input_table tr.odd td {
+  background: #f1f1f1;
+}
+
+
+
+
+
+
+
+
+
 table .report_chunky table th {
   padding: 0px 15px;
   font-size:15px;

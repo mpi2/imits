@@ -580,7 +580,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "crsp_total_embryos_survived"
     t.integer  "crsp_total_transfered"
     t.integer  "crsp_no_founder_pups"
-    t.integer  "crsp_total_num_mutant_founders"
     t.integer  "crsp_num_founders_selected_for_breading"
     t.integer  "allele_id"
     t.integer  "real_allele_id"
@@ -594,6 +593,10 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.string   "protein_nuclease"
     t.float    "protein_nuclease_concentration"
     t.string   "delivery_method"
+    t.float    "voltage"
+    t.integer  "number_of_pulses"
+    t.string   "crsp_embryo_transfer_day"
+    t.integer  "crsp_embryo_2_cell"
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -729,9 +732,16 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
 
   create_table "mutagenesis_factors", :force => true do |t|
     t.string  "external_ref"
-    t.boolean "individually_set_grna_concentrations", :default => false, :null => false
-    t.boolean "guides_generated_in_plasmid",          :default => false, :null => false
+    t.boolean "individually_set_grna_concentrations",     :default => false, :null => false
+    t.boolean "guides_generated_in_plasmid",              :default => false, :null => false
     t.float   "grna_concentration"
+    t.integer "no_g0_where_mutation_detected"
+    t.integer "no_nhej_g0_mutants"
+    t.integer "no_deletion_g0_mutants"
+    t.integer "no_hr_g0_mutants"
+    t.integer "no_hdr_g0_mutants"
+    t.integer "no_hdr_g0_mutants_all_donors_inserted"
+    t.integer "no_hdr_g0_mutants_subset_donors_inserted"
   end
 
   create_table "notifications", :force => true do |t|

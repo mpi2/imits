@@ -1695,7 +1695,6 @@ CREATE TABLE mi_attempts (
     crsp_total_embryos_survived integer,
     crsp_total_transfered integer,
     crsp_no_founder_pups integer,
-    crsp_total_num_mutant_founders integer,
     crsp_num_founders_selected_for_breading integer,
     allele_id integer,
     real_allele_id integer,
@@ -1708,7 +1707,11 @@ CREATE TABLE mi_attempts (
     mrna_nuclease_concentration double precision,
     protein_nuclease character varying(255),
     protein_nuclease_concentration double precision,
-    delivery_method character varying(255)
+    delivery_method character varying(255),
+    voltage double precision,
+    number_of_pulses integer,
+    crsp_embryo_transfer_day character varying(255),
+    crsp_embryo_2_cell integer
 );
 
 
@@ -2134,7 +2137,14 @@ CREATE TABLE mutagenesis_factors (
     external_ref character varying(255),
     individually_set_grna_concentrations boolean DEFAULT false NOT NULL,
     guides_generated_in_plasmid boolean DEFAULT false NOT NULL,
-    grna_concentration double precision
+    grna_concentration double precision,
+    no_g0_where_mutation_detected integer,
+    no_nhej_g0_mutants integer,
+    no_deletion_g0_mutants integer,
+    no_hr_g0_mutants integer,
+    no_hdr_g0_mutants integer,
+    no_hdr_g0_mutants_all_donors_inserted integer,
+    no_hdr_g0_mutants_subset_donors_inserted integer
 );
 
 
@@ -5820,3 +5830,5 @@ INSERT INTO schema_migrations (version) VALUES ('20151009125302');
 INSERT INTO schema_migrations (version) VALUES ('20160308125302');
 
 INSERT INTO schema_migrations (version) VALUES ('201604011125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20160602105302');

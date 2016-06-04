@@ -37,6 +37,8 @@ class MiAttemptsController < ApplicationController
     use_crispr_group_id
     return if empty_payload?(params[:mi_attempt])
 
+    g0_screen = params[:mi_attempt].delete(:g0_screens_attributes)
+
     # Can only have either es_cell_name or Mutagenesis Factor. Mutagenesis Factor is always returned from form where it's attributes have been set to their default values.
     # Use es_cell_name presents or absense to determine if the Mutagenesis Factor should be set to a null hash.
     if !params[:mi_attempt][:es_cell_name].blank?
@@ -44,6 +46,7 @@ class MiAttemptsController < ApplicationController
     end
 
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
+    update_g0_screen_results(@mi_attempt, g0_screen)
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
 
@@ -95,6 +98,9 @@ class MiAttemptsController < ApplicationController
     @mi_attempt = Public::MiAttempt.find(params[:id])
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])
+
+    g0_screen = params[:mi_attempt].delete(:g0_screens_attributes)
+    update_g0_screen_results(@mi_attempt, g0_screen)
 
     @mi_attempt.updated_by = current_user
 
@@ -222,5 +228,21 @@ class MiAttemptsController < ApplicationController
     end
   end
   private :grab_crispr_group_data
+
+
+  def update_g0_screen_results(mi, g0_screens)
+    g0_screens.each do |key, g0s|
+      # will have to find mutagenesis factor (mf) associated with marker symbol, but currently there is only one mf.
+      mf = mi.mutagenesis_factor
+      mf.no_g0_where_mutation_detected = g0s["no_g0_where_mutation_detected"]
+      mf.no_nhej_g0_mutants = g0s["no_nhej_g0_mutants"]
+      mf.no_deletion_g0_mutants = g0s["no_deletion_g0_mutants"]
+      mf.no_hr_g0_mutants = g0s["no_hr_g0_mutants"]
+      mf.no_hdr_g0_mutants = g0s["no_hdr_g0_mutants"]
+      mf.no_hdr_g0_mutants_all_donors_inserted = g0s["no_hdr_g0_mutants_all_donors_inserted"]
+      mf.no_hdr_g0_mutants_subset_donors_inserted = g0s["no_hdr_g0_mutants_subset_donors_inserted"]
+    end
+  end
+  private :update_g0_screen_results
 
 end

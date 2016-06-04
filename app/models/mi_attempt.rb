@@ -12,6 +12,7 @@ class MiAttempt < ApplicationModel
 
   CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze
   DELIVERY_METHODS = ['Cytoplasmic Injection', 'Pronuclear Injection', 'Electroporation'].freeze
+  TRANSFER_DAY = ['Same Day', 'Next Day'].freeze
 
   belongs_to :real_allele
   belongs_to :mi_plan
@@ -638,7 +639,6 @@ end
 #  crsp_total_embryos_survived                     :integer
 #  crsp_total_transfered                           :integer
 #  crsp_no_founder_pups                            :integer
-#  crsp_total_num_mutant_founders                  :integer
 #  crsp_num_founders_selected_for_breading         :integer
 #  allele_id                                       :integer
 #  real_allele_id                                  :integer
@@ -652,6 +652,10 @@ end
 #  protein_nuclease                                :string(255)
 #  protein_nuclease_concentration                  :float
 #  delivery_method                                 :string(255)
+#  voltage                                         :float
+#  number_of_pulses                                :integer
+#  crsp_embryo_transfer_day                        :string(255)
+#  crsp_embryo_2_cell                              :integer
 #
 # Indexes
 #

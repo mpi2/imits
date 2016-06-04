@@ -16,6 +16,8 @@ class MutagenesisFactor < ActiveRecord::Base
   accepts_nested_attributes_for :vectors, :allow_destroy => true
   accepts_nested_attributes_for :genotype_primers, :allow_destroy => true
 
+  delegate :marker_symbol, :to => :mi_attempt
+
   before_validation do |mi|
     if ! mi.external_ref.nil?
       mi.external_ref = mi.external_ref.to_s.strip || mi.external_ref
@@ -80,9 +82,16 @@ end
 #
 # Table name: mutagenesis_factors
 #
-#  id                                   :integer          not null, primary key
-#  external_ref                         :string(255)
-#  individually_set_grna_concentrations :boolean          default(FALSE), not null
-#  guides_generated_in_plasmid          :boolean          default(FALSE), not null
-#  grna_concentration                   :float
+#  id                                       :integer          not null, primary key
+#  external_ref                             :string(255)
+#  individually_set_grna_concentrations     :boolean          default(FALSE), not null
+#  guides_generated_in_plasmid              :boolean          default(FALSE), not null
+#  grna_concentration                       :float
+#  no_g0_where_mutation_detected            :integer
+#  no_nhej_g0_mutants                       :integer
+#  no_deletion_g0_mutants                   :integer
+#  no_hr_g0_mutants                         :integer
+#  no_hdr_g0_mutants                        :integer
+#  no_hdr_g0_mutants_all_donors_inserted    :integer
+#  no_hdr_g0_mutants_subset_donors_inserted :integer
 #

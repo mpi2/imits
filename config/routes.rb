@@ -43,7 +43,11 @@ TarMits::Application.routes.draw do
 
   resources :strains
 
-  resources :goals
+  resources :grants do
+    collection do
+      get 'get_goal_data'
+    end
+  end
 
   resources :genes, :only => [:index] do
     member do

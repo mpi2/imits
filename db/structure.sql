@@ -1207,8 +1207,8 @@ CREATE TABLE grants (
     funding character varying(255) NOT NULL,
     consortium_id integer NOT NULL,
     production_centre_id integer NOT NULL,
-    commence date NOT NULL,
-    "end" date NOT NULL
+    commence_date date NOT NULL,
+    end_date date NOT NULL
 );
 
 

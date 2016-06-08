@@ -10,8 +10,8 @@ class Grant < ActiveRecord::Base
       funding
       consortium_name
       production_centre_name
-      commence
-      end
+      commence_date
+      end_date
       grant_goal
   )
 
@@ -26,18 +26,52 @@ class Grant < ActiveRecord::Base
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
 
-  before_save :auto_generate_blank_goals
+  after_save :auto_generate_blank_goals
+  after_save :set_final_goal
 
   ## Validations
   validates :name, :presence => true, :uniqueness => true
   validates :consortium_id, :presence => true
   validates :production_centre_id, :presence => true
-  validates :commence, :presence => true
-  validates :end, :presence => true
+  validates :commence_date, :presence => true
+  validates :end_date, :presence => true
 
-  def auto_generate_blank_goals 
+  def auto_generate_blank_goals
+    raise if commence_date.blank? || end_date.blank? # should be caught by validation
+    raise if commence_date.to_date > end_date.to_date
 
-    
+    cursor_date = commence_date.to_date.at_beginning_of_month
+
+    while cursor_date <= end_date.to_date do
+      
+      if grant_goals.where("month = #{cursor_date.month} AND year = #{cursor_date.year}").blank?
+        grant_goals.create({ year: cursor_date.year,
+            month: cursor_date.month,
+            crispr_mi_goal: 0,
+            crispr_gc_goal: 0,
+            es_cell_mi_goal: 0,
+            es_cell_gc_goal: 0,
+            total_mi_goal: 0,
+            total_gc_goal: 0,
+            excision_goal: 0,
+            phenotype_goal: 0,
+            crispr_mi_goal_automatically_set: true,
+            crispr_gc_goal_automatically_set: true,
+            es_cell_mi_goal_automatically_set: true,
+            es_cell_gc_goal_automatically_set: true,
+            excision_goal_automatically_set: true,
+            phenotyping_goal_automatically_set: true
+        })
+      end
+
+      cursor_date = cursor_date.next_month
+    end
+  end
+
+  def set_final_goal
+    fg = final_goal
+    fg.total_gc_goal = grant_goal
+    fg.save
   end
 
   def grant_goal #number of mouse lines to be produced and phenotyped
@@ -72,6 +106,6 @@ end
 #  funding              :string(255)      not null
 #  consortium_id        :integer          not null
 #  production_centre_id :integer          not null
-#  commence             :date             not null
-#  end                  :date             not null
+#  commence_date        :date             not null
+#  end_date             :date             not null
 #

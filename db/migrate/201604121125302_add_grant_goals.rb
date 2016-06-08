@@ -6,9 +6,8 @@ class AddGrantGoals < ActiveRecord::Migration
       t.string :funding, :null => false
       t.integer :consortium_id, :null => false
       t.integer :production_centre_id, :null => false
-      t.date :commence, :null => false
-      t.date :end, :null => false
-      t.string :injection_stategy, :null => false
+      t.date :commence_date, :null => false
+      t.date :end_date, :null => false
     end
 
     create_table :grant_goals do |t|

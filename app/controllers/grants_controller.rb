@@ -1,9 +1,10 @@
 # encoding: utf-8
 
-class GoalsController < ApplicationController
+class GrantsController < ApplicationController
   respond_to :html, :only => [:gene_selection]
   respond_to :json, :except => [:show, :update, :destroy]
   before_filter :authenticate_user!
+
 
   def index
     centre = Centre.find_by_name(params[:centre_name])
@@ -14,40 +15,38 @@ class GoalsController < ApplicationController
     @grants = {}
     dates = []
 
-    unless start_date.blank? && end_date.blank?
-      date_sql_condition << " AND (grants.commence >= '#{start_date}' OR grants.end >= '#{start_date}')" unless start_date.blank?
-      date_sql_condition << " AND (grants.commence <= '#{end_date}' OR grants.end <= '#{end_date}') " unless end_date.blank?
+    # unless start_date.blank? && end_date.blank?
+    #   date_sql_condition << " AND (grants.commence >= '#{start_date}' OR grants.end >= '#{start_date}')" unless start_date.blank?
+    #   date_sql_condition << " AND (grants.commence <= '#{end_date}' OR grants.end <= '#{end_date}') " unless end_date.blank?
+    # end
+
+    # grants_info = Grant.where("production_centre_id = #{centre.id} #{date_sql_condition}").order("grants.commence, grants.end")
+
+    # if !grants_info.blank?
+    #   grant_start_date = grants_info.map{|g| g.commence.beginning_of_month}.min
+    #   grant_end_date = grants_info.map{|g| g.end.beginning_of_month}.max
+
+    #   date_range = [grant_start_date, grant_end_date]
+    #   if start_date.blank?
+    #     date_range[0] = start_date.to_datetime.beginning_of_month
+    #   end
+
+    #   if end_date.blank?
+    #     date_range[1] = end_date.to_datetime.beginning_of_month
+    #   end
+    # end
+
+    respond_to do |format|
+      format.json do
+        render :json => data_for_serialized(:json, 'funding asc', Grant, :search, false)
+      end
+
+      format.html
     end
+  end
 
-    grants_info = Grant.where("production_centre_id = #{centre.id} #{date_sql_condition}").order("grants.commence, grants.end")
 
-    if !grants_info.blank?
-      grant_start_date = grants_info.map{|g| g.commence.beginning_of_month}.min
-      grant_end_date = grants_info.map{|g| g.end.beginning_of_month}.max
-
-      date_range = [grant_start_date, grant_end_date]
-      if start_date.blank?
-        date_range[0] = start_date.to_datetime.beginning_of_month
-      end
-
-      if end_date.blank?
-        date_range[1] = end_date.to_datetime.beginning_of_month
-      end
-
-      dates = []
-      i = date_range[0]
-      while i <= date_range[1]
-        dates << i
-        i = i.next_month
-      end
-
-      @dates = (date_range[0].to_i..date_range[1].to_i).step(1.month).map{|int_date| Time.at(int_date)}
-
-      grants_info.each do |grant|
-        @grants[grant] = format_hash(grant)
-      end
-    end
-
+  def get_goal_data
   dates = []
   i = '2015/12/01'.to_date
   while i <= '2016/12/01'.to_date
@@ -245,13 +244,18 @@ class GoalsController < ApplicationController
                        }
 }
 }
+
+    render :layout => false
+
   end
+
 
   def update
     
   end
 
   def show
+
     
   end
 

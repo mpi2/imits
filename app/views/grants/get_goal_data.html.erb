@@ -1,0 +1,39 @@
+<div id="line_graph_monthly_goals"></div>
+<div id="column_graph_monthly_goal_counts"></div>
+
+<div class = "goals" style="position:relative;width:100%; overflow-x:scroll" >
+  <table class="report_table">
+    <thead>
+        <tr>
+            <th rowspan = "2">Project/Grant</th>
+            <th rowspan = "2">Goal Type</th>
+            <% @dates.keys.each do |year|%>
+              <th colspan = "<%= @dates[year].count %>" ><%= year %></th>
+            <% end %>
+        </tr>
+        <tr>
+          <% @dates.keys.each do |year|%>
+            <% @dates[year].each do |month| %>
+              <th class="time_interval" data_interval="<%= I18n.t("date.abbr_month_names")[month] %> <%= year.to_s[2,3]%>"><%= I18n.t("date.abbr_month_names")[month] %></th>
+            <% end %>
+          <% end %>
+        </tr>
+    </thead>
+    <tbody>
+      <% @grants.each do |grant, goal_type_and_data| %>
+        <tr><td rowspan = "<%= goal_type_and_data.count%>" ><%= grant.name %></td>
+        <% goal_type_and_data.each do |goal_type, data| %>
+            <td><%= goal_type %></td>
+            <% cumulative = 0 %>
+            <% @dates.each do |year, months|%>
+              <% months.each do |month|%>
+              <%cumulative = [cumulative, (data.has_key?(year) && data[year].has_key?(month) ? data[year][month] : 0)].max%>
+                <td class="graph_data" data_grant_name="<%= grant.name %>" data_interval="<%= I18n.t("date.abbr_month_names")[month] %> <%= year.to_s[2,3]%>" data_type="<%= goal_type %>" data_cumulative_value="<%= cumulative %>" data_value="<%= data.has_key?(year) && data[year].has_key?(month) ? data[year][month] : 0 %>"><%= data.has_key?(year) && data[year].has_key?(month) ? data[year][month] : '' %></td>
+              <% end %>
+            <% end %>
+        </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

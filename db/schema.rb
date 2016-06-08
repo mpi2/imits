@@ -219,8 +219,8 @@ ActiveRecord::Schema.define(:version => 201604121125302) do
     t.string  "funding",              :null => false
     t.integer "consortium_id",        :null => false
     t.integer "production_centre_id", :null => false
-    t.date    "commence",             :null => false
-    t.date    "end",                  :null => false
+    t.date    "commence_date",        :null => false
+    t.date    "end_date",             :null => false
   end
 
   create_table "intermediate_report", :force => true do |t|

@@ -29,16 +29,161 @@ class GrantGoal < ActiveRecord::Base
 
   belongs_to :grant
 
-  ## Validations
+## Callbacks
+  after_save :autofill_unset_goals_for_grant
+
+## Validations
   validates :grant, :presence => true
   validates :year, :presence => true
   validates :month, :presence => true
   validates :total_gc_goal, :presence => true
 
 
+  def crispr_mi_goal=(arg)
+    crispr_mi_goal = arg
+    crispr_mi_goal_automatically_set = arg.blank? ? true : false
+  end
+
+  def crispr_gc_goal=(arg)
+    crispr_gc_goal = arg
+    crispr_gc_goal_automatically_set = arg.blank? ? true : false
+  end
+
+  def es_cell_mi_goal=(arg)
+    es_cell_mi_goal = arg
+    es_cell_mi_goal_automatically_set = arg.blank? ? true : false
+  end
+
+  def es_cell_gc_goal=(arg)
+    es_cell_gc_goal = arg
+    es_cell_gc_goal_automatically_set = arg.blank? ? true : false
+  end
+
+  def excision_goal=(arg)
+    excision_goal = arg
+    excision_goal_automatically_set = arg.blank? ? true : false
+  end
+
+  def phenotype_goal=(arg)
+    phenotype_goal = arg
+    phenotype_goal_automatically_set = arg.blank? ? true : false
+  end
+
+  def autoset_crispr_mi_goal=(arg)
+    crispr_mi_goal = arg
+  end
+
+  def autoset_crispr_gc_goal=(arg)
+    crispr_gc_goal = arg
+  end
+
+  def autoset_es_cell_mi_goal=(arg)
+    es_cell_mi_goal = arg
+  end
+
+  def autoset_es_cell_gc_goal=(arg)
+    es_cell_gc_goal = arg
+  end
+
+  def autoset_excision_goal=(arg)
+    excision_goal = arg
+  end
+
+  def autoset_phenotype_goal=(arg)
+    phenotype_goal = arg
+  end
+
+  def autofill_unset_goals_for_grant
+    required_a_change_in = ['crispr_mi_goal',
+                            'crispr_gc_goal',
+                            'es_cell_mi_goal',
+                            'es_cell_gc_goal',
+                            'excision_goal',
+                            'phenotype_goal']
+
+    # only continue if a goal was changed.
+    return if (required_a_change_in - self.changes.keys).length == required_a_change_in.length
+
+    # find which goals changed.
+    (required_a_change_in && self.changes.keys).each do |goal_type|
+      next if self.send("#{goal_type}_automatically_set")
+      
+      lower_goals = []
+      lower_limit_goal = 0
+      upper_goals = []
+      upper_limit_goal = 0
+
+      [*0..(goal_index - 1)].reverse.each do |ind|
+        g = all_associated_goals[ind]
+        if g.send("#{goal_type}_automatically_set")
+          lower_goals << g
+        else
+          lower_limit_goal = g.send("#{goal_type}")
+          break
+        end
+      end
+
+      [*(goal_index + 1)..all_associated_goals.length].each do |ind|
+        g = all_associated_goals[ind]
+        if g.send("#{goal_type}_automatically_set")
+          upper_goals << g
+          upper_limit_goal = g.send("#{goal_type}")
+        else
+          upper_limit_goal = g.send("#{goal_type}")
+          break
+        end
+      end
+
+      unless lower_goals.blank?
+        interval_size = (self.send("#{goal_type}") - lower_limit_goal) / lower_goals.length
+        adjustment = lower_goals.length / ((self.send("#{goal_type}") - lower_limit_goal) % lower_goals.length)
+  
+        [*0..lower_goals.length].each do |i|
+          g = lower_goals[i]
+          if (i % adjustment) == 0
+            new_goal = interval_size + adjustment
+          else
+            new_goal = interval_size
+          end
+          g.send("autoset_#{goal_type}=", new_goal)
+          g.save
+        end
+      end
+
+      unless upper_goals.blank?
+        interval_size = (self.send("#{goal_type}") - upper_limit_goal) / upper_goals.length
+        adjustment = upper_goals.length / ((self.send("#{goal_type}") - upper_limit_goal) % upper_goals.length)
+  
+        [*0..upper_goals.length].each do |i|
+          g = upper_goals[i]
+          if (i % adjustment) == 0
+            new_goal = interval_size + adjustment
+          else
+            new_goal = interval_size
+          end
+          g.send("autoset_#{goal_type}=", new_goal)
+          g.save
+        end
+      end
+
+    end
+  end
+
   def self.readable_name
     return 'grant_goal'
   end
+
+
+## Private Instance Methods
+  def all_associated_goals
+    return @grant_goals ||= GrantGoal.where("grant_id = #{self.grant_id}")
+  end
+  private :all_associated_goals
+
+  def goal_index
+    return all_associated_goals.map{|gg| gg.id}.find_index(self.id)
+  end
+  private :goal_index
 
 end
 

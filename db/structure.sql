@@ -1161,20 +1161,20 @@ CREATE TABLE grant_goals (
     grant_id integer NOT NULL,
     year integer NOT NULL,
     month integer NOT NULL,
-    crispr_mi_goal integer,
-    crispr_gc_goal integer,
-    es_cell_mi_goal integer,
-    es_cell_gc_goal integer,
-    total_mi_goal integer,
-    total_gc_goal integer,
-    excision_goal integer,
-    phenotype_goal integer,
+    cum_crispr_mi_goal integer,
+    cum_crispr_gc_goal integer,
+    cum_es_cell_mi_goal integer,
+    cum_es_cell_gc_goal integer,
+    cum_total_mi_goal integer,
+    cum_total_gc_goal integer,
+    cum_excision_goal integer,
+    cum_phenotype_goal integer,
     crispr_mi_goal_automatically_set boolean DEFAULT false NOT NULL,
     crispr_gc_goal_automatically_set boolean DEFAULT false NOT NULL,
     es_cell_mi_goal_automatically_set boolean DEFAULT false NOT NULL,
     es_cell_gc_goal_automatically_set boolean DEFAULT false NOT NULL,
     excision_goal_automatically_set boolean DEFAULT false NOT NULL,
-    phenotyping_goal_automatically_set boolean DEFAULT false NOT NULL
+    phenotype_goal_automatically_set boolean DEFAULT false NOT NULL
 );
 
 

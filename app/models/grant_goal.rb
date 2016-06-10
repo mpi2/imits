@@ -22,7 +22,7 @@ class GrantGoal < ActiveRecord::Base
       es_cell_mi_goal_automatically_set
       es_cell_gc_goal_automatically_set
       excision_goal_automatically_set
-      phenotyping_goal_automatically_set
+      phenotype_goal_automatically_set
   )
 
   attr_accessible *READABLE_ATTRIBUTES
@@ -36,78 +36,53 @@ class GrantGoal < ActiveRecord::Base
   validates :grant, :presence => true
   validates :year, :presence => true
   validates :month, :presence => true
-  validates :total_gc_goal, :presence => true
 
 
   def crispr_mi_goal=(arg)
-    crispr_mi_goal = arg
-    crispr_mi_goal_automatically_set = arg.blank? ? true : false
+    self.cum_crispr_mi_goal = arg
+    self.crispr_mi_goal_automatically_set = (arg.blank? ? true : false)
   end
 
   def crispr_gc_goal=(arg)
-    crispr_gc_goal = arg
-    crispr_gc_goal_automatically_set = arg.blank? ? true : false
+    self.cum_crispr_gc_goal = arg
+    self.crispr_gc_goal_automatically_set = (arg.blank? ? true : false)
   end
 
   def es_cell_mi_goal=(arg)
-    es_cell_mi_goal = arg
-    es_cell_mi_goal_automatically_set = arg.blank? ? true : false
+    self.cum_es_cell_mi_goal = arg
+    self.es_cell_mi_goal_automatically_set = (arg.blank? ? true : false)
   end
 
   def es_cell_gc_goal=(arg)
-    es_cell_gc_goal = arg
-    es_cell_gc_goal_automatically_set = arg.blank? ? true : false
+    self.cum_es_cell_gc_goal = arg
+    self.es_cell_gc_goal_automatically_set = (arg.blank? ? true : false)
   end
 
   def excision_goal=(arg)
-    excision_goal = arg
-    excision_goal_automatically_set = arg.blank? ? true : false
+    self.cum_excision_goal = arg
+    self.excision_goal_automatically_set = (arg.blank? ? true : false)
   end
 
   def phenotype_goal=(arg)
-    phenotype_goal = arg
-    phenotype_goal_automatically_set = arg.blank? ? true : false
-  end
-
-  def autoset_crispr_mi_goal=(arg)
-    crispr_mi_goal = arg
-  end
-
-  def autoset_crispr_gc_goal=(arg)
-    crispr_gc_goal = arg
-  end
-
-  def autoset_es_cell_mi_goal=(arg)
-    es_cell_mi_goal = arg
-  end
-
-  def autoset_es_cell_gc_goal=(arg)
-    es_cell_gc_goal = arg
-  end
-
-  def autoset_excision_goal=(arg)
-    excision_goal = arg
-  end
-
-  def autoset_phenotype_goal=(arg)
-    phenotype_goal = arg
+    self.cum_phenotype_goal = arg
+    self.phenotype_goal_automatically_set = (arg.blank? ? true : false)
   end
 
   def autofill_unset_goals_for_grant
-    required_a_change_in = ['crispr_mi_goal',
-                            'crispr_gc_goal',
-                            'es_cell_mi_goal',
-                            'es_cell_gc_goal',
-                            'excision_goal',
-                            'phenotype_goal']
+    required_a_change_in = ['cum_crispr_mi_goal',
+                            'cum_crispr_gc_goal',
+                            'cum_es_cell_mi_goal',
+                            'cum_es_cell_gc_goal',
+                            'cum_excision_goal',
+                            'cum_phenotype_goal']
 
     # only continue if a goal was changed.
     return if (required_a_change_in - self.changes.keys).length == required_a_change_in.length
 
     # find which goals changed.
-    (required_a_change_in && self.changes.keys).each do |goal_type|
-      next if self.send("#{goal_type}_automatically_set")
-      
+    (required_a_change_in & self.changes.keys).each do |goal_type|
+      next if self.send("#{goal_type[4, goal_type.length]}_automatically_set")
+
       lower_goals = []
       lower_limit_goal = 0
       upper_goals = []
@@ -115,7 +90,7 @@ class GrantGoal < ActiveRecord::Base
 
       [*0..(goal_index - 1)].reverse.each do |ind|
         g = all_associated_goals[ind]
-        if g.send("#{goal_type}_automatically_set")
+        if g.send("#{goal_type[4, goal_type.length]}_automatically_set")
           lower_goals << g
         else
           lower_limit_goal = g.send("#{goal_type}")
@@ -123,9 +98,9 @@ class GrantGoal < ActiveRecord::Base
         end
       end
 
-      [*(goal_index + 1)..all_associated_goals.length].each do |ind|
+      [*(goal_index + 1)..(all_associated_goals.length - 1)].each do |ind|
         g = all_associated_goals[ind]
-        if g.send("#{goal_type}_automatically_set")
+        if g.send("#{goal_type[4, goal_type.length]}_automatically_set")
           upper_goals << g
           upper_limit_goal = g.send("#{goal_type}")
         else
@@ -137,31 +112,38 @@ class GrantGoal < ActiveRecord::Base
       unless lower_goals.blank?
         interval_size = (self.send("#{goal_type}") - lower_limit_goal) / lower_goals.length
         adjustment = lower_goals.length / ((self.send("#{goal_type}") - lower_limit_goal) % lower_goals.length)
+        cum_goal = lower_limit_goal
   
-        [*0..lower_goals.length].each do |i|
+        [*0..(lower_goals.length - 1)].each do |i|
           g = lower_goals[i]
-          if (i % adjustment) == 0
-            new_goal = interval_size + adjustment
+          if adjustment != 0 && (i % adjustment) == 0
+            new_goal = interval_size + 1
           else
             new_goal = interval_size
           end
-          g.send("autoset_#{goal_type}=", new_goal)
+          cum_goal += new_goal
+          g.send("#{goal_type}=", cum_goal)
           g.save
         end
       end
 
       unless upper_goals.blank?
-        interval_size = (self.send("#{goal_type}") - upper_limit_goal) / upper_goals.length
-        adjustment = upper_goals.length / ((self.send("#{goal_type}") - upper_limit_goal) % upper_goals.length)
+        interval_size = (upper_limit_goal - self.send("#{goal_type}")) / (upper_goals.length + 1)
+        positive_adjustment = (upper_goals.length + 1) / ((upper_limit_goal - self.send("#{goal_type}")) % (upper_goals.length + 1))
+        negative_adjustment = (upper_goals.length + 1) / (upper_goals.length - ((upper_limit_goal - self.send("#{goal_type}")) % (upper_goals.length + 1)))
+        cum_goal = self.send("#{goal_type}")
   
-        [*0..upper_goals.length].each do |i|
+        [*0..(upper_goals.length - 1)].each do |i|
           g = upper_goals[i]
-          if (i % adjustment) == 0
-            new_goal = interval_size + adjustment
+          if positive_adjustment < 1 && negative_adjustment != 0 && (i % negative_adjustment) != 0
+            new_goal = interval_size + 1
+          elsif positive_adjustment != 0 && (i % positive_adjustment) == 0
+            new_goal = interval_size + 1
           else
             new_goal = interval_size
           end
-          g.send("autoset_#{goal_type}=", new_goal)
+          cum_goal += new_goal
+          g.send("#{goal_type}=", cum_goal)
           g.save
         end
       end
@@ -176,7 +158,7 @@ class GrantGoal < ActiveRecord::Base
 
 ## Private Instance Methods
   def all_associated_goals
-    return @grant_goals ||= GrantGoal.where("grant_id = #{self.grant_id}")
+    @grant_goals ||= GrantGoal.where("grant_id = #{self.grant_id}").order(:year, :month)
   end
   private :all_associated_goals
 
@@ -191,22 +173,22 @@ end
 #
 # Table name: grant_goals
 #
-#  id                                 :integer          not null, primary key
-#  grant_id                           :integer          not null
-#  year                               :integer          not null
-#  month                              :integer          not null
-#  crispr_mi_goal                     :integer
-#  crispr_gc_goal                     :integer
-#  es_cell_mi_goal                    :integer
-#  es_cell_gc_goal                    :integer
-#  total_mi_goal                      :integer
-#  total_gc_goal                      :integer
-#  excision_goal                      :integer
-#  phenotype_goal                     :integer
-#  crispr_mi_goal_automatically_set   :boolean          default(FALSE), not null
-#  crispr_gc_goal_automatically_set   :boolean          default(FALSE), not null
-#  es_cell_mi_goal_automatically_set  :boolean          default(FALSE), not null
-#  es_cell_gc_goal_automatically_set  :boolean          default(FALSE), not null
-#  excision_goal_automatically_set    :boolean          default(FALSE), not null
-#  phenotyping_goal_automatically_set :boolean          default(FALSE), not null
+#  id                                :integer          not null, primary key
+#  grant_id                          :integer          not null
+#  year                              :integer          not null
+#  month                             :integer          not null
+#  cum_crispr_mi_goal                :integer
+#  cum_crispr_gc_goal                :integer
+#  cum_es_cell_mi_goal               :integer
+#  cum_es_cell_gc_goal               :integer
+#  cum_total_mi_goal                 :integer
+#  cum_total_gc_goal                 :integer
+#  cum_excision_goal                 :integer
+#  cum_phenotype_goal                :integer
+#  crispr_mi_goal_automatically_set  :boolean          default(FALSE), not null
+#  crispr_gc_goal_automatically_set  :boolean          default(FALSE), not null
+#  es_cell_mi_goal_automatically_set :boolean          default(FALSE), not null
+#  es_cell_gc_goal_automatically_set :boolean          default(FALSE), not null
+#  excision_goal_automatically_set   :boolean          default(FALSE), not null
+#  phenotype_goal_automatically_set  :boolean          default(FALSE), not null
 #

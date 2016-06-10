@@ -6,6 +6,7 @@ class Grant < ActiveRecord::Base
   include ::Public::Serializable
 
   READABLE_ATTRIBUTES = %w(
+      id
       name
       funding
       consortium_name
@@ -47,20 +48,20 @@ class Grant < ActiveRecord::Base
       if grant_goals.where("month = #{cursor_date.month} AND year = #{cursor_date.year}").blank?
         grant_goals.create({ year: cursor_date.year,
             month: cursor_date.month,
-            crispr_mi_goal: 0,
-            crispr_gc_goal: 0,
-            es_cell_mi_goal: 0,
-            es_cell_gc_goal: 0,
-            total_mi_goal: 0,
-            total_gc_goal: 0,
-            excision_goal: 0,
-            phenotype_goal: 0,
+            cum_crispr_mi_goal: 0,
+            cum_crispr_gc_goal: 0,
+            cum_es_cell_mi_goal: 0,
+            cum_es_cell_gc_goal: 0,
+            cum_total_mi_goal: 0,
+            cum_total_gc_goal: 0,
+            cum_excision_goal: 0,
+            cum_phenotype_goal: 0,
             crispr_mi_goal_automatically_set: true,
             crispr_gc_goal_automatically_set: true,
             es_cell_mi_goal_automatically_set: true,
             es_cell_gc_goal_automatically_set: true,
             excision_goal_automatically_set: true,
-            phenotyping_goal_automatically_set: true
+            phenotype_goal_automatically_set: true
         })
       end
 
@@ -70,13 +71,13 @@ class Grant < ActiveRecord::Base
 
   def set_final_goal
     fg = final_goal
-    fg.total_gc_goal = grant_goal
+    fg.cum_total_gc_goal = grant_goal
     fg.save
   end
 
   def grant_goal #number of mouse lines to be produced and phenotyped
     return @grant_goal unless @grant_goal.blank?
-    return final_goal.total_gc_goal unless final_goal.blank?
+    return final_goal.cum_total_gc_goal unless final_goal.blank?
     return nil
   end
 

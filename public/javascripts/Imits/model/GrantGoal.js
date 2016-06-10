@@ -3,11 +3,11 @@ Ext.define('Imits.model.GrantGoal', {
     requires: ['Imits.data.Proxy'],
 
     fields: [
-    {
-        name: 'id',
-        type: 'int',
-        persist: false
-    },
+     {
+         name: 'id',
+         type: 'int',
+         persist: false
+     },
     {
         name: 'name'
     },

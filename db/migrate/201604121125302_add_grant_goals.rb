@@ -14,20 +14,20 @@ class AddGrantGoals < ActiveRecord::Migration
       t.integer :grant_id, :null => false
       t.integer :year, :null => false
       t.integer :month, :null => false
-      t.integer :crispr_mi_goal
-      t.integer :crispr_gc_goal
-      t.integer :es_cell_mi_goal
-      t.integer :es_cell_gc_goal
-      t.integer :total_mi_goal
-      t.integer :total_gc_goal
-      t.integer :excision_goal
-      t.integer :phenotype_goal
+      t.integer :cum_crispr_mi_goal
+      t.integer :cum_crispr_gc_goal
+      t.integer :cum_es_cell_mi_goal
+      t.integer :cum_es_cell_gc_goal
+      t.integer :cum_total_mi_goal
+      t.integer :cum_total_gc_goal
+      t.integer :cum_excision_goal
+      t.integer :cum_phenotype_goal
       t.boolean :crispr_mi_goal_automatically_set, :default => false, :null => false
       t.boolean :crispr_gc_goal_automatically_set, :default => false, :null => false
       t.boolean :es_cell_mi_goal_automatically_set, :default => false, :null => false
       t.boolean :es_cell_gc_goal_automatically_set, :default => false, :null => false
       t.boolean :excision_goal_automatically_set, :default => false, :null => false
-      t.boolean :phenotyping_goal_automatically_set, :default => false, :null => false
+      t.boolean :phenotype_goal_automatically_set, :default => false, :null => false
     end
   end
 

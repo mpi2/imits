@@ -581,6 +581,10 @@ form table.male_chimerism td {
 
 /* @end */
 
+div.grant-form {
+    padding-bottom: 3em;
+}
+
 /* @group User Login / Password Change Form */
 
 div.user-form table {

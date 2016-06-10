@@ -1,3 +1,9 @@
+<% content_for :pre_js_footer do %>
+  <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>
+  <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
+  <%= javascript_tag "GRANT_SEARCH_PARAMS = #{params[:q].to_json}" %>
+<% end %>
+
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag('highcharts.js') %>
   <%= javascript_include_tag('highcharts-more.js') %>
@@ -8,35 +14,44 @@
 
 <% @tab = 'Goal Management' %>
 
-<div class = "grants">
-  <table class="report_table">
-    <thead>
-      <tr>
-        <th>Project/Grant</th>
-        <th>Funded by</th>
-        <th>Consortium</th>
-        <th>Production Centre</th>
-        <th>Commence</th>
-        <th>End</th>
-        <th>Mouse Lines to Deliver</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @grants.keys.each do |grant| %>
-      <tr>
-        <td><%= grant.name %></td>
-        <td><%= grant.funding %></td>
-        <td><%= grant.consortium_name %></td>
-        <td><%= grant.production_centre_name %></td>
-        <td><%= grant.commence_date %></td>
-        <td><%= grant.end_date %></td>
-        <td><%= grant.grant_goal %></td>
-      </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
 
-<div id="grant_list"></div>
+<%= form_tag "grants", :method => :get, :id => 'grant-search-form' do %>
+  <fieldset class="collapsible">
+    <legend>Filters</legend>
+    <div>
+      <div class="grid_6 omega">
+        <table>
+          <tr>
+            <td><label for="q[production_centre_name]">Production Centre:</label></td>
+            <td><%= select_tag 'q[production_centre_name]', options_for_select([''] + Centre.all.map(&:name), params[:q][:production_centre_name]) %></td>
+          </tr>
+          <tr><td></br></td></tr>
+          <tr>
+            <td><label for="q[consortium_name]">Consortium:</label></td>
+            <td><%= select_tag 'q[consortium_name]', options_for_select([''] + Consortium.all.map(&:name), params[:q][:consortium_name]) %></td>
+          </tr>
+          </tr>
+          <tr><td></br></td></tr>
+          <tr>
+            <td><label for="q[commence_date]">Commence Date:</label></td>
+            <td><%= text_field_tag 'q[commence_date]', params[:q][:commence_date], :class => 'date-field'%></td>
+          </tr>
+          </tr>
+          <tr><td></br></td></tr>
+          <tr>
+            <td><label for="q[end_date]">End Date:</label></td>
+            <td><%= text_field_tag 'q[end_date]', params[:q][:end_date], :class => 'date-field'%></td>
+          </tr>
+        </table>
+      </div>
+      <div id="buttons" class="grid_12">
+        <input id="submit" type="submit" value="Search" />
+        &ensp;|&ensp;<a id="clear-search-terms-button">Clear</a>
+      </div>
+    </div>
+  </fieldset>
+<% end %>
 
-<div id="goal_data"></div>
+<div class="grant-form" id="grant_list"></div>
+
+<div class="grant-form" id="goal_data"></div>

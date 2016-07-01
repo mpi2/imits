@@ -3,6 +3,7 @@
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag('phenotype_attempts/show') %>
   <%= javascript_include_tag('phenotype_attempts/shared') %>
+  <%= javascript_include_tag('plans/selector') %>
 <% end %>
 
 <div id="object-box" class="grid_8 prefix_2 suffix_2">
@@ -34,6 +35,28 @@
           <div class="production-centre-name">
             <div class="label">Production Centre</div>
             <div><%= @phenotype_attempt.production_centre_name %></div>
+          </div>
+        </div>
+
+        <div class="label">Outsourced by</div>
+        <div class="plan_details">
+          <div class="grid_12 alpha omega" id="mam_outsourced_plan_selection" <%= if form.object.outsourced_by_plan_id.blank? then 'style=display:none;' end%>>
+            <div class="grid_3">
+              <div>
+                <div class="label">Consortium</div>
+                <div class="consortium_name" id="mam_outsource_consortium"><% unless form.object.outsourced_by_plan_id.blank?%><%= form.object.accredited_to.try(:consortium_name) %><% end %></div>
+              </div>
+            </div>
+            <div class="grid_3">
+              <div>
+                <div class="label">Production Centre</div>
+                <div class="production_centre_name" id="mam_outsource_centre"><% unless form.object.outsourced_by_plan_id.blank?%><%= form.object.accredited_to.try(:production_centre_name) %><% end %></div>
+              </div>
+            </div>
+          </div>
+          <div class="plan_selector">
+            <div class="plan_id" id = "mam_outsource_plan_id"><%= form.hidden_field(:outsourced_by_plan_id) %></div>
+            <div class="plan_selection_button" id="mam_outsource_button"></div>
           </div>
         </div>
     </fieldset>

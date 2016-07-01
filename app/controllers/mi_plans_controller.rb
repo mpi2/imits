@@ -26,7 +26,7 @@ class MiPlansController < ApplicationController
     #must pass params hash with :marker_symbol and a :mi_plan_id associated with an mi_attempt
     sql = <<-SQL
       SELECT mi_plans.* FROM mi_plans JOIN genes ON mi_plans.gene_id = genes.id JOIN centres ON centres.id = mi_plans.production_centre_id 
-      WHERE  (mi_plans.is_active AND (NOT mi_plans.withdrawn) AND genes.marker_symbol = '#{params[:marker_symbol]}' AND centres.name = '#{params[:centre_name]}')
+      WHERE  (mi_plans.is_active AND (NOT mi_plans.withdrawn) AND genes.marker_symbol = '#{params[:marker_symbol]}')
     SQL
 
     @mi_plans = MiPlan.find_by_sql(sql)

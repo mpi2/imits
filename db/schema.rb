@@ -194,35 +194,6 @@ ActiveRecord::Schema.define(:version => 201605016125302) do
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
   add_index "genes", ["mgi_accession_id"], :name => "index_genes_on_mgi_accession_id", :unique => true
 
-  create_table "grant_goals", :force => true do |t|
-    t.integer "grant_id",                                              :null => false
-    t.integer "year",                                                  :null => false
-    t.integer "month",                                                 :null => false
-    t.integer "crispr_mi_goal"
-    t.integer "crispr_gc_goal"
-    t.integer "es_cell_mi_goal"
-    t.integer "es_cell_gc_goal"
-    t.integer "total_mi_goal"
-    t.integer "total_gc_goal"
-    t.integer "excision_goal"
-    t.integer "phenotype_goal"
-    t.boolean "crispr_mi_goal_automatically_set",   :default => false, :null => false
-    t.boolean "crispr_gc_goal_automatically_set",   :default => false, :null => false
-    t.boolean "es_cell_mi_goal_automatically_set",  :default => false, :null => false
-    t.boolean "es_cell_gc_goal_automatically_set",  :default => false, :null => false
-    t.boolean "excision_goal_automatically_set",    :default => false, :null => false
-    t.boolean "phenotyping_goal_automatically_set", :default => false, :null => false
-  end
-
-  create_table "grants", :force => true do |t|
-    t.string  "name",                 :null => false
-    t.string  "funding",              :null => false
-    t.integer "consortium_id",        :null => false
-    t.integer "production_centre_id", :null => false
-    t.date    "commence",             :null => false
-    t.date    "end",                  :null => false
-  end
-
   create_table "intermediate_report", :force => true do |t|
     t.string   "consortium",                                                  :null => false
     t.string   "sub_project",                                                 :null => false

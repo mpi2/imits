@@ -11,7 +11,7 @@ class Public::MouseAlleleMod < ::MouseAlleleMod
     mi_plan_id
     consortium_name
     production_centre_name
-    subcontracted_plan_id
+    outsourced_by_plan_id
     mi_attempt_colony_name
     colony_name
     rederivation_started

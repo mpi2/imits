@@ -43,7 +43,7 @@ module ApplicationModel::BelongsToMiPlan
   protected :deal_with_unassigned_or_inactive_plans
 
   def assign_credit
-    if subcontracted_plan_id.blank? && accredited_to_id.blank?
+    if outsourced_by_plan_id.blank? && accredited_to_id.blank?
       accredited_to_id = mi_plan_id
     end
   end
@@ -82,12 +82,13 @@ module ApplicationModel::BelongsToMiPlan
     end
   end
 
-  def subcontracted_plan_id
+  def outsourced_by_plan_id
     return accredited_to_id unless accredited_to_id.blank? || accredited_to_id == mi_plan_id
     return nil
   end
 
-  def subcontracted_plan_id=(arg)
+  def outsourced_by_plan_id=(arg)
+    return if arg.blank?
     if MiPlan.find(arg)
       accredited_to_id = arg
     end

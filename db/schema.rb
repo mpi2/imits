@@ -534,8 +534,8 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
 
   create_table "mi_attempts", :force => true do |t|
     t.integer  "es_cell_id"
-    t.date     "mi_date",                                                                           :null => false
-    t.integer  "status_id",                                                                         :null => false
+    t.date     "mi_date",                                                                                :null => false
+    t.integer  "status_id",                                                                              :null => false
     t.string   "external_ref",                                    :limit => 125
     t.integer  "updated_by_id"
     t.integer  "blast_strain_id"
@@ -564,13 +564,13 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "number_of_cct_offspring"
     t.integer  "number_of_het_offspring"
     t.integer  "number_of_live_glt_offspring"
-    t.boolean  "report_to_public",                                               :default => true,  :null => false
-    t.boolean  "is_active",                                                      :default => true,  :null => false
-    t.boolean  "is_released_from_genotyping",                                    :default => false, :null => false
+    t.boolean  "report_to_public",                                               :default => true,       :null => false
+    t.boolean  "is_active",                                                      :default => true,       :null => false
+    t.boolean  "is_released_from_genotyping",                                    :default => false,      :null => false
     t.text     "comments"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "mi_plan_id",                                                                        :null => false
+    t.integer  "mi_plan_id",                                                                             :null => false
     t.string   "genotyping_comment",                              :limit => 512
     t.integer  "legacy_es_cell_id"
     t.date     "cassette_transmission_verified"
@@ -585,7 +585,7 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "real_allele_id"
     t.integer  "founder_num_assays"
     t.text     "assay_type"
-    t.boolean  "experimental",                                                   :default => false, :null => false
+    t.boolean  "experimental",                                                   :default => false,      :null => false
     t.string   "allele_target"
     t.integer  "parent_colony_id"
     t.string   "mrna_nuclease"
@@ -595,7 +595,7 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.string   "delivery_method"
     t.float    "voltage"
     t.integer  "number_of_pulses"
-    t.string   "crsp_embryo_transfer_day"
+    t.string   "crsp_embryo_transfer_day",                                       :default => "Same Day"
     t.integer  "crsp_embryo_2_cell"
   end
 

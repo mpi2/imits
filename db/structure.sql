@@ -1710,7 +1710,7 @@ CREATE TABLE mi_attempts (
     delivery_method character varying(255),
     voltage double precision,
     number_of_pulses integer,
-    crsp_embryo_transfer_day character varying(255),
+    crsp_embryo_transfer_day character varying(255) DEFAULT 'Same Day'::character varying,
     crsp_embryo_2_cell integer
 );
 

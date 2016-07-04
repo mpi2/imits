@@ -281,6 +281,7 @@
         <tbody>
           <% n = 0 %>
           <% [form.object.g0_screens_attributes].each do |gs| %>
+          <% next if gs.nil? %>
           <% n += 1 %>
           <tr>
             <td style="text-align: center;vertical-align: top;">

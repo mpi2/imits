@@ -231,6 +231,8 @@ class MiAttemptsController < ApplicationController
 
 
   def update_g0_screen_results(mi, g0_screens)
+    return if g0_screens.blank?
+    return if mi.mutagenesis_factor.blank?
     g0_screens.each do |key, g0s|
       # will have to find mutagenesis factor (mf) associated with marker symbol, but currently there is only one mf.
       mf = mi.mutagenesis_factor

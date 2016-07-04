@@ -75,6 +75,17 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  validate do |mi|
+    if !mi.crsp_embryo_2_cell.blank? && mi.crsp_embryo_transfer_day != 'Next Day'
+      mi.errors.add :crsp_embryo_2_cell, 'Suvival rate of 2 cell stage should only be recorded when the Embryo Survival Day is set to Next Day'
+    end
+  end
+
+  validate do |mi|
+    if (!mi.voltage.blank? || !mi.number_of_pulses.blank?) && mi.delivery_method != 'Electroporation'
+      mi.errors.add :delivery_method, 'Voltage and Number of Pulses fields should be used only when the Delivery Method is set to Electroporation'
+    end
+  end
 
   # validate mi plan
   validate do |mi_attempt|
@@ -654,7 +665,7 @@ end
 #  delivery_method                                 :string(255)
 #  voltage                                         :float
 #  number_of_pulses                                :integer
-#  crsp_embryo_transfer_day                        :string(255)
+#  crsp_embryo_transfer_day                        :string(255)      default("Same Day")
 #  crsp_embryo_2_cell                              :integer
 #
 # Indexes

@@ -69,12 +69,16 @@ class Public::MiAttempt < ::MiAttempt
     protein_nuclease
     protein_nuclease_concentration
     delivery_method
+    voltage
+    number_of_pulses 
     crsp_total_embryos_injected
     crsp_total_embryos_survived
     crsp_total_transfered
     crsp_no_founder_pups
     founder_num_assays
     assay_type
+    crsp_embryo_transfer_day 
+    crsp_embryo_2_cell 
     crsp_num_founders_selected_for_breading
     real_allele_id
     external_ref
@@ -245,7 +249,7 @@ end
 #  delivery_method                                 :string(255)
 #  voltage                                         :float
 #  number_of_pulses                                :integer
-#  crsp_embryo_transfer_day                        :string(255)
+#  crsp_embryo_transfer_day                        :string(255)      default("Same Day")
 #  crsp_embryo_2_cell                              :integer
 #
 # Indexes

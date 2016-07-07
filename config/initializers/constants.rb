@@ -1,8 +1,10 @@
 SITE_PATH = case Rails.env
 when 'production' then
   'http://mousephenotype.org/imits'
-when 'staging' then
-  'http://i-dcc.org/staging/imits'
+when 'beta' then
+  'http://i-dcc.org/beta/imits'
+when 'dev' then
+  'http://i-dcc.org/dev/imits'
 else
   'http://localhost:3000'
 end

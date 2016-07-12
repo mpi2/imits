@@ -1,6 +1,6 @@
 class TargRep::AllelesController < TargRep::BaseController
 
-  include SolrBulkUpdate
+#  require 'allele_image'
 
   respond_to :html, :except => [:loa]
   respond_to :xml, :except => [:loa]
@@ -557,7 +557,6 @@ class TargRep::AllelesController < TargRep::BaseController
     end
 
     def format_nested_params
-      puts 'HELLO'
       # Specific to create/update methods - webservice interface
       params[:targ_rep_allele] = params.delete(:molecular_structure) if params[:molecular_structure]
       params[:targ_rep_allele] = params.delete(:allele) if params[:allele]

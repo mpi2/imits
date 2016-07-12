@@ -8,8 +8,6 @@ class TargRep::BaseController < ActionController::Base
 
   before_filter :authenticate_user!
 
-  require 'allele_image'
-
   after_filter :store_location
 
   def store_location

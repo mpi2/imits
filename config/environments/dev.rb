@@ -3,7 +3,7 @@ TarMits::Application.configure do
 
   # The production environment is meant for finished, "live" apps.
   # Code is not reloaded between requests
-  config.cache_classes = false  # THIS SHOULD BE TRUE
+  config.cache_classes = true  # THIS SHOULD BE TRUE
 
   # Full error reports are disabled and caching is turned on
   config.consider_all_requests_local       = false
@@ -30,7 +30,7 @@ TarMits::Application.configure do
 
   # Disable Rails's static asset server
   # In production, Apache or nginx will already do this
-  config.serve_static_assets = true
+  config.serve_static_assets = false
 
   # Enable serving of images, stylesheets, and javascripts from an asset server
   # config.action_controller.asset_host = "http://assets.example.com"

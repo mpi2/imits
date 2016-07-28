@@ -1,6 +1,6 @@
 class TargRep::AllelesController < TargRep::BaseController
 
-#  require 'allele_image'
+  require 'allele_image'
 
   respond_to :html, :except => [:loa]
   respond_to :xml, :except => [:loa]

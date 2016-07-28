@@ -176,6 +176,7 @@ sub _recombinate_sequence {
 
     my $modified_seq = Bio::Seq->new(
         -alphabet => 'dna',
+        -seq      => '',
     );
 
     my $first_site = $ssr_sites->[0];

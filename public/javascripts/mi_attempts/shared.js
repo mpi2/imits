@@ -10,6 +10,11 @@ function replaceTextFieldWithExtField(selector, replacementCreationFunction) {
     });
 }
 
+function validateFloatKeyPress(el) {
+    var v = parseFloat(el.value);
+    el.value = (isNaN(v)) ? '' : v.toFixed(2);
+}
+
 function initNumberFields() {
     replaceTextFieldWithExtField('.number-field', function(renderDiv, name, defaultValue) {
         new Ext.form.field.Number({
@@ -19,6 +24,23 @@ function initNumberFields() {
             value: defaultValue,
             width: 40,
             allowDecimals: false,
+            minValue: 0,
+            hideTrigger: true,
+            keyNavEnabled: false,
+            mouseWheelEnabled: false
+        });
+    });
+}
+
+function initfloatFields() {
+    replaceTextFieldWithExtField('.float-field', function(renderDiv, name, defaultValue) {
+        new Ext.form.field.Number({
+            cls: 'float-field',
+            renderTo: renderDiv,
+            name: name,
+            value: defaultValue,
+            width: 80,
+            allowDecimals: true,
             minValue: 0,
             hideTrigger: true,
             keyNavEnabled: false,
@@ -217,11 +239,29 @@ Ext.define('Imits.MiAttempts.Shared.ListView', {
 });
 
 Ext.onReady(function() {
-    miPlanSelectionList()
+    miPlanSelectionList();
     initNumberFields();
+    initfloatFields();
     initDateFields();
     displayAndHideFormContents();
     changePlanButton();
+
+
+    Ext.select('#mi_attempt_mutagenesis_factor_attributes_individually_set_grna_concentrations').on("change", function(e) {
+      div = Ext.select('.grna_concentration_col');
+      div2 = Ext.select('#grna_concentrations');
+
+      if(this.checked) {
+        div.show();
+        div2.hide();
+
+      } else {
+        div.hide();
+        div2.show();
+      }
+   });
+
+
 });
 
 $(function() {

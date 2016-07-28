@@ -12,52 +12,43 @@ class BuildAllele2
 
 
   MICE_ALLELE_SQL = <<-EOF
-    WITH mutagenesis_factor_summary AS (
-
-      SELECT mi_attempts.id AS mi_attempt_id, array_agg(mutagenesis_factors.id), array_agg('vector_name:' || CASE WHEN targ_rep_targeting_vectors.name IS NULL THEN '' ELSE  targ_rep_targeting_vectors.name END || ', ' || crispr_details) AS mutagenesis_details
-        FROM mutagenesis_factors
-          JOIN mi_attempts ON mi_attempts.mutagenesis_factor_id = mutagenesis_factors.id
-          JOIN (SELECT targ_rep_crisprs.mutagenesis_factor_id AS mutagenesis_factor_id, string_agg('crispr_seq:' || targ_rep_crisprs.sequence || ', crispr_chromosome:' || targ_rep_crisprs.start || ', crispr_start_co_ordinate:' || targ_rep_crisprs.start || ', crispr_end_co_ordinate:' || targ_rep_crisprs.end, ',') AS crispr_details
-                  FROM targ_rep_crisprs
-                GROUP BY targ_rep_crisprs.mutagenesis_factor_id
-               ) AS crispr_summary ON mutagenesis_factors.id = crispr_summary.mutagenesis_factor_id
-          LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = mutagenesis_factors.vector_id
-        GROUP BY mi_attempts.id
+    WITH plan_summary AS (
+      SELECT mi_plans.id AS mi_plan_id, genes.marker_symbol AS gene_symbol, genes.mgi_accession_id AS gene_mgi_accession_id, centres.name AS production_centre
+        FROM mi_plans
+          JOIN genes ON genes.id = mi_plans.gene_id SUBS_GENE_TEMPLATE
+          JOIN centres ON centres.id = mi_plans.production_centre_id
+          JOIN consortia ON consortia.id = mi_plans.consortium_id AND consortia.name SUBS_EUCOMMTOOLSCRE
     ),
 
       mi_attempt_summary AS (
-        SELECT genes.marker_symbol AS gene_symbol, genes.mgi_accession_id AS gene_mgi_accession_id, targ_rep_es_cells.allele_id AS allele_id,
+        SELECT plan_summary.gene_symbol AS gene_symbol, plan_summary.gene_mgi_accession_id AS gene_mgi_accession_id, targ_rep_es_cells.allele_id AS allele_id,
                mi_attempts.id AS mi_attempt_id, mi_attempts.external_ref AS mi_external_ref, mi_attempt_statuses.name AS mi_status_name, mi_attempts.report_to_public AS mi_report_to_public,
                blast_strain.name AS mi_blast_strain_name, test_cross_strain.name AS mi_test_cross_strain_name,
                targ_rep_es_cells.id AS es_cell_id, targ_rep_es_cells.name AS es_cell_name, targ_rep_es_cells.mgi_allele_symbol_superscript AS es_cell_mgi_allele_symbol_superscript, CASE WHEN targ_rep_es_cells.allele_type IS NULL THEN '' ELSE targ_rep_es_cells.allele_type END AS es_cell_allele_type, targ_rep_es_cells.allele_symbol_superscript_template AS es_cell_allele_superscript_template,
-               mutagenesis_factor_summary.mutagenesis_details AS mi_mutagenesis_factor_details,
-               colonies.id AS mi_colony_id, colonies.name AS mi_colony_name, colonies.mgi_allele_id AS mi_colony_mgi_allele_id, colonies.allele_name AS mi_colony_allele_name, allele_target As mi_allele_target ,colonies.mgi_allele_symbol_superscript AS mi_colony_mgi_allele_symbol_superscript, colonies.allele_symbol_superscript_template AS mi_colony_allele_symbol_superscript_template, colonies.allele_type AS mi_colony_allele_type, colony_background_strain.name AS mi_colony_background_strain_name,
-               centres.name AS mi_production_centre
+               mutagenesis_factors.id AS mutagenesis_factor_id,
+               colonies.id AS mi_colony_id, colonies.name AS mi_colony_name, colonies.mgi_allele_id AS mi_colony_mgi_allele_id, colonies.allele_name AS mi_colony_allele_name, allele_target As mi_allele_target,
+               colonies.mgi_allele_symbol_superscript AS mi_colony_mgi_allele_symbol_superscript, colonies.allele_symbol_superscript_template AS mi_colony_allele_symbol_superscript_template,
+               colonies.allele_type AS mi_colony_allele_type, colony_background_strain.name AS mi_colony_background_strain_name,
+               plan_summary.production_centre AS mi_production_centre
           FROM mi_attempts
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-            JOIN genes ON genes.id = mi_plans.gene_id SUBS_GENE_TEMPLATE
-            JOIN consortia ON consortia.id = mi_plans.consortium_id AND consortia.name SUBS_EUCOMMTOOLSCRE
-            JOIN centres ON centres.id = mi_plans.production_centre_id
+            JOIN plan_summary ON plan_summary.mi_plan_id = mi_attempts.mi_plan_id
             JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
             LEFT JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id
             LEFT JOIN strains blast_strain ON blast_strain.id = mi_attempts.blast_strain_id
             LEFT JOIN strains test_cross_strain ON test_cross_strain.id = mi_attempts.test_cross_strain_id
             LEFT JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
             LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
-            LEFT JOIN mutagenesis_factor_summary ON mutagenesis_factor_summary.mi_attempt_id = mi_attempts.id
+            LEFT JOIN mutagenesis_factors ON mutagenesis_factors.id = mi_attempts.mutagenesis_factor_id
         WHERE mi_attempts.experimental = false AND mi_attempt_statuses.name != 'Micro-injection aborted'
 
     ),
 
       phenotyping_production_summary AS (
         SELECT parent_colony_id, (array_agg(phenotyping_production_statuses.name ORDER BY phenotyping_production_statuses.order_by DESC))[1] AS phenotyping_status_name,
-        (array_agg(centres.name ORDER BY phenotyping_production_statuses.order_by DESC))[1] AS phenotyping_centre, array_agg(centres.name ORDER BY phenotyping_production_statuses.order_by DESC) AS phenotyping_centres
+        (array_agg(plan_summary.production_centre ORDER BY phenotyping_production_statuses.order_by DESC))[1] AS phenotyping_centre, array_agg(plan_summary.production_centre ORDER BY phenotyping_production_statuses.order_by DESC) AS phenotyping_centres
         FROM phenotyping_productions
           JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
-          JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
-          JOIN genes ON genes.id = mi_plans.gene_id SUBS_GENE_TEMPLATE
-          JOIN consortia ON consortia.id = mi_plans.consortium_id AND consortia.name SUBS_EUCOMMTOOLSCRE
-          JOIN centres ON centres.id = mi_plans.production_centre_id
+          JOIN plan_summary ON plan_summary.mi_plan_id = phenotyping_productions.mi_plan_id
         WHERE phenotyping_production_statuses.name != 'Phenotype Production Aborted'
         GROUP BY parent_colony_id
       )
@@ -66,59 +57,70 @@ class BuildAllele2
     -- Note! the colony data in colonies and mi_attempt_summary is the same when the colony was created via micro_injection.
 
     SELECT CASE WHEN colonies.mouse_allele_mod_id IS NOT NULL THEN 'MouseAlleleMod' ELSE 'MiAttempt' END AS colony_created_by,
-           colonies.name AS colony_name, colonies.mgi_allele_id AS colony_mgi_allele_id, colonies.allele_name AS colony_allele_name, colonies.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript, colonies.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template, colonies.allele_type AS colony_allele_type, colony_background_strain.name AS colony_background_strain_name,
+           colonies.name AS colony_name, colonies.mgi_allele_id AS colony_mgi_allele_id, colonies.allele_name AS colony_allele_name, colonies.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
+           colonies.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template, colonies.allele_type AS colony_allele_type, colony_background_strain.name AS colony_background_strain_name,
            colonies.allele_description_summary AS allele_description_summary, colonies.auto_allele_description AS auto_allele_description,
            mouse_allele_mod_statuses.name AS mouse_allele_status_name, deleter_strain.name AS mouse_allele_mod_deleter_strain, mouse_allele_mods.cre_excision AS excised,
            mi_attempt_summary.*,
-           mam_centre.name AS mouse_allele_production_centre,
-           phenotyping_production_summary.phenotyping_status_name AS phenotyping_status_name, phenotyping_production_summary.phenotyping_centre AS phenotyping_centre, phenotyping_production_summary.phenotyping_centres AS phenotyping_centres
+           mam_plan_summary.production_centre AS mouse_allele_production_centre,
+           phenotyping_production_summary.phenotyping_status_name AS phenotyping_status_name, phenotyping_production_summary.phenotyping_centre AS phenotyping_centre,
+           phenotyping_production_summary.phenotyping_centres AS phenotyping_centres
     FROM colonies
-      JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
+      LEFT JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
       LEFT JOIN (mouse_allele_mods
-                  JOIN mi_plans mam_plan ON mam_plan.id = mouse_allele_mods.mi_plan_id
-                  JOIN centres mam_centre ON mam_centre.id = mam_plan.production_centre_id
+                  JOIN plan_summary AS mam_plan_summary ON mam_plan_summary.mi_plan_id = mouse_allele_mods.mi_plan_id
                   LEFT JOIN strains deleter_strain ON deleter_strain.id = mouse_allele_mods.deleter_strain_id
                   JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
                 ) ON mouse_allele_mods.id = colonies.mouse_allele_mod_id AND mouse_allele_mods.report_to_public = true
       JOIN mi_attempt_summary ON mi_attempt_summary.mi_colony_id = mouse_allele_mods.parent_colony_id OR (mi_attempt_summary.mi_colony_id = colonies.id AND mi_attempt_summary.mi_report_to_public = true)
       LEFT JOIN phenotyping_production_summary ON phenotyping_production_summary.parent_colony_id = colonies.id
-    WHERE (colonies.report_to_public = true AND colonies.genotype_confirmed = true) OR mi_mutagenesis_factor_details IS NULL
+    WHERE (colonies.report_to_public = true AND colonies.genotype_confirmed = true) OR mutagenesis_factor_id IS NULL
   EOF
 
 
   ES_CELL_VECTOR_ALLELES_SQL = <<-EOF
-  WITH alleles_produced_from_vectors AS (
-              SELECT targ_rep_targeting_vectors.id, genes.marker_symbol, genes.mgi_accession_id, targ_rep_es_cells.mgi_allele_symbol_superscript, targ_rep_es_cells.allele_symbol_superscript_template, targ_rep_es_cells.allele_type, CASE WHEN targ_rep_alleles.project_design_id IS NULL THEN '' ELSE CAST(targ_rep_alleles.project_design_id AS text) END, CASE WHEN targ_rep_alleles.cassette IS NULL THEN '' ELSE targ_rep_alleles.cassette END, targ_rep_mutation_methods.allele_prefix, targ_rep_mutation_types.allele_code,
-                     count(CASE WHEN targ_rep_es_cells.report_to_public = false THEN NULL ELSE targ_rep_es_cells.id END) AS num_es_cells, string_agg(targ_rep_es_cells.mgi_allele_id, ',') AS es_mgi_allele_ids, string_agg(targ_rep_es_cells.name, ',') AS es_cell_names, string_agg(targ_rep_es_cells.ikmc_project_id, ',') AS es_ikmc_projects_not_distinct, string_agg(es_pipelines.name, ',') AS es_pipelines_not_distinct, string_agg(targ_rep_alleles.id::text, ',') AS allele_ids
-              FROM targ_rep_es_cells
-                LEFT JOIN targ_rep_targeting_vectors ON  targ_rep_targeting_vectors.id = targ_rep_es_cells.targeting_vector_id
-                JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
+  WITH allele_details AS (
+              SELECT targ_rep_alleles.id AS allele_id, genes.marker_symbol AS gene_symbol, genes.mgi_accession_id AS gene_mgi_accession_id,
+                     targ_rep_alleles.project_design_id AS allele_design_id, targ_rep_alleles.cassette AS allele_cassette,
+                     targ_rep_mutation_methods.allele_prefix AS mutation_method_allele_prefix, targ_rep_mutation_methods.name AS mutation_method_name,
+                     targ_rep_mutation_types.allele_code AS mutation_type_allele_code, targ_rep_mutation_types.name AS mutation_type_name
+              FROM targ_rep_alleles
                 JOIN genes ON genes.id = targ_rep_alleles.gene_id SUBS_GENE_TEMPLATE
                 JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
                 JOIN targ_rep_mutation_methods ON targ_rep_mutation_methods.id = targ_rep_alleles.mutation_method_id
+  ),
+
+  alleles_produced_from_vectors AS (
+              SELECT targ_rep_targeting_vectors.id, allele_details.gene_symbol, allele_details.gene_mgi_accession_id, targ_rep_es_cells.mgi_allele_symbol_superscript, targ_rep_es_cells.allele_symbol_superscript_template,
+                     targ_rep_es_cells.allele_type, CASE WHEN allele_details.allele_design_id IS NULL THEN '' ELSE CAST(allele_details.allele_design_id AS text) END AS project_design_id,
+                     CASE WHEN allele_details.allele_cassette IS NULL THEN '' ELSE allele_details.allele_cassette END AS cassette, allele_details.mutation_method_allele_prefix AS allele_prefix, allele_details.mutation_type_allele_code AS allele_code,
+                     count(CASE WHEN targ_rep_es_cells.report_to_public = false THEN NULL ELSE targ_rep_es_cells.id END) AS num_es_cells, string_agg(targ_rep_es_cells.mgi_allele_id, ',') AS es_mgi_allele_ids,
+                     string_agg(targ_rep_es_cells.name, ',') AS es_cell_names, string_agg(targ_rep_es_cells.ikmc_project_id, ',') AS es_ikmc_projects_not_distinct,
+                     string_agg(es_pipelines.name, ',') AS es_pipelines_not_distinct, string_agg(allele_details.allele_id::text, ',') AS allele_ids
+              FROM targ_rep_es_cells
+                LEFT JOIN targ_rep_targeting_vectors ON  targ_rep_targeting_vectors.id = targ_rep_es_cells.targeting_vector_id
+                JOIN allele_details ON allele_details.allele_id = targ_rep_es_cells.allele_id
                 JOIN targ_rep_pipelines es_pipelines ON es_pipelines.id = targ_rep_es_cells.pipeline_id AND es_pipelines.id SUBS_EUCOMMTOOLSCRE_ID
               WHERE targ_rep_es_cells.report_to_public = true OR targ_rep_targeting_vectors.report_to_public = true
-              GROUP BY targ_rep_targeting_vectors.id, genes.marker_symbol, genes.mgi_accession_id, targ_rep_es_cells.mgi_allele_symbol_superscript, targ_rep_es_cells.allele_symbol_superscript_template, targ_rep_es_cells.allele_type, targ_rep_alleles.project_design_id, targ_rep_alleles.cassette, targ_rep_mutation_methods.allele_prefix, targ_rep_mutation_types.allele_code
+              GROUP BY targ_rep_targeting_vectors.id, allele_details.gene_symbol, allele_details.gene_mgi_accession_id, targ_rep_es_cells.mgi_allele_symbol_superscript, targ_rep_es_cells.allele_symbol_superscript_template,
+                       targ_rep_es_cells.allele_type, allele_details.allele_design_id, allele_details.allele_cassette, allele_details.mutation_method_allele_prefix, allele_details.mutation_type_allele_code
   ),
 
   targeting_vector_info AS (
         SELECT targ_rep_targeting_vectors.*,
-               genes.marker_symbol AS marker_symbol,
-               genes.mgi_accession_id AS mgi_accession_id,
-               tv_alleles.id AS tv_targeting_vector_allele_id,
-               CASE WHEN tv_alleles.cassette IS NULL THEN '' ELSE tv_alleles.cassette END AS tv_cassette,
-               CASE WHEN tv_alleles.project_design_id IS NULL THEN '' ELSE CAST(tv_alleles.project_design_id AS text) END AS tv_project_design_id,
-               tv_mutation_type.name AS tv_mutation_type,
-               tv_mutation_type.allele_code AS tv_allele_code,
-               tv_mutation_method.name AS tv_mutation_method,
-               tv_mutation_method.allele_prefix AS tv_allele_prefix,
+               allele_details.gene_symbol AS marker_symbol,
+               allele_details.gene_mgi_accession_id AS mgi_accession_id,
+               allele_details.allele_id AS tv_targeting_vector_allele_id,
+               CASE WHEN allele_details.allele_cassette IS NULL THEN '' ELSE allele_details.allele_cassette END AS tv_cassette,
+               CASE WHEN allele_details.allele_design_id IS NULL THEN '' ELSE CAST(allele_details.allele_design_id AS text) END AS tv_project_design_id,
+               allele_details.mutation_type_name AS tv_mutation_type,
+               allele_details.mutation_type_allele_code AS tv_allele_code,
+               allele_details.mutation_method_name AS tv_mutation_method,
+               allele_details.mutation_method_allele_prefix AS tv_allele_prefix,
                tv_pipelines.name AS tv_pipelines,
-               ikmc_project_id AS tv_ikmc_project_id
+               targ_rep_targeting_vectors.ikmc_project_id AS tv_ikmc_project_id
         FROM targ_rep_targeting_vectors
-          JOIN targ_rep_alleles tv_alleles ON tv_alleles.id = targ_rep_targeting_vectors.allele_id
-          JOIN genes ON genes.id = tv_alleles.gene_id SUBS_GENE_TEMPLATE
-          JOIN targ_rep_mutation_types tv_mutation_type ON tv_mutation_type.id = tv_alleles.mutation_type_id
-          JOIN targ_rep_mutation_methods tv_mutation_method ON tv_mutation_method.id = tv_alleles.mutation_method_id
+          JOIN allele_details ON allele_details.allele_id = targ_rep_targeting_vectors.allele_id
           JOIN targ_rep_pipelines tv_pipelines ON tv_pipelines.id = targ_rep_targeting_vectors.pipeline_id AND tv_pipelines.id SUBS_EUCOMMTOOLSCRE_ID
   )
 
@@ -135,14 +137,14 @@ class BuildAllele2
            string_agg(allele_summary.es_ikmc_projects, ',') AS es_ikmc_projects_not_distinct,
            string_agg(allele_summary.tv_pipeline, ',') AS tv_pipelines_not_distinct,
            string_agg(allele_summary.tv_ikmc_project, ',') AS tv_ikmc_projects_not_distinct,
-           SUM (allele_summary.num_es_cells) AS num_es_cells,
-           count(tv_id) AS num_tv_cells
+           SUM (CASE WHEN tv_id = alleles_produced_from_vector_tv THEN allele_summary.num_es_cells ELSE 0 END) AS num_es_cells,
+           count(tv_id) AS num_targeting_vectors
 
       FROM (
-        SELECT CASE WHEN alleles_produced_from_vectors.marker_symbol IS NOT NULL THEN alleles_produced_from_vectors.marker_symbol
+        SELECT CASE WHEN alleles_produced_from_vectors.gene_symbol IS NOT NULL THEN alleles_produced_from_vectors.gene_symbol
                     WHEN targeting_vector_info.marker_symbol IS NOT NULL THEN targeting_vector_info.marker_symbol
                     ELSE NULL END AS marker_symbol,
-               CASE WHEN alleles_produced_from_vectors.mgi_accession_id IS NOT NULL THEN alleles_produced_from_vectors.mgi_accession_id
+               CASE WHEN alleles_produced_from_vectors.gene_mgi_accession_id IS NOT NULL THEN alleles_produced_from_vectors.gene_mgi_accession_id
                     WHEN targeting_vector_info.mgi_accession_id IS NOT NULL THEN targeting_vector_info.mgi_accession_id
                     ELSE NULL END AS mgi_accession_id,
 
@@ -166,6 +168,7 @@ class BuildAllele2
                alleles_produced_from_vectors.es_cell_names AS es_cell_names,
                alleles_produced_from_vectors.es_pipelines_not_distinct AS es_pipelines,
                alleles_produced_from_vectors.es_ikmc_projects_not_distinct AS es_ikmc_projects,
+               alleles_produced_from_vectors.id AS alleles_produced_from_vector_tv,
 
                targeting_vector_info.tv_pipelines AS tv_pipeline,
                targeting_vector_info.tv_ikmc_project_id AS tv_ikmc_project,
@@ -176,7 +179,7 @@ class BuildAllele2
 
           FROM targeting_vector_info
            FULL JOIN alleles_produced_from_vectors
-              ON alleles_produced_from_vectors.marker_symbol = targeting_vector_info.marker_symbol
+              ON alleles_produced_from_vectors.gene_symbol = targeting_vector_info.marker_symbol
                 AND alleles_produced_from_vectors.cassette = targeting_vector_info.tv_cassette
                 AND alleles_produced_from_vectors.project_design_id = targeting_vector_info.tv_project_design_id
                 AND alleles_produced_from_vectors.allele_code       = targeting_vector_info.tv_allele_code
@@ -312,19 +315,21 @@ class BuildAllele2
     #puts @gene_sql
     rows = ActiveRecord::Base.connection.execute(@gene_sql)
 
+    puts "#### processing rows ..."
     rows.each do |row|
       puts "PROCESSING ROW #{row['marker_symbol']}" unless @marker_symbol.nil?
       #pp row
       @gene_data[row['mgi_accession_id']] = create_new_default_gene_doc(row)
     end
 
-
+    puts "#### step 1 - Complete"
     puts "#### step 2 - Process Mice Data..."
 
     puts "#### select..."
 #    puts @mouse_sql
     rows = ActiveRecord::Base.connection.execute(@mouse_sql)
-
+ 
+    puts "#### processing rows ..."
     rows.each do |row|
       #pp row
 
@@ -362,14 +367,14 @@ class BuildAllele2
 
 
 
+    puts "#### step 2 - Complete"
     puts "#### step 3 - Process ES Cell and Targeting Vector Data..."
 
     puts "#### select..."
  #   puts @es_cell_and_targeting_vector_sql
     rows = ActiveRecord::Base.connection.execute(@es_cell_and_targeting_vector_sql)
 
-    # pass 2/3
-
+    puts "#### processing rows ..."
     rows.each do |row|
       #pp row
       ## clean up aggragated data from sql: i.e. remove duplicates etc.
@@ -410,7 +415,8 @@ class BuildAllele2
     end
 
 
-    # pass 3/3
+    puts "#### step 3 - Complete"
+    puts "#### step 4 - Append Additional Data..."
 
     ## append additional data based on already collated data
     @allele_data.each do |key, allele_data_row|
@@ -421,6 +427,14 @@ class BuildAllele2
                                                'allele_description_summary'  => allele_data_row['allele_description']
                                              })
 
+      allele_data_row['allele_category'] = allele_data_row['mutation_type'] == 'em' ? allele_data_row['allele_type'] : allele_data_row['allele_description']
+
+      if allele_data_row['mutation_type'] == 'tm'
+        allele_data_row['mutation_type'] = 'Targeted'
+      elsif allele_data_row['mutation_type'] == 'em'
+        allele_data_row['mutation_type'] = 'Endonuclease-mediated'
+      end
+
       mutagenesis_url = TargRep::RealAllele.mutagenesis_url({'mgi_accession_id' => allele_data_row['mgi_accession_id'],
                                                              'allele_symbol' => allele_data_row['allele_name'],
                                                              'allele_type' => allele_data_row['allele_type'],
@@ -429,6 +443,7 @@ class BuildAllele2
 
       mutagenesis_url = '' if allele_data_row['allele_name'] =~ /#{allele_data_row['cassette']}/
       allele_data_row['links'] <<   "mutagenesis_url:#{mutagenesis_url}" unless mutagenesis_url.blank?
+
     end
 
     ## append additional data based on already collated data
@@ -441,8 +456,8 @@ class BuildAllele2
       gene_data_row['latest_phenotype_status'] = gene_data_row['phenotype_status']
       gene_data_row['latest_production_centre'] = gene_data_row['production_centre']
       gene_data_row['latest_phenotyping_centre'] = gene_data_row['phenotyping_centre']
-      gene_data_row['latest_phenotype_started'] = ['Phenotyping Started', 'Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false
-      gene_data_row['latest_phenotype_complete'] = ['Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false
+      gene_data_row['latest_phenotype_started'] = (['Phenotyping Started', 'Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false) unless gene_data_row['phenotype_status'].blank?
+      gene_data_row['latest_phenotype_complete'] = (['Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false) unless gene_data_row['phenotype_status'].blank?
 
       gene_data_row['latest_project_status'] = gene_data_row['es_cell_status']
       gene_data_row['latest_project_status'] = gene_data_row['mouse_status'] unless gene_data_row['mouse_status'].blank?
@@ -451,7 +466,7 @@ class BuildAllele2
 
       gene_data_row['latest_project_status_legacy'] = @translate_to_legacy_status[gene_data_row['latest_project_status']] if @translate_to_legacy_status.has_key?(gene_data_row['latest_project_status'])
     end
-
+    puts "#### step 4 - Complete"
   end
 
 
@@ -495,10 +510,18 @@ class BuildAllele2
                                                        'genbank_file' => TargRep::Allele.genbank_file_url(data_row['allele_id'], "#{allele_details['allele_type'].blank? ? nil : allele_details['allele_type']}"),
                                                        'allele_image' => TargRep::Allele.allele_image_url(data_row['gene_symbol'], data_row['allele_id'], "#{allele_details['allele_type'].blank? ? nil : allele_details['allele_type']}"),
                                                        'allele_simple_image' => TargRep::Allele.simple_allele_image_url(data_row['gene_symbol'], data_row['allele_id'], "#{allele_details['allele_type'].blank? ? nil : allele_details['allele_type']}"),
+                                                       'vector_genbank_file' => '',
+                                                       'vector_allele_image' => '',
                                                        'design_id' => '',
                                                        'cassette' => '',
                                                        'pipeline' => [],
                                                        'ikmc_project' => [],
+                                                       'mutation_type' => allele_details['allele_symbol'][0,2],
+                                                       'allele_category' => '',
+                                                       'allele_features' => [],
+                                                       'targeting_vector_available' => false,
+                                                       'es_cell_available' => false, 
+                                                       'mouse_available' => false,
                                                        'mouse_status' => '',
                                                        'phenotype_status' => '',
                                                        'es_cell_status' => '',
@@ -539,6 +562,9 @@ class BuildAllele2
     doc['production_centres'] = doc['production_centres'].uniq
     doc['phenotyping_centres'] = doc['phenotyping_centres'].uniq
 
+    if !doc['mouse_status'].blank? && ['Genotype confirmed', 'Cre Excision Complete'].include?(doc['mouse_status'])
+      doc['mouse_available'] = true
+    end
     return true
   end
 
@@ -550,10 +576,17 @@ class BuildAllele2
     # set ES Cell status
     if data_row['num_es_cells'].to_i > 0 || doc['es_cell_status'] == 'ES Cell Targeting Confirmed'
       doc['es_cell_status'] = 'ES Cell Targeting Confirmed'
+      doc['es_cell_available'] = true
     elsif data_row['num_targeting_vectors'].to_i > 0 || doc['es_cell_status'] == 'ES Cell Production in Progress'
       doc['es_cell_status'] = 'ES Cell Production in Progress'
     else
       doc['es_cell_status'] = 'No ES Cell Production'
+    end
+
+    if data_row['num_targeting_vectors'].to_i > 0
+      doc['targeting_vector_available'] = true
+      doc['vector_genbank_file'] = TargRep::Allele.targeting_vector_genbank_file_url(doc['allele_id'])
+      doc['vector_allele_image'] = TargRep::Allele.vector_image_url(doc['allele_id'])
     end
 
     doc['allele_mgi_accession_id'] = data_row['allele_mgi_accession_id']
@@ -811,6 +844,9 @@ class BuildAllele2
     list = []
     data.each do |key, row|
       hash = nil
+
+      # remove fields which contain null values.
+      row = row.select{|key, value| (value.class == String && !value.blank?) || (value.class != String && !value.nil?)}
 
       item = {'add' => {'doc' => row }}
       list.push item.to_json

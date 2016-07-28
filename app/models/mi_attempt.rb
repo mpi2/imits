@@ -11,6 +11,8 @@ class MiAttempt < ApplicationModel
   include ApplicationModel::BelongsToMiPlan
 
   CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze
+  DELIVERY_METHODS = ['Cytoplasmic Injection', 'Pronuclear Injection', 'Electroporation'].freeze
+  TRANSFER_DAY = ['Same Day', 'Next Day'].freeze
 
   belongs_to :real_allele
   belongs_to :mi_plan
@@ -29,6 +31,7 @@ class MiAttempt < ApplicationModel
   has_many   :colonies, inverse_of: :mi_attempt
   has_many   :crisprs, through: :mutagenesis_factor
   has_many   :genotype_primers, through: :mutagenesis_factor
+  has_many   :reagents, :class_name => 'Reagent'
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :test_cross_strain, :name
@@ -56,6 +59,7 @@ class MiAttempt < ApplicationModel
   accepts_nested_attributes_for :status_stamps, :mutagenesis_factor
   accepts_nested_attributes_for :colony, :update_only =>true
   accepts_nested_attributes_for :colonies, :allow_destroy => true
+  accepts_nested_attributes_for :reagents, :allow_destroy => true
 
   protected :status=
 
@@ -71,6 +75,17 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  validate do |mi|
+    if !mi.crsp_embryo_2_cell.blank? && mi.crsp_embryo_transfer_day != 'Next Day'
+      mi.errors.add :crsp_embryo_2_cell, 'Suvival rate of 2 cell stage should only be recorded when the Embryo Survival Day is set to Next Day'
+    end
+  end
+
+  validate do |mi|
+    if (!mi.voltage.blank? || !mi.number_of_pulses.blank?) && mi.delivery_method != 'Electroporation'
+      mi.errors.add :delivery_method, 'Voltage and Number of Pulses fields should be used only when the Delivery Method is set to Electroporation'
+    end
+  end
 
   # validate mi plan
   validate do |mi_attempt|
@@ -160,17 +175,19 @@ class MiAttempt < ApplicationModel
     return unless self.es_cell_id.blank? # Only continue if mi_attempt belongs to crispr pipeline
 
     crispr_count = self.mutagenesis_factor.crisprs.count
-    nuclease = self.mutagenesis_factor.nuclease
-    has_vector = self.mutagenesis_factor.vector.blank? ? false : true
-    vector_type = self.mutagenesis_factor.vector.try(:allele).try(:type)
+    vector_count = self.mutagenesis_factor.vectors.count
+    vector_type = self.mutagenesis_factor.vectors.blank? ? nil : self.mutagenesis_factor.vectors.first.vector.try(:allele).try(:type)
 
     self.allele_target =  nil
-    self.allele_target = 'NHEJ' if crispr_count == 1  && has_vector == false
-    self.allele_target = 'Deletion' if crispr_count >= 2 && ['CAS9 mRNA', 'CAS9 Protein'].include?(nuclease) && has_vector == false
-    self.allele_target = 'NHEJ' if crispr_count == 2 && ['D10A mRNA', 'D10A Protein'].include?(nuclease) && has_vector == false
-    self.allele_target = 'Deletion' if crispr_count >= 4 && ['D10A mRNA', 'D10A Protein'].include?(nuclease) && has_vector == false
-    self.allele_target = 'HDR' if has_vector == true && vector_type == 'TargRep::HdrAllele'
-    self.allele_target = 'HR' if has_vector == true && ['TargRep::TargetedAllele', 'TargRep::CrisprTargetedAllele'].include?(vector_type)
+    self.allele_target = 'NHEJ' if crispr_count == 1  && vector_count == 0
+    self.allele_target = 'Deletion' if crispr_count >= 2 && [mrna_nuclease, protein_nuclease].include?('CAS9') && vector_count == 0
+    self.allele_target = 'NHEJ' if crispr_count < 3 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
+    self.allele_target = 'Deletion' if crispr_count >= 4 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
+    self.allele_target = 'HDR' if vector_count > 0
+    self.allele_target = 'HR' if vector_count > 0 && (self.mutagenesis_factor.vectors.first.try(:preparation).blank? || self.mutagenesis_factor.vectors.first.try(:preparation) != 'Oligo')
+    self.allele_target = 'HDR' if vector_count > 0 && vector_type == 'TargRep::HdrAllele'
+    self.allele_target = 'HR' if vector_count > 0 && ['TargRep::TargetedAllele', 'TargRep::CrisprTargetedAllele'].include?(vector_type)
+    
   end
   protected :crispr_autofill_allele_target
 
@@ -520,6 +537,10 @@ class MiAttempt < ApplicationModel
 
   delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
 
+  def reagents_attributes
+    return reagents
+  end
+
   def self.translations
     return {
       'es_cell_marker_symbol'   => 'es_cell_allele_gene_marker_symbol',
@@ -629,24 +650,23 @@ end
 #  crsp_total_embryos_survived                     :integer
 #  crsp_total_transfered                           :integer
 #  crsp_no_founder_pups                            :integer
-#  founder_pcr_num_assays                          :integer
-#  founder_pcr_num_positive_results                :integer
-#  founder_surveyor_num_assays                     :integer
-#  founder_surveyor_num_positive_results           :integer
-#  founder_t7en1_num_assays                        :integer
-#  founder_t7en1_num_positive_results              :integer
-#  crsp_total_num_mutant_founders                  :integer
 #  crsp_num_founders_selected_for_breading         :integer
-#  founder_loa_num_assays                          :integer
-#  founder_loa_num_positive_results                :integer
 #  allele_id                                       :integer
 #  real_allele_id                                  :integer
 #  founder_num_assays                              :integer
-#  founder_num_positive_results                    :integer
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
 #  parent_colony_id                                :integer
+#  mrna_nuclease                                   :string(255)
+#  mrna_nuclease_concentration                     :float
+#  protein_nuclease                                :string(255)
+#  protein_nuclease_concentration                  :float
+#  delivery_method                                 :string(255)
+#  voltage                                         :float
+#  number_of_pulses                                :integer
+#  crsp_embryo_transfer_day                        :string(255)      default("Same Day")
+#  crsp_embryo_2_cell                              :integer
 #
 # Indexes
 #

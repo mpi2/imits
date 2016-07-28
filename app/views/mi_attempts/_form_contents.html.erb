@@ -15,8 +15,35 @@
 <%= form.hidden_field 'es_cell_name' %>
 <%= form.hidden_field 'es_cell_marker_symbol' %>
 <%= form.hidden_field 'mi_plan_id' %>
-<input id="mutagenesis-show" type="hidden" value="<%= if !@mi_attempt.mutagenesis_factor.blank? then 'true' else 'false' end %>">
+<input id="mutagenesis-show" type="hidden" value="<%= if @mi_attempt.es_cell_name.blank? && (!@mi_attempt.marker_symbol.blank? || !@mi_attempt.mutagenesis_factor.try(:crisprs).blank?) then 'true' else 'false' end %>">
 <input id="es_cell-show" type="hidden" value="<%= if !@mi_attempt.es_cell_name.blank? then 'true' else 'false' end %>">
+
+<fieldset class="collapsible">
+  <legend>Mi-Plan Details</legend>
+  <div>
+    <div id="mi_plan_preious_selection" class="grid_12 alpha omega" <%= if @mi_attempt.consortium_name.blank? then 'style=display:none;' end%>>
+      <div class="grid_3">
+        <div class="consortium-name">
+          <div class="label">Consortium</div>
+          <div><%= @mi_attempt.consortium_name %></div>
+        </div>
+      </div>
+      <div class="grid_3">
+        <div class="production-centre-name">
+          <div class="label">Production Centre</div>
+          <div><%= @mi_attempt.production_centre_name %></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div id="mi_plan_selection_div" <%= if !@mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>>
+        <div id="mi_plan_list" ></div>
+        <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>" target="_blank">Create new miplan</a></div>
+      </div>
+      <div id="change_plan" <%= if @mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>></div>
+    </div>
+  </div>
+</fieldset>
 
 <fieldset class="collapsible">
   <legend>Universal Details</legend>
@@ -54,78 +81,138 @@
           <% end %>
         </div>
       <% end %>
-      <div id="parent_colony-container">
-        <%= generator.text_field(:parent_colony_name, :class => 'x-form-text', :size => 20) %> <%= mi_attempt.parent_colony.try(:allele_symbol_superscript)%>
-      </div>
-      <div id="blast_strain-container">
-        <%= generator.strains_field :blast_strain %>
+      <div> 
+        <%= form.label :delivery_method, 'Delivery Method' %>
+        <%= form.select :delivery_method, MiAttempt::DELIVERY_METHODS, :include_blank => true; %>
       </div>
 
-      <div id="vector-container">
-        <%= form.fields_for :mutagenesis_factor do |builder| %>
-          <%= builder.label :vector_name%>
-          <%= builder.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: @vector_options[:selected]) %>
-        <% end %>
-      </div>
-      <div id="nuclease-container">
-        <%= form.fields_for :mutagenesis_factor do |builder| %>
-          <%= builder.label :nuclease%>
-          <%= builder.select :nuclease , MutagenesisFactor::NUCLEASES%>
-        <% end %>
-      </div>
+      <fieldset class="electroporation">
+        <div>0. Electroporation Details</div>
+        <div><%= generator.number_field :voltage %></div>
+        <div><%= generator.number_field :number_of_pulses %></div>
+      </fieldset>
+
+      <fieldset class="collapsible">
+        <div>1. Strain Injected</div>
+        <div id="blast_strain-container">
+          <%= generator.strains_field :blast_strain, :label => 'Zygote / Blast Strain Name' %>
+        </div>
+        <div id="parent_colony-container">
+          <%= generator.text_field(:parent_colony_name, :class => 'x-form-text', :size => 20, :label => 'Parent Colony Name of Mutant Allele') %> <%= mi_attempt.parent_colony.try(:allele_symbol_superscript)%>
+        </div>
+      </fieldset>
+
+      <fieldset class="collapsible">
+        <div>2. Nucleases</div>
+        <table class="horizontal_fields"><tr>
+          <td>
+            <div id="nuclease-container">
+              <%= form.label :mrna_nuclease, 'mRNA Nuclease' %>
+              <%= form.select :mrna_nuclease , MutagenesisFactor::NUCLEASES%>
+            </div>
+          </td><td>
+            <div id="mrna_nuclease-concentrations">
+              <%= form.label :mrna_nuclease_concentration, 'Concentration' %>
+              <%= form.text_field :mrna_nuclease_concentration, :onchange => 'validateFloatKeyPress(this)' %> ng/uL
+            </div>
+          </td>
+          </tr><tr>
+          <td>
+            <div id="nuclease-container">
+              <%= form.label :protein_nuclease, 'Protein Nuclease' %>
+              <%= form.select :protein_nuclease , MutagenesisFactor::NUCLEASES%>
+            </div>
+          </td><td>
+            <div id="protein-nuclease-concentrations">
+              <%= form.label :protein_nuclease_concentration, 'Concentration' %>
+              <%= form.text_field :protein_nuclease_concentration, :onchange => 'validateFloatKeyPress(this)'%> ng/uL
+            </div>
+          </td>
+          </tr>
+        </table>
+      </fieldset>
 
       <div>
-        <label for="mi_attempts_mutagenesis_factor_crisprs">Crisprs</label>
-        <table id="mutagenesis_factor_table" class="report_table">
-          <thead class="title">
-            <tr>
-              <th>Sequence</th>
-              <th>Chr</th>
-              <th>Chr Start</th>
-              <th>Chr End</th>
-            </tr>
-          </thead>
-          <tbody class="distribution_centres"  id="crispr-table">
-              <%= form.fields_for :mutagenesis_factor do |builder| %>
-                <%= builder.fields_for :crisprs do |builder2| %>
-                 <%= render '/shared/crisprs_fields', f: builder2 %>
-                <% end %>
+        <%= form.fields_for :mutagenesis_factor do |builder| %>
+          <fieldset class="collapsible">
+          <label "mi_attempts_mutagenesis_factor_crisprs">3. Crisprs</label>
+          <div id = 'grna_concentrations'>
+            </br>gRNA Concentration <%= builder.text_field :grna_concentration, :onchange => 'validateFloatKeyPress(this)' %> ng/uL
+          </div>
+          <div>
+            <%= builder.check_box :individually_set_grna_concentrations %> Individually Set Concentrations </td>
+          </div>
+          <table id="mutagenesis_factor_table" class="report_table">
+            <thead class="title">
+              <tr>
+                <th>Sequence</th>
+                <th>Chr</th>
+                <th>Chr Start</th>
+                <th>Chr End</th>
+                <th>Truncated Guide</th>
+                <th class='grna_concentration_col <%= builder.object.individually_set_grna_concentrations ? '' : 'hidden' %>'>gRNA Concentration</th>
+              </tr>
+            </thead>
+            <tbody class="distribution_centres"  id="crispr-table">
+              <%= builder.fields_for :crisprs do |builder2| %>
+                <%= render '/shared/crisprs_fields', f: builder2 %>
               <% end %>
-          </tbody>
-        </table>
-        <div id="crispr_edit_button"></div>
+            </tbody>
+          </table>
+          <div id="crispr_edit_button"></div>
+          </fieldset>
+        <% end %>
       </div>
+
+      <%= form.fields_for :mutagenesis_factor do |builder| %>
+        <fieldset id="vector_field_set">
+          <label>4. Vectors/Oligos</label>
+          <div id="vector-container">
+            <table id="vectors_<%= builder.object_id %>_table" class="report_table">
+              <thead><tr>
+                <th>Vector Name</th>
+                <th>Concentration</th>
+                <th>Preparation</th>
+                <th>Action</th>
+              </tr></thead>
+              <tbody class="distribution_centres">
+                <tr></tr>
+                <%= builder.fields_for :vectors do |builder2| %>
+                  <%= render '/shared/vector_fields', f: builder2 %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <%= link_to_add_fields "Add Vector/Oligo", builder, :vectors %>
+        </fieldset>
+      <% end %>
+
+      <fieldset id="reagent_field_set">
+        <label>5. Reagents (inhibitors etc.)</label>
+        <div id="reagent-container">
+          <table id="reagents_<%= form.object_id %>_table" class="report_table">
+            <thead><tr>
+              <th>Name</th>
+              <th>Concentration</th>
+              <th>Action</th>
+            </tr></thead>
+            <tbody class="distribution_centres">
+              <tr></tr>
+              <%= form.fields_for :reagents do |builder| %>
+                <%= render '/shared/reagent_fields', f: builder %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <%= link_to_add_fields "Add Reagent", form, :reagents %>
+      </fieldset>
+
     </div>
   </fieldset>
+
 </div>
 
-<fieldset class="collapsible">
-  <legend>Mi-Plan Details</legend>
-  <div>
-    <div id="mi_plan_preious_selection" class="grid_12 alpha omega" <%= if @mi_attempt.consortium_name.blank? then 'style=display:none;' end%>>
-      <div class="grid_3">
-        <div class="consortium-name">
-          <div class="label">Consortium</div>
-          <div><%= @mi_attempt.consortium_name %></div>
-        </div>
-      </div>
-      <div class="grid_3">
-        <div class="production-centre-name">
-          <div class="label">Production Centre</div>
-          <div><%= @mi_attempt.production_centre_name %></div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div id="mi_plan_selection_div" <%= if !@mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>>
-        <div id="mi_plan_list" ></div>
-        <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>" target="_blank">Create new miplan</a></div>
-      </div>
-      <div id="change_plan" <%= if @mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>></div>
-    </div>
-  </div>
-</fieldset>
-
+<div id="object-crispr" class="object-crispr">
 <%= form.fields_for :mutagenesis_factor do |builder| %>
   <fieldset id="genotype_primer_field_set" class="collapsible"
     <% if @mi_attempt.mutagenesis_factor.blank? %>style="display: none;"<% end %>>
@@ -155,6 +242,7 @@
     </div>
   </fieldset>
 <% end %>
+</div>
 
 <% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
   <%= render 'status_change_history', :mi_attempt => mi_attempt %>
@@ -166,6 +254,9 @@
     <div>
       <%= generator.number_field :crsp_total_embryos_injected, {:label => 'Number of Embryos Injected'}%>
       <%= generator.number_field :crsp_total_embryos_survived, {:label => 'Number of Embryos Survived'} %>
+      </br><%= form.label :crsp_embryo_transfer_day, 'Embryo Transfer Day'%>
+      <%= form.select :crsp_embryo_transfer_day, MiAttempt::TRANSFER_DAY, :include_blank => false, :default => 'Same Day' %>
+      <%= generator.number_field :crsp_embryo_2_cell, {:label => 'Number of Embryos Survived to 2 cell stage (Leave blank if transfered on same day)'} %>      
       <%= generator.number_field :crsp_total_transfered, {:label => 'Number Transfered'} %>
     </div>
   </fieldset>
@@ -174,16 +265,64 @@
 
 <div class="object-crispr">
   <fieldset class="collapsible">
-    <legend>Founder Litter Details</legend>
+    <legend>Founder/G0 Litter Details</legend>
     <div>
-      <%= generator.number_field :crsp_no_founder_pups, {:label => 'Number of Founder Pups Born'} %></br>
-      <%= form.label :assay_type%>
+      <%= generator.number_field :crsp_no_founder_pups, {:label => 'Number of G0 Pups Born'} %></br>
+      <%= form.label :assay_type, 'Assay Type Used'%>
       <%= form.select :assay_type, MiAttempt::CRISPR_ASSAY_TYPES, :include_blank => true %>
-      <%= generator.number_field :founder_num_assays, {:label => 'Number of Founders Assayed'} %>
-      <%= generator.number_field :founder_num_positive_results, {:label => 'Number of Founders with confirmed mutation'} %>
-      <%= generator.number_field :crsp_total_num_mutant_founders, {:label => 'Number of Mutant Founders'} %>
-      <%= generator.number_field :crsp_num_founders_selected_for_breading, {:label => 'Number of Founders Selected For Breading'} %>
+      <%= generator.number_field :founder_num_assays, {:label => 'Number of G0s Assayed'} %>
+
+
+    <div id="g0_screen-container">
+      <table class="input_table">
+        <thead>
+          <th colspan=3>G0 Assay Results (Leave fields blank if not tested in your G0 screen)</th>
+        </thead>
+        <tbody>
+          <% n = 0 %>
+          <% [form.object.g0_screens_attributes].each do |gs| %>
+          <% next if gs.nil? %>
+          <% n += 1 %>
+          <tr>
+            <td style="text-align: center;vertical-align: top;">
+              <div style="padding:30px 0px 0px 0px ; width:110px">
+                Assay results for <%= gs['marker_symbol'] %> allele
+              </div>
+            </td>
+            <td style="text-align: center;vertical-align: top;">
+              <div style="padding:30px 0px 0px 20px ;">
+              <%= form.label :assay_type, 'Number of G0 with a Detected Mutation' %>
+              <input type="text" class="number-field" id="mi_attempt_g0_screens_attributes_<%= n %>_no_g0_where_mutation_detected" name="mi_attempt[g0_screens_attributes][<%= n %>][no_g0_where_mutation_detected]" size="20" value="<%= gs['no_g0_where_mutation_detected'] %>" />
+              </div>
+              <fieldset class="collapsible">
+                <legend>G0 Allele Screen Details</legend>
+                <%= form.label "mi_attempt_g0_screens_attributes_#{n}_no_nhej_g0_mutants", 'Number of G0 with NHEJ Mutation' %>
+                <input type="text" class="number-field" id="mi_attempt_g0_screens_attributes_<%= n %>_no_nhej_g0_mutants" name="mi_attempt[g0_screens_attributes][<%= n %>][no_nhej_g0_mutants]" size="20" value="<%= gs['no_nhej_g0_mutants'] %>" />
+                <%= form.label "mi_attempt_g0_screens_attributes_#{n}_no_deletion_g0_mutants", 'Number of G0 with Deletion Mutation' %>
+                <input type="text" class="number-field" id="mi_attempt_g0_screens_attributes_<%= n %>_no_deletion_g0_mutants" name="mi_attempt[g0_screens_attributes][<%= n %>][no_deletion_g0_mutants]" size="20" value="<%= gs['no_deletion_g0_mutants'] %>" />
+                <%= form.label "mi_attempt_g0_screens_attributes_#{n}_no_hr_g0_mutants", 'Number of G0 with HR Mutation' %>
+                <input type="text" class="number-field" id="mi_attempt_g0_screens_attributes_<%= n %>_no_hr_g0_mutants" name="mi_attempt[g0_screens_attributes][<%= n %>][no_hr_g0_mutants]" size="20" value="<%= gs['no_hr_g0_mutants'] %>" />
+                <%= form.label "mi_attempt_g0_screens_attributes_#{n}_no_hdr_g0_mutants", 'Number of G0 with HDR Mutation' %>
+                <input type="text" class="number-field" id="mi_attempt_g0_screens_attributes_<%= n %>_no_hdr_g0_mutants" name="mi_attempt[g0_screens_attributes][<%= n %>][no_hdr_g0_mutants]" size="20" value="<%= gs['no_hdr_g0_mutants'] %>" />
+                <input type="hidden" id="mi_attempt_g0_screens_attributes_<%= n %>_marker_symbol" name="mi_attempt[g0_screens_attributes][<%= n %>][marker_symbol]" size="20" value="<%= gs['marker_symbol'] %>" />
+              </fieldset>
+            </td>
+            <td style="text-align: center;vertical-align: top;">         
+              <fieldset class="collapsible">
+                <legend>G0 Donor Insertion Details</legend>
+                <%= form.label "mi_attempt_g0_screens_attributes_#{n}_no_hdr_g0_mutants_all_donors_inserted", 'Number of G0 with All Donors Inserted' %>
+                <input type="text" class="number-field" id="mi_attempt_g0_screens_attributes_<%= n %>_no_hdr_g0_mutants_all_donors_inserted" name="mi_attempt[g0_screens_attributes][<%= n %>][no_hdr_g0_mutants_all_donors_inserted]" size="20" value="<%= gs['no_hdr_g0_mutants_all_donors_inserted'] %>" />
+                <%= form.label "mi_attempt_g0_screens_attributes_#{n}_no_hdr_g0_mutants_subset_donors_inserted", 'Number of G0 with Subset of Donors Inserted' %>
+                <input type="text" class="number-field" id="mi_attempt_g0_screens_attributes_<%= n %>_no_hdr_g0_mutants_subset_donors_inserted" name="mi_attempt[g0_screens_attributes][<%= n %>][no_hdr_g0_mutants_subset_donors_inserted]" size="20" value="<%= gs['no_hdr_g0_mutants_subset_donors_inserted'] %>" />
+              </fieldset>
+            </td>
+          </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
+
+    <%= generator.number_field :crsp_num_founders_selected_for_breading, {:label => 'Number of G0s Selected For Breading'} %>
   </fieldset>
 </div>
 

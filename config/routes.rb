@@ -176,6 +176,7 @@ TarMits::Application.routes.draw do
 
   get '/javascripts/dynamic_esc_qc_conflict_selects' => 'javascripts#dynamic_esc_qc_conflict_selects'
 
+  match '/select/(:action(.:format))'      => "select#:action"
   get '/public_dump' => 'root#public_dump', :as => 'public_dump'
 
   ## TargRep interface

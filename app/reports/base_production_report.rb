@@ -290,12 +290,17 @@ class BaseProductionReport
       
       hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-crispr_effort_efficiency"] = report_row['number_embryos_injected'].to_f / [report_row['number_genotype_confirmed'].to_f, 1].max
 
-      hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-crispr_effort_efficiency_by_mutant_founders"] = report_row['number_embryos_injected'].to_f / [report_row['number_mutant_founders'].to_f, 1].max
+      hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-crispr_effort_efficiency_by_nhej_founders"] = report_row['number_embryos_injected_nhej_allele'].to_f / [report_row['number_nhej_founders'].to_f, 1].max
+      hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-crispr_effort_efficiency_by_deletion_founders"] = report_row['number_embryos_injected_deletion_allele'].to_f / [report_row['number_deletion_founders'].to_f, 1].max
+      hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-crispr_effort_efficiency_by_hdr_founders"] = report_row['number_embryos_injected_hdr_allele'].to_f / [report_row['number_hdr_founders'].to_f, 1].max
+      hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-crispr_effort_efficiency_by_hr_founders"] = report_row['number_embryos_injected_hr_allele'].to_f / [report_row['number_hr_founders'].to_f, 1].max
+
       hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-crispr_effort_efficiency_by_num_pups"] = report_row['number_embryos_injected'].to_f / [report_row['number_of_pups'].to_f, 1].max
     end
 
     hash
   end
+
 
   def generate_gene_efficiency_totals
     hash = {}
@@ -524,18 +529,25 @@ class BaseProductionReport
       sql = <<-EOF
         SELECT consortia.name AS consortium_name,
                centres.name AS production_centre_name,
-               sum(mi_attempts.crsp_total_embryos_injected) AS number_embryos_injected,
-               count(DISTINCT mi_attempts.id) AS number_genotype_confirmed,
-               sum(mi_attempts.crsp_total_num_mutant_founders) AS number_mutant_founders,
+               sum(CASE WHEN mi_attempts.status_id = 2 THEN mi_attempts.crsp_total_embryos_injected ELSE 0 END) AS number_embryos_injected,
+               sum(CASE WHEN mutagenesis_factors.no_nhej_g0_mutants IS NOT NULL THEN mi_attempts.crsp_total_embryos_injected ELSE 0 END) AS number_embryos_injected_nhej_allele,
+               sum(CASE WHEN mutagenesis_factors.no_deletion_g0_mutants IS NOT NULL THEN mi_attempts.crsp_total_embryos_injected ELSE 0 END) AS number_embryos_injected_deletion_allele,
+               sum(CASE WHEN mutagenesis_factors.no_hdr_g0_mutants IS NOT NULL THEN mi_attempts.crsp_total_embryos_injected ELSE 0 END) AS number_embryos_injected_hdr_allele,
+               sum(CASE WHEN mutagenesis_factors.no_hr_g0_mutants IS NOT NULL THEN mi_attempts.crsp_total_embryos_injected ELSE 0 END) AS number_embryos_injected_hr_allele,
+               sum(CASE WHEN mi_attempts.status_id = 2 THEN 1 ELSE 0 END ) AS number_genotype_confirmed,
+               sum(mutagenesis_factors.no_nhej_g0_mutants) AS number_nhej_founders,
+               sum(mutagenesis_factors.no_deletion_g0_mutants) AS number_deletion_founders,
+               sum(mutagenesis_factors.no_hdr_g0_mutants) AS number_hdr_founders,
+               sum(mutagenesis_factors.no_hr_g0_mutants) AS number_hr_founders,
                sum(mi_attempts.crsp_no_founder_pups) AS number_of_pups
         FROM mi_attempts
+        JOIN mutagenesis_factors ON mutagenesis_factors.id = mi_attempts.mutagenesis_factor_id
         JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
         JOIN centres ON centres.id = mi_plans.production_centre_id
-        WHERE mutagenesis_factor_id IS NOT NULL AND mi_attempts.status_id = 2 AND mi_attempts.experimental = false
+        WHERE mi_attempts.status_id IN (2, 5) AND mi_attempts.experimental = false
         GROUP BY consortia.name, centres.name
       EOF
-
     end
 
     def gene_efficiency_totals_sql

@@ -1,7 +1,5 @@
-if !(Rails.env == 'development' or Rails.env == 'test')
-  GENBANK_RECOMBINATION_SCRIPT_PATH = 'script/recombinate_sequence.pl'
-elsif Rails.env == 'test'
-  GENBANK_RECOMBINATION_SCRIPT_PATH = 'test/lib/recombinate_sequence.pl'
+if Rails.env == 'test'
+  script_path = 'test/lib/recombinate_sequence.pl'
 else
   script_path = 'script/recombinate_sequence.pl'
   ENV['PATH'].split(':').each do |folder|

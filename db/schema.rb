@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20151009125302) do
+ActiveRecord::Schema.define(:version => 201604011125302) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -534,8 +534,8 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
 
   create_table "mi_attempts", :force => true do |t|
     t.integer  "es_cell_id"
-    t.date     "mi_date",                                                                           :null => false
-    t.integer  "status_id",                                                                         :null => false
+    t.date     "mi_date",                                                                                :null => false
+    t.integer  "status_id",                                                                              :null => false
     t.string   "external_ref",                                    :limit => 125
     t.integer  "updated_by_id"
     t.integer  "blast_strain_id"
@@ -564,13 +564,13 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.integer  "number_of_cct_offspring"
     t.integer  "number_of_het_offspring"
     t.integer  "number_of_live_glt_offspring"
-    t.boolean  "report_to_public",                                               :default => true,  :null => false
-    t.boolean  "is_active",                                                      :default => true,  :null => false
-    t.boolean  "is_released_from_genotyping",                                    :default => false, :null => false
+    t.boolean  "report_to_public",                                               :default => true,       :null => false
+    t.boolean  "is_active",                                                      :default => true,       :null => false
+    t.boolean  "is_released_from_genotyping",                                    :default => false,      :null => false
     t.text     "comments"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "mi_plan_id",                                                                        :null => false
+    t.integer  "mi_plan_id",                                                                             :null => false
     t.string   "genotyping_comment",                              :limit => 512
     t.integer  "legacy_es_cell_id"
     t.date     "cassette_transmission_verified"
@@ -580,24 +580,23 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.integer  "crsp_total_embryos_survived"
     t.integer  "crsp_total_transfered"
     t.integer  "crsp_no_founder_pups"
-    t.integer  "founder_pcr_num_assays"
-    t.integer  "founder_pcr_num_positive_results"
-    t.integer  "founder_surveyor_num_assays"
-    t.integer  "founder_surveyor_num_positive_results"
-    t.integer  "founder_t7en1_num_assays"
-    t.integer  "founder_t7en1_num_positive_results"
-    t.integer  "crsp_total_num_mutant_founders"
     t.integer  "crsp_num_founders_selected_for_breading"
-    t.integer  "founder_loa_num_assays"
-    t.integer  "founder_loa_num_positive_results"
     t.integer  "allele_id"
     t.integer  "real_allele_id"
     t.integer  "founder_num_assays"
-    t.integer  "founder_num_positive_results"
     t.text     "assay_type"
-    t.boolean  "experimental",                                                   :default => false, :null => false
+    t.boolean  "experimental",                                                   :default => false,      :null => false
     t.string   "allele_target"
     t.integer  "parent_colony_id"
+    t.string   "mrna_nuclease"
+    t.float    "mrna_nuclease_concentration"
+    t.string   "protein_nuclease"
+    t.float    "protein_nuclease_concentration"
+    t.string   "delivery_method"
+    t.float    "voltage"
+    t.integer  "number_of_pulses"
+    t.string   "crsp_embryo_transfer_day",                                       :default => "Same Day"
+    t.integer  "crsp_embryo_2_cell"
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -724,10 +723,25 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
     t.integer  "parent_colony_id"
   end
 
-  create_table "mutagenesis_factors", :force => true do |t|
+  create_table "mutagenesis_factor_vectors", :force => true do |t|
+    t.integer "mutagenesis_factor_id", :null => false
     t.integer "vector_id"
+    t.float   "concentration"
+    t.string  "preparation"
+  end
+
+  create_table "mutagenesis_factors", :force => true do |t|
     t.string  "external_ref"
-    t.text    "nuclease"
+    t.boolean "individually_set_grna_concentrations",     :default => false, :null => false
+    t.boolean "guides_generated_in_plasmid",              :default => false, :null => false
+    t.float   "grna_concentration"
+    t.integer "no_g0_where_mutation_detected"
+    t.integer "no_nhej_g0_mutants"
+    t.integer "no_deletion_g0_mutants"
+    t.integer "no_hr_g0_mutants"
+    t.integer "no_hdr_g0_mutants"
+    t.integer "no_hdr_g0_mutants_all_donors_inserted"
+    t.integer "no_hdr_g0_mutants_subset_donors_inserted"
   end
 
   create_table "notifications", :force => true do |t|
@@ -810,6 +824,17 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
 
   add_index "qc_results", ["description"], :name => "index_qc_results_on_description", :unique => true
 
+  create_table "reagent_names", :force => true do |t|
+    t.string "name",        :null => false
+    t.text   "description"
+  end
+
+  create_table "reagents", :force => true do |t|
+    t.integer "mi_attempt_id", :null => false
+    t.integer "reagent_id",    :null => false
+    t.float   "concentration"
+  end
+
   create_table "report_caches", :force => true do |t|
     t.text     "name",       :null => false
     t.text     "data",       :null => false
@@ -886,12 +911,14 @@ ActiveRecord::Schema.define(:version => 20151009125302) do
   end
 
   create_table "targ_rep_crisprs", :force => true do |t|
-    t.integer  "mutagenesis_factor_id", :null => false
-    t.string   "sequence",              :null => false
+    t.integer  "mutagenesis_factor_id",                    :null => false
+    t.string   "sequence",                                 :null => false
     t.string   "chr"
     t.integer  "start"
     t.integer  "end"
     t.datetime "created_at"
+    t.boolean  "truncated_guide",       :default => false
+    t.float    "grna_concentration"
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|

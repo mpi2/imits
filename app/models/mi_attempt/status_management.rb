@@ -8,7 +8,7 @@ module MiAttempt::StatusManagement
   ss.add('Micro-injection in progress') { |mi| true }
 
   ss.add('Chimeras/Founder obtained') do |mi|
-    (mi.es_cell? and mi.total_male_chimeras.to_i > 0) or (mi.crispr? and mi.crsp_total_num_mutant_founders.to_i > 0)
+    (mi.es_cell? and mi.total_male_chimeras.to_i > 0) or (mi.crispr? and (mi.mutagenesis_factor.no_nhej_g0_mutants.to_i > 0 || mi.mutagenesis_factor.no_deletion_g0_mutants.to_i > 0 || mi.mutagenesis_factor.no_hr_g0_mutants.to_i > 0 || mi.mutagenesis_factor.no_hdr_g0_mutants.to_i > 0))
   end
 
   ss.add('Chimeras obtained') do |mi|
@@ -17,7 +17,7 @@ module MiAttempt::StatusManagement
 
 
   ss.add('Founder obtained') do |mi|
-    mi.crispr? and mi.crsp_total_num_mutant_founders.to_i > 0
+    mi.crispr? and (mi.mutagenesis_factor.no_nhej_g0_mutants.to_i > 0 || mi.mutagenesis_factor.no_deletion_g0_mutants.to_i > 0 || mi.mutagenesis_factor.no_hr_g0_mutants.to_i > 0 || mi.mutagenesis_factor.no_hdr_g0_mutants.to_i > 0)
   end
 
 

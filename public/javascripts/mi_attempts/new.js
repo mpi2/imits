@@ -1,5 +1,16 @@
 Ext.namespace('Imits.MiAttempts.New');
 Ext.onReady(function() {
+
+    Ext.select('#mi_attempt_individually_set_grna_concentrations').on("change", function(e) {
+      div = Ext.select('.grna_concentration');
+
+      if(this.checked) {
+        div.show();
+      } else {
+        div.hide();
+      }
+   });
+
     processRestOfForm();
 
     EsCellPanel = Ext.create('Imits.MiAttempts.New.EsCellSelectorForm', {
@@ -464,6 +475,8 @@ Ext.define('Imits.MiAttempts.New.MutagenesisFactorSelectorForm', {
                     addCrispr['chr'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_chr').getValue();
                     addCrispr['chr_start'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_start').getValue();
                     addCrispr['chr_end'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_end').getValue();
+                    addCrispr['grna_concentration'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_grna_concentration').getValue();
+                    addCrispr['truncated_guide'] = Ext.get('mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_' + i + '_truncated_guide').getValue();
 
                     this.window.crisprSearch.crisprSelectionList.createCrispr(addCrispr)
                 }
@@ -636,91 +649,92 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                           });
                           var crispr = 'true';
                           listView.set_mi_plan_selection(MarkerSymbol, crispr);
+                        } else {
+                          alert("You must enter a gene's Marker Symbol.");
+                          return;
                         }
 
                         var crisprTable = Ext.get('crispr-table');
                         var recordStore = mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore()
                         var newRecords = recordStore.getNewRecords();
                         var count_n = 0
+                        var hide_concentration = (Ext.select('#mi_attempt_mutagenesis_factor_attributes_individually_set_grna_concentrations').on().elements[0].checked) ? '' : 'hidden';
                         //remove existing rows from crispr table
                         while (crisprTable.dom.firstChild) {
                             crisprTable.dom.removeChild(crisprTable.dom.firstChild);
                         };
                         newRecords.forEach(
                             function(item){
+                                var truncatedStr = ''
+                                if (item.data['truncated_guide']){
+                                  truncatedStr = 'Truncated to ' + item.data['seq'].length + 'bp'
+                                }
                                 var tableRow ="<tr>\
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_" + count_n + "_sequence' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][sequence]' value= " + item.data['seq'] + " >" + item.data['seq'] + "</td>\
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_chr' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][chr]' value= " + item.data['chr'] + " >" + item.data['chr'] + "</td>\
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_start' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][start]' value= " + item.data['chr_start'] + " >" + item.data['chr_start'] + "</td>\
 <td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_end' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][end]' value= " +  item.data['chr_end'] + " >" +  item.data['chr_end'] + "</td>\
+<td><input type='hidden' id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_truncated_guide' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][truncated_guide]' value= " +  item.data['truncated_guide'] + " >" +  truncatedStr + "</td>\
+<td class = '" + hide_concentration + " grna_concentration_col'><div><input id='mi_attempt_mutagenesis_factor_attributes_crisprs_attributes_"+ count_n + "_grna_concentration' name='mi_attempt[mutagenesis_factor_attributes][crisprs_attributes]["+ count_n + "][grna_concentration]' value= " + item.data['grna_concentration']  + " > ng/uL</div></td>\
 </tr>";
+
                                 crisprTable.createChild(tableRow);
                                 count_n += 1
                             }
                         );
-                        var vectorAttribute = Ext.get('mi_attempt_mutagenesis_factor_attributes_vector_name');
-                        var vectorValue = undefined;
-                        if (vectorAttribute) {vectorValue = vectorAttribute.getValue()};
-                        Ext.get('vector-container').dom.innerHTML = '';
-                        Ext.create('Ext.form.Label', {
-                            renderTo: 'vector-container',
-                            text: 'Vector',
-                            margin: '0 0 2 0'
-                        });
-                        var urlParams = {};
-                        urlParams['marker_symbol'] = mutagensisFactorPanel.window.crisprSearch.searchBox.getValue();
-                        Ext.Ajax.request({
-                            method: 'GET',
-                            url: window.basePath + '/genes/vectors.json',
-                            params: urlParams,
-                            success: function(response) {
-                                var data = Ext.decode(response.responseText);
-                                var options = '<option value=""></option>';
-                                if (vectorValue){options += '<option value="' + vectorValue + '" selected>' + vectorValue + '</option>'};
-                                var crisprtv = '<option value="" disabled>Targeted Vector</option>';
-                                var oligo = '<option value="" disabled>Oligo</option>';
-                                var escelltv = '<option value="" disabled>Targeted Vector</option>';
-                                data.forEach(
-                                    function(item){
-                                        if (item.type =='TargRep::CrisprTargetedAllele'){
-                                            crisprtv += '<option value="' + item.name + '">' + item.name + '</option>';
-                                        }
-                                        else if (item.type =='TargRep::HdrAllele'){
-                                            oligo += '<option value="' + item.name + '">' + item.name + '</option>';
-                                        }
-                                        else if (item.type =='TargRep::TargetedAllele'){
-                                            escelltv += '<option value="' + item.name + '">' + item.name + '</option>';
-                                        }
-                                    }
-                                );
-                                options += '<option value="" disabled>-- CRISPR --</option>' + crisprtv + oligo + '<option value="" disabled></option><option value="" disabled>-- ES CELL --</option>' + escelltv;
-                                vectorHtml = '<select id="mi_attempt_mutagenesis_factor_attributes_vector_name" name="mi_attempt[mutagenesis_factor_attributes][vector_name]">' + options;
-                                this.vectorDiv = Ext.create('Ext.Component', {
-                                renderTo: 'vector-container',
-                                html: vectorHtml,
-                                margin: '0 0 5 0'
-                            });
-                            },
-                            scope: this
-                        });
 
-                        var nucleaseAttribute = Ext.get('mi_attempt_mutagenesis_factor_attributes_nuclease');
-                        var nucleaseValue = undefined;
-                        if (nucleaseAttribute) {nucleaseValue = nucleaseAttribute.getValue()};
-                        Ext.get('nuclease-container').dom.innerHTML = '';
-                        Ext.create('Ext.form.Label', {
-                            renderTo: 'nuclease-container',
-                            text: 'Nuclease',
-                            margin: '0 0 2 0'
-                        });
-                        nucleaseOptions = '';
-                        if (nucleaseValue){nucleaseOptions += '<option value="' + nucleaseValue + '">' + nucleaseValue + '</option>'};
-                        NUCLEASES_OPTIONS.forEach( function(opt) { nucleaseOptions += '<option value="' + opt + '">' + opt + '</option>'} );
-                        nucleaseHtml = '<select id="mi_attempt_mutagenesis_factor_attributes_nuclease" name="mi_attempt[mutagenesis_factor_attributes][nuclease]">' + nucleaseOptions;
-                        Ext.create('Ext.Component', {
-                            renderTo: 'nuclease-container',
-                            html: nucleaseHtml,
-                            margin: '0 0 5 0'
+                        var url = '/select/vector_and_oligos.json';
+                        var urlParams = {};
+                        urlParams['marker_symbol'] = MarkerSymbol;
+                        Ext.Ajax.request({
+                          method: 'GET',
+                          url: window.basePath + url,
+                          params: urlParams,
+                          success: function(response) {
+                              var data = Ext.decode(response.responseText);
+                              console.log(data)
+
+                              var divs_vector_class_add = Ext.select('form #vector_field_set .add-row');
+                              if (divs_vector_class_add){
+                                var vector_add_div = divs_vector_class_add.elements[0];
+                                
+                                data_field=Ext.get(vector_add_div).getAttribute('data-fields');
+                                var wrapper= document.createElement('tbody');
+                                wrapper.innerHTML = data_field;
+                                
+                                w=wrapper.firstChild.firstChild.nextSibling.firstChild;
+                                
+                                while (w.options.length > 0) {
+                                  w.remove(w.options.length - 1);
+                                }
+                                var ctv = data.crispr.targeting_vector
+                                var coli = data.crispr.oligo
+                                var estv = data.es_cell.targeting_vector
+
+                                opt = document.createElement('option'); opt.text = ''; opt.value = ''; w.add(opt, null);
+                                opt = document.createElement('option'); opt.text = '--CRISPR--'; opt.value = ''; opt.disabled = 'disabled'; w.add(opt, null);
+                                opt = document.createElement('option'); opt.text = 'Targeting Vectors'; opt.value = ''; opt.disabled = 'disabled'; w.add(opt, null);
+                                for (i=0; i<ctv.length; i++){
+                                  opt = document.createElement('option'); opt.text = ctv[i]; opt.value = ctv[i]; w.add(opt, null);
+                                };
+                                opt = document.createElement('option'); opt.text = 'Oligos'; opt.value = ''; opt.disabled = 'disabled'; w.add(opt, null);
+                                for (i=0; i<coli.length; i++){
+                                  opt = document.createElement('option'); opt.text = coli[i]; opt.value = coli[i]; w.add(opt, null);
+                                };
+                                opt = document.createElement('option'); opt.text = '--ES CELL--'; opt.value = ''; opt.disabled = 'disabled'; w.add(opt, null);
+                                opt = document.createElement('option'); opt.text = 'Targeting Vectors'; opt.value = ''; opt.disabled = 'disabled'; w.add(opt, null);
+                                for (i=0; i<estv.length; i++){
+                                  opt = document.createElement('option'); opt.text = estv[i]; opt.value = estv[i]; w.add(opt, null);
+                                };
+
+                                w.add(opt, null);
+                                
+                                
+                                vector_add_div.setAttribute( 'data-fields', wrapper.innerHTML);
+                              }
+                              
+                          },
+                          scope: this
                         });
 
                         mutagensisFactorPanel.window.crisprSearch.crisprSelectionList.getStore().removeAll()
@@ -1136,6 +1150,7 @@ Ext.define('Imits.MiAttempts.New.CrisprPairsList', {
 
 Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
     extend: 'Ext.grid.Panel',
+
     height: 160,
     margin: {
         left: 10,
@@ -1144,7 +1159,7 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
         bottom: 10
     },
     store: {
-        fields: ['chr', 'chr_end', 'chr_start', 'seq' ],
+        fields: ['chr', 'chr_end', 'chr_start', 'seq', 'grna_concentration', 'truncated_guide' ],
         data: {
             'rows': []
         },
@@ -1166,22 +1181,32 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
     {
         header: 'Sequence',
         dataIndex: 'seq',
-        width: 250
+        width: 240
     },
 
     {
         header: 'Chr',
         dataIndex: 'chr',
-        width: 85
+        width: 60
     },
     {
         header: 'Chr Start',
         dataIndex: 'chr_start',
-        width: 150
+        width: 130
     },
     {
         header: 'Chr End',
         dataIndex: 'chr_end',
+        width: 135
+    },
+    {
+        header: 'Truncated',
+        dataIndex: 'truncated_guide',
+        width: 85
+    },
+    {
+        header: 'gRNA Concentration',
+        dataIndex: 'grna_concentration',
         width: 155
     },
     {
@@ -1227,8 +1252,8 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
             id: 'seqText',
             fieldLabel: 'Sequence',
             labelAlign: 'left',
-            labelWidth: 50,
-            width: 250,
+            labelWidth: 60,
+            width: 240,
             hidden: false
         });
         self.chrText =  Ext.create('Ext.form.field.Text', {
@@ -1236,7 +1261,7 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
             fieldLabel: 'Chr',
             labelAlign: 'left',
             labelWidth: 30,
-            width: 80,
+            width: 60,
             hidden: false
         });
         self.chrStartText =  Ext.create('Ext.form.field.Text', {
@@ -1244,7 +1269,7 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
             fieldLabel: 'Chr Start',
             labelAlign: 'left',
             labelWidth: 50,
-            width: 150,
+            width: 130,
             hidden: false
         });
         self.chrEndText =  Ext.create('Ext.form.field.Text', {
@@ -1252,10 +1277,17 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
             fieldLabel: 'Chr End',
             labelAlign: 'left',
             labelWidth: 50,
-            width: 150,
+            width: 130,
             hidden: false
         });
-
+        self.truncatedGuide =  Ext.create('Imits.widget.SimpleCheckbox', {
+            id: 'truncatedGuideBoolean',
+            fieldLabel: 'Truncated',
+            labelAlign: 'left',
+            labelWidth: 60,
+            width: 85,
+            hidden: false
+        });
         self.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
             items: [
@@ -1263,6 +1295,7 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
             self.chrText,
             self.chrStartText,
             self.chrEndText,
+            self.truncatedGuide,
             '  ',
             {
                 id: 'add_crispr_button',
@@ -1275,8 +1308,9 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
                     var chrValue      = self.chrText.getSubmitValue();
                     var chrStartValue = self.chrStartText.getSubmitValue();
                     var chrEndValue   = self.chrEndText.getSubmitValue();
+                    var truncatedValue = self.truncatedGuide.getSubmitValue();
 
-                    if(!sequenceValue || sequenceValue && (sequenceValue.length < 23 || sequenceValue.length > 23) ) {
+                    if(!truncatedValue && (!sequenceValue || sequenceValue) && (sequenceValue.length < 23 || sequenceValue.length > 23) ) {
                         alert("You must enter a valid crispr sequence of length 23.");
                         return;
                     }
@@ -1321,6 +1355,9 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
                     addCrispr['chr'] = chrValue;
                     addCrispr['chr_start'] = chrStartValue;
                     addCrispr['chr_end'] = chrEndValue;
+                    if (truncatedValue){
+                      addCrispr['truncated_guide'] = 1;
+                    }
                     self.createCrispr(addCrispr);
 
                     // reset fields after successful save.
@@ -1328,6 +1365,7 @@ Ext.define('Imits.MiAttempts.New.CrisprSelectionList', {
                     self.chrText.setValue('');
                     self.chrStartText.setValue(0);
                     self.chrEndText.setValue(0);
+                    self.truncatedGuide.setValue(false);
                 }
             }
            ]

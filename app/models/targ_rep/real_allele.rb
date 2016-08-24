@@ -43,10 +43,20 @@ class TargRep::RealAllele < ActiveRecord::Base
     :in => ['a','b','c','d','e','e.1','.1','.2', '', 'gt'],
     :message => "Allele Type can only be 'a','b','c','d','e','e.1','.1','.2', 'gt' or an empty string (for deletions), or nil"
 
-    GUESS_MAPPING = {'a'                        => 'b',
-                      'e'                        => 'e.1',
-                      ''                         => '.1'
-                     }
+    CRE_GUESS_MAPPING = {'a'                        => 'b',
+                         'e'                        => 'e.1',
+                         ''                         => '.1'
+                        }
+    FLP_GUESS_MAPPING = {'a'                        => 'c',
+                         'e'                        => 'e.2',
+                         ''                         => '.2'
+                       }
+
+    DRE_GUESS_MAPPING = {''                         => '.3'
+                        }
+
+    FLP_CRE_GUESS_MAPPING = {'a'                    => 'd'
+                            }
 
   # set allele type from allele name
   def check_allele_type
@@ -134,6 +144,7 @@ class TargRep::RealAllele < ActiveRecord::Base
     parent_colony_allele_type = data['parent_colony_allele_type'] || nil
     colony_allele_type = data['colony_allele_type'] || nil
     excised = data['excised'] || nil
+    excised_type =  nil
     mi_allele_target = data['mi_allele_target'] || nil
 
     allele_type = 'None'
@@ -147,9 +158,16 @@ class TargRep::RealAllele < ActiveRecord::Base
     end
 
     if colony_allele_type.nil? && excised == true
-      if !parent_colony_allele_type.nil? and ['a', 'e', ''].include?(parent_colony_allele_type)
+
+      if excised.nil? || excised = 'cre'
         # cre version of the mi_attempt allele
-        allele_type =  GUESS_MAPPING[parent_colony_allele_type] if GUESS_MAPPING.has_key?(parent_colony_allele_type)
+        allele_type =  CRE_GUESS_MAPPING[parent_colony_allele_type] if CRE_GUESS_MAPPING.has_key?(parent_colony_allele_type)
+      elsif excised = 'flp'
+        # flp version of the mi_attempt allele
+        allele_type =  FLP_GUESS_MAPPING[parent_colony_allele_type] if FLP_GUESS_MAPPING.has_key?(parent_colony_allele_type)
+      elsif excised = 'dre'
+        # dre version of the mi_attempt allele
+        allele_type =  DRE_GUESS_MAPPING[parent_colony_allele_type] if DRE_GUESS_MAPPING.has_key?(parent_colony_allele_type)
       end
     end
 

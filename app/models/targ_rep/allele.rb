@@ -280,7 +280,10 @@ class TargRep::Allele < ActiveRecord::Base
                               'tmd'     => "Deletion allele (post-Flp and Cre with no reporter)",
                               'tmCreSC' => "Cre driver allele (with selection cassette)",
                               'tmCre'   => "Cre driver allele",
-                              'tmCGI'   => "Truncation cassette with conditional potential",
+                              'tmCGI'   => "Truncation cassette with conditional potential (selection cassette)",
+                              'tmCGI-cre'   => "Truncated CpG island (post-Cre)",
+                              'tmCGI-flp'   => "Wild type floxed CpG island (post-Flp)",
+                              'tmCGI-dre'   => "Truncation cassette  with conditional potential (post-Dre, with no selection cassette)",
                               'gt'      => "Gene Trap",
                               'Gene Trap' => "Gene Trap",
                               'NHEJ'     => "#{if !allele_description_summary.blank?; allele_description_summary; else; "Frameshift Mutation"; end}",
@@ -289,7 +292,10 @@ class TargRep::Allele < ActiveRecord::Base
                               'HR'       => "Wild type floxed exon"
                             }
 
-      return allele_descriptions['tmCGI'] if !marker_symbol.blank? && marker_symbol =~ /CGI/
+      return allele_descriptions['tmCGI'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == ''
+      return allele_descriptions['tmCGI-cre'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == '.1'
+      return allele_descriptions['tmCGI-flp'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == '.2'
+      return allele_descriptions['tmCGI-dre'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == '.3'
 
       return allele_descriptions['tma'] if allele_type == 'a'
       return allele_descriptions['tmb'] if allele_type == 'b'
@@ -357,11 +363,11 @@ class TargRep::Allele < ActiveRecord::Base
         if modified_allele_type == ''
           return "https://www.i-dcc.org/imits/images/targ_rep/nc_rna_tm1.jpg"
         elsif modified_allele_type == '.1'
-          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_1.jpg"
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_1_cre.jpg"
         elsif modified_allele_type == '.2'
-          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_2.jpg"
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_2_flp.jpg"
         elsif modified_allele_type == '.3'
-          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_3.jpg"
+          return "https://www.i-dcc.org/imits/images/targ_rep/nrna_tm1_3_dre.jpg"
         else
           ""
         end

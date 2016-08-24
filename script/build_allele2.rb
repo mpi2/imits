@@ -81,7 +81,7 @@ class BuildAllele2
   ES_CELL_VECTOR_ALLELES_SQL = <<-EOF
   WITH allele_details AS (
               SELECT targ_rep_alleles.id AS allele_id, genes.marker_symbol AS gene_symbol, genes.mgi_accession_id AS gene_mgi_accession_id,
-                     targ_rep_alleles.project_design_id AS allele_design_id, targ_rep_alleles.cassette AS allele_cassette,
+                     targ_rep_alleles.project_design_id AS allele_design_id, targ_rep_alleles.cassette AS allele_cassette, targ_rep_alleles.cassette_type AS cassette_type,
                      targ_rep_mutation_methods.allele_prefix AS mutation_method_allele_prefix, targ_rep_mutation_methods.name AS mutation_method_name,
                      targ_rep_mutation_types.allele_code AS mutation_type_allele_code, targ_rep_mutation_types.name AS mutation_type_name
               FROM targ_rep_alleles
@@ -93,7 +93,7 @@ class BuildAllele2
   alleles_produced_from_vectors AS (
               SELECT targ_rep_targeting_vectors.id, allele_details.gene_symbol, allele_details.gene_mgi_accession_id, targ_rep_es_cells.mgi_allele_symbol_superscript, targ_rep_es_cells.allele_symbol_superscript_template,
                      targ_rep_es_cells.allele_type, CASE WHEN allele_details.allele_design_id IS NULL THEN '' ELSE CAST(allele_details.allele_design_id AS text) END AS project_design_id,
-                     CASE WHEN allele_details.allele_cassette IS NULL THEN '' ELSE allele_details.allele_cassette END AS cassette, allele_details.mutation_method_allele_prefix AS allele_prefix, allele_details.mutation_type_allele_code AS allele_code,
+                     CASE WHEN allele_details.allele_cassette IS NULL THEN '' ELSE allele_details.allele_cassette END AS cassette, allele_details.cassette_type AS cassette_type, allele_details.mutation_method_allele_prefix AS allele_prefix, allele_details.mutation_type_allele_code AS allele_code,
                      count(CASE WHEN targ_rep_es_cells.report_to_public = false THEN NULL ELSE targ_rep_es_cells.id END) AS num_es_cells, string_agg(targ_rep_es_cells.mgi_allele_id, ',') AS es_mgi_allele_ids,
                      string_agg(targ_rep_es_cells.name, ',') AS es_cell_names, string_agg(targ_rep_es_cells.ikmc_project_id, ',') AS es_ikmc_projects_not_distinct,
                      string_agg(es_pipelines.name, ',') AS es_pipelines_not_distinct, string_agg(allele_details.allele_id::text, ',') AS allele_ids
@@ -103,7 +103,7 @@ class BuildAllele2
                 JOIN targ_rep_pipelines es_pipelines ON es_pipelines.id = targ_rep_es_cells.pipeline_id AND es_pipelines.id SUBS_EUCOMMTOOLSCRE_ID
               WHERE targ_rep_es_cells.report_to_public = true OR targ_rep_targeting_vectors.report_to_public = true
               GROUP BY targ_rep_targeting_vectors.id, allele_details.gene_symbol, allele_details.gene_mgi_accession_id, targ_rep_es_cells.mgi_allele_symbol_superscript, targ_rep_es_cells.allele_symbol_superscript_template,
-                       targ_rep_es_cells.allele_type, allele_details.allele_design_id, allele_details.allele_cassette, allele_details.mutation_method_allele_prefix, allele_details.mutation_type_allele_code
+                       targ_rep_es_cells.allele_type, allele_details.allele_design_id, allele_details.allele_cassette, allele_details.cassette_type, allele_details.mutation_method_allele_prefix, allele_details.mutation_type_allele_code
   ),
 
   targeting_vector_info AS (
@@ -112,6 +112,7 @@ class BuildAllele2
                allele_details.gene_mgi_accession_id AS mgi_accession_id,
                allele_details.allele_id AS tv_targeting_vector_allele_id,
                CASE WHEN allele_details.allele_cassette IS NULL THEN '' ELSE allele_details.allele_cassette END AS tv_cassette,
+               allele_details.cassette_type AS tv_cassette_type,
                CASE WHEN allele_details.allele_design_id IS NULL THEN '' ELSE CAST(allele_details.allele_design_id AS text) END AS tv_project_design_id,
                allele_details.mutation_type_name AS tv_mutation_type,
                allele_details.mutation_type_allele_code AS tv_allele_code,
@@ -128,7 +129,7 @@ class BuildAllele2
 
     SELECT allele_summary.marker_symbol AS gene_symbol, allele_summary.mgi_accession_id AS gene_mgi_accession_id,
            allele_summary.mgi_allele_symbol_superscript AS es_cell_mgi_allele_symbol_superscript, allele_summary.allele_symbol_superscript_template AS es_cell_allele_symbol_superscript_template, allele_summary.allele_type AS es_cell_allele_type,
-           allele_summary.project_design_id AS design_id, allele_summary.cassette, allele_summary.allele_prefix, allele_summary.allele_code AS mutation_type_allele_code,
+           allele_summary.project_design_id AS design_id, allele_summary.cassette, allele_summary.cassette_type, allele_summary.allele_prefix, allele_summary.allele_code AS mutation_type_allele_code,
            string_agg(allele_summary.es_allele_ids, ',') AS es_allele_ids_not_distinct,
            string_agg(allele_summary.es_mgi_allele_ids_not_distinct, ',') AS es_mgi_allele_ids_not_distinct,
            string_agg(allele_summary.tv_allele_id::text, ',') AS tv_allele_ids_not_distinct,
@@ -158,6 +159,9 @@ class BuildAllele2
                CASE WHEN alleles_produced_from_vectors.cassette IS NOT NULL THEN alleles_produced_from_vectors.cassette
                     WHEN targeting_vector_info.tv_cassette IS NOT NULL THEN targeting_vector_info.tv_cassette
                     ELSE NULL END AS cassette,
+               CASE WHEN alleles_produced_from_vectors.cassette_type IS NOT NULL THEN alleles_produced_from_vectors.cassette_type
+                    WHEN targeting_vector_info.tv_cassette_type IS NOT NULL THEN targeting_vector_info.tv_cassette_type
+                    ELSE NULL END AS cassette_type,
                alleles_produced_from_vectors.es_mgi_allele_ids AS es_mgi_allele_ids_not_distinct,
                CASE WHEN alleles_produced_from_vectors.allele_prefix IS NOT NULL THEN alleles_produced_from_vectors.allele_prefix
                     ELSE targeting_vector_info.tv_allele_prefix END AS allele_prefix,
@@ -195,6 +199,7 @@ class BuildAllele2
              allele_summary.allele_type,
              allele_summary.project_design_id,
              allele_summary.cassette,
+             allele_summary.cassette_type,
              allele_summary.allele_prefix,
              allele_summary.allele_code
   EOF
@@ -427,8 +432,6 @@ class BuildAllele2
                                                'allele_description_summary'  => allele_data_row['allele_description']
                                              })
 
-      allele_data_row['allele_category'] = allele_data_row['mutation_type'] == 'em' ? allele_data_row['allele_type'] : allele_data_row['allele_description']
-
       if allele_data_row['mutation_type'] == 'tm'
         allele_data_row['mutation_type'] = 'Targeted'
       elsif allele_data_row['mutation_type'] == 'em'
@@ -444,6 +447,43 @@ class BuildAllele2
       mutagenesis_url = '' if allele_data_row['allele_name'] =~ /#{allele_data_row['cassette']}/
       allele_data_row['links'] <<   "mutagenesis_url:#{mutagenesis_url}" unless mutagenesis_url.blank?
 
+      # Add allele symbol string variants
+      allele_data_row['allele_symbol'] << "#{allele_data_row['marker_symbol']}#{allele_data_row['allele_name']}" # eg) Cbx1tm1a(EUCOMM)Wtsi
+      allele_data_row['allele_symbol'] << "#{allele_data_row['marker_symbol']} #{allele_data_row['allele_name']}" # eg) Cbx1 tm1a(EUCOMM)Wtsi
+      allele_data_row['allele_symbol'] << "#{allele_data_row['marker_symbol']}<sup>#{allele_data_row['allele_name']}</sup>" # eg) Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>
+
+      if !allele_data_row['cassette_type'].blank? && allele_data_row['cassette_type'] == 'Promotorless'
+        with_feature = 'Promotorless'
+        without_feature = 'Promotor Driven'
+      else
+        with_feature = 'Promotor Driven'
+        without_feature = 'Promotorless'
+      end
+
+      allele_features = {
+        'a'  => {'allele_category' => 'Knock-out', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag", "Conditional Potential"], 'without_features' => ["#{without_feature} Selection Tag"]},
+        'b'  => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag', ], 'without_features' => ["Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'c'  => {'allele_category' => 'Wild type Floxed Exon', 'features' => ["Conditional Potential"], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'd'  => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'e'  => {'allele_category' => 'Targeted, Non-Conditional', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag"], 'without_features' => ["#{without_feature} Selection Tag"]},
+        'e.1'  => {'allele_category' => 'Targeted, Non-Conditional', 'features' => ['Reporter Tag'], 'without_features' => ["Promoterless Selection Tag", "Promotor Driven Selection Tag"]},
+        ''   => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag"], 'without_features' => ["#{without_feature} Selection Tag"]},
+        '.1' => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag'], 'without_features' => ["Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        '.2' => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'NHEJ' => {'allele_category' => 'Indel', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'Deletion' => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]}, 
+      }
+
+      if allele_features.include?(allele_data_row['allele_type'])
+        allele_data_row['allele_category'] = allele_features[allele_data_row['allele_type']]['allele_category']
+        allele_data_row['allele_features'] = allele_features[allele_data_row['allele_type']]['features']
+        allele_data_row['without_allele_features'] = allele_features[allele_data_row['allele_type']]['without_features']
+      else
+        allele_data_row['allele_category'] << allele_data_row['allele_type']
+      end
+
+      # remove unnecessary fields from allele doc
+      allele_data_row.delete('cassette_type')
     end
 
     ## append additional data based on already collated data
@@ -503,6 +543,7 @@ class BuildAllele2
     @allele_data["#{data_row['gene_mgi_accession_id']} #{allele_details['allele_symbol']}"] = {
                                                        'marker_symbol' => data_row['gene_symbol'],
                                                        'mgi_accession_id' => data_row['gene_mgi_accession_id'],
+                                                       'allele_symbol' => [],
                                                        'allele_name' => allele_details['allele_symbol'],
                                                        'allele_mgi_accession_id' => '',
                                                        'allele_type' => allele_details['allele_type'] ,
@@ -514,11 +555,13 @@ class BuildAllele2
                                                        'vector_allele_image' => '',
                                                        'design_id' => '',
                                                        'cassette' => '',
+                                                       'cassette_type' => '',
                                                        'pipeline' => [],
                                                        'ikmc_project' => [],
                                                        'mutation_type' => allele_details['allele_symbol'][0,2],
                                                        'allele_category' => '',
                                                        'allele_features' => [],
+                                                       'without_allele_features' => [],
                                                        'targeting_vector_available' => false,
                                                        'es_cell_available' => false, 
                                                        'mouse_available' => false,
@@ -571,6 +614,7 @@ class BuildAllele2
   def es_cell_allele_update_doc(doc, data_row)
     doc['design_id'] = data_row['design_id']
     doc['cassette'] = data_row['cassette']
+    doc['cassette_type'] = data_row['cassette_type']
 #    doc['links'] << "loa_link_id:#{data_row['targ_rep_alleles_id']}"
 
     # set ES Cell status
@@ -585,8 +629,8 @@ class BuildAllele2
 
     if data_row['num_targeting_vectors'].to_i > 0
       doc['targeting_vector_available'] = true
-      doc['vector_genbank_file'] = TargRep::Allele.targeting_vector_genbank_file_url(doc['allele_id'])
-      doc['vector_allele_image'] = TargRep::Allele.vector_image_url(doc['allele_id'])
+      doc['vector_genbank_file'] = TargRep::Allele.targeting_vector_genbank_file_url(data_row['allele_id'])
+      doc['vector_allele_image'] = TargRep::Allele.vector_image_url(data_row['allele_id'])
     end
 
     doc['allele_mgi_accession_id'] = data_row['allele_mgi_accession_id']

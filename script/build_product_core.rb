@@ -784,7 +784,7 @@ if __FILE__ == $0
   BuildProductCore.new.run
   puts "## Completed Rebuild of the Product Core#{Time.now}"
 
-#  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
-#  BuildProductCore.new(true).run
-#  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
+  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
+  BuildProductCore.new(true).run
+  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
 end

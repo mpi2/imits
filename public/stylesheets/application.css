@@ -414,7 +414,7 @@ table.report_table {
   margin-bottom: 20px;
 }
 
-table.report_table th, .report table th, .report_chunky table th   {
+table.report_table  > thead > tr > th, .report table th, .report_chunky table th {
   border: 1px solid #999;
   text-align: left;
   background-color: #ccc;
@@ -424,7 +424,7 @@ table .report_chunky table tr:nth-child(odd) {
   background-color: #e6e6e6;
 }
 
-table.report_table td, .report table td, .report_chunky table td  {
+table.report_table > tbody > tr > td ,.report table td, .report_chunky table td  {
 	border: 1px solid #999;
 }
 
@@ -433,7 +433,7 @@ table.report_table table.date-field td {
   padding:0;
 }
 
-table.report_table th, .report table th {
+table.report_table > thead > tr > th, .report table th {
   padding: 3px 3px;
 }
 
@@ -441,7 +441,7 @@ table.report_table td, .report table td {
   padding: 3px 3px;
 }
 
-table.report_table tr.odd td, .report table tr.odd td {
+table.report_table > tbody > tr.odd td, .report table tr.odd td {
 	background: #f1f1f1;
 }
 

@@ -115,6 +115,7 @@ Ext.define('Imits.widget.GeneGridGeneral', {
                         {'position': 1,
                          'data': {header: 'Production History',
                                  dataIndex: 'production_history_link',
+                                 width: 130,
                                  renderer: function (value, metaData, record) {
                                      var geneId = record.getId();
                                      return Ext.String.format('<a href="{0}/open/genes/{1}/network_graph">Production Graph</a>', window.basePath, geneId);

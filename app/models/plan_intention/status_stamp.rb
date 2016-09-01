@@ -7,6 +7,8 @@ class PlanIntention::StatusStamp < ActiveRecord::Base
   belongs_to :plan_intention
   belongs_to :status
 
+  delegate :name, :code, :to => :status
+
 end
 
 # == Schema Information
@@ -16,4 +18,6 @@ end
 #  id                :integer          not null, primary key
 #  plan_intention_id :integer          not null
 #  status_id         :integer          not null
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
 #

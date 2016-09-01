@@ -1,9 +1,9 @@
 # encoding: utf-8
 
-class PlanIntention::AlleleIntention::Priority < ActiveRecord::Base
+class EsCellQc::Priority < ActiveRecord::Base
   acts_as_reportable
 
-  has_many :plan_intentions
+  has_many :es_cell_qcs
   validates :name, :presence => true, :uniqueness => true
 end
 

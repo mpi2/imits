@@ -1,9 +1,13 @@
 <% @title = "Edit Intentions for #{@plan.marker_symbol}" %>
 
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('plans/shared') %>
+<% end %>
+
 <div id="object-box" class="grid_8 prefix_2 suffix_2">
   <h2><%= @title %></h2>
 
-  <%= form_for @plan, :html => {:class => 'edit show plan'} do |form| %>
+  <%= form_for @plan, :as => :plan, :html => {:class => 'edit show plan'} do |form| %>
 
   <div id="object-new-top" class="grid_8 prefix_2 suffix_2"></div>
 

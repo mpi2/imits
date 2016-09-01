@@ -58,7 +58,7 @@ class MiAttemptsController < ApplicationController
       return
     else
       if @mi_attempt.production_centre.blank?
-        @mi_attempt.mi_plan.update_attributes!(:production_centre => current_user.production_centre)
+        @mi_attempt.plan.update_attributes!(:production_centre => current_user.production_centre)
       end
       @mi_attempt.save!
       flash[:notice] = 'Micro-injection attempt created'
@@ -98,10 +98,10 @@ class MiAttemptsController < ApplicationController
         if ! @mi_attempt.valid?
           flash.now[:alert] = 'Micro-injection could not be updated - please check the values you entered'
         end
-        # temp fix for when update fails silently (mi_plan status change problem eg. mi_attempt 12165)
-        if ! @mi_attempt.mi_plan.valid?
+        # temp fix for when update fails silently (plan status change problem eg. mi_attempt 12165)
+        if ! @mi_attempt.plan.valid?
           flash.now[:notice] = nil
-          flash.now[:alert] = @mi_attempt.mi_plan.errors.full_messages.first
+          flash.now[:alert] = @mi_attempt.plan.errors.full_messages.first
         end
         set_centres_and_consortia
         @mi_attempt.reload
@@ -168,7 +168,7 @@ class MiAttemptsController < ApplicationController
     if params.has_key?(:marker_symbol) and !params[:marker_symbol].blank?
       @marker_symbol = params[:marker_symbol]
     else
-      @marker_symbol = @mi_attempt.mi_plan.try(:gene).try(:marker_symbol)
+      @marker_symbol = @mi_attempt.try(:marker_symbol)
     end
   end
   private :get_marker_symbol

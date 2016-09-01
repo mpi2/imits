@@ -87,7 +87,7 @@ TarMits::Application.routes.draw do
     end
   end
 
-  resources :plans, :only => [:index, :show, :update] do
+  resources :plans, :only => [:index, :show, :update, :create] do
     collection do
       get 'gene_summary'
     end

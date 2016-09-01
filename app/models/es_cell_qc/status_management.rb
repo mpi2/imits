@@ -5,18 +5,18 @@ module EsCellQc::StatusManagement
 
   ss = ApplicationModel::StatusManager.new(EsCellQc)
 
-  ss.add('ES Cell Received') { |mi| true }
+  ss.add('ES Cell Received') { |es_qc| true }
 
-  ss.add('ES Cell QC In Progress') do |mi| 
-    !mi.number_of_es_cells_starting_qc.nil? && mi.number_of_es_cells_starting_qc > 0 
+  ss.add('ES Cell QC In Progress') do |es_qc| 
+    !es_qc.number_of_es_cells_starting_qc.nil? && es_qc.number_of_es_cells_starting_qc > 0 
   end
 
-  ss.add('ES Cell QC Complete', 'ES Cell QC In Progress') do |mi|
-    !number_of_es_cells_passing_qc.nil? && number_of_es_cells_passing_qc > 0
+  ss.add('ES Cell QC Complete', 'ES Cell QC In Progress') do |es_qc|
+    !es_qc.number_of_es_cells_passing_qc.nil? && es_qc.number_of_es_cells_passing_qc > 0
   end
 
-  ss.add('ES Cell QC Failed', 'ES Cell QC In Progress') do |mi|
-    !number_of_es_cells_passing_qc.nil? && number_of_es_cells_passing_qc = 0
+  ss.add('ES Cell QC Failed', 'ES Cell QC In Progress') do |es_qc|
+    !es_qc.number_of_es_cells_passing_qc.nil? && es_qc.number_of_es_cells_passing_qc == 0
   end
 
   included do

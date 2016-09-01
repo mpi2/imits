@@ -100,14 +100,10 @@ class MouseAlleleMod < ApplicationModel
 
   #mi_plan validatation
   validate do |pp|
-    if pp.mi_plan.nil?
+    if pp.plan.nil?
       pp.errors.add(:consortium_name, 'must be set')
       pp.errors.add(:centre_name, 'must be set')
       return
-    end
-
-    if mi_plan != parent_colony.mi_plan &&  mi_plan.phenotype_only == false
-      pp.errors[:mi_plan] << 'must be either the same as the mouse production plan OR phenotype_only'
     end
   end
 
@@ -130,8 +126,8 @@ class MouseAlleleMod < ApplicationModel
 
 ## METHODS
   def gene
-    if mi_plan.try(:gene)
-      return mi_plan.gene
+    if plan.try(:gene)
+      return plan.gene
     elsif parent_colony.try(:gene)
       return parent_colony.gene
     else

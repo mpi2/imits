@@ -1,6 +1,18 @@
 Ext.define('Imits.widget.PlansGrid', {
     extend: 'Imits.widget.PlansGridCommon',
 
+    // allows grid to be edited.
+    plugins: [
+    Ext.create('Ext.grid.plugin.RowEditing', {
+        autoCancel: false,
+        clicksToEdit: 1
+    })
+    ],
+    
+    downloadData : function() {
+        var grid                 = this;
+    },
+
      //extends the MiPlanColumns in MiPlanGridCommon. These column should be independent from the MiPlanGridGeneral (read only grid). columns common to read only grid and editable grid should be added to MiPlanGridCommon.
     additionalColumns: [
                         {'position': 1 ,

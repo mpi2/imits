@@ -3,7 +3,7 @@
 class SubProjectsController < ApplicationController
 
   def create
-    @sub_project = MiPlan::SubProject.new(params[:mi_plan_sub_project])
+    @sub_project = SubProject.new(params[:sub_project])
     if @sub_project.valid?
       @sub_project.save
       flash[:notice] = "Sub-project '#{@sub_project.name}' created"
@@ -17,9 +17,9 @@ class SubProjectsController < ApplicationController
     @sub_project = nil
     old_name = ''
     if !params[:id].blank?
-      @sub_project = MiPlan::SubProject.find_by_id(params[:id])
+      @sub_project = SubProject.find_by_id(params[:id])
       old_name = @sub_project.name
-      if @sub_project.has_mi_plan?
+      if @sub_project.assigned?
         @sub_project = nil
       end
     end
@@ -34,8 +34,8 @@ class SubProjectsController < ApplicationController
   end
 
   def index
-    @sub_project = MiPlan::SubProject.find(:all, :order => "name")
-    @sub_project_new = MiPlan::SubProject.new
+    @sub_project = SubProject.find(:all, :order => "name")
+    @sub_project_new = SubProject.new
     respond_to do |format|
       format.html
       format.json { render :json => @sub_project}

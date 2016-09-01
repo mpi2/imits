@@ -18,7 +18,7 @@ class ColonyController < ApplicationController
     return if @colony.trace_call.nil?
 
 
-    marker_symbol = @colony.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
+    marker_symbol = @colony.try(:mi_attempt).try(:marker_symbol)
     if marker_symbol
       @title         = "Gene #{marker_symbol} - Colony #{@colony.name}"
     else

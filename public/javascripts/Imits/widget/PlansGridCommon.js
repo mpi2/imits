@@ -13,6 +13,7 @@ Ext.define('Imits.widget.PlansGridCommon', {
     store: {
         model: 'Imits.model.Plan',
         autoLoad: true,
+        autoSync: true,
         remoteSort: true,
         remoteFilter: true,
         pageSize: 20
@@ -41,7 +42,7 @@ Ext.define('Imits.widget.PlansGridCommon', {
 
         self.callParent();
 
-        self.addDocked(Ext.create('Ext.toolbar.Paging', {
+        self.addDocked(Ext.create('Imits.widget.SimplePagingToolbar', {
             store: self.getStore(),
             dock: 'bottom',
             displayInfo: true
@@ -89,41 +90,51 @@ Ext.define('Imits.widget.PlansGridCommon', {
             value: window.USER_PRODUCTION_CENTRE
         }
     },
-
     {
         dataIndex: 'es_cell_qc_intent',
         header: 'QC ES Cell',
-        readOnly: true,
-        width: 110,
+        width: 95,
         xtype: 'boolgridcolumn'
     },
     {
         dataIndex: 'es_cell_mi_attempt_intent',
         header: 'MI ES Cell',
-        readOnly: true,
-        width: 110,
+        width: 95,
         xtype: 'boolgridcolumn'
     },
     {
-        dataIndex: 'crispr_mi_attempt_intent',
+        dataIndex: 'nuclease_mi_attempt_intent',
         header: 'MI CRISPR',
-        readOnly: true,
-        width: 110,
+        width: 95,
         xtype: 'boolgridcolumn'
     },
     {
         dataIndex: 'mouse_allele_modification_intent',
         header: 'Modify Mouse Allele',
-        readOnly: true,
         width: 110,
         xtype: 'boolgridcolumn'
     },
     {
         dataIndex: 'phenotyping_intent',
         header: 'Phenotype',
-        readOnly: true,
-        width: 110,
+        width: 95,
         xtype: 'boolgridcolumn'
+    },
+    {
+        dataIndex: 'conflicts',
+        header: 'Conflicts',
+        readOnly: true,
+        width: 55,
+        filter: {
+            type: 'boolean'
+        }
+    },
+    {
+        dataIndex: 'conflict_summary',
+        header: 'Conflict Summary',
+        sortable: false,
+        readOnly: true,
+        width: 180,
     }
 ]
 });

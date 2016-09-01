@@ -11,5 +11,6 @@ class NetworkGraph::NodeWithStates < NetworkGraph::Node
     object.status_stamps.order("created_at DESC").each do |stamps|
       @statuses[stamps.name] = (!stamps.created_at.nil? ? (stamps.created_at.strftime "%d/%m/%Y") : '')
     end
+    return @statuses
   end
 end

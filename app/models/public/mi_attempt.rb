@@ -60,7 +60,7 @@ class Public::MiAttempt < ::MiAttempt
     comments
     genotyping_comment
     distribution_centres_attributes
-    mi_plan_id
+    plan_id
     status_stamps_attributes
     mutagenesis_factor_id
     mutagenesis_factor_attributes
@@ -225,6 +225,7 @@ end
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
+#  parent_colony_id                                :integer
 #  sub_project_id                                  :integer
 #  plan_id                                         :integer
 #

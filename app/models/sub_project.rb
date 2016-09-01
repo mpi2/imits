@@ -12,6 +12,15 @@ class SubProject < ApplicationModel
 
   validates :name, :uniqueness => {:case_sensitive => false}
 
+  def assigned?
+    return true unless plan_intentions.blank?
+    return true unless es_cell_qcs.blank?
+    return true unless mi_attempts.blank?
+    return true unless mouse_allele_mods.blank?
+    return true unless phenotyping_productions.blank?
+    false
+  end
+
 # IDEAS FOR IMPROVEMENT
 # Add centre to table and filter sub_projects based on centre in forms.
 # validate :centre, :presence => true
@@ -20,10 +29,10 @@ end
 
 # == Schema Information
 #
-# Table name: plans
+# Table name: sub_projects
 #
-#  id                   :integer          not null, primary key
-#  gene_id              :integer          not null
-#  consortium_id        :integer
-#  production_centre_id :integer
+#  id         :integer          not null, primary key
+#  name       :string(255)      not null
+#  created_at :datetime
+#  updated_at :datetime
 #

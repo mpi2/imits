@@ -4,7 +4,7 @@ class NetworkGraph::PhenotypingProductionNode < NetworkGraph::NodeWithStates
     params[:rank] = "5"
     super(phenotyping_production, params)
     find_statuses(phenotyping_production)
-    @colony_background_strain = phenotyping_production.colony_background_strain.try(:name).to_s
+    @colony_background_strain = phenotyping_production.colony_background_strain.blank? ? phenotyping_production.parent_colony.background_strain.try(:name).to_s : phenotyping_production.colony_background_strain.try(:name).to_s
     @colony_name = phenotyping_production.colony_name.to_s
     @phenotyping_experiments_started = phenotyping_production.phenotyping_experiments_started.to_s
     @centre = phenotyping_production.phenotyping_centre_name.to_s

@@ -14,7 +14,7 @@
 
 <%= form.hidden_field 'es_cell_name' %>
 <%= form.hidden_field 'es_cell_marker_symbol' %>
-<%= form.hidden_field 'mi_plan_id' %>
+<%= form.hidden_field 'plan_id' %>
 <input id="mutagenesis-show" type="hidden" value="<%= if !@mi_attempt.mutagenesis_factor.blank? then 'true' else 'false' end %>">
 <input id="es_cell-show" type="hidden" value="<%= if !@mi_attempt.es_cell_name.blank? then 'true' else 'false' end %>">
 
@@ -114,11 +114,11 @@
       </div>
     </div>
     <div>
-      <div id="mi_plan_selection_div" <%= if !@mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>>
+      <div id="mi_plan_selection_div" <%= if !@mi_attempt.plan_id.blank? then 'style=display:none;' end%>>
         <div id="mi_plan_list" ></div>
-        <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>" target="_blank">Create new miplan</a></div>
+        <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :plans, :action => :gene_selection) %>" target="_blank">Create new miplan</a></div>
       </div>
-      <div id="change_plan" <%= if @mi_attempt.mi_plan_id.blank? then 'style=display:none;' end%>></div>
+      <div id="change_plan" <%= if @mi_attempt.plan_id.blank? then 'style=display:none;' end%>></div>
     </div>
   </div>
 </fieldset>
@@ -153,7 +153,7 @@
   </fieldset>
 <% end %>
 
-<% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
+<% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.plan %>
   <%= render 'status_change_history', :mi_attempt => mi_attempt %>
 <% end %>
 
@@ -336,7 +336,7 @@
 
 <% end %>
 
-<% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
+<% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.plan %>
   <%= render 'status_change_history', :mi_attempt => mi_attempt %>
 <% end %>
 

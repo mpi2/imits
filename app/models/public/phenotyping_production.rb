@@ -6,7 +6,7 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
   include ::Public::Serializable
 
   FULL_ACCESS_ATTRIBUTES = %w{
-    mi_plan_id
+    plan_id
     consortium_name
     phenotyping_centre_name
     production_colony_name
@@ -44,12 +44,12 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
 
   def self.translations
     return {
-      'marker_symbol' => 'mi_plan_gene_marker_symbol',
-      'consortium' => 'mi_plan_consortium',
-      'production_consortium_name'  => 'parent_colony_mouse_allele_mod_mi_plan_consortium_name_or_parent_colony_mi_attempt_mi_plan_consortium_name',
-      'production_centre_name'      => 'parent_colony_mouse_allele_mod_mi_plan_production_centre_name_or_parent_colony_mi_attempt_mi_plan_production_centre_name',
-      'phenotyping_consortium_name' => 'mi_plan_consortium_name',
-      'phenotyping_centre_name'     => 'mi_plan_production_centre_name'
+      'marker_symbol' => 'plan_gene_marker_symbol',
+      'consortium' => 'plan_consortium',
+      'production_consortium_name'  => 'parent_colony_mouse_allele_mod_plan_consortium_name_or_parent_colony_mi_attempt_plan_consortium_name',
+      'production_centre_name'      => 'parent_colony_mouse_allele_mod_plan_production_centre_name_or_parent_colony_mi_attempt_plan_production_centre_name',
+      'phenotyping_consortium_name' => 'plan_consortium_name',
+      'phenotyping_centre_name'     => 'plan_production_centre_name'
     }
 
   end

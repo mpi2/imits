@@ -37,28 +37,6 @@ module ApplicationModel::BelongsToMiPlan
     end
   end
 
-  # BEFORE SAVE METHODS
-
-  # changes plan intention status to assigned.
-  def manage_plan_and_intentions &update_intention
-    if (@consortium_name.blank? || @production_centre_name.blank?) && plan.consortium_name != consortium_name && plan.production_centre_name != production_centre_name
-      plans = Plan.joins(:gene, :consortium, :production_centre).where("genes.marker_symbol = '#{self.marker_symbol}' AND consortia.name = '#{consortium_name}' AND centres.name = '#{production_centre_name}'")
-      raise 'Cannot have multiple plans for gene_id, consortia.id and centre_id' if plans.length > 1
-      if plans.length == 1
-        self.plan = plans.first
-      else
-        new_plan = Plan.new(:marker_symbol => marker_symbol, :consortium_name => consortium_name, :production_centre_name => production_centre_name)
-        raise 'Could not save new plan' unless new_plan.save
-        plan = new_plan
-      end
-    end
-
-    update_intention.call
-  end
-  protected :manage_plan_and_intentions
-
-
-
   #COMMON METHODS
   def mi_plan_id=(arg)
     plan = Plan.find(arg)
@@ -104,4 +82,5 @@ module ApplicationModel::BelongsToMiPlan
   def production_centre_name=(arg)
     @production_centre_name = arg
   end
+
 end

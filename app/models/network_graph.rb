@@ -22,15 +22,15 @@ class NetworkGraph
     mam_no = 0
     phen_no = 0
 
-    @gene.mi_plans.where("report_to_public IN #{@report_to_public}").order("created_at, id").each do |mi_plan|
+    @gene.plans.order("id").each do |plan|
       plan_no += 1
-      @nodes[['MP', mi_plan.id]] = NetworkGraph::MiPlanNode.new(mi_plan, params = {:symbol => "P#{plan_no}", :url => ''})
-      @relations << [@nodes[['G',@gene.id]], @nodes[['MP',mi_plan.id]]]
+      @nodes[['MP', plan.id]] = NetworkGraph::PlanNode.new(plan, params = {:symbol => "P#{plan_no}", :url => ''})
+      @relations << [@nodes[['G',@gene.id]], @nodes[['MP',plan.id]]]
 
-      mi_plan.mi_attempts.where("report_to_public IN #{@report_to_public}").order("created_at, id").each do |mi_attempt|
+      plan.mi_attempts.where("report_to_public IN #{@report_to_public}").order("created_at, id").each do |mi_attempt|
         mi_no += 1
         @nodes[['MA', mi_attempt.id]] = NetworkGraph::MiAttemptNode.new(mi_attempt, params = {:symbol => "MA#{mi_no}", :url => ""})
-        @relations<<[@nodes[['MP',mi_plan.id]], @nodes[['MA',mi_attempt.id]]]
+        @relations<<[@nodes[['MP',plan.id]], @nodes[['MA',mi_attempt.id]]]
 
         MouseAlleleMod.joins(parent_colony: :mi_attempt).where("mi_attempts.id = #{mi_attempt.id} AND mouse_allele_mods.report_to_public IN #{@report_to_public}").order("created_at, id").each do |mouse_allele_mod|
           if ! @nodes.include?(['MAM',mouse_allele_mod.id])
@@ -59,15 +59,15 @@ class NetworkGraph
       end  #end mi Attempts
 
 
-      mouse_allele_mods = mi_plan.mouse_allele_mods.where("report_to_public IN #{@report_to_public}").order("created_at, id")
+      mouse_allele_mods = plan.mouse_allele_mods.where("report_to_public IN #{@report_to_public}").order("created_at, id")
       if ! mouse_allele_mods.nil?
         mouse_allele_mods.each do |mouse_allele_mod|
           if ! @nodes.include?(['MAM',mouse_allele_mod.id])
             mam_no += 1
             @nodes[['MAM',mouse_allele_mod.id]] = NetworkGraph::MouseAlleleModNode.new(mouse_allele_mod, params = {:symbol => "MAM#{mam_no}", :url => ""})
           end
-          if mouse_allele_mod.mi_plan_id != mouse_allele_mod.parent_colony.mi_attempt.mi_plan_id
-            @relations<<[@nodes[['MP',mi_plan.id]], @nodes[['MAM',mouse_allele_mod.id]]]
+          if mouse_allele_mod.plan_id != mouse_allele_mod.parent_colony.mi_attempt.plan_id
+            @relations<<[@nodes[['MP',plan.id]], @nodes[['MAM',mouse_allele_mod.id]]]
 
             PhenotypingProduction.joins(parent_colony: :mouse_allele_mod).where("mouse_allele_mods.id = #{mouse_allele_mod.id} AND phenotyping_productions.report_to_public IN #{@report_to_public}").order("created_at", "id").each do |phenotyping_production|
               if ! @nodes.include?(['PP',phenotyping_production.id])
@@ -81,16 +81,16 @@ class NetworkGraph
       end  #end mouse_allele_mods associated with mi_plans without mi_attempt
 
 
-      phenotyping_productions = mi_plan.phenotyping_productions.where("report_to_public IN #{@report_to_public}").order("created_at, id")
+      phenotyping_productions = plan.phenotyping_productions.where("report_to_public IN #{@report_to_public}").order("created_at, id")
       if ! phenotyping_productions.nil?
         phenotyping_productions.each do |phenotyping_production|
           if ! @nodes.include?(['PP',phenotyping_production.id])
             phen_no += 1
             @nodes[['PP',phenotyping_production.id]] = NetworkGraph::PhenotypingProductionNode.new(phenotyping_production, params = {:symbol => "PP#{phen_no}", :url => ""})
           end
-          if (!phenotyping_production.parent_colony.mi_attempt_id.nil? && phenotyping_production.mi_plan_id != phenotyping_production.parent_colony.mi_attempt.mi_plan_id) ||
-              (!phenotyping_production.parent_colony.mouse_allele_mod.nil? && phenotyping_production.mi_plan_id != phenotyping_production.parent_colony.mouse_allele_mod.mi_plan_id)
-            @relations<<[@nodes[['MP',mi_plan.id]], @nodes[['PP',phenotyping_production.id]]]
+          if (!phenotyping_production.parent_colony.mi_attempt_id.nil? && phenotyping_production.plan_id != phenotyping_production.parent_colony.mi_attempt.plan_id) ||
+              (!phenotyping_production.parent_colony.mouse_allele_mod.nil? && phenotyping_production.plan_id != phenotyping_production.parent_colony.mouse_allele_mod.plan_id)
+            @relations<<[@nodes[['MP',plan.id]], @nodes[['PP',phenotyping_production.id]]]
           end
         end
       end

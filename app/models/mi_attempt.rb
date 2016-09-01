@@ -72,18 +72,7 @@ class MiAttempt < ApplicationModel
 
   # validate mi plan
   validate do |mi_attempt|
-    if validate_plan #test whether to continue with validations
-      if mi_attempt.mi_plan.phenotype_only
-        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
-      end
-      if mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.es_cell.blank?
-        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (crispr plan)')
-      end
-
-      if !mi_attempt.mi_plan.mutagenesis_via_crispr_cas9 and !mi_attempt.mutagenesis_factor.blank?
-        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (requires crispr plan)')
-      end
-    end
+    validate_plan #test whether to continue with validations
   end
 
 
@@ -165,7 +154,6 @@ class MiAttempt < ApplicationModel
   before_save :make_mi_date_and_in_progress_status_consistent
   before_save :crispr_autofill_allele_target
   after_save :manage_status_stamps
-  after_save :reload_mi_plan_mi_attempts
 
   def set_default_background_strain_for_crispr_produced_colonies
     return unless self.blast_strain_id.blank?
@@ -325,11 +313,6 @@ class MiAttempt < ApplicationModel
   end
   protected :make_mi_date_and_in_progress_status_consistent
 
-  def reload_mi_plan_mi_attempts
-    mi_plan.mi_attempts.reload
-  end
-  protected :reload_mi_plan_mi_attempts
-
   # END Callbacks
 
   def self.active
@@ -413,8 +396,8 @@ class MiAttempt < ApplicationModel
   end
 
   def gene
-    if mi_plan.try(:gene)
-      return mi_plan.gene
+    if plan.try(:gene)
+      return plan.gene
     elsif !es_cell.blank? and es_cell.try(:gene)
       return es_cell.gene
     else
@@ -430,7 +413,7 @@ class MiAttempt < ApplicationModel
   end
 
   def mgi_accession_id
-    return mi_plan.try(:gene).try(:mgi_accession_id)
+    return gene.try(:mgi_accession_id)
   end
 
   def blast_strain_mgi_accession
@@ -498,17 +481,12 @@ class MiAttempt < ApplicationModel
   end
 
   def marker_symbol
-    if !mi_plan.blank?
-      # mi_plan delegates through to gene to fetch marker symbol
-      mi_plan.try(:marker_symbol)
-    else
-      nil
-    end
+      gene.try(:marker_symbol)
   end
 
   def mi_plan_mutagenesis_via_crispr_cas9
-    if !mi_plan.blank?
-      mi_plan.try(:mutagenesis_via_crispr_cas9)
+    if !plan.blank?
+      !plan.micro_injected_nuclease_intention.blank?
     else
       nil
     end
@@ -537,14 +515,14 @@ class MiAttempt < ApplicationModel
     return self.status
   end
 
-  delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
+  delegate :production_centre, :consortium, :to => :plan, :allow_nil => true
 
   def self.translations
     return {
       'es_cell_marker_symbol'   => 'es_cell_allele_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_allele_symbol',
-      'consortium_name'         => 'mi_plan_consortium_name',
-      'production_centre_name'  => 'mi_plan_production_centre_name'
+      'consortium_name'         => 'plan_consortium_name',
+      'production_centre_name'  => 'plan_production_centre_name'
     }
   end
 
@@ -665,6 +643,7 @@ end
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
 #  allele_target                                   :string(255)
+#  parent_colony_id                                :integer
 #  sub_project_id                                  :integer
 #  plan_id                                         :integer
 #

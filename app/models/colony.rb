@@ -118,7 +118,7 @@ class Colony < ApplicationModel
         while true
           n += 1
           test_allele_name = "em#{n}#{mi_attempt.production_centre.code}"
-          break if Colony.joins(mi_attempt: {mi_plan: :gene}).where("genes.marker_symbol = '#{gene}' AND colonies.allele_name = '#{test_allele_name}'").blank?
+          break if Colony.joins(mi_attempt: {plan: :gene}).where("genes.marker_symbol = '#{gene}' AND colonies.allele_name = '#{test_allele_name}'").blank?
         end
 
         self.allele_name = test_allele_name
@@ -183,8 +183,8 @@ class Colony < ApplicationModel
 
 
   def gene
-    return mi_attempt.mi_plan.gene if !mi_attempt_id.blank?
-    return mouse_allele_mod.mi_plan.gene if !mouse_allele_mod_id.blank?
+    return mi_attempt.plan.gene if !mi_attempt_id.blank?
+    return mouse_allele_mod.plan.gene if !mouse_allele_mod_id.blank?
     return nil
   end
 
@@ -192,9 +192,9 @@ class Colony < ApplicationModel
     gene.try(:marker_symbol)
   end
 
-  def mi_plan
-    return mi_attempt.mi_plan if !mi_attempt_id.blank?
-    return mouse_allele_mod.mi_plan if !mouse_allele_mod_id.blank?
+  def plan
+    return mi_attempt.plan if !mi_attempt_id.blank?
+    return mouse_allele_mod.plan if !mouse_allele_mod_id.blank?
     return nil
   end
 
@@ -299,7 +299,7 @@ class Colony < ApplicationModel
     end until self.class.find_by_name(new_colony_name).blank?
     colony_name = new_colony_name
 
-    pa = Public::PhenotypeAttempt.new ({:mi_attempt_colony_name => self.name, :mi_plan_id => self.mi_attempt.mi_plan_id, :colony_name => colony_name})
+    pa = Public::PhenotypeAttempt.new ({:mi_attempt_colony_name => self.name, :plan_id => self.mi_attempt.plan_id, :colony_name => colony_name})
     pa.save
     raise "Could not create Phenotype Attempt #{pa.errors.messages}" unless pa.errors.messages.blank?
   end
@@ -355,8 +355,8 @@ class Colony < ApplicationModel
 
     trace_call.trace_call_vcf_modifications.each do |tc_mod|
       mut_seq_feature = {
-        'chr'          => mi_attempt.mi_plan.gene.chr,
-        'strand'       => mi_attempt.mi_plan.gene.strand_name,
+        'chr'          => mi_attempt.plan.gene.chr,
+        'strand'       => mi_attempt.plan.gene.strand_name,
         'start'        => tc_mod.start,
         'end'          => tc_mod.end,
         'ref_sequence' => tc_mod.ref_seq,

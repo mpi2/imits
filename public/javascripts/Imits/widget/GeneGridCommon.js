@@ -76,6 +76,7 @@ Ext.define('Imits.widget.GeneGridCommon', {
         {
             header: 'View In IMPC',
             dataIndex: 'marker_symbol',
+            width: 130,
             readOnly: true,
             renderer: function (symbol, metaData, record) {
                 var mgi_accession_id = record.get('mgi_accession_id');
@@ -89,11 +90,13 @@ Ext.define('Imits.widget.GeneGridCommon', {
         {
             header: '# IKMC Projects',
             dataIndex: 'ikmc_projects_count',
+            width: 90,
             readOnly: true
         },
         {
             header: '# Clones',
             dataIndex: 'pretty_print_types_of_cells_available',
+            width: 170,
             readOnly: true,
             sortable: false
         }

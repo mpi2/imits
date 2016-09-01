@@ -16,10 +16,14 @@ class FieldGenerator
     text_field(name, options.merge(:class => 'number-field'))
   end
 
-  def form_field(name, label, field_html)
+  def form_field(name, label, field_html, no_label = false)
     element_classes = []
     label ||= tidy_label(name.to_s.titlecase)
-    contents = @form.label(name, label) + "\n".html_safe + field_html
+    if no_label
+      contents = field_html
+    else
+      contents = @form.label(name, label) + "\n".html_safe + field_html
+    end
     if ! @form.object.errors[name].blank?
       contents += "\n".html_safe + content_tag(:span, @form.object.errors[name].join(', '), :class => 'error-message')
       element_classes << 'errors'
@@ -39,7 +43,7 @@ class FieldGenerator
 
   def priorities_field
     name = name.to_s
-    field_html = @form.collection_select(:priority_name, MiPlan::Priority.all, :name, :name, :include_blank => true)
+    field_html = @form.collection_select(:priority_name, EsCellQc::Priority.all, :name, :name, :include_blank => true)
     form_field(:priority_name, nil, field_html)
   end
 
@@ -47,10 +51,11 @@ class FieldGenerator
     model = params[:model]
     field = params[:field]
     label = params[:label]
+    no_lable = params[:no_label] || false
     name = name.to_s
     options = model.constantize.all
     field_html = @form.collection_select(field, options, :name, :name, :include_blank => true)
-    form_field(field, label, field_html)
+    form_field(field, label, field_html, no_lable)
   end
 
 

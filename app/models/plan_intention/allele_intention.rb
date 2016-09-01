@@ -1,10 +1,11 @@
 # encoding: utf-8
 
-class PlanIntention::AlleleIntention < ActiveRecord::Base
+class PlanIntention::AlleleIntention < ApplicationModel
   acts_as_reportable
 
-  belongs_to :plan_intentions
+  extend AccessAssociationByAttribute
 
+  belongs_to :plan_intentions
 end
 
 # == Schema Information

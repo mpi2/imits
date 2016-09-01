@@ -13,13 +13,13 @@ class Public::PhenotypeAttempt
   end
 
 
-  PHENOTYPE_ATTEMPT_MAM_FIELDS = {:exclude => ["id", "mi_plan_id", "cre_excision", "deleter_strain_id", "status_id", "parent_colony_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "number_of_cre_matings_successful", "report_to_public", "is_active", "phenotype_attempt_id", "cre_excision", "created_at", "updated_at"],
+  PHENOTYPE_ATTEMPT_MAM_FIELDS = {:exclude => ["id", "plan_id", "cre_excision", "deleter_strain_id", "status_id", "parent_colony_id", "colony_background_strain_id", "rederivation_started", "rederivation_complete", "number_of_cre_matings_successful", "report_to_public", "is_active", "phenotype_attempt_id", "cre_excision", "created_at", "updated_at"],
                                   :include => ["deleter_strain_name", "mouse_allele_type", "distribution_centres_attributes"] + (ColonyQc::QC_FIELDS.map{|a| "#{a}_result"})}
-  PHENOTYPE_ATTEMPT_PP_FIELDS = {:exclude => ["id", "mi_plan_id", "mouse_allelle_mod_id", "colony_background_strain_id", "cohort_production_centre_id", "rederivation_started", "rederivation_complete", "status_id", "parent_colony_id", "colony_name", "report_to_public", "is_active", "phenotype_attempt_id", "created_at", "updated_at"],
+  PHENOTYPE_ATTEMPT_PP_FIELDS = {:exclude => ["id", "plan_id", "mouse_allelle_mod_id", "colony_background_strain_id", "cohort_production_centre_id", "rederivation_started", "rederivation_complete", "status_id", "parent_colony_id", "colony_name", "report_to_public", "is_active", "phenotype_attempt_id", "created_at", "updated_at"],
                                  :include => []}
 
   READABLE_ATTRIBUTES = {
-      :methods => [:id, :mi_plan_id, :status_name, :mi_attempt_colony_name, :parent_colony_name, :colony_name, :production_centre_name, :consortium_name, :marker_symbol, :mgi_accession_id, :colony_background_strain_name, :colony_background_strain_mgi_name, :colony_background_strain_mgi_accession, :rederivation_started, :rederivation_complete, :distribution_centres_formatted_display, :is_active, :report_to_public, :cre_excision_required, :excision_required, :phenotyping_productions_attributes, :mouse_allele_symbol_superscript, :mouse_allele_symbol, :status_dates]
+      :methods => [:id, :plan_id, :status_name, :mi_attempt_colony_name, :parent_colony_name, :colony_name, :production_centre_name, :consortium_name, :marker_symbol, :mgi_accession_id, :colony_background_strain_name, :colony_background_strain_mgi_name, :colony_background_strain_mgi_accession, :rederivation_started, :rederivation_complete, :distribution_centres_formatted_display, :is_active, :report_to_public, :cre_excision_required, :excision_required, :phenotyping_productions_attributes, :mouse_allele_symbol_superscript, :mouse_allele_symbol, :status_dates]
   }
 
   @@phenotype_attempt_fields = []
@@ -114,7 +114,7 @@ class Public::PhenotypeAttempt
     if mouse_allele_mod.blank?
       pp = phenotyping_productions
     else
-      pp = PhenotypingProduction.joins(mi_plan: [:consortium, :production_centre]).where("colony_name = '#{self.mouse_allele_mod.colony_name}' AND consortia.name = '#{self.mouse_allele_mod.consortium_name}' AND centres.name = '#{self.mouse_allele_mod.production_centre_name}'")
+      pp = PhenotypingProduction.joins(plan: [:consortium, :production_centre]).where("colony_name = '#{self.mouse_allele_mod.colony_name}' AND consortia.name = '#{self.mouse_allele_mod.consortium_name}' AND centres.name = '#{self.mouse_allele_mod.production_centre_name}'")
     end
     if pp.count > 1 or pp.count == 0
       return nil
@@ -165,18 +165,18 @@ class Public::PhenotypeAttempt
     nil
   end
 
-  def mi_plan_id=(arg)
+  def plan_id=(arg)
     return nil if arg.blank?
-    plan = MiPlan.find(arg)
-    @mi_plan_id = plan.id
-    @consortium_name = plan.consortium_name
-    @production_centre_name = plan.production_centre_name
+    p = Plan.find(arg)
+    @plan_id = p.id
+    @consortium_name = p.consortium_name
+    @production_centre_name = p.production_centre_name
   end
 
-  def mi_plan_id
-    return @mi_plan_id unless @mi_plan_id.nil?
-    return mouse_allele_mod.mi_plan_id unless mouse_allele_mod.blank?
-    return linked_phenotyping_production.mi_plan_id unless linked_phenotyping_production.blank?
+  def plan_id
+    return @plan_id unless @plan_id.nil?
+    return mouse_allele_mod.plan_id unless mouse_allele_mod.blank?
+    return linked_phenotyping_production.plan_id unless linked_phenotyping_production.blank?
     return nil
   end
 
@@ -341,7 +341,7 @@ class Public::PhenotypeAttempt
     if mouse_allele_mod_fields_required
       mi_attempt_colony_name = linked_phenotyping_production.parent_colony_name
       colony_background_strain_name = linked_phenotyping_production.colony_background_strain_name
-      mi_plan_id = linked_phenotyping_production.mi_plan_id
+      plan_id = linked_phenotyping_production.plan_id
       colony_name = linked_phenotyping_production.colony_name
     end
 
@@ -465,13 +465,13 @@ class Public::PhenotypeAttempt
   end
 
   def marker_symbol
-    return mouse_allele_mod.mi_plan.gene.marker_symbol if !mouse_allele_mod.blank? && !mouse_allele_mod.mi_plan.blank?
-    return linked_phenotyping_production.mi_plan.gene.marker_symbol if !linked_phenotyping_production.blank? && !linked_phenotyping_production.mi_plan.blank?
+    return mouse_allele_mod.plan.gene.marker_symbol if !mouse_allele_mod.blank? && !mouse_allele_mod.plan.blank?
+    return linked_phenotyping_production.plan.gene.marker_symbol if !linked_phenotyping_production.blank? && !linked_phenotyping_production.plan.blank?
   end
 
   def mgi_accession_id
-    return mouse_allele_mod.mi_plan.gene.mgi_accession_id if !mouse_allele_mod.blank? && !mouse_allele_mod.mi_plan.blank?
-    return linked_phenotyping_production.mi_plan.gene.mgi_accession_id if !linked_phenotyping_production.blank? && !linked_phenotyping_production.mi_plan.blank?
+    return mouse_allele_mod.plan.gene.mgi_accession_id if !mouse_allele_mod.blank? && !mouse_allele_mod.plan.blank?
+    return linked_phenotyping_production.plan.gene.mgi_accession_id if !linked_phenotyping_production.blank? && !linked_phenotyping_production.plan.blank?
   end
 
   def distribution_centres_formatted_display
@@ -505,7 +505,7 @@ class Public::PhenotypeAttempt
       mouse_allele_mod.colony_name = colony_name
       mouse_allele_mod.production_centre_name = production_centre_name || linked_phenotyping_production.try(:phenotyping_centre_name)
       mouse_allele_mod.consortium_name = consortium_name || linked_phenotyping_production.try(:consortium_name)
-      mouse_allele_mod.mi_plan_id = mi_plan_id
+      mouse_allele_mod.plan_id = plan_id
 
       mouse_allele_mod.rederivation_started = rederivation_started
       mouse_allele_mod.rederivation_complete = rederivation_complete
@@ -519,7 +519,7 @@ class Public::PhenotypeAttempt
       linked_phenotyping_production.colony_name = colony_name
       linked_phenotyping_production.phenotyping_centre_name = production_centre_name
       linked_phenotyping_production.consortium_name = consortium_name
-      linked_phenotyping_production.mi_plan_id = mi_plan_id
+      linked_phenotyping_production.plan_id = plan_id
 
       linked_phenotyping_production.rederivation_started = rederivation_started
       linked_phenotyping_production.rederivation_complete = rederivation_complete
@@ -602,7 +602,7 @@ class Public::PhenotypeAttempt
       linked_phenotyping_production.colony_name = mouse_allele_mod.colony_name
       linked_phenotyping_production.phenotyping_centre_name = mouse_allele_mod.production_centre_name
       linked_phenotyping_production.consortium_name = mouse_allele_mod.consortium_name
-      linked_phenotyping_production.mi_plan_id = mouse_allele_mod.mi_plan_id
+      linked_phenotyping_production.plan_id = mouse_allele_mod.plan_id
       linked_phenotyping_production.parent_colony = mouse_allele_mod.colony
 #      linked_phenotyping_production.colony_background_strain_name = mouse_allele_mod.colony_background_strain_name if mouse_allele_mod.changes.has_key("colony_background_strain_name") && mouse_allele_mod.changes["colony_background_strain_name"][0] != linked_phenotyping_production.colony_background_strain_name
     end

@@ -61,14 +61,14 @@ class PhenotypingProduction < ApplicationModel
   def allow_override_of_plan
     return if self.consortium_name.blank? or self.phenotyping_centre_name.blank? or self.gene.blank?
     set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.phenotyping_centre_name, :phenotype_only => true}) do |pa|
-      plan = pa.try(:parent_colony).try(:mi_plan)
+      plan = pa.try(:parent_colony).try(:plan)
       if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.phenotyping_centre_name
         plan = [plan]
       else
         plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.phenotyping_centre_name}' AND phenotype_only = true")
       end
     end
-    self.mi_plan = set_plan
+    self.plan = set_plan
   end
 
   def check_and_set_cohort_centre
@@ -105,20 +105,20 @@ class PhenotypingProduction < ApplicationModel
 
   #mi_plan validatation
   validate do |pp|
-    if pp.mi_plan.nil?
+    if pp.plan.nil?
       pp.errors.add(:consortium_name, 'must be set')
       pp.errors.add(:centre_name, 'must be set')
       return
     end
 
-    if mi_plan != parent_colony.mi_plan && mi_plan.phenotype_only == false
-      pp.errors[:mi_plan] << 'must be either the same as the mouse production plan OR phenotype_only'
+    if plan != parent_colony.plan && plan.phenotype_only == false
+      pp.errors[:plan] << 'must be either the same as the mouse production plan OR phenotype_only'
     end
 
     other_ids = []
-    other_ids = PhenotypingProduction.includes(:mi_plan).where("
-      mi_plans.consortium_id = #{pp.mi_plan.consortium_id} AND
-      mi_plans.production_centre_id = #{pp.mi_plan.production_centre_id} AND
+    other_ids = PhenotypingProduction.includes(:plan).where("
+      plans.consortium_id = #{pp.plan.consortium_id} AND
+      plans.production_centre_id = #{pp.plan.production_centre_id} AND
       parent_colony_id = #{pp.parent_colony_id}").map{|a| a.id} unless pp.parent_colony_id.blank?
 
     other_ids -= [self.id]
@@ -178,7 +178,7 @@ class PhenotypingProduction < ApplicationModel
     begin
       i += 1
       j = i > 0 ? "-#{i}" : ""
-      new_colony_name = "#{self.parent_colony.name}_#{mi_plan.phenotyping_centre_name}#{j}"
+      new_colony_name = "#{self.parent_colony.name}_#{plan.phenotyping_centre_name}#{j}"
     end until self.class.find_by_colony_name(new_colony_name).blank?
     self.colony_name = new_colony_name
   end
@@ -248,8 +248,8 @@ class PhenotypingProduction < ApplicationModel
 
 
   def gene
-    if mi_plan.try(:gene)
-      return mi_plan.gene
+    if plan.try(:gene)
+      return plan.gene
     elsif parent_colony.try(:gene)
       return parent_colony.gene
     else
@@ -284,7 +284,7 @@ class PhenotypingProduction < ApplicationModel
   def consortium_name
     # override included method
     if @consortium_name.blank?
-      mi_plan.try(:consortium).try(:name)
+      plan.try(:consortium).try(:name)
     else
       return @consortium_name
     end
@@ -297,7 +297,7 @@ class PhenotypingProduction < ApplicationModel
   def consortium_name=(arg)
     # override included method
     @consortium_name = arg
-    if @consortium_name != self.mi_plan.try(:consortium).try(:name)
+    if @consortium_name != self.plan.try(:consortium).try(:name)
       # this forces the changed methods to record a change.
       self.changed_attributes['consortium_name'] = arg
     end
@@ -305,7 +305,7 @@ class PhenotypingProduction < ApplicationModel
 
   def phenotyping_centre_name
     if @phenotyping_centre_name.blank?
-      mi_plan.try(:production_centre).try(:name)
+      plan.try(:production_centre).try(:name)
     else
       return @phenotyping_centre_name
     end
@@ -313,7 +313,7 @@ class PhenotypingProduction < ApplicationModel
 
   def phenotyping_centre_name=(arg)
     @phenotyping_centre_name = arg
-    if @phenotyping_centre_name != self.mi_plan.try(:production_centre).try(:name)
+    if @phenotyping_centre_name != self.plan.try(:production_centre).try(:name)
       # this forces the changed methods to record a change.
       self.changed_attributes['production_centre_name'] = arg
     end

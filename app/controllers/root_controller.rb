@@ -51,7 +51,7 @@ class RootController < ApplicationController
       SELECT DISTINCT consortia.name AS consortium_name, centres.name AS centre_name, centres.contact_name, centres.contact_email
       FROM consortia
       LEFT JOIN
-      (mi_plans JOIN centres ON centres.id = mi_plans.production_centre_id) ON consortia.id = mi_plans.consortium_id
+      (plans JOIN centres ON centres.id = plans.production_centre_id) ON consortia.id = plans.consortium_id
     EOF
 
     results = ActiveRecord::Base.connection.execute (sql)

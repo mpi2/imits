@@ -6,7 +6,7 @@ class Public::MouseAlleleMod < ::MouseAlleleMod
   include ::Public::Serializable
 
   FULL_ACCESS_ATTRIBUTES = %w{
-    mi_plan_id
+    plan_id
     consortium_name
     production_centre_name
     mi_attempt_colony_name
@@ -71,9 +71,9 @@ class Public::MouseAlleleMod < ::MouseAlleleMod
 
   def self.translations
     return {
-      'marker_symbol' => 'mi_plan_gene_marker_symbol',
-      'consortium' => 'mi_plan_consortium',
-      'production_centre' => 'mi_plan_production_centre'
+      'marker_symbol' => 'plan_gene_marker_symbol',
+      'consortium' => 'plan_consortium',
+      'production_centre' => 'plan_production_centre'
     }
   end
 end

@@ -4,5 +4,6 @@
   <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user ? current_user.production_centre.name.to_json : ''}" %>
   <%= javascript_tag "SUB_PROJECT_OPTIONS = #{SubProject.all.map(&:name).sort.to_json}" %>
   <%= javascript_tag "CAN_SEE_SUB_PROJECT = #{current_user ? current_user.can_see_sub_project?.to_json: false}" %>
-  <%= javascript_tag "PRIORITY_OPTIONS = #{PlanIntention::AlleleIntention::Priority.all.map(&:name).to_json}" %>
+  <%= javascript_tag "PRIORITY_OPTIONS = #{EsCellQc::Priority.all.map(&:name).to_json}" %>
+  <%= javascript_tag "COMPLETION_NOTES = #{Plan.get_completion_note_enum.to_json}" %>
 <% end %>

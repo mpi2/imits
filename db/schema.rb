@@ -637,6 +637,7 @@ ActiveRecord::Schema.define(:version => 20151014115302) do
     t.text     "assay_type"
     t.boolean  "experimental",                                                   :default => false, :null => false
     t.string   "allele_target"
+    t.integer  "parent_colony_id"
     t.integer  "sub_project_id"
     t.integer  "plan_id"
   end
@@ -670,12 +671,6 @@ ActiveRecord::Schema.define(:version => 20151014115302) do
   end
 
   add_index "mi_plan_statuses", ["name"], :name => "index_mi_plan_statuses_on_name", :unique => true
-
-  create_table "mi_plan_sub_projects", :force => true do |t|
-    t.string   "name",       :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "mi_plans", :force => true do |t|
     t.integer  "gene_id",                                                          :null => false
@@ -838,8 +833,10 @@ ActiveRecord::Schema.define(:version => 20151014115302) do
   end
 
   create_table "plan_intention_status_stamps", :force => true do |t|
-    t.integer "plan_intention_id", :null => false
-    t.integer "status_id",         :null => false
+    t.integer  "plan_intention_id", :null => false
+    t.integer  "status_id",         :null => false
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
   end
 
   create_table "plan_intention_statuses", :force => true do |t|
@@ -855,9 +852,9 @@ ActiveRecord::Schema.define(:version => 20151014115302) do
     t.integer "sub_project_id"
     t.integer "status_id",                                :null => false
     t.integer "intention_id",                             :null => false
-    t.boolean "assign",                :default => true,  :null => false
-    t.boolean "conflict",              :default => true,  :null => false
-    t.boolean "withdrawn",             :default => true,  :null => false
+    t.boolean "assign",                :default => false, :null => false
+    t.boolean "conflict",              :default => false, :null => false
+    t.boolean "withdrawn",             :default => false, :null => false
     t.text    "comment"
     t.text    "completion_comment"
     t.boolean "ignore_available_mice", :default => false, :null => false
@@ -913,6 +910,12 @@ ActiveRecord::Schema.define(:version => 20151014115302) do
   end
 
   add_index "strains", ["name"], :name => "index_strains_on_name", :unique => true
+
+  create_table "sub_projects", :force => true do |t|
+    t.string   "name",       :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "targ_rep_allele_sequence_annotations", :force => true do |t|
     t.string  "mutation_type"
@@ -1279,8 +1282,8 @@ ActiveRecord::Schema.define(:version => 20151014115302) do
   add_foreign_key "mi_plans", "es_cell_qc_comments", :name => "mi_plans_es_qc_comment_id_fk", :column => "es_qc_comment_id"
   add_foreign_key "mi_plans", "genes", :name => "mi_plans_gene_id_fk"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
-  add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"
   add_foreign_key "mi_plans", "plan_intention_allele_intention_priorities", :name => "mi_plans_mi_plan_priority_id_fk", :column => "priority_id"
+  add_foreign_key "mi_plans", "sub_projects", :name => "mi_plans_sub_project_id_fk"
 
   add_foreign_key "mouse_allele_mod_status_stamps", "mouse_allele_mod_statuses", :name => "mouse_allele_mod_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "mouse_allele_mod_status_stamps", "mouse_allele_mods", :name => "fk_mouse_allele_mods"

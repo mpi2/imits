@@ -5,6 +5,7 @@ class NetworkGraph::MouseAlleleModNode < NetworkGraph::NodeWithStates
     super(mouse_allele_mod, params)
     find_statuses(mouse_allele_mod)
     @colony_background_strain = mouse_allele_mod.colony.background_strain.try(:name).to_s
+    @tat_cre = mouse_allele_mod.tat_cre ? 'Yes' : 'No'
     @deleter_strain = mouse_allele_mod.deleter_strain.try(:name).to_s
     @colony_name = mouse_allele_mod.colony_name.to_s
     @allele_name = mouse_allele_mod.colony.try(:allele_symbol).to_s
@@ -20,7 +21,7 @@ class NetworkGraph::MouseAlleleModNode < NetworkGraph::NodeWithStates
              "<tr><td>Colony name:</td><td>#{CGI.escapeHTML(@colony_name)}</td></tr>" +
              "<tr><td>Allele name:</td><td>#{CGI.escapeHTML(@allele_name)}</td></tr>" +
              "<tr><td>Colony background strain:</td><td>#{CGI.escapeHTML(@colony_background_strain)}</td></tr>" +
-             "<tr><td>Deleter strain:</td><td>#{CGI.escapeHTML(@deleter_strain)}</td></tr>" +
+             "<tr>#{ @tat_cre == 'Yes' ? "<td>TAT Cre:</td><td>#{CGI.escapeHTML(@tat_cre)}</td>" : "<td>Deleter strain:</td><td>#{CGI.escapeHTML(@deleter_strain)}</td>" }</tr>" +
              "<tr><td colspan=\"2\" border=\"0\"></td></tr>" +
              "<tr><td border=\"0\">Status Details</td><td border=\"0\"></td></tr>" +
              "<tr><td>Current Status:</td><td>#{CGI.escapeHTML(@current_status)}</td></tr>"

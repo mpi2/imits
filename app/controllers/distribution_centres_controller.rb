@@ -50,9 +50,9 @@ class DistributionCentresController < ApplicationController
           JOIN colony_distribution_centres cdc ON cdc.colony_id = colonies.id
           JOIN centres dc ON dc.id = cdc.centre_id
           JOIN #{@model_table_name} ON colonies.#{@model_table_name.singularize}_id = #{@model_table_name}.id
-          JOIN mi_plans ON mi_plans.id = #{@model_table_name}.mi_plan_id
-          JOIN centres ON centres.id = mi_plans.production_centre_id
-          JOIN consortia ON consortia.id = mi_plans.consortium_id
+          JOIN plans ON plans.id = #{@model_table_name}.plan_id
+          JOIN centres ON centres.id = plans.production_centre_id
+          JOIN consortia ON consortia.id = plans.consortium_id
         WHERE consortia.name = '#{params[:consortium_name]}'
           AND centres.name = '#{params[:pc_name]}'
           AND #{@model_table_name}.status_id IN (#{@status_id.join(',')})

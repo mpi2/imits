@@ -1873,6 +1873,7 @@ CREATE TABLE mi_attempts (
     assay_type text,
     experimental boolean DEFAULT false NOT NULL,
     allele_target character varying(255),
+    parent_colony_id integer,
     sub_project_id integer,
     plan_id integer
 );
@@ -1994,37 +1995,6 @@ CREATE SEQUENCE mi_plan_statuses_id_seq
 --
 
 ALTER SEQUENCE mi_plan_statuses_id_seq OWNED BY mi_plan_statuses.id;
-
-
---
--- Name: mi_plan_sub_projects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plan_sub_projects (
-    id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
-);
-
-
---
--- Name: mi_plan_sub_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE mi_plan_sub_projects_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: mi_plan_sub_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE mi_plan_sub_projects_id_seq OWNED BY mi_plan_sub_projects.id;
 
 
 --
@@ -2513,7 +2483,9 @@ ALTER SEQUENCE plan_intention_allele_intentions_id_seq OWNED BY plan_intention_a
 CREATE TABLE plan_intention_status_stamps (
     id integer NOT NULL,
     plan_intention_id integer NOT NULL,
-    status_id integer NOT NULL
+    status_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -2577,9 +2549,9 @@ CREATE TABLE plan_intentions (
     sub_project_id integer,
     status_id integer NOT NULL,
     intention_id integer NOT NULL,
-    assign boolean DEFAULT true NOT NULL,
-    conflict boolean DEFAULT true NOT NULL,
-    withdrawn boolean DEFAULT true NOT NULL,
+    assign boolean DEFAULT false NOT NULL,
+    conflict boolean DEFAULT false NOT NULL,
+    withdrawn boolean DEFAULT false NOT NULL,
     comment text,
     completion_comment text,
     ignore_available_mice boolean DEFAULT false NOT NULL,
@@ -2780,6 +2752,37 @@ CREATE SEQUENCE strains_id_seq
 --
 
 ALTER SEQUENCE strains_id_seq OWNED BY strains.id;
+
+
+--
+-- Name: sub_projects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE sub_projects (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
+);
+
+
+--
+-- Name: sub_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE sub_projects_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sub_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE sub_projects_id_seq OWNED BY sub_projects.id;
 
 
 --
@@ -3892,13 +3895,6 @@ ALTER TABLE ONLY mi_plan_statuses ALTER COLUMN id SET DEFAULT nextval('mi_plan_s
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_sub_projects ALTER COLUMN id SET DEFAULT nextval('mi_plan_sub_projects_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY mi_plans ALTER COLUMN id SET DEFAULT nextval('mi_plans_id_seq'::regclass);
 
 
@@ -4040,6 +4036,13 @@ ALTER TABLE ONLY report_caches ALTER COLUMN id SET DEFAULT nextval('report_cache
 --
 
 ALTER TABLE ONLY strains ALTER COLUMN id SET DEFAULT nextval('strains_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY sub_projects ALTER COLUMN id SET DEFAULT nextval('sub_projects_id_seq'::regclass);
 
 
 --
@@ -4447,7 +4450,7 @@ ALTER TABLE ONLY mi_plan_statuses
 -- Name: mi_plan_sub_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY mi_plan_sub_projects
+ALTER TABLE ONLY sub_projects
     ADD CONSTRAINT mi_plan_sub_projects_pkey PRIMARY KEY (id);
 
 
@@ -5561,7 +5564,7 @@ ALTER TABLE ONLY mi_plans
 --
 
 ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_sub_project_id_fk FOREIGN KEY (sub_project_id) REFERENCES mi_plan_sub_projects(id);
+    ADD CONSTRAINT mi_plans_sub_project_id_fk FOREIGN KEY (sub_project_id) REFERENCES sub_projects(id);
 
 
 --
@@ -6179,6 +6182,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141218120401');
 INSERT INTO schema_migrations (version) VALUES ('20150121134401');
 
 INSERT INTO schema_migrations (version) VALUES ('20150123133119');
+
+INSERT INTO schema_migrations (version) VALUES ('20150209095302');
 
 INSERT INTO schema_migrations (version) VALUES ('20150303141000');
 

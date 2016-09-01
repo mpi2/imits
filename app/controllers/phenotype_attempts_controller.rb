@@ -50,8 +50,8 @@ class PhenotypeAttemptsController < ApplicationController
                           'phenotype_attempt_id'             => 'phenotype_attempt_id',
                           'marker_symbol'                    => 'marker_symbol',
                           'colony_name'                      => 'colony_name_or_colony_phenotyping_productions_colony_name',
-                          'production_centre_name'           => 'production_centre_name_or_colony_phenotyping_productions_mi_plan_production_centre_name',
-                          'consortium_name'                  => 'consortium_name_or_colony_phenotyping_productions_mi_plan_consortium_name',
+                          'production_centre_name'           => 'production_centre_name_or_colony_phenotyping_productions_plan_production_centre_name',
+                          'consortium_name'                  => 'consortium_name_or_colony_phenotyping_productions_plan_consortium_name',
                           'mouse_allele_mod_id'              => 'parent_colony_mouse_allele_mod_id',
                           'parent_colony_name'               => 'parent_colony_name',
                           'rederivation_started'             => 'rederivation_started',
@@ -73,14 +73,14 @@ class PhenotypeAttemptsController < ApplicationController
                          }
 
    pp_translation_options = {
-                          'mi_plan_'                  => 'mi_plan_',
+                          'plan_'                     => 'plan_',
                           'mi_attempt_'               => 'parent_colony_mi_attempt_',
                           'phenotyping_productions_'  => '',
                           'status_stamps_'            => 'status_stamps_'
                         }
 
    mam_translation_options = {
-                          'mi_plan_'                  => 'mi_plan_',
+                          'plan_'                     => 'plan_',
                           'distribution_centres_'     => 'colony_distribution_centres_',
                           'mi_attempt_'               => 'parent_colony_mi_attempt_',
                           'phenotyping_productions_'  => 'colony_phenotyping_productions_',
@@ -208,7 +208,7 @@ class PhenotypeAttemptsController < ApplicationController
     @mi_attempt = @parent_colony.mi_attempt
     if @mi_attempt.status.name == "Genotype confirmed"
       @phenotype_attempt = Public::PhenotypeAttempt.new(
-        :mi_plan => @mi_attempt.mi_plan
+        :plan => @mi_attempt.plan
         )
       @phenotype_attempt.cre_excision_required = false unless @mi_attempt.mutagenesis_factor.blank?
     else
@@ -223,7 +223,7 @@ class PhenotypeAttemptsController < ApplicationController
     @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     @mi_attempt = MiAttempt.joins(:colony).where("colonies.name = '#{params[:phenotype_attempt][:mi_attempt_colony_name]}'").first
 
-    @phenotype_attempt.mi_plan_id = @mi_attempt.mi_plan_id if @phenotype_attempt.mi_plan_id.blank? && !@mi_attempt.blank?
+    @phenotype_attempt.plan_id = @mi_attempt.plan_id if @phenotype_attempt.plan_id.blank? && !@mi_attempt.blank?
 
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])

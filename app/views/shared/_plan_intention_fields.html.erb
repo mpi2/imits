@@ -1,0 +1,11 @@
+<% intention_generator = FieldGenerator.new(f) %>
+
+<tr>
+  <td><%= f.object.intention.try(:name) %></td>
+  <td><%= f.object.status.try(:name) %></td>
+  <td><%= f.object.conflict %></td>
+  <td><%= f.object.assign %></td>
+  <td><%= f.check_box :withdrawn %></td>
+  <td><%= intention_generator.drop_down_field :field => :sub_project_name, :model => 'SubProject', :no_label => true %>
+  <td><div><%= f.text_area :comment %><div></td>
+</tr>

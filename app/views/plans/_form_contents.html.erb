@@ -1,3 +1,5 @@
+<% generator = FieldGenerator.new(form) %>
+
 <fieldset class="collapsible">
   <legend>Manage Intentions
   </legend>
@@ -11,21 +13,14 @@
         <th>Conflict</th>
         <th>Assigned</th>
         <th>Withdrawn</th>
-        <th>Sub Project</th>
-        <th>Allele Structure</th>
+        <th>Assign To Sub Project</th>
+        <th>Comment</th>
       </tr></thead>
-      <tbody>
-        <% @intentions.each do |intention| %>
-        <tr>
-          <td><%= intention.intention.name %></td>
-          <td><%= intention.status.name %></td>
-          <td><%= intention.conflict %></td>
-          <td><%= intention.assign %></td>
-          <td><%= intention.withdrawn %></td>
-          <td><%= intention.sub_project.try(:name) %></td>
-          <td>Allele Structure</td>
-        </tr>
-        <% end %>
+      <tbody class="distribution_centres">
+        <tr></tr>
+        <%= form.fields_for :plan_intentions do |intention_form| %>
+          <%= render '/shared/plan_intention_fields', f: intention_form %>
+        <% end %> 
       </tbody>
     </table>
   </div>
@@ -91,50 +86,84 @@
   <div>
     <div>
       <div class="label">ES Cell Delivery and QC</div>
-      <% if @plan.es_cell_qcs.length == 0 %>
-        <p>No Es Cell QC has commenced</p>
-      <% else %>
+        <% if @plan.es_cell_qc_intent || @plan.es_cell_mi_attempt_intent%>
         <table class="report_table">
           <thead><tr>
             <th>External Ref</th>
             <th>Status</th>
-            <th>ES Cells Delivery Info</th>
+            <th>ES Cells Request & Delivery Info</th>
             <th>ES Cells QC</th>
-            <th>Comment</th>
           </tr></thead>
           <tbody>
-            <% @plan.es_cell_qcs.each do |es_qc|%>
             <tr>
-              <td style="text-align: center;vertical-align: top;"><div style="padding:30px 0px 0px 0px"><a href= "/es_cell_qc/<%= es_qc.id %>"><%= es_qc.id %></a></div></td>
-              <td style="text-align: center;vertical-align: top;"><div style="padding:30px 0px 0px 0px"><%= es_qc.status.name %></div></td>
+              <td style="text-align: center;vertical-align: top;"><div style="padding:30px 0px 0px 0px"><a <%= @plan.es_cell_qcs.count == 0 ? '' : "href= #{@plan.es_cell_qcs.first.id}" %>><%= @plan.es_cell_qcs.count == 0 ? '' : @plan.es_cell_qcs.first.id %></a></div></td>
+              <td style="text-align: center;vertical-align: top;"><div style="padding:30px 0px 0px 0px"><%= @plan.es_cell_qcs.count == 0 ? '' : @plan.es_cell_qcs.first.status.name %></div></td>
               <td style="text-align: left;vertical-align: top;"><fieldset>
+                <legend>ES Cell Request</legend>
+                  <%= generator.drop_down_field :field => :priority_name, :model => 'EsCellQc::Priority', :label => 'Priority' %>
+                  <div class="request_es_cell">
+                    Alleles Types
+                    <table class = "report_table">
+                      <thead>
+                        <tr>
+                          <th>Conditional</th>
+                          <th>Non Conditional</th>
+                          <th>Deletion</th>
+                          <th>Point Mutation</th>
+                          <th>Conditional Point Mutation</th>
+                          <th>Bespoke</th>
+                          <th>Recovery</th>
+                          <th>Cre Bac</th>
+                          <th>Cre Knock In</th>
+                          <th>Conditional tm1c</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                          <td><%= form.check_box :conditional_allele %></td>
+                          <td><%= form.check_box :non_conditional_allele %></td>
+                          <td><%= form.check_box :deletion_allele %></td>
+                          <td><%= form.check_box :point_mutation_allele %></td>
+                          <td><%= form.check_box :conditional_point_mutation_allele %></td>
+                          <td><%= form.check_box :bespoke_allele %></td>
+                          <td><%= form.check_box :recovery_allele %></td>
+                          <td><%= form.check_box :cre_bac_allele %></td>
+                          <td><%= form.check_box :cre_knock_in_allele %></td>
+                          <td><%= form.check_box :conditional_tm1c_allele %></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  </fieldset><fieldset>
                   <legend>ES Cells Received</legend>
                   <div class="received_es_cell">
-                    <div class="label">Date Received</div>
-                    <div><%= es_qc.es_cells_received_on %></div>
-                    <div class="label">Number of ES Cells</div>
-                    <div><%= es_qc.number_of_es_cells_received %></div>
-                    <div class="label">Received From</div>
-                    <div><%= es_qc.es_cells_received_from_name %></div>
+                    <%= generator.number_field :number_of_es_cells_received %>
+                    <%= generator.text_field :es_cells_received_on, :class => 'date-field'  %>
+                    <%= generator.drop_down_field :field => :es_cells_received_from_name, :model => 'TargRep::CentrePipeline', :label =>'Received From' %>
                   </div>
                   </fieldset>
               </td>
               <td  style="text-align: left;vertical-align: top;"><fieldset>
                   <legend>QC Details</legend>
                   <div class="es_cell_qc">
-                    <div class="label">Starting QC</div>
-                    <div><%= es_qc.number_of_es_cells_starting_qc %></div>
-                    <div class="label">Passing QC</div>
-                    <div><%= es_qc.number_of_es_cells_passing_qc %></div>
+                      <%= generator.number_field :number_of_es_cells_starting_qc %>
+                      <%= generator.number_field :number_of_es_cells_passing_qc %>
+                      <%= generator.drop_down_field :field => :es_qc_comment_name, :model => 'EsCellQc::Comment', :label => 'Es QC Comment' %>
+
+                  </fieldset><fieldset>
+                  <legend>Completion Description</legend>
+                  <div class="">
+                      <%= select('plan', 'completion_note', Plan.get_completion_note_enum) %>
+                      <div><%= form.text_area :completion_comment %><div>
                   </div>
                 </fieldset>
               </td>
-              <td style="text-align: center;vertical-align: top;"><%= es_qc.comment_id %></td>
             </tr>
-            <% end %>
           </tbody>
         </table>
-      <% end %>
+        <% else %>
+          <%= "No ES Cells Required" %>
+        <% end %>
     </div>
     <div>
       <div class="label">Micro Injection Production</div>

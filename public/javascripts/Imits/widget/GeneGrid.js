@@ -125,21 +125,10 @@ Ext.define('Imits.widget.GeneGrid', {
                                   )
                                  }
                         },
-                        {'position': 1 ,
-                         'data': {header: 'Tree',
-                                  readOnly: true,
-                                  renderer: function (value, metaData, record) {
-                                      var mgiId = record.get('mgi_accession_id');
-                                      var iconURL = '<img src="' + window.basePath + '/images/icons/application_side_tree.png" alt="Blah"/>';
-                                      return Ext.String.format('<a href="{0}/genes/{1}/relationship_tree">{2}</a>', window.basePath, mgiId, iconURL);
-                                  },
-                                  width: 40,
-                                  sortable: false
-                                  }
-                        },
                         {'position': 1,
                          'data': {header: 'Production History',
                                  dataIndex: 'production_history_link',
+                                 width: 130,
                                  renderer: function (value, metaData, record) {
                                      var geneId = record.getId();
                                      return Ext.String.format('<a href="{0}/genes/{1}/network_graph">Production Graph</a>', window.basePath, geneId);
@@ -186,6 +175,12 @@ Ext.define('Imits.widget.GeneGrid', {
         var subProjectName       = grid.subprojectCombo.getSubmitValue();
         var priorityName         = grid.priorityCombo.getSubmitValue();
 
+        var esCellQc              = grid.escellqccheck.getSubmitValue();
+        var esCellMouseProduction = grid.escellmouseproductionCheck.getSubmitValue();
+        var crisprMouseProduction = grid.crisprmouseproductionCheck.getSubmitValue();
+        var mouseAlleleMod        = grid.mouseallelemodificationCheck.getSubmitValue();
+        var phenotype             = grid.phenotypeCheck.getSubmitValue();
+
         if(selectedGenes.length == 0) {
             alert('You must select some genes to register interest in');
             return;
@@ -194,26 +189,41 @@ Ext.define('Imits.widget.GeneGrid', {
             alert('You must select a consortium');
             return;
         }
-        if(priorityName == null) {
-            alert('You must selct a priority');
+        if(productionCentreName == null) {
+            alert('You must select a production centre');
+            return;
+        }
+        if (esCellQc == null && esCellMouseProduction == null && crisprMouseProduction == null && mouseAlleleMod == null && phenotype == null) {
+            alert('You must select your intention(s)');
+            return;
+        }
+        if(priorityName == null && (esCellQc != null || esCellMouseProduction != null)) {
+            alert('You must select a priority');
             return;
         }
 
+        if (esCellQc != null) esCellQc = true; 
+        if (esCellMouseProduction != null) esCellMouseProduction = true; 
+        if (crisprMouseProduction != null) crisprMouseProduction = true; 
+        if (mouseAlleleMod != null) mouseAlleleMod = true; 
+        if (phenotype != null) phenotype = true; 
+        
         grid.setLoading(true);
+
 
         selectedGenes.each(function(geneRow) {
             var markerSymbol = geneRow.raw['marker_symbol'];
-            var miPlan = Ext.create('Imits.model.MiPlan', {
-                'marker_symbol'          : markerSymbol,
-                'consortium_name'        : consortiumName,
-                'production_centre_name' : productionCentreName,
-                'sub_project_name'       : subProjectName,
-                'es_cell_qc'             : esCellQc,
-                'mouse_production'       : PhenotypeOnly,
-                'mouse_allele_modification' : Crispr,
-                'Phenotype'              : isBespokeAllele,
-                'priority_name'          : priorityName,
-                'pipeline'               : Pipeline
+            var miPlan = Ext.create('Imits.model.Plan', {
+                'marker_symbol'                    : markerSymbol,
+                'consortium_name'                  : consortiumName,
+                'production_centre_name'           : productionCentreName,
+                'default_sub_project_name'         : subProjectName,
+                'es_cell_qc_intent'                : esCellQc,
+                'es_cell_mi_attempt_intent'        : esCellMouseProduction,
+                'nuclease_mi_attempt_intent'       : crisprMouseProduction,
+                'mouse_allele_modification_intent' : mouseAlleleMod,
+                'phenotyping_intent'               : phenotype,
+                'priority_name'                    : priorityName
             });
             miPlan.save({
                 failure: function() {
@@ -253,8 +263,8 @@ Ext.define('Imits.widget.GeneGrid', {
         grid.subprojectCombo              = grid.createComboBox('sub_project', 'Sub Project', 65, window.SUB_PROJECT_OPTIONS, false, isSubProjectHidden);
         grid.escellqccheck                = grid.createCheckBox('es_cell_qc', 'QC ES Cells', 60, false);
         grid.priorityCombo                = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS, false, false);
-        grid.pipelineCombo                = grid.createComboBox('pipeline', 'Pipeline', 47, window.PRIORITY_OPTIONS, false, false);
-        grid.mouseproductionCheck         = grid.createCheckBox('mouse_production', 'Produce Mouse via Micro-Injection', 95, false);
+        grid.escellmouseproductionCheck   = grid.createCheckBox('es_cell_mouse_production', 'Produce Mouse via Micro-Injection of ES Cell', 125, false);
+        grid.crisprmouseproductionCheck   = grid.createCheckBox('crispr_mouse_production', 'Produce Mouse via Micro-Injection of Nuclease', 125, false);
         grid.mouseallelemodificationCheck = grid.createCheckBox('mouse_allele_modification', 'Modify Mouse Allele', 85, false);
         grid.phenotypeCheck               = grid.createCheckBox('phenotype', 'Phenotype', 65, false);
 
@@ -283,11 +293,11 @@ Ext.define('Imits.widget.GeneGrid', {
             '',
             'With the intention(s) to ...',
             grid.escellqccheck,
-            grid.mouseproductionCheck,
+            grid.escellmouseproductionCheck,
+            grid.crisprmouseproductionCheck,
             grid.mouseallelemodificationCheck,
             grid.phenotypeCheck,
             grid.priorityCombo,
-            grid.pipelineCombo,
             '',
             {
                 id: 'register_interest_button',

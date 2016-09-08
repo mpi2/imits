@@ -1,0 +1,28 @@
+<% generator = MiAttemptFieldGenerator.new(f) %>
+<% trace_file = f.object %>
+
+<tr>
+  <td><%= trace_file.colony.id %></td>
+  <td>
+    <% if trace_file.trace_file_name.blank? %>
+      <%= f.file_field :trace %></br>
+    <% else %>
+      <div> <%= trace_file.trace_file_name %></div>
+    <% end %>
+  </td>
+  <td>
+    <div>
+
+      <div>Heterozygous Trace? <%= f.check_box :is_het %></div>
+    </div>
+  </td>
+  <td>
+    <% if @new_object != nil %>
+      <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+      <%= link_to "remove", '#', class: "remove-row" %>
+    <% else %>
+      <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+      <%= link_to "remove", '#', class: "hide-row" %>
+    <% end %>
+  </td>
+</tr>

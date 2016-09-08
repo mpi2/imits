@@ -3328,6 +3328,7 @@ ALTER SEQUENCE trace_call_vcf_modifications_id_seq OWNED BY trace_call_vcf_modif
 CREATE TABLE trace_calls (
     id integer NOT NULL,
     colony_id integer NOT NULL,
+    mutagenesis_factor_id integer NOT NULL,
     file_alignment text,
     file_filtered_analysis_vcf text,
     file_variant_effect_output_txt text,
@@ -3340,14 +3341,9 @@ CREATE TABLE trace_calls (
     file_exception_details text,
     file_return_code integer,
     file_merged_variants_vcf text,
-    is_het boolean DEFAULT false NOT NULL,
+    exon_id character varying(255),
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    trace_file_file_name character varying(255),
-    trace_file_content_type character varying(255),
-    trace_file_file_size integer,
-    trace_file_updated_at timestamp without time zone,
-    exon_id character varying(255)
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -3376,11 +3372,15 @@ ALTER SEQUENCE trace_calls_id_seq OWNED BY trace_calls.id;
 
 CREATE TABLE trace_files (
     id integer NOT NULL,
-    style character varying(255),
-    file_contents bytea,
+    colony_id integer NOT NULL,
+    is_het boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    trace_call_id integer NOT NULL
+    trace_file_name character varying(255),
+    trace_content_type character varying(255),
+    trace_file_size integer,
+    trace_updated_at timestamp without time zone,
+    mutagenesis_factor_id integer
 );
 
 
@@ -3401,6 +3401,39 @@ CREATE SEQUENCE trace_files_id_seq
 --
 
 ALTER SEQUENCE trace_files_id_seq OWNED BY trace_files.id;
+
+
+--
+-- Name: traces; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE traces (
+    id integer NOT NULL,
+    style character varying(255),
+    file_contents bytea,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    trace_file_id integer NOT NULL
+);
+
+
+--
+-- Name: traces_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE traces_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: traces_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE traces_id_seq OWNED BY traces.id;
 
 
 --
@@ -3948,6 +3981,13 @@ ALTER TABLE ONLY trace_files ALTER COLUMN id SET DEFAULT nextval('trace_files_id
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY traces ALTER COLUMN id SET DEFAULT nextval('traces_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY tracking_goals ALTER COLUMN id SET DEFAULT nextval('tracking_goals_id_seq'::regclass);
 
 
@@ -4474,15 +4514,23 @@ ALTER TABLE ONLY trace_call_vcf_modifications
 -- Name: trace_calls_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY trace_calls
+ALTER TABLE ONLY trace_files
     ADD CONSTRAINT trace_calls_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: trace_calls_pkey1; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY trace_calls
+    ADD CONSTRAINT trace_calls_pkey1 PRIMARY KEY (id);
 
 
 --
 -- Name: trace_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY trace_files
+ALTER TABLE ONLY traces
     ADD CONSTRAINT trace_files_pkey PRIMARY KEY (id);
 
 
@@ -5382,14 +5430,14 @@ ALTER TABLE ONLY targ_rep_real_alleles
 --
 
 ALTER TABLE ONLY trace_call_vcf_modifications
-    ADD CONSTRAINT trace_call_vcf_modifications_trace_calls_fk FOREIGN KEY (trace_call_id) REFERENCES trace_calls(id);
+    ADD CONSTRAINT trace_call_vcf_modifications_trace_calls_fk FOREIGN KEY (trace_call_id) REFERENCES trace_files(id);
 
 
 --
 -- Name: trace_calls_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY trace_calls
+ALTER TABLE ONLY trace_files
     ADD CONSTRAINT trace_calls_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
 
 
@@ -5832,3 +5880,5 @@ INSERT INTO schema_migrations (version) VALUES ('20160308125302');
 INSERT INTO schema_migrations (version) VALUES ('201604011125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20160602105302');
+
+INSERT INTO schema_migrations (version) VALUES ('20160906105302');

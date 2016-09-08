@@ -92,8 +92,6 @@ class MiAttemptsController < ApplicationController
   end
 
   def update
-    # TODO: put this somewhere more sensible
-    Paperclip.options[:content_type_mappings] = { scf: 'application/octet-stream' }
 
     @mi_attempt = Public::MiAttempt.find(params[:id])
     return unless authorize_user_production_centre(@mi_attempt)

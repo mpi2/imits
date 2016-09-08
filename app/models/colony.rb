@@ -14,16 +14,16 @@ class Colony < ApplicationModel
   has_many :micro_injection_attempts, :class_name => 'MiAttempt', :foreign_key => 'parent_colony_id'
   has_many :allele_modifications, :class_name => 'MouseAlleleMod', :foreign_key => 'parent_colony_id'
   has_many :phenotyping_productions, :class_name => 'PhenotypingProduction', :foreign_key => 'parent_colony_id'
-
   has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :dependent => :destroy
+  has_many :trace_files, :dependent => :destroy
+  has_many :trace_calls,  :dependent => :destroy
 
   has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy
-  has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
 
   access_association_by_attribute :background_strain, :name
 
   accepts_nested_attributes_for :colony_qc, :update_only =>true
-  accepts_nested_attributes_for :trace_call
+  accepts_nested_attributes_for :trace_files, :allow_destroy => true
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
   accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
 

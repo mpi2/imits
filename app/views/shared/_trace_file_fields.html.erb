@@ -2,7 +2,9 @@
 <% trace_file = f.object %>
 
 <tr>
-  <td><%= trace_file.colony.id %></td>
+  <td><% f.object.marker_symbol = @mi_attempt.marker_symbol %>
+    <%= f.select :marker_symbol, Gene.where("marker_symbol IN ('#{@mi_attempt.marker_symbol}')").all.map(&:marker_symbol), :include_blank => false %>
+    </td>
   <td>
     <% if trace_file.trace_file_name.blank? %>
       <%= f.file_field :trace %></br>
@@ -17,7 +19,7 @@
     </div>
   </td>
   <td>
-    <% if @new_object != nil %>
+    <% if f.object.new_record? %>
       <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
       <%= link_to "remove", '#', class: "remove-row" %>
     <% else %>

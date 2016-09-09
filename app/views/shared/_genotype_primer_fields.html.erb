@@ -6,7 +6,7 @@
     <td><%= f.text_field :genomic_start_coordinate%></td>
     <td><%= f.text_field :genomic_end_coordinate%></td>
     <td>
-        <% if @new_object != nil %>
+        <% if f.object.new_record? %>
             <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
             <%= link_to "remove", '#', class: "remove-row" %>
         <% else %>

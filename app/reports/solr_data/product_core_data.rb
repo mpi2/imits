@@ -3,7 +3,7 @@
 require 'pp'
 require "digest/md5"
 
-class ProductCoreData
+class SolrData::ProductCoreData
 
   include ApplicationModel::DistributionCentre
 
@@ -336,42 +336,66 @@ class ProductCoreData
     return sql
   end
 
-  def initialize (show_eucommtoolscre = false)
-    @show_eucommtoolscre = show_eucommtoolscre
+  def initialize (options = {})
 
-    @dataset_max_size = 80000
-    @process_mice = true
-    @process_es_cells = true
-    @process_targeting_vectors = true
-    @process_intermediate_vectors = true
-    @guess_mapping = {'a'                        => 'b',
-                      'e'                        => 'e.1',
-                      ''                         => '.1',
-                      'Conditional Ready'        => 'a',
-                      'Targeted Non Conditional' => 'e',
-                      'Deletion'                 => '',
-                      'Cre Knock In'             => '',
-                      'Gene Trap'                => 'Gene Trap'
-                     }
+    @file_name = options[:file_name] || ''
+    @show_eucommtoolscre = options[:show_eucommtoolscre] || false
+    @marker_symbols = options.has_key?(:marker_symbols) ? options[:marker_symbols].split(',') : nil
 
-    @genbank_file_transformations = {'a'   => '',
-                                     'e'   => '',
-                                     ''    => '',
-                                     'b'   => 'cre',
-                                     'e.1' => 'cre',
-                                     '.1'  => 'cre',
-                                     'c'   => 'flp',
-                                     'd'   => 'flp-cre'
-                                     }
-
-    @qc_results = {}
+    @process_mice = options[:process_mice] || true
+    @process_es_cells = options[:process_es_cells] || true
+    @process_targeting_vectors = options[:process_targeting_vectors] || true
+    @process_intermediate_vectors = options[:process_intermediate_vectors] || true
 
     @look_up_contact = {}
+    @qc_results = {}
+    @docs = []
+
     Centre.all.each{|production_centre| if !production_centre.contact_email.blank? ; @look_up_contact[production_centre.name] = production_centre.contact_email; end }
     QcResult.all.each{|result| @qc_results[result.id] = result.description}
   end
 
-  def process_product_and_send_to_solr_core (step_no, product_type, product_sql, doc_creation_method_name)
+  def run
+    check_params
+    generate_data
+    save_to_file
+  end
+
+  def check_params
+    puts "------------------"
+    puts "PRODUCT SOLR REPORT run with:"
+    puts "FILE NAME #{ @file_name.blank? ? "not set" : "set to #{@file_name}" }"
+    puts "EUCOMMTOOLSCRE Filter set to #{@show_eucommtoolscre}"
+    puts "MARKER SYMBOL Filter #{ @marker_symbols.blank? ? "not set" : "set to #{@marker_symbols.try(:to_sentence)}" }"
+    puts "PROCESS MICE Filter set to #{@process_mice}"
+    puts "PROCESS ES CELLS Filter set to #{@process_es_cells}"
+    puts "PROCESS TARGETING VECTOR Filter set to #{@process_targeting_vectors}"
+    puts "PROCESS INTERMEDIATE VECTOR Filter set to #{@process_intermediate_vectors}"
+    puts "------------------"
+
+    raise "file_name Parameter required" if @file_name.blank?
+    raise "Invalid Parameter show_eucommtoolscre must be a boolean"  unless [TrueClass, FalseClass].include?(@show_eucommtoolscre.class)
+    raise "Invalid Marker Symbol provided" if !@marker_symbols.blank? && @marker_symbols.any{|ms| Gene.find_by_marker_symbol(ms).blank?}
+    raise "Invalid Parameter process_mice must be a boolean" unless [TrueClass, FalseClass].include?(@process_mice.class)
+    raise "Invalid Parameter process_es_cells must be a boolean" unless [TrueClass, FalseClass].include?(@process_es_cells.class)
+    raise "Invalid Parameter process_targeting_vectors must be a boolean" unless [TrueClass, FalseClass].include?(@process_targeting_vectors.class)
+    raise "Invalid Parameter process_intermediate_vectors must be a boolean" unless [TrueClass, FalseClass].include?(@process_intermediate_vectors.class)
+
+  end
+
+  def save_to_file
+    file = open(@file_name, 'w')
+
+    file.write(Solr::Product.tsv_header)
+#puts Solr::Product.tsv_header
+    @docs.each do |doc|
+      file.write(doc.doc_to_tsv)
+#puts doc.doc_to_tsv
+    end
+  end
+  private :save_to_file
+
+  def process_product(step_no, product_type, product_sql, doc_creation_method_name)
 
     puts "#### step #{step_no} #{product_type} Products #{Time.now}"
     puts "#### step #{step_no}.1 Select #{Time.now}"
@@ -388,49 +412,40 @@ class ProductCoreData
 
     puts "count #{product_count}"
     puts "#### step #{step_no}.2 create json docs #{Time.now}"
-
-
-    doc_sets = [[]]
-    doc_set = doc_sets[-1]
-    row_no = 0
     rows.each do |row|
-      row_no +=1
-      if row_no > @dataset_max_size
-        doc_sets << []
-        doc_set = doc_sets[-1]
-        row_no = 0
-      end
       row['targ_rep_alleles_id'] = row['allele_id']
-      doc_set << self.method(doc_creation_method_name).call(row)
+      @docs << self.method(doc_creation_method_name).call(row)
     end
-
   end
+  private :process_product
 
-  def run
+
+  def generate_data
+
     step_no = 1
     puts "#### Starting #{Time.now}"
 
-
     if @process_mice == true
-      process_product_and_send_to_solr_core(step_no, 'mouse', self.class.mice_lines_sql, 'create_mouse_doc')
+      process_product(step_no, 'mouse', self.class.mice_lines_sql, 'create_mouse_doc')
       step_no += 1
     end
 
     if @process_es_cells == true
-      process_product_and_send_to_solr_core(step_no, 'es_cell', self.class.es_cell_sql, 'create_es_cell_doc')
+      process_product(step_no, 'es_cell', self.class.es_cell_sql, 'create_es_cell_doc')
       step_no += 1
     end
 
     if @process_targeting_vectors == true
-      process_product_and_send_to_solr_core(step_no, 'targeting_vector', self.class.targeting_vectors_sql, 'create_targeting_vector_doc')
+      process_product(step_no, 'targeting_vector', self.class.targeting_vectors_sql, 'create_targeting_vector_doc')
       step_no += 1
     end
 
     if @process_intermediate_vectors == true
-      process_product_and_send_to_solr_core(step_no, 'intermediate_vector', self.class.intermediate_vectors_sql, 'create_intermediate_vector_doc')
+      process_product(step_no, 'intermediate_vector', self.class.intermediate_vectors_sql, 'create_intermediate_vector_doc')
       step_no += 1
     end
   end
+  private :generate_data
 
   def create_mouse_doc row
     allele_template = nil
@@ -449,9 +464,8 @@ class ProductCoreData
                                                                 'mgi_allele_symbol_superscript' => row['colonies_mgi_allele_symbol_superscript'] || nil
                                                               })
 
-#puts "HELLO #{allele_info['allele_symbol']}, #{allele_info['allele_type']},e_temp:#{row['es_cell_allele_superscript_template']},mi_temp:#{row['mi_colony_allele_symbol_superscript_template']},c_temp:#{row['colony_allele_symbol_superscript_template']},e_type:#{row['es_cell_allele_type']},p_type:#{row['parent_mouse_allele_type']},c_type:#{row['colony_allele_type']},a_id:#{row['allele_id']},a_target:#{row['allele_target']},c_allele_name:#{row['colony_allele_name']},excised:#{row['excised']},a_template:#{allele_template},c_mgi_symbol:#{row['colonies_mgi_allele_symbol_superscript']}"
-#raise "Oops"
-    doc = {"product_id"                 => row["product_id"],
+    doc = Solr::Product.new({
+     "product_id"                       => row["product_id"],
      "allele_id"                        => row["allele_id"],
      "marker_symbol"                    => row["marker_symbol"],
      "mgi_accession_id"                 => row["mgi_accession_id"],
@@ -477,24 +491,25 @@ class ProductCoreData
      "ikmc_project_id"                  => row["ikmc_project_id"],
      "design_id"                        => row["design_id"],
      "cassette"                         => row["cassette"]
-    }
+    })
 
 
-    if doc['production_completed'] == true
+    if doc.production_completed == true
 
       distribution_centres = self.class.get_distribution_centres(row)
 
       distribution_centres.each do |dis_centre|
         order_name, order_link = self.class.mice_order_links(dis_centre)
         if order_name && order_link
-          doc["order_names"] << order_name
-          doc["order_links"] << order_link
+          doc.order_names << order_name
+          doc.order_links << order_link
         end
       end
     end
 
     doc
   end
+  private :create_mouse_doc
 
   def create_es_cell_doc row
     allele_info = TargRep::RealAllele.calculate_allele_information( {'mutation_method_allele_prefix' => row['allele_prefix'] || nil,
@@ -507,7 +522,8 @@ class ProductCoreData
                                                                 'mgi_allele_symbol_superscript' => row['allele_symbol_superscript'] || nil
                                                               })
 
-    doc = {"product_id"                 => 'E' + row["es_cell_id"],
+    doc = Solr::Product.new({
+     "product_id"                       => 'E' + row["es_cell_id"],
      "allele_id"                        => row["allele_id"],
      "marker_symbol"                    => row['marker_symbol'],
      "mgi_accession_id"                 => row['mgi_accession_id'],
@@ -527,12 +543,13 @@ class ProductCoreData
      "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
      "cassette"                         => row["cassette"]
-    }
+    })
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))
 
     doc
   end
+  private :create_es_cell_doc
 
   def create_targeting_vector_doc row
 
@@ -544,7 +561,8 @@ class ProductCoreData
                                                                 'mgi_allele_symbol_superscript' => self.class.convert_to_array(row['allele_names'])[0] || nil
                                                               })
 
-    doc = {"product_id"                  => 'T' + row["targeting_vector_id"],
+    doc = Solr::Product.new({
+     "product_id"                        => 'T' + row["targeting_vector_id"],
      "allele_id"                         => row["allele_id"],
      "marker_symbol"                     => row['marker_symbol'],
      "mgi_accession_id"                  => row['mgi_accession_id'],
@@ -563,12 +581,13 @@ class ProductCoreData
      "ikmc_project_id"                  => row["ikmc_project"],
      "design_id"                        => row["design_id"],
      "cassette"                         => row["cassette"]
-     }
+     })
 
     self.class.processes_order_link(doc, self.class.es_cell_and_targeting_vector_order_links(row['mgi_accession_id'], row['marker_symbol'], row['pipeline'], row['ikmc_project_id']))
 
     doc
   end
+  private :create_targeting_vector_doc
 
   def create_intermediate_vector_doc row
 
@@ -579,7 +598,8 @@ class ProductCoreData
                                                                 'mgi_allele_symbol_superscript' => self.class.convert_to_array(row['allele_names'])[0] || nil
                                                               })
 
-    doc = {"product_id"                => 'I' + row["vector_name"],
+    doc = Solr::Product.new({
+     "product_id"                      => 'I' + row["vector_name"],
      "allele_id"                       => row["allele_id"],
      "marker_symbol"                   => row['marker_symbol'],
      "mgi_accession_id"                => row['mgi_accession_id'],
@@ -593,16 +613,18 @@ class ProductCoreData
      "status_date"                     => '',
      "associated_product_vector_name"  => row['vector_name'],
      "other_links"                     => ["design_link:#{TargRep::Allele.design_url(row['design_id'])}"]
-    }
+    })
 
     doc
   end
+  private :create_intermediate_vector_doc
 
 
   def production_graph_url gene_id
     return "" if gene_id.blank?
     return "https://www.i-dcc.org/imits/open/genes/#{gene_id}/network_graph"
   end
+  private :production_graph_url
 
 
   def self.get_distribution_centres row
@@ -643,8 +665,8 @@ class ProductCoreData
   end
 
   def self.processes_order_link(doc, order_link)
-    doc['order_names'] = order_link[:names]
-    doc['order_links'] = order_link[:urls]
+    doc.order_names = order_link[:names]
+    doc.order_links = order_link[:urls]
   end
 
   def self.mice_order_links(distribution_centre, config = nil)
@@ -711,15 +733,4 @@ class ProductCoreData
   end
 
 
-end
-
-if __FILE__ == $0
-  # this will only run if the script was the main, not load'd or require'd
-  puts "## Start Rebuild of the Product Core #{Time.now}"
-  BuildProductCore.new.run
-  puts "## Completed Rebuild of the Product Core#{Time.now}"
-
-  puts "## Start Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
-  BuildProductCore.new(true).run
-  puts "## Completed Rebuild of the EUCOMMToolsCre Product Core#{Time.now}"
 end

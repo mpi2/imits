@@ -425,6 +425,10 @@ class BuildAllele2
 
     ## append additional data based on already collated data
     @allele_data.each do |key, allele_data_row|
+
+      allele_data_row['synonym'] = @gene_data[allele_data_row['mgi_accession_id']]['synonym'] 
+      allele_data_row['feature_type'] = @gene_data[allele_data_row['mgi_accession_id']]['feature_type']
+
       allele_data_row['allele_description'] = TargRep::Allele.allele_description({
                                                'marker_symbol'               => allele_data_row['marker_symbol'],
                                                'cassette'                    => allele_data_row['cassette'],
@@ -436,6 +440,8 @@ class BuildAllele2
         allele_data_row['mutation_type'] = 'Targeted'
       elsif allele_data_row['mutation_type'] == 'em'
         allele_data_row['mutation_type'] = 'Endonuclease-mediated'
+      else
+        allele_data_row['mutation_type'] = nil
       end
 
       mutagenesis_url = TargRep::RealAllele.mutagenesis_url({'mgi_accession_id' => allele_data_row['mgi_accession_id'],
@@ -461,7 +467,7 @@ class BuildAllele2
       end
 
       allele_features = {
-        'a'  => {'allele_category' => 'Knock-out', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag", "Conditional Potential"], 'without_features' => ["#{without_feature} Selection Tag"]},
+        'a'  => {'allele_category' => 'Knockout First', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag", "Conditional Potential"], 'without_features' => ["#{without_feature} Selection Tag"]},
         'b'  => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag', ], 'without_features' => ["Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         'c'  => {'allele_category' => 'Wild type Floxed Exon', 'features' => ["Conditional Potential"], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         'd'  => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},

@@ -385,7 +385,6 @@ class TargRep::Allele < ActiveRecord::Base
       return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{!transformation.blank? ? '-' + transformation : ''}?simple=true.jpg"
     end
 
-
     def self.targeting_vector_genbank_file_url(allele_id)
       return "" if allele_id.blank?
       return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/targeting-vector-genbank-file"

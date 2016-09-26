@@ -8,4 +8,8 @@ class Solr::Allele2 < Solr::Tableless
   def cassette_type=(arg)
     @cassette_type = cassette_type
   end
+
+  def self.valid_blank_fields
+    return [:allele_type]
+  end
 end

@@ -667,7 +667,7 @@ class SolrData::Allele2CoreData
                  'mgi_accession_id' => data_row['mgi_accession_id'],
                  'marker_type' => data_row['marker_type'],
                  'marker_name' => data_row['marker_name'],
-                 'synonym' => data_row['synonyms'],
+                 'synonym' => !data_row['synonyms'].blank? ? data_row['synonyms'].split('|') : '',
                  'feature_type' => data_row['feature_type'],
                  'feature_chromosome' => data_row['chr'],
                  'feature_strand' => data_row['strand_name'],

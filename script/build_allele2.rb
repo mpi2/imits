@@ -659,7 +659,7 @@ class BuildAllele2
                  'mgi_accession_id' => data_row['mgi_accession_id'],
                  'marker_type' => data_row['marker_type'],
                  'marker_name' => data_row['marker_name'],
-                 'synonym' => data_row['synonyms'],
+                 'synonym' => !data_row['synonyms'].blank? ? data_row['synonyms'].split('|') : '',
                  'feature_type' => data_row['feature_type'],
                  'feature_chromosome' => data_row['chr'],
                  'feature_strand' => data_row['strand_name'],
@@ -895,8 +895,8 @@ class BuildAllele2
     data.each do |key, row|
       hash = nil
 
-      # remove fields which contain null values.
-      row = row.select{|key, value| (value.class == String && !value.blank?) || (value.class != String && !value.nil?)}
+      # remove fields which contain null values, unless field is allele_type
+      row = row.select{|key, value| (key == 'allele_type') || (value.class == String && !value.blank?) || (value.class != String && !value.nil?)}
 
       item = {'add' => {'doc' => row }}
       list.push item.to_json

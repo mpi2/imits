@@ -250,6 +250,9 @@ TarMits::Application.routes.draw do
     get 'wge_searches/mutant_protein_translation_for_colony' => 'wge_searches#mutant_protein_translation_for_colony', :as => 'mutant_protein_translation_for_colony'
 
     get 'lims2_searches/get_crispr_group_data' => 'lims2_searches#get_crispr_group_data', :as => 'get_crispr_group_data'
+
+    get 'auto_suggest/mgi_allele' => 'mousemine_searches#mgi_allele_auto_suggest', :as => 'mgi_allele_auto_suggest'
+
     #connect ':controller/:action/:id.:format'
     #connect ':controller/:action.:format'
 

@@ -171,7 +171,6 @@ class MgiAlleleNameUpdate
 
     colony.mgi_allele_symbol_superscript = allele['mgi_allele_name']
     colony.mgi_allele_id = allele['mgi_allele_id']
-    clony_allele_name = allele['mgi_allele_name']
 
     if colony.valid?
       colony.save
@@ -265,7 +264,6 @@ class MgiAlleleNameUpdate
   end
 
   def crispr_allele_download_template(hash, row)
-    puts "HELLO"
     allele_name = row[2]
     hash[row[0]] = {'colony_name' => row[0], 'mgi_allele_id' => row[1], 'mgi_allele_name' => allele_name}
     nil

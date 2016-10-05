@@ -789,7 +789,8 @@ CREATE TABLE colonies (
     allele_type character varying(255),
     background_strain_id integer,
     allele_description_summary text,
-    auto_allele_description text
+    auto_allele_description text,
+    mgi_allele_symbol_without_impc_abbreviation boolean
 );
 
 
@@ -5832,3 +5833,5 @@ INSERT INTO schema_migrations (version) VALUES ('20160308125302');
 INSERT INTO schema_migrations (version) VALUES ('201604011125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20160602105302');
+
+INSERT INTO schema_migrations (version) VALUES ('20160927105302');

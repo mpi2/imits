@@ -47,11 +47,11 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string  "name",                                                  :null => false
+    t.string  "name",                                                           :null => false
     t.integer "mi_attempt_id"
-    t.boolean "genotype_confirmed",                 :default => false
-    t.boolean "report_to_public",                   :default => false
-    t.boolean "unwanted_allele",                    :default => false
+    t.boolean "genotype_confirmed",                          :default => false
+    t.boolean "report_to_public",                            :default => false
+    t.boolean "unwanted_allele",                             :default => false
     t.text    "allele_description"
     t.string  "mgi_allele_id"
     t.string  "allele_name"
@@ -62,6 +62,7 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer "background_strain_id"
     t.text    "allele_description_summary"
     t.text    "auto_allele_description"
+    t.boolean "mgi_allele_symbol_without_impc_abbreviation"
   end
 
   add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true

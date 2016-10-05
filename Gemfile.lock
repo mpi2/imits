@@ -86,6 +86,8 @@ GEM
       activesupport
       builder
     i18n (0.6.1)
+    intermine (1.04.00)
+      json
     jammit (0.6.5)
       yui-compressor (>= 0.9.3)
     journey (1.0.4)
@@ -236,6 +238,7 @@ DEPENDENCIES
   factory_girl_rails (= 1.1.0)
   foreigner (= 1.0.3)
   hoptoad_notifier (= 2.4.11)
+  intermine (~> 1.4)
   jammit (= 0.6.5)
   json
   launchy (= 2.0.5)

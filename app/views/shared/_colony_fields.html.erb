@@ -54,9 +54,20 @@
 
         <div style="padding:0px 10px 0px 10px">
             <fieldset class="collapsible">
+            <legend>MGI Allele</legend>
+            <div>
+                <%= generator.text_field :mgi_allele_symbol_superscript, label: "MGI Allele Symbol"%>
+                <div>without project abbreviation (IMPC) <%= f.check_box :mgi_allele_symbol_without_impc_abbreviation %></div>
+            </div>
+        </div>
+
+        <div style="padding:0px 10px 0px 10px">
+            <fieldset class="collapsible">
             <legend>Colony Status</legend>
             <div>
                 <div>Genotype Confirmed? <%= f.check_box :genotype_confirmed %></div>
+                
+                <div id="mgi_alelel_symbol_auto_suggest"></div>
                 <div><%= generator.strains_field :background_strain %></div>
                 <div>Allele Description</div><div><%= f.text_area :allele_description %></div>
                 <div>Unwanted Allele Obtained? <%= f.check_box :unwanted_allele %></div>

@@ -210,6 +210,12 @@ class SolrData::Allele2CoreData
     @marker_symbol = options.has_key?(:marker_symbols) ? options[:marker_symbols].split(',') : nil
     @file_name = options[:file_name] || ''
 
+    if @show_eucommtoolscre
+      @allele_design_project = 'Cre'
+    else
+      @allele_design_project = 'IMPC'
+    end
+
     @mouse_status_list = {}
     PhenotypingProduction::Status.all.each{|status| @mouse_status_list[status['name']] = status['order_by']}
     MouseAlleleMod::Status.all.each{|status| @mouse_status_list[status['name']] = status['order_by']}
@@ -290,9 +296,12 @@ class SolrData::Allele2CoreData
 
   def save_to_file
     raise if @file_name.blank?
-    file = open(@file_name, 'w')
 
-    file.write(Solr::Allele2.tsv_header)
+    file_exists = File.file?(@file_name)
+
+    file = open(@file_name, 'a')
+
+    file.write(Solr::Allele2.tsv_header) unless file_exists
 #puts Solr::Allele2.tsv_header
     @allele_data.each do |key, allele|
       file.write(allele.doc_to_tsv)
@@ -553,6 +562,7 @@ class SolrData::Allele2CoreData
     end
 
     @allele_data["#{data_row['gene_mgi_accession_id']} #{allele_details['allele_symbol']}"] = Solr::Allele2.new ({
+                                                       'allele_design_project' => @allele_design_project,
                                                        'marker_symbol' => data_row['gene_symbol'],
                                                        'mgi_accession_id' => data_row['gene_mgi_accession_id'],
                                                        'allele_symbol' => [],
@@ -663,7 +673,9 @@ class SolrData::Allele2CoreData
   private :es_cell_allele_update_doc
 
   def create_new_default_gene_doc(data_row)
-    gene_doc =  Solr::Allele2.new( {'marker_symbol' => data_row['marker_symbol'],
+    gene_doc =  Solr::Allele2.new( {
+                 'allele_design_project' => @allele_design_project,
+                 'marker_symbol' => data_row['marker_symbol'],
                  'mgi_accession_id' => data_row['mgi_accession_id'],
                  'marker_type' => data_row['marker_type'],
                  'marker_name' => data_row['marker_name'],

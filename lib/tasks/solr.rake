@@ -1,4 +1,5 @@
 require 'pp'
+require 'optparse'
 
 namespace :solr do
 
@@ -6,29 +7,73 @@ namespace :solr do
 
   desc 'Create a tsv containing the documents for the allele2 cores'
 
-  task 'index:generate:allele2:tsv' , [:file_name, :eucommtools_cre, :marker_symbols] => [:environment] do |t, args|
+  task 'index:generate:allele2:tsv' => [:environment] do |t, args|
 
-    options = {show_eucommtoolscre: args[:eucommtools_cre] == 'true' ? true : false, file_name: "#{!args[:file_name].blank? ? args[:file_name] : "#{Rails.root}/tmp/allele2"}-#{args[:eucommtools_cre] == true ? 'eucommmtoolscre-': ''}#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}.tsv"}
-    options[:marker_symbols] = args[:marker_symbols] unless args[:marker_symbols].blank?
+    options = {}
+    rake_options = {}
+    # Defaults
+    options[:show_eucommtoolscre] = false
+    options[:file_name] = "#{Rails.root}/tmp/allele2-#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}.tsv"
+    options[:exclude_impc_data] = false
 
-    puts "## Start Rebuild of the Allele 2 Core #{Time.now}"
-    SolrData::Allele2CoreData.new(options).run
-    puts "## Completed Rebuild of the Allele 2 Core#{Time.now}"
+    OptionParser.new do |opts|
+      opts.banner = "Usage: rake index:generate:allele2:tsv [options]"
+      opts.on("-c", "--[no-]show_eucommtoolscre", "Include Cre Data") { |show_eucommtoolscre| rake_options[:show_eucommtoolscre] = show_eucommtoolscre }
+      opts.on("-f", "--file_name ARG", "Specify file") { |file_name| options[:file_name] = file_name }
+      opts.on("-x", "--[no-]exclude_impc_data", "Exclude IMPC data") { |exclude_impc_data| rake_options[:exclude_impc_data] = exclude_impc_data }
+      opts.on("-g", "--marker_symbols x,y,z", Array, "Specify Gene Marker Symbols to create docs for") { |marker_symbols| options[:marker_symbols] = marker_symbols }
+    end.parse!
+
+    if rake_options[:exclude_impc_data] != true
+      puts "## Start Build of IMPC Allele 2 Core #{Time.now}"
+      SolrData::Allele2CoreData.new(options).run
+      puts "## Completed Build of IMPC Allele 2 Core#{Time.now}"
+    end
+
+    if rake_options[:show_eucommtoolscre]
+      puts "## Start Build of Cre Allele 2 Core #{Time.now}"
+      SolrData::Allele2CoreData.new(options.merge({:show_eucommtoolscre => true})).run
+      puts "## Completed Build of Cre Allele 2 Core#{Time.now}"
+    end
   end
 
   desc 'Create a tsv containing the documents for the product cores'
-  task 'index:generate:product:tsv', [:file_name, :eucommtools_cre, :process_mice, :process_es_cells, :process_targeting_vectors, :process_intermediate_vectors, :marker_symbols] => [:environment] do |t, args|
+  task 'index:generate:product:tsv' => [:environment] do |t, args|
 
-    options = {show_eucommtoolscre: args[:eucommtools_cre] == 'true' ? true : false, file_name: "#{!args[:file_name].blank? ? args[:file_name] : "#{Rails.root}/tmp/product"}-#{args[:eucommtools_cre] == true ? 'eucommmtoolscre-': ''}#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}.tsv"}
-    options[:process_mice] = false if args[:process_mice] == 'false'
-    options[:process_es_cells] = false  if args[:process_es_cells] == 'false'
-    options[:process_targeting_vectors] = false  if args[:process_targeting_vectors] == 'false'
-    options[:process_intermediate_vectors] = false if args[:process_intermediate_vectors] == 'false'
-    options[:marker_symbols] = args[:marker_symbols] unless args[:marker_symbols].blank?
+    options = {}
+    rake_options = {}
+    options[:show_eucommtoolscre] = false
+    options[:file_name] = "#{Rails.root}/tmp/product-#{Time.now.strftime('%Y-%m-%d_%H-%M-%S')}.tsv"
+    options[:exclude_impc_data] = false
+    options[:process_mice] = true
+    options[:process_es_cells] = true
+    options[:process_targeting_vectors] = true
+    options[:process_intermediate_vectors] = true
 
-    puts "## Start Rebuild of the Product Core #{Time.now}"
-    SolrData::ProductCoreData.new(options).run
-    puts "## Completed Rebuild of the Product Core#{Time.now}"
+    OptionParser.new do |opts|
+      opts.banner = "Usage: rake index:generate:product:tsv [options]"
+      opts.on("-c", "--[no-]show_eucommtoolscre", "Include Cre Data") { |show_eucommtoolscre| rake_options[:show_eucommtoolscre] = show_eucommtoolscre  }
+      opts.on("-f", "--file_name ARG", "Specify file") { |file_name| options[:file_name] = file_name }
+      opts.on("-x", "--[no-]exclude_impc_data", "Exclude IMPC data") { |exclude_impc_data| rake_options[:exclude_impc_data] = exclude_impc_data }
+      opts.on("-g", "--marker_symbols x,y,z", Array, "Specify Gene Marker Symbols to create docs for") { |marker_symbols| options[:marker_symbols] = marker_symbols }
+
+      opts.on("-m", "--[no-]exclude_mice", "Exclude Mice data") { |exclude_mice| options[:process_mice] = !exclude_mice }
+      opts.on("-e", "--[no-]exclude_es_cells", "Exclude ES Cell data") { |exclude_es_cells| options[:process_es_cells] = !exclude_es_cells }
+      opts.on("-t", "--[no-]exclude_targeting_vectors", "Exclude Targeting Vector data") { |exclude_targeting_vectors| options[:process_targeting_vectors] = !exclude_targeting_vectors }
+      opts.on("-i", "--[no-]exclude_intermediate_vectors", "Exclude Intermediate Vector data") { |exclude_intermediate_vectors| options[:process_intermediate_vectors] = !exclude_intermediate_vectors }
+    end.parse!
+
+    if rake_options[:exclude_impc_data] != true
+      puts "## Start Build of IMPC Product Core #{Time.now}"
+      SolrData::ProductCoreData.new(options).run
+      puts "## Completed Build of IMPC Product Core#{Time.now}"
+    end
+
+    if rake_options[:show_eucommtoolscre]
+      puts "## Start Build of Cre Product Core #{Time.now}"
+      SolrData::ProductCoreData.new(options.merge({:show_eucommtoolscre => true})).run
+      puts "## Completed Build of Cre Product Core#{Time.now}"
+    end
   end
 
   desc 'Ping the solr'

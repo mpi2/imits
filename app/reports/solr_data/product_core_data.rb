@@ -342,6 +342,12 @@ class SolrData::ProductCoreData
     @show_eucommtoolscre = options[:show_eucommtoolscre] || false
     @marker_symbols = options.has_key?(:marker_symbols) ? options[:marker_symbols].split(',') : nil
 
+    if @show_eucommtoolscre
+      @allele_design_project = 'Cre'
+    else
+      @allele_design_project = 'IMPC'
+    end
+
     @process_mice = options[:process_mice] || true
     @process_es_cells = options[:process_es_cells] || true
     @process_targeting_vectors = options[:process_targeting_vectors] || true
@@ -384,9 +390,12 @@ class SolrData::ProductCoreData
   end
 
   def save_to_file
-    file = open(@file_name, 'w')
+    raise if @file_name.blank?
 
-    file.write(Solr::Product.tsv_header)
+    file_exists = File.file?(@file_name)
+    file = open(@file_name, 'a')
+
+    file.write(Solr::Product.tsv_header) unless file_exists
 #puts Solr::Product.tsv_header
     @docs.each do |doc|
       file.write(doc.doc_to_tsv)
@@ -465,6 +474,7 @@ class SolrData::ProductCoreData
                                                               })
 
     doc = Solr::Product.new({
+     "allele_design_project"            => @allele_design_project,
      "product_id"                       => row["product_id"],
      "allele_id"                        => row["allele_id"],
      "marker_symbol"                    => row["marker_symbol"],
@@ -523,6 +533,7 @@ class SolrData::ProductCoreData
                                                               })
 
     doc = Solr::Product.new({
+     "allele_design_project"            => @allele_design_project,
      "product_id"                       => 'E' + row["es_cell_id"],
      "allele_id"                        => row["allele_id"],
      "marker_symbol"                    => row['marker_symbol'],
@@ -562,6 +573,7 @@ class SolrData::ProductCoreData
                                                               })
 
     doc = Solr::Product.new({
+     "allele_design_project"            => @allele_design_project,
      "product_id"                        => 'T' + row["targeting_vector_id"],
      "allele_id"                         => row["allele_id"],
      "marker_symbol"                     => row['marker_symbol'],
@@ -599,6 +611,7 @@ class SolrData::ProductCoreData
                                                               })
 
     doc = Solr::Product.new({
+     "allele_design_project"            => @allele_design_project,
      "product_id"                      => 'I' + row["vector_name"],
      "allele_id"                       => row["allele_id"],
      "marker_symbol"                   => row['marker_symbol'],

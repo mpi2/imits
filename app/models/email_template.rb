@@ -1,6 +1,7 @@
 class EmailTemplate < ActiveRecord::Base
 
   acts_as_audited
+  attr_accessible
 
   validates :status, :uniqueness => true, :unless => :blank?
   validates :welcome_body, :presence => true

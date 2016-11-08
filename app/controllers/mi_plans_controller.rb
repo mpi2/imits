@@ -18,7 +18,7 @@ class MiPlansController < ApplicationController
 
   def show
     set_centres_and_consortia
-    @mi_plan = Public::MiPlan.find_by_id(params[:id])
+    @mi_plan = MiPlan.find_by_id(params[:id])
     respond_with @mi_plan
   end
 
@@ -39,7 +39,7 @@ class MiPlansController < ApplicationController
     params[:id_in]
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'consortium_name asc', Public::MiPlan, :public_search, false)
+        render :json => data_for_serialized(:json, 'consortium_name asc', MiPlan, :public_search, false)
       end
     end
   end
@@ -77,7 +77,7 @@ class MiPlansController < ApplicationController
     params[:id_in]
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'consortium_name asc', Public::MiPlan, :public_search, false)
+        render :json => data_for_serialized(:json, 'consortium_name asc', MiPlan, :public_search, false)
       end
     end
   end
@@ -94,12 +94,12 @@ class MiPlansController < ApplicationController
   def create
     return if empty_payload?(params[:mi_plan])
 
-    upgradeable = Public::MiPlan.check_for_upgradeable(params[:mi_plan])
+    upgradeable = MiPlan.check_for_upgradeable(params[:mi_plan])
     if upgradeable
       message = "#{upgradeable.marker_symbol} has already been selected by #{upgradeable.consortium_name} without a production centre, please add your production centre to that selection"
       render(:json => {'error' => message}, :status => 422)
     else
-      @mi_plan = Public::MiPlan.new(params[:mi_plan])
+      @mi_plan = MiPlan.new(params[:mi_plan])
       if @mi_plan.valid?
         @mi_plan.save!
         respond_with @mi_plan
@@ -112,7 +112,7 @@ class MiPlansController < ApplicationController
   def update
     return if empty_payload?(params[:mi_plan])
 
-    @mi_plan = Public::MiPlan.find(params[:id])
+    @mi_plan = MiPlan.find(params[:id])
 
     respond_to do |format|
       if @mi_plan.update_attributes params[:mi_plan]
@@ -130,7 +130,7 @@ class MiPlansController < ApplicationController
     error_str = ''
 
     if !params[:id].blank?
-      @mi_plan = Public::MiPlan.where("id = '#{params[:id]}'")
+      @mi_plan = MiPlan.where("id = '#{params[:id]}'")
     else
       [:consortium, :marker_symbol, :sub_project, :is_bespoke_allele, :is_conditional_allele, :is_deletion_allele, :is_cre_knock_in_allele, :is_cre_bac_allele, :phenotype_only, :conditional_tm1c, :point_mutation, :conditional_point_mutation
 ].each do |param|
@@ -167,7 +167,7 @@ class MiPlansController < ApplicationController
         else
           search_params += "AND production_centre_id = '#{production_centre.id}'"
         end
-        @mi_plan = Public::MiPlan.where(search_params)
+        @mi_plan = MiPlan.where(search_params)
         if @mi_plan.count > 1
           error_str = 'Unable to delete mi_plans. Found multiple mi_plans for the paramaters you supplied.'
         elsif @mi_plan.count == 0
@@ -209,7 +209,7 @@ class MiPlansController < ApplicationController
   def index
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'marker_symbol asc', Public::MiPlan, :public_search, false)
+        render :json => data_for_serialized(:json, 'marker_symbol asc', MiPlan, :public_search, false)
       end
 
       format.html do
@@ -225,7 +225,7 @@ class MiPlansController < ApplicationController
   end
 
   def attributes
-    render :json => create_attribute_documentation_for(Public::MiPlan)
+    render :json => create_attribute_documentation_for(MiPlan)
   end
 
   def params_cleaned_for_sort(sorts)

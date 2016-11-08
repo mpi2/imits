@@ -23,12 +23,12 @@ class MiAttemptsController < ApplicationController
   end
 
   def data_for_serialized(format)
-    super(format, 'id asc', Public::MiAttempt, :public_search, false)
+    super(format, 'id asc', MiAttempt, :public_search, false)
   end
   protected :data_for_serialized
 
   def new
-    @mi_attempt = Public::MiAttempt.new
+    @mi_attempt = MiAttempt.new
     @mi_attempt.mutagenesis_factor = MutagenesisFactor.new
     @vector_options = get_vector_options(nil)
   end
@@ -45,7 +45,7 @@ class MiAttemptsController < ApplicationController
       params[:mi_attempt].delete(:mutagenesis_factor_attributes)
     end
 
-    @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
+    @mi_attempt = MiAttempt.new(params[:mi_attempt])
     update_g0_screen_results(@mi_attempt, g0_screen)
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
@@ -84,18 +84,28 @@ class MiAttemptsController < ApplicationController
   end
 
   def show
-    @mi_attempt = Public::MiAttempt.find(params[:id])
+    @mi_attempt = MiAttempt.find(params[:id])
 
     get_marker_symbol
     @vector_options = get_vector_options(@marker_symbol)
-    respond_with @mi_attempt
+    respond_with @mi_attempt do |format|
+      format.html do
+        render :action => :show
+      end
+      format.json do 
+        serialized_hash = @mi_attempt.as_json
+
+        hide_private_attributes(MiAttempt, @mi_attempt, serialized_hash)
+        render :json => serialized_hash
+      end
+    end
   end
 
   def update
     # TODO: put this somewhere more sensible
     Paperclip.options[:content_type_mappings] = { scf: 'application/octet-stream' }
 
-    @mi_attempt = Public::MiAttempt.find(params[:id])
+    @mi_attempt = MiAttempt.find(params[:id])
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])
 
@@ -152,7 +162,7 @@ class MiAttemptsController < ApplicationController
   end
 
   def attributes
-    render :json => create_attribute_documentation_for(Public::MiAttempt)
+    render :json => create_attribute_documentation_for(MiAttempt)
   end
 
   def get_vector_options(marker_symbol)

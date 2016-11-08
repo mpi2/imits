@@ -2,16 +2,29 @@ class Centre < ActiveRecord::Base
   acts_as_audited
   acts_as_reportable
 
+  PRIVATE_ATTRIBUTES = %w{
+  }
+
+  FULL_ACCESS_ATTRIBUTES = %w{
+    name
+    contact_name
+    contact_email
+  }
+
+  READABLE_ATTRIBUTES = %w{
+    id
+    code
+    superscript
+  } + FULL_ACCESS_ATTRIBUTES
+
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
+
   validates :name, :presence => true, :uniqueness => true
 
-  has_many :mi_plans, :foreign_key => 'production_centre_id'
-  has_many :targ_rep_es_cells, :foreign_key => 'user_mouse_clinic_id'
-  has_many :mi_attempt_distribution_centres, :class_name => "MiAttempt::DistributionCentre"
-  has_many :phenotype_attempt_distribution_centres, :class_name => "PhenotypeAttempt::DistributionCentre"
 
-  has_many :tracking_goals
-
-  default_scope :order => 'name ASC'
 
   def has_children?
     ! (mi_plans.empty? && mi_attempt_distribution_centres.empty? && phenotype_attempt_distribution_centres.empty?)

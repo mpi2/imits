@@ -180,7 +180,7 @@ class PhenotypeAttemptsController < ApplicationController
 
     params.delete_if{|key,value| params.has_key?(key)}
     mam_params.each{|key, value| params[key] = value}
-    mam = super(format, 'id asc', Public::MouseAlleleMod, :public_search, true)
+    mam = super(format, 'id asc', MouseAlleleMod, :public_search, true)
     total_count += mam['total'] ? (mam['total'] / 20) * 20 : 0
 
     if per_page > 0 && mam.has_key?('total')

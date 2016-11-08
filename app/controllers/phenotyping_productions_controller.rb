@@ -7,7 +7,7 @@ class PhenotypingProductionsController < ApplicationController
   before_filter :authenticate_user!
 
   def create
-    @phenotyping_production =  Public::PhenotypingProduction.new(params[:phenotyping_production])
+    @phenotyping_production =  PhenotypingProduction.new(params[:phenotyping_production])
 #    @phenotyping_production.updated_by = current_user
     return unless authorize_user_production_centre(@phenotyping_production)
     return if empty_payload?(params[:phenotyping_production])
@@ -26,7 +26,7 @@ class PhenotypingProductionsController < ApplicationController
 
 
   def update
-    @phenotyping_production =  Public::PhenotypingProduction.find(params['id'])
+    @phenotyping_production =  PhenotypingProduction.find(params['id'])
 
     return if @phenotyping_production.blank?
     return unless authorize_user_production_centre(@phenotyping_production)
@@ -46,7 +46,7 @@ class PhenotypingProductionsController < ApplicationController
   end
 
   def show
-    @phenotyping_production = Public::PhenotypingProduction.find(params[:id])
+    @phenotyping_production = PhenotypingProduction.find(params[:id])
     respond_with @phenotyping_production do |format|
       format.json do
         render :json => @phenotyping_production
@@ -55,7 +55,7 @@ class PhenotypingProductionsController < ApplicationController
   end
 
   def colony_name
-    @phenotyping_production = Public::PhenotypingProduction.find_by_colony_name(params[:colony_name])
+    @phenotyping_production = PhenotypingProduction.find_by_colony_name(params[:colony_name])
     respond_with @phenotyping_production do |format|
       format.json do
         render :json => @phenotyping_production
@@ -66,7 +66,7 @@ class PhenotypingProductionsController < ApplicationController
   def index
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'id asc', Public::PhenotypingProduction, :public_search, false)
+        render :json => data_for_serialized(:json, 'id asc', PhenotypingProduction, :public_search, false)
       end
     end
   end

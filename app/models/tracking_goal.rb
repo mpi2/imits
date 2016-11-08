@@ -4,7 +4,7 @@ class TrackingGoal < ActiveRecord::Base
   acts_as_audited
   extend AccessAssociationByAttribute
   include ::Public::Serializable
-
+ 
   attr_accessor :month, :year
 
   GOAL_TYPES = %w(
@@ -37,6 +37,8 @@ class TrackingGoal < ActiveRecord::Base
     consortium_id_not_null
   )
 
+ attr_accessible *READABLE_ATTRIBUTES
+
   ## Validations
   validates :production_centre_id, :presence => true, :uniqueness => {:scope => [:date, :goal_type, :consortium_id]}
   validates :goal, :presence => true
@@ -49,7 +51,7 @@ class TrackingGoal < ActiveRecord::Base
   access_association_by_attribute :production_centre, :name
   access_association_by_attribute :consortium, :name
 
-  attr_accessible *READABLE_ATTRIBUTES
+ 
 
   before_validation do
     if !month.blank? && !year.blank?

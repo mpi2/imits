@@ -790,7 +790,9 @@ CREATE TABLE colonies (
     background_strain_id integer,
     allele_description_summary text,
     auto_allele_description text,
-    mgi_allele_symbol_without_impc_abbreviation boolean
+    mgi_allele_symbol_without_impc_abbreviation boolean DEFAULT false,
+    private boolean DEFAULT false NOT NULL,
+    crispr_allele_category character varying(255)
 );
 
 
@@ -1712,7 +1714,8 @@ CREATE TABLE mi_attempts (
     voltage double precision,
     number_of_pulses integer,
     crsp_embryo_transfer_day character varying(255) DEFAULT 'Same Day'::character varying,
-    crsp_embryo_2_cell integer
+    crsp_embryo_2_cell integer,
+    privacy character varying(255) DEFAULT 'Share all Allele(s)'::character varying NOT NULL
 );
 
 
@@ -2145,7 +2148,8 @@ CREATE TABLE mutagenesis_factors (
     no_hr_g0_mutants integer,
     no_hdr_g0_mutants integer,
     no_hdr_g0_mutants_all_donors_inserted integer,
-    no_hdr_g0_mutants_subset_donors_inserted integer
+    no_hdr_g0_mutants_subset_donors_inserted integer,
+    private boolean DEFAULT false NOT NULL
 );
 
 
@@ -2653,7 +2657,9 @@ CREATE TABLE targ_rep_alleles (
     taqman_critical_del_assay_id character varying(255),
     taqman_upstream_del_assay_id character varying(255),
     taqman_downstream_del_assay_id character varying(255),
-    wildtype_oligos_sequence character varying(255)
+    wildtype_oligos_sequence character varying(255),
+    private boolean DEFAULT false NOT NULL,
+    production_centre_id integer
 );
 
 
@@ -5835,3 +5841,5 @@ INSERT INTO schema_migrations (version) VALUES ('201604011125302');
 INSERT INTO schema_migrations (version) VALUES ('20160602105302');
 
 INSERT INTO schema_migrations (version) VALUES ('20160927105302');
+
+INSERT INTO schema_migrations (version) VALUES ('20161027105302');

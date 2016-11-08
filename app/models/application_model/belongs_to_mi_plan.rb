@@ -36,11 +36,16 @@ module ApplicationModel::BelongsToMiPlan
 
   # BEFORE SAVE METHODS
 
-  # Overridden in Public
+  # changes mi_plan status to assigned.
   def deal_with_unassigned_or_inactive_plans
-    raise UnsuitableMiPlanError, "mi_plan is in status #{mi_plan.status.name} - it must be in an assigned state." unless mi_plan.assigned?
+    mi_plan.reload
+    if ! mi_plan.assigned?
+      new_attrs = {:force_assignment => true}
+      mi_plan.update_attributes!(new_attrs)
+    end
   end
   protected :deal_with_unassigned_or_inactive_plans
+
 
 
   #COMMON METHODS
@@ -75,28 +80,5 @@ module ApplicationModel::BelongsToMiPlan
       self.changed_attributes['production_centre_name'] = arg
     end
   end
-
-# PUBLIC MODEL
-  module Public
-    extend ActiveSupport::Concern
-
-    #VALIDATION METHODS
-
-
-    # BEFORE SAVE METHODS
-
-    # changes mi_plan status to assigned.
-    def deal_with_unassigned_or_inactive_plans
-      mi_plan.reload
-      if ! mi_plan.assigned?
-        new_attrs = {:force_assignment => true}
-        mi_plan.update_attributes!(new_attrs)
-      end
-    end
-    protected :deal_with_unassigned_or_inactive_plans
-
-
-    #COMMON METHODS
-  end # Public
 
 end

@@ -1,6 +1,5 @@
 class Reagent < ActiveRecord::Base
   acts_as_reportable
-
   attr_accessible :mi_attempt_id, :reagent_name, :concentration
 
   extend AccessAssociationByAttribute

@@ -5,6 +5,10 @@ class ProductionGoal < ActiveRecord::Base
   extend AccessAssociationByAttribute
   include ::Public::Serializable
 
+
+  PRIVATE_ATTRIBUTES = %w{
+  }
+
   READABLE_ATTRIBUTES = %w(
     id
     year
@@ -18,6 +22,8 @@ class ProductionGoal < ActiveRecord::Base
     consortium_name
     consortium_id
   )
+
+  attr_accessible *READABLE_ATTRIBUTES
 
   before_save :calculate_totals
 
@@ -41,7 +47,7 @@ class ProductionGoal < ActiveRecord::Base
 
   access_association_by_attribute :consortium, :name
 
-  attr_accessible *READABLE_ATTRIBUTES
+
 
   def calculate_totals
     self.total_mi_goal = (self.mi_goal.blank? ? 0 : self.mi_goal) + (self.crispr_mi_goal.blank? ? 0 : self.crispr_mi_goal)

@@ -21,7 +21,7 @@ class Open::MiAttemptsController < OpenApplicationController
   end
 
   def show
-    @mi_attempt = Public::MiAttempt.find(params[:id])
+    @mi_attempt = MiAttempt.find(params[:id])
 
     if @mi_attempt.report_to_public
       respond_with @mi_attempt
@@ -31,7 +31,7 @@ class Open::MiAttemptsController < OpenApplicationController
   end
 
   def data_for_serialized(format)
-    super(format, 'id asc', Public::MiAttempt, :public_search, false)
+    super(format, 'id asc', MiAttempt, :public_search, false)
   end
   protected :data_for_serialized
 

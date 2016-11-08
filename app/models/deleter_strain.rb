@@ -1,5 +1,6 @@
 class DeleterStrain < ActiveRecord::Base
   acts_as_reportable
+  attr_accessible
 
   validates :name, :uniqueness => true
   validates :excision_type, :presence => true

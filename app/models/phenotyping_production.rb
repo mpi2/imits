@@ -9,6 +9,74 @@ class PhenotypingProduction < ApplicationModel
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
   include ApplicationModel::BelongsToMiPlan::Public
+  include ::Public::Serializable
+
+  PRIVATE_ATTRIBUTES = %w{
+  }
+
+  FULL_ACCESS_ATTRIBUTES = %w{
+    mi_plan_id
+    consortium_name
+    phenotyping_centre_name
+    production_colony_name
+    mouse_allele_symbol
+    colony_name
+    rederivation_started
+    rederivation_complete
+    colony_background_strain_name
+    phenotyping_experiments_started
+    phenotyping_started
+    phenotyping_complete
+    report_to_public
+    is_active
+    ready_for_website
+    cohort_production_centre_name
+    _destroy
+}
+
+  READABLE_ATTRIBUTES = %w{
+    id
+
+    marker_symbol
+    mgi_accession_id
+    parent_colony_background_strain_name
+
+    phenotype_attempt_id
+    production_centre_name
+    production_consortium_name
+    status_name
+  } + FULL_ACCESS_ATTRIBUTES
+
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
+
+  # BEGIN Callbacks
+
+  # END Callbacks
+
+  def self.translations
+    return {
+      'marker_symbol' => 'mi_plan_gene_marker_symbol',
+      'consortium' => 'mi_plan_consortium',
+      'production_consortium_name'  => 'parent_colony_mouse_allele_mod_mi_plan_consortium_name_or_parent_colony_mi_attempt_mi_plan_consortium_name',
+      'production_centre_name'      => 'parent_colony_mouse_allele_mod_mi_plan_production_centre_name_or_parent_colony_mi_attempt_mi_plan_production_centre_name',
+      'phenotyping_consortium_name' => 'mi_plan_consortium_name',
+      'phenotyping_centre_name'     => 'mi_plan_production_centre_name'
+    }
+
+  end
+
+  def production_colony_name
+    parent_colony_name
+  end
+
+  def production_colony_name=(arg)
+    parent_colony_name = arg
+  end
+
+  def status_name; status.try(:name); end
 
   belongs_to :mi_plan
   belongs_to :parent_colony, :class_name => 'Colony'
@@ -16,11 +84,6 @@ class PhenotypingProduction < ApplicationModel
   belongs_to :colony_background_strain, :class_name => 'Strain'
 
   has_many   :status_stamps, :order => "#{PhenotypingProduction::StatusStamp.table_name}.created_at ASC", dependent: :destroy
-
-  access_association_by_attribute :colony_background_strain, :name
-
-  accepts_nested_attributes_for :status_stamps
-
 
   protected :status=
 
@@ -34,6 +97,9 @@ class PhenotypingProduction < ApplicationModel
   before_save :set_phenotype_attempt_id
   after_save :manage_status_stamps
 
+  accepts_nested_attributes_for :status_stamps
+
+  access_association_by_attribute :colony_background_strain, :name
 
 ## BEFORE VALIDATION METHODS
   before_validation do |pp|

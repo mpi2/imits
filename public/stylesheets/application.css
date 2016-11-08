@@ -325,6 +325,11 @@ div#messages {
 	border: 2px solid #f0de7d;
 }
 
+.red_text {
+  color: red;
+  font-weight: bold;
+  font-style: italic;
+}
 /* @end */
 
 /* @group Homepage and Report Index Page */

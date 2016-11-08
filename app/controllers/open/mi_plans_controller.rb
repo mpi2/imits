@@ -16,12 +16,6 @@ class Open::MiPlansController < OpenApplicationController
     render 'mi_plans/gene_selection' # renders the apps/views/mi_plans/selection.html.erb view.
   end
 
-#  def show
-#    set_centres_and_consortia
-#    @mi_plan = Public::MiPlan.find_by_id(params[:id])
-#    respond_with @mi_plan
-#  end
-
   def index
     respond_to do |format|
       format.html do
@@ -31,14 +25,14 @@ class Open::MiPlansController < OpenApplicationController
       end
 
       format.json do
-        render :json => data_for_serialized(:json, 'marker_symbol asc', Public::MiPlan, :public_search, false)
+        render :json => data_for_serialized(:json, 'marker_symbol asc', MiPlan, :public_search, false)
       end
     end
   end
 
   def show
     set_centres_and_consortia
-    @mi_plan = Public::MiPlan.find_by_id(params[:id])
+    @mi_plan = MiPlan.find_by_id(params[:id])
     respond_with @mi_plan
   end
 

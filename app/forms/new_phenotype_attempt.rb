@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Public::PhenotypeAttempt
+class NewPhenotypeAttempt
   class << self
   include ActiveModel::Naming
   include ActiveModel::Validations

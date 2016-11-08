@@ -1,5 +1,6 @@
 class DepositedMaterial < ActiveRecord::Base
   default_scope :order => :name
+  attr_accessible
 
   validates :name, :uniqueness => true
 end

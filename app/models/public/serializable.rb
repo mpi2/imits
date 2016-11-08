@@ -1,10 +1,14 @@
 module Public::Serializable
   def as_json(options = {})
+    use_default = options[:default] || false
+    return super(options) if use_default
     return super(default_serializer_options(options))
   end
 
   def to_xml(options = {})
+    use_default = options[:default] || false
     options[:dasherize] = false
+    return super(options) if use_default
     return super(default_serializer_options(options))
   end
 

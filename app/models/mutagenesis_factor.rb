@@ -1,6 +1,45 @@
 class MutagenesisFactor < ActiveRecord::Base
   acts_as_audited
 
+  include ::Public::Serializable
+
+  PRIVATE_ATTRIBUTES = %w{
+    individually_set_grna_concentrations
+    guides_generated_in_plasmid
+    grna_concentration
+    crisprs_attributes
+    vectors_attributes
+    genotype_primers_attributes
+  }
+
+  FULL_ACCESS_ATTRIBUTES = %w{
+    external_ref
+    individually_set_grna_concentrations
+    guides_generated_in_plasmid
+    grna_concentration
+    no_g0_where_mutation_detected
+    no_nhej_g0_mutants
+    no_deletion_g0_mutants
+    no_hr_g0_mutants
+    no_hdr_g0_mutants
+    no_hdr_g0_mutants_all_donors_inserted
+    no_hdr_g0_mutants_subset_donors_inserted
+    crisprs_attributes
+    vectors_attributes
+    genotype_primers_attributes
+  }
+
+  READABLE_ATTRIBUTES = %w{
+    id
+    private
+
+  } + FULL_ACCESS_ATTRIBUTES
+
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
+
   NUCLEASES = [nil, 'CAS9', 'D10A'].freeze
 
   attr_accessible :crisprs_attributes, :genotype_primers_attributes, :external_ref, :grna_concentration, :individually_set_grna_concentrations, :crisprs_attributes, :vectors_attributes
@@ -94,4 +133,5 @@ end
 #  no_hdr_g0_mutants                        :integer
 #  no_hdr_g0_mutants_all_donors_inserted    :integer
 #  no_hdr_g0_mutants_subset_donors_inserted :integer
+#  private                                  :boolean          default(FALSE), not null
 #

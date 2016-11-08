@@ -103,12 +103,4 @@ class ApplicationModel < ActiveRecord::Base
       end
     end
   end
-
-  def self.to_public_class
-    return "Public::#{self.name}".constantize
-  end
-
-  def to_public
-    return self.class.to_public_class.find(self.id)
-  end
 end

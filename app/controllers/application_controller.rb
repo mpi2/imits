@@ -68,6 +68,27 @@ class ApplicationController < ActionController::Base
   end
   protected :json_format_extended_response
 
+  def hide_private_attributes(model_class, model, serialized_hash)
+    if model.respond_to?(:private) && model.private == true
+      model_class::PRIVATE_ATTRIBUTES.each do |private_attr|
+        puts serialized_hash.count 
+        if serialized_hash[private_attr].is_a?(Array)
+          serialized_hash[private_attr] = []
+        else
+          serialized_hash[private_attr] = nil
+        end
+      end
+    end
+
+    # Now check associations that may have been included in the JSON hash outputed from as_json method 
+    (serialized_hash.keys & model_class.reflect_on_all_associations().map{|ca| ca.name.to_s}).each do |association_attribute|
+      new_model = "#{association_attribute.singularize.camelcase}".constantize
+      puts new_model
+      hide_private_attributes(new_model, new_model.new.from_json(serialized_hash[association_attribute].to_json), serialized_hash[association_attribute].as_json)
+    end
+  end
+  protected :hide_private_attributes
+
   def data_for_serialized(format, default_sort, model_class, search_method, select_distinct = false)
 
     params[:sorts] = default_sort if(params[:sorts].blank?)

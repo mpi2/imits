@@ -1,18 +1,7 @@
 class User < ActiveRecord::Base
-  ADMIN_USERS = [
-    'as28@sanger.ac.uk',
-    'vvi@sanger.ac.uk',
-    're4@sanger.ac.uk',
-    'pen1adm@sanger.ac.uk',
-    'pen2adm@sanger.ac.uk',
-    'jr18@sanger.ac.uk'
-  ]
 
   REMOTE_ACCESS_USERS = [
-    'as28@sanger.ac.uk',
-    'vvi@sanger.ac.uk',
-    're4@sanger.ac.uk',
-    'a.blake@har.mrc.ac.uk'
+    'pm9@sanger.ac.uk'
   ]
 
   devise :database_authenticatable, :rememberable, :validatable, :recoverable

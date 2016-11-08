@@ -7,6 +7,46 @@ class Colony < ApplicationModel
 
   extend AccessAssociationByAttribute
 
+# FORM OBJECT Should be extracted into a form object
+  include ::Public::Serializable
+
+  PRIVATE_ATTRIBUTES = %w{
+    allele_name
+    mgi_allele_symbol_superscript
+    background_strain_name
+    mgi_allele_id
+  }
+
+  FULL_ACCESS_ATTRIBUTES = %w{
+    name
+    genotype_confirmed
+    report_to_public
+    allele_name
+    mgi_allele_symbol_superscript
+    background_strain_name  
+    mgi_allele_symbol_without_impc_abbreviation
+  }
+
+  READABLE_ATTRIBUTES = %w{
+    id
+    private
+    crispr_allele_category
+    mgi_allele_id
+
+  } + FULL_ACCESS_ATTRIBUTES
+
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
+
+# END OF FORM OBJECT
+
+# VALUE OBJECT Should be extracted into a value object
+  CRISPR_ALLELE_CATEGORIES = ['NHEJ', 'Deletion', 'HDR', 'HR'].freeze
+
+# END OF VALUE OBJECT
+
   belongs_to :mi_attempt
   belongs_to :mouse_allele_mod
   belongs_to :background_strain, :class_name => 'Strain'
@@ -21,11 +61,12 @@ class Colony < ApplicationModel
   has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
 
   access_association_by_attribute :background_strain, :name
-
+  
   accepts_nested_attributes_for :colony_qc, :update_only =>true
   accepts_nested_attributes_for :trace_call
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
   accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
+
 
   validates :name, :presence => true
   # bit of a bodge but works.
@@ -36,6 +77,7 @@ class Colony < ApplicationModel
 #  validates_uniqueness_of :name, scope: :mouse_allele_mod_id
 
   validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys + CRISPR_MOUSE_ALLELE_OPTIONS.keys }
+  validates :crispr_allele_category, :inclusion => { :in => CRISPR_ALLELE_CATEGORIES}, :allow_nil => true
   validate :set_allele_symbol_superscript
 
 #  validate do |colony|
@@ -82,32 +124,31 @@ validates_format_of :mgi_allele_id,
   end
 
   validate do |colony|
-    if mgi_allele_symbol_superscript.blank? && genotype_confirmed == true
-      colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
+    if !mi_attempt_id.blank? and mi_attempt.es_cell_id.blank?
+      if colony.crispr_allele_category.blank? && colony.genotype_confirmed
+        colony.errors.add :crispr_allele_category, "must be specified if mouse colony has been set to Genotype Confirmed."
+      end
     end
   end
 
   validate do |colony|
-    return if mi_attempt_id.blank && mouse_allele_mod_id.blank
-    if !mgi_allele_symbol_superscript.blank?
-      mi_attempt = self.mi_attempt || mouse_allele_mod.colony.mi_attempt
-      
-      if mi_attempt.es_cell.blank?
+    return if mi_attempt_id.blank? && mouse_allele_mod_id.blank?
+    mi_attempt = self.mi_attempt || mouse_allele_mod.colony.mi_attempt
+    ## Only validate CRISPR colonies ignoring CRISPR designs that modify existing ES Cell colonies.
+    return unless mi_attempt.es_cell.blank? && mi_attempt.parent_colony_id.blank?
 
-        if mgi_allele_symbol_without_impc_abbreviation == true && /em\d*/
-          colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}{ILAR code} e.g. em1J"
-          colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
-        elsif /em\d+(IMPC)*/
-          colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}(IMPC){ILAR code} e.g. em1(IMPC)J"
-          colony.errors.add :mgi_allele_symbol_superscript, "must contain IMPC unless marked project abbreviation."       
-        end
-      else
-
-
-      end
-     
-     mgi_allele_symbol_without_impc_abbreviation.blank?
+    if mgi_allele_symbol_superscript.blank? && genotype_confirmed == true
       colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
+    end      
+      
+    if !mgi_allele_symbol_superscript.blank?
+      if mgi_allele_symbol_without_impc_abbreviation == true && /em\d*/
+        colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}{ILAR code} e.g. em1J"
+        colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
+      elsif /em\d+(IMPC)*/
+        colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}(IMPC){ILAR code} e.g. em1(IMPC)J"
+        colony.errors.add :mgi_allele_symbol_superscript, "must contain IMPC unless marked project abbreviation."       
+      end
     end
   end
 
@@ -409,7 +450,9 @@ end
 #  background_strain_id                        :integer
 #  allele_description_summary                  :text
 #  auto_allele_description                     :text
-#  mgi_allele_symbol_without_impc_abbreviation :boolean
+#  mgi_allele_symbol_without_impc_abbreviation :boolean          default(FALSE)
+#  private                                     :boolean          default(FALSE), not null
+#  crispr_allele_category                      :string(255)
 #
 # Indexes
 #

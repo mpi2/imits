@@ -1,5 +1,6 @@
 class Gene < ActiveRecord::Base
   acts_as_reportable
+  attr_accessible
 
   has_many :mi_plans
   has_many :mi_attempts, :through => :mi_plans

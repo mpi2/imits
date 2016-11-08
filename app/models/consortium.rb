@@ -8,6 +8,25 @@ class Consortium < ActiveRecord::Base
   has_many :production_goals
   has_many :tracking_goals
 
+  PRIVATE_ATTRIBUTES = %w{
+  }
+
+  FULL_ACCESS_ATTRIBUTES = %w{
+  }
+
+  READABLE_ATTRIBUTES = %w{
+    id
+    name
+    funding
+    participants
+    contact
+  } + FULL_ACCESS_ATTRIBUTES
+
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES) 
+
   def self.[](name)
     return self.find_by_name!(name.to_s)
   end

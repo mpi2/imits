@@ -7,7 +7,7 @@ class MouseAlleleModsController < ApplicationController
   before_filter :authenticate_user!
 
   def create
-    @mouse_allele_mod =  Public::MouseAlleleMod.new(params[:mouse_allele_mod])
+    @mouse_allele_mod =  MouseAlleleMod.new(params[:mouse_allele_mod])
 #    @phenotyping_production.updated_by = current_user
     return unless authorize_user_production_centre(@mouse_allele_mod)
     return if empty_payload?(params[:mouse_allele_mod])
@@ -25,7 +25,7 @@ class MouseAlleleModsController < ApplicationController
   end
 
   def update
-    @mouse_allele_mod =  Public::MouseAlleleMod.find(params['id'])
+    @mouse_allele_mod =  MouseAlleleMod.find(params['id'])
 
     return if @mouse_allele_mod.blank?
     return unless authorize_user_production_centre(@mouse_allele_mod)
@@ -45,7 +45,7 @@ class MouseAlleleModsController < ApplicationController
   end
 
   def show
-    @mouse_allele_mod = Public::MouseAlleleMod.find(params[:id])
+    @mouse_allele_mod = MouseAlleleMod.find(params[:id])
     respond_with @mouse_allele_mod do |format|
       format.json do
         render :json => @mouse_allele_mod
@@ -54,7 +54,7 @@ class MouseAlleleModsController < ApplicationController
   end
 
   def colony_name
-    @mouse_allele_mod = Public::MouseAlleleMod.find_by_colony_name(params[:colony_name])
+    @mouse_allele_mod = MouseAlleleMod.find_by_colony_name(params[:colony_name])
     respond_with @mouse_allele_mod do |format|
       format.json do
         render :json => @mouse_allele_mod
@@ -65,7 +65,7 @@ class MouseAlleleModsController < ApplicationController
   def index
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'id asc', Public::MouseAlleleMod, :public_search, false)
+        render :json => data_for_serialized(:json, 'id asc', MouseAlleleMod, :public_search, false)
       end
     end
   end

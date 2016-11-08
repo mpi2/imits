@@ -59,6 +59,8 @@
 
     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
 
+    <%= generator.privacy_field :label => 'Privacy' %>
+
     <div>
       <%= form.label :comments %>
       <%= form.text_area :comments %>
@@ -135,6 +137,7 @@
       <div>
         <%= form.fields_for :mutagenesis_factor do |builder| %>
           <fieldset class="collapsible">
+          <% if builder.object.private == true%><div class="red_text">Private</div><% end %>
           <label "mi_attempts_mutagenesis_factor_crisprs">3. Crisprs</label>
           <div id = 'grna_concentrations'>
             </br>gRNA Concentration <%= builder.text_field :grna_concentration, :onchange => 'validateFloatKeyPress(this)' %> ng/uL
@@ -166,6 +169,7 @@
 
       <%= form.fields_for :mutagenesis_factor do |builder| %>
         <fieldset id="vector_field_set">
+          <% if builder.object.private == true%><div class="red_text">Private</div><% end %>
           <label>4. Vectors/Oligos</label>
           <div id="vector-container">
             <table id="vectors_<%= builder.object_id %>_table" class="report_table">
@@ -216,6 +220,7 @@
 <%= form.fields_for :mutagenesis_factor do |builder| %>
   <fieldset id="genotype_primer_field_set" class="collapsible"
     <% if @mi_attempt.mutagenesis_factor.blank? %>style="display: none;"<% end %>>
+    <% if builder.object.private == true%><div class="red_text">Private</div><% end %>
     <legend>Genotype Primers</legend>
     <div>
       <table id="genotype_primers_<%= builder.object_id %>_table" class="report_table">

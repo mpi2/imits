@@ -49,7 +49,7 @@ class SolrData::Allele2CoreData
         FROM phenotyping_productions
           JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
           JOIN plan_summary ON plan_summary.mi_plan_id = phenotyping_productions.mi_plan_id
-        WHERE phenotyping_production_statuses.name != 'Phenotype Production Aborted'
+        WHERE phenotyping_production_statuses.name != 'Phenotype Production Aborted' AND phenotyping_productions.report_to_public = true
         GROUP BY parent_colony_id
       )
 
@@ -205,9 +205,24 @@ class SolrData::Allele2CoreData
   EOF
 
 
+  PHENOTYPE_DATA_AVAILABLE_FOR_GENE = <<-EOF
+    SELECT genes.marker_symbol AS gene_marker_symbol, genes.mgi_accession_id AS gene_mgi_accession_id, centres.name AS phenotyping_centre,
+           phenotyping_productions.*,
+           phenotyping_production_statuses.name AS phenotyping_status_name
+    FROM phenotyping_productions
+      JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
+      JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
+      JOIN centres ON centres.id = mi_plans.production_centre_id
+      JOIN consortia ON consortia.id = mi_plans.consortium_id AND consortia.name SUBS_EUCOMMTOOLSCRE
+      JOIN genes ON genes.id = mi_plans.gene_id SUBS_GENE_TEMPLATE
+    WHERE phenotyping_productions.report_to_public = true
+  EOF
+
+
   def initialize(options = {})
     @show_eucommtoolscre = options[:show_eucommtoolscre] || false
-    @marker_symbol = options.has_key?(:marker_symbols) ? options[:marker_symbols].split(',') : nil
+    @marker_symbols = options.has_key?(:marker_symbols) ? options[:marker_symbols] : nil
+
     @file_name = options[:file_name] || ''
 
     if @show_eucommtoolscre
@@ -244,17 +259,20 @@ class SolrData::Allele2CoreData
     @gene_sql = GENE_SQL.dup
     @mouse_sql = MICE_ALLELE_SQL.dup
     @es_cell_and_targeting_vector_sql = ES_CELL_VECTOR_ALLELES_SQL.dup
+    @gene_phenotyping_sql = PHENOTYPE_DATA_AVAILABLE_FOR_GENE.dup
 
-    marker_symbols = @marker_symbol.to_a.map {|ms| "'#{ms}'" }.join ','
+    marker_symbols = @marker_symbols.to_a.map {|ms| "'#{ms}'" }.join ','
 
-    if ! @marker_symbol.nil?
+    if ! @marker_symbols.nil?
       @gene_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
       @mouse_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
+      @gene_phenotyping_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
     else
       @gene_sql.gsub!(/SUBS_GENE_TEMPLATE/, '')
       @mouse_sql.gsub!(/SUBS_GENE_TEMPLATE/, '')
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_GENE_TEMPLATE/, '')
+      @gene_phenotyping_sql.gsub!(/SUBS_GENE_TEMPLATE/, '')
     end
 
     if @show_eucommtoolscre == true
@@ -263,12 +281,15 @@ class SolrData::Allele2CoreData
 
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_EUCOMMTOOLSCRE_ID/, ' = 8 ')
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
+
+      @gene_phenotyping_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
     else
       @mouse_sql.gsub!(/SUBS_EUCOMMTOOLSCRE_ID/, ' != 8 ')
       @mouse_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
 
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_EUCOMMTOOLSCRE_ID/, ' != 8 ')
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
+      @gene_phenotyping_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
     end
 
     @allele_data = {}
@@ -291,7 +312,7 @@ class SolrData::Allele2CoreData
 
     raise "file_name Parameter required" if @file_name.blank?
     raise "Invalid Parameter show_eucommtoolscre must be a boolean" unless [TrueClass, FalseClass].include?(@show_eucommtoolscre.class)
-    raise "Invalid Marker Symbol provided" if !@marker_symbols.blank? && @marker_symbols.any{|ms| Gene.find_by_marker_symbol(ms).blank?}
+    raise "Invalid Marker Symbol provided" if !@marker_symbols.blank? && @marker_symbols.any?{|ms| Gene.find_by_marker_symbol(ms).blank?}
   end
 
   def save_to_file
@@ -334,7 +355,7 @@ class SolrData::Allele2CoreData
 
     puts "#### processing rows ..."
     rows.each do |row|
-      puts "PROCESSING ROW #{row['marker_symbol']}" unless @marker_symbol.nil?
+      puts "PROCESSING ROW #{row['marker_symbol']}" unless @marker_symbols.nil?
       #pp row
       @gene_data[row['mgi_accession_id']] = create_new_default_gene_doc(row)
     end
@@ -433,7 +454,19 @@ class SolrData::Allele2CoreData
 
 
     puts "#### step 3 - Complete"
-    puts "#### step 4 - Append Additional Data..."
+
+    puts "#### step 4 - Add missing phenotyping statuses to gene docs"
+
+    rows = ActiveRecord::Base.connection.execute(@gene_phenotyping_sql)
+
+    rows.each do |row|
+      doc = get_gene_doc(row['gene_mgi_accession_id'])
+      phenotyping_gene_update_doc(doc, row)
+    end
+
+    puts "#### step 4 - Complete"
+
+    puts "#### step 5 - Append Additional Data..."
 
     ## append additional data based on already collated data
     @allele_data.each do |key, allele_data_doc|
@@ -770,6 +803,18 @@ class SolrData::Allele2CoreData
     doc.ikmc_project = doc.ikmc_project.uniq
   end
   private :mouse_gene_update_doc
+
+  def phenotyping_gene_update_doc(doc, data_row)
+
+    if doc.phenotype_status.blank? || mouse_status_is_more_adavanced(data_row['phenotyping_status_name'], doc.phenotype_status)
+      doc.phenotype_status = data_row['phenotyping_status_name']
+      doc.phenotyping_centre = data_row['phenotyping_centre']
+    end
+
+    doc.phenotyping_centres << data_row['phenotyping_centre']
+    doc.phenotyping_centres = doc.phenotyping_centres.uniq
+  end
+  private :phenotyping_gene_update_doc
 
   def try_to_find_correct_allele(row1)
     sql = <<-EOF

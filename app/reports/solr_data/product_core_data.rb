@@ -17,7 +17,7 @@ class SolrData::ProductCoreData
     FROM mi_plans
       JOIN centres ON centres.id = mi_plans.production_centre_id
       JOIN consortia ON consortia.id = mi_plans.consortium_id
-      JOIN genes ON genes.id = mi_plans.gene_id
+      JOIN genes ON genes.id = mi_plans.gene_id SUBS_GENE_TEMPLATE
     WHERE mi_plans.report_to_public = true AND consortia.name SUBS_EUCOMMTOOLSCRE
   EOF
 
@@ -43,7 +43,7 @@ class SolrData::ProductCoreData
       ARRAY['critical:' || targ_rep_alleles.taqman_critical_del_assay_id, 'upstream:' || targ_rep_alleles.taqman_upstream_del_assay_id, 'downstream:' || targ_rep_alleles.taqman_downstream_del_assay_id] AS loa
     FROM targ_rep_es_cells
       JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
-      JOIN genes ON genes.id = targ_rep_alleles.gene_id
+      JOIN genes ON genes.id = targ_rep_alleles.gene_id SUBS_GENE_TEMPLATE
       LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_es_cells.ikmc_project_foreign_id
       LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_es_cells.pipeline_id
       LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
@@ -156,7 +156,7 @@ class SolrData::ProductCoreData
              ARRAY['critical:' || targ_rep_alleles.taqman_critical_del_assay_id, 'upstream:' || targ_rep_alleles.taqman_upstream_del_assay_id, 'downstream:' || targ_rep_alleles.taqman_downstream_del_assay_id] AS loa
       FROM targ_rep_targeting_vectors
         JOIN targ_rep_alleles ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
-        JOIN genes ON genes.id = targ_rep_alleles.gene_id
+        JOIN genes ON genes.id = targ_rep_alleles.gene_id SUBS_GENE_TEMPLATE
         LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
         LEFT JOIN targ_rep_mutation_methods ON targ_rep_mutation_methods.id = targ_rep_alleles.mutation_method_id
         LEFT JOIN es_cell_names ON es_cell_names.targeting_vector_id = targ_rep_targeting_vectors.id
@@ -197,7 +197,7 @@ class SolrData::ProductCoreData
           (SELECT targ_rep_alleles.project_design_id AS design_id, targ_rep_mutation_methods.allele_prefix AS allele_prefix, targ_rep_targeting_vectors.intermediate_vector AS vector_name, targ_rep_alleles.cassette AS cassette, targ_rep_pipelines.name AS pipeline, genes.marker_symbol AS marker_symbol, genes.mgi_accession_id AS mgi_accession_id, targ_rep_mutation_types.allele_code AS mutation_type_allele_code, targ_rep_targeting_vectors.allele_id AS allele_id
             FROM targ_rep_targeting_vectors
               JOIN targ_rep_alleles ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
-              JOIN genes ON genes.id = targ_rep_alleles.gene_id
+              JOIN genes ON genes.id = targ_rep_alleles.gene_id SUBS_GENE_TEMPLATE
               LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
               LEFT JOIN targ_rep_mutation_methods ON targ_rep_mutation_methods.id = targ_rep_alleles.mutation_method_id
               LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_targeting_vectors.ikmc_project_foreign_id
@@ -381,7 +381,7 @@ class SolrData::ProductCoreData
 
     raise "file_name Parameter required" if @file_name.blank?
     raise "Invalid Parameter show_eucommtoolscre must be a boolean"  unless [TrueClass, FalseClass].include?(@show_eucommtoolscre.class)
-    raise "Invalid Marker Symbol provided" if !@marker_symbols.blank? && @marker_symbols.any{|ms| Gene.find_by_marker_symbol(ms).blank?}
+    raise "Invalid Marker Symbol provided" if !@marker_symbols.blank? && @marker_symbols.any?{|ms| Gene.find_by_marker_symbol(ms).blank?}
     raise "Invalid Parameter process_mice must be a boolean" unless [TrueClass, FalseClass].include?(@process_mice.class)
     raise "Invalid Parameter process_es_cells must be a boolean" unless [TrueClass, FalseClass].include?(@process_es_cells.class)
     raise "Invalid Parameter process_targeting_vectors must be a boolean" unless [TrueClass, FalseClass].include?(@process_targeting_vectors.class)
@@ -414,6 +414,13 @@ class SolrData::ProductCoreData
       product_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
     else
       product_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
+    end
+
+    if !@marker_symbols.blank?
+      marker_symbols = @marker_symbols.to_a.map {|ms| "'#{ms}'" }.join(',')
+      product_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
+    else
+      product_sql.gsub!(/SUBS_GENE_TEMPLATE/, "")
     end
 
     rows = ActiveRecord::Base.connection.execute(product_sql)

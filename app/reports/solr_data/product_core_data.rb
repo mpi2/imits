@@ -340,7 +340,7 @@ class SolrData::ProductCoreData
 
     @file_name = options[:file_name] || ''
     @show_eucommtoolscre = options[:show_eucommtoolscre] || false
-    @marker_symbols = options.has_key?(:marker_symbols) ? options[:marker_symbols].split(',') : nil
+    @marker_symbols = options.has_key?(:marker_symbols) ? options[:marker_symbols] : nil
 
     if @show_eucommtoolscre
       @allele_design_project = 'Cre'

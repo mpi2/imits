@@ -7,9 +7,6 @@ class Colony < ApplicationModel
 
   extend AccessAssociationByAttribute
 
-# FORM OBJECT Should be extracted into a form object
-  include ::Public::Serializable
-
   PRIVATE_ATTRIBUTES = %w{
     allele_name
     mgi_allele_symbol_superscript
@@ -17,30 +14,8 @@ class Colony < ApplicationModel
     mgi_allele_id
   }
 
-  FULL_ACCESS_ATTRIBUTES = %w{
-    name
-    genotype_confirmed
-    report_to_public
-    allele_name
-    mgi_allele_symbol_superscript
-    background_strain_name  
-    mgi_allele_symbol_without_impc_abbreviation
-  }
-
-  READABLE_ATTRIBUTES = %w{
-    id
-    private
-    crispr_allele_category
-    mgi_allele_id
-
-  } + FULL_ACCESS_ATTRIBUTES
-
-  WRITABLE_ATTRIBUTES = %w{
-  } + FULL_ACCESS_ATTRIBUTES
-
-  attr_accessible(*WRITABLE_ATTRIBUTES)
-
-# END OF FORM OBJECT
+  attr_accessible :name, :genotype_confirmed, :background_strain_name, :allele_symbol, :mgi_allele_symbol_superscript, :mgi_allele_symbol_without_impc_abbreviation, :mgi_allele_id, :report_to_public
+  
 
 # VALUE OBJECT Should be extracted into a value object
   CRISPR_ALLELE_CATEGORIES = ['NHEJ', 'Deletion', 'HDR', 'HR'].freeze
@@ -358,7 +333,7 @@ validates_format_of :mgi_allele_id,
     end until self.class.find_by_name(new_colony_name).blank?
     colony_name = new_colony_name
 
-    pa = Public::PhenotypeAttempt.new ({:mi_attempt_colony_name => self.name, :mi_plan_id => self.mi_attempt.mi_plan_id, :colony_name => colony_name})
+    pa = PhenotypeAttemptForm.new ({:mi_attempt_colony_name => self.name, :mi_plan_id => self.mi_attempt.mi_plan_id, :colony_name => colony_name})
     pa.save
     raise "Could not create Phenotype Attempt #{pa.errors.messages}" unless pa.errors.messages.blank?
   end

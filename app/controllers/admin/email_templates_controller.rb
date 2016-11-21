@@ -75,7 +75,7 @@ class Admin::EmailTemplatesController < Admin::BaseController
       if(@relevant_status)
         relevant_mi_plan = @relevant_status[:mi_plan_id] ? MiPlan.find(@relevant_status[:mi_plan_id]) : nil
         relevant_mi_attempt = @relevant_status[:mi_attempt_id] ? MiAttempt.find(@relevant_status[:mi_attempt_id]) : nil
-        relevant_phenotype_attempt = @relevant_status[:phenotype_attempt_id] ? Public::PhenotypeAttempt.find(@relevant_status[:phenotype_attempt_id]) : nil
+        relevant_phenotype_attempt = @relevant_status[:phenotype_attempt_id] ? PhenotypeAttemptForm.find(@relevant_status[:phenotype_attempt_id]) : nil
 
         @relevant_production_centre = "unknown production centre"
         if es_cell = TargRep::EsCell.includes(:allele).where("targ_rep_alleles.gene_id = '#{@gene.id}'").first

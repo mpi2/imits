@@ -54,10 +54,10 @@ class ApplicationController < ActionController::Base
   end
   protected :params_cleaned_for_sort
 
-  def json_format_extended_response(data, total)
+  def json_format_extended_response(data, model_class, total)
     # This fails with ActiveRecord::Relation
     #data = [data] unless data.kind_of? Array
-    data = data.as_json
+    data = data.map{|data_row| data_row.grid_serializer.new(data_row).as_json}
 
     retval = {
       controller_path.gsub('/', '_') => data,
@@ -101,9 +101,11 @@ class ApplicationController < ActionController::Base
       retval = result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
 
       if format == :json and params[:extended_response].to_s == 'true'
-        return json_format_extended_response(retval, result.count)
+        # Will use Grid Serializer
+        return json_format_extended_response(retval, model_class, result.count)
       else
-        return retval
+        # Use REST Serializer
+        return retval.map{|data_row| data_row.rest_serializer.new(data_row).as_json}
       end
     else
       if format == :json
@@ -116,6 +118,15 @@ class ApplicationController < ActionController::Base
     end
   end
   protected :data_for_serialized
+
+  def serialize(model)
+    if params.has_key?(:extended_response) && params[:extended_response] == 'true'
+      return model.grid_serializer.new(model).as_json
+    else
+      return model.rest_serializer.new(model).as_json
+    end  
+  end
+  protected :serialize
 
   def log_json_response_parameters
     if request.format == :json

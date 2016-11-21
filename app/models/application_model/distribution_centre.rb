@@ -8,20 +8,6 @@ module ApplicationModel::DistributionCentre
     MMRRC
   }
 
-  FULL_ACCESS_ATTRIBUTES = %w{
-    start_date
-    end_date
-    deposited_material_name
-    centre_name
-    is_distributed_by_emma
-    distribution_network
-    _destroy
-  }
-
-  READABLE_ATTRIBUTES = %w{
-    id
-  } + FULL_ACCESS_ATTRIBUTES
-
   ## This is for backwards compatibility with portal.
   def is_distributed_by_emma
     self.distribution_network == 'EMMA'

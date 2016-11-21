@@ -7,6 +7,11 @@
   <%= javascript_tag "MI_ATTEMPT_DEPOSITED_MATERIAL_OPTIONS = #{DepositedMaterial.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_STRAIN_OPTIONS = #{Strain.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_STATUS_OPTIONS = #{MiAttempt::Status.all.map(&:name).to_json}" %>
+  <%= javascript_tag "CRISPR_ASSAY_TYPES_OPTIONS = #{MiAttempt::CRISPR_ASSAY_TYPES.to_json}" %>
+  <%= javascript_tag "DELIVERY_METHODS_OPTIONS = #{MiAttempt::DELIVERY_METHODS.to_json}" %>
+  <%= javascript_tag "TRANSFER_DAY_OPTIONS = #{MiAttempt::TRANSFER_DAY.to_json}" %>
+  <%= javascript_tag "PRIVACY_OPTIONS_OPTIONS = #{MiAttempt::PRIVACY_OPTIONS.to_json}" %>
+  <%= javascript_tag "NUCLEASE_OPTIONS = #{MiAttempt::NUCLEASE_TYPES.to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_MOUSE_ALLELE_TYPE_OPTIONS = #{MiAttempt::MOUSE_ALLELE_OPTIONS.map{|k,v|[k, v]}.to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
 <% end %>

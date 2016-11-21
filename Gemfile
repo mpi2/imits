@@ -22,6 +22,8 @@ gem 'ransack', '0.7.2'
 gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', '1.1.1', :require => 'ruport/acts_as_reportable'
 
+gem 'virtus', '1.0.5'
+
 gem 'rmagick', '2.13.2', :require => false
 gem 'scruffy_Sanger','0.2.6.1', :require => 'scruffy'
 

@@ -8,41 +8,9 @@ class MouseAlleleMod < ApplicationModel
   include MouseAlleleMod::StatusManagement
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
-  include ::Public::Serializable
 
   PRIVATE_ATTRIBUTES = %w{
   }
-
-  FULL_ACCESS_ATTRIBUTES = %w{
-    mi_plan_id
-    consortium_name
-    production_centre_name
-    mi_attempt_colony_name
-    colony_name
-    rederivation_started
-    rederivation_complete
-    number_of_cre_matings_successful
-    no_modification_required
-    mouse_allele_type
-    deleter_strain_name
-    colony_background_strain_name
-    cre_excision_required
-    tat_cre
-    report_to_public
-    is_active
-}
-
-  READABLE_ATTRIBUTES = %w{
-    id
-    status_name
-    phenotype_attempt_id
-  } + FULL_ACCESS_ATTRIBUTES
-
-  WRITABLE_ATTRIBUTES = %w{
-  } + FULL_ACCESS_ATTRIBUTES
-
-  attr_accessible(*WRITABLE_ATTRIBUTES)
-
 
   validate do |me|
     if me.changed.include?('mi_attempt_id') and ! me.new_record?
@@ -381,6 +349,14 @@ class MouseAlleleMod < ApplicationModel
   def reload
     @distribution_centres_attributes = []
     super
+  end
+
+  def rest_serializer
+    return Rest::MouseAlleleModSerializer
+  end
+
+  def grid_serializer
+    return Grid::MouseAlleleModSerializer
   end
 
 ## CLASS METHODS

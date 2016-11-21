@@ -40,16 +40,20 @@ Ext.define('Imits.model.MiAttempt', {
         name: 'colony_name'
     },
     {
-        name: 'genotyped_confirmed_colony_names'
+        name: 'genotyped_confirmed_colony_names',
+        persist: false
     },
     {
-        name: 'genotyped_confirmed_colony_phenotype_attempts_count'
+        name: 'genotyped_confirmed_colony_phenotype_attempts_count',
+        persist: false
     },
     {
-        name: 'genotype_confirmed_allele_symbols'
+        name: 'genotype_confirmed_allele_symbols',
+        persist: false
     },
     {
-        name: 'genotype_confirmed_distribution_centres'
+        name: 'genotype_confirmed_distribution_centres',
+        persist: false
     },
     {
         name: 'consortium_name'
@@ -57,13 +61,7 @@ Ext.define('Imits.model.MiAttempt', {
     {
         name: 'production_centre_name'
     },
-    {
-        name: 'distribution_centres_attributes'
-    },
-    {
-        name: 'distribution_centres_formatted_display',
-        readOnly: true
-    },
+
     {
         name: 'blast_strain_name'
     },
@@ -176,12 +174,10 @@ Ext.define('Imits.model.MiAttempt', {
         type: 'int'
     },
     {
-        name: 'mouse_allele_type',
-        readOnly: true
+        name: 'mouse_allele_type'
     },
     {
-        name: 'mouse_allele_symbol',
-        readOnly: true
+        name: 'mouse_allele_symbol'
     },
 
     // QC Details
@@ -245,17 +241,14 @@ Ext.define('Imits.model.MiAttempt', {
         name: 'is_released_from_genotyping',
         type: 'boolean'
     },
-    {   name: 'phenotype_attempts_count',
+    {
+        name: 'mi_plan_id',
         type: 'int',
-        readOnly: true,
         persist: false
     },
     {
-        name: 'mi_plan_id',
-        type: 'int'
-    },
-    {
-        name: 'mgi_accession_id'
+        name: 'mgi_accession_id',
+        persist: false
     },
 
     // Crispr transfer details
@@ -278,44 +271,54 @@ Ext.define('Imits.model.MiAttempt', {
         type: 'int'
     },
     {
-        name: 'founder_pcr_num_assays',
-        type: 'int'
-    },
-    {
-        name: 'founder_pcr_num_positive_results',
-        type: 'int'
-    },
-    {
-        name: 'founder_surveyor_num_assays',
-        type: 'int'
-    },
-    {
-        name: 'founder_surveyor_num_positive_results',
-        type: 'int'
-    },
-    {
-        name: 'founder_t7en1_num_assays',
-        type: 'int'
-    },
-    {
-        name: 'founder_t7en1_num_positive_results',
-        type: 'int'
-    },
-    {
-        name: 'founder_loa_num_assays',
-        type: 'int'
-    },
-    {
-        name: 'founder_loa_num_positive_results',
-        type: 'int'
-    },
-    {
-        name: 'crsp_total_num_mutant_founders',
-        type: 'int'
-    },
-    {
         name: 'crsp_num_founders_selected_for_breading',
         type: 'int'
+    },    
+    {
+        name: 'mrna_nuclease'
+    },
+    {
+        name: 'mrna_nuclease_concentration',
+        type: 'float'
+    },
+    {
+        name: 'protein_nuclease'
+    },
+    {
+        name: 'protein_nuclease_concentration',
+        type: 'float'
+    },
+    {
+        name: 'delivery_method'
+    },
+    {
+        name: 'voltage',
+        type: 'int'
+    },
+    {
+        name: 'number_of_pulses',
+        type: 'int'
+    },
+    {
+        name: 'crsp_embryo_transfer_day'
+    },
+    {
+        name: 'crsp_embryo_2_cell',
+        type: 'int'
+    },
+    {
+        name: 'assay_type'
+    },
+    {
+        name: 'founder_num_assays',
+        type: 'int'
+    },
+    {
+        name: 'experimental',
+        type: 'boolean'
+    },
+    {
+        name: 'privacy' 
     },
 
     ],

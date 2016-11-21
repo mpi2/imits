@@ -5,29 +5,17 @@ class Centre < ActiveRecord::Base
   PRIVATE_ATTRIBUTES = %w{
   }
 
-  FULL_ACCESS_ATTRIBUTES = %w{
-    name
-    contact_name
-    contact_email
-  }
+  has_many :mi_plans, :foreign_key => 'production_centre_id'
+  has_many :targ_rep_es_cells, :foreign_key => 'user_mouse_clinic_id'
+  has_many :colony_distribution_centres, :class_name => "Colony::DistributionCentre"
+  has_many :tracking_goals
 
-  READABLE_ATTRIBUTES = %w{
-    id
-    code
-    superscript
-  } + FULL_ACCESS_ATTRIBUTES
-
-  WRITABLE_ATTRIBUTES = %w{
-  } + FULL_ACCESS_ATTRIBUTES
-
-  attr_accessible(*WRITABLE_ATTRIBUTES)
+  default_scope :order => 'name ASC'
 
   validates :name, :presence => true, :uniqueness => true
 
-
-
   def has_children?
-    ! (mi_plans.empty? && mi_attempt_distribution_centres.empty? && phenotype_attempt_distribution_centres.empty?)
+    ! (mi_plans.empty? && colony_distribution_centres.empty?)
   end
 
   def destroy
@@ -35,10 +23,17 @@ class Centre < ActiveRecord::Base
     super
   end
 
+  def rest_serializer
+    return Rest::CentreSerializer
+  end
+
+  def grid_serializer
+    return Rest::CentreSerializer
+  end
+
   def self.readable_name
     return 'centre'
   end
-
 end
 
 # == Schema Information

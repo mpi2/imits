@@ -408,7 +408,7 @@ Ext.define('Imits.widget.MiGridCommon', {
             dataIndex: 'genotyped_confirmed_colony_names',
             header: 'Genotype Confirmed Colonies',
             width: 180,
-            editor: 'textfield',
+            readOnly: true,
             renderer: function(value, metaData, record){
                 var genotype_confirmed_colony_names = record.get('genotyped_confirmed_colony_names').toString().replace('[', '').replace(']', '').split(',');
                 var textToDisplay = genotype_confirmed_colony_names.join('<br><br>')
@@ -427,7 +427,35 @@ Ext.define('Imits.widget.MiGridCommon', {
                 return textToDisplay
                 },
             sortable: false
-        }
+        },
+        {
+            dataIndex: 'privacy',
+            header: 'Privacy',
+            width: 250,
+            editor: {
+                xtype: 'simplecombo',
+                store: window.PRIVACY_OPTIONS_OPTIONS,
+                listConfig: {
+                    minWidth: 400
+                }
+            } 
+    
+        },
+        {
+            dataIndex: 'experimental',
+            header: 'Experimental?',
+            xtype: 'boolgridcolumn'
+        },
+        {
+            dataIndex: 'report_to_public',
+            header: 'Report to Public',
+            xtype: 'boolgridcolumn'
+        },
+        {
+            dataIndex: 'is_active',
+            header: 'Active?',
+            xtype: 'boolgridcolumn'
+        },
         ],
 
         'Summary': [
@@ -804,16 +832,6 @@ Ext.define('Imits.widget.MiGridCommon', {
             editor: 'qccombo'
         },
         {
-            dataIndex: 'report_to_public',
-            header: 'Report to Public',
-            xtype: 'boolgridcolumn'
-        },
-        {
-            dataIndex: 'is_active',
-            header: 'Active?',
-            xtype: 'boolgridcolumn'
-        },
-        {
             dataIndex: 'is_released_from_genotyping',
             header: 'Released From Genotyping',
             xtype: 'boolgridcolumn'
@@ -821,6 +839,82 @@ Ext.define('Imits.widget.MiGridCommon', {
         ],
 
         'Crispr Transfer Details': [
+        {
+            dataIndex: 'delivery_method',
+            header: 'Delivery Method',
+            width: 150,
+            editor: {
+                xtype: 'simplecombo',
+                store: window.DELIVERY_METHODS_OPTIONS,
+                listConfig: {
+                    minWidth: 250
+                }
+            }
+        },
+        {
+            dataIndex: 'mrna_nuclease',
+            header: 'mRNA Nuclease',
+            editor: {
+                xtype: 'simplecombo',
+                store: window.NUCLEASE_OPTIONS,
+                listConfig: {
+                    minWidth: 300
+                }
+            }
+        },
+        {
+            dataIndex: 'mrna_nuclease_concentration',
+            header: 'mRNA Nuclease Concentration',
+            width: 90,
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'protein_nuclease',
+            header: 'Protein Nuclease',
+            editor: {
+                xtype: 'simplecombo',
+                store: window.NUCLEASE_OPTIONS,
+                listConfig: {
+                    minWidth: 300
+                }
+            }
+        },        
+        {
+            dataIndex: 'protein_nuclease_concentration',
+            header: 'Protein Nuclease Concentration',
+            width: 90,
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'voltage',
+            header: 'Voltage',
+            width: 90,
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_pulses',
+            header: '# Pulses',
+            width: 90,
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'crsp_embryo_transfer_day',
+            header: 'Embryo Transfer Day',
+            width: 120,
+            editor: {
+                xtype: 'simplecombo',
+                store: window.TRANSFER_DAY_OPTIONS,
+                listConfig: {
+                    minWidth: 150
+                }
+            }
+        },        
+        {
+            dataIndex: 'crsp_embryo_2_cell',
+            header: '# Embryos Transferred',
+            width: 90,
+            editor: 'simplenumberfield'
+        },
         {
             dataIndex: 'crsp_total_embryos_injected',
             header: '# Embryos Injected',
@@ -849,59 +943,23 @@ Ext.define('Imits.widget.MiGridCommon', {
             editor: 'simplenumberfield'
         },
         {
-            dataIndex: 'founder_pcr_num_assays',
-            header: '# PCR Assays',
-            width: 80,
-            editor: 'simplenumberfield'
-        },
-        {
-            dataIndex: 'founder_pcr_num_positive_results',
-            header: '# PCR +ve Results',
-            width: 105,
-            editor: 'simplenumberfield'
-        },
-                {
-            dataIndex: 'founder_surveyor_num_assays',
-            header: '# Surveyor Assays',
-            width: 105,
-            editor: 'simplenumberfield'
-        },
-        {
-            dataIndex: 'founder_surveyor_num_positive_results',
-            header: '# Surveyor +ve Results',
-            width: 130,
-            editor: 'simplenumberfield'
-        },
-        {
-            dataIndex: 'founder_t7en1_num_assays',
-            header: '# T7EN1 Assays',
-            width: 95,
-            editor: 'simplenumberfield'
-        },
-                {
-            dataIndex: 'founder_t7en1_num_positive_results',
-            header: '# T7EN1 +ve Assays',
-            width: 115,
-            editor: 'simplenumberfield'
-        },
-        {
-            dataIndex: 'founder_loa_num_assays',
-            header: '# LOA Assays',
+            dataIndex: 'founder_num_assays',
+            header: '# Founders Assayed',
             width: 90,
             editor: 'simplenumberfield'
         },
         {
-            dataIndex: 'founder_loa_num_positive_results',
-            header: '# LOA +ve Results',
-            width: 105,
-            editor: 'simplenumberfield'
-        },
-        {
-            dataIndex: 'crsp_total_num_mutant_founders',
-            header: '# Mutants',
-            width: 60,
-            editor: 'simplenumberfield'
-        },
+            dataIndex: 'assay_type',
+            header: 'Assay Type',
+            width: 120,
+            editor: {
+                xtype: 'simplecombo',
+                store: window.CRISPR_ASSAY_TYPES_OPTIONS,
+                listConfig: {
+                    minWidth: 120
+                }
+            }
+        },      
         {
             dataIndex: 'crsp_num_founders_selected_for_breading',
             header: '# For Breeding',

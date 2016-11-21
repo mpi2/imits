@@ -8,49 +8,9 @@ class PhenotypingProduction < ApplicationModel
   include PhenotypingProduction::StatusManagement
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
-  include ApplicationModel::BelongsToMiPlan::Public
-  include ::Public::Serializable
 
   PRIVATE_ATTRIBUTES = %w{
   }
-
-  FULL_ACCESS_ATTRIBUTES = %w{
-    mi_plan_id
-    consortium_name
-    phenotyping_centre_name
-    production_colony_name
-    mouse_allele_symbol
-    colony_name
-    rederivation_started
-    rederivation_complete
-    colony_background_strain_name
-    phenotyping_experiments_started
-    phenotyping_started
-    phenotyping_complete
-    report_to_public
-    is_active
-    ready_for_website
-    cohort_production_centre_name
-    _destroy
-}
-
-  READABLE_ATTRIBUTES = %w{
-    id
-
-    marker_symbol
-    mgi_accession_id
-    parent_colony_background_strain_name
-
-    phenotype_attempt_id
-    production_centre_name
-    production_consortium_name
-    status_name
-  } + FULL_ACCESS_ATTRIBUTES
-
-  WRITABLE_ATTRIBUTES = %w{
-  } + FULL_ACCESS_ATTRIBUTES
-
-  attr_accessible(*WRITABLE_ATTRIBUTES)
 
   # BEGIN Callbacks
 
@@ -400,6 +360,13 @@ class PhenotypingProduction < ApplicationModel
     return nil
   end
 
+  def rest_serializer
+    return Rest::PhenotypingProductionSerializer
+  end
+
+  def grid_serializer
+    return Grid::PhenotypingProductionSerializer
+  end
 
 ## CLASS METHODS
 

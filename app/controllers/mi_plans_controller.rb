@@ -19,8 +19,12 @@ class MiPlansController < ApplicationController
   def show
     set_centres_and_consortia
     @mi_plan = MiPlan.find_by_id(params[:id])
-    respond_with @mi_plan
+    respond_with @mi_plan do |format|
+      format.html { render }
+      format.json { render :json => serialize(@mi_plan)}
+    end
   end
+
 
   def search_for_available_phenotyping_plans
     #must pass params hash with :marker_symbol and a :mi_plan_id associated with an mi_attempt
@@ -102,7 +106,7 @@ class MiPlansController < ApplicationController
       @mi_plan = MiPlan.new(params[:mi_plan])
       if @mi_plan.valid?
         @mi_plan.save!
-        respond_with @mi_plan
+        respond_with serialize(@mi_plan)
       else
         render :json => @mi_plan.errors, :status => 422
       end
@@ -117,13 +121,14 @@ class MiPlansController < ApplicationController
     respond_to do |format|
       if @mi_plan.update_attributes params[:mi_plan]
         format.html { redirect_to mi_plan_path(@mi_plan) }
-        format.json { render :json => @mi_plan }
+        format.json { render :json => serialize(@mi_plan) }
       else
         format.html { render :action => 'show' }
         format.json { render :json => @mi_plan.errors, :status => 422 }
       end
     end
   end
+
 
   def destroy
     @mi_plan = nil

@@ -3,7 +3,7 @@
 
 <div class="grid_12">
   <h2><%= @title %></h2>
-  <% if @resource.class == Public::PhenotypeAttempt %>
+  <% if @resource.class == PhenotypeAttemptForm %>
     <%= link_to 'Back', "/phenotype_attempts/#{@resource.id}" %>
   <% elsif request.path =~ /admin/ %>
     <%= link_to 'Back', [:admin, @resource] %>

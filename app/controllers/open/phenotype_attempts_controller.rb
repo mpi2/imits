@@ -22,7 +22,7 @@ class Open::PhenotypeAttemptsController < OpenApplicationController
   end
 
   def show
-    @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
+    @phenotype_attempt = PhenotypeAttemptForm.find(params[:id])
     @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     if @phenotype_attempt.report_to_public
       @mi_attempt = @phenotype_attempt.mi_attempt
@@ -177,8 +177,8 @@ class Open::PhenotypeAttemptsController < OpenApplicationController
     unless pp_params.has_key?(:skip) &&  pp_params[:skip] == true
       params.delete_if{|key,value| params.has_key?(key)}
       pp_params.each{|key, value| params[key] = value}
-      pp = super(format, 'id asc', Public::PhenotypingProduction, :public_search, true)
-      pp["open_phenotype_attempts"].each{|p| pa << Public::PhenotypeAttempt.find(p['phenotype_attempt_id']).attributes} if pp.has_key?("open_phenotype_attempts")
+      pp = super(format, 'id asc', PhenotypeAttemptForm, :public_search, true)
+      pp["open_phenotype_attempts"].each{|p| pa << PhenotypeAttemptForm.find(p['phenotype_attempt_id']).attributes} if pp.has_key?("open_phenotype_attempts")
       total_count += pp['total']
       per_page = per_page -  pp["open_phenotype_attempts"].length
       if per_page > 0
@@ -188,12 +188,12 @@ class Open::PhenotypeAttemptsController < OpenApplicationController
 
     params.delete_if{|key,value| params.has_key?(key)}
     mam_params.each{|key, value| params[key] = value}
-    mam = super(format, 'id asc', Public::MouseAlleleMod, :public_search, true)
+    mam = super(format, 'id asc', PhenotypeAttemptForm, :public_search, true)
     total_count += mam['total'] ? (mam['total'] / 20) * 20 : 0
 
     if per_page > 0 && mam.has_key?('total')
       # Phenotyped Alleles produced via MouseAlleleModification (Micro-injection)
-      mam["open_phenotype_attempts"].each{|m| pa << Public::PhenotypeAttempt.find(m['phenotype_attempt_id']).attributes} if mam.has_key?("open_phenotype_attempts")
+      mam["open_phenotype_attempts"].each{|m| pa << PhenotypeAttemptForm.find(m['phenotype_attempt_id']).attributes} if mam.has_key?("open_phenotype_attempts")
     end
 
     params.delete_if{|key,value| params.has_key?(key)}

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Public::PhenotypeAttempt
+class PhenotypeAttemptForm
   class << self
   include ActiveModel::Naming
   include ActiveModel::Validations
@@ -68,26 +68,26 @@ class Public::PhenotypeAttempt
 
   def initialize(params)
     @new_record = false
-    @errors = ActiveModel::Errors.new(Public::PhenotypeAttempt)
+    @errors = ActiveModel::Errors.new(PhenotypeAttemptForm)
 
     if  params.has_key?(:mouse_allele_mod_id) ||  params.has_key?(:phenotyping_production_id)
       @mam = nil
       @pp = nil
       if params.has_key?(:mouse_allele_mod_id)
-        mam = Public::MouseAlleleMod.find(params[:mouse_allele_mod_id])
+        mam = MouseAlleleMod.find(params[:mouse_allele_mod_id])
         raise "invalid mouse_allele_mod" if mam.blank?
         @mam = mam
         @pp = @mam.colony.phenotyping_productions
       else
-        pp = Public::PhenotypingProduction.where("id = #{params[:phenotyping_production_id]}")
+        pp = PhenotypingProduction.where("id = #{params[:phenotyping_production_id]}")
         raise "invalid phenotyping_production" if pp.blank?
         @mam = pp.first.parent_colony.try(:mouse_allele_mod)
         @pp = @mam.try(:colony).try(:phenotyping_productions) || pp
       end
     else
       @new_record = true
-      @mam = Public::MouseAlleleMod.new
-      @linked_phenotyping_production = Public::PhenotypingProduction.new
+      @mam = MouseAlleleMod.new
+      @linked_phenotyping_production = PhenotypingProduction.new
       @@phenotype_attempt_fields.each{|attr| if self.class.public_method_defined?("#{attr}="); self.send("#{attr}=",  params.has_key?(attr) ? params[attr.to_sym] : self.send(attr)) ; end   }
       READABLE_ATTRIBUTES[:methods].each{|attr| if self.class.public_method_defined?("#{attr}="); self.send("#{attr}=",  params.has_key?(attr) ? params[attr.to_sym] : self.send(attr)) ; end }
       @mam = nil
@@ -121,7 +121,7 @@ class Public::PhenotypeAttempt
     if pp.count > 1 or pp.count == 0
       return nil
     else
-      @linked_phenotyping_production = Public::PhenotypingProduction.find(pp.first.id)
+      @linked_phenotyping_production = PhenotypingProduction.find(pp.first.id)
       return @linked_phenotyping_production
     end
   end
@@ -489,7 +489,7 @@ class Public::PhenotypeAttempt
     else
       @destroy_mam = false if destroy_mam == true
       if mouse_allele_mod.blank?
-        @mam = Public::MouseAlleleMod.new({})
+        @mam = MouseAlleleMod.new({})
       end
       if !mouse_allele_mod.blank?
         (MouseAlleleMod.column_names - PHENOTYPE_ATTEMPT_MAM_FIELDS[:exclude] + PHENOTYPE_ATTEMPT_MAM_FIELDS[:include]).each do |field|
@@ -499,7 +499,7 @@ class Public::PhenotypeAttempt
     end
 
     if (new_record? || phenotyping_productions.length == 0) && linked_phenotyping_production.blank?
-      @linked_phenotyping_production = Public::PhenotypingProduction.new
+      @linked_phenotyping_production = PhenotypingProduction.new
     end
 
     if !mouse_allele_mod.blank? && destroy_mam == false

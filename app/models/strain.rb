@@ -15,6 +15,14 @@ class Strain < ActiveRecord::Base
       return self.name
     end
   end
+
+  def rest_serializer
+    return Rest::StrainSerializer
+  end
+
+  def grid_serializer
+    return Rest::StrainSerializer
+  end
 end
 
 # == Schema Information

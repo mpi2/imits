@@ -2,7 +2,6 @@
 
 class Colony::DistributionCentre < ApplicationModel
   extend AccessAssociationByAttribute
-  include Public::Serializable
   include ApplicationModel::DistributionCentre
 
   class Error <  ApplicationModel::ValidationError; end
@@ -10,13 +9,6 @@ class Colony::DistributionCentre < ApplicationModel
   class UnsuitableDistributionCentreError < Error; end
 
   acts_as_audited
-
-  WRITABLE_ATTRIBUTES = %w{
-  } + FULL_ACCESS_ATTRIBUTES + ['colony_id']
-
-  KOMP_CENTRE_NAME = 'KOMP Repo'
-
-  attr_accessible(*WRITABLE_ATTRIBUTES)
 
   belongs_to :colony
   belongs_to :centre

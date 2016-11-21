@@ -1,7 +1,7 @@
 class CentresController < ApplicationController
 
   respond_to :json
-  respond_to :html, :except => [:show]
+  respond_to :html, :except => [:show, :grid_index]
 
   before_filter :authenticate_user!
 

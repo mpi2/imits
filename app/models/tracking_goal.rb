@@ -3,7 +3,6 @@ class TrackingGoal < ActiveRecord::Base
   ## Gems/Plugins
   acts_as_audited
   extend AccessAssociationByAttribute
-  include ::Public::Serializable
  
   attr_accessor :month, :year
 
@@ -103,6 +102,14 @@ class TrackingGoal < ActiveRecord::Base
     else
       return 0
     end
+  end
+
+  def rest_serializer
+    return Rest::TrackingGoalSerializer
+  end
+
+  def grid_serializer
+    return Rest::TrackingGoalSerializer
   end
 end
 

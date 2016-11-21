@@ -49,7 +49,6 @@ Ext.define('Imits.widget.MiGrid', {
                     var phenotype_attempts_count = record.get('genotyped_confirmed_colony_phenotype_attempts_count').toString().replace('[', '').replace(']', '').split(',');
                     var textToDisplayArray = [];
                     var textToDisplay = '';
-                    console.log(genotype_confirmed_colony_names);
                     if (genotype_confirmed_colony_names.length > 0 && genotype_confirmed_colony_names[0].length > 0) {
                         for (var i = 0, len = genotype_confirmed_colony_names.length; i < len; i++)
                             {

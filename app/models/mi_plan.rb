@@ -7,60 +7,9 @@ class MiPlan < ApplicationModel
   extend AccessAssociationByAttribute
   include MiPlan::StatusManagement
   include ApplicationModel::HasStatuses
-  include ::Public::Serializable
 
   PRIVATE_ATTRIBUTES = %w{
   }
-
-  FULL_ACCESS_ATTRIBUTES = [
-    'marker_symbol',
-    'consortium_name',
-    'production_centre_name',
-    'priority_name',
-    'number_of_es_cells_starting_qc',
-    'number_of_es_cells_passing_qc',
-    'withdrawn',
-    'sub_project_name',
-    'is_active',
-    'is_bespoke_allele',
-    'es_qc_comment_name',
-    'is_conditional_allele',
-    'is_deletion_allele',
-    'is_cre_knock_in_allele',
-    'is_cre_bac_allele',
-    'comment',
-    'phenotype_only',
-    'conditional_tm1c',
-    'ignore_available_mice',
-    'completion_note',
-    'recovery',
-    'status_stamps_attributes',
-    'number_of_es_cells_received',
-    'es_cells_received_on',
-    'es_cells_received_from_id',
-    'es_cells_received_from_name',
-    'point_mutation',
-    'conditional_point_mutation',
-    'allele_symbol_superscript',
-    'report_to_public',
-    'completion_comment',
-    'mutagenesis_via_crispr_cas9'
-  ]
-
-  READABLE_ATTRIBUTES = [
-    'id',
-    'status_name',
-    'status_dates',
-    'mgi_accession_id',
-    'mi_attempts_count',
-    'phenotype_attempts_count'
-  ] + FULL_ACCESS_ATTRIBUTES
-
-  WRITABLE_ATTRIBUTES = %w{
-  } + FULL_ACCESS_ATTRIBUTES
-
-  attr_accessible(*WRITABLE_ATTRIBUTES)
-
 
   FUNDING = {'IMPC' => {
                  'HMGU' => ['Helmholtz GMC'],
@@ -425,7 +374,7 @@ puts "PLAN: #{plan.attributes}"
   end
 
   def best_status_phenotype_attempt
-    status_sort_order =  Public::PhenotypeAttempt.status_order
+    status_sort_order =  PhenotypeAttemptForm.status_order
 
     ordered_pas = phenotype_attempts.sort { |pa1, pa2| status_sort_order[pa2.status_name] <=> status_sort_order[pa1.status.order_by] }
 
@@ -438,7 +387,7 @@ puts "PLAN: #{plan.attributes}"
 
   def latest_relevant_phenotype_attempt
 
-    status_sort_order =  Public::PhenotypeAttempt.status_order
+    status_sort_order =  PhenotypeAttemptForm.status_order
 
     ordered_pas = phenotype_attempts.sort do |pi1, pi2|
       [status_sort_order[pi1.public_status_name], pi2.in_progress_date] <=>
@@ -475,7 +424,7 @@ puts "PLAN: #{plan.attributes}"
     phenotype_attempt_ids << mouse_allele_mods.map{|mam| mam.phenotype_attempt_id}.reject { |c| c.blank? }
     phenotype_attempt_ids << phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.reject { |c| c.blank? }
 
-    pas = phenotype_attempt_ids.flatten.uniq.reject { |c| c.blank? }.map{ |pa_id| Public::PhenotypeAttempt.find(pa_id)}
+    pas = phenotype_attempt_ids.flatten.uniq.reject { |c| c.blank? }.map{ |pa_id| PhenotypeAttemptForm.find(pa_id)}
     return pas
   end
 
@@ -714,6 +663,16 @@ puts "PLAN: #{plan.attributes}"
     return false
 
   end
+
+
+  def rest_serializer
+    return Rest::MiPlanSerializer
+  end
+
+  def grid_serializer
+    return Grid::MiPlanSerializer
+  end
+
 
   # check whether the Plan can be withdrawn, for the view
   def can_be_withdrawn?

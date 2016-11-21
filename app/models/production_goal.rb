@@ -3,27 +3,10 @@ class ProductionGoal < ActiveRecord::Base
   ## Gems/Plugins
   acts_as_audited
   extend AccessAssociationByAttribute
-  include ::Public::Serializable
 
 
   PRIVATE_ATTRIBUTES = %w{
   }
-
-  READABLE_ATTRIBUTES = %w(
-    id
-    year
-    month
-    mi_goal
-    gc_goal
-    crispr_mi_goal
-    crispr_gc_goal
-    total_mi_goal
-    total_gc_goal
-    consortium_name
-    consortium_id
-  )
-
-  attr_accessible *READABLE_ATTRIBUTES
 
   before_save :calculate_totals
 
@@ -52,6 +35,14 @@ class ProductionGoal < ActiveRecord::Base
   def calculate_totals
     self.total_mi_goal = (self.mi_goal.blank? ? 0 : self.mi_goal) + (self.crispr_mi_goal.blank? ? 0 : self.crispr_mi_goal)
     self.total_gc_goal = (self.gc_goal.blank? ? 0 : self.gc_goal) + (self.crispr_gc_goal.blank? ? 0 : self.crispr_gc_goal)
+  end
+
+  def rest_serializer
+    return Rest::ProductionGoalSerializer
+  end
+
+  def grid_serializer
+    return Rest::ProductionGoalSerializer
   end
 
   def self.readable_name

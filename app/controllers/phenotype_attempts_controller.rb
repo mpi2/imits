@@ -169,8 +169,8 @@ class PhenotypeAttemptsController < ApplicationController
     unless pp_params.has_key?(:skip) &&  pp_params[:skip] == true
       params.delete_if{|key,value| params.has_key?(key)}
       pp_params.each{|key, value| params[key] = value}
-      pp = super(format, 'id asc', Public::PhenotypingProduction, :public_search, true)
-      pp["phenotype_attempts"].each{|p| pa << Public::PhenotypeAttempt.find(p['phenotype_attempt_id']).attributes} if pp.has_key?("phenotype_attempts")
+      pp = super(format, 'id asc', PhenotypingProduction, :public_search, true)
+      pp["phenotype_attempts"].each{|p| pa << PhenotypeAttemptForm.find(p['phenotype_attempt_id']).attributes} if pp.has_key?("phenotype_attempts")
       total_count += pp['total']
       per_page = per_page - pp["phenotype_attempts"].length
       if per_page > 0
@@ -185,7 +185,7 @@ class PhenotypeAttemptsController < ApplicationController
 
     if per_page > 0 && mam.has_key?('total')
       # Phenotyped Alleles produced via MouseAlleleModification (Micro-injection)
-      mam["phenotype_attempts"].each{|m| pa << Public::PhenotypeAttempt.find(m['phenotype_attempt_id']).attributes} if mam.has_key?("phenotype_attempts")
+      mam["phenotype_attempts"].each{|m| pa << PhenotypeAttemptForm.find(m['phenotype_attempt_id']).attributes} if mam.has_key?("phenotype_attempts")
     end
 
     params.delete_if{|key,value| params.has_key?(key)}
@@ -207,7 +207,7 @@ class PhenotypeAttemptsController < ApplicationController
     @parent_colony = Colony.find(params[:colony_id])
     @mi_attempt = @parent_colony.mi_attempt
     if @mi_attempt.status.name == "Genotype confirmed"
-      @phenotype_attempt = Public::PhenotypeAttempt.new(
+      @phenotype_attempt = PhenotypeAttemptForm.new(
         :mi_plan => @mi_attempt.mi_plan
         )
       @phenotype_attempt.cre_excision_required = false unless @mi_attempt.mutagenesis_factor.blank?
@@ -219,7 +219,7 @@ class PhenotypeAttemptsController < ApplicationController
 
   def create
     set_centres_consortia_and_strains
-    @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
+    @phenotype_attempt = PhenotypeAttemptForm.new(params[:phenotype_attempt])
     @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     @mi_attempt = MiAttempt.joins(:colony).where("colonies.name = '#{params[:phenotype_attempt][:mi_attempt_colony_name]}'").first
 
@@ -261,7 +261,7 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def update
-    @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
+    @phenotype_attempt = PhenotypeAttemptForm.find(params[:id])
     @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
@@ -269,13 +269,13 @@ class PhenotypeAttemptsController < ApplicationController
     if user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt)
       @phenotype_attempt.update_attributes(params[:phenotype_attempt])
       if @phenotype_attempt.errors.blank?
-        @phenotype_attempt = Public::PhenotypeAttempt.find(@phenotype_attempt.id)
+        @phenotype_attempt = PhenotypeAttemptForm.find(@phenotype_attempt.id)
         flash.now[:notice] = 'Phenotype attempt updated successfully'
       else
         flash.now[:alert] = 'Phenotype attempt could not be updated - please check the values you entered'
       end
     else
-      @phenotype_attempt = Public::PhenotypeAttempt.find(@phenotype_attempt.id)
+      @phenotype_attempt = PhenotypeAttemptForm.find(@phenotype_attempt.id)
     end
 
     set_centres_consortia_and_strains
@@ -299,7 +299,7 @@ class PhenotypeAttemptsController < ApplicationController
 
   def show
     set_centres_consortia_and_strains
-    @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
+    @phenotype_attempt = PhenotypeAttemptForm.find(params[:id])
     @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     @mi_attempt = @phenotype_attempt.mi_attempt
     respond_with @phenotype_attempt do |format|
@@ -314,7 +314,7 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def phenotyping_productions
-    @phenotyping_productions = Public::PhenotypeAttempt.find(params[:id]).phenotyping_productions
+    @phenotyping_productions = PhenotypeAttemptForm.find(params[:id]).phenotyping_productions
     respond_with @phenotyping_productions do |format|
       format.json do
         render :json => @phenotyping_productions
@@ -324,7 +324,7 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def history
-    @resource = Public::PhenotypeAttempt.find(params[:id])
+    @resource = PhenotypeAttemptForm.find(params[:id])
     render :template => '/shared/history'
   end
 
@@ -339,7 +339,7 @@ class PhenotypeAttemptsController < ApplicationController
 
 
   def attributes
-    render :json => create_attribute_documentation_for(Public::PhenotypeAttempt)
+    render :json => create_attribute_documentation_for(PhenotypeAttemptForm)
   end
 
 

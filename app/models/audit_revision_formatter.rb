@@ -31,7 +31,7 @@ attr_accessor :model
     end
 
     puts "MODEL #{model}"
-    if model != Public::PhenotypeAttempt
+    if model != PhenotypeAttemptForm
       puts 'WHY ARE WE HERE'
       [
         'status_id',

@@ -23,7 +23,7 @@ class Gene < ActiveRecord::Base
   end
 
   def phenotype_attempts
-    phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.uniq.map{|pa_id| Public::PhenotypeAttempt.find(pa_id)}
+    phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.uniq.map{|pa_id| PhenotypeAttemptForm.find(pa_id)}
   end
 
   def retreive_genes_vectors_sql
@@ -281,6 +281,16 @@ class Gene < ActiveRecord::Base
     end
   end
   private :set_cgi_and_gm_feature_types
+
+
+  def rest_serializer
+    return Rest::GeneSerializer
+  end
+
+  def grid_serializer
+    return Grid::GeneSerializer
+  end
+
 
 # CLASS METHODS
 # mi_plan summarys for a list of genes

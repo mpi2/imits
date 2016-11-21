@@ -6,6 +6,7 @@ class MiAttemptsController < ApplicationController
 
   before_filter :authenticate_user!
 
+
   def index
     respond_to do |format|
       format.html do
@@ -89,15 +90,8 @@ class MiAttemptsController < ApplicationController
     get_marker_symbol
     @vector_options = get_vector_options(@marker_symbol)
     respond_with @mi_attempt do |format|
-      format.html do
-        render :action => :show
-      end
-      format.json do 
-        serialized_hash = @mi_attempt.as_json
-
-        hide_private_attributes(MiAttempt, @mi_attempt, serialized_hash)
-        render :json => serialized_hash
-      end
+      format.html { render }
+      format.json { render :json => serialize(@mi_attempt)}
     end
   end
 
@@ -137,13 +131,11 @@ class MiAttemptsController < ApplicationController
         render :action => :show
       end
 
-      if @mi_attempt.valid?
-        format.json do
-          if params[:extended_response].to_s == 'true'
-            render :json => json_format_extended_response(@mi_attempt, 1)
-          else
-            render :json => @mi_attempt
-          end
+      format.json do 
+        if @mi_attempt.valid?
+          render :json => serialize(@mi_attempt)
+        else
+          render :json => @mi_attempt.errors, :status => 422 
         end
       end
     end

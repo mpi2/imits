@@ -4,6 +4,7 @@ class Rest::G0ScreenSerializer
   include Serializable
 
   JSON_ATTRIBUTES = %w{
+    id
     marker_symbol
     no_g0_where_mutation_detected
     no_nhej_g0_mutants
@@ -15,12 +16,13 @@ class Rest::G0ScreenSerializer
   }
 
 
-  def initialize(mutagenesis_factor)
+  def initialize(mutagenesis_factor, options = {})
+    @options = options
     @mutagenesis_factor = mutagenesis_factor
   end
 
   def as_json
-    json_hash = super(@mutagenesis_factor)
+    json_hash = super(@mutagenesis_factor, @options)
 
     return json_hash
   end

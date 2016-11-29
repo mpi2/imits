@@ -10,12 +10,13 @@ class Rest::ReagentSerializer
   }
 
 
-  def initialize(reagent)
+  def initialize(reagent, options = {})
+    @options = options
     @reagent = reagent
   end
 
   def as_json
-    json_hash = super(@reagent)
+    json_hash = super(@reagent, @options)
     return json_hash
   end
 end

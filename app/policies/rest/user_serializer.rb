@@ -13,15 +13,13 @@ class Rest::UserSerializer
   }
 
 
-  def initialize(user)
+  def initialize(user, options = {})
+    @options = options
     @user = user
   end
 
   def as_json
-    json_hash = super(@user)
+    json_hash = super(@user, @options)
     return json_hash
   end
 end
-
-#     :email, :password, :password_confirmation, :remember_me,
-#     :production_centre, :production_centre_id, :name, :is_contactable

@@ -40,7 +40,8 @@ class Rest::CrisprMiAttemptSerializer
     status_dates
   }
 
-  def initialize(mi_attempt)
+  def initialize(mi_attempt, options = {})
+    @options = options
     @mi_attempt = mi_attempt
     @colonies = mi_attempt.colonies
     @mutagenesis_factors = mi_attempt.mutagenesis_factor
@@ -48,12 +49,12 @@ class Rest::CrisprMiAttemptSerializer
   end
 
   def as_json
-    json_hash = super(@mi_attempt)
-
-#    json_hash['mutagenesis_factor_attributes'] = mutagenesis_factor_attributes
-    json_hash['reagents_attributes'] = reagents_attributes
-#    json_hash['g0_screens_attributes'] = g0_screens_attributes
-    json_hash['colonies_attributes'] = colonies_attributes
+    json_hash = super(@mi_attempt, @options) do |serialized_hash|
+      serialized_hash['mutagenesis_factor_attributes'] = mutagenesis_factor_attributes
+      serialized_hash['reagents_attributes'] = reagents_attributes
+      serialized_hash['g0_screens_attributes'] = g0_screens_attributes
+      serialized_hash['colonies_attributes'] = colonies_attributes
+    end
 
     return json_hash
   end
@@ -61,7 +62,7 @@ class Rest::CrisprMiAttemptSerializer
   def colonies_attributes
     colonies_hash = []
     @colonies.each do |colony|
-      colonies_hash << Rest::ColonySerializer.new(colony).as_json
+      colonies_hash << Rest::ColonySerializer.new(colony, @options).as_json
     end
 
     return colonies_hash
@@ -70,7 +71,7 @@ class Rest::CrisprMiAttemptSerializer
   def reagents_attributes
     reagents_hash = []
     @reagents.each do |reagent|
-      reagents_hash << Rest::ReagentSerializer.new(reagent).as_json
+      reagents_hash << Rest::ReagentSerializer.new(reagent, @options).as_json
     end
 
     return reagents_hash
@@ -78,20 +79,24 @@ class Rest::CrisprMiAttemptSerializer
 
   def mutagenesis_factor_attributes
     mutagenesis_factor_hash = []
+    return {} if @mutagenesis_factors.blank?
+
     [@mutagenesis_factors].each do |mutagenesis_factor|
-      mutagenesis_factor_hash << Rest::MutagenesisFactorSerializer.new(mutagenesis_factor).as_json
+      mutagenesis_factor_hash << Rest::MutagenesisFactorSerializer.new(mutagenesis_factor, @options).as_json
     end
 
-    return mutagenesis_factor_hash
+    return mutagenesis_factor_hash.first
   end
 
   def g0_screens_attributes
     g0_screens_hash = []
+    return {} if @mutagenesis_factors.blank?
+
     [@mutagenesis_factors].each do |g0_screen|
-      g0_screens_hash << Rest::G0ScreenSerializer.new(g0_screen).as_json
+      g0_screens_hash << Rest::G0ScreenSerializer.new(g0_screen, @options).as_json
     end
 
-    return g0_screens_hash
+    return g0_screens_hash.first
   end
 
 end

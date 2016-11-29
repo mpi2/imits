@@ -25,14 +25,13 @@ class Grid::MouseAlleleModSerializer
     is_active
 }
 
-  def initialize(mouse_allele_mod)
+  def initialize(mouse_allele_mod, options = {})
+    @options = options
     @mouse_allele_mod = mouse_allele_mod
-    @colony = mouse_allele_mod.colony
-    @distribution_centres = @colony.distribution_centres
   end
 
   def as_json
-    json_hash = super(@mouse_allele_mod)
+    json_hash = super(@mouse_allele_mod, @options)
     return json_hash
   end
 end

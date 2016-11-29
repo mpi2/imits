@@ -25,15 +25,17 @@ class Rest::MouseAlleleModSerializer
     is_active
 }
 
-  def initialize(mouse_allele_mod)
+  def initialize(mouse_allele_mod, options = {})
+    @options = options
     @mouse_allele_mod = mouse_allele_mod
     @colony = mouse_allele_mod.colony
     @distribution_centres = @colony.distribution_centres
   end
 
   def as_json
-    json_hash = super(@mouse_allele_mod)
-    json_hash['distribution_centres'] = distribution_centres_attributes
+    json_hash = super(@mouse_allele_mod, @options) do |serialized_hash|
+      serialized_hash['distribution_centres'] = distribution_centres_attributes
+    end
 
     return json_hash
   end
@@ -41,7 +43,7 @@ class Rest::MouseAlleleModSerializer
   def distribution_centres_attributes
     distribution_centres_hash = []
     @distribution_centres.each do |distribution_centre|
-      distribution_centres_hash << Rest::DistributionCentreSerializer.new(distribution_centre).as_json
+      distribution_centres_hash << Rest::DistributionCentreSerializer.new(distribution_centre, @options).as_json
     end
 
     return distribution_centres_hash

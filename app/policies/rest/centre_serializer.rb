@@ -13,12 +13,14 @@ class Rest::CentreSerializer
   }
 
 
-  def initialize(centre)
+  def initialize(centre, options = {})
+    @options = options
     @centre = centre
   end
 
   def as_json
-    json_hash = super(@centre)
+    json_hash = super(@centre, @options)
     return json_hash
   end
+
 end

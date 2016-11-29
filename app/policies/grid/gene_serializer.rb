@@ -17,12 +17,13 @@ class Grid::GeneSerializer
     pretty_print_phenotype_attempts
   }
 
-  def initialize(gene)
+  def initialize(gene, options = {})
+    @options = options
     @gene = gene
   end
 
   def as_json
-    json_hash = super(@gene)
+    json_hash = super(@gene, @options)
     return json_hash
   end
 end

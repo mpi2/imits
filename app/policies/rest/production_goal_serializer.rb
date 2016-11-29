@@ -18,12 +18,13 @@ class Rest::ProductionGoalSerializer
   }
 
 
-  def initialize(goal)
+  def initialize(goal, options = {})
+    @options = options
     @goal = goal
   end
 
   def as_json
-    json_hash = super(@goal)
+    json_hash = super(@goal, @options)
     return json_hash
   end
 end

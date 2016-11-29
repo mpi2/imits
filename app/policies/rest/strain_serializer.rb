@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Rest::StrainSerializer
+class Rest::CentreSerializer
   include Serializable
 
   JSON_ATTRIBUTES = %w{
@@ -11,12 +11,13 @@ class Rest::StrainSerializer
   }
 
 
-  def initialize(strain)
+  def initialize(strain, options = {})
+    @options = options
     @strain = strain
   end
 
   def as_json
-    json_hash = super(@strain)
+    json_hash = super(@strain, @options)
     return json_hash
   end
 end

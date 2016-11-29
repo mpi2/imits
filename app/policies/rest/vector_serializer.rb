@@ -4,6 +4,7 @@ class Rest::VectorSerializer
   include Serializable
 
   JSON_ATTRIBUTES = %w{
+    id
     mutagenesis_factor_id
     vector_name
     concentration
@@ -11,25 +12,13 @@ class Rest::VectorSerializer
   }
 
 
-  def initialize(vector)
+  def initialize(vector, options = {})
+    @options = options
     @vector = vector
   end
 
   def as_json
-    json_hash = super(@vector)
+    json_hash = super(@vector, @options)
     return json_hash
   end
 end
-
-# COMPLETE
-# FULL_ACCESS_ATTRIBUTES = %w{
-#    name
-#    contact_name
-#    contact_email
-#  }
-#
-#  READABLE_ATTRIBUTES = %w{
-#    id
-#    code
-#    superscript
-#  } 

@@ -30,12 +30,13 @@ class Rest::PhenotypingProductionSerializer
     status_name
 }
 
-  def initialize(phenotyping_production)
+  def initialize(phenotyping_production, options = {})
+    @options = options
     @phenotyping_production = phenotyping_production
   end
 
   def as_json
-    json_hash = super(@phenotyping_production)
+    json_hash = super(@phenotyping_production, @options)
 
     return json_hash
   end

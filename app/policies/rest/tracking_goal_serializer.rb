@@ -17,28 +17,13 @@ class Rest::TrackingGoalSerializer
   }
 
 
-  def initialize(tracking_goal)
+  def initialize(tracking_goal, options = {})
+    @options = options
     @tracking_goal = tracking_goal
   end
 
   def as_json
-    json_hash = super(@tracking_goal)
+    json_hash = super(@tracking_goal, @options)
     return json_hash
   end
 end
-
-#  READABLE_ATTRIBUTES = %w(
-#    id
-#    goal
-#    crispr_goal
-#    total_goal
-#    goal_type
-#    year
-#    month
-#    date
-#    production_centre_name
-#    production_centre_id
-#    consortium_name
-#    consortium_id
-#    consortium_id_not_null
-#  )

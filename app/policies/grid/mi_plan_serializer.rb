@@ -29,12 +29,13 @@ class Grid::MiPlanSerializer
     ignore_available_mice
   }
 
-  def initialize(mi_plan)
+  def initialize(mi_plan, options = {})
+    @options = options
     @mi_plan = mi_plan
   end
 
   def as_json
-    json_hash = super(@mi_plan)
+    json_hash = super(@mi_plan, @options)
     return json_hash
   end
 end

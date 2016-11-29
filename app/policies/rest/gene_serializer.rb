@@ -23,12 +23,13 @@ class Rest::GeneSerializer
     cm_position
   }
 
-  def initialize(gene)
+  def initialize(gene, options = {})
+    @options = options
     @gene = gene
   end
 
   def as_json
-    json_hash = super(@gene)
+    json_hash = super(@gene, @options)
     return json_hash
   end
 end

@@ -80,22 +80,24 @@ class Rest::EsCellMiAttemptSerializer
     privacy
   }
 
-  def initialize(mi_attempt)
+  def initialize(mi_attempt, options = {})
+    @options = options
     @mi_attempt = mi_attempt
     @distribution_centres = mi_attempt.distribution_centres
   end
 
   def as_json
-    json_hash = super(@mi_attempt)
+    json_hash = super(@mi_attempt, @options) do |serialized_hash|
+      serialized_hash['distribution_centres_attributes'] = distribution_centres_attributes
+    end
 
-    json_hash['distribution_centres_attributes'] = distribution_centres_attributes
     return json_hash
   end
 
   def distribution_centres_attributes
     distribution_centres_hash = []
     @distribution_centres.each do |distribution_centre|
-      distribution_centres_hash << Rest::DistributionCentreSerializer.new(distribution_centre).as_json
+      distribution_centres_hash << Rest::DistributionCentreSerializer.new(distribution_centre, @options).as_json
     end
 
     return distribution_centres_hash

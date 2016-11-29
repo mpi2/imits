@@ -12,21 +12,13 @@ class Rest::ConsortiumSerializer
   }
 
 
-  def initialize(consortium)
+  def initialize(consortium, options = {})
+    @options = options
     @consortium = consortium
   end
 
   def as_json
-    json_hash = super(@consortium)
+    json_hash = super(@consortium, @options)
     return json_hash
   end
 end
-
-# COMPLETE
-#  READABLE_ATTRIBUTES = %w{
-#    id
-#    name
-#    funding
-#    participants
-#    contact
-#  }

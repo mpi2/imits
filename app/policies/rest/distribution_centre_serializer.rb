@@ -4,6 +4,7 @@ class Rest::DistributionCentreSerializer
   include Serializable
 
   JSON_ATTRIBUTES = %w{
+    id
     start_date
     end_date
     deposited_material_name
@@ -12,25 +13,13 @@ class Rest::DistributionCentreSerializer
     distribution_network
   }
 
-  def initialize(distribution_centre)
+  def initialize(distribution_centre, options = {})
+    @options = options
     @distribution_centre = distribution_centre
   end
 
   def as_json
-    json_hash = super(@distribution_centre)
+    json_hash = super(@distribution_centre, @options)
     return json_hash
   end
 end
-
-# COMPLETE
-# FULL_ACCESS_ATTRIBUTES = %w{
-#    name
-#    contact_name
-#    contact_email
-#  }
-#
-#  READABLE_ATTRIBUTES = %w{
-#    id
-#    code
-#    superscript
-#  } 

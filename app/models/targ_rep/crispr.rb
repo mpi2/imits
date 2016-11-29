@@ -24,6 +24,14 @@ class TargRep::Crispr < ActiveRecord::Base
     self.sequence = self.sequence.upcase if !self.sequence.blank?
   end
   protected :upper_case_sequence
+
+  def rest_serializer
+    return Rest::CrisprSerializer
+  end
+
+  def grid_serializer
+    return Rest::CrisprSerializer
+  end
 end
 
 # == Schema Information

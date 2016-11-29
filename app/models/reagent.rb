@@ -2,6 +2,9 @@ class Reagent < ActiveRecord::Base
   acts_as_reportable
   attr_accessible :mi_attempt_id, :reagent_name, :concentration
 
+  PRIVATE_ATTRIBUTES = %w{
+  }
+
   extend AccessAssociationByAttribute
   
   belongs_to :mi_attempt

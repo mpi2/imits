@@ -4,6 +4,9 @@ class User < ActiveRecord::Base
     'pm9@sanger.ac.uk'
   ]
 
+  PRIVATE_ATTRIBUTES = %w{
+  }
+
   devise :database_authenticatable, :rememberable, :validatable, :recoverable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me,

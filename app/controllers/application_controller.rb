@@ -57,7 +57,7 @@ class ApplicationController < ActionController::Base
   def json_format_extended_response(data, model_class, total)
     # This fails with ActiveRecord::Relation
     #data = [data] unless data.kind_of? Array
-    data = data.map{|data_row| data_row.grid_serializer.new(data_row).as_json}
+    data = data.map{|data_row| set_centre_with_private_access(find_centre_name(data_row)); data_row.grid_serializer.new(data_row, :access_private_attributes => user_authorized_to_view_private_attributes?).as_json}
 
     retval = {
       controller_path.gsub('/', '_') => data,
@@ -68,27 +68,7 @@ class ApplicationController < ActionController::Base
   end
   protected :json_format_extended_response
 
-  def hide_private_attributes(model_class, model, serialized_hash)
-    if model.respond_to?(:private) && model.private == true
-      model_class::PRIVATE_ATTRIBUTES.each do |private_attr|
-        puts serialized_hash.count 
-        if serialized_hash[private_attr].is_a?(Array)
-          serialized_hash[private_attr] = []
-        else
-          serialized_hash[private_attr] = nil
-        end
-      end
-    end
-
-    # Now check associations that may have been included in the JSON hash outputed from as_json method 
-    (serialized_hash.keys & model_class.reflect_on_all_associations().map{|ca| ca.name.to_s}).each do |association_attribute|
-      new_model = "#{association_attribute.singularize.camelcase}".constantize
-      puts new_model
-      hide_private_attributes(new_model, new_model.new.from_json(serialized_hash[association_attribute].to_json), serialized_hash[association_attribute].as_json)
-    end
-  end
-  protected :hide_private_attributes
-
+ 
   def data_for_serialized(format, default_sort, model_class, search_method, select_distinct = false)
 
     params[:sorts] = default_sort if(params[:sorts].blank?)
@@ -105,7 +85,7 @@ class ApplicationController < ActionController::Base
         return json_format_extended_response(retval, model_class, result.count)
       else
         # Use REST Serializer
-        return retval.map{|data_row| data_row.rest_serializer.new(data_row).as_json}
+        return retval.map{|data_row| set_centre_with_private_access(find_centre_name(data_row)); data_row.rest_serializer.new(data_row, :access_private_attributes => user_authorized_to_view_private_attributes?).as_json}
       end
     else
       if format == :json
@@ -120,10 +100,12 @@ class ApplicationController < ActionController::Base
   protected :data_for_serialized
 
   def serialize(model)
+    set_centre_with_private_access(find_centre_name(model))
+
     if params.has_key?(:extended_response) && params[:extended_response] == 'true'
-      return model.grid_serializer.new(model).as_json
+      return model.grid_serializer.new(model, :access_private_attributes => user_authorized_to_view_private_attributes?).as_json
     else
-      return model.rest_serializer.new(model).as_json
+      return model.rest_serializer.new(model, :access_private_attributes => user_authorized_to_view_private_attributes?).as_json
     end  
   end
   protected :serialize
@@ -229,6 +211,32 @@ class ApplicationController < ActionController::Base
   end
   protected :create_attribute_documentation_for
 
+  def set_centre_with_private_access(centre_name)
+    @centre_with_private_access = centre_name
+  end
+
+  def find_centre_name(object)
+    if object.respond_to?(:phenotyping_centre_name) && object.phenotyping_centre_name.present?
+      production_centre_name = object.phenotyping_centre_name
+    elsif object.production_centre_name.present?
+      production_centre_name = object.production_centre_name
+    elsif object.mi_plan.present? and object.mi_plan.production_centre.present?
+      production_centre_name = object.mi_plan.production_centre.name
+    else
+      production_centre_name = nil
+    end
+  
+    return production_centre_name
+  end
+
+  def user_authorized_to_view_private_attributes?
+    if current_user.admin || current_user.production_centre.name == @centre_with_private_access
+      return true
+    end
+
+    return false
+  end
+
   def authorize_user_production_centre(object)
     return true unless request.format == :json
 
@@ -252,6 +260,8 @@ class ApplicationController < ActionController::Base
     return true
   end
   protected :authorize_user_production_centre
+
+
 
   def empty_payload?(payload)
     if payload.blank? || payload.is_a?(Hash) && payload.empty?

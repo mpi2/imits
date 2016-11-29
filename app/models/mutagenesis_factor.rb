@@ -85,6 +85,14 @@ class MutagenesisFactor < ActiveRecord::Base
   def genotype_primers_attributes
     return genotype_primers
   end
+
+  def rest_serializer
+    return Rest::MutagenesisFactorSerializer
+  end
+
+  def grid_serializer
+    return Grid::MutagenesisFactorSerializer
+  end
 end
 
 # == Schema Information

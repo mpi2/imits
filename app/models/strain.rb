@@ -1,5 +1,9 @@
 class Strain < ActiveRecord::Base
   acts_as_reportable
+
+  PRIVATE_ATTRIBUTES = %w{
+  }
+  
   validates :name, :uniqueness => true, :presence => true
 
   validates_format_of :mgi_strain_accession_id,

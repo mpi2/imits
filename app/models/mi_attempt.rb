@@ -35,7 +35,7 @@ class MiAttempt < ApplicationModel
 
 
 
-  def status_name; status.name; end
+  def status_name; status.try(:name); end
 
   def status_dates
     retval = reportable_statuses_with_latest_dates
@@ -589,10 +589,6 @@ class MiAttempt < ApplicationModel
     return if arg.blank? || (changes.has_key?('external_ref') && changes['external_ref'][0] == arg)
     self.external_ref = arg
   end
-
-
-
-
 
   def rest_serializer
     if es_cell_id.blank?

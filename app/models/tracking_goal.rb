@@ -36,6 +36,9 @@ class TrackingGoal < ActiveRecord::Base
     consortium_id_not_null
   )
 
+  PRIVATE_ATTRIBUTES = %w{
+  }
+
  attr_accessible *READABLE_ATTRIBUTES
 
   ## Validations

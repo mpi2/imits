@@ -11,6 +11,14 @@ class MutagenesisFactor::Vector < ActiveRecord::Base
 
   access_association_by_attribute :vector, :name
 
+  def rest_serializer
+    return Rest::VectorSerializer
+  end
+
+  def grid_serializer
+    return Grid::VectorSerializer
+  end
+
 end
 
 # == Schema Information

@@ -1,4 +1,4 @@
-module AcceptNestedAttributes
+module ApplicationForm::AcceptNestedAttributes
 
   def process_attributes_params
     @params.select{|p| p =~ /attributes/}.each do |attributes_key, attributes_params|

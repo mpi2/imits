@@ -1,6 +1,5 @@
 # encoding: utf-8
 class VectorForm
-  include AcceptNestedAttributes
 
   WRITABLE_ATTRIBUTES = %w{
     vector_name

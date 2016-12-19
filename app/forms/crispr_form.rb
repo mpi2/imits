@@ -1,6 +1,5 @@
 # encoding: utf-8
 class CrisprForm
-  include AcceptNestedAttributes
 
   WRITABLE_ATTRIBUTES = %w{
     sequence

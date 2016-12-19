@@ -1,6 +1,5 @@
 # encoding: utf-8
 class MiPlanForm
-  include AcceptNestedAttributes
 
   WRITABLE_ATTRIBUTES = %w{
     marker_symbol
@@ -48,13 +47,16 @@ class MiPlanForm
   def initialize(mi_plan, params)
   	raise 'Please provide model and params' if mi_plan.blank? || params.blank?
   	@form_model = mi_plan
-    
-    # Store Form Objects populated from attributes params designed to update attributes in associated models
-
-    # params received
   	@params = params
+  end
 
- #   process_attributes_params
+  def valid?
+
+  end
+
+  def add_model_errors(errors)
+    return if errors.blank?
+
   end
 
 ### FORM VALIDATION

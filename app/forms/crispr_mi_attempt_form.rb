@@ -1,6 +1,6 @@
 # encoding: utf-8
 class CrisprMiAttemptForm
-  include AcceptNestedAttributes
+  include ApplicationForm::AcceptNestedAttributes
 
   WRITABLE_ATTRIBUTES = %w{
     external_ref

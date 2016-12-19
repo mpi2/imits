@@ -1,6 +1,6 @@
 # encoding: utf-8
 class ColonyForm
-  include AcceptNestedAttributes
+  include ApplicationForm::AcceptNestedAttributes
 
   WRITABLE_ATTRIBUTES = %w{
     name

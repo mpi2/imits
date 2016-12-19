@@ -1,6 +1,5 @@
 # encoding: utf-8
 class GenotypePrimerForm
-  include AcceptNestedAttributes
 
   WRITABLE_ATTRIBUTES = %w{
     sequence

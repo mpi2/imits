@@ -1,6 +1,5 @@
 # encoding: utf-8
 class DistributionCentreForm
-  include AcceptNestedAttributes
 
   WRITABLE_ATTRIBUTES = %w{
     start_date

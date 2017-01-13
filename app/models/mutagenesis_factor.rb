@@ -94,4 +94,5 @@ end
 #  no_hdr_g0_mutants                        :integer
 #  no_hdr_g0_mutants_all_donors_inserted    :integer
 #  no_hdr_g0_mutants_subset_donors_inserted :integer
+#  private                                  :boolean          default(FALSE), not null
 #

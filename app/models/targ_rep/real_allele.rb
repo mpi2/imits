@@ -159,13 +159,13 @@ class TargRep::RealAllele < ActiveRecord::Base
 
     if colony_allele_type.nil? && excised == true
 
-      if excised.nil? || excised = 'cre'
+      if excised.nil? || excised == 'cre'
         # cre version of the mi_attempt allele
         allele_type =  CRE_GUESS_MAPPING[parent_colony_allele_type] if CRE_GUESS_MAPPING.has_key?(parent_colony_allele_type)
-      elsif excised = 'flp'
+      elsif excised == 'flp'
         # flp version of the mi_attempt allele
         allele_type =  FLP_GUESS_MAPPING[parent_colony_allele_type] if FLP_GUESS_MAPPING.has_key?(parent_colony_allele_type)
-      elsif excised = 'dre'
+      elsif excised == 'dre'
         # dre version of the mi_attempt allele
         allele_type =  DRE_GUESS_MAPPING[parent_colony_allele_type] if DRE_GUESS_MAPPING.has_key?(parent_colony_allele_type)
       end

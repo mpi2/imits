@@ -47,11 +47,11 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string  "name",                                                  :null => false
+    t.string  "name",                                                           :null => false
     t.integer "mi_attempt_id"
-    t.boolean "genotype_confirmed",                 :default => false
-    t.boolean "report_to_public",                   :default => false
-    t.boolean "unwanted_allele",                    :default => false
+    t.boolean "genotype_confirmed",                          :default => false
+    t.boolean "report_to_public",                            :default => false
+    t.boolean "unwanted_allele",                             :default => false
     t.text    "allele_description"
     t.string  "mgi_allele_id"
     t.string  "allele_name"
@@ -62,6 +62,9 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer "background_strain_id"
     t.text    "allele_description_summary"
     t.text    "auto_allele_description"
+    t.boolean "mgi_allele_symbol_without_impc_abbreviation", :default => false
+    t.boolean "private",                                     :default => false, :null => false
+    t.string  "crispr_allele_category"
   end
 
   add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true
@@ -534,8 +537,8 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
 
   create_table "mi_attempts", :force => true do |t|
     t.integer  "es_cell_id"
-    t.date     "mi_date",                                                                                :null => false
-    t.integer  "status_id",                                                                              :null => false
+    t.date     "mi_date",                                                                                           :null => false
+    t.integer  "status_id",                                                                                         :null => false
     t.string   "external_ref",                                    :limit => 125
     t.integer  "updated_by_id"
     t.integer  "blast_strain_id"
@@ -564,13 +567,13 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "number_of_cct_offspring"
     t.integer  "number_of_het_offspring"
     t.integer  "number_of_live_glt_offspring"
-    t.boolean  "report_to_public",                                               :default => true,       :null => false
-    t.boolean  "is_active",                                                      :default => true,       :null => false
-    t.boolean  "is_released_from_genotyping",                                    :default => false,      :null => false
+    t.boolean  "report_to_public",                                               :default => true,                  :null => false
+    t.boolean  "is_active",                                                      :default => true,                  :null => false
+    t.boolean  "is_released_from_genotyping",                                    :default => false,                 :null => false
     t.text     "comments"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "mi_plan_id",                                                                             :null => false
+    t.integer  "mi_plan_id",                                                                                        :null => false
     t.string   "genotyping_comment",                              :limit => 512
     t.integer  "legacy_es_cell_id"
     t.date     "cassette_transmission_verified"
@@ -585,7 +588,7 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "real_allele_id"
     t.integer  "founder_num_assays"
     t.text     "assay_type"
-    t.boolean  "experimental",                                                   :default => false,      :null => false
+    t.boolean  "experimental",                                                   :default => false,                 :null => false
     t.string   "allele_target"
     t.integer  "parent_colony_id"
     t.string   "mrna_nuclease"
@@ -597,6 +600,7 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "number_of_pulses"
     t.string   "crsp_embryo_transfer_day",                                       :default => "Same Day"
     t.integer  "crsp_embryo_2_cell"
+    t.string   "privacy",                                                        :default => "Share all Allele(s)", :null => false
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -742,6 +746,7 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer "no_hdr_g0_mutants"
     t.integer "no_hdr_g0_mutants_all_donors_inserted"
     t.integer "no_hdr_g0_mutants_subset_donors_inserted"
+    t.boolean "private",                                  :default => false, :null => false
   end
 
   create_table "notifications", :force => true do |t|
@@ -901,6 +906,8 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.string   "taqman_upstream_del_assay_id"
     t.string   "taqman_downstream_del_assay_id"
     t.string   "wildtype_oligos_sequence"
+    t.boolean  "private",                                       :default => false,                     :null => false
+    t.integer  "production_centre_id"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|

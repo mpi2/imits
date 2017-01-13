@@ -251,6 +251,7 @@ end
 #  number_of_pulses                                :integer
 #  crsp_embryo_transfer_day                        :string(255)      default("Same Day")
 #  crsp_embryo_2_cell                              :integer
+#  privacy                                         :string(255)      default("Share all Allele(s)"), not null
 #
 # Indexes
 #

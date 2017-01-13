@@ -385,7 +385,6 @@ class TargRep::Allele < ActiveRecord::Base
       return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{!transformation.blank? ? '-' + transformation : ''}?simple=true.jpg"
     end
 
-
     def self.targeting_vector_genbank_file_url(allele_id)
       return "" if allele_id.blank?
       return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/targeting-vector-genbank-file"
@@ -439,4 +438,6 @@ end
 #  taqman_upstream_del_assay_id   :string(255)
 #  taqman_downstream_del_assay_id :string(255)
 #  wildtype_oligos_sequence       :string(255)
+#  private                        :boolean          default(FALSE), not null
+#  production_centre_id           :integer
 #

@@ -352,10 +352,10 @@ class BuildProductCore
 #    @solr_user = @solr_update[Rails.env]['user']
 #    @solr_password = @solr_update[Rails.env]['password']
     @dataset_max_size = 80000
-    @process_mice = true
-    @process_es_cells = true
+    @process_mice = false
+    @process_es_cells = false
     @process_targeting_vectors = true
-    @process_intermediate_vectors = true
+    @process_intermediate_vectors = false
     @guess_mapping = {'a'                        => 'b',
                       'e'                        => 'e.1',
                       ''                         => '.1',

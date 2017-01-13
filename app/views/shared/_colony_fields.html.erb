@@ -9,97 +9,110 @@
   </td>
   <td style="text-align: left;vertical-align: top">
       
-      <div class="trace-files" style="padding:0px 10px 0px 10px;">
-        <fieldset class="collapsible" id="distribution_centres">
-        <legend>Upload Sequence Files</legend>
-            <div class="trace-file-container">
-              <table id="trace_files_<%= f.object_id %>_table" class="report_table">
-              <thead class="title">
-                <tr>
-                  <th>Gene Targeted</th>
-                  <th>File Name</th>
-                  <th>Trace Details</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody class="distribution_centres">
-                <tr></tr>
-                <% if f.object.trace_files.length > 0 %>
-                  <%= f.fields_for :trace_files do |builder| %>
-                    <%= render '/shared/trace_file_fields', f: builder %>
-                  <% end %>
-                <% end %>
-              </tbody>
-              </table>
-              <%= link_to_add_fields "Add Trace File", f, :trace_files %>
-            </div>
-        </fieldset>
-      </div>
-
-      <div style="padding:0px 10px 0px 10px">
-          <fieldset class="collapsible">
-          <legend>Colony Status</legend>
-          <div>
-              <div>Genotype Confirmed? <%= f.check_box :genotype_confirmed %></div>
-              <div><%= generator.strains_field :background_strain %></div>
-              <div>Allele Description</div><div><%= f.text_area :allele_description %></div>
-              <div>Unwanted Allele Obtained? <%= f.check_box :unwanted_allele %></div>
-          </div>
-          </fieldset>
-      </div>
-      <div class="colony-qc-data" style="padding:0px 10px 0px 10px;">
-          <fieldset class="collapsible hide-by-default">
-              <legend>QC Data</legend>
-              <div>
-                  <table>
-                      <% if f.object.colony_qc.blank? %>
-                          <% f.object.build_colony_qc %>
-                      <% end %>
-                      <%= f.fields_for :colony_qc do |builder| %>
-                          <% ColonyQc::QC_FIELDS.each do |qc_field| %>
-                              <tr>
-                                  <td><%= builder.label(:post, qc_field) %></td>
-                                  <td><%= builder.select qc_field, ['na', 'pass', 'fail'] %></td>
-                              </tr>
-                          <% end %>
-                      <% end %>
-                  </table>
-              </div>
-          </fieldset>
-      </div>
-      <div class="distribution_centre" style="padding:0px 10px 0px 10px;">
-        <fieldset class="collapsible" id="distribution_centres">
-        <legend>Distribution Centres</legend>
-            <div class="distribution_centres">
-            <% if f.object.genotype_confirmed %>
-                <table id="distribution_centres_<%= f.object_id %>_table" class="report_table">
-                <thead class="title">
-                    <tr>
-                        <th>Distribution centre</th>
-                        <th>Distribution network?</th>
-                        <th>Deposited material</th>
-                        <th>Distribution dates</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody class="distribution_centres">
-                    <tr></tr>
-                    <% if f.object.distribution_centres.length > 0 %>
-                        <%= f.fields_for :distribution_centres do |builder| %>
-                            <% if !builder.object.new_record? %>
-                                <%= render '/shared/distribution_centre_fields', f: builder %>
-                            <% end %>
-                        <% end %>
-                    <% end %>
-                </tbody>
-                </table>
-                <%= link_to_add_fields "Add Distribution Centre", f, :distribution_centres %>
-            <% else %>
-                No Distribution Centres can be set until Status is Genotype confirmed.
+    <div class="trace-files" style="padding:0px 10px 0px 10px;">
+      <fieldset class="collapsible" id="distribution_centres">
+      <legend>Upload Sequence Files</legend>
+        <div class="trace-file-container">
+          <table id="trace_files_<%= f.object_id %>_table" class="report_table">
+          <thead class="title">
+            <tr>
+              <th>Gene Targeted</th>
+              <th>File Name</th>
+              <th>Trace Details</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody class="distribution_centres">
+            <tr></tr>
+            <% if f.object.trace_files.length > 0 %>
+              <%= f.fields_for :trace_files do |builder| %>
+                <%= render '/shared/trace_file_fields', f: builder %>
+              <% end %>
             <% end %>
-            </div>
-        </fieldset>
+          </tbody>
+          </table>
+          <%= link_to_add_fields "Add Trace File", f, :trace_files %>
+        </div>
+      </fieldset>
+    </div>
+
+    <div style="padding:0px 10px 0px 10px">
+      <fieldset class="collapsible">
+      <legend>MGI Allele</legend>
+      <div>
+          <%= generator.text_field :mgi_allele_symbol_superscript, label: "MGI Allele Symbol"%>
+          <div>without project abbreviation (IMPC) <%= f.check_box :mgi_allele_symbol_without_impc_abbreviation %></div>
       </div>
+    </div>
+
+    <div style="padding:0px 10px 0px 10px">
+      <fieldset class="collapsible">
+      <legend>Colony Status</legend>
+      <div>
+        <div>Genotype Confirmed? <%= f.check_box :genotype_confirmed %></div>
+        
+        <div id="mgi_alelel_symbol_auto_suggest"></div>
+        <div><%= generator.strains_field :background_strain %></div>
+        <div>Allele Description</div><div><%= f.text_area :allele_description %></div>
+        <div>Unwanted Allele Obtained? <%= f.check_box :unwanted_allele %></div>
+      </div>
+      </fieldset>
+    </div>
+
+    <div class="colony-qc-data" style="padding:0px 10px 0px 10px;">
+      <fieldset class="collapsible hide-by-default">
+        <legend>QC Data</legend>
+        <div>
+          <table>
+            <% if f.object.colony_qc.blank? %>
+              <% f.object.build_colony_qc %>
+            <% end %>
+            <%= f.fields_for :colony_qc do |builder| %>
+              <% ColonyQc::QC_FIELDS.each do |qc_field| %>
+                <tr>
+                  <td><%= builder.label(:post, qc_field) %></td>
+                  <td><%= builder.select qc_field, ['na', 'pass', 'fail'] %></td>
+                </tr>
+              <% end %>
+            <% end %>
+          </table>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="distribution_centre" style="padding:0px 10px 0px 10px;">
+      <fieldset class="collapsible" id="distribution_centres">
+      <legend>Distribution Centres</legend>
+        <div class="distribution_centres">
+        <% if f.object.genotype_confirmed %>
+          <table id="distribution_centres_<%= f.object_id %>_table" class="report_table">
+          <thead class="title">
+            <tr>
+              <th>Distribution centre</th>
+              <th>Distribution network?</th>
+              <th>Deposited material</th>
+              <th>Distribution dates</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody class="distribution_centres">
+            <tr></tr>
+            <% if f.object.distribution_centres.length > 0 %>
+              <%= f.fields_for :distribution_centres do |builder| %>
+                <% if !builder.object.new_record? %>
+                  <%= render '/shared/distribution_centre_fields', f: builder %>
+                <% end %>
+              <% end %>
+            <% end %>
+          </tbody>
+          </table>
+          <%= link_to_add_fields "Add Distribution Centre", f, :distribution_centres %>
+        <% else %>
+            No Distribution Centres can be set until Status is Genotype confirmed.
+        <% end %>
+        </div>
+      </fieldset>
+    </div>
   </td>
   <td style="text-align: center;vertical-align: top; width:50px">
       <div style="padding:30px 0px 0px 0px">

@@ -4,7 +4,7 @@ require 'pp'
 require "digest/md5"
 
 
-class Allele2CoreData
+class SolrData::Allele2CoreData
 
   GENE_SQL = <<-EOF
     SELECT genes.* FROM genes WHERE genes.marker_symbol IS NOT NULL SUBS_GENE_TEMPLATE;
@@ -49,7 +49,7 @@ class Allele2CoreData
         FROM phenotyping_productions
           JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
           JOIN plan_summary ON plan_summary.mi_plan_id = phenotyping_productions.mi_plan_id
-        WHERE phenotyping_production_statuses.name != 'Phenotype Production Aborted'
+        WHERE phenotyping_production_statuses.name != 'Phenotype Production Aborted' AND phenotyping_productions.report_to_public = true
         GROUP BY parent_colony_id
       )
 
@@ -205,9 +205,31 @@ class Allele2CoreData
   EOF
 
 
+  PHENOTYPE_DATA_AVAILABLE_FOR_GENE = <<-EOF
+    SELECT genes.marker_symbol AS gene_marker_symbol, genes.mgi_accession_id AS gene_mgi_accession_id, centres.name AS phenotyping_centre,
+           phenotyping_productions.*,
+           phenotyping_production_statuses.name AS phenotyping_status_name
+    FROM phenotyping_productions
+      JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
+      JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
+      JOIN centres ON centres.id = mi_plans.production_centre_id
+      JOIN consortia ON consortia.id = mi_plans.consortium_id AND consortia.name SUBS_EUCOMMTOOLSCRE
+      JOIN genes ON genes.id = mi_plans.gene_id SUBS_GENE_TEMPLATE
+    WHERE phenotyping_productions.report_to_public = true
+  EOF
+
+
   def initialize(options = {})
     @show_eucommtoolscre = options[:show_eucommtoolscre] || false
-    @marker_symbol = options.has_key?(marker_symbols) ? options[:marker_symbols].split(',') : nil
+    @marker_symbols = options.has_key?(:marker_symbols) ? options[:marker_symbols] : nil
+
+    @file_name = options[:file_name] || ''
+
+    if @show_eucommtoolscre
+      @allele_design_project = 'Cre'
+    else
+      @allele_design_project = 'IMPC'
+    end
 
     @mouse_status_list = {}
     PhenotypingProduction::Status.all.each{|status| @mouse_status_list[status['name']] = status['order_by']}
@@ -237,17 +259,20 @@ class Allele2CoreData
     @gene_sql = GENE_SQL.dup
     @mouse_sql = MICE_ALLELE_SQL.dup
     @es_cell_and_targeting_vector_sql = ES_CELL_VECTOR_ALLELES_SQL.dup
+    @gene_phenotyping_sql = PHENOTYPE_DATA_AVAILABLE_FOR_GENE.dup
 
-    marker_symbols = @marker_symbol.to_a.map {|ms| "'#{ms}'" }.join ','
+    marker_symbols = @marker_symbols.to_a.map {|ms| "'#{ms}'" }.join ','
 
-    if ! @marker_symbol.nil?
+    if ! @marker_symbols.nil?
       @gene_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
       @mouse_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
+      @gene_phenotyping_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
     else
       @gene_sql.gsub!(/SUBS_GENE_TEMPLATE/, '')
       @mouse_sql.gsub!(/SUBS_GENE_TEMPLATE/, '')
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_GENE_TEMPLATE/, '')
+      @gene_phenotyping_sql.gsub!(/SUBS_GENE_TEMPLATE/, '')
     end
 
     if @show_eucommtoolscre == true
@@ -256,20 +281,59 @@ class Allele2CoreData
 
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_EUCOMMTOOLSCRE_ID/, ' = 8 ')
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
+
+      @gene_phenotyping_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
     else
       @mouse_sql.gsub!(/SUBS_EUCOMMTOOLSCRE_ID/, ' != 8 ')
       @mouse_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
 
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_EUCOMMTOOLSCRE_ID/, ' != 8 ')
       @es_cell_and_targeting_vector_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
+      @gene_phenotyping_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
     end
 
     @allele_data = {}
     @gene_data = {}
-
-    generate_data
   end
 
+  def run
+    check_params
+    generate_data
+    save_to_file
+  end
+
+  def check_params
+    puts "------------------"
+    puts "PRODUCT SOLR REPORT run with:"
+    puts "FILE NAME #{ @file_name.blank? ? "not set" : "set to #{@file_name}" }"
+    puts "EUCOMMTOOLSCRE Filter set to #{@show_eucommtoolscre}"
+    puts "MARKER SYMBOL Filter #{ @marker_symbols.blank? ? "not set" : "set to #{@marker_symbols.try(:to_sentence)}" }"
+    puts "------------------"
+
+    raise "file_name Parameter required" if @file_name.blank?
+    raise "Invalid Parameter show_eucommtoolscre must be a boolean" unless [TrueClass, FalseClass].include?(@show_eucommtoolscre.class)
+    raise "Invalid Marker Symbol provided" if !@marker_symbols.blank? && @marker_symbols.any?{|ms| Gene.find_by_marker_symbol(ms).blank?}
+  end
+
+  def save_to_file
+    raise if @file_name.blank?
+
+    file_exists = File.file?(@file_name)
+
+    file = open(@file_name, 'a')
+
+    file.write(Solr::Allele2.tsv_header) unless file_exists
+#puts Solr::Allele2.tsv_header
+    @allele_data.each do |key, allele|
+      file.write(allele.doc_to_tsv)
+#puts allele.doc_to_tsv
+    end
+
+    @gene_data.each do |key, gene|
+      file.write(gene.doc_to_tsv)
+#puts gene.doc_to_tsv
+    end
+  end
 
   def mouse_status_is_more_adavanced(status_challenger, doc_status)
     return false if status_challenger.blank?
@@ -280,6 +344,7 @@ class Allele2CoreData
       return false
     end
   end
+  private :mouse_status_is_more_adavanced
 
   def generate_data
     puts "#### step 1 - Process Default Genes details..."
@@ -290,7 +355,7 @@ class Allele2CoreData
 
     puts "#### processing rows ..."
     rows.each do |row|
-      puts "PROCESSING ROW #{row['marker_symbol']}" unless @marker_symbol.nil?
+      puts "PROCESSING ROW #{row['marker_symbol']}" unless @marker_symbols.nil?
       #pp row
       @gene_data[row['mgi_accession_id']] = create_new_default_gene_doc(row)
     end
@@ -389,40 +454,55 @@ class Allele2CoreData
 
 
     puts "#### step 3 - Complete"
-    puts "#### step 4 - Append Additional Data..."
+
+    puts "#### step 4 - Add missing phenotyping statuses to gene docs"
+
+    rows = ActiveRecord::Base.connection.execute(@gene_phenotyping_sql)
+
+    rows.each do |row|
+      doc = get_gene_doc(row['gene_mgi_accession_id'])
+      phenotyping_gene_update_doc(doc, row)
+    end
+
+    puts "#### step 4 - Complete"
+
+    puts "#### step 5 - Append Additional Data..."
 
     ## append additional data based on already collated data
-    @allele_data.each do |key, allele_data_row|
-      allele_data_row['synonym'] = @gene[allele_data_row['mgi_accession_id']]['synonym']    
+    @allele_data.each do |key, allele_data_doc|
+      allele_data_doc.synonym = @gene_data[allele_data_doc.mgi_accession_id].synonym
+      allele_data_doc.feature_type = @gene_data[allele_data_doc.mgi_accession_id].feature_type 
 
-      allele_data_row['allele_description'] = TargRep::Allele.allele_description({
-                                               'marker_symbol'               => allele_data_row['marker_symbol'],
-                                               'cassette'                    => allele_data_row['cassette'],
-                                               'allele_type'                 => allele_data_row['allele_type'],
-                                               'allele_description_summary'  => allele_data_row['allele_description']
+      allele_data_doc.allele_description = TargRep::Allele.allele_description({
+                                               'marker_symbol'               => allele_data_doc.marker_symbol,
+                                               'cassette'                    => allele_data_doc.cassette,
+                                               'allele_type'                 => allele_data_doc.allele_type,
+                                               'allele_description_summary'  => allele_data_doc.allele_description
                                              })
 
-      if allele_data_row['mutation_type'] == 'tm'
-        allele_data_row['mutation_type'] = 'Targeted'
-      elsif allele_data_row['mutation_type'] == 'em'
-        allele_data_row['mutation_type'] = 'Endonuclease-mediated'
+      if allele_data_doc.mutation_type == 'tm'
+        allele_data_doc.mutation_type = 'Targeted'
+      elsif allele_data_doc.mutation_type == 'em'
+        allele_data_doc.mutation_type = 'Endonuclease-mediated'
+      else
+        allele_data_doc.mutation_type = nil
       end
 
-      mutagenesis_url = TargRep::RealAllele.mutagenesis_url({'mgi_accession_id' => allele_data_row['mgi_accession_id'],
-                                                             'allele_symbol' => allele_data_row['allele_name'],
-                                                             'allele_type' => allele_data_row['allele_type'],
-                                                             'pipeline' => allele_data_row['pipeline']
+      mutagenesis_url = TargRep::RealAllele.mutagenesis_url({'mgi_accession_id' => allele_data_doc.mgi_accession_id,
+                                                             'allele_symbol' => allele_data_doc.allele_name,
+                                                             'allele_type' => allele_data_doc.allele_type,
+                                                             'pipeline' => allele_data_doc.pipeline
                                                             })
 
-      mutagenesis_url = '' if allele_data_row['allele_name'] =~ /#{allele_data_row['cassette']}/
-      allele_data_row['links'] <<   "mutagenesis_url:#{mutagenesis_url}" unless mutagenesis_url.blank?
+      mutagenesis_url = '' if allele_data_doc.allele_name =~ /#{allele_data_doc.cassette}/
+      allele_data_doc.links <<   "mutagenesis_url:#{mutagenesis_url}" unless mutagenesis_url.blank?
 
       # Add allele symbol string variants
-      allele_data_row['allele_symbol'] << "#{allele_data_row['marker_symbol']}#{allele_data_row['allele_name']}" # eg) Cbx1tm1a(EUCOMM)Wtsi
-      allele_data_row['allele_symbol'] << "#{allele_data_row['marker_symbol']} #{allele_data_row['allele_name']}" # eg) Cbx1 tm1a(EUCOMM)Wtsi
-      allele_data_row['allele_symbol'] << "#{allele_data_row['marker_symbol']}<sup>#{allele_data_row['allele_name']}</sup>" # eg) Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>
+      allele_data_doc.allele_symbol << "#{allele_data_doc.marker_symbol}#{allele_data_doc.allele_name}" # eg) Cbx1tm1a(EUCOMM)Wtsi
+      allele_data_doc.allele_symbol << "#{allele_data_doc.marker_symbol} #{allele_data_doc.allele_name}" # eg) Cbx1 tm1a(EUCOMM)Wtsi
+      allele_data_doc.allele_symbol << "#{allele_data_doc.marker_symbol}<sup>#{allele_data_doc.allele_name}</sup>" # eg) Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>
 
-      if !allele_data_row['cassette_type'].blank? && allele_data_row['cassette_type'] == 'Promotorless'
+      if !allele_data_doc.cassette_type.blank? && allele_data_doc.cassette_type == 'Promotorless'
         with_feature = 'Promotorless'
         without_feature = 'Promotor Driven'
       else
@@ -430,41 +510,53 @@ class Allele2CoreData
         without_feature = 'Promotorless'
       end
 
-      if TargRep::Allele.allele_features.include?(allele_data_row['allele_type'])
-        allele_data_row['allele_category'] = TargRep::Allele.allele_features[allele_data_row['allele_type']]['allele_category']
-        allele_data_row['allele_features'] = TargRep::Allele.allele_features[allele_data_row['allele_type']]['features']
-        allele_data_row['without_allele_features'] = TargRep::Allele.allele_features[allele_data_row['allele_type']]['without_features']
+      allele_features = {
+        'a'  => {'allele_category' => 'Knockout First', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag", "Conditional Potential", "Non-Expressive"], 'without_features' => ["#{without_feature} Selection Tag"]},
+        'b'  => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag', ], 'without_features' => ["Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'c'  => {'allele_category' => 'Wild type Floxed Exon', 'features' => ["Conditional Potential"], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'd'  => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'e'  => {'allele_category' => 'Targeted, Non-Conditional', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag", "Non-Expressive"], 'without_features' => ["#{without_feature} Selection Tag"]},
+        'e.1'  => {'allele_category' => 'Targeted, Non-Conditional', 'features' => ['Reporter Tag'], 'without_features' => ["Promoterless Selection Tag", "Promotor Driven Selection Tag"]},
+        ''   => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag"], 'without_features' => ["#{without_feature} Selection Tag"]},
+        '.1' => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag'], 'without_features' => ["Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        '.2' => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'NHEJ' => {'allele_category' => 'Indel', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'Deletion' => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]}, 
+      }
+
+      if allele_features.include?(allele_data_doc.allele_type)
+        allele_data_doc.allele_category = allele_features[allele_data_doc.allele_type]['allele_category']
+        allele_data_doc.allele_features = allele_features[allele_data_doc.allele_type]['features']
+        allele_data_doc.without_allele_features = allele_features[allele_data_doc.allele_type]['without_features']
       else
-        allele_data_row['allele_category'] << allele_data_row['allele_type']
+        allele_data_doc.allele_category << allele_data_doc.allele_type
       end
 
-      # remove unnecessary fields from allele doc
-      allele_data_row.delete('cassette_type')
     end
 
     ## append additional data based on already collated data
-    @gene_data.each do |key, gene_data_row|
+    @gene_data.each do |key, gene_data_doc|
 
-      gene_data_row['es_cell_status'] = 'No ES Cell Production' if gene_data_row['es_cell_status'].blank? && gene_data_row['feature_type'] == 'protein coding gene'
+      gene_data_doc.es_cell_status = 'No ES Cell Production' if gene_data_doc.es_cell_status.blank? && gene_data_doc.feature_type == 'protein coding gene'
 
-      gene_data_row['latest_es_cell_status'] = gene_data_row['es_cell_status']
-      gene_data_row['latest_mouse_status'] = gene_data_row['mouse_status']
-      gene_data_row['latest_phenotype_status'] = gene_data_row['phenotype_status']
-      gene_data_row['latest_production_centre'] = gene_data_row['production_centre']
-      gene_data_row['latest_phenotyping_centre'] = gene_data_row['phenotyping_centre']
-      gene_data_row['latest_phenotype_started'] = (['Phenotyping Started', 'Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false) unless gene_data_row['phenotype_status'].blank?
-      gene_data_row['latest_phenotype_complete'] = (['Phenotyping Complete'].include?(gene_data_row['phenotype_status']) ? true : false) unless gene_data_row['phenotype_status'].blank?
+      gene_data_doc.latest_es_cell_status = gene_data_doc.es_cell_status
+      gene_data_doc.latest_mouse_status = gene_data_doc.mouse_status
+      gene_data_doc.latest_phenotype_status = gene_data_doc.phenotype_status
+      gene_data_doc.latest_production_centre = gene_data_doc.production_centre
+      gene_data_doc.latest_phenotyping_centre = gene_data_doc.phenotyping_centre
+      gene_data_doc.latest_phenotype_started = (['Phenotyping Started', 'Phenotyping Complete'].include?(gene_data_doc.phenotype_status) ? true : false) unless gene_data_doc.phenotype_status.blank?
+      gene_data_doc.latest_phenotype_complete = (['Phenotyping Complete'].include?(gene_data_doc.phenotype_status) ? true : false) unless gene_data_doc.phenotype_status.blank?
 
-      gene_data_row['latest_project_status'] = gene_data_row['es_cell_status']
-      gene_data_row['latest_project_status'] = gene_data_row['mouse_status'] unless gene_data_row['mouse_status'].blank?
-      gene_data_row['latest_project_status'] = gene_data_row['phenotype_status'] unless gene_data_row['phenotype_status'].blank?
+      gene_data_doc.latest_project_status = gene_data_doc.es_cell_status
+      gene_data_doc.latest_project_status = gene_data_doc.mouse_status unless gene_data_doc.mouse_status.blank?
+      gene_data_doc.latest_project_status = gene_data_doc.phenotype_status unless gene_data_doc.phenotype_status.blank?
 
 
-      gene_data_row['latest_project_status_legacy'] = @translate_to_legacy_status[gene_data_row['latest_project_status']] if @translate_to_legacy_status.has_key?(gene_data_row['latest_project_status'])
+      gene_data_doc.latest_project_status_legacy = @translate_to_legacy_status[gene_data_doc.latest_project_status] if @translate_to_legacy_status.has_key?(gene_data_doc.latest_project_status)
     end
     puts "#### step 4 - Complete"
   end
-
+  private :generate_data
 
   def get_allele_doc(data_row, allele_details)
     doc =  @allele_data["#{data_row['gene_mgi_accession_id']} #{allele_details['allele_symbol']}"] || create_new_default_allele_doc(data_row, allele_details)
@@ -474,6 +566,7 @@ class Allele2CoreData
       return doc
     end
   end
+  private :get_allele_doc
 
   def get_gene_doc(mgi_accession_id)
     #puts "GENE ID: #{mgi_accession_id}"
@@ -484,6 +577,7 @@ class Allele2CoreData
       return doc
     end
   end
+  private :get_gene_doc
 
   def create_new_default_allele_doc(data_row, allele_details)
 
@@ -500,7 +594,8 @@ class Allele2CoreData
       try_to_find_correct_allele(data_row)
     end
 
-    @allele_data["#{data_row['gene_mgi_accession_id']} #{allele_details['allele_symbol']}"] = {
+    @allele_data["#{data_row['gene_mgi_accession_id']} #{allele_details['allele_symbol']}"] = Solr::Allele2.new ({
+                                                       'allele_design_project' => @allele_design_project,
                                                        'marker_symbol' => data_row['gene_symbol'],
                                                        'mgi_accession_id' => data_row['gene_mgi_accession_id'],
                                                        'allele_symbol' => [],
@@ -533,87 +628,91 @@ class Allele2CoreData
                                                        'production_centres' => [],
                                                        'phenotyping_centres' => [],
                                                        'links' => links,
-                                                       'type' => 'Allele'
-                                                                                            }
+                                                       'type' => 'Allele'})
 
     return @allele_data["#{data_row['gene_mgi_accession_id']} #{allele_details['allele_symbol']}"]
   end
+  private :create_new_default_allele_doc
 
   def mouse_allele_update_doc(doc, data_row)
 
-    doc['allele_mgi_accession_id'] = data_row['colony_mgi_allele_id'] unless data_row['colony_mgi_allele_id'].blank?
-    doc['allele_description'] = data_row['auto_allele_description'].blank? ? data_row['allele_description_summary'] : data_row['auto_allele_description']
+    doc.allele_mgi_accession_id = data_row['colony_mgi_allele_id'] unless data_row['colony_mgi_allele_id'].blank?
+    doc.allele_description = data_row['auto_allele_description'].blank? ? data_row['allele_description_summary'] : data_row['auto_allele_description']
 
     # set Mouse status
     mouse_status = data_row['mouse_allele_status_name'] || data_row['mi_status_name']
     mouse_production_centre = data_row['mouse_allele_production_centre'] || data_row['mi_production_centre']
 
-    if doc['mouse_status'].blank? || mouse_status_is_more_adavanced(mouse_status, doc['mouse_status'])
-      doc['mouse_status'] = mouse_status
-      doc['production_centre'] = mouse_production_centre
+    if doc.mouse_status.blank? || mouse_status_is_more_adavanced(mouse_status, doc.mouse_status)
+      doc.mouse_status = mouse_status
+      doc.production_centre = mouse_production_centre
     end
 
-    if doc['phenotype_status'].blank? || mouse_status_is_more_adavanced(data_row['phenotyping_status_name'], doc['phenotype_status'])
-      doc['phenotype_status'] = data_row['phenotyping_status_name']
-      doc['phenotyping_centre'] = data_row['phenotyping_centre']
+    if doc.phenotype_status.blank? || mouse_status_is_more_adavanced(data_row['phenotyping_status_name'], doc.phenotype_status)
+      doc.phenotype_status = data_row['phenotyping_status_name']
+      doc.phenotyping_centre = data_row['phenotyping_centre']
     end
 
-    doc['production_centres'] << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
-    doc['production_centres'] << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
-    self.class.convert_to_array(data_row['phenotyping_centres']).each{|phenotyping_centre| doc['phenotyping_centres'] << phenotyping_centre}
+    doc.production_centres << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
+    doc.production_centres << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
+    self.class.convert_to_array(data_row['phenotyping_centres']).each{|phenotyping_centre| doc.phenotyping_centres << phenotyping_centre}
 
-    doc['production_centres'] = doc['production_centres'].uniq
-    doc['phenotyping_centres'] = doc['phenotyping_centres'].uniq
+    doc.production_centres = doc.production_centres.uniq
+    doc.phenotyping_centres = doc.phenotyping_centres.uniq
 
-    if !doc['mouse_status'].blank? && ['Genotype confirmed', 'Cre Excision Complete'].include?(doc['mouse_status'])
-      doc['mouse_available'] = true
+    if !doc.mouse_status.blank? && ['Genotype confirmed', 'Cre Excision Complete'].include?(doc.mouse_status)
+      doc.mouse_available = true
     end
     return true
   end
+  private :mouse_allele_update_doc
 
   def es_cell_allele_update_doc(doc, data_row)
-    doc['design_id'] = data_row['design_id']
-    doc['cassette'] = data_row['cassette']
-    doc['cassette_type'] = data_row['cassette_type']
-#    doc['links'] << "loa_link_id:#{data_row['targ_rep_alleles_id']}"
+    doc.design_id = data_row['design_id']
+    doc.cassette = data_row['cassette']
+    doc.cassette_type = data_row['cassette_type']
+#    doc.links << "loa_link_id:#{data_row['targ_rep_alleles_id']}"
 
     # set ES Cell status
-    if data_row['num_es_cells'].to_i > 0 || doc['es_cell_status'] == 'ES Cell Targeting Confirmed'
-      doc['es_cell_status'] = 'ES Cell Targeting Confirmed'
-      doc['es_cell_available'] = true
-    elsif data_row['num_targeting_vectors'].to_i > 0 || doc['es_cell_status'] == 'ES Cell Production in Progress'
-      doc['es_cell_status'] = 'ES Cell Production in Progress'
+    if data_row['num_es_cells'].to_i > 0 || doc.es_cell_status == 'ES Cell Targeting Confirmed'
+      doc.es_cell_status = 'ES Cell Targeting Confirmed'
+      doc.es_cell_available = true
+    elsif data_row['num_targeting_vectors'].to_i > 0 || doc.es_cell_status == 'ES Cell Production in Progress'
+      doc.es_cell_status = 'ES Cell Production in Progress'
     else
-      doc['es_cell_status'] = 'No ES Cell Production'
+      doc.es_cell_status = 'No ES Cell Production'
     end
 
     if data_row['num_targeting_vectors'].to_i > 0
-      doc['targeting_vector_available'] = true
-      doc['vector_genbank_file'] = TargRep::Allele.targeting_vector_genbank_file_url(data_row['allele_id'])
-      doc['vector_allele_image'] = TargRep::Allele.vector_image_url(data_row['allele_id'])
+      doc.targeting_vector_available = true
+      doc.vector_genbank_file = TargRep::Allele.targeting_vector_genbank_file_url(data_row['allele_id'])
+      doc.vector_allele_image = TargRep::Allele.vector_image_url(data_row['allele_id'])
     end
 
-    doc['allele_mgi_accession_id'] = data_row['allele_mgi_accession_id']
+    doc.allele_mgi_accession_id = data_row['allele_mgi_accession_id']
 
-    data_row['es_pipelines'].each{|pipeline| doc['pipeline'] << pipeline} unless data_row['es_pipelines'].blank?
-    data_row['tv_pipelines'].each{|pipeline| doc['pipeline'] << pipeline} unless data_row['tv_pipelines'].blank?
+    data_row['es_pipelines'].each{|pipeline| doc.pipeline << pipeline} unless data_row['es_pipelines'].blank?
+    data_row['tv_pipelines'].each{|pipeline| doc.pipeline << pipeline} unless data_row['tv_pipelines'].blank?
 
-    data_row['es_ikmc_projects'].each{|ikmc_project| doc['ikmc_project'] << ikmc_project} unless data_row['es_ikmc_projects'].blank?
-    data_row['tv_ikmc_projects'].each{|ikmc_project| doc['ikmc_project'] << ikmc_project} unless data_row['tv_ikmc_projects'].blank?
+    data_row['es_ikmc_projects'].each{|ikmc_project| doc.ikmc_project << ikmc_project} unless data_row['es_ikmc_projects'].blank?
+    data_row['tv_ikmc_projects'].each{|ikmc_project| doc.ikmc_project << ikmc_project} unless data_row['tv_ikmc_projects'].blank?
 
-    doc['pipeline']= doc['pipeline'].uniq
-    doc['ikmc_project'] = doc['ikmc_project'].uniq
-#    doc['links'] = doc['links'].uniq
+    doc.pipeline = doc.pipeline.uniq
+    doc.ikmc_project = doc.ikmc_project.uniq
+#    doc.links = doc.links.uniq
 
     return true
   end
+  private :es_cell_allele_update_doc
 
   def create_new_default_gene_doc(data_row)
-    gene_doc =  {'marker_symbol' => data_row['marker_symbol'],
+    gene_doc =  Solr::Allele2.new( {
+                 'allele_design_project' => @allele_design_project,
+                 'marker_symbol' => data_row['marker_symbol'],
                  'mgi_accession_id' => data_row['mgi_accession_id'],
                  'marker_type' => data_row['marker_type'],
                  'marker_name' => data_row['marker_name'],
-                 'synonym' => data_row['synonyms'],
+                 'synonym' => !data_row['synonyms'].blank? ? data_row['synonyms'].split('|') : '',
                  'feature_type' => data_row['feature_type'],
                  'feature_chromosome' => data_row['chr'],
                  'feature_strand' => data_row['strand_name'],
@@ -644,20 +743,21 @@ class Allele2CoreData
                  'latest_phenotype_status' => '',
                  'latest_es_cell_status' => '',
                  'latest_mouse_status' => ''
-                }
+                } )
 
     unless  data_row['chr'].blank? || data_row['start_coordinates'].blank? || data_row['end_coordinates'].blank?
-      gene_doc['genetic_map_links'] = ["mgi:http://www.informatics.jax.org/searches/linkmap.cgi?chromosome=#{data_row['chr']}&midpoint=#{data_row['cm_position']}&cmrange=1.0&dsegments=1&syntenics=0"] if data_row['cm_position'].blank?
+      gene_doc.genetic_map_links = ["mgi:http://www.informatics.jax.org/searches/linkmap.cgi?chromosome=#{data_row['chr']}&midpoint=#{data_row['cm_position']}&cmrange=1.0&dsegments=1&syntenics=0"] if data_row['cm_position'].blank?
       vega_id = data_row['vega_ids'].blank? ? "" : "g=#{data_row['vega_ids'].split(',').sort{|s1, s2| s2 <=> s1}[0]};"
       ensum_id = data_row['ensembl_ids'].blank? ? "" :"g=#{data_row['ensembl_ids'].split(',').sort{|s1, s2| s2 <=> s1}[0]};"
-      gene_doc['sequence_map_links']  << "vega:http://vega.sanger.ac.uk/Mus_musculus/Location/View?#{vega_id}r=#{data_row['chr']}:#{data_row['start_coordinates']}-#{data_row['end_coordinates']}"
-      gene_doc['sequence_map_links']  << "ensembl:http://www.ensembl.org/Mus_musculus/Location/View?#{ensum_id}r=#{data_row['chr']}:#{data_row['start_coordinates']}-#{data_row['end_coordinates']}"
-      gene_doc['sequence_map_links']  << "ucsc:http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&position=chr#{data_row['chr']}%3A#{data_row['start_coordinates']}-#{data_row['end_coordinates']}"
-      gene_doc['sequence_map_links']  << "ncbi:http://www.ncbi.nlm.nih.gov/mapview/maps.cgi?TAXID=10090&CHR=#{data_row['chr']}&MAPS=genes%5B#{data_row['start_coordinates']}:#{data_row['end_coordinates']}%5D"
+      gene_doc.sequence_map_links  << "vega:http://vega.sanger.ac.uk/Mus_musculus/Location/View?#{vega_id}r=#{data_row['chr']}:#{data_row['start_coordinates']}-#{data_row['end_coordinates']}"
+      gene_doc.sequence_map_links  << "ensembl:http://www.ensembl.org/Mus_musculus/Location/View?#{ensum_id}r=#{data_row['chr']}:#{data_row['start_coordinates']}-#{data_row['end_coordinates']}"
+      gene_doc.sequence_map_links  << "ucsc:http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&position=chr#{data_row['chr']}%3A#{data_row['start_coordinates']}-#{data_row['end_coordinates']}"
+      gene_doc.sequence_map_links  << "ncbi:http://www.ncbi.nlm.nih.gov/mapview/maps.cgi?TAXID=10090&CHR=#{data_row['chr']}&MAPS=genes%5B#{data_row['start_coordinates']}:#{data_row['end_coordinates']}%5D"
     end
 
     return gene_doc
   end
+  private :create_new_default_gene_doc
 
   def mouse_gene_update_doc(doc, data_row)
 
@@ -665,43 +765,56 @@ class Allele2CoreData
     mouse_status = data_row['mouse_allele_status_name'] || data_row['mi_status_name']
     mouse_production_centre = data_row['mouse_allele_production_centre'] || data_row['mi_production_centre']
 
-    if doc['mouse_status'].blank? || mouse_status_is_more_adavanced(mouse_status, doc['mouse_status'])
-      doc['mouse_status'] = mouse_status
-      doc['production_centre'] = mouse_production_centre
+    if doc.mouse_status.blank? || mouse_status_is_more_adavanced(mouse_status, doc.mouse_status)
+      doc.mouse_status = mouse_status
+      doc.production_centre = mouse_production_centre
     end
 
-    if doc['phenotype_status'].blank? || mouse_status_is_more_adavanced(data_row['phenotyping_status_name'], doc['phenotype_status'])
-      doc['phenotype_status'] = data_row['phenotyping_status_name']
-      doc['phenotyping_centre'] = data_row['phenotyping_centre']
+    if doc.phenotype_status.blank? || mouse_status_is_more_adavanced(data_row['phenotyping_status_name'], doc.phenotype_status)
+      doc.phenotype_status = data_row['phenotyping_status_name']
+      doc.phenotyping_centre = data_row['phenotyping_centre']
     end
 
-    doc['production_centres'] << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
-    doc['production_centres'] << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
-    self.class.convert_to_array(data_row['phenotyping_centres']).each{|phenotyping_centre| doc['phenotyping_centres'] << phenotyping_centre}
+    doc.production_centres << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
+    doc.production_centres << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
+    self.class.convert_to_array(data_row['phenotyping_centres']).each{|phenotyping_centre| doc.phenotyping_centres << phenotyping_centre}
 
-    doc['production_centres'] = doc['production_centres'].uniq
-    doc['phenotyping_centres'] = doc['phenotyping_centres'].uniq
+    doc.production_centres = doc.production_centres.uniq
+    doc.phenotyping_centres = doc.phenotyping_centres.uniq
   end
 
   def es_cell_gene_update_doc(doc, data_row)
     # set ES Cell status
-    if data_row['num_es_cells'].to_i > 0 || doc['es_cell_status'] == 'ES Cell Targeting Confirmed'
-      doc['es_cell_status'] = 'ES Cell Targeting Confirmed'
-    elsif data_row['num_targeting_vectors'].to_i > 0 || doc['es_cell_status'] == 'ES Cell Production in Progress'
-      doc['es_cell_status'] = 'ES Cell Production in Progress'
+    if data_row['num_es_cells'].to_i > 0 || doc.es_cell_status == 'ES Cell Targeting Confirmed'
+      doc.es_cell_status = 'ES Cell Targeting Confirmed'
+    elsif data_row['num_targeting_vectors'].to_i > 0 || doc.es_cell_status == 'ES Cell Production in Progress'
+      doc.es_cell_status = 'ES Cell Production in Progress'
     else
-      doc['es_cell_status'] = 'No ES Cell Production'
+      doc.es_cell_status = 'No ES Cell Production'
     end
 
-    data_row['es_pipelines'].each{|pipeline| doc['pipeline'] << pipeline} unless data_row['es_pipelines'].blank?
-    data_row['tv_pipelines'].each{|pipeline| doc['pipeline'] << pipeline} unless data_row['tv_pipelines'].blank?
+    data_row['es_pipelines'].each{|pipeline| doc.pipeline << pipeline} unless data_row['es_pipelines'].blank?
+    data_row['tv_pipelines'].each{|pipeline| doc.pipeline << pipeline} unless data_row['tv_pipelines'].blank?
 
-    data_row['es_ikmc_projects'].each{|ikmc_project| doc['ikmc_project'] << ikmc_project} unless data_row['es_ikmc_projects'].blank?
-    data_row['tv_ikmc_projects'].each{|ikmc_project| doc['ikmc_project'] << ikmc_project} unless data_row['tv_ikmc_projects'].blank?
+    data_row['es_ikmc_projects'].each{|ikmc_project| doc.ikmc_project << ikmc_project} unless data_row['es_ikmc_projects'].blank?
+    data_row['tv_ikmc_projects'].each{|ikmc_project| doc.ikmc_project << ikmc_project} unless data_row['tv_ikmc_projects'].blank?
 
-    doc['pipeline']= doc['pipeline'].uniq
-    doc['ikmc_project'] = doc['ikmc_project'].uniq
+    doc.pipeline= doc.pipeline.uniq
+    doc.ikmc_project = doc.ikmc_project.uniq
   end
+  private :mouse_gene_update_doc
+
+  def phenotyping_gene_update_doc(doc, data_row)
+
+    if doc.phenotype_status.blank? || mouse_status_is_more_adavanced(data_row['phenotyping_status_name'], doc.phenotype_status)
+      doc.phenotype_status = data_row['phenotyping_status_name']
+      doc.phenotyping_centre = data_row['phenotyping_centre']
+    end
+
+    doc.phenotyping_centres << data_row['phenotyping_centre']
+    doc.phenotyping_centres = doc.phenotyping_centres.uniq
+  end
+  private :phenotyping_gene_update_doc
 
   def try_to_find_correct_allele(row1)
     sql = <<-EOF
@@ -715,7 +828,7 @@ class Allele2CoreData
           a1.cassette_end = a2.cassette_end AND
           a1.id != a2.id
         JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = a2.mutation_type_id
-      WHERE a1.id = #{row1['alleles_id']} AND targ_rep_mutation_types.allele_code = '#{row1['mi_mouse_allele_type']}'
+      WHERE a1.id = #{row1['allele_id']} AND targ_rep_mutation_types.allele_code = '#{row1['mi_mouse_allele_type']}'
     EOF
 
     rows = ActiveRecord::Base.connection.execute(sql)
@@ -726,6 +839,7 @@ class Allele2CoreData
       row1['allele_mgi_accession_id'] = ""
     end
   end
+  private :try_to_find_correct_allele
 
   def self.convert_to_array psql_array
     return [] if psql_array.blank? || psql_array.length <= 2
@@ -735,17 +849,4 @@ class Allele2CoreData
     return new_array
   end
 
-end
-
-
-
-if __FILE__ == $0
-  # this will only run if the script was the main, not load'd or require'd
-  puts "## Start Rebuild of the Allele 2 Core #{Time.now}"
-  BuildAllele2.new
-  puts "## Completed Rebuild of the Allele 2 Core#{Time.now}"
-
-  puts "## Start Rebuild of the EUCOMMToolsCre Allele 2 Core#{Time.now}"
-  BuildAllele2.new(true)
-  puts "## Completed Rebuild of the EUCOMMToolsCre Allele 2 Core#{Time.now}"
 end

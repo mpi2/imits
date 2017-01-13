@@ -593,7 +593,7 @@ class Gene < ActiveRecord::Base
 
     logger.info "Load gene info"
     logger.info "downloading MGI_MRK_Coord"
-    url = 'ftp://ftp.informatics.jax.org/pub/reports/MGI_MRK_Coord.rpt'
+    url = 'http://www.informatics.jax.org/downloads/reports/MGI_MRK_Coord.rpt'
     open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_index = headers.index('1. MGI Marker Accession ID')
@@ -635,7 +635,7 @@ class Gene < ActiveRecord::Base
     end
 
     logger.info "Downloading Vega report"
-    url = "ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt"
+    url = "http://www.informatics.jax.org/downloads/reports/MRK_VEGA.rpt"
     open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
@@ -647,7 +647,7 @@ class Gene < ActiveRecord::Base
     end
 
     logger.info "Downloading Ensemble report"
-    url = "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt"
+    url = "http://www.informatics.jax.org/downloads/reports/MRK_ENSEMBL.rpt"
     open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
@@ -659,7 +659,7 @@ class Gene < ActiveRecord::Base
     end
 
     logger.info "Downloading ncbi report"
-    url = "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt"
+    url = "http://www.informatics.jax.org/downloads/reports/MGI_EntrezGene.rpt"
     open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0

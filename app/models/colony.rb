@@ -44,6 +44,11 @@ class Colony < ApplicationModel
 #    end
 #  end
 
+validates_format_of :mgi_allele_id,
+    :with      => /^MGI\:\d+$/,
+    :message   => "is not a valid MGI Allele ID",
+    :allow_nil => true
+
   validate do |colony|
     if !mouse_allele_mod.blank?
       not_uniq_col = ActiveRecord::Base.connection.execute("SELECT  1 AS one FROM colonies  WHERE colonies.name = '#{self.name}' AND colonies.mouse_allele_mod_id IS NOT NULL #{self.id.blank? ? '' : "AND colonies.id != #{self.id}"} LIMIT 1")
@@ -76,10 +81,38 @@ class Colony < ApplicationModel
     end
   end
 
+  validate do |colony|
+    if mgi_allele_symbol_superscript.blank? && genotype_confirmed == true
+      colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
+    end
+  end
+
+  validate do |colony|
+    return if mi_attempt_id.blank? && mouse_allele_mod_id.blank?
+    if !mgi_allele_symbol_superscript.blank?
+      mi_attempt = self.mi_attempt || mouse_allele_mod.parent_colony.mi_attempt
+      
+      if mi_attempt.es_cell.blank?
+
+        if mgi_allele_symbol_without_impc_abbreviation == true && /em\d*/
+          colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}{ILAR code} e.g. em1J"
+          colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
+        elsif /em\d+(IMPC)*/
+          colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}(IMPC){ILAR code} e.g. em1(IMPC)J"
+          colony.errors.add :mgi_allele_symbol_superscript, "must contain IMPC unless marked project abbreviation."       
+        end
+      else
+
+
+      end
+     
+     mgi_allele_symbol_without_impc_abbreviation == false
+      colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
+    end
+  end
+
   before_save :set_default_background_strain_for_crispr_produced_colonies
   after_save :add_default_distribution_centre
-  before_save :set_crispr_allele
-
 
   def set_default_background_strain_for_crispr_produced_colonies
     return unless self.background_strain_id.blank?
@@ -91,7 +124,6 @@ class Colony < ApplicationModel
   protected :set_default_background_strain_for_crispr_produced_colonies
 
   def add_default_distribution_centre
-    puts 'HELLO'
     if self.genotype_confirmed and self.distribution_centres.count == 0
       centre = production_centre_name
       if centre == 'UCD'
@@ -111,22 +143,6 @@ class Colony < ApplicationModel
   end
   protected :add_default_distribution_centre
 
-  def set_crispr_allele
-    if !mi_attempt.blank? && !mi_attempt.status.blank?
-      if !mi_attempt.mutagenesis_factor_id.blank? && mi_attempt.status.code == 'gtc'
-        n = 0
-        gene = mi_attempt.marker_symbol
-        while true
-          n += 1
-          test_allele_name = "em#{n}#{mi_attempt.production_centre.code}"
-          break if Colony.joins(mi_attempt: {mi_plan: :gene}).where("genes.marker_symbol = '#{gene}' AND colonies.allele_name = '#{test_allele_name}'").blank?
-        end
-
-        self.allele_name = test_allele_name
-      end
-    end
-  end
-
 
   def self.readable_name
     return 'colony'
@@ -139,14 +155,8 @@ class Colony < ApplicationModel
 
       if mi_attempt.es_cell_id
         return mi_attempt.es_cell.allele_symbol_superscript_template
-      elsif mi_attempt.mutagenesis_factor
-        if !mgi_allele_symbol_superscript.blank?
+      elsif mi_attempt.mutagenesis_factor && !mgi_allele_symbol_superscript.blank?
           return mgi_allele_symbol_superscript
-        elsif !allele_name.blank?
-          return allele_name
-        else
-          return "em1#{mi_attempt.production_centre.superscript}"
-        end
       else
         return nil
       end
@@ -168,8 +178,6 @@ class Colony < ApplicationModel
 
       if mi_attempt.es_cell_id
         return mi_attempt.es_cell.allele_type
-      elsif mi_attempt.mutagenesis_factor
-        return 'NHEJ'
       else
         return 'None'
       end
@@ -201,7 +209,6 @@ class Colony < ApplicationModel
     return nil
   end
 
-
   def set_allele_symbol_superscript
     return if self.allele_symbol_superscript_template_changed?
 
@@ -210,6 +217,7 @@ class Colony < ApplicationModel
       return
     end
 
+    # if targeted allele.
     new_template, new_allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
 
     #prevent MGI from incorrectly overiding the allele name if the allele type does not match that stated by the centres.
@@ -385,22 +393,25 @@ end
 #
 # Table name: colonies
 #
-#  id                                 :integer          not null, primary key
-#  name                               :string(255)      not null
-#  mi_attempt_id                      :integer
-#  genotype_confirmed                 :boolean          default(FALSE)
-#  report_to_public                   :boolean          default(FALSE)
-#  unwanted_allele                    :boolean          default(FALSE)
-#  allele_description                 :text
-#  mgi_allele_id                      :string(255)
-#  allele_name                        :string(255)
-#  mouse_allele_mod_id                :integer
-#  mgi_allele_symbol_superscript      :string(255)
-#  allele_symbol_superscript_template :string(255)
-#  allele_type                        :string(255)
-#  background_strain_id               :integer
-#  allele_description_summary         :text
-#  auto_allele_description            :text
+#  id                                          :integer          not null, primary key
+#  name                                        :string(255)      not null
+#  mi_attempt_id                               :integer
+#  genotype_confirmed                          :boolean          default(FALSE)
+#  report_to_public                            :boolean          default(FALSE)
+#  unwanted_allele                             :boolean          default(FALSE)
+#  allele_description                          :text
+#  mgi_allele_id                               :string(255)
+#  allele_name                                 :string(255)
+#  mouse_allele_mod_id                         :integer
+#  mgi_allele_symbol_superscript               :string(255)
+#  allele_symbol_superscript_template          :string(255)
+#  allele_type                                 :string(255)
+#  background_strain_id                        :integer
+#  allele_description_summary                  :text
+#  auto_allele_description                     :text
+#  mgi_allele_symbol_without_impc_abbreviation :boolean          default(FALSE)
+#  private                                     :boolean          default(FALSE), not null
+#  crispr_allele_category                      :string(255)
 #
 # Indexes
 #

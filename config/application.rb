@@ -63,6 +63,7 @@ module TarMits
     config.htgt_root = "http://www.sanger.ac.uk/htgt/htgt2"
     config.wge_root = "http://www.sanger.ac.uk/htgt//wge"
     config.lims2_root = "http://www.sanger.ac.uk/htgt/lims2"
+    config.mousemine_root = "http://www.mousemine.org/mousemine"
   end
 
   def self.git_revision

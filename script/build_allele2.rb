@@ -425,6 +425,10 @@ class BuildAllele2
 
     ## append additional data based on already collated data
     @allele_data.each do |key, allele_data_row|
+
+      allele_data_row['synonym'] = @gene_data[allele_data_row['mgi_accession_id']]['synonym'] 
+      allele_data_row['feature_type'] = @gene_data[allele_data_row['mgi_accession_id']]['feature_type']
+
       allele_data_row['allele_description'] = TargRep::Allele.allele_description({
                                                'marker_symbol'               => allele_data_row['marker_symbol'],
                                                'cassette'                    => allele_data_row['cassette'],
@@ -436,6 +440,8 @@ class BuildAllele2
         allele_data_row['mutation_type'] = 'Targeted'
       elsif allele_data_row['mutation_type'] == 'em'
         allele_data_row['mutation_type'] = 'Endonuclease-mediated'
+      else
+        allele_data_row['mutation_type'] = nil
       end
 
       mutagenesis_url = TargRep::RealAllele.mutagenesis_url({'mgi_accession_id' => allele_data_row['mgi_accession_id'],
@@ -461,7 +467,7 @@ class BuildAllele2
       end
 
       allele_features = {
-        'a'  => {'allele_category' => 'Knock-out', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag", "Conditional Potential"], 'without_features' => ["#{without_feature} Selection Tag"]},
+        'a'  => {'allele_category' => 'Knockout First', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag", "Conditional Potential"], 'without_features' => ["#{without_feature} Selection Tag"]},
         'b'  => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag', ], 'without_features' => ["Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         'c'  => {'allele_category' => 'Wild type Floxed Exon', 'features' => ["Conditional Potential"], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         'd'  => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
@@ -653,7 +659,7 @@ class BuildAllele2
                  'mgi_accession_id' => data_row['mgi_accession_id'],
                  'marker_type' => data_row['marker_type'],
                  'marker_name' => data_row['marker_name'],
-                 'synonym' => data_row['synonyms'],
+                 'synonym' => !data_row['synonyms'].blank? ? data_row['synonyms'].split('|') : '',
                  'feature_type' => data_row['feature_type'],
                  'feature_chromosome' => data_row['chr'],
                  'feature_strand' => data_row['strand_name'],
@@ -889,8 +895,8 @@ class BuildAllele2
     data.each do |key, row|
       hash = nil
 
-      # remove fields which contain null values.
-      row = row.select{|key, value| (value.class == String && !value.blank?) || (value.class != String && !value.nil?)}
+      # remove fields which contain null values, unless field is allele_type
+      row = row.select{|key, value| (key == 'allele_type') || (value.class == String && !value.blank?) || (value.class != String && !value.nil?)}
 
       item = {'add' => {'doc' => row }}
       list.push item.to_json

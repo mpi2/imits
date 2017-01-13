@@ -27,6 +27,12 @@ class Colony < ApplicationModel
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
   accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
 
+
+  before_save :set_default_background_strain_for_crispr_produced_colonies
+  after_save :add_default_distribution_centre
+  before_save :set_crispr_allele
+
+
   validates :name, :presence => true
   # bit of a bodge but works.
   # would have liked to do
@@ -76,11 +82,6 @@ class Colony < ApplicationModel
     end
   end
 
-  before_save :set_default_background_strain_for_crispr_produced_colonies
-  after_save :add_default_distribution_centre
-  before_save :set_crispr_allele
-
-
   def set_default_background_strain_for_crispr_produced_colonies
     return unless self.background_strain_id.blank?
     return if self.mi_attempt_id.blank?
@@ -91,7 +92,6 @@ class Colony < ApplicationModel
   protected :set_default_background_strain_for_crispr_produced_colonies
 
   def add_default_distribution_centre
-    puts 'HELLO'
     if self.genotype_confirmed and self.distribution_centres.count == 0
       centre = production_centre_name
       if centre == 'UCD'

@@ -88,9 +88,9 @@ validates_format_of :mgi_allele_id,
   end
 
   validate do |colony|
-    return if mi_attempt_id.blank && mouse_allele_mod_id.blank
+    return if mi_attempt_id.blank? && mouse_allele_mod_id.blank?
     if !mgi_allele_symbol_superscript.blank?
-      mi_attempt = self.mi_attempt || mouse_allele_mod.colony.mi_attempt
+      mi_attempt = self.mi_attempt || mouse_allele_mod.parent_colony.mi_attempt
       
       if mi_attempt.es_cell.blank?
 
@@ -106,7 +106,7 @@ validates_format_of :mgi_allele_id,
 
       end
      
-     mgi_allele_symbol_without_impc_abbreviation.blank?
+     mgi_allele_symbol_without_impc_abbreviation == false
       colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
     end
   end

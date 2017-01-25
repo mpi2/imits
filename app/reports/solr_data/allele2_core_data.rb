@@ -498,9 +498,11 @@ class SolrData::Allele2CoreData
       allele_data_doc.links <<   "mutagenesis_url:#{mutagenesis_url}" unless mutagenesis_url.blank?
 
       # Add allele symbol string variants
-      allele_data_doc.allele_symbol << "#{allele_data_doc.marker_symbol}#{allele_data_doc.allele_name}" # eg) Cbx1tm1a(EUCOMM)Wtsi
-      allele_data_doc.allele_symbol << "#{allele_data_doc.marker_symbol} #{allele_data_doc.allele_name}" # eg) Cbx1 tm1a(EUCOMM)Wtsi
-      allele_data_doc.allele_symbol << "#{allele_data_doc.marker_symbol}<sup>#{allele_data_doc.allele_name}</sup>" # eg) Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>
+      allele_data_doc.allele_symbol = "#{allele_data_doc.marker_symbol}<#{allele_data_doc.allele_name}>" # eg) Cbx1<tm1a(EUCOMM)Wtsi>
+      allele_data_doc.allele_symbol_search_variants << "#{allele_data_doc.marker_symbol}#{allele_data_doc.allele_name}" # eg) Cbx1tm1a(EUCOMM)Wtsi
+      allele_data_doc.allele_symbol_search_variants << "#{allele_data_doc.marker_symbol} #{allele_data_doc.allele_name}" # eg) Cbx1 tm1a(EUCOMM)Wtsi
+      allele_data_doc.allele_symbol_search_variants << "#{allele_data_doc.marker_symbol}<sup>#{allele_data_doc.allele_name}</sup>" # eg) Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>
+      allele_data_doc.allele_symbol_search_variants << "#{allele_data_doc.marker_symbol}<#{allele_data_doc.allele_name}>" # eg) Cbx1<tm1a(EUCOMM)Wtsi>
 
       if !allele_data_doc.cassette_type.blank? && allele_data_doc.cassette_type == 'Promotorless'
         with_feature = 'Promotorless'
@@ -598,7 +600,8 @@ class SolrData::Allele2CoreData
                                                        'allele_design_project' => @allele_design_project,
                                                        'marker_symbol' => data_row['gene_symbol'],
                                                        'mgi_accession_id' => data_row['gene_mgi_accession_id'],
-                                                       'allele_symbol' => [],
+                                                       'allele_symbol' => '',
+                                                       'allele_symbol_search_variants' => [],
                                                        'allele_name' => allele_details['allele_symbol'],
                                                        'allele_mgi_accession_id' => '',
                                                        'allele_type' => allele_details['allele_type'] ,

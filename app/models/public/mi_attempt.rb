@@ -167,7 +167,7 @@ class Public::MiAttempt < ::MiAttempt
 
   def mutagenesis_factor_attributes
     json_options = {
-    :methods => ['crisprs_attributes', 'vectors_attributes', 'genotype_primers_attributes']
+    :methods => ['crisprs_attributes', 'donors_attributes', 'genotype_primers_attributes']
     }
     return mutagenesis_factor.as_json(json_options)
   end

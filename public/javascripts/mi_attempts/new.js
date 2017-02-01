@@ -683,7 +683,7 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                             }
                         );
 
-                        var url = '/select/vector_and_oligos.json';
+                        var url = '/select/vector.json';
                         var urlParams = {};
                         urlParams['marker_symbol'] = MarkerSymbol;
                         Ext.Ajax.request({
@@ -702,13 +702,12 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                                 var wrapper= document.createElement('tbody');
                                 wrapper.innerHTML = data_field;
                                 
-                                w=wrapper.firstChild.firstChild.nextSibling.firstChild;
+                                w=wrapper.firstChild.firstChild.nextSibling.firstChild.nextElementSibling.firstChild;
                                 
                                 while (w.options.length > 0) {
                                   w.remove(w.options.length - 1);
                                 }
                                 var ctv = data.crispr.targeting_vector
-                                var coli = data.crispr.oligo
                                 var estv = data.es_cell.targeting_vector
 
                                 opt = document.createElement('option'); opt.text = ''; opt.value = ''; w.add(opt, null);
@@ -716,10 +715,6 @@ Ext.define('Imits.MiAttempts.New.SearchForCrisprs', {
                                 opt = document.createElement('option'); opt.text = 'Targeting Vectors'; opt.value = ''; opt.disabled = 'disabled'; w.add(opt, null);
                                 for (i=0; i<ctv.length; i++){
                                   opt = document.createElement('option'); opt.text = ctv[i]; opt.value = ctv[i]; w.add(opt, null);
-                                };
-                                opt = document.createElement('option'); opt.text = 'Oligos'; opt.value = ''; opt.disabled = 'disabled'; w.add(opt, null);
-                                for (i=0; i<coli.length; i++){
-                                  opt = document.createElement('option'); opt.text = coli[i]; opt.value = coli[i]; w.add(opt, null);
                                 };
                                 opt = document.createElement('option'); opt.text = '--ES CELL--'; opt.value = ''; opt.disabled = 'disabled'; w.add(opt, null);
                                 opt = document.createElement('option'); opt.text = 'Targeting Vectors'; opt.value = ''; opt.disabled = 'disabled'; w.add(opt, null);

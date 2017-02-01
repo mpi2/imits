@@ -37,7 +37,7 @@ class ApplicationModel < ActiveRecord::Base
 
   def set_blank_strings_to_nil
     self.attributes.each do |name, value|
-      if self[name].respond_to?(:to_str) && self[name].blank?
+      if self[name].respond_to?(:to_str) && self[name].blank? && !allowed_to_be_blank.include?(name)
         self[name] = nil
       end
     end
@@ -47,7 +47,10 @@ class ApplicationModel < ActiveRecord::Base
 
   # END Callbacks
 
-
+  def self.allowed_to_be_blank
+    return []
+  end
+  
   def self.translations
     return {}
   end

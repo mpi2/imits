@@ -60,7 +60,7 @@ class MiAttemptListReport
         'Mutagenesis Factor Ref'                                      => {:data => 'mutagenesis_factor_ids', :show => @crispr == true},
         'mRNA Nuclease'                                               => {:data => 'mrna_nuclease', :show => @crispr == true},
         'Protein Nuclease'                                            => {:data => 'protein_nuclease', :show => @crispr == true},
-        'Vector Name'                                                 => {:data => 'vector_names', :show => @crispr == true},
+        'Vector Names / Oligo Sequences'                              => {:data => 'vector_names', :show => @crispr == true},
         'Crisprs'                                                     => {:data => 'crispr_groups', :show => @crispr == true},
 
         'Total Embryos Injected'                                      => {:data => 'crsp_total_embryos_injected', :show => @crispr == true},
@@ -109,11 +109,12 @@ class MiAttemptListReport
 
     sql = <<-EOF
       WITH mutagenesis_factors_vectors_summary AS (
-        SELECT mi_attempts.id AS mi_attempt_id, string_agg(targ_rep_targeting_vectors.name, ', ') AS vector_names
-        FROM mutagenesis_factor_vectors
-          JOIN mutagenesis_factors ON mutagenesis_factors.id = mutagenesis_factor_vectors.mutagenesis_factor_id
+        SELECT mi_attempts.id AS mi_attempt_id, 
+        string_agg( CASE WHEN mutagenesis_factor_donors.oligo_sequence_fa IS NOT NULL THEN mutagenesis_factor_donors.oligo_sequence_fa ELSE END targ_rep_targeting_vectors.name, ', ') AS vector_names
+        FROM mutagenesis_factor_donors
+          JOIN mutagenesis_factors ON mutagenesis_factors.id = mutagenesis_factor_donors.mutagenesis_factor_id
           JOIN mi_attempts ON mi_attempts.mutagenesis_factor_id = mutagenesis_factors.id
-          JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = mutagenesis_factor_vectors.vector_id
+          LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = mutagenesis_factor_donors.vector_id
         GROUP BY mi_attempts.id
         ),
 

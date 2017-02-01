@@ -723,11 +723,12 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "parent_colony_id"
   end
 
-  create_table "mutagenesis_factor_vectors", :force => true do |t|
+  create_table "mutagenesis_factor_donors", :force => true do |t|
     t.integer "mutagenesis_factor_id", :null => false
     t.integer "vector_id"
     t.float   "concentration"
     t.string  "preparation"
+    t.text    "oligo_sequence_fa"
   end
 
   create_table "mutagenesis_factors", :force => true do |t|

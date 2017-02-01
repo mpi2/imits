@@ -164,15 +164,13 @@ class MiAttemptsController < ApplicationController
     end
     return [] if gene.nil?
 
-    values = ["", "-- CRISPR --", ["Targeted Vector"], ["Oligo"], "-- ES CELL --", ["Targeted Vector"]]
+    values = ["", "-- CRISPR --", ["Targeted Vector"], "-- ES CELL --", ["Targeted Vector"]]
 
     gene.vectors.each do |tv|
       if tv.type =='TargRep::CrisprTargetedAllele'
         values[2] << tv.name
-      elsif tv.type =='TargRep::HdrAllele'
-        values[3] << tv.name
       elsif tv.type =='TargRep::TargetedAllele'
-        values[5] << tv.name
+        values[4] << tv.name
       end
     end
 

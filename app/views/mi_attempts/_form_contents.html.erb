@@ -168,22 +168,22 @@
         <fieldset id="vector_field_set">
           <label>4. Vectors/Oligos</label>
           <div id="vector-container">
-            <table id="vectors_<%= builder.object_id %>_table" class="report_table">
+            <table id="donors_<%= builder.object_id %>_table" class="report_table">
               <thead><tr>
-                <th>Vector Name</th>
+                <th>Donor</th>
                 <th>Concentration</th>
                 <th>Preparation</th>
                 <th>Action</th>
               </tr></thead>
               <tbody class="distribution_centres">
                 <tr></tr>
-                <%= builder.fields_for :vectors do |builder2| %>
-                  <%= render '/shared/vector_fields', f: builder2 %>
+                <%= builder.fields_for :donors do |builder2| %>
+                  <%= render '/shared/donor_fields', f: builder2 %>
                 <% end %>
               </tbody>
             </table>
           </div>
-          <%= link_to_add_fields "Add Vector/Oligo", builder, :vectors %>
+          <%= link_to_add_fields "Add Vector/Oligo", builder, :donors %>
         </fieldset>
       <% end %>
 

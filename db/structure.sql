@@ -2097,23 +2097,24 @@ ALTER SEQUENCE mouse_allele_mods_id_seq OWNED BY mouse_allele_mods.id;
 
 
 --
--- Name: mutagenesis_factor_vectors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mutagenesis_factor_donors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE TABLE mutagenesis_factor_vectors (
+CREATE TABLE mutagenesis_factor_donors (
     id integer NOT NULL,
     mutagenesis_factor_id integer NOT NULL,
     vector_id integer,
     concentration double precision,
-    preparation character varying(255)
+    preparation character varying(255),
+    oligo_sequence_fa text
 );
 
 
 --
--- Name: mutagenesis_factor_vectors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: mutagenesis_factor_donors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mutagenesis_factor_vectors_id_seq
+CREATE SEQUENCE mutagenesis_factor_donors_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2122,10 +2123,10 @@ CREATE SEQUENCE mutagenesis_factor_vectors_id_seq
 
 
 --
--- Name: mutagenesis_factor_vectors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: mutagenesis_factor_donors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mutagenesis_factor_vectors_id_seq OWNED BY mutagenesis_factor_vectors.id;
+ALTER SEQUENCE mutagenesis_factor_donors_id_seq OWNED BY mutagenesis_factor_donors.id;
 
 
 --
@@ -3703,7 +3704,7 @@ ALTER TABLE ONLY mouse_allele_mods ALTER COLUMN id SET DEFAULT nextval('mouse_al
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mutagenesis_factor_vectors ALTER COLUMN id SET DEFAULT nextval('mutagenesis_factor_vectors_id_seq'::regclass);
+ALTER TABLE ONLY mutagenesis_factor_donors ALTER COLUMN id SET DEFAULT nextval('mutagenesis_factor_donors_id_seq'::regclass);
 
 
 --
@@ -4210,7 +4211,7 @@ ALTER TABLE ONLY mouse_allele_mods
 -- Name: mutagenesis_factor_vectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY mutagenesis_factor_vectors
+ALTER TABLE ONLY mutagenesis_factor_donors
     ADD CONSTRAINT mutagenesis_factor_vectors_pkey PRIMARY KEY (id);
 
 
@@ -5832,3 +5833,5 @@ INSERT INTO schema_migrations (version) VALUES ('20160308125302');
 INSERT INTO schema_migrations (version) VALUES ('201604011125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20160602105302');
+
+INSERT INTO schema_migrations (version) VALUES ('20160904105302');

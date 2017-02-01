@@ -8,6 +8,9 @@ gem 'hoptoad_notifier', '2.4.11'
 gem 'jammit', '0.6.5'
 gem 'json'
 
+## gem used to query mouse moines InterMine Warehouse
+gem 'intermine', '~> 1.4'
+
 gem 'pg', '0.14.1'
 gem 'foreigner', '1.0.3'
 

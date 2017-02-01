@@ -175,8 +175,8 @@ class MiAttempt < ApplicationModel
     return unless self.es_cell_id.blank? # Only continue if mi_attempt belongs to crispr pipeline
 
     crispr_count = self.mutagenesis_factor.crisprs.count
-    vector_count = self.mutagenesis_factor.vectors.count
-    vector_type = self.mutagenesis_factor.vectors.blank? ? nil : self.mutagenesis_factor.vectors.first.vector.try(:allele).try(:type)
+    vector_count = self.mutagenesis_factor.donors.count
+    vector_type = self.mutagenesis_factor.donors.blank? ? nil : self.mutagenesis_factor.donors.first.vector.try(:allele).try(:type)
 
     self.allele_target =  nil
     self.allele_target = 'NHEJ' if crispr_count == 1  && vector_count == 0
@@ -184,7 +184,7 @@ class MiAttempt < ApplicationModel
     self.allele_target = 'NHEJ' if crispr_count < 3 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
     self.allele_target = 'Deletion' if crispr_count >= 4 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
     self.allele_target = 'HDR' if vector_count > 0
-    self.allele_target = 'HR' if vector_count > 0 && (self.mutagenesis_factor.vectors.first.try(:preparation).blank? || self.mutagenesis_factor.vectors.first.try(:preparation) != 'Oligo')
+    self.allele_target = 'HR' if vector_count > 0 && (self.mutagenesis_factor.donors.first.try(:preparation).blank? || self.mutagenesis_factor.donors.first.try(:preparation) != 'Oligo')
     self.allele_target = 'HDR' if vector_count > 0 && vector_type == 'TargRep::HdrAllele'
     self.allele_target = 'HR' if vector_count > 0 && ['TargRep::TargetedAllele', 'TargRep::CrisprTargetedAllele'].include?(vector_type)
     

@@ -45,12 +45,12 @@ class MgiAlleleLoad::CrisprAlleleReport
         ),
 
         donors AS (
-          SELECT mi_attempts.id AS mi_attempt_id, count(targ_rep_alleles.sequence) num_oligos, string_agg(targ_rep_alleles.sequence, '|') AS donor_sequences,
+          SELECT mi_attempts.id AS mi_attempt_id, count(mutagenesis_factor_donors.oligo_sequence_fa) num_oligos, string_agg(mutagenesis_factor_donors.oligo_sequence_fa, '|') AS donor_sequences,
           string_agg(targ_rep_targeting_vectors.name, '|') AS plasmid_ids
           FROM targ_rep_targeting_vectors
-            JOIN mutagenesis_factor_vectors ON mutagenesis_factor_vectors.vector_id = targ_rep_targeting_vectors.id
-            JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_targeting_vectors.allele_id
-            JOIN mi_attempts ON mi_attempts.mutagenesis_factor_id = mutagenesis_factor_vectors.mutagenesis_factor_id
+            JOIN mutagenesis_factor_donors ON mutagenesis_factor_donors.vector_id = targ_rep_targeting_vectors.id
+            LEFT JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_targeting_vectors.allele_id
+            JOIN mi_attempts ON mi_attempts.mutagenesis_factor_id = mutagenesis_factor_donors.mutagenesis_factor_id
           GROUP BY mi_attempts.id
         ),
         characterized_alleles AS (

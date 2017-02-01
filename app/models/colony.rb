@@ -32,7 +32,6 @@ class Colony < ApplicationModel
   after_save :add_default_distribution_centre
   before_save :set_crispr_allele
 
-
   validates :name, :presence => true
   # bit of a bodge but works.
   # would have liked to do
@@ -82,6 +81,22 @@ class Colony < ApplicationModel
     end
   end
 
+  def set_crispr_allele
+    if !mi_attempt.blank? && !mi_attempt.status.blank?
+      if !mi_attempt.mutagenesis_factor_id.blank? && mi_attempt.status.code == 'gtc'
+        n = 0
+        gene = mi_attempt.marker_symbol
+        while true
+          n += 1
+          test_allele_name = "em#{n}#{mi_attempt.production_centre.code}"
+          break if Colony.joins(mi_attempt: {mi_plan: :gene}).where("genes.marker_symbol = '#{gene}' AND colonies.allele_name = '#{test_allele_name}'").blank?
+        end
+
+        self.allele_name = test_allele_name
+      end
+    end
+  end
+
   def set_default_background_strain_for_crispr_produced_colonies
     return unless self.background_strain_id.blank?
     return if self.mi_attempt_id.blank?
@@ -111,22 +126,6 @@ class Colony < ApplicationModel
   end
   protected :add_default_distribution_centre
 
-  def set_crispr_allele
-    if !mi_attempt.blank? && !mi_attempt.status.blank?
-      if !mi_attempt.mutagenesis_factor_id.blank? && mi_attempt.status.code == 'gtc'
-        n = 0
-        gene = mi_attempt.marker_symbol
-        while true
-          n += 1
-          test_allele_name = "em#{n}#{mi_attempt.production_centre.code}"
-          break if Colony.joins(mi_attempt: {mi_plan: :gene}).where("genes.marker_symbol = '#{gene}' AND colonies.allele_name = '#{test_allele_name}'").blank?
-        end
-
-        self.allele_name = test_allele_name
-      end
-    end
-  end
-
 
   def self.readable_name
     return 'colony'
@@ -139,14 +138,8 @@ class Colony < ApplicationModel
 
       if mi_attempt.es_cell_id
         return mi_attempt.es_cell.allele_symbol_superscript_template
-      elsif mi_attempt.mutagenesis_factor
-        if !mgi_allele_symbol_superscript.blank?
+      elsif mi_attempt.mutagenesis_factor && !mgi_allele_symbol_superscript.blank?
           return mgi_allele_symbol_superscript
-        elsif !allele_name.blank?
-          return allele_name
-        else
-          return "em1#{mi_attempt.production_centre.superscript}"
-        end
       else
         return nil
       end
@@ -168,8 +161,6 @@ class Colony < ApplicationModel
 
       if mi_attempt.es_cell_id
         return mi_attempt.es_cell.allele_type
-      elsif mi_attempt.mutagenesis_factor
-        return 'NHEJ'
       else
         return 'None'
       end
@@ -201,7 +192,6 @@ class Colony < ApplicationModel
     return nil
   end
 
-
   def set_allele_symbol_superscript
     return if self.allele_symbol_superscript_template_changed?
 
@@ -210,6 +200,7 @@ class Colony < ApplicationModel
       return
     end
 
+    # if targeted allele.
     new_template, new_allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
 
     #prevent MGI from incorrectly overiding the allele name if the allele type does not match that stated by the centres.

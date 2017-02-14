@@ -7,7 +7,7 @@ module TargRep::AllelesHelper
   def add_es_cell_link(form_builder)
 
     onclick = String.new.tap do |page|
-      form_builder.fields_for :es_cells, TargRep::EsCell.new, :child_index => 'NEW_RECORD' do |f|
+      form_builder.fields_for :es_cells, :child_index => 'NEW_RECORD' do |f|
         html = render( :partial => 'es_cell_form', :locals => { :f => f } )
 
         page << "$('#es_cells').append('#{escape_javascript(html)}'.replace(/NEW_RECORD/g, new Date().getTime()));"

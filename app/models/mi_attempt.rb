@@ -652,7 +652,6 @@ end
 #  crsp_no_founder_pups                            :integer
 #  crsp_num_founders_selected_for_breading         :integer
 #  allele_id                                       :integer
-#  real_allele_id                                  :integer
 #  founder_num_assays                              :integer
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null

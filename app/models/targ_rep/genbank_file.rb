@@ -8,43 +8,31 @@ class TargRep::GenbankFile < ActiveRecord::Base
   ## Associations
   ##
 
-  belongs_to :allele
+  has_many :allele, :class_name => ::Allele, :dependent => :nullify
+  
+  has_one :es_cell_allele_design, :class_name => TargRep::Allele, :foreign_key => 'allele_genbank_file_id', :dependent => :nullify
+  has_one :vector_allele_design, :class_name => TargRep::Allele, :foreign_key => 'vector_genbank_file_id', :dependent => :nullify
 
-  ##
-  ## Validations
-  ##
-
-  validates :allele_id,
-    :presence => true,
-    :uniqueness => true,
-    :unless => :nested
-
-  def escell_clone_cre
-    return site_specific_recombination(self.escell_clone, 'apply_cre')
+  def targ_rep_allele_design
+    es_cell_allele_design unless es_cell_allele_design.blank?
+    vector_allele_design unless vector_allele_design.blank?
+    return nil
   end
 
-  def targeting_vector_cre
-    return site_specific_recombination(self.targeting_vector, 'apply_cre')
+  def apply_cre
+    return TargRep::GenbankFile.site_specific_recombination(self.file_gb, 'apply_cre')
   end
 
-  def escell_clone_flp
-    return site_specific_recombination(self.escell_clone, 'apply_flp')
+  def apply_flp
+    return TargRep::GenbankFile.site_specific_recombination(self.file_gb, 'apply_flp')
   end
 
-  def targeting_vector_flp
-    return site_specific_recombination(self.targeting_vector, 'apply_flp')
+  def apply_flp_cre
+    return TargRep::GenbankFile.site_specific_recombination(self.file_gb, 'apply_flp_cre')
   end
 
-  def escell_clone_flp_cre
-    return site_specific_recombination(self.escell_clone, 'apply_flp_cre')
-  end
 
-  def targeting_vector_flp_cre
-    return site_specific_recombination(self.targeting_vector, 'apply_flp_cre')
-  end
-
-private
-  def site_specific_recombination(genbank_file, flag)
+  def self.site_specific_recombination(genbank_file, flag)
     require "open3"
     if !genbank_file.blank?
       Open3.popen3("#{GENBANK_RECOMBINATION_SCRIPT_PATH} --#{flag}") do |std_in, std_out, std_err|
@@ -54,7 +42,7 @@ private
         if std_err_out.present?
           raise "Error during recombination: #{std_err_out}"
         else
-          return std_out.read
+          return TargRep::GenbankFile.new({:file_gb => std_out.read})
         end
       end
     else
@@ -68,15 +56,8 @@ end
 #
 # Table name: targ_rep_genbank_files
 #
-#  id                  :integer          not null, primary key
-#  allele_id           :integer          not null
-#  escell_clone        :text
-#  targeting_vector    :text
-#  created_at          :datetime
-#  updated_at          :datetime
-#  allele_genbank_file :text
-#
-# Indexes
-#
-#  genbank_files_allele_id_fk  (allele_id)
+#  id         :integer          not null, primary key
+#  created_at :datetime
+#  updated_at :datetime
+#  file_gb    :text
 #

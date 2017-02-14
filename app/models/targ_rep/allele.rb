@@ -22,13 +22,14 @@ class TargRep::Allele < ActiveRecord::Base
   belongs_to :mutation_type, :class_name => 'TargRep::MutationType'
   belongs_to :mutation_subtype, :class_name => 'TargRep::MutationSubtype'
   belongs_to :gene
+  belongs_to :allele_genbank_file, :class_name => 'TargRep::GenbankFile', :dependent => :destroy, :foreign_key => 'allele_genbank_file_id'
+  belongs_to :vector_genbank_file, :class_name => 'TargRep::GenbankFile', :dependent => :destroy, :foreign_key => 'vector_genbank_file_id'
 
   access_association_by_attribute :gene, :mgi_accession_id
   access_association_by_attribute :mutation_method,  :name
   access_association_by_attribute :mutation_type,    :name
   access_association_by_attribute :mutation_subtype, :name
 
-  has_one    :genbank_file,      :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :targeting_vectors, :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :allele_sequence_annotations, :dependent => :destroy, :foreign_key => 'allele_id'
   has_many   :es_cells,          :dependent => :destroy, :foreign_key => 'allele_id' do
@@ -65,7 +66,6 @@ class TargRep::Allele < ActiveRecord::Base
     end
   end
 
-  accepts_nested_attributes_for :genbank_file,      :allow_destroy  => true
   accepts_nested_attributes_for :targeting_vectors, :allow_destroy  => true
   accepts_nested_attributes_for :es_cells,          :allow_destroy  => true
   accepts_nested_attributes_for :allele_sequence_annotations, :allow_destroy => true
@@ -75,28 +75,25 @@ class TargRep::Allele < ActiveRecord::Base
 
   ALLELE_JSON = {
     :include => {
-        :es_cells => { :except => [
-            :allele_id,
-            :created_at, :updated_at,
-            :creator, :updater
-        ],
-        :include => {
-            :distribution_qcs => { :except => [:created_at, :updated_at] , :methods => [:es_cell_distribution_centre_name]}
+        :es_cells => { 
+            :except => [
+                :allele_id, :ikmc_project_foreign_id,
+                :legacy_id, :pipeline_id, :targeting_vector_id,
+                :created_at, :updated_at
+            ],
+            :include => {
+              :distribution_qcs => { :except => [:created_at, :updated_at] , :methods => [:es_cell_distribution_centre_name]}
             },
-        :methods => [:allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name]},
-        :targeting_vectors => { :except => [
-            :allele_id,
-            :created_at, :updated_at,
-            :creator, :updater
-        ]},
-        :genbank_file => { :except => [
-            :allele_id,
-            :created_at, :updated_at,
-            :creator, :updater
-        ]},
-        :allele_sequence_annotations => { :except => [
-            :allele_id
-        ]},
+            :methods => [:allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name, :targeting_vector_name]
+        },
+        :targeting_vectors => { 
+            :except => [
+                :allele_id, :ikmc_project_foreign_id,
+                :pipeline_id,
+                :created_at, :updated_at
+            ],
+            :methods => [:pipeline_name]
+        }
     },
     :methods => [
         :mutation_method_name,
@@ -176,6 +173,26 @@ class TargRep::Allele < ActiveRecord::Base
   ## Methods
   ##
 
+  def allele_genbank_file_text
+    return @allele_genbank_file unless @allele_genbank_file.nil?
+    return allele_genbank_file.file_gb unless allele_genbank_file.nil?
+    return nil
+  end
+
+  def allele_genbank_file_text=(arg)
+    @allele_genbank_file_text = arg
+  end
+
+  def vector_genbank_file_text
+    return @vector_genbank_file unless @vector_genbank_file.nil?
+    return vector_genbank_file.file_gb unless vector_genbank_file.nil?
+    return nil
+  end
+
+  def vector_genbank_file_text=(arg)
+    @vector_genbank_file = arg
+  end
+
   def missing_fields?
     assembly.blank? ||
     chromosome.blank? ||
@@ -219,31 +236,6 @@ class TargRep::Allele < ActiveRecord::Base
     def to_json( options = {} )
       TargRep::Allele.include_root_in_json = false
       super( ALLELE_JSON )
-    end
-
-    def to_xml( options = {} )
-      options.update(
-        :skip_types => true,
-        :include => {
-          :es_cells => { :except => [
-              :allele_id,
-              :created_at, :updated_at,
-              :creator, :updater
-          ]},
-          :targeting_vectors => { :except => [
-              :allele_id,
-              :created_at, :updated_at,
-              :creator, :updater
-          ]}
-        },
-        :methods => [
-            :mutation_method_name,
-            :mutation_type_name,
-            :mutation_subtype_name,
-            :marker_symbol
-                    ]
-      )
-      super( options )
     end
 
     def targeted_trap?
@@ -438,4 +430,6 @@ end
 #  taqman_upstream_del_assay_id   :string(255)
 #  taqman_downstream_del_assay_id :string(255)
 #  wildtype_oligos_sequence       :string(255)
+#  allele_genbank_file_id         :integer
+#  vector_genbank_file_id         :integer
 #

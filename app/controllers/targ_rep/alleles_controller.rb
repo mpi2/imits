@@ -3,7 +3,6 @@ class TargRep::AllelesController < TargRep::BaseController
   require 'allele_image'
 
   respond_to :html, :except => [:loa]
-  respond_to :xml, :except => [:loa]
   respond_to :json
 
   before_filter do
@@ -22,29 +21,20 @@ class TargRep::AllelesController < TargRep::BaseController
     :show,
     :index,
     :escell_clone_genbank_file,
-    :allele_genbank_file,
-    :targeting_vector_genbank_file,
     :escell_clone_cre_genbank_file,
-    :targeting_vector_cre_genbank_file,
     :escell_clone_flp_genbank_file,
-    :targeting_vector_flp_genbank_file,
     :escell_clone_flp_cre_genbank_file,
-    :targeting_vector_flp_cre_genbank_file,
     :allele_image,
     :allele_image_cre,
     :allele_image_flp,
     :allele_image_flp_cre,
     :cassette_image,
     :vector_image,
-    :vector_image_cre,
-    :vector_image_flp,
-    :vector_image_flp_cre,
     :show_issue,
     :loa_primers
   ]
 
   # GET /alleles
-  # GET /alleles.xml
   # GET /alleles.json
   def index
     params[:page] ||= 1
@@ -68,18 +58,15 @@ class TargRep::AllelesController < TargRep::BaseController
         ]}
     respond_to do |format|
       format.html {respond_with @alleles}
-      format.xml {respond_with @alleles}
       format.json {respond_with @alleles.to_json(options)}
     end
   end
 
   # GET /alleles/1
-  # GET /alleles/1.xml
   # GET /alleles/1.json
   def show
     @allele = @klass.find params[:id],
       :include => [
-        :genbank_file,
         { :targeting_vectors => :pipeline },
         { :es_cells => [ :pipeline ] }
       ]
@@ -94,22 +81,19 @@ class TargRep::AllelesController < TargRep::BaseController
   def new
     @allele = @klass.new
     mutational_drop_downs
-    @allele.genbank_file = TargRep::GenbankFile.new
     @allele.targeting_vectors.build
-    @allele.es_cells.build
+    @allele.es_cells.build.alleles.build.build_production_centre_qc
   end
 
   # GET /alleles/1/edit
   def edit
     @allele = @klass.find params[:id],
       :include => [
-        :genbank_file,
         { :targeting_vectors => :pipeline },
         { :es_cells => [ :pipeline ] }
       ]
 
     mutational_drop_downs
-    @allele.genbank_file = TargRep::GenbankFile.new if @allele.genbank_file.nil?
 
     @allele.es_cells.each do |es_cell|
       es_cell.build_distribution_qc(current_user.es_cell_distribution_centre)
@@ -119,7 +103,6 @@ class TargRep::AllelesController < TargRep::BaseController
   end
 
   # POST /alleles
-  # POST /alleles.xml
   # POST /alleles.json
   def create
     @allele = @klass.new(params[:targ_rep_allele])
@@ -134,21 +117,17 @@ class TargRep::AllelesController < TargRep::BaseController
           flash[:notice] = 'Allele successfully created.'
           redirect_to @allele
         }
-        format.xml  { render :xml  => @allele, :status => :created, :location => @allele }
         format.json { render :json => @allele, :status => :created, :location => @allele }
       else
         format.html {
-          @allele.genbank_file = TargRep::GenbankFile.new
           render :action => "new"
         }
-        format.xml  { render :xml  => @allele.errors, :status => :unprocessable_entity }
         format.json { render :json => @allele.errors, :status => :unprocessable_entity }
       end
     end
   end
 
   # PUT /alleles/1
-  # PUT /alleles/1.xml
   def update
     find_allele
     mutational_drop_downs
@@ -162,23 +141,17 @@ class TargRep::AllelesController < TargRep::BaseController
           flash[:notice] = 'Allele successfully updated.'
           redirect_to @allele
         }
-        format.xml  { render :xml  => @allele }
         format.json { render :json => @allele }
       else
         format.html {
-          if @allele.genbank_file.nil?
-            @allele.genbank_file = TargRep::GenbankFile.new
-          end
           render :action => "edit"
         }
-        format.xml  { render :xml   => @allele.errors, :status => :unprocessable_entity }
         format.json { render :json  => @allele.errors, :status => :unprocessable_entity }
       end
     end
   end
 
   # DELETE /alleles/1
-  # DELETE /alleles/1.xml
   def destroy
     find_allele
     ensure_creator_or_admin
@@ -187,7 +160,6 @@ class TargRep::AllelesController < TargRep::BaseController
 
     respond_to do |format|
       format.html { redirect_to :back }
-      format.xml  { head :ok }
       format.json { head :ok }
     end
   end
@@ -231,7 +203,7 @@ class TargRep::AllelesController < TargRep::BaseController
     allele_id = params[:id]
     return if allele_id.blank?
 
-    @allele = TargRep::Allele.find(allele_id)
+    @allele = @klass.find(allele_id)
 
     loa_pcrs = {}
 
@@ -253,67 +225,33 @@ class TargRep::AllelesController < TargRep::BaseController
   # GET /alleles/1/escell_clone_genbank_file/
   def escell_clone_genbank_file
     find_allele
-    return if check_for_genbank_file
     return if check_for_escell_genbank_file
-    send_genbank_file(@allele.genbank_file.escell_clone)
-  end
-
-  # GET /alleles/1/allele_genbank_file/
-  def allele_genbank_file
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_allele_genbank_file
-    send_genbank_file(@allele.genbank_file.allele_genbank_file)
+    send_genbank_file(@allele.allele_genbank_file.file_gb)
   end
 
   # GET /alleles/1/targeting-vector-genbank-file/
   def targeting_vector_genbank_file
     find_allele
-    return if check_for_genbank_file
     return if check_for_vector_genbank_file
-    send_genbank_file(@allele.genbank_file.targeting_vector)
+    send_genbank_file(@allele.vector_genbank_file.file_gb)
   end
 
   def escell_clone_cre_genbank_file
     find_allele
-    return if check_for_genbank_file
     return if check_for_escell_genbank_file
-    send_genbank_file(@allele.genbank_file.escell_clone_cre)
-  end
-
-  def targeting_vector_cre_genbank_file
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_genbank_file(@allele.genbank_file.targeting_vector_cre)
+    send_genbank_file(@allele.allele_genbank_file.apply_cre.file_gb)
   end
 
   def escell_clone_flp_genbank_file
     find_allele
-    return if check_for_genbank_file
     return if check_for_escell_genbank_file
-    send_genbank_file(@allele.genbank_file.escell_clone_flp)
-  end
-
-  def targeting_vector_flp_genbank_file
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_genbank_file(@allele.genbank_file.targeting_vector_flp)
+    send_genbank_file(@allele.llele_genbank_file.apply_flp.file_gb)
   end
 
   def escell_clone_flp_cre_genbank_file
     find_allele
-    return if check_for_genbank_file
     return if check_for_escell_genbank_file
-    send_genbank_file(@allele.genbank_file.escell_clone_flp_cre)
-  end
-
-  def targeting_vector_flp_cre_genbank_file
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_genbank_file(@allele.genbank_file.targeting_vector_flp_cre)
+    send_genbank_file(@allele.llele_genbank_file.apply_flp_cre.file_gb)
   end
 
   def send_genbank_file(genbank_string)
@@ -333,16 +271,11 @@ class TargRep::AllelesController < TargRep::BaseController
       Rails.logger.info 'Incorrect usage. Please follow the links on the page to navigate between allele.'
       return true
     end
-    ## Check for a genbank file
-    if @allele.genbank_file.nil?
-      Rails.logger.info 'Could not find Genbank file.'
-      return true
-    end
 
-    if params[:type] == 'allele' && (@allele.genbank_file.escell_clone.nil? || @allele.genbank_file.escell_clone.empty?)
+    if params[:type] == 'allele' && (@allele.allele_genbank_file.nil?)
       Rails.logger.info 'Could not find EsCell\'s Genbank file data.'
       return true
-    elsif params[:type] == 'vector' && @allele.genbank_file.targeting_vector.blank?
+    elsif params[:type] == 'vector' && @allele.vector_genbank_file.blank?
       Rails.logger.info 'Could not find Targeting vector\'s Genbank file data.'
       return true
     end
@@ -352,31 +285,24 @@ class TargRep::AllelesController < TargRep::BaseController
 
   def genbank_data
     return nil if @allele.blank?
-    return nil if @allele.genbank_file.blank?
 
     if params[:method].blank? && (params[:type] == 'allele' || params[:type] == 'cassette')
-      return @allele.genbank_file.escell_clone
+      return @allele.allele_genbank_file.file_gb
     elsif params[:type] == 'allele' && params[:method] == 'cre'
-      return @allele.genbank_file.escell_clone_cre
+      return @allele.allele_genbank_file.apply_cre.file_gb
     elsif params[:type] == 'allele' && params[:method] == 'flp'
-      return @allele.genbank_file.escell_clone_flp
+      return @allele.allele_genbank_file.apply_flp.file_gb
     elsif params[:type] == 'allele' && params[:method] == 'flp_cre'
-      return @allele.genbank_file.escell_clone_flp_cre
+      return @allele.allele_genbank_file.apply_flp_cre.file_gb
     elsif params[:method].blank? && params[:type] == 'vector'
-      return @allele.genbank_file.targeting_vector
-    elsif params[:type] == 'vector' && params[:method] == 'cre'
-      return @allele.genbank_file.targeting_vector_cre
-    elsif params[:type] == 'vector' && params[:method] == 'flp'
-      return @allele.genbank_file.targeting_vector_flp
-    elsif params[:type] == 'vector' && params[:method] == 'flp_cre'
-      return @allele.genbank_file.targeting_vector_flp_cre
+      return @allele.vector_genbank_file.file_gb
     end
 
     nil
   end
 
   def render_image(options = {})
-    missing_data_image and return if missing_required_data? || genbank_data.blank? || @allele.blank?
+    missing_data_image and return if missing_required_data? || genbank_data.blank?
 
     if params[:type] == 'cassette'
       options[:cassetteonly] = true
@@ -453,29 +379,6 @@ class TargRep::AllelesController < TargRep::BaseController
     render_image(params)
   end
 
-  # GET /alleles/1/vector-image-cre/
-  def vector_image_cre
-    @allele = @klass.find_by_id(params[:id])
-    params[:type] = 'vector'
-    params[:method] = 'cre'
-    render_image(params)
-  end
-
-  # GET /alleles/1/vector-image-flp/
-  def vector_image_flp
-    @allele = @klass.find_by_id(params[:id])
-    params[:type] = 'vector'
-    params[:method] = 'flp'
-    render_image(params)
-  end
-
-  # GET /alleles/1/vector-image-flp-cre/
-  def vector_image_flp_cre
-    @allele = @klass.find_by_id(params[:id])
-    params[:type] = 'vector'
-    params[:method] = 'flp_cre'
-    render_image(params)
-  end
 
   def send_allele_image(allele_image)
 
@@ -683,21 +586,12 @@ class TargRep::AllelesController < TargRep::BaseController
       end
     end
 
-    def check_for_genbank_file
-      four_oh_four if @allele.genbank_file.nil?
-    end
-
     def check_for_escell_genbank_file
-      four_oh_four if @allele.genbank_file.escell_clone.nil? || @allele.genbank_file.escell_clone.empty?
-    end
-
-    def check_for_allele_genbank_file
-      four_oh_four if @allele.genbank_file.allele_genbank_file.nil? || @allele.genbank_file.allele_genbank_file.empty?
+      four_oh_four if @allele.allele_genbank_file.blank?
     end
 
     def check_for_vector_genbank_file
-      check_for_genbank_file
-      four_oh_four if @allele.genbank_file.targeting_vector.blank?
+      four_oh_four if @allele.vector_genbank_file.blank?
     end
 
     # One can give a targeting_vector_name instead of a targeting_vector_id

@@ -10,7 +10,6 @@ class TargRep::TargetingVector < ActiveRecord::Base
 
   belongs_to :pipeline
   belongs_to :allele
-  belongs_to :real_allele
   belongs_to :ikmc_project, :class_name => "TargRep::IkmcProject", :foreign_key => :ikmc_project_foreign_id
   has_many :mutagenesis_factors
 
@@ -32,6 +31,7 @@ class TargRep::TargetingVector < ActiveRecord::Base
   ##
   ## Filters
   ##
+  before_destroy :check_for_vector_usages
 
   before_save :set_mirko_ikmc_project_id
 
@@ -67,6 +67,15 @@ class TargRep::TargetingVector < ActiveRecord::Base
       if (self.ikmc_project_id.blank? or self.ikmc_project_id =~ /^mirko$/i) and self.pipeline.try(:name) == "mirKO"
         self.ikmc_project_id = "mirKO#{ self.allele_id }"
       end
+    end
+
+    def check_for_vector_usages
+      unless es_cells.blank? && mutagenesis_factors.blank?
+         self.errors.add :base, 'Cannot Delete .ES Cell(s) have been created from this Targeting Vector.' unless es_cells.blank?
+         self.errors.add :base, 'Cannot Delete .This Targeting Vector has been used in a Mi Attempt.' unless mutagenesis_factors.blank?
+        return false
+      end
+      return true
     end
 
 end

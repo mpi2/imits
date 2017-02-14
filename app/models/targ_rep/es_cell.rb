@@ -16,25 +16,40 @@ class TargRep::EsCell < ActiveRecord::Base
                      :methods => [:mutation_method_name, :mutation_type_name, :mutation_subtype_name, :marker_symbol, :mgi_accession_id]},
         :distribution_qcs => { :except => [:created_at, :updated_at] , :methods => [:es_cell_distribution_centre_name]}
       },
-      :methods => [:allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name]
+      :methods => [:allele_symbol, :allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name]
   }
+
   ##
   ## Relationships
   ##
   belongs_to :pipeline
-  belongs_to :allele
-  belongs_to :real_allele
+  belongs_to :allele, :class_name => "TargRep::Allele"
   belongs_to :ikmc_project, :class_name => "TargRep::IkmcProject", :foreign_key => :ikmc_project_foreign_id
-
   belongs_to :targeting_vector
   belongs_to :user_qc_mouse_clinic, :class_name => 'Centre'
 
-  access_association_by_attribute :user_qc_mouse_clinic, :name
-
   has_many :distribution_qcs, :dependent => :destroy
   has_many :mi_attempts
+  has_many :alleles, :class_name => "::Allele"
+
+  scope :has_targeting_vector, where('targeting_vector_id is not NULL')
+  scope :no_targeting_vector, where(:targeting_vector_id => nil)
+
+  access_association_by_attribute :user_qc_mouse_clinic, :name
 
   accepts_nested_attributes_for :distribution_qcs, :allow_destroy => true
+  accepts_nested_attributes_for :alleles, :allow_destroy => true
+
+  ##
+  ## Filters
+  ##
+
+  before_validation :convert_blanks_to_nil
+  before_validation :stamp_tv_project_id_on_cell,       :if     => Proc.new { |a| a.ikmc_project_id.nil? }
+  before_validation :convert_ikmc_project_id_to_string, :unless => Proc.new { |a| a.ikmc_project_id.is_a?(String) }
+  before_validation :remove_empty_distribution_qcs
+
+  before_save :set_mirko_ikmc_project_id
 
   ##
   ## Validations
@@ -50,32 +65,6 @@ class TargRep::EsCell < ActiveRecord::Base
   validates :targeting_vector, :consistent_allele => {:if => :has_allele_and_targeting_vector?}
 
   validate :set_and_check_strain
-
-  validates_format_of :mgi_allele_id,
-    :with      => /^MGI\:\d+$/,
-    :message   => "is not a valid MGI Allele ID",
-    :allow_nil => true
-
-  ##
-  ## Filters
-  ##
-
-  before_save :set_mirko_ikmc_project_id
-
-  before_validation :convert_blanks_to_nil
-  before_validation :stamp_tv_project_id_on_cell,       :if     => Proc.new { |a| a.ikmc_project_id.nil? }
-  before_validation :convert_ikmc_project_id_to_string, :unless => Proc.new { |a| a.ikmc_project_id.is_a?(String) }
-  before_validation :remove_empty_distribution_qcs
-
-  validate :set_allele_symbol_superscript
-
-  attr_protected :allele_symbol_superscript_template
-
-  delegate :gene, :to => :allele
-  delegate :marker_symbol, :to => :gene
-
-  scope :has_targeting_vector, where('targeting_vector_id is not NULL')
-  scope :no_targeting_vector, where(:targeting_vector_id => nil)
 
   ##
   ## QC validations
@@ -143,6 +132,8 @@ class TargRep::EsCell < ActiveRecord::Base
   ##
 
   public
+    delegate :gene, :to => :allele
+    delegate :marker_symbol, :to => :gene
 
     def pipeline_name
       self.pipeline.name
@@ -154,15 +145,6 @@ class TargRep::EsCell < ActiveRecord::Base
 
     def targeting_vector_name=(name)
       self.targeting_vector = TargRep::TargetingVector.find_by_name(name) unless name.blank?
-    end
-
-    def to_json( options = {} )
-      TargRep::EsCell.include_root_in_json = false
-      super( JSON_OPTIONS )
-    end
-
-    def to_xml( options = {} )
-      JSON.parse(self.to_json).to_xml(:root => :my_root)
     end
 
     def report_to_public?
@@ -178,31 +160,22 @@ class TargRep::EsCell < ActiveRecord::Base
     ##
     ## iMits methods
     ##
-
-    def allele_symbol_superscript
-      return if allele_symbol_superscript_template.blank?
-      allele_symbol_superscript_template.sub(TargRep::Allele::TEMPLATE_CHARACTER, allele_type.to_s)
+    def mgi_allele_id
+      return alleles.first.mgi_allele_accession_id unless alleles.blank? || alleles.first.mgi_allele_accession_id.blank?
+      return nil
     end
 
-    def allele_symbol_superscript=(text)
-      self.mgi_allele_symbol_superscript = text
+    def mgi_allele_symbol_superscript
+      return @mgi_allele_symbol_superscript unless @mgi_allele_symbol_superscript.blank?
+      return alleles.first.mgi_allele_symbol_superscript unless alleles.blank?
+      return nil
     end
+    alias_method :allele_symbol_superscript, :mgi_allele_symbol_superscript
 
-    def set_allele_symbol_superscript
-      return if allele_symbol_superscript_template_changed?
-
-      if mgi_allele_symbol_superscript.blank?
-        self.allele_symbol_superscript_template = nil
-        self.allele_type = nil
-        return
-      end
-
-      self.allele_symbol_superscript_template, self.allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
-
-      if errors.count > 0
-        self.errors.add errors.first[0], errors.first[1]
-      end
+    def mgi_allele_symbol_superscript=(text)
+      @mgi_allele_symbol_superscript = text
     end
+    alias_method :allele_symbol_superscript=, :mgi_allele_symbol_superscript=
 
     def allele_symbol
       if allele_symbol_superscript
@@ -212,6 +185,21 @@ class TargRep::EsCell < ActiveRecord::Base
       end
     end
 
+    def allele_symbol_superscript_template
+      return Allele.extract_symbol_superscript_template(@mgi_allele_symbol_superscript) unless @mgi_allele_symbol_superscript.blank?
+      return alleles.first.allele_symbol_superscript_template unless alleles.blank?
+      return nil
+    end
+
+    def to_json( options = {} )
+      TargRep::EsCell.include_root_in_json = false
+      super( JSON_OPTIONS )
+    end
+
+    def to_xml( options = {} )
+      JSON.parse(self.to_json).to_xml(:root => :my_root)
+    end
+
     def self.southern_tools_url(es_cell_name)
       return '' if es_cell_name.blank?
       return "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=#{es_cell_name}&iframe=true&width=100%&height=100%"
@@ -219,10 +207,22 @@ class TargRep::EsCell < ActiveRecord::Base
 
   protected
 
+    def set_allele_type
+      return if mgi_allele_symbol_superscript_changed?
+
+      if mgi_allele_symbol_superscript.blank?
+        self.allele_symbol_superscript_template = nil
+        self.allele_type = nil
+        return
+      end
+
+      allele_symbol_superscript_template, self.allele_type = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
+    end
+
     # Convert any blank attribute strings to nil...
     def convert_blanks_to_nil
       self.attributes.each do |name,value|
-        self.send("#{name}=".to_sym, nil) if value.is_a?(String) and value.empty?
+        self.send("#{name}=".to_sym, nil) if value.is_a?(String) && value.empty?
       end
     end
 
@@ -287,20 +287,13 @@ end
 #  allele_id                             :integer          not null
 #  targeting_vector_id                   :integer
 #  parental_cell_line                    :string(255)
-#  mgi_allele_symbol_superscript         :string(75)
 #  name                                  :string(100)      not null
 #  comment                               :string(255)
 #  contact                               :string(255)
 #  ikmc_project_id                       :string(255)
-#  mgi_allele_id                         :string(50)
 #  pipeline_id                           :integer
 #  report_to_public                      :boolean          default(TRUE), not null
 #  strain                                :string(25)
-#  production_qc_five_prime_screen       :string(255)
-#  production_qc_three_prime_screen      :string(255)
-#  production_qc_loxp_screen             :string(255)
-#  production_qc_loss_of_allele          :string(255)
-#  production_qc_vector_integrity        :string(255)
 #  user_qc_map_test                      :string(255)
 #  user_qc_karyotype                     :string(255)
 #  user_qc_tv_backbone_assay             :string(255)
@@ -315,9 +308,7 @@ end
 #  user_qc_five_prime_lr_pcr             :string(255)
 #  user_qc_three_prime_lr_pcr            :string(255)
 #  user_qc_comment                       :text
-#  allele_type                           :string(2)
 #  mutation_subtype                      :string(100)
-#  allele_symbol_superscript_template    :string(75)
 #  legacy_id                             :integer
 #  created_at                            :datetime         not null
 #  updated_at                            :datetime         not null
@@ -332,7 +323,6 @@ end
 #  user_qc_chry                          :string(255)
 #  user_qc_lacz_qpcr                     :string(255)
 #  ikmc_project_foreign_id               :integer
-#  real_allele_id                        :integer
 #
 # Indexes
 #

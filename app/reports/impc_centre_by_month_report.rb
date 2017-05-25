@@ -188,7 +188,9 @@ class ImpcCentreByMonthReport
          'UCD' => ['DTCC'],
          'WTSI' => ['MGP', 'BaSH'],
          'Monterotondo' => ['Monterotondo'],
-         'MARC' => ['MARC']
+         'MARC' => ['MARC'],
+         'KMPC' => ['KMPC'],
+         'NARLabs' => ['NarLabs']
         }
     end
 
@@ -227,8 +229,10 @@ class ImpcCentreByMonthReport
         'Harwell',
         'ICS',
         'JAX',
+        'KMPC',
         'MARC',
         'Monterotondo',
+        'NARLabs',
         'RIKEN BRC',
         'TCP',
         'UCD',

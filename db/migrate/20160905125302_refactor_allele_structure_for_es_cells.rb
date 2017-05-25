@@ -36,7 +36,7 @@ class RefactorAlleleStructureForEsCells < ActiveRecord::Migration
         )
       SELECT targ_rep_es_cells.id, true,
              true, targ_rep_es_cells.mgi_allele_symbol_superscript, targ_rep_es_cells.allele_symbol_superscript_template, 
-             targ_rep_es_cells.mgi_allele_id, targ_rep_es_cells.allele_type,
+             targ_rep_es_cells.mgi_allele_id, CASE WHEN targ_rep_es_cells.allele_type IS NULL OR targ_rep_es_cells.allele_type = '' THEN '''''' ELSE targ_rep_es_cells.allele_type END,
              targ_rep_es_cells.created_at, targ_rep_es_cells.updated_at, targ_rep_genbank_files.id
       FROM targ_rep_es_cells
         JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
@@ -57,14 +57,14 @@ class RefactorAlleleStructureForEsCells < ActiveRecord::Migration
       UPDATE targ_rep_genbank_files SET file_gb = escell_clone
       ;
 
-      UPDATE targ_rep_genbank_files SET file_gb = allele_genbank_file, targeting_vector = allele_genbank_file
-      WHERE allele_genbank_file IS NOT NULL
-      ;
-
       INSERT INTO targ_rep_genbank_files (allele_id, file_gb, created_at, updated_at)
       SELECT allele_id, targeting_vector, created_at, updated_at 
       FROM targ_rep_genbank_files
       WHERE targeting_vector IS NOT NULL
+      ;
+
+      UPDATE targ_rep_genbank_files SET file_gb = allele_genbank_file, targeting_vector = allele_genbank_file
+      WHERE allele_genbank_file IS NOT NULL
       ;
 
       DELETE FROM targ_rep_genbank_files WHERE file_gb IS NULL
@@ -77,7 +77,7 @@ class RefactorAlleleStructureForEsCells < ActiveRecord::Migration
 
       UPDATE targ_rep_alleles SET vector_genbank_file_id = targ_rep_genbank_files.id
       FROM targ_rep_genbank_files
-      WHERE targ_rep_genbank_files.file_gb IS NOT NULL AND targ_rep_genbank_files.escell_clone IS NULL AND targ_rep_genbank_files.targeting_vector IS NULL AND targ_rep_genbank_files.allele_id = targ_rep_alleles.id
+      WHERE targ_rep_genbank_files.file_gb IS NOT NULL AND targ_rep_genbank_files.escell_clone IS NULL AND targ_rep_genbank_files.targeting_vector IS NOT NULL AND targ_rep_genbank_files.allele_id = targ_rep_alleles.id
       ;
 
     EOF

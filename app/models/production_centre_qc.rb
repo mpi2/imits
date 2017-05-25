@@ -45,7 +45,7 @@ class ProductionCentreQc < ActiveRecord::Base
   end
 
   after_save do |pc_qc|
-    return true if pc_qc.allele.colony.mi_attempt.blank? || allele.colony.mi_attempt.es_cell_id.blank?
+    return true if pc_qc.allele.colony.blank? || pc_qc.allele.colony.mi_attempt.blank? || allele.colony.mi_attempt.es_cell_id.blank?
     return true if pc_qc.allele.colony.mi_attempt.es_cell.allele.mutation_type.try(:code) == 'cki'
 
     es_cell_allele = pc_qc.allele.colony.mi_attempt.es_cell.alleles[0]
@@ -68,9 +68,12 @@ class ProductionCentreQc < ActiveRecord::Base
     pc_qc = self
 
     QC_FIELDS.each do |qc_field, config|
-      next unless config.has_key?(:default)
-      if pc_qc.send(qc_field).blank?
-        pc_qc.send("#{qc_field}=", config[:default] )
+      if config.has_key?(:default)
+        if pc_qc.send(qc_field).blank?
+          pc_qc.send("#{qc_field}=", config[:default] )
+        end
+      else
+        pc_qc.send("#{qc_field}=", nil) if pc_qc.send(qc_field).blank?
       end
     end
   end

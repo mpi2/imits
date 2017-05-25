@@ -1,22 +1,123 @@
 <% pipeline_list = TargRep::Pipeline.find(:all, :order => "name").collect {|p| [ p.name, p.id ] } %>
 
-<tr class="es_cell">
-  <td>
-    <%= f.hidden_field :nested %>
-    <%= f.select :pipeline_id, pipeline_list.unshift(['',nil]) %>
-  </td>
-  <td><%= f.text_field :name %></td>
-  <td><%= f.text_field :targeting_vector_name %></td>
-  <td><%= f.text_field :mgi_allele_id %></td>
-  <td><%= f.text_field :allele_symbol_superscript %></td>
-  <td><%= f.text_field :parental_cell_line %></td>
-  <td><%= f.text_field :ikmc_project_id %></td>
-  <td><%= f.check_box :report_to_public %></td>
-  <td><a href="#" class="es_cell_qc_toggle ss_sprite ss_magnifier">show/hide QC metrics</a></td>
-  <td><%= link_to 'Remove', '', :class => "es_cell_delete_row #{f.object.new_record? ? '' : 'hard'}" %></td>
-</tr>
-<tr class="es_cell_qc" style="display:none;">
-  <td colspan="10">
-    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form', :locals => { :f => f } %>
+<%= f.fields_for :alleles do |allele_builder| %>
+  <tr class="es_cell">
+    <td>
+      <%= f.hidden_field :nested %>
+      <%= f.select :pipeline_id, pipeline_list.unshift(['',nil]) %>
+    </td>
+    <td><%= f.text_field :name %></td>
+    <td><%= f.text_field :targeting_vector_name %></td>
+    <td><%= allele_builder.text_field :mgi_allele_accession_id %></td>
+    <td><%= allele_builder.text_field :mgi_allele_symbol_superscript %></td>
+    <td><%= f.text_field :parental_cell_line %></td>
+    <td><%= f.text_field :ikmc_project_id %></td>
+    <td><%= f.check_box :report_to_public %></td>
+    <td><a href="#" class="es_cell_qc_toggle ss_sprite ss_magnifier">show/hide QC metrics</a></td>
+    <td><%= link_to 'Remove', '', :class => "es_cell_delete_row #{f.object.new_record? ? '' : 'hard'}" %></td>
+  </tr>
+  <tr class="es_cell_qc" style="display:none;">
+    <td colspan="10">
+    
+
+    <%= allele_builder.fields_for :production_centre_qc do |production_centre_qc_builder| %>
+      <table class="es_cell_qc_info">
+        <caption>Production Centre Screen <em>- please only enter if you are a production centre</em></caption>
+        <tr>
+          <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => production_centre_qc_builder, :symbol => :five_prime_screen } %>
+          <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => production_centre_qc_builder, :symbol => :loxp_screen } %>
+          <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => production_centre_qc_builder, :symbol => :three_prime_screen } %>
+        </tr>
+        <tr>
+          <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => production_centre_qc_builder, :symbol => :loss_of_allele } %>
+          <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => production_centre_qc_builder, :symbol => :vector_integrity } %>
+          <td colspan="2"></td>
+        </tr>
+      </table>
+    <% end %>
+
+<% end %>
+  
+    <% if current_user.es_cell_distribution_centre %>
+      <% @distribution_qcs = f.object.distribution_qcs || [] %>
+    
+      <% @distribution_qcs.each do |distribution_qc| %>
+        <%= f.fields_for :"distribution_qcs_attributes[]", distribution_qc do |dqc| %>
+          <% @readonly = dqc.object.es_cell_distribution_centre != current_user.es_cell_distribution_centre %>
+          <% next if @readonly %>
+          <%= dqc.hidden_field :id, :value => distribution_qc.id unless distribution_qc.new_record? %>
+          <%= dqc.hidden_field :es_cell_id, :value => distribution_qc.es_cell_id %>
+          <%= dqc.hidden_field :es_cell_distribution_centre_id, :value => dqc.object.es_cell_distribution_centre.id %>
+          <%= render :partial => 'targ_rep/alleles/edit_distribution_centre_qc', :locals => { :distribution_qc => dqc } %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <%= render :partial => 'targ_rep/alleles/email_centre_request' %>
+    <% end %>
+    
+    <table class="es_cell_qc_info">
+      <caption>User/Mouse Clinic QC</caption>
+      <tr>
+        <td colspan="6">
+          <em>
+            <strong>NOTE:</strong> if you have data contrary to these values, please use the conflict
+            mechanism (below) to record and discuss this data conflict before changing any of these existing values.
+          </em>
+        </td>
+      </tr>
+      <tr>
+        <th width="24%">Mouse Clinic</th>
+        <td><%= f.collection_select :user_qc_mouse_clinic_name, Centre.all, :name, :name, :prompt => true %></td>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_southern_blot } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_map_test } %>
+      </tr>
+      <tr>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_karyotype } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_karyotype_spread } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_karyotype_pcr } %>
+      </tr>
+      <tr>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_tv_backbone_assay } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_loss_of_wt_allele } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_five_prime_cassette_integrity } %>
+      </tr>
+      <tr>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_neo_count_qpcr } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_neo_sr_pcr } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_mutant_specific_sr_pcr } %>
+      </tr>
+      <tr>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_loxp_confirmation } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_loxp_srpcr_and_sequencing } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_chry } %>
+      </tr>
+      <tr>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_chr1 } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_chr8 } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_chr11 } %>
+      </tr>
+      <tr>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_three_prime_lr_pcr } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_five_prime_lr_pcr } %>
+        <td colspan="4"></td>
+      </tr>
+      <tr>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_lacz_sr_pcr } %>
+        <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_lacz_qpcr } %>
+        <td colspan="4"></td>
+      </tr>
+      <tr>
+        <th colspan="6" style="text-align:left;">Comments</th>
+      </tr>
+      <tr>
+        <td colspan="6">
+          <%= f.text_area( :user_qc_comment, :rows => 5, :style => "height:auto;width:90%" ) %>
+        </td>
+      </tr>
+    </table>
+
+
+
+
   </td>
 </tr>

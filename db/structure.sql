@@ -708,7 +708,17 @@ CREATE TABLE alleles (
     allele_type character varying(255),
     genbank_file_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    colony_id integer,
+    auto_allele_description text,
+    allele_description text,
+    mutant_fa text,
+    genbank_transition character varying(255),
+    same_as_es_cell boolean,
+    transition_of_es_cell_allele boolean,
+    transition_of_colony_allele boolean,
+    allele_subtype character varying(255),
+    "contains_lacZ" boolean DEFAULT false
 );
 
 
@@ -816,7 +826,7 @@ CREATE TABLE colonies (
     name character varying(255) NOT NULL,
     mi_attempt_id integer,
     genotype_confirmed boolean DEFAULT false,
-    report_to_public boolean DEFAULT false,
+    report_to_public boolean DEFAULT true,
     unwanted_allele boolean DEFAULT false,
     allele_description text,
     mgi_allele_id character varying(255),
@@ -827,7 +837,9 @@ CREATE TABLE colonies (
     allele_type character varying(255),
     background_strain_id integer,
     allele_description_summary text,
-    auto_allele_description text
+    auto_allele_description text,
+    is_released_from_genotyping boolean DEFAULT false,
+    genotyping_comment text
 );
 
 
@@ -887,51 +899,6 @@ CREATE SEQUENCE colony_distribution_centres_id_seq
 --
 
 ALTER SEQUENCE colony_distribution_centres_id_seq OWNED BY colony_distribution_centres.id;
-
-
---
--- Name: colony_qcs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE colony_qcs (
-    id integer NOT NULL,
-    colony_id integer NOT NULL,
-    qc_southern_blot character varying(255) NOT NULL,
-    qc_five_prime_lr_pcr character varying(255) NOT NULL,
-    qc_five_prime_cassette_integrity character varying(255) NOT NULL,
-    qc_tv_backbone_assay character varying(255) NOT NULL,
-    qc_neo_count_qpcr character varying(255) NOT NULL,
-    qc_lacz_count_qpcr character varying(255) NOT NULL,
-    qc_neo_sr_pcr character varying(255) NOT NULL,
-    qc_loa_qpcr character varying(255) NOT NULL,
-    qc_homozygous_loa_sr_pcr character varying(255) NOT NULL,
-    qc_lacz_sr_pcr character varying(255) NOT NULL,
-    qc_mutant_specific_sr_pcr character varying(255) NOT NULL,
-    qc_loxp_confirmation character varying(255) NOT NULL,
-    qc_three_prime_lr_pcr character varying(255) NOT NULL,
-    qc_critical_region_qpcr character varying(255) NOT NULL,
-    qc_loxp_srpcr character varying(255) NOT NULL,
-    qc_loxp_srpcr_and_sequencing character varying(255) NOT NULL
-);
-
-
---
--- Name: colony_qcs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE colony_qcs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: colony_qcs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE colony_qcs_id_seq OWNED BY colony_qcs.id;
 
 
 --
@@ -1719,12 +1686,10 @@ CREATE TABLE mi_attempts (
     number_of_live_glt_offspring integer,
     report_to_public boolean DEFAULT true NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
-    is_released_from_genotyping boolean DEFAULT false NOT NULL,
     comments text,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     mi_plan_id integer NOT NULL,
-    genotyping_comment character varying(512),
     legacy_es_cell_id integer,
     cassette_transmission_verified date,
     cassette_transmission_verified_auto_complete boolean,
@@ -2419,7 +2384,23 @@ CREATE TABLE production_centre_qcs (
     three_prime_screen character varying(255),
     loxp_screen character varying(255),
     loss_of_allele character varying(255),
-    vector_integrity character varying(255)
+    vector_integrity character varying(255),
+    southern_blot character varying(255),
+    five_prime_lr_pcr character varying(255),
+    five_prime_cassette_integrity character varying(255),
+    tv_backbone_assay character varying(255),
+    neo_count_qpcr character varying(255),
+    lacz_count_qpcr character varying(255),
+    neo_sr_pcr character varying(255),
+    loa_qpcr character varying(255),
+    homozygous_loa_sr_pcr character varying(255),
+    lacz_sr_pcr character varying(255),
+    mutant_specific_sr_pcr character varying(255),
+    loxp_confirmation character varying(255),
+    three_prime_lr_pcr character varying(255),
+    critical_region_qpcr character varying(255),
+    loxp_srpcr character varying(255),
+    loxp_srpcr_and_sequencing character varying(255)
 );
 
 
@@ -3549,13 +3530,6 @@ ALTER TABLE ONLY colony_distribution_centres ALTER COLUMN id SET DEFAULT nextval
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY colony_qcs ALTER COLUMN id SET DEFAULT nextval('colony_qcs_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY consortia ALTER COLUMN id SET DEFAULT nextval('consortia_id_seq'::regclass);
 
 
@@ -4031,14 +4005,6 @@ ALTER TABLE ONLY colonies
 
 ALTER TABLE ONLY colony_distribution_centres
     ADD CONSTRAINT colony_distribution_centres_pkey PRIMARY KEY (id);
-
-
---
--- Name: colony_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY colony_qcs
-    ADD CONSTRAINT colony_qcs_pkey PRIMARY KEY (id);
 
 
 --
@@ -4588,13 +4554,6 @@ CREATE UNIQUE INDEX index_centres_on_name ON centres USING btree (name);
 
 
 --
--- Name: index_colony_qcs_on_colony_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX index_colony_qcs_on_colony_id ON colony_qcs USING btree (colony_id);
-
-
---
 -- Name: index_consortia_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -5084,14 +5043,6 @@ ALTER TABLE ONLY colonies
 
 ALTER TABLE ONLY colonies
     ADD CONSTRAINT colonies_mouse_allele_mod_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
-
-
---
--- Name: colony_qcs_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY colony_qcs
-    ADD CONSTRAINT colony_qcs_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
 
 
 --
@@ -5833,3 +5784,5 @@ INSERT INTO schema_migrations (version) VALUES ('20160602105302');
 INSERT INTO schema_migrations (version) VALUES ('20160904105302');
 
 INSERT INTO schema_migrations (version) VALUES ('20160905125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20161005125302');

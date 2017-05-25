@@ -16,7 +16,7 @@ class TargRep::EsCell < ActiveRecord::Base
                      :methods => [:mutation_method_name, :mutation_type_name, :mutation_subtype_name, :marker_symbol, :mgi_accession_id]},
         :distribution_qcs => { :except => [:created_at, :updated_at] , :methods => [:es_cell_distribution_centre_name]}
       },
-      :methods => [:allele_symbol, :allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name]
+      :methods => [:allele_symbol, :allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name, :alleles_attributes]
   }
 
   ##
@@ -30,7 +30,7 @@ class TargRep::EsCell < ActiveRecord::Base
 
   has_many :distribution_qcs, :dependent => :destroy
   has_many :mi_attempts
-  has_many :alleles, :class_name => "::Allele"
+  has_many :alleles, :class_name => "::Allele", :inverse_of => :es_cell
 
   scope :has_targeting_vector, where('targeting_vector_id is not NULL')
   scope :no_targeting_vector, where(:targeting_vector_id => nil)
@@ -72,12 +72,6 @@ class TargRep::EsCell < ActiveRecord::Base
 
   def self.qc_options
     hash = {
-      "production_qc_five_prime_screen"       => { :name => "5' Screen",   :values => ["pass","not confirmed","no reads detected","not attempted"] },
-      "production_qc_three_prime_screen"      => { :name => "3' Screen",   :values => ["pass","not confirmed","no reads detected"] },
-      "production_qc_loxp_screen"             => { :name => "LoxP Screen", :values => ["pass","not confirmed","no reads detected"] },
-      "production_qc_loss_of_allele"          => { :name => "Loss of WT Allele (LOA)" },
-      "production_qc_vector_integrity"        => { :name => "Vector Integrity" },
-
       "user_qc_karyotype"                     => { :name => "Karyotype",     :values => ["pass","fail","limit"] },
       "user_qc_southern_blot"                 => { :name => "Southern Blot", :values => ["pass","fail 5' end","fail 3' end","fail both ends","double integration"] },
       "user_qc_five_prime_lr_pcr"             => { :name => "5' LR-PCR" },
@@ -157,39 +151,49 @@ class TargRep::EsCell < ActiveRecord::Base
       self.distribution_qcs.push centre.distribution_qcs.build(:es_cell => self)
     end
 
+    def alleles_attributes
+      return alleles.map(&:as_json) unless alleles.blank?
+      return nil
+    end
+
     ##
     ## iMits methods
     ##
-    def mgi_allele_id
-      return alleles.first.mgi_allele_accession_id unless alleles.blank? || alleles.first.mgi_allele_accession_id.blank?
-      return nil
-    end
 
-    def mgi_allele_symbol_superscript
-      return @mgi_allele_symbol_superscript unless @mgi_allele_symbol_superscript.blank?
-      return alleles.first.mgi_allele_symbol_superscript unless alleles.blank?
-      return nil
-    end
-    alias_method :allele_symbol_superscript, :mgi_allele_symbol_superscript
-
-    def mgi_allele_symbol_superscript=(text)
-      @mgi_allele_symbol_superscript = text
-    end
-    alias_method :allele_symbol_superscript=, :mgi_allele_symbol_superscript=
-
-    def allele_symbol
-      if allele_symbol_superscript
-        return "#{self.marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
-      else
-        return nil
-      end
-    end
-
-    def allele_symbol_superscript_template
-      return Allele.extract_symbol_superscript_template(@mgi_allele_symbol_superscript) unless @mgi_allele_symbol_superscript.blank?
-      return alleles.first.allele_symbol_superscript_template unless alleles.blank?
-      return nil
-    end
+#    def mgi_allele_id=(arg)
+#      return nil
+#    end
+#
+#    def mgi_allele_id
+#      return alleles.first.mgi_allele_accession_id unless alleles.blank? || alleles.first.mgi_allele_accession_id.blank?
+#      return nil
+#    end
+#
+#    def mgi_allele_symbol_superscript
+#      return @mgi_allele_symbol_superscript unless @mgi_allele_symbol_superscript.blank?
+#      return alleles.first.mgi_allele_symbol_superscript unless alleles.blank?
+#      return nil
+#    end
+#    alias_method :allele_symbol_superscript, :mgi_allele_symbol_superscript
+#
+#    def mgi_allele_symbol_superscript=(text)
+#      @mgi_allele_symbol_superscript = text
+#    end
+#    alias_method :allele_symbol_superscript=, :mgi_allele_symbol_superscript=
+#
+#    def allele_symbol
+#      if allele_symbol_superscript
+#        return "#{self.marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
+#      else
+#        return nil
+#      end
+#    end
+#
+#    def allele_symbol_superscript_template
+#      return Allele.extract_symbol_superscript_template(@mgi_allele_symbol_superscript) unless @mgi_allele_symbol_superscript.blank?
+#      return alleles.first.allele_symbol_superscript_template unless alleles.blank?
+#      return nil
+#    end
 
     def to_json( options = {} )
       TargRep::EsCell.include_root_in_json = false
@@ -207,17 +211,17 @@ class TargRep::EsCell < ActiveRecord::Base
 
   protected
 
-    def set_allele_type
-      return if mgi_allele_symbol_superscript_changed?
-
-      if mgi_allele_symbol_superscript.blank?
-        self.allele_symbol_superscript_template = nil
-        self.allele_type = nil
-        return
-      end
-
-      allele_symbol_superscript_template, self.allele_type = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
-    end
+#    def set_allele_type
+#      return if mgi_allele_symbol_superscript_changed?
+#
+#      if mgi_allele_symbol_superscript.blank?
+#        self.allele_symbol_superscript_template = nil
+#        self.allele_type = nil
+#        return
+#      end
+#
+#      allele_symbol_superscript_template, self.allele_type = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
+#    end
 
     # Convert any blank attribute strings to nil...
     def convert_blanks_to_nil

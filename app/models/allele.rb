@@ -26,7 +26,7 @@ class Allele < ApplicationModel
     'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
     'e' => 'e - Targeted Non-Conditional',
     'e.1' => 'e.1 - Promoter excision from tm1e mouse',
-    '1' => "'' - Reporter Tagged Deletion",
+    "''" => "'' - Reporter Tagged Deletion",
     '.1' => '.1 - Promoter excision from Deletion/Point Mutation ',
     '.2' => '.2 - Promoter excision from Deletion/Point Mutation '
   }.freeze
@@ -81,7 +81,7 @@ class Allele < ApplicationModel
 
   before_validation do |allele|
     return true if allele.production_centre_qc.blank?
-    return true if allele.colony.mi_attempt.blank? || allele.colony.mi_attempt.es_cell_id.blank?
+    return true if allele.colony.blank? || allele.colony.mi_attempt.blank? || allele.colony.mi_attempt.es_cell_id.blank?
     return true if allele.colony.mi_attempt.es_cell.allele.mutation_type.try(:code) == 'cki'
 
     es_cell_allele = allele.colony.mi_attempt.es_cell.alleles[0]
@@ -106,7 +106,17 @@ class Allele < ApplicationModel
 
   before_validation do |allele|
     # auto_assign_allele_for_es_cells
-    if allele.belongs_to_colony?
+    if allele.belongs_to_es_cell?
+      design_allele = allele.es_cell.allele
+      allele.genbank_file_id = design_allele.allele_genbank_file_id
+      if allele.mgi_allele_symbol_superscript.blank?
+        allele.allele_type = design_allele.mutation_method.allele_code
+      else
+        extacted = allele.class.extract_symbol_superscript_template(allele.mgi_allele_symbol_superscript)
+        allele.allele_type = extacted[1]
+        allele.allele_symbol_superscript_template = extacted[0]
+      end
+    elsif allele.belongs_to_colony?
     # Check how allele was created
       # Created by Micro-injection of ES CELL
       if !allele.colony.mi_attempt.blank? && !allele.colony.mi_attempt.es_cell_id.blank?
@@ -139,6 +149,16 @@ class Allele < ApplicationModel
 
           if targ_rep_alleles.length > 1
             allele.genebank_file_id = targ_rep_alleles[0].allele_genbank_file_id
+
+            allele.mgi_allele_accession_id = nil if allele.mgi_allele_accession_id == es_cell.alleles[0].mgi_allele_accession_id 
+            if allele.mgi_allele_accession_id.blank?
+              allele.allele_symbol_superscript_template = es_cell.allele[0].allele_symbol_superscript_template
+              allele.mgi_allele_symbol_superscript = es_cell.alleles[0].allele_symbol_superscript_template.gsub(/\@/, allele.allele_type.to_s.gsub("''", ''))
+            else
+              extacted = allele.class.extract_symbol_superscript_template(allele.mgi_allele_symbol_superscript)
+              allele.allele_type = extacted[1]
+              allele.allele_symbol_superscript_template = extacted[0]
+            end
           end
 
         end
@@ -150,7 +170,11 @@ class Allele < ApplicationModel
           allele.genbank_file_id = parent_colony_allele.genbank_file_id
           if allele.mgi_allele_accession_id.blank?
             allele.allele_symbol_superscript_template = parent_colony_allele.allele_symbol_superscript_template
-            allele.mgi_allele_symbol_superscript = parent_colony_allele.allele_symbol_superscript_template.gsub(/\@/, allele.allele_type)     
+            allele.mgi_allele_symbol_superscript = parent_colony_allele.allele_symbol_superscript_template.gsub(/\@/, allele.allele_type.to_s.gsub("''", ''))
+          else
+            extacted = allele.class.extract_symbol_superscript_template(allele.mgi_allele_symbol_superscript)
+            allele.allele_type = extacted[1]
+            allele.allele_symbol_superscript_template = extacted[0]
           end
 
         end
@@ -171,7 +195,10 @@ class Allele < ApplicationModel
         mi_allele.allele_symbol_superscript_template = allele.allele_symbol_superscript_template
         mi_allele.mgi_allele_accession_id = allele.mgi_allele_accession_id
         mi_allele.allele_type = allele.allele_type
-        mi_allele.save
+
+        if mi_allele.changed?
+          mi_allele.save
+        end
       end
 
     elsif allele.belongs_to_colony?
@@ -182,12 +209,16 @@ class Allele < ApplicationModel
         mam_allele.genbank_file_id = allele.genbank_file_id
         if mam_allele.mgi_allele_accession_id.blank? && !mam_allele.allele_type.blank?
           mam_allele.allele_symbol_superscript_template = allele.allele_symbol_superscript_template
-          mam_allele.mgi_allele_symbol_superscript = allele.allele_symbol_superscript_template.gsub(/\@/, mam_allele.allele_type)     
+          mam_allele.mgi_allele_symbol_superscript = allele.allele_symbol_superscript_template.gsub(/\@/, mam_allele.allele_type.to_s.gsub("''", ''))     
+        end
+        if mam_allele.changed?
+          mam_allele.save
         end
       end
     else
       raise 'This should not be possible'
     end
+    allele.reload
   end
 
   def belongs_to_es_cell?
@@ -222,9 +253,10 @@ class Allele < ApplicationModel
     if md
       if 'tm' == md[1][0..1]
         symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3] + md[4]
-        type = md[2].blank? ? 1 : md[2]
+        type = md[2].blank? ? "''" : md[2]
       else
-        symbol_superscript_template = mgi_allele_symbol_superscript
+        symbol_superscript_template = nil
+        type = nil
       end
     else
       raise "Bad allele symbol superscript '#{mgi_allele_symbol_superscript}'"

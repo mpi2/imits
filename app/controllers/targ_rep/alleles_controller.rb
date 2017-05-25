@@ -557,26 +557,6 @@ class TargRep::AllelesController < TargRep::BaseController
       elsif not allele_params.include? :allele_sequence_annotations_attributes
         allele_params[:allele_sequence_annotations_attributes] = []
       end
-
-      ##
-      ##  Genbank Files
-      ##
-
-      if allele_params.include? :genbank_file
-        allele_params[:genbank_file].update({ :nested => true })
-        allele_params[:genbank_file_attributes] = allele_params.delete(:genbank_file)
-      end
-
-      # Don't create genbank file object if its attributes are empty.
-      gb_files_attrs = allele_params[:genbank_file_attributes]
-      if gb_files_attrs
-        gb_escell   = gb_files_attrs[:escell_clone]
-        gb_targ_vec = gb_files_attrs[:targeting_vector]
-
-        if ( gb_escell.blank? and gb_targ_vec.blank? )
-          allele_params.delete(:genbank_file_attributes)
-        end
-      end
     end
 
     def four_oh_four

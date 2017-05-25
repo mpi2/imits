@@ -66,6 +66,8 @@ class TargRep::Allele < ActiveRecord::Base
     end
   end
 
+  accepts_nested_attributes_for :allele_genbank_file, :update_only => true
+  accepts_nested_attributes_for :vector_genbank_file, :update_only => true
   accepts_nested_attributes_for :targeting_vectors, :allow_destroy  => true
   accepts_nested_attributes_for :es_cells,          :allow_destroy  => true
   accepts_nested_attributes_for :allele_sequence_annotations, :allow_destroy => true
@@ -84,7 +86,7 @@ class TargRep::Allele < ActiveRecord::Base
             :include => {
               :distribution_qcs => { :except => [:created_at, :updated_at] , :methods => [:es_cell_distribution_centre_name]}
             },
-            :methods => [:allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name, :targeting_vector_name]
+            :methods => [:allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name, :targeting_vector_name, :alleles_attributes],
         },
         :targeting_vectors => { 
             :except => [
@@ -99,12 +101,15 @@ class TargRep::Allele < ActiveRecord::Base
         :mutation_method_name,
         :mutation_type_name,
         :mutation_subtype_name,
-        :marker_symbol
+        :marker_symbol,
+        :allele_genbank_file_text,
+        :vector_genbank_file_text
     ]}
 
   before_validation :set_chr_and_strand
   before_validation :set_empty_fields_to_nil
   before_validation :upper_case_sequence
+  before_validation :manage_genbank_files
 
   ##
   ## Validations
@@ -151,6 +156,8 @@ class TargRep::Allele < ActiveRecord::Base
       :allow_blank => true
 
 
+  after_save :sync_es_cell_genbank_files_with_design_allele
+
   # fix for error where form tries to insert empty strings when there are no floxed exons
   def set_empty_fields_to_nil
     self.floxed_start_exon = nil if self.floxed_start_exon.to_s.empty?
@@ -169,6 +176,32 @@ class TargRep::Allele < ActiveRecord::Base
     self.wildtype_oligos_sequence = self.wildtype_oligos_sequence.upcase if !self.wildtype_oligos_sequence.blank?
   end
   protected :upper_case_sequence
+
+  def manage_genbank_files
+    allele = self
+
+    allele.vector_genbank_file_attributes = {:file_gb => allele.vector_genbank_file_text}
+    allele.allele_genbank_file_attributes = {:file_gb => allele.allele_genbank_file_text}
+
+    return true
+  end
+  protected :manage_genbank_files
+
+  def sync_es_cell_genbank_files_with_design_allele
+    allele = self
+
+    allele.es_cells.each do |es_cell|
+      es_allele = Allele.find(es_cell.alleles[0].id)
+      if es_allele.genbank_file_id != allele.allele_genbank_file_id
+        es_allele.genbank_file_id = allele.allele_genbank_file_id
+        if es_allele.changed?
+          es_allele.save
+        end
+      end
+    end
+    allele.reload
+  end
+  protected :sync_es_cell_genbank_files_with_design_allele
   ##
   ## Methods
   ##
@@ -180,7 +213,7 @@ class TargRep::Allele < ActiveRecord::Base
   end
 
   def allele_genbank_file_text=(arg)
-    @allele_genbank_file_text = arg
+    @allele_genbank_file = arg
   end
 
   def vector_genbank_file_text
@@ -252,6 +285,7 @@ class TargRep::Allele < ActiveRecord::Base
       self.es_cells.each { |esc| pipelines[esc.pipeline.name] = true } if self.es_cells
       pipelines.keys.sort.join(', ')
     end
+
 
     def self.allele_description (options)
       marker_symbol = options.has_key?('marker_symbol') ? options['marker_symbol'] : nil

@@ -21,6 +21,7 @@
       <tr><th>Phenotyping Experiments Started</th><td><%= f.text_field(:phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %></td></tr>
       <tr><th>Colony Background Strain</th><td><%= generator.strains_field_no_label :colony_background_strain %></td></tr>
       <tr><th>Is Active</th><td><%= f.check_box :is_active %></td></tr>
+      <tr><th>Report Phenotype Data to public</th><td><%= f.check_box :report_to_public %></td></tr>
     </table>
     </td>
 

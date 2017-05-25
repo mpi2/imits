@@ -221,7 +221,7 @@ class PhenotypeAttemptsController < ApplicationController
     set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
-    @mi_attempt = MiAttempt.joins(:colony).where("colonies.name = '#{params[:phenotype_attempt][:mi_attempt_colony_name]}'").first
+    @mi_attempt = MiAttempt.joins(:colonies).where("colonies.name = '#{params[:phenotype_attempt][:mi_attempt_colony_name]}'").first
 
     @phenotype_attempt.mi_plan_id = @mi_attempt.mi_plan_id if @phenotype_attempt.mi_plan_id.blank? && !@mi_attempt.blank?
 

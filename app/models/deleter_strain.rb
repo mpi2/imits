@@ -4,7 +4,7 @@ class DeleterStrain < ActiveRecord::Base
   validates :name, :uniqueness => true
   validates :excision_type, :presence => true
 
-  has_many :phenotype_attempt
+  has_many :mouse_allele_mods
 end
 
 # == Schema Information

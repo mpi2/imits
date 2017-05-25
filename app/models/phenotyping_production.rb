@@ -258,10 +258,21 @@ class PhenotypingProduction < ApplicationModel
     colony_background_strain.try(:mgi_strain_accession_id)
   end
 
-  def mouse_allele_symbol
-    return nil if parent_colony.blank?
-    parent_colony.try(:allele_symbol)
+  def mouse_allele_symbol_superscript
+    return '' if parent_colony.blank?
+    parent_colony.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
   end
+  
+  def mouse_allele_symbol
+    return '' if parent_colony.blank? || parent_colony.alleles[0].blank?
+    colony_alleles = parent_colony.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
+    if !colony_alleles.blank?
+      return marker_symbol + '<sup>' + colony_alleles + '</sup>'
+    else
+      return ''
+    end
+  end
+
 
   def marker_symbol
     gene.try(:marker_symbol) 

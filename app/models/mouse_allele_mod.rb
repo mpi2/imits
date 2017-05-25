@@ -23,31 +23,32 @@ class MouseAlleleMod < ApplicationModel
   access_association_by_attribute :deleter_strain, :name
   access_association_by_attribute :status, :name
 
+  accepts_nested_attributes_for :status_stamps
+  accepts_nested_attributes_for :colony, :update_only =>true
 
-  ColonyQc::QC_FIELDS.each do |qc_field|
 
-    define_method("#{qc_field}_result=") do |arg|
-      instance_variable_set("@#{qc_field}_result",arg)
+  ProductionCentreQc::QC_FIELDS.each do |qc_field, values|
+
+    define_method("qc_#{qc_field}_result=") do |arg|
+      instance_variable_set("@qc_#{qc_field}_result",arg)
     end
 
-    define_method("#{qc_field}_result") do
-      if !instance_variable_get("@#{qc_field}_result").blank?
-        return instance_variable_get("@#{qc_field}_result")
-      elsif !colony.blank? and !colony.try(:colony_qc).try(qc_field.to_sym).blank?
-        return colony.colony_qc.send(qc_field)
+    define_method("qc_#{qc_field}_result") do
+      if !instance_variable_get("@qc_#{qc_field}_result").blank?
+        return instance_variable_get("@qc_#{qc_field}_result")
+      elsif !colony.blank? && !colony.alleles.blank? && !colony.alleles[0].production_centre_qc.blank?
+        return colony.alleles[0].production_centre_qc.send(qc_field)
       else
         return 'na'
       end
     end
   end
 
-  accepts_nested_attributes_for :status_stamps
-  accepts_nested_attributes_for :colony, :update_only =>true
+
 
   protected :status=
 
   before_validation :remove_spaces_from_colony_name
-  before_validation :set_blank_qc_fields_to_na
   before_validation :allow_override_of_plan
   before_validation :change_status
   before_validation :manage_colony_and_qc_data
@@ -124,6 +125,14 @@ class MouseAlleleMod < ApplicationModel
     end
   end
 
+  def marker_symbol
+    gene.try(:marker_symbol) 
+  end
+
+  def mgi_accession_id
+    gene.try(:mgi_accession_id) 
+  end
+
   def colony_name
     if !@colony_name.blank?
       @colony_name
@@ -188,15 +197,6 @@ class MouseAlleleMod < ApplicationModel
   end
 
 ## BEFORE VALIDATION FUNCTIONS
-  def set_blank_qc_fields_to_na
-    ColonyQc::QC_FIELDS.each do |qc_field|
-      if self.send("#{qc_field}_result").blank?
-        self.send("#{qc_field}_result=", 'na')
-      end
-    end
-  end
-  protected :set_blank_qc_fields_to_na
-
   def allow_override_of_plan
     return if self.consortium_name.blank? or self.production_centre_name.blank? or self.gene.blank?
     set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
@@ -213,54 +213,75 @@ class MouseAlleleMod < ApplicationModel
   protected :allow_override_of_plan
 
   def manage_colony_and_qc_data
+    mam = self
 
-    colony_attr_hash = colony.try(:attributes) || {}
-    if colony.blank? or (colony.try(:name) != colony_name)
-      colony_attr_hash[:name] = colony_name
+    colony_attr_hash = {}
+    if !mam.colony.blank? 
+      mam.colony.try(:attributes).each{|k, v| colony_attr_hash[k.to_sym] = v}
     end
 
-    colony_attr_hash[:background_strain_name] = colony_background_strain_name
-    colony_attr_hash[:allele_type] = mouse_allele_type
-
-    colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?
-
-    if self.status.try(:code) == 'cec'
-      colony_attr_hash[:genotype_confirmed] = true
-    elsif self.status.try(:code) != 'cec'
-      colony_attr_hash[:genotype_confirmed] = false
+    if mam.colony.blank? or (mam.colony.try(:name) != mam.colony_name)
+      colony_attr_hash[:name] = mam.colony_name
     end
 
-    colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
+    colony_attr_hash[:alleles_attributes] = {}
+    colony_attr_hash[:alleles_attributes][0] = {}
 
-    ColonyQc::QC_FIELDS.each do |qc_field|
-      if colony.try(:colony_qc).blank? or self.send("#{qc_field}_result") != colony.colony_qc.send(qc_field)
-        colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
+    if !mam.colony.blank? && !mam.colony.alleles.blank?  
+      mam.colony.alleles[0].try(:attributes).each{|k, v| colony_attr_hash[:alleles_attributes][0][k.to_sym] = v}
+    end
+
+    colony_attr_hash[:alleles_attributes][0][:allele_type] = mam.allele_type
+
+    colony_attr_hash[:alleles_attributes][0][:production_centre_qc_attributes] = {}
+    if !mam.colony.blank? && !mam.colony.alleles.blank?
+      mam.colony.alleles[0].production_centre_qc.try(:attributes).each{|k, v| colony_attr_hash[:alleles_attributes][0][:production_centre_qc_attributes][k.to_sym] = v}   
+    end
+
+    ProductionCentreQc::QC_FIELDS.each do |qc_field, value|
+      if !mam.colony.blank? && !mam.colony.alleles.blank? && !mam.colony.alleles[0].production_centre_qc.blank? && mam.send("qc_#{qc_field}_result") != mam.colony.alleles[0].production_centre_qc.send(qc_field)
+        colony_attr_hash[:alleles_attributes][0][:production_centre_qc_attributes]["#{qc_field}".to_sym] = mam.send("qc_#{qc_field}_result")
       end
     end
 
-    self.colony_attributes = colony_attr_hash
+    colony_attr_hash[:background_strain_name] = mam.colony_background_strain_name
+
+    colony_attr_hash[:distribution_centres_attributes] = mam.distribution_centres_attributes unless mam.distribution_centres_attributes.blank?
+
+    if mam.status.try(:code) == 'cec'
+      colony_attr_hash[:genotype_confirmed] = true
+    elsif mam.status.try(:code) != 'cec'
+      colony_attr_hash[:genotype_confirmed] = false
+    end
+
+    mam.colony_attributes = colony_attr_hash
 
   end
   protected :manage_colony_and_qc_data
 
-  def mouse_allele_type
+  def allele_type
     return @mouse_allele_type unless @mouse_allele_type.nil?
-    return colony.allele_type unless colony.blank?
+    return colony.alleles[0].allele_type unless colony.blank? || colony.alleles.blank?
     return nil
   end
 
-  def mouse_allele_type=(arg)
+  def allele_type=(arg)
     @mouse_allele_type = arg
   end
 
   def mouse_allele_symbol_superscript
-    return nil unless colony
-    return colony.allele_symbol_superscript
+    return '' if colony.blank?
+    colony.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
   end
 
   def mouse_allele_symbol
-    return nil unless colony
-    return colony.allele_symbol
+    return '' if colony.blank?
+    colony_alleles = colony.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
+    if !colony_alleles.blank?
+      return marker_symbol + '<sup>' + colony_alleles + '</sup>'
+    else
+      return ''
+    end
   end
 
 

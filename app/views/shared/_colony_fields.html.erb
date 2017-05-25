@@ -1,140 +1,208 @@
 <% generator = MiAttemptFieldGenerator.new(f) %>
-
-<% if f.object.trace_call.nil? then f.object.trace_call = TraceCall.new end %>
-
-<%= f.fields_for :trace_call do |ftc| %>
+<% colony = f.object%>
+<% mi_attempt = f.object.mi_attempt%>
+<% if colony.alleles.blank? %>
+  <% a = colony.alleles.build %>
+<% end %>
+<% if colony.trace_call.blank? %>
+  <% tc = colony.build_trace_call %>
+<% end %>
 
   <tr>
-    <td style="text-align: center;vertical-align: top;">
-        <div style="padding:30px 0px 0px 0px ; width:110px">
-            <%= f.text_field :name, :size=>'15' %>
-        </div>
+    <td style="text-align: left;vertical-align: top;">
+      <div style="padding:30px 0px 0px 0px ; width:110px">
+        <%= f.text_field :name, :size=>'15' %>
+      </div>
+
+      <% if mi_attempt.es_cell_name.blank?%>
+        <% if f.object.new_record? %>
+          <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+          <%= link_to "remove", '#', class: "remove-row" %>
+        <% else %>
+          <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+          <%= link_to "remove", '#', class: "hide-row" %>
+        <% end %>
+      <% end %>
     </td>
     <td style="text-align: left;vertical-align: top">
-
-        <div style="padding:0px 10px 0px 10px;">
-
-            <fieldset class="collapsible">
-            <legend>Upload sequence files</legend>
-            <div>
-
-            <% if ftc.object.trace_data_error %>
-                <% if ftc.object.file_error.to_s.length > 0 %>
-                    <p>Error: <%= ftc.object.file_error %></p>
-
-                    <% if ! Rails.env.production? %>
-                        <p>debug stderr:</p>
-                        <p><%= ftc.object.file_trace_error %></p>
-                        <p>debug stdout:</p>
-                        <p><%= ftc.object.file_trace_output %></p>
-                    <% end %>
-
-                <% else %>
-                    <p>error</p>
-                <% end %>
-            <% elsif ftc.object.trace_data_pending %>
-                <p>Analysis pending</p>
-            <% elsif ! f.object.new_record? && ftc.object.trace_data_available %>
-                <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
+      <div style="padding:0px 10px 0px 10px">
+        <fieldset class="collapsible">
+          <legend>Colony Status</legend>
+          <div>
+            <% if mi_attempt.es_cell_id.blank? %>
+              <%= generator.check_box :genotype_confirmed, :label => 'Genotype Confirmed? '%>
             <% end %>
-            <% if ! f.object.new_record? && (ftc.object.trace_data_available || ftc.object.trace_data_pending) %>
-                <button id="cbutton_<%= f.object.id %>" type="button" onclick="$(this).toggle();var id = '#cdiv_<%= f.object.id %>'; $(id).toggle();">Replace</button>
-                    <div id="cdiv_<%= f.object.id %>" style="display:none;">
-                        <%= ftc.file_field :trace_file %>
-                    </div>
-                    <div>Heterozygous Trace? <%= ftc.check_box :is_het %></div>
-                    <!-- see http://stackoverflow.com/questions/2187008/styling-an-anchor-tag-to-look-like-a-submit-button for download button -->
-            <% else %>
-                <%= ftc.file_field :trace_file %></br>
-                <div>Heterozygous Trace? <%= ftc.check_box :is_het %></div>
+            <%= generator.strains_field :background_strain %>
+            <%= generator.check_box :report_to_public, :label => 'Report Mouse Strain To Public' %>
+            <% if mi_attempt.production_centre_name == 'WTSI' %>
+              <%= generator.check_box :is_released_from_genotyping, :label => 'Is Released From Genotyping' %>
             <% end %>
-            </div>
-            </fieldset>
-        </div>
-
-        <div style="padding:0px 10px 0px 10px">
-            <fieldset class="collapsible">
-            <legend>Colony Status</legend>
             <div>
-                <div>Genotype Confirmed? <%= f.check_box :genotype_confirmed %></div>
-                <div><%= generator.strains_field :background_strain %></div>
-                <div>Allele Description</div><div><%= f.text_area :allele_description %></div>
-                <div>Unwanted Allele Obtained? <%= f.check_box :unwanted_allele %></div>
+              <label>Genotyping Comment</label>
+              <%= f.text_area :genotyping_comment, :disabled => true %>
             </div>
-            </fieldset>
-        </div>
+          </div>
+        </fieldset>
+      </div>
 
-        <div class="colony-qc-data" style="padding:0px 10px 0px 10px;">
-
-            <fieldset class="collapsible hide-by-default">
-                <legend>QC Data</legend>
-                <div>
-                    <table>
-                        <% if f.object.colony_qc.blank? %>
-                            <% f.object.build_colony_qc %>
-                        <% end %>
-                        <%= f.fields_for :colony_qc do |builder| %>
-                            <% ColonyQc::QC_FIELDS.each do |qc_field| %>
-                                <tr>
-                                    <td><%= builder.label(:post, qc_field) %></td>
-                                    <td><%= builder.select qc_field, ['na', 'pass', 'fail'] %></td>
-                                </tr>
-                            <% end %>
-                        <% end %>
-                    </table>
-                </div>
-            </fieldset>
-        </div>
-
-        <div class="distribution_centre" style="padding:0px 10px 0px 10px;">
-
-          <fieldset class="collapsible" id="distribution_centres">
-          <legend>Distribution Centres</legend>
-              <div class="distribution_centres">
-              <% if f.object.genotype_confirmed %>
-                  <table id="distribution_centres_<%= f.object_id %>_table" class="report_table">
-                  <thead class="title">
-                      <tr>
-                          <th>Distribution centre</th>
-                          <th>Distribution network?</th>
-                          <th>Deposited material</th>
-                          <th>Distribution dates</th>
-                          <th>Action</th>
-                      </tr>
-                  </thead>
-                  <tbody class="distribution_centres">
-                      <tr></tr>
-                      <% if f.object.distribution_centres.length > 0 %>
-                          <%= f.fields_for :distribution_centres do |builder| %>
-                              <% if !builder.object.new_record? %>
-                                  <%= render '/shared/distribution_centre_fields', f: builder %>
-                              <% end %>
+      <div style="padding:0px 10px 0px 10px">
+        <fieldset class="collapsible">
+          <legend>Allele Characterization</legend>
+          <div>
+            <% if ['gtc', 'chr', 'fod'].include?(mi_attempt.status.try(:code)) %>
+              <% if mi_attempt.es_cell_name.blank?%>
+                <fieldset class="collapsible">
+                  <legend>Upload sequence files</legend>
+                  <div>
+                    <%= f.fields_for :trace_call do |ftc| %>
+                      <% ftc_generator = MiAttemptFieldGenerator.new(ftc) %>
+                      <% if ftc.object.trace_data_error %>
+                        <% if ftc.object.file_error.to_s.length > 0 %>
+                          <p>Error: <%= ftc.object.file_error %></p>
+                          <% if ! Rails.env.production? %>
+                            <p>debug stderr:</p>
+                            <p><%= ftc.object.file_trace_error %></p>
+                            <p>debug stdout:</p>
+                            <p><%= ftc.object.file_trace_output %></p>
                           <% end %>
+         
+                        <% else %>
+                          <p>error</p>
+                        <% end %>
+                        
+                      <% elsif ftc.object.trace_data_pending %>
+                        <p>Analysis pending</p>
+                        
+                      <% elsif ! f.object.new_record? && ftc.object.trace_data_available %>
+                        <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
                       <% end %>
-                  </tbody>
-                  </table>
-                  <%= link_to_add_fields "Add Distribution Centre", f, :distribution_centres %>
-              <% else %>
-                  No Distribution Centres can be set until Status is Genotype confirmed.
+                        
+                      <% if ! f.object.new_record? && (ftc.object.trace_data_available || ftc.object.trace_data_pending) %>
+                        <button id="cbutton_<%= f.object.id %>" type="button" onclick="$(this).toggle();var id = '#cdiv_<%= f.object.id %>'; $(id).toggle();">Replace</button>
+                        <div id="cdiv_<%= f.object.id %>" style="display:none;">
+                          <%= ftc.file_field :trace_file %>
+                        </div>
+                        <%= ftc_generator.check_box :is_het, :label => 'Heterozygous Trace?' %>
+                         <!-- see http://stackoverflow.com/questions/2187008/styling-an-anchor-tag-to-look-like-a-submit-button for download button -->
+                      <% else %>
+                        <%= ftc.file_field :trace_file %></br>
+                        <%= ftc_generator.check_box :is_het, :label => 'Heterozygous Trace?' %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </fieldset>
               <% end %>
-              </div>
-          </fieldset>
 
-        </div>
-    </td>
-    <td style="text-align: center;vertical-align: top; width:50px">
-        <div style="padding:30px 0px 0px 0px">
-            <%= f.check_box :report_to_public %>
-        </div>
-    </td>
-    <td style="text-align: center;vertical-align: top; padding:30px 0px 0px 0px">
-        <% if f.object.new_record? %>
-            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-            <%= link_to "remove", '#', class: "remove-row" %>
-        <% else %>
-            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-            <%= link_to "remove", '#', class: "hide-row" %>
-        <% end %>
+              <%= f.fields_for :alleles do |allele_builder| %>
+                <% alelle_generator = AlleleFieldGenerator.new(allele_builder) %>
+                <%= alelle_generator.mouse_allele_type_field %>
+                <% if mi_attempt.es_cell.blank?%> 
+                  <%= alelle_generator.mouse_allele_subtype_field %>
+                  <%= alelle_generator.check_box :contains_lacZ, :label => 'Allele contains LacZ?' %>
+                <% end %>
+
+                <div>Allele Description</div><div><%= f.text_area :allele_description %></div>
+              
+          </div>
+        </fieldset>
+      </div>
+
+      
+      <div style="padding:0px 10px 0px 10px">
+        <fieldset class="collapsible" >
+
+                <legend>Genotyping QC</legend>
+                <div>
+                  <%= allele_builder.fields_for :production_centre_qc do |builder| %>
+                    <div >
+                      <fieldset class="collapsible">
+                        <legend>QC Diagram</legend>
+                        <div>
+                          <div id='<%="qcimage-colony-#{f.index}-allele-#{allele_builder.index}" %>' class='qcimage' data-colonyindex = <%= f.index %> data-alleleindex = <%= allele_builder.index %>>
+                  
+                            <h2>Mouse Genotyping QC</h2>
+                  
+                            <div class="diagram">
+                            <div id='holder_mutant_colony_<%= f.index %>_allele_<%= allele_builder.index %>' class='holder'></div>
+                              <h3>Mutant</h3>
+                            </div>
+                  
+                            <div class="diagram">
+                              <div id='holder_wildtype_colony_<%= f.index %>_allele_<%= allele_builder.index %>' class='holder'></div>
+                              <h3>Wild Type</h3>
+                            </div>
+                  
+                          </div>
+                        </div>
+                      </fieldset>
+                    </div>
+        
+                    <div class="hidden">
+                      <div class="qc-details" data-colonyindex = <%= f.index %> data-alleleindex = <%= allele_builder.index %> >
+                        <!-- Stores QC results to be read into QC diagram. Allows Diagram to be switch between different version without lossing values.-->
+                        <% qc_generator = QcFieldGenerator.new(builder) %>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_southern_blot" data_value="<%= allele_builder.object.production_centre_qc.southern_blot %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_five_prime_lr_pcr" data_value="<%= allele_builder.object.production_centre_qc.five_prime_lr_pcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_five_prime_cassette_integrity" data_value="<%= allele_builder.object.production_centre_qc.five_prime_cassette_integrity %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_tv_backbone_assay" data_value="<%= allele_builder.object.production_centre_qc.tv_backbone_assay %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_neo_count_qpcr" data_value="<%= allele_builder.object.production_centre_qc.neo_count_qpcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_lacz_count_qpcr" data_value="<%= allele_builder.object.production_centre_qc.lacz_count_qpcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_neo_sr_pcr" data_value="<%= allele_builder.object.production_centre_qc.neo_sr_pcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_loa_qpcr" data_value="<%= allele_builder.object.production_centre_qc.loa_qpcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_homozygous_loa_sr_pcr" data_value="<%= allele_builder.object.production_centre_qc.homozygous_loa_sr_pcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_lacz_sr_pcr" data_value="<%= allele_builder.object.production_centre_qc.lacz_sr_pcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_mutant_specific_sr_pcr" data_value="<%= allele_builder.object.production_centre_qc.mutant_specific_sr_pcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_loxp_confirmation" data_value="<%= allele_builder.object.production_centre_qc.loxp_confirmation %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_three_prime_lr_pcr" data_value="<%= allele_builder.object.production_centre_qc.three_prime_lr_pcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_critical_region_qpcr" data_value="<%= allele_builder.object.production_centre_qc.critical_region_qpcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_loxp_srpcr" data_value="<%= allele_builder.object.production_centre_qc.loxp_srpcr %>"></div>
+                        <div class="qc_data" id="qc_data_colony_<%= f.index %>_allele_<%= allele_builder.index %>_loxp_srpcr_and_sequencing" data_value="<%= allele_builder.object.production_centre_qc.loxp_srpcr_and_sequencing %>"></div>
+                      </div>
+                    </div>
+                  <% end %>
+              
+
+              <% end %>     
+            <% else %>
+              Allele and QC can not be set until Status is Genotype confirmed.
+            <% end %>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="distribution_centre" style="padding:0px 10px 0px 10px;">
+        <fieldset class="collapsible" id="distribution_centres">
+        <legend>Distribution Centres</legend>
+          <div class="distribution_centres">
+          <% if f.object.genotype_confirmed %>
+            <table id="distribution_centres_<%= f.object_id %>_table" class="report_table">
+              <thead class="title">
+                <tr>
+                  <th>Distribution centre</th>
+                  <th>Distribution network?</th>
+                  <th>Deposited material</th>
+                  <th>Distribution dates</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody class="distribution_centres">
+                <tr></tr>
+                <% if f.object.distribution_centres.length > 0 %>
+                  <%= f.fields_for :distribution_centres do |builder| %>
+                    <% if !builder.object.new_record? %>
+                      <%= render '/shared/distribution_centre_fields', f: builder %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </tbody>
+            </table>
+            <%= link_to_add_fields "Add Distribution Centre", f, :distribution_centres %>
+          <% else %>
+            No Distribution Centres can be set until Status is Genotype confirmed.
+          <% end %>
+          </div>
+        </fieldset>
+      </div>
+
     </td>
   </tr>
-<% end %>

@@ -15,39 +15,56 @@ class Colony < ApplicationModel
   has_many :allele_modifications, :class_name => 'MouseAlleleMod', :foreign_key => 'parent_colony_id'
   has_many :phenotyping_productions, :class_name => 'PhenotypingProduction', :foreign_key => 'parent_colony_id'
 
-  has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :dependent => :destroy
+  has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :inverse_of => :colony, :dependent => :destroy
+  has_many :alleles, :dependent => :destroy, :inverse_of => :colony
 
-  has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy
   has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
 
   access_association_by_attribute :background_strain, :name
 
-  accepts_nested_attributes_for :colony_qc, :update_only =>true
   accepts_nested_attributes_for :trace_call
+  accepts_nested_attributes_for :alleles, :allow_destroy => true 
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
   accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
 
+  before_validation do |col|
+    if !col.mi_attempt.blank? && !col.mi_attempt.es_cell_id.blank?
+      if col.mi_attempt.colonies.count == 1 && col.mi_attempt.status_id == 2
+        col.genotype_confirmed = true
+      else
+        col.genotype_confirmed = false
+      end
+    end
+    return true
+  end
+
+  before_validation :set_default_alleles
+  before_validation :set_default_trace_file
 
   before_save :set_default_background_strain_for_crispr_produced_colonies
+
   after_save :add_default_distribution_centre
-  before_save :set_crispr_allele
+
+  after_save do |col|
+
+    if !mi_attempt_id.blank? 
+      parent_class = MiAttempt.find(col.mi_attempt_id)
+    elsif !mouse_allele_mod_id.blank?
+      parent_class = MouseAlleleMod.find(col.mouse_allele_mod_id)
+    else
+      return true
+    end
+
+    parent_class.change_status
+    unless parent_class.changes.blank?
+      parent_class.save
+      parent_class.reload
+    end
+    return true
+  end
+
 
   validates :name, :presence => true
-  # bit of a bodge but works.
-  # would have liked to do
-  ##  validates_uniqueness_of :name, conditions: -> { where("mi_attempt_id  IS NOT NULL") }
-  ##  validates_uniqueness_of :name, conditions: -> { where("mouse_allele_mod_id  IS NOT NULL") }
-#  validates_uniqueness_of :name, scope: :mi_attempt_id
-#  validates_uniqueness_of :name, scope: :mouse_allele_mod_id
-
-  validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys + CRISPR_MOUSE_ALLELE_OPTIONS.keys }
-  validate :set_allele_symbol_superscript
-
-#  validate do |colony|
-#    if mouse_allele_mod_id.blank? and mi_attempt_id.blank?
-#      colony.errors.add :base, 'A Colony can only be produced via a Micro-Injection or an Allele Modification.'
-#    end
-#  end
 
   validate do |colony|
     if !mouse_allele_mod.blank?
@@ -81,21 +98,22 @@ class Colony < ApplicationModel
     end
   end
 
-  def set_crispr_allele
-    if !mi_attempt.blank? && !mi_attempt.status.blank?
-      if !mi_attempt.mutagenesis_factor_id.blank? && mi_attempt.status.code == 'gtc'
-        n = 0
-        gene = mi_attempt.marker_symbol
-        while true
-          n += 1
-          test_allele_name = "em#{n}#{mi_attempt.production_centre.code}"
-          break if Colony.joins(mi_attempt: {mi_plan: :gene}).where("genes.marker_symbol = '#{gene}' AND colonies.allele_name = '#{test_allele_name}'").blank?
-        end
+  def set_default_alleles
+    if alleles.blank?
+      # TO DO should create a new allele for each mutagenesis_factor or one if es_cell_id is not blank
+       allele_attr = [{:colony => self}]
+       self.alleles_attributes = allele_attr
+     end
+  end
+  protected :set_default_alleles
 
-        self.allele_name = test_allele_name
-      end
+  def set_default_trace_file
+    if !mi_attempt_id.blank? && !mi_attempt.mutagenesis_factor.blank? && trace_call.blank?
+       trace_call_attr = {}
+       self.trace_call_attributes = trace_call_attr 
     end
   end
+  protected :set_default_trace_file
 
   def set_default_background_strain_for_crispr_produced_colonies
     return unless self.background_strain_id.blank?
@@ -126,56 +144,6 @@ class Colony < ApplicationModel
   end
   protected :add_default_distribution_centre
 
-
-  def self.readable_name
-    return 'colony'
-  end
-
-  def get_template
-    return allele_symbol_superscript_template unless allele_symbol_superscript_template.blank?
-
-    if mi_attempt_id
-
-      if mi_attempt.es_cell_id
-        return mi_attempt.es_cell.allele_symbol_superscript_template
-      elsif mi_attempt.mutagenesis_factor && !mgi_allele_symbol_superscript.blank?
-          return mgi_allele_symbol_superscript
-      else
-        return nil
-      end
-
-    elsif mouse_allele_mod_id
-
-      return mouse_allele_mod.try(:parent_colony).try(:get_template)
-
-    else
-      return nil
-    end
-  end
- # protected :get_template
-
-  def get_type
-    return allele_type unless allele_type.nil?
-
-    if mi_attempt_id
-
-      if mi_attempt.es_cell_id
-        return mi_attempt.es_cell.allele_type
-      else
-        return 'None'
-      end
-
-    elsif mouse_allele_mod_id
-
-      return mouse_allele_mod.try(:parent_colony).try(:get_type)
-
-    else
-      return 'None'
-    end
-  end
-  #protected :get_type
-
-
   def gene
     return mi_attempt.mi_plan.gene if !mi_attempt_id.blank?
     return mouse_allele_mod.mi_plan.gene if !mouse_allele_mod_id.blank?
@@ -190,55 +158,6 @@ class Colony < ApplicationModel
     return mi_attempt.mi_plan if !mi_attempt_id.blank?
     return mouse_allele_mod.mi_plan if !mouse_allele_mod_id.blank?
     return nil
-  end
-
-  def set_allele_symbol_superscript
-    return if self.allele_symbol_superscript_template_changed?
-
-    if self.mgi_allele_symbol_superscript.blank? || self.mgi_allele_symbol_superscript =~ /em/
-      self.allele_symbol_superscript_template = nil
-      return
-    end
-
-    # if targeted allele.
-    new_template, new_allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
-
-    #prevent MGI from incorrectly overiding the allele name if the allele type does not match that stated by the centres.
-    if !self.allele_type.nil? && self.allele_type == new_allele_type
-      self.allele_symbol_superscript_template = new_template
-    else
-      self.mgi_allele_symbol_superscript = nil
-    end
-
-    if errors.count > 0
-      self.errors.add errors.first[0], errors.first[1]
-    end
-  end
-
-
-  def allele_symbol_superscript
-    template = get_template
-    type = get_type.to_s
-
-    return nil if template.nil?
-
-    if template =~ /#{TargRep::Allele::TEMPLATE_CHARACTER}/
-      if type == 'None'
-        return nil
-      else
-        return template.sub(TargRep::Allele::TEMPLATE_CHARACTER, type)
-      end
-    else
-      return template
-    end
-  end
-
-  def allele_symbol
-    if allele_symbol_superscript
-      return "#{self.gene.marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
-    else
-      return nil
-    end
   end
 
   def production_centre_name
@@ -261,6 +180,16 @@ class Colony < ApplicationModel
 
   def distribution_centres_attributes
     return distribution_centres.map(&:as_json) unless distribution_centres.blank?
+    return nil
+  end
+
+  def alleles_attributes
+    return alleles.map(&:as_json) unless alleles.blank?
+    return nil
+  end
+
+  def trace_call_attributes
+    return trace_call(&:as_json) unless trace_call.blank?
     return nil
   end
 
@@ -380,7 +309,7 @@ end
 #  name                               :string(255)      not null
 #  mi_attempt_id                      :integer
 #  genotype_confirmed                 :boolean          default(FALSE)
-#  report_to_public                   :boolean          default(FALSE)
+#  report_to_public                   :boolean          default(TRUE)
 #  unwanted_allele                    :boolean          default(FALSE)
 #  allele_description                 :text
 #  mgi_allele_id                      :string(255)
@@ -392,6 +321,8 @@ end
 #  background_strain_id               :integer
 #  allele_description_summary         :text
 #  auto_allele_description            :text
+#  is_released_from_genotyping        :boolean          default(FALSE)
+#  genotyping_comment                 :text
 #
 # Indexes
 #

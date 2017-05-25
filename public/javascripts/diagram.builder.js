@@ -363,8 +363,10 @@ function DiagramBuilder(options, width, height) {
     });
   };
 
-  DiagramBuilder.prototype.addField = function(box, name, defaultValue, title, placement) {
+  DiagramBuilder.prototype.addField = function(box, id, name, defaultValue, title, placement) {
     var coords = box.getBBox();
+
+    id = id || name;
 
     //placement should be one of "[top|bottom|center] [left|right]"
     //the default being top center
@@ -400,7 +402,7 @@ function DiagramBuilder(options, width, height) {
 
     //make a new input field and position it relative to the provided box
     //var field = $("<input type='text' name='" + name + "' id='" + name + "' value='" + defaultValue + "' placeholder='"+title+"' />")
-    var field = $("<select type='text' name='" + name + "' id='" + name + "' value='" + defaultValue + "' title='"+title+"'><option value='na'>na</option><option value='pass'>pass</option><option value='fail'>fail</option></select>")
+    var field = $("<select type='text' name='" + name + "' id='" + id + "' value='" + defaultValue + "' title='"+title+"'><option value='na'>na</option><option value='pass'>pass</option><option value='fail'>fail</option></select>")
       .css( {
         position: "absolute", 
         left: (xOffset - this._createAttributes().x) + "px", //offset from left of div to correct position
@@ -446,19 +448,20 @@ function DiagramBuilder(options, width, height) {
     //Use default or user specified line_options
     options = $.extend({}, default_options, options);
 
-    name  = options.name
-    value = options.value
-    title = options.title
+    id  = options.id || options.name;
+    name  = options.name;
+    value = options.value;
+    title = options.title;
 
-    left = this._attributes.textBoxLeft ? this._attributes.textBoxLeft : options.offset
-    bottom = options.offset
+    left = this._attributes.textBoxLeft ? this._attributes.textBoxLeft : options.offset;
+    bottom = options.offset;
 
     left   = left + options.offsetX;
     bottom = bottom - options.offsetY;
 
     //make a new input field and position it relative to the provided box
     //var field = $("<input type='text' name='" + name + "' id='" + name + "' value='" + defaultValue + "' placeholder='"+title+"' />")
-    var field = $("<select type='text' name='" + name + "' id='" + name + "' value='" + value + "' title='"+title+"'><option value='na'>na</option><option value='pass'>pass</option><option value='fail'>fail</option></select>")
+    var field = $("<select type='text' name='" + name + "' id='" + id + "' value='" + value + "' title='"+title+"'><option value='na'>na</option><option value='pass'>pass</option><option value='fail'>fail</option></select>")
       .css( {
         position: "absolute", 
         left: left + "px", //offset from left of div to correct position
@@ -522,6 +525,8 @@ function DiagramBuilder(options, width, height) {
     //Use default or user specified line_options
     line_options = $.extend({}, default_line_options, line_options);
 
+    var id = line_options.id || line_options.name;
+
     //this will make a |<-- 5' retrieval arm length -->| or whatever label underneath two elements.
     //it will also add a text box inline with the text
     var first_coords = line_options.first.getBBox();
@@ -577,7 +582,7 @@ function DiagramBuilder(options, width, height) {
     //var textF = this._paper.text(coords.xCentre-this._attributes.textWidth/2, coords.yCentre+text_offset, text).attr({"font-size": 14});
 
     //finally add the textbox to the center right of the label we just wrote
-    var field = this.addField(arrow, line_options.name, line_options.defaultValue, line_options.text, "bottom center");
+    var field = this.addField(arrow, id, line_options.name, line_options.defaultValue, line_options.text, "bottom center");
 
     return this._paper;
   };

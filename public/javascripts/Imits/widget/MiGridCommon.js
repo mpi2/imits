@@ -691,118 +691,118 @@ Ext.define('Imits.widget.MiGridCommon', {
         ],
 
         'ES Cell QC Details': [
-        {
-            dataIndex: 'qc_southern_blot_result',
-            header: 'Southern Blot',
-            sortable: false,
-            width: 85,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_five_prime_lr_pcr_result',
-            header: 'Five Prime LR PCR',
-            sortable: false,
-            width: 110,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_five_prime_cassette_integrity_result',
-            header: 'Five Prime Cassette Integrity',
-            sortable: false,
-            width: 110,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_tv_backbone_assay_result',
-            header: 'TV Backbone Assay',
-            sortable: false,
-            width: 110,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_neo_count_qpcr_result',
-            header: 'Neo Count QPCR',
-            sortable: false,
-            width: 105,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_lacz_count_qpcr_result',
-            header: 'Lacz Count QPCR',
-            sortable: false,
-            width: 105,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_neo_sr_pcr_result',
-            header: 'Neo SR PCR',
-            sortable: false,
-            width: 75,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_loa_qpcr_result',
-            header: 'LOA QPCR',
-            sortable: false,
-            width: 70,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_homozygous_loa_sr_pcr_result',
-            header: 'Homozygous LOA SR PCR',
-            sortable: false,
-            width: 150,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_lacz_sr_pcr_result',
-            header: 'LacZ SR PCR',
-            sortable: false,
-            width: 80,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_mutant_specific_sr_pcr_result',
-            header: 'Mutant Specific SR PCR',
-            sortable: false,
-            width: 130,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_loxp_confirmation_result',
-            header: 'LoxP Confirmation',
-            sortable: false,
-            width: 100,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_three_prime_lr_pcr_result',
-            header: 'Three Prime LR PCR',
-            sortable: false,
-            width: 115,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_critical_region_qpcr_result',
-            header: 'Critical Region QPCR',
-            sortable: false,
-            width: 115,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_loxp_srpcr_result',
-            header: 'Loxp SRPCR',
-            sortable: false,
-            width: 80,
-            editor: 'qccombo'
-        },
-        {
-            dataIndex: 'qc_loxp_srpcr_and_sequencing_result',
-            header: 'Loxp SRPRC and Sequencing',
-            sortable: false,
-            width: 155,
-            editor: 'qccombo'
-        },
+//        {
+//            dataIndex: 'qc_southern_blot_result',
+//            header: 'Southern Blot',
+//            sortable: false,
+//            width: 85,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_five_prime_lr_pcr_result',
+//            header: 'Five Prime LR PCR',
+//            sortable: false,
+//            width: 110,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_five_prime_cassette_integrity_result',
+//            header: 'Five Prime Cassette Integrity',
+//            sortable: false,
+//            width: 110,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_tv_backbone_assay_result',
+//            header: 'TV Backbone Assay',
+//            sortable: false,
+//            width: 110,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_neo_count_qpcr_result',
+//            header: 'Neo Count QPCR',
+//            sortable: false,
+//            width: 105,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_lacz_count_qpcr_result',
+//            header: 'Lacz Count QPCR',
+//            sortable: false,
+//            width: 105,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_neo_sr_pcr_result',
+//            header: 'Neo SR PCR',
+//            sortable: false,
+//            width: 75,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_loa_qpcr_result',
+//            header: 'LOA QPCR',
+//            sortable: false,
+//            width: 70,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_homozygous_loa_sr_pcr_result',
+//            header: 'Homozygous LOA SR PCR',
+//            sortable: false,
+//            width: 150,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_lacz_sr_pcr_result',
+//            header: 'LacZ SR PCR',
+//            sortable: false,
+//            width: 80,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_mutant_specific_sr_pcr_result',
+//            header: 'Mutant Specific SR PCR',
+//            sortable: false,
+//            width: 130,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_loxp_confirmation_result',
+//            header: 'LoxP Confirmation',
+//            sortable: false,
+//            width: 100,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_three_prime_lr_pcr_result',
+//            header: 'Three Prime LR PCR',
+//            sortable: false,
+//            width: 115,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_critical_region_qpcr_result',
+//            header: 'Critical Region QPCR',
+//            sortable: false,
+//            width: 115,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_loxp_srpcr_result',
+//            header: 'Loxp SRPCR',
+//            sortable: false,
+//            width: 80,
+//            editor: 'qccombo'
+//        },
+//        {
+//            dataIndex: 'qc_loxp_srpcr_and_sequencing_result',
+//            header: 'Loxp SRPRC and Sequencing',
+//            sortable: false,
+//            width: 155,
+//            editor: 'qccombo'
+//        },
         {
             dataIndex: 'report_to_public',
             header: 'Report to Public',

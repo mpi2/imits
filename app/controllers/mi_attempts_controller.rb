@@ -245,4 +245,64 @@ class MiAttemptsController < ApplicationController
   end
   private :update_g0_screen_results
 
+
+  def process_params
+    mi = Public::MiAttempt.find(params[:id]) if params.has_key?(:id)
+    return if mi.es_cell_name.blank? && (!params.has_key(:es_cell_name) || params[:es_cell_name].blank?)
+    mutagenesis_factor_id = mi.blank? ? nil : mi.mutagenesis_factor.try(:id)
+    colony_id = mi.blank? || mi.colonies.blank? ? nil : mi.colonies.first.try(:id) 
+    allele_id = mi.blank? || mi.colonies.blank? || mi.colonies.first.alleles.blank? ? nil : mi.colonies.first.alleles.first.try(:id) 
+
+    # MUTAGENESIS FACTOR ATTRIBUTES
+    if params.has_key?(:es_cell_name)
+#      params[:mutagenesis_factor_attributes] = {} unless params.has_key?(:mutagenesis_factor_attributes)
+#      params[:mutagenesis_factor_attributes][:id] = mutagenesis_factor_id unless params[:mutagenesis_factor_attributes].has_key(:id) || mutagenesis_factor_id.blank?
+#      params[:mutagenesis_factor_attributes][:es_cell_name] = params[:es_cell_name]
+    end
+
+    # COLONIES ATTRIBUTES
+    if params.has_key?(:external_ref) || params.has_key?(:colony_name) || params.has_key?(:background_strain_name) || params.has_key?(:distribution_centres_attributes) || params.has_key(:mouse_allele_type) || params_has_production_qc_param?
+      params[:colonies_attributes] = {} unless params.has_key?(:colonies_attributes)
+      params[:colonies_attributes][:id] = colony_id unless params[:colonies_attributes].has_key(:id) || colony_id.blank?
+
+      params[:colonies_attributes][:name] = params[:colony_name] if params.has_key?(:colony_name)
+      params[:colonies_attributes][:name] = params[:external_ref] if params.has_key?(:external_ref)
+      params[:colonies_attributes][:background_strain_name] = params[:background_strain_name] if params.has_key?(:background_strain_name)
+      params[:colonies_attributes][:distribution_centres_attributes] = params[:distribution_centres_attributes] if params.has_key?(:distribution_centres_attributes)
+
+      # ALLELE ATTRIBUTES
+      if params.has_key(:mouse_allele_type) || params_has_production_qc_param?
+        params[:colonies_attributes][:alleles_attributes] = {} unless params.has_key?(:alleles_attributes)
+        params[:colonies_attributes][:alleles_attributes][:id] = allele_id unless params[:colonies_attributes][:alleles_attributes].has_key(:id) || allele_id.blank?
+
+        params[:colonies_attributes][:alleles_attributes][:allele_type] = params[:mouse_allele_type] if params.has_key?(:mouse_allele_type)
+
+        # PRODUCTION QC ATTRUBUTES
+        params[:colonies_attributes][:alleles_attributes][:southern_blot] = params[:qc_southern_blot_result] if params.has_key?(:qc_southern_blot_result)
+        params[:colonies_attributes][:alleles_attributes][:five_prime_lr_pcr] = params[:qc_five_prime_lr_pcr_result] if params.has_keys?(:qc_five_prime_lr_pcr_result)
+        params[:colonies_attributes][:alleles_attributes][:five_prime_cassette_integrity] = params[:qc_five_prime_cassette_integrity_result] if params.has_keys?(:qc_five_prime_cassette_integrity_result)
+        params[:colonies_attributes][:alleles_attributes][:tv_backbone_assay] = params[:qc_tv_backbone_assay_result] if params.has_keys?(:qc_tv_backbone_assay_result)
+        params[:colonies_attributes][:alleles_attributes][:neo_count_qpcr] = params[:qc_neo_count_qpcr_result] if params.has_keys?(:qc_neo_count_qpcr_result)
+        params[:colonies_attributes][:alleles_attributes][:lacz_count_qpcr] = params[:qc_lacz_count_qpcr_result] if params.has_keys?(:qc_lacz_count_qpcr_result)
+        params[:colonies_attributes][:alleles_attributes][:neo_sr_pcr] = params[:qc_neo_sr_pcr_result] if params.has_keys?(:qc_neo_sr_pcr_result)
+        params[:colonies_attributes][:alleles_attributes][:loa_qpcr] = params[:qc_loa_qpcr_result] if params.has_keys?(:qc_loa_qpcr_result)
+        params[:colonies_attributes][:alleles_attributes][:homozygous_loa_sr_pcr] = params[:qc_homozygous_loa_sr_pcr_result] if params.has_keys?(:qc_homozygous_loa_sr_pcr_result)
+        params[:colonies_attributes][:alleles_attributes][:lacz_sr_pcr] = params[:qc_lacz_sr_pcr_result] if params.has_keys?(:qc_lacz_sr_pcr_result)
+        params[:colonies_attributes][:alleles_attributes][:mutant_specific_sr_pcr] = params[:qc_mutant_specific_sr_pcr_result] if params.has_keys?(:qc_mutant_specific_sr_pcr_result)
+        params[:colonies_attributes][:alleles_attributes][:loxp_confirmation] = params[:qc_loxp_confirmation_result] if params.has_keys?(:qc_loxp_confirmation_result)
+        params[:colonies_attributes][:alleles_attributes][:three_prime_lr_pcr] = params[:qc_three_prime_lr_pcr_result] if params.has_keys?(:qc_three_prime_lr_pcr_result)
+        params[:colonies_attributes][:alleles_attributes][:critical_region_qpcr] = params[:qc_critical_region_qpcr_result] if params.has_keys?(:qc_critical_region_qpcr_result)
+        params[:colonies_attributes][:alleles_attributes][:loxp_srpcr] = params[:qc_loxp_srpcr_result] if params.has_keys?(:qc_loxp_srpcr_result)
+        params[:colonies_attributes][:alleles_attributes][:loxp_srpcr_and_sequencing] = params[:qc_loxp_srpcr_and_sequencing_result] if params.has_keys?(:qc_loxp_srpcr_and_sequencing_result)
+      end
+    end
+  end
+  private :process_params
+
+  def params_has_production_qc_param?
+    return true unless params.select{|k, v| k.to_s =~ /qc_[\w_]+_result/ }.blank?
+    return false
+  end
+  private :params_has_production_qc_param?
+
 end

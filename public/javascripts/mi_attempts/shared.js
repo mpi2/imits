@@ -265,9 +265,25 @@ Ext.onReady(function() {
 });
 
 $(function() {
+  $('.qcimage').each(function(idx, elm){
+    var colonyIndex = $(elm).attr('data-colonyindex');
+    var alleleIndex = $(elm).attr('data-alleleindex');
+    CreateQcDiagram(colonyIndex, alleleIndex); 
+  })
+
+})
+
+function CreateQcDiagram(colonyIndex, alleleIndex) {
+
+    var attribute_prefix = 'mi_attempt[colonies_attributes][' + colonyIndex + '][alleles_attributes][' + alleleIndex + '][production_centre_qc_attributes]' ;
+    var attribute_id_prefix = 'mi_attempt_colonies_attributes_' + colonyIndex + '_alleles_attributes_' + alleleIndex + '_production_centre_qc_attributes_' ;
+    var holder_mutant = 'holder_mutant_colony_' + colonyIndex + '_allele_' + alleleIndex ;
+    var holder_wildtype = 'holder_wildtype_colony_' + colonyIndex + '_allele_' + alleleIndex ;
+
+//    console.log(holder_mutant);
 
     builder = new DiagramBuilder({
-        frame_id: "holder_mutant",
+        frame_id: holder_mutant,
         width: 850,
         height: 375,
         shape_y: 120
@@ -299,7 +315,8 @@ $(function() {
       second : line,
       text : 'Five Prime LR PCR',
       position : "end to start",
-      name : 'qc_five_prime_lr_pcr',
+      name : attribute_prefix + '[five_prime_lr_pcr]',
+      id : attribute_id_prefix + 'five_prime_lr_pcr',
       positionY : 20
     });
 
@@ -308,7 +325,8 @@ $(function() {
       second : sa,
       text : 'Mutant Specific SR PCR',
       position : "start to end above",
-      name : 'qc_mutant_specific_sr_pcr'
+      name : attribute_prefix + '[mutant_specific_sr_pcr]',
+      id : attribute_id_prefix + 'mutant_specific_sr_pcr'
     });
 
     // LacZ
@@ -323,7 +341,8 @@ $(function() {
       second : lacz,
       text : 'LacZ SR PCR',
       position : "start to end",
-      name : 'qc_lacz_sr_pcr',
+      name : attribute_prefix + '[lacz_sr_pcr]',
+      id : attribute_id_prefix + 'lacz_sr_pcr',
       positionY : 20
     });
 
@@ -334,7 +353,8 @@ $(function() {
       arrowHeads : 'oval-wide-long',
       fill : 'rgba(166, 74, 70, 1)',
       position : "start to end",
-      name : 'qc_lacz_count_qpcr',
+      name : attribute_prefix + '[lacz_count_qpcr]',
+      id : attribute_id_prefix + 'lacz_count_qpcr',
       positionY : -50,
     });
 
@@ -350,7 +370,8 @@ $(function() {
       second : neo,
       text : 'Neo Count QPCR',
       position : "start to end above",
-      name : 'qc_neo_count_qpcr',
+      name : attribute_prefix + '[neo_count_qpcr]',
+      id : attribute_id_prefix + 'neo_count_qpcr',
       arrowHeads : 'oval-wide-long',
       fill : 'rgba(166, 74, 70, 1)'
     });
@@ -360,7 +381,8 @@ $(function() {
       second : neo,
       text : 'Neo SR PCR',
       position : "start to end",
-      name : 'qc_neo_sr_pcr',
+      name : attribute_prefix + '[neo_sr_pcr]',
+      id : attribute_id_prefix + 'neo_sr_pcr',
       positionY : 20
     });
 
@@ -397,7 +419,8 @@ $(function() {
       second : loxp_end,
       text : 'LoxP Confirmation',
       position : "start to end above",
-      name : 'qc_loxp_confirmation'
+      name : attribute_prefix + '[loxp_confirmation]',
+      id : attribute_id_prefix + 'loxp_confirmation'
     });
 
     builder.addLabel({
@@ -405,7 +428,8 @@ $(function() {
       second : line2,
       text : 'Three Prime LR PCR',
       position : "start to end",
-      name : 'qc_three_prime_lr_pcr',
+      name : attribute_prefix + '[three_prime_lr_pcr]',
+      id : attribute_id_prefix + 'three_prime_lr_pcr',
       positionY : 20
     });
 
@@ -414,34 +438,39 @@ $(function() {
       second : loxp_end,
       text : 'Critical region QPCR',
       position : "end to start",
-      name : 'qc_critical_region_qpcr',
+      name : attribute_prefix + '[critical_region_qpcr]',
+      id : attribute_id_prefix + 'critical_region_qpcr',
       arrowHeads : 'oval-wide-long',
       fill : 'rgba(166, 74, 70, 1)',
       positionY : -50
     });
 
     builder.addTextBox({
-      name: 'qc_tv_backbone_assay',
+      name: attribute_prefix + '[tv_backbone_assay]',
+      id : attribute_id_prefix + 'tv_backbone_assay',
       title: 'TV Backbone Assay',
       value: '',
       positionY : 20
     })
 
     builder.addTextBox({
-      name: 'qc_southern_blot',
+      name: attribute_prefix + '[southern_blot]',
+      id : attribute_id_prefix + 'southern_blot',
       title: 'Southern Blot',
       value: '',
       labelPosition: 'above'
     })
 
     builder.addTextBox({
-      name: 'qc_five_prime_cassette_integrity',
+      name: attribute_prefix + '[five_prime_cassette_integrity]',
+      id : attribute_id_prefix + 'five_prime_cassette_integrity',
       title: 'Five Prime Cassette Integrity',
       value: ''
     })
 
     builder.addTextBox({
-      name: 'qc_loxp_srpcr',
+      name: attribute_prefix + '[loxp_srpcr]',
+      id : attribute_id_prefix + 'loxp_srpcr',
       title: 'LOXP SRPCR',
       value: '',
       offsetY: -305,
@@ -449,8 +478,9 @@ $(function() {
     })
 
     builder.addTextBox({
-      name: 'qc_loxp_srpcr_and_sequencing',
-      title: 'LOCP SRPCR and sequencing',
+      name: attribute_prefix + '[loxp_srpcr_and_sequencing]',
+      id : attribute_id_prefix + 'loxp_srpcr_and_sequencing',
+      title: 'LOXP SRPCR and sequencing',
       value: '',
       offsetY: -305,
       offsetX: 194
@@ -461,7 +491,7 @@ $(function() {
     //
 
     builder = new DiagramBuilder({
-        frame_id : "holder_wildtype",
+        frame_id : holder_wildtype,
         width : 850,
         height : 230,
         shape_y: 80
@@ -498,7 +528,7 @@ $(function() {
     attrs.text = '3';
     attrs['background-color'] = "yellow";
     var box3 = builder._addBox(attrs);
-
+    
     // Vertical line
     var attrs = builder._getElementAttributes(1);
     var vertical_line2 = builder._addBox(attrs);
@@ -510,7 +540,8 @@ $(function() {
       second : box2,
       text : 'LOA QPCR',
       position : "end to start above",
-      name : 'qc_loa_qpcr',
+      name : attribute_prefix + '[loa_qpcr]',
+      id : attribute_id_prefix + 'loa_qpcr',
       arrowHeads : 'oval-wide-long',
       line_height : 30,
       fill : 'rgba(166, 74, 70, 1)'
@@ -521,7 +552,8 @@ $(function() {
       second : box2,
       text : 'Homozygous LOA SR PCR',
       position : "end to start",
-      name : 'qc_homozygous_loa_sr_pcr',
+      name : attribute_prefix + '[homozygous_loa_sr_pcr]',
+      id : attribute_id_prefix + 'homozygous_loa_sr_pcr',
       line_height : 30
     });
 
@@ -532,30 +564,25 @@ $(function() {
         var value   = $select.val();
         var id      = $select.attr('id');
 
-        var $mi_select = $('#mi_attempt_'+id+'_result');
-        $mi_select.val(value);
-    })
+        matched_indexes = id.match(/(\d+)/g, '');
+        matched_id = id.replace(/(mi_attempt_colonies_attributes_\d+_alleles_attributes_\d+_production_centre_qc_attributes_)/g, '');
 
-    $('.qc-details select').live('change', function() {
-        var $select = $(this);
-        var value   = $select.val();
-        var id      = $select.attr('id');
+        var $mi_select = $('#qc_data_colony_' + matched_indexes[0] +'_allele_' + matched_indexes[1] + '_' + matched_id);
 
-        matched_id = id.replace(/(mi_attempt_)|(_result)/g, '')
-
-        var $qc_select = $('#'+matched_id)
-        $qc_select.val(value)
+        $mi_select.attr('data_value', value);
     })
 
     // Fill the fields on page load
-    $('.qc-details select').each(function() {
-        var $select = $(this);
-        var value   = $select.val();
-        var id      = $select.attr('id');
+    $('.qc-details div.qc_data').each(function() {
+        var $div = $(this);
+        var value   = $div.attr('data_value');
+        var id      = $div.attr('id');
 
-        matched_id = id.replace(/(mi_attempt_)|(_result)/g, '')
-        var $qc_select = $('#'+matched_id)
+        matched_indexes = id.match(/(\d+)/g, '');
+        matched_id = id.replace(/(qc_data_colony_\d+_allele_\d+_)/g, '');
+
+        var $qc_select = $('#mi_attempt_colonies_attributes_' + matched_indexes[0] +'_alleles_attributes_' + matched_indexes[1] + '_production_centre_qc_attributes_' + matched_id);
         $qc_select.val(value);
     })
 
-})
+}

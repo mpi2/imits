@@ -3,25 +3,6 @@
 class ApplicationModel < ActiveRecord::Base
   self.abstract_class = true
 
-  MOUSE_ALLELE_OPTIONS = {
-    nil => '[none]',
-    'a' => 'a - Knockout-first - Reporter Tagged Insertion',
-    'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
-    'c' => 'c - Knockout-First, Post-Flp - Conditional',
-    'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
-    'e' => 'e - Targeted Non-Conditional',
-    'e.1' => 'e.1 - Promoter excision from tm1e mouse',
-    '.1' => '.1 - Promoter excision from Deletion/Point Mutation ',
-    '.2' => '.2 - Promoter excision from Deletion/Point Mutation '
-  }.freeze
-
-  CRISPR_MOUSE_ALLELE_OPTIONS = {
-    'NHEJ' => 'Mutation resulted from Non Homology End Joining',
-    'Deletion' => 'Exon Deletion resulted from Non Homology End Joining',
-    'HR' => 'Homology directed repair with introduced targeting vector',
-    'HDR' => 'Homology directed repair with introduced oligos',
-  }.freeze
-
   COMPLETION_NOTE ={
     nil => '[none]',
     'Handoff complete' => 'Handoff complete',
@@ -37,7 +18,7 @@ class ApplicationModel < ActiveRecord::Base
 
   def set_blank_strings_to_nil
     self.attributes.each do |name, value|
-      if self[name].respond_to?(:to_str) && self[name].blank? && !allowed_to_be_blank.include?(name)
+      if self[name].respond_to?(:to_str) && self[name].blank? && !self.class.allowed_to_be_blank.include?(name)
         self[name] = nil
       end
     end

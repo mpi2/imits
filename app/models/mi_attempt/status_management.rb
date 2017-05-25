@@ -27,14 +27,16 @@ module MiAttempt::StatusManagement
       false
     elsif mi.es_cell?
       if mi.production_centre.try(:name) == 'WTSI'
-        mi.is_released_from_genotyping?
+        mi.colonies.any?{ |c| c.is_released_from_genotyping?}
       else
         mi.number_of_het_offspring.to_i != 0 or mi.number_of_chimeras_with_glt_from_genotyping.to_i != 0
       end
     else mi.crispr?
-      genotype_confirmed = false
-      mi.colonies.each{|m| if m.genotype_confirmed == true; genotype_confirmed=true; break; end}
-      genotype_confirmed
+      if mi.production_centre.try(:name) == 'WTSI'
+        mi.colonies.any?{ |c| c.is_released_from_genotyping? && c.genotype_confirmed}
+      else
+        mi.colonies.any?{|c| c.genotype_confirmed}
+      end
     end
   end
 

@@ -7,7 +7,6 @@ class Public::MiAttempt < ::MiAttempt
   FULL_ACCESS_ATTRIBUTES = %w{
     es_cell_name
     mi_date
-    colony_name
     consortium_name
     production_centre_name
     parent_colony_name
@@ -23,7 +22,6 @@ class Public::MiAttempt < ::MiAttempt
     number_of_males_with_40_to_79_percent_chimerism
     number_of_males_with_80_to_99_percent_chimerism
     number_of_males_with_100_percent_chimerism
-    colony_background_strain_name
     test_cross_strain_name
     date_chimeras_mated
     number_of_chimera_matings_attempted
@@ -38,28 +36,9 @@ class Public::MiAttempt < ::MiAttempt
     number_of_cct_offspring
     number_of_het_offspring
     number_of_live_glt_offspring
-    mouse_allele_type
-    qc_southern_blot_result
-    qc_five_prime_lr_pcr_result
-    qc_five_prime_cassette_integrity_result
-    qc_tv_backbone_assay_result
-    qc_neo_count_qpcr_result
-    qc_lacz_count_qpcr_result
-    qc_neo_sr_pcr_result
-    qc_loa_qpcr_result
-    qc_homozygous_loa_sr_pcr_result
-    qc_lacz_sr_pcr_result
-    qc_mutant_specific_sr_pcr_result
-    qc_loxp_confirmation_result
-    qc_three_prime_lr_pcr_result
-    qc_critical_region_qpcr_result
-    qc_loxp_srpcr_result
-    qc_loxp_srpcr_and_sequencing_result
     report_to_public
     is_active
-    is_released_from_genotyping
     comments
-    genotyping_comment
     mi_plan_id
     mutagenesis_factor_id
     cassette_transmission_verified
@@ -80,10 +59,8 @@ class Public::MiAttempt < ::MiAttempt
     crsp_embryo_transfer_day 
     crsp_embryo_2_cell 
     crsp_num_founders_selected_for_breading
-    real_allele_id
     external_ref
     experimental
-    distribution_centres_attributes
     colonies_attributes
     reagents_attributes
     mutagenesis_factor_attributes
@@ -93,7 +70,6 @@ class Public::MiAttempt < ::MiAttempt
 
   READABLE_ATTRIBUTES = %w{
     id
-    distribution_centres_formatted_display
     mi_plan_mutagenesis_via_crispr_cas9
     es_cell_marker_symbol
     marker_symbol
@@ -102,17 +78,12 @@ class Public::MiAttempt < ::MiAttempt
     status_dates
     mouse_allele_symbol_superscript
     mouse_allele_symbol
-    phenotype_attempts_count
     pipeline_name
-    allele_symbol
     blast_strain_mgi_accession
     blast_strain_mgi_name
-    colony_background_strain_mgi_accession
-    colony_background_strain_mgi_name
     test_cross_strain_mgi_accession
     test_cross_strain_mgi_name
     mgi_accession_id
-    mutagenesis_factor_external_ref
     genotyped_confirmed_colony_names
     genotyped_confirmed_colony_phenotype_attempts_count
     genotype_confirmed_allele_symbols
@@ -135,32 +106,32 @@ class Public::MiAttempt < ::MiAttempt
     return retval
   end
 
-  def phenotype_attempts_count
-    return 0 if self.colony.blank?
-    self.colony.allele_modifications.length + self.colony.phenotyping_productions.length
-  end
-
   def pipeline_name
     try(:es_cell).try(:pipeline).try(:name)
   end
 
   def genotyped_confirmed_colony_names
-    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
+    return [] if colonies.blank? || self.id.blank?
     return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.name}.join(',') + ']'
   end
 
   def genotyped_confirmed_colony_phenotype_attempts_count
-    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
+    return [] if colonies.blank? || self.id.blank?
     return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.phenotype_attempts_count}.join(',') + ']'
   end
 
   def genotype_confirmed_allele_symbols
-    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
-    return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.allele_symbol}.join(',') + ']'
+    return [] if colonies.blank? || self.id.blank?
+    colony_alleles = Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')}.join(',')
+    if !colony_alleles.blank?
+      return '[' + self.marker_symbol + '<sup>' + colony_alleles + '</sup>' + ']'
+    else
+      return []
+    end
   end
 
   def genotype_confirmed_distribution_centres
-    return [] if (colonies.blank? && colony.blank?) || self.id.blank?
+    return [] if colonies.blank? || self.id.blank?
     return '[' + Colony.where("genotype_confirmed = true AND mi_attempt_id = #{self.id}").map{|c| c.distribution_centres.count > 0 ? c.distribution_centres_formatted_display : '[]'}.join(',') + ']'
 
   end
@@ -220,12 +191,10 @@ end
 #  number_of_live_glt_offspring                    :integer
 #  report_to_public                                :boolean          default(TRUE), not null
 #  is_active                                       :boolean          default(TRUE), not null
-#  is_released_from_genotyping                     :boolean          default(FALSE), not null
 #  comments                                        :text
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
 #  mi_plan_id                                      :integer          not null
-#  genotyping_comment                              :string(512)
 #  legacy_es_cell_id                               :integer
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean

@@ -52,11 +52,27 @@ Ext.onReady(initDisableOnSubmitButtons);
 function toggleCollapsibleFieldsetLegend(legend) {
     var fieldset = legend.up('fieldset');
     var div      = fieldset.down('div');
+    var qtip_ids = [];
+    
+    fieldset.select('select').each(function(elm, comp, idx) {
+            if (elm.dom.hasAttribute('aria-describedby')) {
+                qtip_ids.push(elm.dom.attributes.getNamedItem('aria-describedby').nodeValue);
+            };
+    });
+
     div.setVisibilityMode( Ext.Element.DISPLAY );
     div.toggle();
     fieldset.toggleCls('collapsible-content-hidden');
     fieldset.toggleCls('collapsible-content-shown');
+
+    qtip_ids.forEach(function(qtip_id){
+            qtip = $('#' + qtip_id).qtip();
+            qtip.toggle();
+            qtip.reposition();
+        }
+    );
 }
+
 
 function setupCollapsibleFieldsets() {
     var collapsibleLegends = Ext.select('fieldset.collapsible > legend');
@@ -71,7 +87,7 @@ function setupCollapsibleFieldsets() {
 Ext.onReady(setupCollapsibleFieldsets);
 
 function hideDefaultCollapsibleFieldsets() {
-    Ext.select('fieldset.collapsible.hide-by-default legend').each(function(elm ,comp, idx) {
+    Ext.select('fieldset.collapsible.hide-by-default > legend').each(function(elm ,comp, idx) {
         toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) );
     });
 }

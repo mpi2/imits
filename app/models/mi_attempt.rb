@@ -14,7 +14,6 @@ class MiAttempt < ApplicationModel
   DELIVERY_METHODS = ['Cytoplasmic Injection', 'Pronuclear Injection', 'Electroporation'].freeze
   TRANSFER_DAY = ['Same Day', 'Next Day'].freeze
 
-  belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :es_cell, :class_name => 'TargRep::EsCell'
   belongs_to :status
@@ -24,48 +23,25 @@ class MiAttempt < ApplicationModel
   belongs_to :mutagenesis_factor, :inverse_of => :mi_attempt, dependent: :destroy
   belongs_to :parent_colony, :class_name => 'Colony'
 
-  has_one    :colony, inverse_of: :mi_attempt, dependent: :destroy
-
-  has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC", dependent: :destroy
+  has_many   :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC", dependent: :destroy, :inverse_of => :mi_attempt
   has_many   :mouse_allele_mods
   has_many   :colonies, inverse_of: :mi_attempt
   has_many   :crisprs, through: :mutagenesis_factor
   has_many   :genotype_primers, through: :mutagenesis_factor
-  has_many   :reagents, :class_name => 'Reagent'
+  has_many   :reagents, :class_name => 'Reagent', :inverse_of => :mi_attempt
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :test_cross_strain, :name
   access_association_by_attribute :parent_colony, :name
 
-  ColonyQc::QC_FIELDS.each do |qc_field|
-    belongs_to qc_field, :class_name => 'QcResult'
-
-    define_method("#{qc_field}_result=") do |arg|
-      instance_variable_set("@#{qc_field}_result",arg)
-    end
-
-    define_method("#{qc_field}_result") do
-      return nil if es_cell.blank?
-      if !instance_variable_get("@#{qc_field}_result").blank?
-        return instance_variable_get("@#{qc_field}_result")
-      elsif !colony.blank? and !colony.try(:colony_qc).try(qc_field.to_sym).blank?
-        return colony.colony_qc.send(qc_field)
-      else
-        return 'na'
-      end
-    end
-  end
-
   accepts_nested_attributes_for :status_stamps, :mutagenesis_factor
-  accepts_nested_attributes_for :colony, :update_only =>true
   accepts_nested_attributes_for :colonies, :allow_destroy => true
   accepts_nested_attributes_for :reagents, :allow_destroy => true
 
   protected :status=
 
   validates :status, :presence => true
-  validates :external_ref, :uniqueness => {:case_sensitive => false}, :allow_nil => true
-#  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
+  validates :external_ref, :presence => true, :uniqueness => {:case_sensitive => false}
   validates :mi_date, :presence => true
   validates :assay_type, :inclusion => { :in => CRISPR_ASSAY_TYPES}, :allow_nil => true
 
@@ -125,34 +101,31 @@ class MiAttempt < ApplicationModel
   end
 
   # BEGIN Callbacks
-
-
-  before_validation :set_blank_qc_fields_to_na
   before_validation :set_total_chimeras
   before_validation :set_es_cell_from_es_cell_name
-
-  before_validation :generate_external_ref_if_blank
   before_validation :change_status
-  before_validation :manage_colony_for_es_cell_micro_injections_qc_data
-
-  before_validation do |mi|
-    return true unless ( ! mi.colony.blank? ) && ( ! mi.colony.colony_qc.blank? ) && mi.colony.colony_qc.qc_loxp_confirmation_changed?
-    return true if !mi.allele.blank? and mi.allele.mutation_type.try(:code) == 'cki'
-
-    if mi.qc_loxp_confirmation_result == 'fail' && mi.allele.mutation_type.try(:allele_code) == 'a'
-      self.mouse_allele_type = 'e'
-    elsif self.mouse_allele_type == 'e' and (mi.qc_loxp_confirmation_result == 'pass')
-      self.mouse_allele_type = nil
-    end
-
-    true
-  end
-
   before_validation do |mi|
     if ! mi.external_ref.nil?
       mi.external_ref = mi.external_ref.to_s.strip || mi.external_ref
       mi.external_ref = mi.external_ref.to_s.gsub(/\s+/, ' ')
     end
+  end
+
+
+  before_validation :set_colony_from_external_ref
+
+  before_validation do |mi|
+    if !self.es_cell_id.blank?
+
+      if self.colonies.count == 1
+        if self.status_id == 2
+          self.colonies.first.genotype_confirmed = true
+        else
+          self.colonies.first.genotype_confirmed = false
+        end
+      end
+    end
+    return true
   end
 
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
@@ -196,47 +169,6 @@ class MiAttempt < ApplicationModel
     super
   end
 
-  def colony
-    if !es_cell.blank?
-      super
-    else
-      nil
-    end
-  end
-
-  def colonies
-    if !es_cell.blank?
-      []
-    else
-      super
-    end
-  end
-
-  def distribution_centres_attributes
-    return nil if es_cell.blank?
-    return @distribution_centres_attributes unless @distribution_centres_attributes.blank?
-    return distribution_centres.map(&:as_json) unless distribution_centres.blank?
-    return nil
-  end
-
-  def distribution_centres_attributes=(arg)
-    @distribution_centres_attributes = arg
-  end
-
-  def distribution_centres
-    return [] if es_cell.blank?
-    colony.try(:distribution_centres)
-  end
-
-  def set_blank_qc_fields_to_na
-    ColonyQc::QC_FIELDS.each do |qc_field|
-      if self.send("#{qc_field}_result").blank?
-        self.send("#{qc_field}_result=", 'na')
-      end
-    end
-  end
-  protected :set_blank_qc_fields_to_na
-
   def set_total_chimeras
     self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
   end
@@ -249,6 +181,15 @@ class MiAttempt < ApplicationModel
   end
   protected :set_es_cell_from_es_cell_name
 
+
+  def set_colony_from_external_ref
+    if self.new_record? && !self.es_cell_name.blank? && !external_ref.blank? && colonies_attributes.blank?
+      colony_attr_hash = {}
+      colony_attr_hash[:name] = external_ref
+      self.colonies_attributes = [colony_attr_hash]
+    end
+  end
+  protected :set_colony_from_external_ref
 
   def set_cassette_transmission_verified
     if self.cassette_transmission_verified.blank?
@@ -263,54 +204,6 @@ class MiAttempt < ApplicationModel
   end
   protected :set_cassette_transmission_verified
 
-  def generate_external_ref_if_blank
-    return if self.es_cell.blank? && self.mutagenesis_factor.blank?
-    return unless self.external_ref.blank?
-    return if self.production_centre.blank?
-    product_prefix = self.es_cell.nil? ? 'Crisp' : self.es_cell.name
-    i = 0
-    begin
-      i += 1
-      self.external_ref = "#{self.production_centre.name}-#{product_prefix}-#{i}"
-    end until self.class.find_by_external_ref(self.external_ref).blank?
-  end
-  protected :generate_external_ref_if_blank
-
-
-  def manage_colony_for_es_cell_micro_injections_qc_data
-    return if es_cell.blank?
-
-    colony_attr_hash = colony.try(:attributes) || {}
-    if colony.blank? or (colony.try(:name) != external_ref)
-      colony_attr_hash[:name] = external_ref
-    end
-
-    if self.status.try(:code) == 'gtc'
-      colony_attr_hash[:genotype_confirmed] = true
-    elsif self.status.try(:code) != 'gtc'
-      colony_attr_hash[:genotype_confirmed] = false
-    end
-
-    if self.colony_background_strain_name != colony.try(:background_strain_name)
-      colony_attr_hash[:background_strain_name] = self.colony_background_strain_name
-    end
-
-    if self.mouse_allele_type != colony.try(:allele_type)
-      colony_attr_hash[:allele_type] = self.mouse_allele_type
-    end
-
-    colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?
-
-    colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
-
-    ColonyQc::QC_FIELDS.each do |qc_field|
-      if colony.try(:colony_qc).blank? or self.send("#{qc_field}_result") != colony.colony_qc.send(qc_field)
-        colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
-      end
-    end
-    self.colony_attributes = colony_attr_hash
-  end
-  protected :manage_colony_for_es_cell_micro_injections_qc_data
 
   def make_mi_date_and_in_progress_status_consistent
     in_progress_status = self.status_stamps.find_by_status_id(1)
@@ -346,30 +239,6 @@ class MiAttempt < ApplicationModel
     where(:status_id => MiAttempt::Status.micro_injection_aborted.id)
   end
 
-  def distribution_centres_formatted_display
-    output_string = ''
-    self.distribution_centres.each do |distribution_centre|
-      output_array = []
-      if distribution_centre.distribution_network
-        output_array << distribution_centre.distribution_network
-      end
-      output_array << distribution_centre.centre.name
-      if !distribution_centre.deposited_material.name.nil?
-        output_array << distribution_centre.deposited_material.name
-      end
-      output_string << "[#{output_array.join(', ')}] "
-    end
-    return output_string.strip
-  end
-
-  def mutagenesis_factor_external_ref
-    if (self.mutagenesis_factor)
-      return self.mutagenesis_factor.external_ref
-    else
-      return nil
-    end
-  end
-
   def es_cell_name
     if(self.es_cell)
       return self.es_cell.name
@@ -400,16 +269,6 @@ class MiAttempt < ApplicationModel
     return retval
   end
 
-  def mouse_allele_symbol_superscript
-    return nil unless colony
-    return colony.allele_symbol_superscript
-  end
-
-  def mouse_allele_symbol
-    return nil unless colony
-    return colony.allele_symbol
-  end
-
   def gene
     if mi_plan.try(:gene)
       return mi_plan.gene
@@ -431,44 +290,26 @@ class MiAttempt < ApplicationModel
     return mi_plan.try(:gene).try(:mgi_accession_id)
   end
 
+  def mouse_allele_symbol_superscript
+    return '' if self.es_cell.blank? || colonies.blank?
+    colonies.first.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
+  end
+
+  def mouse_allele_symbol
+    return '' if self.es_cell.blank? || colonies.blank?
+    colony_alleles = colonies.first.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
+    if !colony_alleles.blank?
+      return self.marker_symbol + '<sup>' + colony_alleles + '</sup>'
+    else
+      return []
+    end
+  end
   def blast_strain_mgi_accession
     return blast_strain.try(:mgi_strain_accession_id)
   end
 
   def blast_strain_mgi_name
     return blast_strain.try(:mgi_strain_name)
-  end
-
-  def mouse_allele_type=(arg)
-    @mouse_allele_type = arg unless es_cell.nil?
-  end
-
-  def mouse_allele_type
-    return @mouse_allele_type if defined? @mouse_allele_type
-    return colony.allele_type unless es_cell.blank? || colony.blank?
-  end
-
-  def colony_background_strain
-    colony.try(:background_strain)
-  end
-
-  def colony_background_strain_name
-    return @colony_background_strain_name unless @colony_background_strain_name.blank?
-    return colony.background_strain.try(:name) unless es_cell.blank? || colony.blank?
-    return nil
-  end
-
-  def colony_background_strain_name=(arg)
-    @colony_background_strain_name = arg unless es_cell.blank?
-  end
-
-
-  def colony_background_strain_mgi_accession
-    return colony_background_strain.try(:mgi_strain_accession_id)
-  end
-
-  def colony_background_strain_mgi_name
-    return colony_background_strain.try(:mgi_strain_name)
   end
 
   def test_cross_strain_mgi_accession
@@ -510,16 +351,6 @@ class MiAttempt < ApplicationModel
     else
       nil
     end
-  end
-
-  def colony_name
-    return external_ref
-  end
-
-  def colony_name=(arg)
-    # Check colony_name has been set/changed. The rest API may return a blank colony_name or a colony_name set to the original value before the external_ref was set to a new value
-    return if arg.blank? || (changes.has_key?('external_ref') && changes['external_ref'][0] == arg)
-    self.external_ref = arg
   end
 
   def public_status
@@ -636,12 +467,10 @@ end
 #  number_of_live_glt_offspring                    :integer
 #  report_to_public                                :boolean          default(TRUE), not null
 #  is_active                                       :boolean          default(TRUE), not null
-#  is_released_from_genotyping                     :boolean          default(FALSE), not null
 #  comments                                        :text
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
 #  mi_plan_id                                      :integer          not null
-#  genotyping_comment                              :string(512)
 #  legacy_es_cell_id                               :integer
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean

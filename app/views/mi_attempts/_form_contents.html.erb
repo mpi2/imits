@@ -57,7 +57,13 @@
       </div>
     <% end %>
 
-    <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
+    <%= generator.text_field(:external_ref, :class => 'x-form-text', :size => 20, :label => 'Mi Attempt External Reference') %>
+
+    <% [[:report_to_public, 'Report Micro Injection Progress To Public'], [:experimental, 'Experimental?'], [:is_active, 'Is Active?']].each do |field, label| %>
+      <div>
+        <%= generator.check_box field, :label => label %>
+      </div>
+    <% end %>
 
     <div>
       <%= form.label :comments %>
@@ -326,39 +332,6 @@
   </fieldset>
 </div>
 
-<div class="object-crispr">
-  <fieldset class="collapsible">
-    <legend>F1 Colonies</legend>
-    <div>
-      <% if mi_attempt.status_stamps.map{|status| status.code}.include?('fod')%>
-        <table id="colonies_<%= form.object_id %>_table" class="report_table">
-          <thead class="title">
-            <tr>
-              <th>Colony Name</th>
-              <th>Colony Details</th>
-              <th>Report To Public?</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody class="distribution_centres">
-          <tr></tr>
-          <% if mi_attempt.colonies.length > 0 %>
-            <%= form.fields_for :colonies do |builder| %>
-              <% if !builder.object.new_record? %>
-              <%= render '/shared/colony_fields', f: builder %>
-              <% end %>
-            <% end %>
-          <% end %>
-        </tbody>
-        </table>
-        <%= link_to_add_fields "Add Colony", form, :colonies %>
-      <% else %>
-      No Colonies can be set until Status is Founders Obtained.
-      <% end %>
-    </div>
-  </fieldset>
-</div>
-
 <div class="object-es-cell">
   <fieldset class="collapsible">
     <legend>Transfer Details</legend>
@@ -390,112 +363,54 @@
   <fieldset class="collapsible">
     <legend>Chimera Mating Details</legend>
     <div>
-      <%= generator.strains_field :colony_background_strain %>
       <%= generator.strains_field :test_cross_strain %>
-      <%= generator.text_field :date_chimeras_mated, :class => 'date-field' %>
-      <%= generator.number_field :number_of_chimera_matings_attempted %>
-      <%= generator.number_field :number_of_chimera_matings_successful %>
-      <%= generator.number_field :number_of_chimeras_with_glt_from_cct %>
-      <%= generator.number_field :number_of_chimeras_with_glt_from_genotyping %>
-      <%= generator.number_field :number_of_chimeras_with_0_to_9_percent_glt,   :label => 'Number of Chimeras with 0-9% GLT' %>
-      <%= generator.number_field :number_of_chimeras_with_10_to_49_percent_glt, :label => 'Number of Chimeras with 10-49% GLT' %>
-      <%= generator.number_field :number_of_chimeras_with_50_to_99_percent_glt, :label => 'Number of Chimeras with 50-99% GLT' %>
-      <%= generator.number_field :number_of_chimeras_with_100_percent_glt,      :label => 'Number of Chimeras with 100% GLT' %>
-      <%= generator.number_field :total_f1_mice_from_matings %>
-      <%= generator.number_field :number_of_cct_offspring %>
-      <%= generator.text_field :cassette_transmission_verified, :label => 'Cassette Transmission Verified', :class => 'date-field' %>
-      <%= generator.number_field :number_of_het_offspring %>
-      <%= generator.number_field :number_of_live_glt_offspring %>
-      <%= generator.mouse_allele_type_field %>
+      <%= generator.text_field    :date_chimeras_mated, :class => 'date-field' %>
+      <%= generator.number_field  :number_of_chimera_matings_attempted %>
+      <%= generator.number_field  :number_of_chimera_matings_successful %>
+      <%= generator.number_field  :number_of_chimeras_with_glt_from_cct %>
+      <%= generator.number_field  :number_of_chimeras_with_glt_from_genotyping %>
+      <%= generator.number_field  :number_of_chimeras_with_0_to_9_percent_glt,   :label => 'Number of Chimeras with 0-9% GLT' %>
+      <%= generator.number_field  :number_of_chimeras_with_10_to_49_percent_glt, :label => 'Number of Chimeras with 10-49% GLT' %>
+      <%= generator.number_field  :number_of_chimeras_with_50_to_99_percent_glt, :label => 'Number of Chimeras with 50-99% GLT' %>
+      <%= generator.number_field  :number_of_chimeras_with_100_percent_glt,      :label => 'Number of Chimeras with 100% GLT' %>
+      <%= generator.number_field  :total_f1_mice_from_matings %>
+      <%= generator.number_field  :number_of_cct_offspring %>
+      <%= generator.text_field    :cassette_transmission_verified, :label => 'Cassette Transmission Verified', :class => 'date-field' %>
+      <%= generator.number_field  :number_of_het_offspring %>
+      <%= generator.number_field  :number_of_live_glt_offspring %>
     </div>
   </fieldset>
 </div>
 
-
-<% if !@mi_attempt.new_record? && !@mi_attempt.es_cell.blank?%>
-<div class="object-es-cell">
-  <fieldset class="collapsible" id="distribution_centres">
-    <legend>Distribution Centres</legend>
-      <div class="distribution_centres">
-      <% if ['gtc', 'chr'].include?(mi_attempt.status.try(:code)) %>
-        <table id="distribution_centres_<%= form.object_id %>_table" class="report_table">
+<div>
+  <fieldset class="collapsible">
+    <legend>F1 Colonies</legend>
+    <div>
+      <% if ! mi_attempt.new_record?%>
+        <table id="colonies_<%= form.object_id %>_table" class="report_table">
           <thead class="title">
             <tr>
-              <th>Distribution centre</th>
-              <th>Distribution network?</th>
-              <th>Deposited material</th>
-              <th>Distribution dates</th>
-              <th>Action</th>
+              <th>Colony Name</th>
+              <th>Colony Details</th>
             </tr>
           </thead>
           <tbody class="distribution_centres">
           <tr></tr>
-          <% if mi_attempt.distribution_centres.length > 0 %>
-            <%= form.fields_for :distribution_centres do |builder| %>
-              <%= render '/shared/distribution_centre_fields', f: builder %>
+          <% if mi_attempt.colonies.length > 0 %>
+            <%= form.fields_for :colonies do |builder| %>
+              <% if !builder.object.new_record? %>
+              <%= render '/shared/colony_fields', f: builder %>
+              <% end %>
             <% end %>
           <% end %>
         </tbody>
         </table>
-        <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+        <% if mi_attempt.es_cell_name.blank?%>
+          <%= link_to_add_fields "Add Colony", form, :colonies %>
+        <% end %>
       <% else %>
-      No Distribution Centres can be set until Status is Genotype confirmed.
+        F1 Colonies can be entered after the Micro-Injection has been created.
       <% end %>
-      </div>
-  </fieldset>
-</div>
-
-<div class="object-es-cell">
-  <fieldset class="collapsible">
-    <legend>QC Diagram</legend>
-    <div>
-      <div id='qcimage'>
-
-        <h2>Mouse Genotyping QC</h2>
-
-        <div class="diagram">
-          <div id='holder_mutant' class='holder'></div>
-          <h3>Mutant</h3>
-        </div>
-
-        <div class="diagram">
-          <div id='holder_wildtype' class='holder'></div>
-          <h3>Wild Type</h3>
-        </div>
-
-      </div>
-    </div>
-  </fieldset>
-
-
-  <fieldset class="collapsible hide-by-default qc-details">
-    <legend>QC Details</legend>
-    <div>
-      <%= generator.qc_fields %>
     </div>
   </fieldset>
 </div>
-
-<% end %>
-
-<% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
-  <%= render 'status_change_history', :mi_attempt => mi_attempt %>
-<% end %>
-
-
-<fieldset class="collapsible">
-  <legend>Other</legend>
-    <div>
-    <% [:experimental, :report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
-      <div>
-        <%= form.label field, field.to_s.titlecase %>
-        <%= form.check_box field %>
-      </div>
-    <% end %>
-
-    <div>
-      <label>Genotyping Comment</label>
-      <%= form.text_area :genotyping_comment, :disabled => true %>
-    </div>
-  </div>
-</fieldset>

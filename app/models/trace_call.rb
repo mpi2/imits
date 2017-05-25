@@ -1,7 +1,18 @@
 class TraceCall < ActiveRecord::Base
-
+  include ::Public::Serializable
+  
   acts_as_audited
   acts_as_reportable
+
+  FULL_ACCESS_ATTRIBUTES = %w{
+    is_het
+    trace_file_file_name
+  }
+
+  READABLE_ATTRIBUTES = %w{
+    id
+  } + FULL_ACCESS_ATTRIBUTES
+
 
   belongs_to :colony
   has_many :trace_call_vcf_modifications

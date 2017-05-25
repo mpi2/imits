@@ -16,20 +16,9 @@ class FieldGenerator
     text_field(name, options.merge(:class => 'number-field'))
   end
 
-  def form_field(name, label, field_html)
-    element_classes = []
-    label ||= tidy_label(name.to_s.titlecase)
-    contents = @form.label(name, label) + "\n".html_safe + field_html
-    if ! @form.object.errors[name].blank?
-      contents += "\n".html_safe + content_tag(:span, @form.object.errors[name].join(', '), :class => 'error-message')
-      element_classes << 'errors'
-    end
-    return content_tag(:div, contents.html_safe, :class => element_classes.join(' ')).html_safe
-  end
-
-  def mouse_allele_type_field
-    field_html = @form.select(:mouse_allele_type, ApplicationModel::MOUSE_ALLELE_OPTIONS.invert)
-    form_field(:mouse_allele_type, nil, field_html)
+  def check_box(name, options = {})
+    label = options.delete(:label)
+    form_field(name, label, @form.check_box(name, options))
   end
 
   def completion_note_type_field
@@ -53,6 +42,18 @@ class FieldGenerator
     form_field(field, label, field_html)
   end
 
+  protected
+
+  def form_field(name, label, field_html)
+    element_classes = []
+    label ||= tidy_label(name.to_s.titlecase)
+    contents = @form.label(name, label) + "\n".html_safe + field_html
+    if ! @form.object.errors[name].blank?
+      contents += "\n".html_safe + content_tag(:span, @form.object.errors[name].join(', '), :class => 'error-message')
+      element_classes << 'errors'
+    end
+    return content_tag(:div, contents.html_safe, :class => element_classes.join(' ')).html_safe
+  end
 
   private
 

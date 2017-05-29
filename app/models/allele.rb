@@ -218,7 +218,6 @@ class Allele < ApplicationModel
     else
       raise 'This should not be possible'
     end
-    allele.reload
   end
 
   def belongs_to_es_cell?
@@ -229,6 +228,21 @@ class Allele < ApplicationModel
   def belongs_to_colony?
     return true unless colony.blank?
     return false
+  end
+
+  def gene
+    return es_cell.gene unless es_cell.blank?
+    return colony.gene unless colony.blank?
+    return nil
+  end
+
+  def marker_symbol
+    gene.try(:marker_symbol)
+  end
+
+  def allele_symbol
+    return "#{marker_symbol}<sup>#{mgi_allele_symbol_superscript}</sup>" unless mgi_allele_symbol_superscript.blank?
+    return nil
   end
 
   def production_centre_qc_attributes
@@ -287,8 +301,6 @@ end
 #  mutant_fa                                   :text
 #  genbank_transition                          :string(255)
 #  same_as_es_cell                             :boolean
-#  transition_of_es_cell_allele                :boolean
-#  transition_of_colony_allele                 :boolean
 #  allele_subtype                              :string(255)
 #  contains_lacZ                               :boolean          default(FALSE)
 #

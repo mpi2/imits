@@ -23,20 +23,25 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     is_active
     ready_for_website
     cohort_production_centre_name
+    selected_for_late_adult_phenotyping
+    late_adult_phenotyping_started
+    late_adult_phenotyping_complete
+    late_adult_is_active
+    late_adult_report_to_public
+    late_adult_phenotyping_experiments_started
     _destroy
 }
 
   READABLE_ATTRIBUTES = %w{
     id
-
     marker_symbol
     mgi_accession_id
     parent_colony_background_strain_name
-
     phenotype_attempt_id
     production_centre_name
     production_consortium_name
     status_name
+    late_adult_status_name
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -70,28 +75,36 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
 
   def status_name; status.try(:name); end
 
+  def late_adult_status_name; late_adult_status.try(:name); end
 end
 
 # == Schema Information
 #
 # Table name: phenotyping_productions
 #
-#  id                              :integer          not null, primary key
-#  mi_plan_id                      :integer          not null
-#  status_id                       :integer          not null
-#  colony_name                     :string(255)
-#  phenotyping_experiments_started :date
-#  phenotyping_started             :boolean          default(FALSE), not null
-#  phenotyping_complete            :boolean          default(FALSE), not null
-#  is_active                       :boolean          default(TRUE), not null
-#  report_to_public                :boolean          default(TRUE), not null
-#  phenotype_attempt_id            :integer
-#  created_at                      :datetime         not null
-#  updated_at                      :datetime         not null
-#  ready_for_website               :date
-#  parent_colony_id                :integer
-#  colony_background_strain_id     :integer
-#  rederivation_started            :boolean          default(FALSE), not null
-#  rederivation_complete           :boolean          default(FALSE), not null
-#  cohort_production_centre_id     :integer
+#  id                                         :integer          not null, primary key
+#  mi_plan_id                                 :integer          not null
+#  status_id                                  :integer          not null
+#  colony_name                                :string(255)
+#  phenotyping_experiments_started            :date
+#  phenotyping_started                        :boolean          default(FALSE), not null
+#  phenotyping_complete                       :boolean          default(FALSE), not null
+#  is_active                                  :boolean          default(TRUE), not null
+#  report_to_public                           :boolean          default(TRUE), not null
+#  phenotype_attempt_id                       :integer
+#  created_at                                 :datetime         not null
+#  updated_at                                 :datetime         not null
+#  ready_for_website                          :date
+#  parent_colony_id                           :integer
+#  colony_background_strain_id                :integer
+#  rederivation_started                       :boolean          default(FALSE), not null
+#  rederivation_complete                      :boolean          default(FALSE), not null
+#  cohort_production_centre_id                :integer
+#  selected_for_late_adult_phenotyping        :boolean          default(FALSE)
+#  late_adult_phenotyping_started             :boolean          default(FALSE)
+#  late_adult_phenotyping_complete            :boolean          default(FALSE)
+#  late_adult_is_active                       :boolean          default(TRUE)
+#  late_adult_report_to_public                :boolean          default(TRUE)
+#  late_adult_phenotyping_experiments_started :date
+#  late_adult_status_id                       :integer
 #

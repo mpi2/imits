@@ -6,34 +6,39 @@ class PhenotypingProduction < ApplicationModel
 
   extend AccessAssociationByAttribute
   include PhenotypingProduction::StatusManagement
-  include ApplicationModel::HasStatuses
+  include PhenotypingProduction::LateAdultStatusManagement
   include ApplicationModel::BelongsToMiPlan
   include ApplicationModel::BelongsToMiPlan::Public
 
   belongs_to :mi_plan
   belongs_to :parent_colony, :class_name => 'Colony'
   belongs_to :status
+  belongs_to :late_adult_status
   belongs_to :colony_background_strain, :class_name => 'Strain'
 
   has_many   :status_stamps, :order => "#{PhenotypingProduction::StatusStamp.table_name}.created_at ASC", dependent: :destroy
+  has_many   :late_adult_status_stamps, :order => "#{PhenotypingProduction::LateAdultStatusStamp.table_name}.created_at ASC", dependent: :destroy
 
   access_association_by_attribute :colony_background_strain, :name
 
   accepts_nested_attributes_for :status_stamps
-
+  accepts_nested_attributes_for :late_adult_status_stamps
 
   protected :status=
+  protected :late_adult_status=
 
   before_validation :allow_override_of_plan
   before_validation :check_and_set_cohort_centre
   before_validation :change_status
+  before_validation :late_adult_change_status
 
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_colony_background_strain
   before_save :set_phenotyping_experiments_started_if_blank
+  before_save :set_late_adult_phenotyping_experiments_started_if_blank
   before_save :set_phenotype_attempt_id
   after_save :manage_status_stamps
-
+  after_save :late_adult_manage_status_stamps
 
 ## BEFORE VALIDATION METHODS
   before_validation do |pp|
@@ -148,6 +153,18 @@ class PhenotypingProduction < ApplicationModel
   end
   protected :set_phenotyping_experiments_started_if_blank
 
+
+
+  def set_late_adult_phenotyping_experiments_started_if_blank
+    #if phenotyping started or complete
+    return unless self.late_adult_phenotyping_experiments_started.blank?
+    if ['pdlas', 'pdlac'].include?(status.code)
+      late_adult_phenotyping_started_status_stamps = self.late_adult_status_stamps.joins(:status).where("phenotyping_production_statuses.code = 'pdlas'")
+      self.late_adult_phenotyping_experiments_started = !late_adult_phenotyping_started_status_stamps.blank? ? late_adult_phenotyping_started_status_stamps.first.created_at : Time.now()
+    end
+  end
+  protected :set_late_adult_phenotyping_experiments_started_if_blank
+
   def set_phenotype_attempt_id
     return unless phenotype_attempt_id.blank?
     if !parent_colony.mouse_allele_mod_id.blank?
@@ -249,6 +266,8 @@ class PhenotypingProduction < ApplicationModel
   end
 
   def status_name; status.try(:name); end
+
+  def late_adult_status_name; late_adult_status.try(:name); end
 
   def colony_background_strain_mgi_name
     colony_background_strain.try(:mgi_strain_name)
@@ -358,22 +377,29 @@ end
 #
 # Table name: phenotyping_productions
 #
-#  id                              :integer          not null, primary key
-#  mi_plan_id                      :integer          not null
-#  status_id                       :integer          not null
-#  colony_name                     :string(255)
-#  phenotyping_experiments_started :date
-#  phenotyping_started             :boolean          default(FALSE), not null
-#  phenotyping_complete            :boolean          default(FALSE), not null
-#  is_active                       :boolean          default(TRUE), not null
-#  report_to_public                :boolean          default(TRUE), not null
-#  phenotype_attempt_id            :integer
-#  created_at                      :datetime         not null
-#  updated_at                      :datetime         not null
-#  ready_for_website               :date
-#  parent_colony_id                :integer
-#  colony_background_strain_id     :integer
-#  rederivation_started            :boolean          default(FALSE), not null
-#  rederivation_complete           :boolean          default(FALSE), not null
-#  cohort_production_centre_id     :integer
+#  id                                         :integer          not null, primary key
+#  mi_plan_id                                 :integer          not null
+#  status_id                                  :integer          not null
+#  colony_name                                :string(255)
+#  phenotyping_experiments_started            :date
+#  phenotyping_started                        :boolean          default(FALSE), not null
+#  phenotyping_complete                       :boolean          default(FALSE), not null
+#  is_active                                  :boolean          default(TRUE), not null
+#  report_to_public                           :boolean          default(TRUE), not null
+#  phenotype_attempt_id                       :integer
+#  created_at                                 :datetime         not null
+#  updated_at                                 :datetime         not null
+#  ready_for_website                          :date
+#  parent_colony_id                           :integer
+#  colony_background_strain_id                :integer
+#  rederivation_started                       :boolean          default(FALSE), not null
+#  rederivation_complete                      :boolean          default(FALSE), not null
+#  cohort_production_centre_id                :integer
+#  selected_for_late_adult_phenotyping        :boolean          default(FALSE)
+#  late_adult_phenotyping_started             :boolean          default(FALSE)
+#  late_adult_phenotyping_complete            :boolean          default(FALSE)
+#  late_adult_is_active                       :boolean          default(TRUE)
+#  late_adult_report_to_public                :boolean          default(TRUE)
+#  late_adult_phenotyping_experiments_started :date
+#  late_adult_status_id                       :integer
 #

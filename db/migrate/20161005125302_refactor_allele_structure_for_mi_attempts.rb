@@ -49,7 +49,7 @@ class RefactorAlleleStructureForMiAttempts < ActiveRecord::Migration
              colonies.auto_allele_description, colonies.allele_description,
              mi_attempts.created_at, mi_attempts.updated_at, 
              CASE WHEN alleles.id IS NULL OR (colonies.allele_type IS NOT NULL AND colonies.allele_type != alleles.allele_type) THEN NULL ELSE alleles.genbank_file_id END,
-             CASE WHEN alleles.id IS NULL THEN false WHEN colonies.allele_type IS NOT NULL AND colonies.allele_type != alleles.allele_type THEN false ELSE true END,
+             CASE WHEN alleles.id IS NULL THEN false WHEN colonies.allele_type IS NOT NULL AND colonies.allele_type != alleles.allele_type THEN false ELSE true END
       FROM colonies
         JOIN mi_attempts ON mi_attempts.id = colonies.mi_attempt_id    
         LEFT JOIN alleles ON alleles.es_cell_id = mi_attempts.es_cell_id

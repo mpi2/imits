@@ -78,7 +78,15 @@ class PhenotypingProductionsController < ApplicationController
       return false
     end
     if phenotyping_production.changes.has_key?(:phenotyping_complete) && current_user.allowed_to_update_phenotyping_data_flow_fields
-      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Phenotyping Started'
+      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Phenotyping Complete'
+      return false
+    end
+    if phenotyping_production.changes.has_key?(:late_adult_phenotyping_started) && current_user.allowed_to_update_phenotyping_data_flow_fields
+      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Late Adult Phenotyping Started'
+      return false
+    end
+    if phenotyping_production.changes.has_key?(:late_adult_phenotyping_complete) && current_user.allowed_to_update_phenotyping_data_flow_fields
+      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Late Adult Phenotyping Complete'
       return false
     end
     if phenotyping_production.changes.has_key?(:ready_for_website) && current_user.allowed_to_update_phenotyping_data_flow_fields

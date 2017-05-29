@@ -1,31 +1,9 @@
 <% generator = PhenotypeAttemptFieldGenerator.new(f) %>
 <tr>
-    <td>
-        <%= f.select :consortium_name, Consortium.all.map(&:name), :include_blank => true %>
-    </td>
-    <td>
-        <%= f.select :phenotyping_centre_name, Centre.all.map(&:name), :include_blank => true %>
-    </td>
-    <td>
-      <%= f.text_field(:colony_name,:class => 'x-form-text', :size => 20) %>
-    </td>
-    <td>
-      <%= f.object.status_name%>
-    </td>
+    <td style="vertical-align: top;">
+      <div style="padding:40px 10px 0px 10px">
+        <%= f.text_field(:colony_name,:class => 'x-form-text', :size => 20) %>
 
-    <td>
-    <table>
-      <tr><th>Cohort Production Centre Name</th><td><%= f.select :cohort_production_centre_name, Centre.all.map(&:name), :include_blank => true %></td></tr>
-      <tr><th>Rederivation Started</th><td><%= f.check_box :rederivation_started %></td></tr>
-      <tr><th>Rederivation Complete</th><td><%= f.check_box :rederivation_complete %></td></tr>
-      <tr><th>Phenotyping Experiments Started</th><td><%= f.text_field(:phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %></td></tr>
-      <tr><th>Colony Background Strain</th><td><%= generator.strains_field_no_label :colony_background_strain %></td></tr>
-      <tr><th>Is Active</th><td><%= f.check_box :is_active %></td></tr>
-      <tr><th>Report Phenotype Data to public</th><td><%= f.check_box :report_to_public %></td></tr>
-    </table>
-    </td>
-
-    <td>
         <% if f.object.new_record? %>
             <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
             <%= link_to "remove", '#', class: "remove-row" %>
@@ -33,5 +11,103 @@
             <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
             <%= link_to "remove", '#', class: "hide-row" %>
         <% end %>
+      </div>
     </td>
+
+    <td style="vertical-align: top;">
+      <div style="padding:0px 10px 0px 10px">
+        <fieldset class="collapsible">
+          <legend>Phenotype Cohort Breeding Details</legend>
+
+            <div> 
+                <%= f.label :phenotyping_centre_name, 'Cohort Production Centre Name' %>
+                <%= f.select :cohort_production_centre_name, Centre.all.map(&:name), :include_blank => true %>
+            </div>
+            <div> 
+                <%= f.label :phenotyping_centre_name, 'Colony Background Strain' %>
+                <%= generator.strains_field_no_label :colony_background_strain %>
+            </div>
+            <div> 
+                <%= f.label :phenotyping_centre_name, 'Rederivation Started' %>
+                <%= f.check_box :rederivation_started %>
+            </div>
+            <div> 
+                <%= f.label :phenotyping_centre_name, 'Rederivation Complete' %>
+                <%= f.check_box :rederivation_complete %>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+    </td>
+
+    <td style="vertical-align: top;">
+      <div style="padding:0px 10px 0px 10px">
+        <fieldset class="collapsible">
+          <legend>Phenotyping Assignment</legend>
+          <div>
+
+            <div> 
+                <%= f.label :consortium_name, 'Consortium Name' %>
+                <%= f.select :consortium_name, Consortium.all.map(&:name), :include_blank => true %>
+            </div>
+            <div> 
+                <%= f.label :phenotyping_centre_name, 'Phenotype Center' %>
+                <%= f.select :phenotyping_centre_name, Centre.all.map(&:name), :include_blank => true %>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="collapsible">
+          <legend>Early Adult & Embryo Phenotyping</legend>
+          <div>
+
+            <div> 
+                <%= f.label :status_name, 'Status' %>
+                <%= f.object.status_name%>
+            </div>
+            <div> 
+                <%= f.label :phenotyping_experiments_started, 'Phenotyping Experiments Started' %>
+                <%= f.text_field(:phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
+            </div>
+            <div> 
+                <%= f.label :is_active, 'Is Active' %>
+                <%= f.check_box :is_active %>
+            </div>
+            <div> 
+                <%= f.label :report_to_public, 'Report Phenotype Data to Public' %>
+                <%= f.check_box :report_to_public %>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="collapsible">
+          <legend>Late Adult Phenotyping</legend>
+          <div>
+
+            <div> 
+                <%= f.label :late_adult_status_name, 'Status' %>
+                <%= f.object.late_adult_status_name%>
+            </div>
+            <div> 
+                <%= f.label :selected_for_late_adult_phenotyping, 'Selected for Late Adult Phenotyping' %>
+                <%= f.check_box :selected_for_late_adult_phenotyping %>
+            </div>
+            <div> 
+                <%= f.label :late_adult_phenotyping_experiments_started, 'Phenotyping Experiments Started' %>
+                <%= f.text_field(:late_adult_phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
+            </div>
+            <div> 
+                <%= f.label :late_adult_is_active, 'Is Active' %>
+                <%= f.check_box :late_adult_is_active %>
+            </div>
+            <div> 
+                <%= f.label :late_adult_report_to_public, 'Report Phenotype Data to Public' %>
+                <%= f.check_box :late_adult_report_to_public %>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </td>
+
 </tr>

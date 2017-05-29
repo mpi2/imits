@@ -137,17 +137,18 @@
   </fieldset>
 <% if !@phenotype_attempt.new_record? %> </div> <% end %>
 
-
-<fieldset class="collapsible hide-by-default qc-details">
-  <legend>QC Details</legend>
-  <div>
-    <% (ProductionCentreQc::QC_FIELDS.keys - ["five_prime_screen", "three_prime_screen" , "loxp_screen", "loss_of_allele", "vector_integrity"]).each do |qc_field| %>
-      <div>
-        <%= generator.qc_field qc_field %>
-      </div>
-    <% end %>
-  </div>
-</fieldset>
+<div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
+  <fieldset class="collapsible hide-by-default qc-details">
+    <legend>QC Details</legend>
+    <div>
+      <% (ProductionCentreQc::QC_FIELDS.keys - ["five_prime_screen", "three_prime_screen" , "loxp_screen", "loss_of_allele", "vector_integrity"]).each do |qc_field| %>
+        <div>
+          <%= generator.qc_field qc_field %>
+        </div>
+      <% end %>
+    </div>
+  </fieldset>
+</div>
 
 
 <% unless @phenotype_attempt.new_record?  || (!@phenotype_attempt.mouse_allele_mod.blank? && @phenotype_attempt.mouse_allele_mod.try(:status).try(:name) != 'Cre Excision Complete' ) %>
@@ -167,12 +168,9 @@
       <table id="phenotyping_productions_<%= form.object_id %>_table" class="report_table">
         <thead class="title">
           <tr>
-            <th>Phenotyping consortium</th>
-            <th>Phenotyping centre</th>
-            <th>Colony Name</th>
-            <th>Status</th>
-            <th></th>
-            <th>Action</th>
+            <th>Cohort Colony Name</th>
+            <th>Cohort Preparation</th>
+            <th>Phenotyping Details</th>
           </tr>
         </thead>
         <tbody class="distribution_centres">

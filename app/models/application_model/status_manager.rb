@@ -25,10 +25,11 @@ class ApplicationModel::StatusManager
     end
   end
 
-  def initialize(klass)
+  def initialize(klass, status_class = :Status, status_stamp_association = :status_stamps)
     @items = {}
     @klass = klass
-    @status_class = @klass.const_get(:Status)
+    @status_class = @klass.const_get(status_class)
+    @status_stamp_association = status_stamp_association
   end
 
   def add(status, required = nil, options = {}, &conditions)
@@ -48,31 +49,19 @@ class ApplicationModel::StatusManager
   end
 
   def manage_status_stamps_for(object)
-    status_stamp_names = object.status_stamps.all.map(&:name)
+    status_stamp_names = object.send(@status_stamp_association).all.map(&:name)
     @items.each do |status_name, item|
       if item.conditions_met_for?(object)
         if ! status_stamp_names.include?(status_name)
-          object.status_stamps.create!(:status => @status_class.find_by_name!(status_name))
+          object.send(@status_stamp_association).create!(:status => @status_class.find_by_name!(status_name))
         end
       else
         if status_stamp_names.include?(status_name)
-          object.status_stamps.all.find {|ss| ss.name == status_name}.try(:destroy)
+          object.send(@status_stamp_association).all.find {|ss| ss.name == status_name}.try(:destroy)
         end
       end
     end
-    object.status_stamps.reload
-  end
-
-  def status_stamps_order_sql
-    status_stamp_class = @klass.const_get(:StatusStamp)
-
-    ordered_statuses = @items.keys.map {|i| @status_class.find_by_name!(i)}
-
-    order_by_str = ordered_statuses.map do |status|
-      "#{status_stamp_class.table_name}.status_id=#{status.id}"
-    end
-
-    return order_by_str.reverse.join ', '
+    object.send(@status_stamp_association).reload
   end
 
 end

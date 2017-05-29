@@ -6,7 +6,6 @@ class MiPlan < ApplicationModel
 
   extend AccessAssociationByAttribute
   include MiPlan::StatusManagement
-  include ApplicationModel::HasStatuses
 
   FUNDING = {'IMPC' => {
                  'HMGU' => ['Helmholtz GMC'],

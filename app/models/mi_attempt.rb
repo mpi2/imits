@@ -7,7 +7,6 @@ class MiAttempt < ApplicationModel
   extend AccessAssociationByAttribute
   include MiAttempt::StatusManagement
   include MiAttempt::WarningGenerator
-  include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
 
   CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze
@@ -330,7 +329,7 @@ class MiAttempt < ApplicationModel
 
   def es_cell_allele_symbol
     if !es_cell.blank?
-      es_cell.try(:allele_symbol)
+      es_cell.alleles[0].try(:allele_symbol)
     else
       nil
     end
@@ -375,7 +374,7 @@ class MiAttempt < ApplicationModel
   def self.translations
     return {
       'es_cell_marker_symbol'   => 'es_cell_allele_gene_marker_symbol',
-      'es_cell_allele_symbol'   => 'es_cell_allele_symbol',
+      'es_cell_allele_symbol'   => 'es_cell_alleles_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
       'production_centre_name'  => 'mi_plan_production_centre_name'
     }

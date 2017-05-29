@@ -6,7 +6,6 @@ class MouseAlleleMod < ApplicationModel
 
   extend AccessAssociationByAttribute
   include MouseAlleleMod::StatusManagement
-  include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
 
   belongs_to :parent_colony, :class_name => 'Colony'

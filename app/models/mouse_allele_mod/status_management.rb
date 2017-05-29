@@ -36,12 +36,6 @@ module MouseAlleleMod::StatusManagement
     cattr_reader :status_manager
   end
 
-  module ClassMethods
-    def status_stamps_order_sql
-      status_manager.status_stamps_order_sql
-    end
-  end
-
   def change_status
     self.status = MouseAlleleMod::Status.find_by_name!(status_manager.get_status_for(self))
   end

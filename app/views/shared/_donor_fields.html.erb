@@ -1,9 +1,9 @@
+<% donor_generator = FieldGenerator.new(f) %>
 <tr>
     <td><div>Vector Name</div>
         <div><%= f.select 'vector_name', options_for_select(@vector_options[:values], disabled: @vector_options[:disabled], selected: f.object.vector_name) %></div>
         </br><div>OR</div></br>
-        <div>Oligo Sequence</div>
-        <div><%= f.text_area :oligo_sequence_fa %></div>
+        <div><%= donor_generator.text_area :oligo_sequence_fa, label: 'Oligos Sequence (FASTA format)' %></div>
     </td>
     <td><%= f.text_field :concentration, :onchange => 'validateFloatKeyPress(this)' %> ng/uL</td>
     <td><%= f.select :preparation , MutagenesisFactor::Donor::PREPARATION%></td>

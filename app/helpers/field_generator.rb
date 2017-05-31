@@ -11,6 +11,11 @@ class FieldGenerator
     form_field(name, label, @form.text_field(name, options))
   end
 
+  def text_area(name, options = {})
+    label = options.delete(:label)
+    form_field(name, label, @form.text_area(name, options))
+  end
+
   def number_field(name, options = {})
     raise 'Setting class not supported' if options[:class]
     text_field(name, options.merge(:class => 'number-field'))

@@ -4,12 +4,13 @@ class Allele < ApplicationModel
   acts_as_audited
   acts_as_reportable
 
+
   FULL_ACCESS_ATTRIBUTES = %w{
     mgi_allele_symbol_without_impc_abbreviation
     mgi_allele_symbol_superscript
-    mgi_allele_accession_id
     allele_type
     allele_subtype
+    allele_description
     contains_lacZ
     mutant_fa
     production_centre_qc_attributes
@@ -17,6 +18,7 @@ class Allele < ApplicationModel
 
   READABLE_ATTRIBUTES = %w{
     id
+    mgi_allele_accession_id
   } + FULL_ACCESS_ATTRIBUTES
 
   ALLELE_OPTIONS = {
@@ -76,8 +78,44 @@ class Allele < ApplicationModel
     :message   => "is not a valid MGI Allele ID",
     :allow_nil => true
 
+  validates_format_of :mutant_fa,
+    :with      => /^(>[\w\\+\?\.\*\^\$\(\)\[\]\{\}\|\\\/\-\'\" +=:;~@#&]+\n)?([ACGTacgt]+\n$)/m,
+    :message   => "is not a valid FASTA file format.",
+    :allow_nil => true
+
+  validate do |allele|
+    return true if allele.mgi_allele_symbol_superscript.blank?
+
+    if allele.mgi_allele_symbol_superscript =~ /^tm/
+      return true if allele.mgi_allele_symbol_superscript =~ /^(tm\d+)([a-e]|.\d+|e.\d+)(\(\w+\))?\w+$/
+      allele.errors.add :mgi_allele_symbol_superscript, 'invalid format for targeted mutation (tm). Here are some examples of valid mgi_allele_symbol_superscripts tm1a(KOMP)Wtsi, tm1aWtsi, tm2b(EUCOMM)Hmgu.'
+    elsif allele.mgi_allele_symbol_superscript =~ /^Gt/
+      return true if allele.mgi_allele_symbol_superscript =~ /^(Gt)(\(\w+\))?\w+$/
+      allele.errors.add :mgi_allele_symbol_superscript, 'invalid format for Gene Trap (Gt). Here are some examples of valid mgi_allele_symbol_superscripts Gt(IST12471H5)Wtsi, GtHmgu.'
+    elsif allele.mgi_allele_symbol_superscript =~ /^em/
+      if allele.mgi_allele_symbol_without_impc_abbreviation
+        return true if allele.mgi_allele_symbol_superscript =~ /^(em\d+)\w+$/
+        allele.errors.add :mgi_allele_symbol_superscript, 'invalid format for endonuclease mutation (em). Here are some examples of valid mgi_allele_symbol_superscripts em1Wtsi, em2Hmgu.'
+      else
+        return true if allele.mgi_allele_symbol_superscript =~ /^(em\d+)(\(\w+\))\w+$/
+        allele.errors.add :mgi_allele_symbol_superscript, 'invalid format for endonuclease mutation (em). Here are some examples of valid mgi_allele_symbol_superscripts em1(IMPC)Wtsi, em2(IMPC)Hmgu.'
+      end
+    else
+      allele.errors.add :mgi_allele_symbol_superscript, 'invalid format.'
+    end
+      
+    return false
+  end
 
 ### CALLBACKS
+
+  before_validation do |allele|
+    return if allele.mutant_fa.blank?
+
+    md = /^(>[\w\\+\?\.\*\^\$\(\)\[\]\{\}\|\\\/\-\'\" +=:;~@#&]+\n)?([\w\n\+\?\.\*\^\$\(\)\[\]\{\}\|\\\/ -+=:;'"~@#&]+$)/m.match(allele.mutant_fa.gsub("\r", ""))
+
+    allele.mutant_fa = md[1].to_s + md[2].gsub("\n", '').to_s.gsub(" ", "").upcase + "\n"
+  end
 
   before_validation do |allele|
     return true if allele.production_centre_qc.blank?
@@ -250,10 +288,6 @@ class Allele < ApplicationModel
     :except => ['id', 'allele_id']
     }
     return production_centre_qc.as_json(json_options)
-  end
-
-  def allele_symbol_superscript_template
-    self.class.extract_symbol_superscript_template(mgi_allele_symbol_superscript)[0]
   end
 
   def self.extract_symbol_superscript_template(mgi_allele_symbol_superscript)

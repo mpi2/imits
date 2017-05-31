@@ -9,9 +9,17 @@ class MutagenesisFactor::Donor < ActiveRecord::Base
 
   before_validation :set_preparation_when_oligo_sequence_is_set
 
+  before_validation do |donor|
+    return if donor.oligo_sequence_fa.blank?
+
+    md = /^(>[\w\\+\?\.\*\^\$\(\)\[\]\{\}\|\\\/\-\'\" +=:;~@#&]+\n)?([\w\n\+\?\.\*\^\$\(\)\[\]\{\}\|\\\/ -+=:;'"~@#&]+$)/m.match(donor.oligo_sequence_fa.gsub("\r", ""))
+
+    donor.oligo_sequence_fa = md[1].to_s + md[2].gsub("\n", '').to_s.gsub(" ", "").upcase + "\n"
+  end
+
   validate do |donor|
     if donor.preparation == 'Oligo' && oligo_sequence_fa.blank?
-      donor.errors.add :oligo_sequence_fa, "cannot be blank when donor preparation has been ser to 'Oligo'"
+      donor.errors.add :oligo_sequence_fa, "cannot be blank when donor preparation has been set to 'Oligo'"
     end
   end
 
@@ -20,6 +28,11 @@ class MutagenesisFactor::Donor < ActiveRecord::Base
       donor.errors.add :preparation, "must be set to 'Oligo' when a 'Oligo Sequence' has been provided"
     end
   end
+ 
+   validates_format_of :oligo_sequence_fa,
+    :with      => /^(>[\w\\+\?\.\*\^\$\(\)\[\]\{\}\|\\\/\-\'\" +=:;~@#&]+\n)?([ACGTacgt]+\n$)/m,
+    :message   => "is not a valid FASTA file format.",
+    :allow_nil => true
 
   PREPARATION = ['', 'Circular', 'Linearized', 'Supercoiled', 'Oligo'].freeze
 

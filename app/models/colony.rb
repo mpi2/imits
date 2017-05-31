@@ -92,12 +92,6 @@ class Colony < ApplicationModel
     end
   end
 
-  validate do |colony|
-    if colony.unwanted_allele and colony.genotype_confirmed
-      colony.errors.add :base, ": Colony '#{name}' cannot be marked as both 'Genotype Confirmed' and 'Unwanted Allele'"
-    end
-  end
-
   def set_default_alleles
     if alleles.blank?
       # TO DO should create a new allele for each mutagenesis_factor or one if es_cell_id is not blank
@@ -305,24 +299,15 @@ end
 #
 # Table name: colonies
 #
-#  id                                 :integer          not null, primary key
-#  name                               :string(255)      not null
-#  mi_attempt_id                      :integer
-#  genotype_confirmed                 :boolean          default(FALSE)
-#  report_to_public                   :boolean          default(TRUE)
-#  unwanted_allele                    :boolean          default(FALSE)
-#  allele_description                 :text
-#  mgi_allele_id                      :string(255)
-#  allele_name                        :string(255)
-#  mouse_allele_mod_id                :integer
-#  mgi_allele_symbol_superscript      :string(255)
-#  allele_symbol_superscript_template :string(255)
-#  allele_type                        :string(255)
-#  background_strain_id               :integer
-#  allele_description_summary         :text
-#  auto_allele_description            :text
-#  is_released_from_genotyping        :boolean          default(FALSE)
-#  genotyping_comment                 :text
+#  id                          :integer          not null, primary key
+#  name                        :string(255)      not null
+#  mi_attempt_id               :integer
+#  genotype_confirmed          :boolean          default(FALSE)
+#  report_to_public            :boolean          default(TRUE)
+#  mouse_allele_mod_id         :integer
+#  background_strain_id        :integer
+#  is_released_from_genotyping :boolean          default(FALSE)
+#  genotyping_comment          :text
 #
 # Indexes
 #

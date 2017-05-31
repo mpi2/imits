@@ -39,7 +39,7 @@
             <% end %>
             <div>
               <label>Genotyping Comment</label>
-              <%= f.text_area :genotyping_comment, :disabled => true %>
+              <%= f.text_area :genotyping_comment%>
             </div>
           </div>
         </fieldset>
@@ -47,12 +47,12 @@
 
       <div style="padding:0px 10px 0px 10px">
         <fieldset class="collapsible">
-          <legend>Allele Characterization</legend>
+          <legend>Allele</legend>
           <div>
             <% if ['gtc', 'chr', 'fod'].include?(mi_attempt.status.try(:code)) %>
               <% if mi_attempt.es_cell_name.blank?%>
                 <fieldset class="collapsible">
-                  <legend>Upload sequence files</legend>
+                  <legend>Upload Trace File Evidence</legend>
                   <div>
                     <%= f.fields_for :trace_call do |ftc| %>
                       <% ftc_generator = MiAttemptFieldGenerator.new(ftc) %>
@@ -95,47 +95,59 @@
 
               <%= f.fields_for :alleles do |allele_builder| %>
                 <% alelle_generator = AlleleFieldGenerator.new(allele_builder) %>
-                <%= alelle_generator.mouse_allele_type_field %>
+
+                <fieldset class="collapsible">
+                  <legend>Allele Characterization</legend>                
+                  <%= alelle_generator.mouse_allele_type_field %>
+
                 <% if mi_attempt.es_cell.blank?%> 
                   <%= alelle_generator.mouse_allele_subtype_field %>
                   <%= alelle_generator.check_box :contains_lacZ, :label => 'Allele contains LacZ?' %>
-                <% end %>
+                  <%= alelle_generator.text_area :mutant_fa, :label => 'Mutant Nucleotide Sequence (FASTA format; >100 bp flanking regions)' %>
+                  <%= alelle_generator.text_area :allele_description %>
+                </fieldset>
 
-                <div>Allele Description</div><div><%= f.text_area :allele_description %></div>
+                  <fieldset class="collapsible">
+                    <legend>MGI Allele</legend>
+                    <%= alelle_generator.text_field :mgi_allele_symbol_superscript %>
+                    <%= alelle_generator.check_box :mgi_allele_symbol_without_impc_abbreviation, :label => "Exclude '(IMPC)' in MGI Allele Symbol Superscript?" %>
+                  </fieldset>
+                <% else %>
+                </fieldset>
+                <% end %>
               
           </div>
-        </fieldset>
-      </div>
+
 
       
-      <div style="padding:0px 10px 0px 10px">
-        <fieldset class="collapsible" >
-
-                <legend>Genotyping QC</legend>
-                <div>
-                  <%= allele_builder.fields_for :production_centre_qc do |builder| %>
-                    <div >
-                      <fieldset class="collapsible">
-                        <legend>QC Diagram</legend>
-                        <div>
-                          <div id='<%="qcimage-colony-#{f.index}-allele-#{allele_builder.index}" %>' class='qcimage' data-colonyindex = <%= f.index %> data-alleleindex = <%= allele_builder.index %>>
-                  
-                            <h2>Mouse Genotyping QC</h2>
-                  
-                            <div class="diagram">
-                            <div id='holder_mutant_colony_<%= f.index %>_allele_<%= allele_builder.index %>' class='holder'></div>
-                              <h3>Mutant</h3>
+          <div style="padding:0px 10px 0px 10px">
+            <fieldset class="collapsible" >
+    
+                    <legend>Genotyping QC</legend>
+                    <div>
+                      <%= allele_builder.fields_for :production_centre_qc do |builder| %>
+                        <div >
+                          <fieldset class="collapsible">
+                            <legend>QC Diagram</legend>
+                            <div>
+                              <div id='<%="qcimage-colony-#{f.index}-allele-#{allele_builder.index}" %>' class='qcimage' data-colonyindex = <%= f.index %> data-alleleindex = <%= allele_builder.index %>>
+                      
+                                <h2>Mouse Genotyping QC</h2>
+                      
+                                <div class="diagram">
+                                <div id='holder_mutant_colony_<%= f.index %>_allele_<%= allele_builder.index %>' class='holder'></div>
+                                  <h3>Mutant</h3>
+                                </div>
+                      
+                                <div class="diagram">
+                                  <div id='holder_wildtype_colony_<%= f.index %>_allele_<%= allele_builder.index %>' class='holder'></div>
+                                  <h3>Wild Type</h3>
+                                </div>
+                      
+                              </div>
                             </div>
-                  
-                            <div class="diagram">
-                              <div id='holder_wildtype_colony_<%= f.index %>_allele_<%= allele_builder.index %>' class='holder'></div>
-                              <h3>Wild Type</h3>
-                            </div>
-                  
-                          </div>
+                          </fieldset>
                         </div>
-                      </fieldset>
-                    </div>
         
                     <div class="hidden">
                       <div class="qc-details" data-colonyindex = <%= f.index %> data-alleleindex = <%= allele_builder.index %> >
@@ -166,7 +178,10 @@
             <% else %>
               Allele and QC can not be set until Status is Genotype confirmed.
             <% end %>
+              </div>
+            </fieldset>
           </div>
+
         </fieldset>
       </div>
 

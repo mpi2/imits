@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 201604011125302) do
+ActiveRecord::Schema.define(:version => 20170530125302) do
 
   create_table "alleles", :force => true do |t|
     t.integer  "es_cell_id"
@@ -30,8 +30,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.text     "mutant_fa"
     t.string   "genbank_transition"
     t.boolean  "same_as_es_cell"
-    t.boolean  "transition_of_es_cell_allele"
-    t.boolean  "transition_of_colony_allele"
     t.string   "allele_subtype"
     t.boolean  "contains_lacZ",                               :default => false
   end
@@ -70,22 +68,13 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
 
   create_table "colonies", :force => true do |t|
-    t.string  "name",                                                  :null => false
+    t.string  "name",                                           :null => false
     t.integer "mi_attempt_id"
-    t.boolean "genotype_confirmed",                 :default => false
-    t.boolean "report_to_public",                   :default => true
-    t.boolean "unwanted_allele",                    :default => false
-    t.text    "allele_description"
-    t.string  "mgi_allele_id"
-    t.string  "allele_name"
+    t.boolean "genotype_confirmed",          :default => false
+    t.boolean "report_to_public",            :default => true
     t.integer "mouse_allele_mod_id"
-    t.string  "mgi_allele_symbol_superscript"
-    t.string  "allele_symbol_superscript_template"
-    t.string  "allele_type"
     t.integer "background_strain_id"
-    t.text    "allele_description_summary"
-    t.text    "auto_allele_description"
-    t.boolean "is_released_from_genotyping",        :default => false
+    t.boolean "is_released_from_genotyping", :default => false
     t.text    "genotyping_comment"
   end
 
@@ -758,6 +747,23 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   create_table "phenotype_attempt_ids", :force => true do |t|
   end
 
+  create_table "phenotyping_production_late_adult_status_stamps", :force => true do |t|
+    t.integer  "phenotyping_production_id", :null => false
+    t.integer  "status_id",                 :null => false
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
+  end
+
+  create_table "phenotyping_production_late_adult_statuses", :force => true do |t|
+    t.string   "name",       :limit => 50, :null => false
+    t.string   "order_by"
+    t.string   "integer"
+    t.string   "code",       :limit => 10
+    t.string   "string",     :limit => 10
+    t.datetime "created_at",               :null => false
+    t.datetime "updated_at",               :null => false
+  end
+
   create_table "phenotyping_production_status_stamps", :force => true do |t|
     t.integer  "phenotyping_production_id", :null => false
     t.integer  "status_id",                 :null => false
@@ -772,23 +778,30 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   end
 
   create_table "phenotyping_productions", :force => true do |t|
-    t.integer  "mi_plan_id",                                         :null => false
-    t.integer  "status_id",                                          :null => false
+    t.integer  "mi_plan_id",                                                    :null => false
+    t.integer  "status_id",                                                     :null => false
     t.string   "colony_name"
     t.date     "phenotyping_experiments_started"
-    t.boolean  "phenotyping_started",             :default => false, :null => false
-    t.boolean  "phenotyping_complete",            :default => false, :null => false
-    t.boolean  "is_active",                       :default => true,  :null => false
-    t.boolean  "report_to_public",                :default => true,  :null => false
+    t.boolean  "phenotyping_started",                        :default => false, :null => false
+    t.boolean  "phenotyping_complete",                       :default => false, :null => false
+    t.boolean  "is_active",                                  :default => true,  :null => false
+    t.boolean  "report_to_public",                           :default => true,  :null => false
     t.integer  "phenotype_attempt_id"
-    t.datetime "created_at",                                         :null => false
-    t.datetime "updated_at",                                         :null => false
+    t.datetime "created_at",                                                    :null => false
+    t.datetime "updated_at",                                                    :null => false
     t.date     "ready_for_website"
     t.integer  "parent_colony_id"
     t.integer  "colony_background_strain_id"
-    t.boolean  "rederivation_started",            :default => false, :null => false
-    t.boolean  "rederivation_complete",           :default => false, :null => false
+    t.boolean  "rederivation_started",                       :default => false, :null => false
+    t.boolean  "rederivation_complete",                      :default => false, :null => false
     t.integer  "cohort_production_centre_id"
+    t.boolean  "selected_for_late_adult_phenotyping",        :default => false
+    t.boolean  "late_adult_phenotyping_started",             :default => false
+    t.boolean  "late_adult_phenotyping_complete",            :default => false
+    t.boolean  "late_adult_is_active",                       :default => true
+    t.boolean  "late_adult_report_to_public",                :default => true
+    t.date     "late_adult_phenotyping_experiments_started"
+    t.integer  "late_adult_status_id"
   end
 
   create_table "pipelines", :force => true do |t|
@@ -1231,11 +1244,15 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
   add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
 
+  add_foreign_key "phenotyping_production_late_adult_status_stamps", "phenotyping_production_late_adult_statuses", :name => "fk_late_adult_pp_status_stamps_status", :column => "status_id"
+  add_foreign_key "phenotyping_production_late_adult_status_stamps", "phenotyping_productions", :name => "fk_late_adult_pp_status_stamps_pp"
+
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_production_statuses", :name => "phenotyping_production_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_productions", :name => "fk_phenotyping_productions"
 
   add_foreign_key "phenotyping_productions", "mi_plans", :name => "phenotyping_productions_mi_plan_id_fk"
   add_foreign_key "phenotyping_productions", "phenotype_attempt_ids", :name => "phenotyping_productions_phenotype_attempt_id_fk", :column => "phenotype_attempt_id"
+  add_foreign_key "phenotyping_productions", "phenotyping_production_late_adult_statuses", :name => "fk_phenotyinging_production_late_adult_status", :column => "late_adult_status_id"
   add_foreign_key "phenotyping_productions", "phenotyping_production_statuses", :name => "phenotyping_productions_status_id_fk", :column => "status_id"
 
   add_foreign_key "targ_rep_allele_sequence_annotations", "targ_rep_alleles", :name => "targ_rep_allele_sequence_annotations_allele_id_fk", :column => "allele_id"

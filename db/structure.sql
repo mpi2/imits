@@ -715,8 +715,6 @@ CREATE TABLE alleles (
     mutant_fa text,
     genbank_transition character varying(255),
     same_as_es_cell boolean,
-    transition_of_es_cell_allele boolean,
-    transition_of_colony_allele boolean,
     allele_subtype character varying(255),
     "contains_lacZ" boolean DEFAULT false
 );
@@ -827,17 +825,8 @@ CREATE TABLE colonies (
     mi_attempt_id integer,
     genotype_confirmed boolean DEFAULT false,
     report_to_public boolean DEFAULT true,
-    unwanted_allele boolean DEFAULT false,
-    allele_description text,
-    mgi_allele_id character varying(255),
-    allele_name character varying(255),
     mouse_allele_mod_id integer,
-    mgi_allele_symbol_superscript character varying(255),
-    allele_symbol_superscript_template character varying(255),
-    allele_type character varying(255),
     background_strain_id integer,
-    allele_description_summary text,
-    auto_allele_description text,
     is_released_from_genotyping boolean DEFAULT false,
     genotyping_comment text
 );
@@ -2234,6 +2223,73 @@ ALTER SEQUENCE phenotype_attempt_ids_id_seq OWNED BY phenotype_attempt_ids.id;
 
 
 --
+-- Name: phenotyping_production_late_adult_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE phenotyping_production_late_adult_status_stamps (
+    id integer NOT NULL,
+    phenotyping_production_id integer NOT NULL,
+    status_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: phenotyping_production_late_adult_status_stamps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE phenotyping_production_late_adult_status_stamps_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: phenotyping_production_late_adult_status_stamps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE phenotyping_production_late_adult_status_stamps_id_seq OWNED BY phenotyping_production_late_adult_status_stamps.id;
+
+
+--
+-- Name: phenotyping_production_late_adult_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE phenotyping_production_late_adult_statuses (
+    id integer NOT NULL,
+    name character varying(50) NOT NULL,
+    order_by character varying(255),
+    "integer" character varying(255),
+    code character varying(10),
+    string character varying(10),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: phenotyping_production_late_adult_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE phenotyping_production_late_adult_statuses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: phenotyping_production_late_adult_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE phenotyping_production_late_adult_statuses_id_seq OWNED BY phenotyping_production_late_adult_statuses.id;
+
+
+--
 -- Name: phenotyping_production_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2318,7 +2374,14 @@ CREATE TABLE phenotyping_productions (
     colony_background_strain_id integer,
     rederivation_started boolean DEFAULT false NOT NULL,
     rederivation_complete boolean DEFAULT false NOT NULL,
-    cohort_production_centre_id integer
+    cohort_production_centre_id integer,
+    selected_for_late_adult_phenotyping boolean DEFAULT false,
+    late_adult_phenotyping_started boolean DEFAULT false,
+    late_adult_phenotyping_complete boolean DEFAULT false,
+    late_adult_is_active boolean DEFAULT true,
+    late_adult_report_to_public boolean DEFAULT true,
+    late_adult_phenotyping_experiments_started date,
+    late_adult_status_id integer
 );
 
 
@@ -3740,6 +3803,20 @@ ALTER TABLE ONLY phenotype_attempt_ids ALTER COLUMN id SET DEFAULT nextval('phen
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps ALTER COLUMN id SET DEFAULT nextval('phenotyping_production_late_adult_status_stamps_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotyping_production_late_adult_statuses ALTER COLUMN id SET DEFAULT nextval('phenotyping_production_late_adult_statuses_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY phenotyping_production_status_stamps ALTER COLUMN id SET DEFAULT nextval('phenotyping_production_status_stamps_id_seq'::regclass);
 
 
@@ -4245,6 +4322,22 @@ ALTER TABLE ONLY notifications
 
 ALTER TABLE ONLY phenotype_attempt_ids
     ADD CONSTRAINT phenotype_attempt_ids_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: phenotyping_production_late_adult_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps
+    ADD CONSTRAINT phenotyping_production_late_adult_status_stamps_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: phenotyping_production_late_adult_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY phenotyping_production_late_adult_statuses
+    ADD CONSTRAINT phenotyping_production_late_adult_statuses_pkey PRIMARY KEY (id);
 
 
 --
@@ -5046,11 +5139,35 @@ ALTER TABLE ONLY colonies
 
 
 --
+-- Name: fk_late_adult_pp_status_stamps_pp; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps
+    ADD CONSTRAINT fk_late_adult_pp_status_stamps_pp FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
+
+
+--
+-- Name: fk_late_adult_pp_status_stamps_status; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps
+    ADD CONSTRAINT fk_late_adult_pp_status_stamps_status FOREIGN KEY (status_id) REFERENCES phenotyping_production_late_adult_statuses(id);
+
+
+--
 -- Name: fk_mouse_allele_mods; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mouse_allele_mod_status_stamps
     ADD CONSTRAINT fk_mouse_allele_mods FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
+
+
+--
+-- Name: fk_phenotyinging_production_late_adult_status; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotyping_productions
+    ADD CONSTRAINT fk_phenotyinging_production_late_adult_status FOREIGN KEY (late_adult_status_id) REFERENCES phenotyping_production_late_adult_statuses(id);
 
 
 --
@@ -5777,7 +5894,7 @@ INSERT INTO schema_migrations (version) VALUES ('20151009125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20160308125302');
 
-INSERT INTO schema_migrations (version) VALUES ('201604011125302');
+INSERT INTO schema_migrations (version) VALUES ('20160401112530');
 
 INSERT INTO schema_migrations (version) VALUES ('20160602105302');
 
@@ -5786,3 +5903,7 @@ INSERT INTO schema_migrations (version) VALUES ('20160904105302');
 INSERT INTO schema_migrations (version) VALUES ('20160905125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20161005125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20170528125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20170530125302');

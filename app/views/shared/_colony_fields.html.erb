@@ -109,8 +109,11 @@
 
                   <fieldset class="collapsible">
                     <legend>MGI Allele</legend>
-                    <%= alelle_generator.text_field :mgi_allele_symbol_superscript %>
-                    <%= alelle_generator.check_box :mgi_allele_symbol_without_impc_abbreviation, :label => "Exclude '(IMPC)' in MGI Allele Symbol Superscript?" %>
+                    <div class="mgi_allele_symbol_fields container_12">
+                      <div  class="grid_2" ><%= alelle_generator.check_box :mgi_allele_symbol_without_impc_abbreviation, :label => "Exclude '(IMPC)' Abbreviation?", 'class' => 'without_impc_abbreviation'%></div>
+                      <div  class="grid_3" ><%= alelle_generator.text_field :mgi_allele_symbol_superscript, 'class' => 'mgi_allele_symbol_superscript' %></div>
+                      <div  class="grid_7" ></br><button class="mgi_auto_suggest" type="button">Suggest MGI Allele Symbol Superscript</button></div>
+                    </div>
                   </fieldset>
                 <% else %>
                 </fieldset>

@@ -25,13 +25,13 @@
       <div class="grid_3">
         <div class="consortium-name">
           <div class="label">Consortium</div>
-          <div><%= @mi_attempt.consortium_name %></div>
+          <div id="consortium_name"><%= @mi_attempt.consortium_name %></div>
         </div>
       </div>
       <div class="grid_3">
         <div class="production-centre-name">
           <div class="label">Production Centre</div>
-          <div><%= @mi_attempt.production_centre_name %></div>
+          <div id="production_centre_name"><%= @mi_attempt.production_centre_name %></div>
         </div>
       </div>
     </div>
@@ -385,7 +385,7 @@
 <div>
   <fieldset class="collapsible">
     <legend>F1 Colonies</legend>
-    <div>
+    <div id="colonies_table_div">
       <% if ! mi_attempt.new_record?%>
         <table id="colonies_<%= form.object_id %>_table" class="report_table">
           <thead class="title">

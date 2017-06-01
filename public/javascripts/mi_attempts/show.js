@@ -27,9 +27,54 @@ function addHideRowLinks() {
     })
 }
 
+function addAutoSuggest() {
+  document.getElementById("colonies_table_div").addEventListener("click",function(e) {
+    if (e.target && e.target.matches("button.mgi_auto_suggest")) {
+      mgi_button = e.target;
+      mgi_button.disabled = true;
+      mgiasa = mgi_button.parentNode.parentNode.querySelector(".mgi_allele_symbol_superscript");
+      excludeimpc = mgi_button.parentNode.parentNode.querySelector(".without_impc_abbreviation");
+      markerSymbol = document.getElementById("marker_symbol").value;
+      productionCentreName = document.getElementById("production_centre_name").innerHTML;
+
+      if (!markerSymbol && !productionCentreName && !excludeimpc && !mgiasa){
+        alert("Could not suggest a Allele Symbol Superscript");
+        mgi_button.disabled = false;
+        return false
+      }
+
+      $.ajax({
+        url: window.basePath + '/targ_rep/auto_suggest/mgi_allele.json', 
+        type: "get", //send it through get method
+        data: { 
+          marker_symbol: markerSymbol, 
+          production_centre_name: productionCentreName, 
+        },
+        success: function(result){
+          findNextInSequence = result;
+          console.log(findNextInSequence["without_impc_abbreviation"]);
+          if (excludeimpc.checked){
+            mgiasa.value = findNextInSequence["without_impc_abbreviation"];
+          }
+          else {
+            mgiasa.value = findNextInSequence["with_impc_abbreviation"];
+          }
+          mgi_button.disabled = false;
+          return true;
+        },
+        error: function(xhr){
+          alert("Could not suggest a Allele Symbol Superscript");
+          return false
+          mgi_button.disabled = false;
+        }
+      });
+    }
+  })
+}
+
 Ext.onReady(function() {
   addHideRowLinks();
-
+  addAutoSuggest();
 })
 
 

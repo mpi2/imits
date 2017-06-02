@@ -7,9 +7,9 @@ class MgiAlleleNameUpdate
 
   DIFF = false
   VERBOSE = true
-  URL_ROOT = 'ftp.informatics.jax.org'
-  URL_PUBLIC_FOLDER = 'pub'
-  URL_TARGET = "ftp://#{URL_ROOT}/#{URL_PUBLIC_FOLDER}/"
+  URL_ROOT = 'www.informatics.jax.org'
+  URL_PUBLIC_FOLDER = 'downloads'
+  URL_TARGET = "http://#{URL_ROOT}/#{URL_PUBLIC_FOLDER}/"
 
   PRODUCT_TO_FILE_NAMES = {'es_cells' => {'files' => ['reports/KOMP_Allele.rpt', 'reports/NorCOMM_Allele.rpt', 'reports/EUCOMM_Allele.rpt'], 'download_template' => 'es_cell_allele_download_template'},
                            'derived_mice' => {'files' => ['IKMC/'], 'download_template' => 'derived_allele_download_template'},
@@ -236,7 +236,7 @@ class MgiAlleleNameUpdate
       mgi_file = open(filename)
     else
       puts "FILES NAME #{URL_TARGET + filename}"
-      mgi_file = open(URL_TARGET + filename, :proxy => nil)
+      mgi_file = open(URL_TARGET + filename)
     end
 
     mgi_file.each_line do |line|

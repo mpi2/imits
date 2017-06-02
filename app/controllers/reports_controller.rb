@@ -50,14 +50,16 @@ class ReportsController < ApplicationController
       ]
     )
 
-    non_assigned_mis = Gene.pretty_print_non_assigned_mi_plans_in_bulk
-    assigned_mis     = Gene.pretty_print_assigned_mi_plans_in_bulk
-    mis_in_progress  = Gene.pretty_print_mi_attempts_in_progress_in_bulk
-    glt_mice         = Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk
-    aborted_mis      = Gene.pretty_print_aborted_mi_attempts_in_bulk
+    result = Gene.gene_production_summary()
 
-    Gene.select('marker_symbol, mgi_accession_id, ikmc_projects_count, conditional_es_cells_count, non_conditional_es_cells_count, deletion_es_cells_count')
-      .order('marker_symbol asc').each do |gene|
+    assigned_mis = Gene.pretty_print_assigned_mi_plans_in_bulk(:result => result['assigned plans'])
+    non_assigned_mis = Gene.pretty_print_non_assigned_mi_plans_in_bulk(:result => result['non assigned plans'])
+    mis_in_progress = Gene.pretty_print_mi_attempts_in_bulk_helper(:result => result['in progress mi attempts'])
+    glt_mice = Gene.pretty_print_mi_attempts_in_bulk_helper(:result => result['genotype confirmed mi attempts'])
+    aborted_mis = Gene.pretty_print_mi_attempts_in_bulk_helper(:result => result['aborted mi attempts'])
+#    phenotype_attempts = Gene.pretty_print_phenotype_attempts_in_bulk_helper(:result => result['phenotype attempts'])
+
+    Gene.find_by_sql("SELECT DISTINCT genes.* FROM genes LEFT JOIN mi_plans ON mi_plans.gene_id = genes.id WHERE genes.feature_type = 'protein coding gene' OR mi_plans.id IS NOT NULL ORDER BY genes.marker_symbol asc").each do |gene|
       @report << [
         gene.marker_symbol,
         gene.mgi_accession_id,

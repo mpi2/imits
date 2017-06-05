@@ -244,7 +244,7 @@ class TargRep::Allele < ActiveRecord::Base
     type = nil
     errors = []
 
-    md = /\A(tm\d+|em\d+)([a-e]|.\d+|e.\d+)?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
+    md = /\A(tm\d+|em\d+)([a-e]|.\d+|e.\d+)?(\([\w\/]+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
 
     if md
       symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]

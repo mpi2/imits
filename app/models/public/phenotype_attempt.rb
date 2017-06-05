@@ -126,7 +126,7 @@ class Public::PhenotypeAttempt
 
    def phenotyping_productions_attributes
      return @phenotyping_productions_attributes.as_json unless @phenotyping_productions_attributes.nil?
-     return phenotyping_productions.as_json(:except => ["created_at", "updated_at", "status_id", "phenotype_attempt_id", "parent_colony_id", "colony_background_strain_id", "cohort_production_centre_id", "production_colony_name", "late_adult_status_id"], :methods => ["phenotype_attempt_id", "marker_symbol", "mgi_accession_id", "parent_colony_background_strain_name", "consortium_name", "phenotyping_centre_name", "production_centre_name", "production_consortium_name", "production_colony_name", "parent_colony_name", "status_name", "colony_background_strain_name", "cohort_production_centre_name", "late_adult_status_name"]) unless phenotyping_productions.blank?
+     return phenotyping_productions.as_json(:except => ["created_at", "updated_at", "status_id", "phenotype_attempt_id", "parent_colony_id", "colony_background_strain_id", "cohort_production_centre_id", "production_colony_name", "late_adult_status_id"], :methods => ["phenotype_attempt_id", "marker_symbol", "mgi_accession_id", "parent_colony_background_strain_name", "consortium_name", "phenotyping_centre_name", "production_centre_name", "production_consortium_name", "production_colony_name", "parent_colony_name", "status_name", "colony_background_strain_name", "cohort_production_centre_name", "late_adult_status_name, tissue_distribution_centres_attributes"]) unless phenotyping_productions.blank?
      return []
    end
 
@@ -674,7 +674,7 @@ class Public::PhenotypeAttempt
             @linked_phenotyping_production = nil if !linked_phenotyping_production.blank? && linked_phenotyping_production.id == pp.id
             pp.destroy
           else
-            pp.save! if pp.changed?
+            pp.save! if pp.changed? || (!pp.tissue_distribution_centres.blank? && pp.tissue_distribution_centres.any?{|tsc| tsc.changed? || tsc._destroy})
           end
         end
       end

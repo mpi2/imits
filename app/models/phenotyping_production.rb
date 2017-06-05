@@ -18,12 +18,14 @@ class PhenotypingProduction < ApplicationModel
 
   has_many   :status_stamps, :order => "#{PhenotypingProduction::StatusStamp.table_name}.created_at ASC", dependent: :destroy
   has_many   :late_adult_status_stamps, :order => "#{PhenotypingProduction::LateAdultStatusStamp.table_name}.created_at ASC", dependent: :destroy
+  has_many   :tissue_distribution_centres, dependent: :destroy
 
   access_association_by_attribute :colony_background_strain, :name
 
   accepts_nested_attributes_for :status_stamps
   accepts_nested_attributes_for :late_adult_status_stamps
-
+  accepts_nested_attributes_for :tissue_distribution_centres, :allow_destroy => true
+  
   protected :status=
   protected :late_adult_status=
 
@@ -364,7 +366,10 @@ class PhenotypingProduction < ApplicationModel
     return nil
   end
 
-
+  def tissue_distribution_centres_attributes
+    return tissue_distribution_centres.map(&:as_json) unless tissue_distribution_centres.blank?
+    return nil
+  end
 ## CLASS METHODS
 
   def self.readable_name
@@ -402,4 +407,5 @@ end
 #  late_adult_report_to_public                :boolean          default(TRUE)
 #  late_adult_phenotyping_experiments_started :date
 #  late_adult_status_id                       :integer
+#  tissues_available                          :boolean          default(FALSE)
 #

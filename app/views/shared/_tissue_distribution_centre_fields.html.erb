@@ -1,0 +1,19 @@
+<% generator = PhenotypeAttemptFieldGenerator.new(f) %>
+<tr>
+    <td>
+        <%= f.select :deposited_material, PhenotypingProduction::TissueDistributionCentre::DEPOSITED_TISSUE_MATERIAL, :include_blank => true %></br>
+
+        <% if @new_object != nil %>
+            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+            <%= link_to "remove", '#', class: "remove-row" %>
+        <% else %>
+            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+            <%= link_to "remove", '#', class: "hide-row" %>
+        <% end %>
+    </td>
+    <td>
+        <div><%= f.label :centre_name, :label => 'Distribution Centre' %><%= f.select :centre_name, Centre.all.map(&:name), :include_blank => true %></div></br>
+        <%= generator.text_field :start_date, :label => 'Start Date', :class => 'date-field' %></br>
+        <%= generator.text_field :end_date, :label => 'End Date', :class => 'date-field' %></br>
+    </td>
+</tr>

@@ -1,5 +1,5 @@
 function addHideRowLinks() {
-    var addDeleteRowArray = [/distribution_centres_\d+_table/, /phenotyping_productions_\d+_table/];
+    var addDeleteRowArray = [/distribution_centres_\d+_table/, /phenotyping_productions_\d+_table/, /tissue_distribution_centres_\d+_/];
     var tableElements = $('table');
     tableElements.each( function(index) {
       id =  tableElements[index].id;

@@ -28,12 +28,10 @@
                 <%= generator.strains_field_no_label :colony_background_strain %>
             </div>
             <div> 
-                <%= f.label :phenotyping_centre_name, 'Rederivation Started' %>
-                <%= f.check_box :rederivation_started %>
+                <%= generator.check_box :rederivation_started %>
             </div>
             <div> 
-                <%= f.label :phenotyping_centre_name, 'Rederivation Complete' %>
-                <%= f.check_box :rederivation_complete %>
+                <%= generator.check_box :rederivation_complete %>
             </div>
           </div>
         </fieldset>
@@ -71,12 +69,10 @@
                 <%= f.text_field(:phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
             </div>
             <div> 
-                <%= f.label :is_active, 'Is Active' %>
-                <%= f.check_box :is_active %>
+                <%= generator.check_box :is_active %>
             </div>
             <div> 
-                <%= f.label :report_to_public, 'Report Phenotype Data to Public' %>
-                <%= f.check_box :report_to_public %>
+                <%= generator.check_box :report_to_public, :label => 'Report Phenotype Data to Public'%>
             </div>
           </div>
         </fieldset>
@@ -98,16 +94,39 @@
                 <%= f.text_field(:late_adult_phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
             </div>
             <div> 
-                <%= f.label :late_adult_is_active, 'Is Active' %>
-                <%= f.check_box :late_adult_is_active %>
+                <%= generator.check_box :late_adult_is_active , :label => 'Is Active'%>
             </div>
             <div> 
-                <%= f.label :late_adult_report_to_public, 'Report Phenotype Data to Public' %>
-                <%= f.check_box :late_adult_report_to_public %>
+                <%= generator.check_box :late_adult_report_to_public, :label => 'Report Phenotype Data to Public' %>
             </div>
           </div>
         </fieldset>
       </div>
     </td>
-
+    <td style="vertical-align: top;">
+      <div style="padding:30px 10px 0px 10px">
+        <div class="distribution_centre" style="padding:0px 10px 0px 10px;">
+          <fieldset class="collapsible" id="distribution_centres">
+          <legend>Tissue Distribution</legend>
+            <div class="distribution_centres">
+              <table id="tissue_distribution_centres_<%= f.object_id %>_table" class="report_table">
+                <thead class="title">
+                  <tr>
+                    <th>Tissue Deposited</th>
+                    <th>Distribution Details</th>
+                  </tr>
+                </thead>
+                <tbody class="distribution_centres">
+                  <tr></tr>
+                  <%= f.fields_for :tissue_distribution_centres do |builder| %>
+                    <%= render '/shared/tissue_distribution_centre_fields', f: builder %>
+                  <% end %>
+                </tbody>
+              </table>
+              <%= link_to_add_fields "Add Tissue for Distribution", f, :tissue_distribution_centres %>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </td>
 </tr>

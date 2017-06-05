@@ -2353,6 +2353,41 @@ ALTER SEQUENCE phenotyping_production_statuses_id_seq OWNED BY phenotyping_produ
 
 
 --
+-- Name: phenotyping_production_tissue_distribution_centres; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE phenotyping_production_tissue_distribution_centres (
+    id integer NOT NULL,
+    start_date date,
+    end_date date,
+    phenotyping_production_id integer NOT NULL,
+    deposited_material character varying(255) NOT NULL,
+    centre_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: phenotyping_production_tissue_distribution_centres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE phenotyping_production_tissue_distribution_centres_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: phenotyping_production_tissue_distribution_centres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE phenotyping_production_tissue_distribution_centres_id_seq OWNED BY phenotyping_production_tissue_distribution_centres.id;
+
+
+--
 -- Name: phenotyping_productions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2381,7 +2416,8 @@ CREATE TABLE phenotyping_productions (
     late_adult_is_active boolean DEFAULT true,
     late_adult_report_to_public boolean DEFAULT true,
     late_adult_phenotyping_experiments_started date,
-    late_adult_status_id integer
+    late_adult_status_id integer,
+    tissues_available boolean DEFAULT false
 );
 
 
@@ -3831,6 +3867,13 @@ ALTER TABLE ONLY phenotyping_production_statuses ALTER COLUMN id SET DEFAULT nex
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres ALTER COLUMN id SET DEFAULT nextval('phenotyping_production_tissue_distribution_centres_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY phenotyping_productions ALTER COLUMN id SET DEFAULT nextval('phenotyping_productions_id_seq'::regclass);
 
 
@@ -4354,6 +4397,14 @@ ALTER TABLE ONLY phenotyping_production_status_stamps
 
 ALTER TABLE ONLY phenotyping_production_statuses
     ADD CONSTRAINT phenotyping_production_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: phenotyping_production_tissue_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres
+    ADD CONSTRAINT phenotyping_production_tissue_distribution_centres_pkey PRIMARY KEY (id);
 
 
 --
@@ -5179,6 +5230,22 @@ ALTER TABLE ONLY phenotyping_production_status_stamps
 
 
 --
+-- Name: fk_tdc_centre; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres
+    ADD CONSTRAINT fk_tdc_centre FOREIGN KEY (centre_id) REFERENCES centres(id);
+
+
+--
+-- Name: fk_tdc_phenotyinging_production; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres
+    ADD CONSTRAINT fk_tdc_phenotyinging_production FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
+
+
+--
 -- Name: mi_attempt_status_stamps_mi_attempt_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5907,3 +5974,5 @@ INSERT INTO schema_migrations (version) VALUES ('20161005125302');
 INSERT INTO schema_migrations (version) VALUES ('20170528125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20170530125302');
+
+INSERT INTO schema_migrations (version) VALUES ('20170630325302');

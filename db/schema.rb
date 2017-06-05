@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20170530125302) do
+ActiveRecord::Schema.define(:version => 20170630325302) do
 
   create_table "alleles", :force => true do |t|
     t.integer  "es_cell_id"
@@ -777,6 +777,16 @@ ActiveRecord::Schema.define(:version => 20170530125302) do
     t.string  "code",     :limit => 4,  :null => false
   end
 
+  create_table "phenotyping_production_tissue_distribution_centres", :force => true do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "phenotyping_production_id", :null => false
+    t.string   "deposited_material",        :null => false
+    t.integer  "centre_id",                 :null => false
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
+  end
+
   create_table "phenotyping_productions", :force => true do |t|
     t.integer  "mi_plan_id",                                                    :null => false
     t.integer  "status_id",                                                     :null => false
@@ -802,6 +812,7 @@ ActiveRecord::Schema.define(:version => 20170530125302) do
     t.boolean  "late_adult_report_to_public",                :default => true
     t.date     "late_adult_phenotyping_experiments_started"
     t.integer  "late_adult_status_id"
+    t.boolean  "tissues_available",                          :default => false
   end
 
   create_table "pipelines", :force => true do |t|
@@ -1249,6 +1260,9 @@ ActiveRecord::Schema.define(:version => 20170530125302) do
 
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_production_statuses", :name => "phenotyping_production_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotyping_production_status_stamps", "phenotyping_productions", :name => "fk_phenotyping_productions"
+
+  add_foreign_key "phenotyping_production_tissue_distribution_centres", "centres", :name => "fk_tdc_centre"
+  add_foreign_key "phenotyping_production_tissue_distribution_centres", "phenotyping_productions", :name => "fk_tdc_phenotyinging_production"
 
   add_foreign_key "phenotyping_productions", "mi_plans", :name => "phenotyping_productions_mi_plan_id_fk"
   add_foreign_key "phenotyping_productions", "phenotype_attempt_ids", :name => "phenotyping_productions_phenotype_attempt_id_fk", :column => "phenotype_attempt_id"

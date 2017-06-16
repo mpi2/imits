@@ -5,7 +5,7 @@ class DropAlleleFieldsOnColonyTable < ActiveRecord::Migration
     sql = <<-EOF
       UPDATE alleles SET mgi_allele_symbol_superscript = colonies.allele_name, mgi_allele_symbol_without_impc_abbreviation = true
       FROM colonies
-      WHERE colonies.id = alleles.colony_id AND colonies.allele_name IS NOT NULL AND colonies.allele_name != '' AND alleles.mgi_allele_symbol_superscript != colonies.allele_name
+      WHERE colonies.id = alleles.colony_id AND colonies.allele_name IS NOT NULL AND colonies.allele_name != ''
     EOF
 
     ActiveRecord::Base.connection.execute(sql)

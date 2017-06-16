@@ -2416,8 +2416,7 @@ CREATE TABLE phenotyping_productions (
     late_adult_is_active boolean DEFAULT true,
     late_adult_report_to_public boolean DEFAULT true,
     late_adult_phenotyping_experiments_started date,
-    late_adult_status_id integer,
-    tissues_available boolean DEFAULT false
+    late_adult_status_id integer
 );
 
 

@@ -1,0 +1,59 @@
+---
+Harwell:
+  :preferred: ''
+  :default: ''
+HMGU:
+  :preferred: ''
+  :default: ''
+ICS:
+  :preferred: ''
+  :default: ''
+CNB:
+  :preferred: ''
+  :default: ''
+Monterotondo:
+  :preferred: ''
+  :default: ''
+JAX:
+  :preferred: ''
+  :default: ''
+Oulu:
+  :preferred: ''
+  :default: ''
+VETMEDUNI:
+  :preferred: ''
+  :default: ''
+BCM:
+  :preferred: ''
+  :default: ''
+CNRS:
+  :preferred: ''
+  :default: ''
+APN:
+  :preferred: ''
+  :default: ''
+TCP:
+  :preferred: ''
+  :default: ''
+MARC:
+  :preferred: ''
+  :default: ''
+WTSI:
+  :preferred: ''
+  :default: ''
+EMMA:
+  :preferred: ''
+  :default: ''
+MMRRC:
+  :preferred: ''
+  :default: ''
+KOMP:
+  :preferred: ''
+  :default: ''
+CMMR:
+  :preferred: ''
+  :default: ''
+Fleming:
+  :preferred: ''
+  :default: ''
+

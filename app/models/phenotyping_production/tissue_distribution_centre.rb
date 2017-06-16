@@ -38,27 +38,38 @@ class PhenotypingProduction::TissueDistributionCentre < ActiveRecord::Base
   validates :deposited_material, :presence => true
   validates :deposited_material, uniqueness: { scope: :phenotyping_production_id, message: "is already been distributed" }
 
-  def calculate_order_link( config = nil )
+  def calculate_order_link
+    params = {}
+    params[:distribution_centre_name] = centre_name
+    params[:deposited_material] = deposited_material
+    params[:dc_start_date] = start_date
+    params[:dc_end_date] = end_date
 
-    params = {
-      :distribution_centre_name       => centre_name,
-      :deposited_material             => deposited_material,
-      :dc_start_date                  => start_date,
-      :dc_end_date                    => end_date
-    }
-
-    # call class method
-    return self.calculate_order_link( self.centre_name, params )
+    self.class.calculate_order_link( params )
   end
 
+  def self.calculate_order_link( params, config = nil )
 
-  def self.calculate_order_link( config_name, params)
+    distribution_centre_name  = params[:distribution_centre_name]
+    config ||= YAML.load_file("#{Rails.root}/config/tissue_dist_centre_urls.yml")
+
+    return self.compile_order_link( distribution_centre_name, params, config )
+  end
+
+  ##
+  # Compiles an order link given a config name (network, distribution or production centre name), parameters
+  # and a configuration
+  ##
+  def self.compile_order_link( config_name, params, config )
 
     raise "Expecting to find config key name to compile order link" if config_name.nil?
-    raise "Expecting to be supplied with what type of tissue was deposited" if params[:deposited_material].blank?
 
-    order_from_name ||= []
-    order_from_url  ||= []
+    raise "Distribution centre config cannot be nil"  if config.nil?
+
+    raise "Missing deposited_material parameter" unless params.has_key?(:deposited_material)
+
+    order_from_name = ""
+    order_from_url  = ""
 
     current_time = Time.now
 
@@ -80,15 +91,36 @@ class PhenotypingProduction::TissueDistributionCentre < ActiveRecord::Base
       return []
     end
 
+    deposited_material = params[:deposited_material]
     details = ''
-    order_from_name = config_name
+    order_from_name = deposited_material
 
-    centre = Centre.where("contact_email IS NOT NULL AND name = '#{config_name}'").first
-    if centre
-      details = centre
-      order_from_url = "mailto:#{details.contact_email}?subject=#{params[:deposited_material]} enquiry"
+    if ( config.has_key?(config_name) && ( ( !config[config_name][:default].blank? ) || ( !config[config_name][:preferred].blank? ) ) )
+      details = config[config_name]
+
+      if ( !config[config_name][:default].blank? )
+        order_from_url  = details[:default]
+      end # default
+
+      if ( !config[config_name][:preferred].blank? )
+        project_id    = params[:ikmc_project_id]
+        marker_symbol = params[:marker_symbol]
+
+        if ( project_id && ( details[:preferred] =~ /PROJECT_ID/ ) )
+          order_from_url = details[:preferred].gsub( /PROJECT_ID/, project_id )
+        elsif ( marker_symbol && ( details[:preferred] =~ /MARKER_SYMBOL/ ) )
+          order_from_url = details[:preferred].gsub( /MARKER_SYMBOL/, marker_symbol )
+        end
+      end # preferred
+
+    elsif !Centre.where("contact_email IS NOT NULL AND name = '#{config_name}'").blank?
+      # no useful entry in config, attempt to use centre contact
+      centre = Centre.where("contact_email IS NOT NULL AND name = '#{config_name}'").first
+      if centre
+        details = centre
+        order_from_url = "mailto:#{details.contact_email}?subject=#{deposited_material} enquiry"
+      end
     end
-
 
     if ( order_from_name.blank? || order_from_url.blank? )
       return []

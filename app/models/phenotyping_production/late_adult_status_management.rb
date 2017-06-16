@@ -7,7 +7,7 @@ module PhenotypingProduction::LateAdultStatusManagement
 
   ss.add('Not Registered For Late Adult Phenotyping') { |pt| true }
 
-  ss.add('Late Adult Phenotyping Production Registered') do |pt|
+  ss.add('Registered for Late Adult Phenotyping Production') do |pt|
     !pt.late_adult_phenotyping_experiments_started.blank?
   end
 

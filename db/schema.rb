@@ -812,7 +812,6 @@ ActiveRecord::Schema.define(:version => 20170630325302) do
     t.boolean  "late_adult_report_to_public",                :default => true
     t.date     "late_adult_phenotyping_experiments_started"
     t.integer  "late_adult_status_id"
-    t.boolean  "tissues_available",                          :default => false
   end
 
   create_table "pipelines", :force => true do |t|

@@ -35,7 +35,8 @@ class RefactorAlleleStructureForMiAttempts < ActiveRecord::Migration
 
       INSERT INTO alleles(
         colony_id, allele_confirmed, mgi_allele_symbol_without_impc_abbreviation,
-        mgi_allele_symbol_superscript, 
+        mgi_allele_symbol_superscript,
+        allele_symbol_superscript_template,
         mgi_allele_accession_id,
         allele_type, 
         auto_allele_description, allele_description,
@@ -44,8 +45,11 @@ class RefactorAlleleStructureForMiAttempts < ActiveRecord::Migration
         )
       SELECT colonies.id, colonies.genotype_confirmed, false, 
              CASE WHEN alleles.id IS NULL OR ( colonies.allele_type IS NOT NULL AND colonies.allele_type != alleles.allele_type) THEN colonies.mgi_allele_symbol_superscript ELSE alleles.mgi_allele_symbol_superscript END,
+             CASE WHEN alleles.id IS NULL OR ( colonies.allele_type IS NOT NULL AND colonies.allele_type != alleles.allele_type) THEN colonies.allele_symbol_superscript_template ELSE alleles.allele_symbol_superscript_template END,
              CASE WHEN alleles.id IS NULL OR ( colonies.allele_type IS NOT NULL AND colonies.allele_type != alleles.allele_type) THEN colonies.mgi_allele_id ELSE alleles.mgi_allele_accession_id END,
-             CASE WHEN alleles.id IS NULL OR ( colonies.allele_type IS NOT NULL) THEN colonies.allele_type ELSE alleles.allele_type END,
+             CASE WHEN alleles.id IS NULL AND mi_attempts.allele_target IS NOT NULL AND colonies.allele_type IS NULL THEN mi_attempts.allele_target
+                  WHEN alleles.id IS NULL OR ( colonies.allele_type IS NOT NULL) THEN colonies.allele_type 
+                  ELSE alleles.allele_type END,
              colonies.auto_allele_description, colonies.allele_description,
              mi_attempts.created_at, mi_attempts.updated_at, 
              CASE WHEN alleles.id IS NULL OR (colonies.allele_type IS NOT NULL AND colonies.allele_type != alleles.allele_type) THEN NULL ELSE alleles.genbank_file_id END,
@@ -59,15 +63,21 @@ class RefactorAlleleStructureForMiAttempts < ActiveRecord::Migration
       INSERT INTO alleles(
         colony_id, allele_confirmed, mgi_allele_symbol_without_impc_abbreviation,
         mgi_allele_symbol_superscript, 
+        allele_symbol_superscript_template,
         mgi_allele_accession_id,
         allele_type,
         auto_allele_description, allele_description,
         created_at, updated_at, genbank_file_id, genbank_transition,
         same_as_es_cell
         )
-      SELECT colonies.id, colonies.genotype_confirmed,
-             false, colonies.mgi_allele_symbol_superscript, colonies.mgi_allele_id,
-             colonies.allele_type, colonies.auto_allele_description, colonies.allele_description,
+      SELECT colonies.id, colonies.genotype_confirmed, false, 
+             CASE WHEN colonies.mgi_allele_symbol_superscript IS NOT NULL THEN colonies.mgi_allele_symbol_superscript
+                  WHEN colonies.allele_type IS NOT NULL AND alleles.id IS NOT NULL THEN REPLACE(alleles.allele_symbol_superscript_template, '@', colonies.allele_type)
+                  ELSE NULL END,
+             CASE WHEN alleles.id IS NULL OR ( colonies.allele_type IS NOT NULL AND colonies.allele_symbol_superscript_template IS NOT NULL) THEN colonies.allele_symbol_superscript_template ELSE alleles.allele_symbol_superscript_template END,
+             colonies.mgi_allele_id,
+             colonies.allele_type,
+             colonies.auto_allele_description, colonies.allele_description,
              mouse_allele_mods.created_at, mouse_allele_mods.updated_at, alleles.genbank_file_id,
              CASE WHEN colonies.allele_type IN ('b', '.1', 'e.1') THEN 'cre'
                   WHEN colonies.allele_type = 'c' THEN 'flp'
@@ -107,6 +117,15 @@ class RefactorAlleleStructureForMiAttempts < ActiveRecord::Migration
     EOF
 
     ActiveRecord::Base.connection.execute(sql)
+
+    alleles = Allele.where("allele_type IS NULL OR allele_symbol_superscript_template IS NULL OR mgi_allele_symbol_superscript IS NULL")
+    alleles.each do |a|
+      allele = Allele.find(a.id)
+      begin
+        allele.save
+      rescue
+      end
+    end
  
     drop_table :colony_qcs
     remove_column :mi_attempts, :genotyping_comment

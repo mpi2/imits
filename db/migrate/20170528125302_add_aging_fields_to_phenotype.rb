@@ -36,7 +36,7 @@ class AddAgingFieldsToPhenotype < ActiveRecord::Migration
     add_foreign_key :phenotyping_production_late_adult_status_stamps, :phenotyping_productions,  name: :fk_late_adult_pp_status_stamps_pp
 
     statuses = [{'name' => 'Not Registered For Late Adult Phenotyping','pdlanotr' => '', 'order_by' => 200}, 
-                {'name' => 'Late Adult Phenotyping Production Registered','pdlar' => '', 'order_by' => 610}, 
+                {'name' => 'Registered for Late Adult Phenotyping Production','pdlar' => '', 'order_by' => 610}, 
                 {'name' => 'Late Adult Phenotyping Started','code' => 'pdlas', 'order_by' => 630},
                 {'name' => 'Late Adult Phenotyping Complete','code' => 'pdlac', 'order_by' => 640},
                 {'name' => 'Late Adult Phenotype Production Aborted','pdlaa' => 'cof', 'order_by' => 213}]

@@ -148,7 +148,7 @@ class Allele < ApplicationModel
       design_allele = allele.es_cell.allele
       allele.genbank_file_id = design_allele.allele_genbank_file_id
       if allele.mgi_allele_symbol_superscript.blank?
-        allele.allele_type = design_allele.mutation_method.allele_code
+        allele.allele_type = design_allele.mutation_type.allele_code
       else
         extacted = allele.class.extract_symbol_superscript_template(allele.mgi_allele_symbol_superscript)
         allele.allele_type = extacted[1]
@@ -173,31 +173,30 @@ class Allele < ApplicationModel
           sql = <<-EOF
             SELECT a1.*
             FROM targ_rep_alleles AS a1
-              JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = a2.mutation_type_id
+              JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = a1.mutation_type_id
             WHERE 
               a1.cassette = '#{es_cell.allele.cassette}' AND
               a1.homology_arm_start = #{es_cell.allele.homology_arm_start} AND
               a1.homology_arm_end = #{es_cell.allele.homology_arm_end} AND
               a1.cassette_start = #{es_cell.allele.cassette_start} AND
               a1.cassette_end = #{es_cell.allele.cassette_end} AND
-              a1.id != #{es_cell.allele.id} AND
+              a1.id != #{es_cell.allele_id} AND
               targ_rep_mutation_types.allele_code = '#{allele.allele_type}'
           EOF
           targ_rep_alleles = TargRep::Allele.find_by_sql(sql)
 
-          if targ_rep_alleles.length > 1
-            allele.genebank_file_id = targ_rep_alleles[0].allele_genbank_file_id
+          allele.genbank_file_id = targ_rep_alleles[0].allele_genbank_file_id if targ_rep_alleles.length >= 1
 
-            allele.mgi_allele_accession_id = nil if allele.mgi_allele_accession_id == es_cell.alleles[0].mgi_allele_accession_id 
-            if allele.mgi_allele_accession_id.blank?
-              allele.allele_symbol_superscript_template = es_cell.allele[0].allele_symbol_superscript_template
-              allele.mgi_allele_symbol_superscript = es_cell.alleles[0].allele_symbol_superscript_template.gsub(/\@/, allele.allele_type.to_s.gsub("''", ''))
-            else
-              extacted = allele.class.extract_symbol_superscript_template(allele.mgi_allele_symbol_superscript)
-              allele.allele_type = extacted[1]
-              allele.allele_symbol_superscript_template = extacted[0]
-            end
+          allele.mgi_allele_accession_id = nil if allele.mgi_allele_accession_id == es_cell.alleles[0].mgi_allele_accession_id 
+          if allele.mgi_allele_accession_id.blank?
+            allele.allele_symbol_superscript_template = es_cell.alleles[0].allele_symbol_superscript_template
+            allele.mgi_allele_symbol_superscript = es_cell.alleles[0].allele_symbol_superscript_template.gsub(/\@/, allele.allele_type.to_s.gsub("''", ''))
+          else
+            extacted = allele.class.extract_symbol_superscript_template(allele.mgi_allele_symbol_superscript)
+            allele.allele_type = extacted[1]
+            allele.allele_symbol_superscript_template = extacted[0]
           end
+         
 
         end
       # Created by mouse allele mod
@@ -296,7 +295,7 @@ class Allele < ApplicationModel
     symbol_superscript_template = nil
     type = nil
 
-    md = /\A(tm\d+|em\d+|Gt)([a-e]|.\d+|e.\d+)?(\(\w+\))?(\w+)\Z/.match(mgi_allele_symbol_superscript)
+    md = /\A(tm\d+|em\d+|Gt)([a-e]|.\d+|e.\d+)?(\([\w\/]+\))?(\w+)\Z/.match(mgi_allele_symbol_superscript)
 
     if md
       if 'tm' == md[1][0..1]

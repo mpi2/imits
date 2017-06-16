@@ -24,57 +24,133 @@ class SolrData::Allele2CoreData
         SELECT plan_summary.gene_symbol AS gene_symbol, plan_summary.gene_mgi_accession_id AS gene_mgi_accession_id, targ_rep_es_cells.allele_id AS allele_id,
                mi_attempts.id AS mi_attempt_id, mi_attempts.external_ref AS mi_external_ref, mi_attempt_statuses.name AS mi_status_name, mi_attempts.report_to_public AS mi_report_to_public,
                blast_strain.name AS mi_blast_strain_name, test_cross_strain.name AS mi_test_cross_strain_name,
-               targ_rep_es_cells.id AS es_cell_id, targ_rep_es_cells.name AS es_cell_name, targ_rep_es_cells.mgi_allele_symbol_superscript AS es_cell_mgi_allele_symbol_superscript, CASE WHEN targ_rep_es_cells.allele_type IS NULL THEN '' ELSE targ_rep_es_cells.allele_type END AS es_cell_allele_type, targ_rep_es_cells.allele_symbol_superscript_template AS es_cell_allele_superscript_template,
+               targ_rep_es_cells.id AS es_cell_id, targ_rep_es_cells.name AS es_cell_name, alleles.mgi_allele_accession_id AS es_cell_mgi_allele_id, alleles.mgi_allele_symbol_superscript AS es_cell_mgi_allele_symbol_superscript, CASE WHEN alleles.allele_type IS NULL THEN '' ELSE alleles.allele_type END AS es_cell_allele_type, alleles.allele_symbol_superscript_template AS es_cell_allele_superscript_template,
                mutagenesis_factors.id AS mutagenesis_factor_id,
-               colonies.id AS mi_colony_id, colonies.name AS mi_colony_name, colonies.mgi_allele_id AS mi_colony_mgi_allele_id, colonies.allele_name AS mi_colony_allele_name, allele_target As mi_allele_target,
-               colonies.mgi_allele_symbol_superscript AS mi_colony_mgi_allele_symbol_superscript, colonies.allele_symbol_superscript_template AS mi_colony_allele_symbol_superscript_template,
-               colonies.allele_type AS mi_colony_allele_type, colony_background_strain.name AS mi_colony_background_strain_name,
+               colonies.id AS mi_colony_id, colonies.name AS mi_colony_name, colony_alleles.mgi_allele_accession_id AS mi_colony_mgi_allele_id,
+               colony_alleles.mgi_allele_symbol_superscript AS mi_colony_mgi_allele_symbol_superscript,
+               colony_alleles.allele_type AS mi_colony_allele_type, colony_background_strain.name AS mi_colony_background_strain_name,
                plan_summary.production_centre AS mi_production_centre
           FROM mi_attempts
             JOIN plan_summary ON plan_summary.mi_plan_id = mi_attempts.mi_plan_id
             JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
             LEFT JOIN colonies ON colonies.mi_attempt_id = mi_attempts.id
+            LEFT JOIN alleles colony_alleles ON colony_alleles.colony_id = colonies.id
             LEFT JOIN strains blast_strain ON blast_strain.id = mi_attempts.blast_strain_id
             LEFT JOIN strains test_cross_strain ON test_cross_strain.id = mi_attempts.test_cross_strain_id
             LEFT JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
             LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+            LEFT JOIN alleles ON alleles.es_cell_id = targ_rep_es_cells.id
             LEFT JOIN mutagenesis_factors ON mutagenesis_factors.id = mi_attempts.mutagenesis_factor_id
         WHERE mi_attempts.experimental = false AND mi_attempt_statuses.name != 'Micro-injection aborted'
 
     ),
 
       phenotyping_production_summary AS (
-        SELECT parent_colony_id, (array_agg(phenotyping_production_statuses.name ORDER BY phenotyping_production_statuses.order_by DESC))[1] AS phenotyping_status_name,
-        (array_agg(plan_summary.production_centre ORDER BY phenotyping_production_statuses.order_by DESC))[1] AS phenotyping_centre, array_agg(plan_summary.production_centre ORDER BY phenotyping_production_statuses.order_by DESC) AS phenotyping_centres
+        SELECT parent_colony_id, 
+        (array_agg(phenotyping_production_statuses.name ORDER BY phenotyping_production_statuses.order_by DESC))[1] AS phenotyping_status_name,
+        (array_agg(plan_summary.production_centre ORDER BY phenotyping_production_statuses.order_by DESC))[1] AS phenotyping_centre, 
+        array_agg(plan_summary.production_centre ORDER BY phenotyping_production_statuses.order_by DESC) AS phenotyping_centres
         FROM phenotyping_productions
           JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
           JOIN plan_summary ON plan_summary.mi_plan_id = phenotyping_productions.mi_plan_id
         WHERE phenotyping_production_statuses.name != 'Phenotype Production Aborted' AND phenotyping_productions.report_to_public = true
         GROUP BY parent_colony_id
+      ),
+
+      late_adult_phenotyping_production_summary AS (
+        SELECT parent_colony_id, 
+        (array_agg(phenotyping_production_late_adult_statuses.name ORDER BY phenotyping_production_late_adult_statuses.order_by DESC))[1] AS phenotyping_status_name,
+        (array_agg(plan_summary.production_centre ORDER BY phenotyping_production_late_adult_statuses.order_by DESC))[1] AS phenotyping_centre, 
+        array_agg(CASE WHEN phenotyping_productions.selected_for_late_adult_phenotyping = true THEN plan_summary.production_centre ELSE NULL END) AS phenotyping_centres
+        FROM phenotyping_productions
+          JOIN phenotyping_production_late_adult_statuses ON phenotyping_production_late_adult_statuses.id = phenotyping_productions.late_adult_status_id
+          JOIN plan_summary ON plan_summary.mi_plan_id = phenotyping_productions.mi_plan_id
+        WHERE phenotyping_production_late_adult_statuses.name != 'Late Adult Phenotype Production Aborted' AND phenotyping_productions.late_adult_report_to_public = true
+        GROUP BY parent_colony_id
+      ),
+
+      tissue_summary AS (
+        SELECT parent_colony_id,
+        (array_agg(pptdc.deposited_material)) AS deposited_tissues,
+        (array_agg(centres.name)) AS tissue_distribution_centre_names,
+        (array_agg(pptdc.start_date)) AS start_dates,
+        (array_agg(pptdc.end_date)) AS end_dates
+        FROM phenotyping_productions
+          JOIN phenotyping_production_tissue_distribution_centres pptdc ON pptdc.phenotyping_production_id = phenotyping_productions.id
+          JOIN centres ON centres.id = pptdc.centre_id
+        WHERE (start_date IS NULL OR start_date < NOW()) AND (end_date IS NULL OR end_date > NOW()) 
+        GROUP BY parent_colony_id
+      ),
+
+      colony_summary AS (
+        SELECT colonies.id AS id, colonies.name AS colony_name, colonies.mouse_allele_mod_id AS mouse_allele_mod_id, alleles.mgi_allele_accession_id AS mgi_allele_accession_id,
+               alleles.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript,
+               alleles.allele_type AS allele_type, colony_background_strain.name AS background_strain_name,
+               phenotyping_production_summary.phenotyping_status_name AS phenotyping_status_name,
+               phenotyping_production_summary.phenotyping_centre AS phenotyping_centre,
+               phenotyping_production_summary.phenotyping_centres AS phenotyping_centres,
+               late_adult_phenotyping_production_summary.phenotyping_status_name AS late_adult_phenotyping_status_name,
+               late_adult_phenotyping_production_summary.phenotyping_centre AS late_adult_phenotyping_centre,
+               late_adult_phenotyping_production_summary.phenotyping_centres AS late_adult_phenotyping_centres,
+               tissue_summary.deposited_tissues AS tissue_deposited_tissues,
+               tissue_summary.tissue_distribution_centre_names AS tissue_distribution_centre_names,
+               tissue_summary.start_dates AS tissue_start_dates,
+               tissue_summary.end_dates AS tissue_end_dates,
+               colonies.report_to_public AS report_to_public, colonies.genotype_confirmed AS genotype_confirmed
+        FROM colonies
+        JOIN alleles ON alleles.colony_id = colonies.id
+        LEFT JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
+        LEFT JOIN phenotyping_production_summary ON phenotyping_production_summary.parent_colony_id = colonies.id
+        LEFT JOIN late_adult_phenotyping_production_summary ON late_adult_phenotyping_production_summary.parent_colony_id = colonies.id
+        LEFT JOIN tissue_summary ON tissue_summary.parent_colony_id = colonies.id
       )
 
 
     -- Note! the colony data in colonies and mi_attempt_summary is the same when the colony was created via micro_injection.
 
-    SELECT CASE WHEN colonies.mouse_allele_mod_id IS NOT NULL THEN 'MouseAlleleMod' ELSE 'MiAttempt' END AS colony_created_by,
-           colonies.name AS colony_name, colonies.mgi_allele_id AS colony_mgi_allele_id, colonies.allele_name AS colony_allele_name, colonies.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
-           colonies.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template, colonies.allele_type AS colony_allele_type, colony_background_strain.name AS colony_background_strain_name,
-           colonies.allele_description_summary AS allele_description_summary, colonies.auto_allele_description AS auto_allele_description,
-           mouse_allele_mod_statuses.name AS mouse_allele_status_name, deleter_strain.name AS mouse_allele_mod_deleter_strain, mouse_allele_mods.cre_excision AS excised,
+    SELECT 'MiAttempt' AS colony_created_by,
+           colony_summary.colony_name AS colony_name, colony_summary.mgi_allele_accession_id AS colony_mgi_allele_id, colony_summary.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
+           colony_summary.allele_type AS colony_allele_type, colony_summary.background_strain_name AS colony_background_strain_name,
+           NULL AS mouse_allele_status_name, NULL AS mouse_allele_mod_deleter_strain, NULL AS mouse_allele_mod_id, NULL AS excised,
+           mi_attempt_summary.*,
+           NULL AS mouse_allele_production_centre,
+           colony_summary.phenotyping_status_name AS phenotyping_status_name, colony_summary.phenotyping_centre AS phenotyping_centre,
+           colony_summary.phenotyping_centres AS phenotyping_centres,
+           colony_summary.late_adult_phenotyping_status_name AS late_adult_phenotyping_status_name, colony_summary.late_adult_phenotyping_centre AS late_adult_phenotyping_centre,
+           colony_summary.late_adult_phenotyping_centres AS late_adult_phenotyping_centres,
+           colony_summary.tissue_deposited_tissues,
+           colony_summary.tissue_distribution_centre_names,
+           colony_summary.tissue_start_dates,
+           colony_summary.tissue_end_dates
+    FROM mi_attempt_summary
+      LEFT JOIN colony_summary ON mi_attempt_summary.mi_colony_id = colony_summary.id
+    WHERE ((colony_summary.report_to_public = true AND colony_summary.genotype_confirmed = true) OR (mi_attempt_summary.mutagenesis_factor_id IS NULL)) 
+          AND (mi_attempt_summary.mi_report_to_public = true)
+
+    UNION ALL
+
+    SELECT 'MouseAlleleMod' AS colony_created_by,
+           colony_summary.colony_name AS colony_name, colony_summary.mgi_allele_accession_id AS colony_mgi_allele_id, colony_summary.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
+           colony_summary.allele_type AS colony_allele_type, colony_summary.background_strain_name AS colony_background_strain_name,
+           mouse_allele_mod_statuses.name AS mouse_allele_status_name, deleter_strain.name AS mouse_allele_mod_deleter_strain, mouse_allele_mods.id AS mouse_allele_mod_id, mouse_allele_mods.cre_excision AS excised,
            mi_attempt_summary.*,
            mam_plan_summary.production_centre AS mouse_allele_production_centre,
-           phenotyping_production_summary.phenotyping_status_name AS phenotyping_status_name, phenotyping_production_summary.phenotyping_centre AS phenotyping_centre,
-           phenotyping_production_summary.phenotyping_centres AS phenotyping_centres
-    FROM colonies
-      LEFT JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
+           colony_summary.phenotyping_status_name AS phenotyping_status_name, colony_summary.phenotyping_centre AS phenotyping_centre,
+           colony_summary.phenotyping_centres AS phenotyping_centres,
+           colony_summary.late_adult_phenotyping_status_name AS late_adult_phenotyping_status_name, colony_summary.late_adult_phenotyping_centre AS late_adult_phenotyping_centre,
+           colony_summary.late_adult_phenotyping_centres AS late_adult_phenotyping_centres,
+           colony_summary.tissue_deposited_tissues,
+           colony_summary.tissue_distribution_centre_names,
+           colony_summary.tissue_start_dates,
+           colony_summary.tissue_end_dates
+    FROM colony_summary
       LEFT JOIN (mouse_allele_mods
                   JOIN plan_summary AS mam_plan_summary ON mam_plan_summary.mi_plan_id = mouse_allele_mods.mi_plan_id
                   LEFT JOIN strains deleter_strain ON deleter_strain.id = mouse_allele_mods.deleter_strain_id
                   JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
-                ) ON mouse_allele_mods.id = colonies.mouse_allele_mod_id AND mouse_allele_mods.report_to_public = true
-      JOIN mi_attempt_summary ON mi_attempt_summary.mi_colony_id = mouse_allele_mods.parent_colony_id OR (mi_attempt_summary.mi_colony_id = colonies.id AND mi_attempt_summary.mi_report_to_public = true)
-      LEFT JOIN phenotyping_production_summary ON phenotyping_production_summary.parent_colony_id = colonies.id
-    WHERE (colonies.report_to_public = true AND colonies.genotype_confirmed = true) OR mutagenesis_factor_id IS NULL
+                ) ON mouse_allele_mods.id = colony_summary.mouse_allele_mod_id
+      JOIN mi_attempt_summary ON mi_attempt_summary.mi_colony_id = mouse_allele_mods.parent_colony_id
+    WHERE mouse_allele_mods.report_to_public = true
   EOF
 
 
@@ -91,19 +167,20 @@ class SolrData::Allele2CoreData
   ),
 
   alleles_produced_from_vectors AS (
-              SELECT targ_rep_targeting_vectors.id, allele_details.gene_symbol, allele_details.gene_mgi_accession_id, targ_rep_es_cells.mgi_allele_symbol_superscript, targ_rep_es_cells.allele_symbol_superscript_template,
-                     targ_rep_es_cells.allele_type, CASE WHEN allele_details.allele_design_id IS NULL THEN '' ELSE CAST(allele_details.allele_design_id AS text) END AS project_design_id,
+              SELECT targ_rep_targeting_vectors.id, allele_details.gene_symbol, allele_details.gene_mgi_accession_id, alleles.mgi_allele_symbol_superscript,
+                     alleles.allele_type, CASE WHEN allele_details.allele_design_id IS NULL THEN '' ELSE CAST(allele_details.allele_design_id AS text) END AS project_design_id,
                      CASE WHEN allele_details.allele_cassette IS NULL THEN '' ELSE allele_details.allele_cassette END AS cassette, allele_details.cassette_type AS cassette_type, allele_details.mutation_method_allele_prefix AS allele_prefix, allele_details.mutation_type_allele_code AS allele_code,
-                     count(CASE WHEN targ_rep_es_cells.report_to_public = false THEN NULL ELSE targ_rep_es_cells.id END) AS num_es_cells, string_agg(targ_rep_es_cells.mgi_allele_id, ',') AS es_mgi_allele_ids,
+                     count(CASE WHEN targ_rep_es_cells.report_to_public = false THEN NULL ELSE targ_rep_es_cells.id END) AS num_es_cells, string_agg(alleles.mgi_allele_accession_id, ',') AS es_mgi_allele_ids,
                      string_agg(targ_rep_es_cells.name, ',') AS es_cell_names, string_agg(targ_rep_es_cells.ikmc_project_id, ',') AS es_ikmc_projects_not_distinct,
                      string_agg(es_pipelines.name, ',') AS es_pipelines_not_distinct, string_agg(allele_details.allele_id::text, ',') AS allele_ids
               FROM targ_rep_es_cells
+                JOIN alleles ON alleles.es_cell_id = targ_rep_es_cells.id
                 LEFT JOIN targ_rep_targeting_vectors ON  targ_rep_targeting_vectors.id = targ_rep_es_cells.targeting_vector_id
                 JOIN allele_details ON allele_details.allele_id = targ_rep_es_cells.allele_id
                 JOIN targ_rep_pipelines es_pipelines ON es_pipelines.id = targ_rep_es_cells.pipeline_id AND es_pipelines.id SUBS_EUCOMMTOOLSCRE_ID
               WHERE targ_rep_es_cells.report_to_public = true OR targ_rep_targeting_vectors.report_to_public = true
-              GROUP BY targ_rep_targeting_vectors.id, allele_details.gene_symbol, allele_details.gene_mgi_accession_id, targ_rep_es_cells.mgi_allele_symbol_superscript, targ_rep_es_cells.allele_symbol_superscript_template,
-                       targ_rep_es_cells.allele_type, allele_details.allele_design_id, allele_details.allele_cassette, allele_details.cassette_type, allele_details.mutation_method_allele_prefix, allele_details.mutation_type_allele_code
+              GROUP BY targ_rep_targeting_vectors.id, allele_details.gene_symbol, allele_details.gene_mgi_accession_id, alleles.mgi_allele_symbol_superscript,
+                       alleles.allele_type, allele_details.allele_design_id, allele_details.allele_cassette, allele_details.cassette_type, allele_details.mutation_method_allele_prefix, allele_details.mutation_type_allele_code
   ),
 
   targeting_vector_info AS (
@@ -123,25 +200,9 @@ class SolrData::Allele2CoreData
         FROM targ_rep_targeting_vectors
           JOIN allele_details ON allele_details.allele_id = targ_rep_targeting_vectors.allele_id
           JOIN targ_rep_pipelines tv_pipelines ON tv_pipelines.id = targ_rep_targeting_vectors.pipeline_id AND tv_pipelines.id SUBS_EUCOMMTOOLSCRE_ID
-  )
+  ),
 
-
-
-    SELECT allele_summary.marker_symbol AS gene_symbol, allele_summary.mgi_accession_id AS gene_mgi_accession_id,
-           allele_summary.mgi_allele_symbol_superscript AS es_cell_mgi_allele_symbol_superscript, allele_summary.allele_symbol_superscript_template AS es_cell_allele_symbol_superscript_template, allele_summary.allele_type AS es_cell_allele_type,
-           allele_summary.project_design_id AS design_id, allele_summary.cassette, allele_summary.cassette_type, allele_summary.allele_prefix, allele_summary.allele_code AS mutation_type_allele_code,
-           string_agg(allele_summary.es_allele_ids, ',') AS es_allele_ids_not_distinct,
-           string_agg(allele_summary.es_mgi_allele_ids_not_distinct, ',') AS es_mgi_allele_ids_not_distinct,
-           string_agg(allele_summary.tv_allele_id::text, ',') AS tv_allele_ids_not_distinct,
-           string_agg(allele_summary.es_cell_names, ',') AS es_cell_names,
-           string_agg(allele_summary.es_pipelines, ',') AS es_pipelines_not_distinct,
-           string_agg(allele_summary.es_ikmc_projects, ',') AS es_ikmc_projects_not_distinct,
-           string_agg(allele_summary.tv_pipeline, ',') AS tv_pipelines_not_distinct,
-           string_agg(allele_summary.tv_ikmc_project, ',') AS tv_ikmc_projects_not_distinct,
-           SUM (CASE WHEN tv_id = alleles_produced_from_vector_tv THEN allele_summary.num_es_cells ELSE 0 END) AS num_es_cells,
-           count(tv_id) AS num_targeting_vectors
-
-      FROM (
+  allele_summary AS (
         SELECT CASE WHEN alleles_produced_from_vectors.gene_symbol IS NOT NULL THEN alleles_produced_from_vectors.gene_symbol
                     WHEN targeting_vector_info.marker_symbol IS NOT NULL THEN targeting_vector_info.marker_symbol
                     ELSE NULL END AS marker_symbol,
@@ -150,7 +211,6 @@ class SolrData::Allele2CoreData
                     ELSE NULL END AS mgi_accession_id,
 
                alleles_produced_from_vectors.mgi_allele_symbol_superscript,
-               alleles_produced_from_vectors.allele_symbol_superscript_template,
                alleles_produced_from_vectors.allele_type,
 
                CASE WHEN alleles_produced_from_vectors.project_design_id IS NOT NULL THEN alleles_produced_from_vectors.project_design_id
@@ -190,12 +250,29 @@ class SolrData::Allele2CoreData
                 AND alleles_produced_from_vectors.allele_prefix     = targeting_vector_info.tv_allele_prefix
 
         WHERE targeting_vector_info.report_to_public = true OR targeting_vector_info.id IS NULL
-      ) AS allele_summary
+    )
+
+
+
+    SELECT allele_summary.marker_symbol AS gene_symbol, allele_summary.mgi_accession_id AS gene_mgi_accession_id,
+           allele_summary.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript, allele_summary.allele_type AS allele_type,
+           allele_summary.project_design_id AS design_id, allele_summary.cassette, allele_summary.cassette_type, allele_summary.allele_prefix, allele_summary.allele_code AS mutation_type_allele_code,
+           string_agg(allele_summary.es_allele_ids, ',') AS es_allele_ids_not_distinct,
+           string_agg(allele_summary.es_mgi_allele_ids_not_distinct, ',') AS es_mgi_allele_ids_not_distinct,
+           string_agg(allele_summary.tv_allele_id::text, ',') AS tv_allele_ids_not_distinct,
+           string_agg(allele_summary.es_cell_names, ',') AS es_cell_names,
+           string_agg(allele_summary.es_pipelines, ',') AS es_pipelines_not_distinct,
+           string_agg(allele_summary.es_ikmc_projects, ',') AS es_ikmc_projects_not_distinct,
+           string_agg(allele_summary.tv_pipeline, ',') AS tv_pipelines_not_distinct,
+           string_agg(allele_summary.tv_ikmc_project, ',') AS tv_ikmc_projects_not_distinct,
+           SUM (CASE WHEN tv_id = alleles_produced_from_vector_tv THEN allele_summary.num_es_cells ELSE 0 END) AS num_es_cells,
+           count(tv_id) AS num_targeting_vectors
+
+      FROM allele_summary
 
     GROUP BY allele_summary.marker_symbol,
              allele_summary.mgi_accession_id,
              allele_summary.mgi_allele_symbol_superscript,
-             allele_summary.allele_symbol_superscript_template,
              allele_summary.allele_type,
              allele_summary.project_design_id,
              allele_summary.cassette,
@@ -208,9 +285,12 @@ class SolrData::Allele2CoreData
   PHENOTYPE_DATA_AVAILABLE_FOR_GENE = <<-EOF
     SELECT genes.marker_symbol AS gene_marker_symbol, genes.mgi_accession_id AS gene_mgi_accession_id, centres.name AS phenotyping_centre,
            phenotyping_productions.*,
-           phenotyping_production_statuses.name AS phenotyping_status_name
+           phenotyping_production_statuses.name AS phenotyping_status_name,
+           phenotyping_production_late_adult_statuses.name AS late_adult_phenotyping_status_name,
+           CASE WHEN phenotyping_productions.selected_for_late_adult_phenotyping = true THEN centres.name ELSE '' END AS late_adult_phenotyping_centre
     FROM phenotyping_productions
       JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id
+      LEFT JOIN phenotyping_production_late_adult_statuses ON phenotyping_production_late_adult_statuses.id = phenotyping_productions.status_id AND phenotyping_productions.late_adult_report_to_public = true
       JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
       JOIN centres ON centres.id = mi_plans.production_centre_id
       JOIN consortia ON consortia.id = mi_plans.consortium_id AND consortia.name SUBS_EUCOMMTOOLSCRE
@@ -235,6 +315,9 @@ class SolrData::Allele2CoreData
     PhenotypingProduction::Status.all.each{|status| @mouse_status_list[status['name']] = status['order_by']}
     MouseAlleleMod::Status.all.each{|status| @mouse_status_list[status['name']] = status['order_by']}
     MiAttempt::Status.all.each{|status| @mouse_status_list[status['name']] = status['order_by']}
+
+    @phenotype_status_list = {}
+    PhenotypingProduction::LateAdultStatus.all.each{|status| @phenotype_status_list[status['name']] = status['order_by']}
 
     @translate_to_legacy_status = {'No ES Cell Production'          => 'Not Assigned for ES Cell Production',
                                    'ES Cell Production in Progress' => 'Assigned for ES Cell Production',
@@ -296,10 +379,30 @@ class SolrData::Allele2CoreData
     @gene_data = {}
   end
 
+  def mouse_sql
+    @mouse_sql
+  end
+
+  def es_cell_and_targeting_vector_sql
+    @es_cell_and_targeting_vector_sql
+  end
+
+  def gene_phenotyping_sql
+    @gene_phenotyping_sql
+  end
+
+  def gene_sql
+    @gene_sql
+  end
+
+  def allele_data
+    @allele_data
+  end
+
   def run
     check_params
     generate_data
-    save_to_file
+#    save_to_file
   end
 
   def check_params
@@ -337,7 +440,6 @@ class SolrData::Allele2CoreData
 
   def mouse_status_is_more_adavanced(status_challenger, doc_status)
     return false if status_challenger.blank?
-
     if @mouse_status_list[doc_status] < @mouse_status_list[status_challenger]
       return true
     else
@@ -345,6 +447,16 @@ class SolrData::Allele2CoreData
     end
   end
   private :mouse_status_is_more_adavanced
+
+  def phenotype_status_is_more_adavanced(status_challenger, doc_status)
+    return false if status_challenger.blank?
+    if @phenotype_status_list[doc_status] < @phenotype_status_list[status_challenger]
+      return true
+    else
+      return false
+    end
+  end
+  private :phenotype_status_is_more_adavanced
 
   def generate_data
     puts "#### step 1 - Process Default Genes details..."
@@ -372,7 +484,7 @@ class SolrData::Allele2CoreData
       #pp row
 
       # ignore if mouse status is aborted
-      next if !row['mouse_allele_mod_status'].blank? && row['mouse_allele_mod_status'] == 'Mouse Allele Modification Aborted'
+      next if !row['mouse_allele_mod_status_name'].blank? && row['mouse_allele_mod_status_name'] == 'Mouse Allele Modification Aborted'
       next if !row['mi_status_name'].blank? && row['mi_status_name'] == 'Micro-injection aborted'
 
       # Update gene doc
@@ -380,22 +492,8 @@ class SolrData::Allele2CoreData
       doc = get_gene_doc(row['gene_mgi_accession_id'])
       mouse_gene_update_doc(doc, row)
 
-      #puts "Calculating allele"
-      allele_template = nil
-      allele_template = row['es_cell_allele_superscript_template'] unless row['es_cell_allele_superscript_template'].blank?
-      allele_template = row['mi_colony_allele_symbol_superscript_template'] unless row['mi_colony_allele_symbol_superscript_template'].blank?
-      allele_template = row['colony_allele_symbol_superscript_template'] unless row['colony_allele_symbol_superscript_template'].blank?
-
-      allele_details = TargRep::RealAllele.calculate_allele_information( {'es_cell_allele_type' => row['es_cell_allele_type'] || nil,
-                                                                          'parent_colony_allele_type' => row['mi_colony_allele_type'] || nil,
-                                                                          'colony_allele_type' => row['colony_allele_type'] || nil,
-                                                                          'allele_id' => row['allele_id'] || nil,
-                                                                          'mi_allele_target'   => row['mi_allele_target'] || nil,
-                                                                          'allele_name' => row['colony_allele_name'] || nil,
-                                                                          'excised' => row['excised'] == 't' ? true : false,
-                                                                          'allele_symbol_superscript_template' => allele_template || nil,
-                                                                          'mgi_allele_symbol_superscript' => row['colony_mgi_allele_symbol_superscript'] || nil
-                                                                        })
+      next if row['colony_mgi_allele_symbol_superscript'].blank? || row['colony_allele_type'].blank?
+      allele_details = {'allele_symbol' => row['colony_mgi_allele_symbol_superscript'], 'allele_type' => row['colony_allele_type']}
 
       # Update allele doc
       #puts "Grab allele doc for #{allele_details['allele_symbol']} and update mouse information"
@@ -434,18 +532,17 @@ class SolrData::Allele2CoreData
       doc = get_gene_doc(row['gene_mgi_accession_id'])
       es_cell_gene_update_doc(doc, row)
 
-      #puts "Calculating allele"
+      if !row['mgi_allele_symbol_superscript'].blank?
+        allele_details = {'allele_symbol' => row['mgi_allele_symbol_superscript'], 'allele_type' => row['mutation_type_allele_code']}
+      elsif row['design_id'].blank? || row['cassette'].blank?
+        allele_details = {'allele_symbol' => "tm#{row['design_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
+      elsif row['allele_id'].blank? || row['cassette'].blank?
+        allele_details = {'allele_symbol' => "tm#{row['allele_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
+      else
+        allele_details = {'allele_symbol' => nil, 'allele_type' => nil}
+      end
 
-      allele_details = TargRep::RealAllele.calculate_allele_information( {'mutation_method_allele_prefix' => row['allele_prefix'] || nil,
-                                                                          'mutation_type_allele_code' => row['mutation_type_allele_code'] || nil,
-                                                                          'es_cell_allele_type' => row['es_cell_allele_type'] || nil,
-                                                                          'allele_id' => row['allele_id'] || nil,
-                                                                          'design_id' => row['design_id'] || nil,
-                                                                          'cassette' => row['cassette'] || nil,
-                                                                          'allele_symbol_superscript_template' => row['es_cell_allele_symbol_superscript_template'] || nil,
-                                                                          'mgi_allele_symbol_superscript' => row['es_cell_mgi_allele_symbol_superscript'] || nil
-                                                                        })
-
+      next if allele_details['allele_symbol'].blank? || allele_details['allele_type'].blank?
       # Update allele doc
       #puts "Grab allele doc for #{allele_details['allele_symbol']} and update ES Cell information"
       doc = get_allele_doc(row, allele_details)
@@ -476,8 +573,7 @@ class SolrData::Allele2CoreData
       allele_data_doc.allele_description = TargRep::Allele.allele_description({
                                                'marker_symbol'               => allele_data_doc.marker_symbol,
                                                'cassette'                    => allele_data_doc.cassette,
-                                               'allele_type'                 => allele_data_doc.allele_type,
-                                               'allele_description_summary'  => allele_data_doc.allele_description
+                                               'allele_type'                 => allele_data_doc.allele_type
                                              })
 
       if allele_data_doc.mutation_type == 'tm'
@@ -498,9 +594,11 @@ class SolrData::Allele2CoreData
       allele_data_doc.links <<   "mutagenesis_url:#{mutagenesis_url}" unless mutagenesis_url.blank?
 
       # Add allele symbol string variants
-      allele_data_doc.allele_symbol << "#{allele_data_doc.marker_symbol}#{allele_data_doc.allele_name}" # eg) Cbx1tm1a(EUCOMM)Wtsi
-      allele_data_doc.allele_symbol << "#{allele_data_doc.marker_symbol} #{allele_data_doc.allele_name}" # eg) Cbx1 tm1a(EUCOMM)Wtsi
-      allele_data_doc.allele_symbol << "#{allele_data_doc.marker_symbol}<sup>#{allele_data_doc.allele_name}</sup>" # eg) Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>
+      allele_data_doc.allele_symbol = "#{allele_data_doc.marker_symbol}<#{allele_data_doc.allele_name}>" # eg) Cbx1<tm1a(EUCOMM)Wtsi>
+      allele_data_doc.allele_symbol_search_variants << "#{allele_data_doc.marker_symbol}#{allele_data_doc.allele_name}" # eg) Cbx1tm1a(EUCOMM)Wtsi
+      allele_data_doc.allele_symbol_search_variants << "#{allele_data_doc.marker_symbol} #{allele_data_doc.allele_name}" # eg) Cbx1 tm1a(EUCOMM)Wtsi
+      allele_data_doc.allele_symbol_search_variants << "#{allele_data_doc.marker_symbol}<sup>#{allele_data_doc.allele_name}</sup>" # eg) Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>
+      allele_data_doc.allele_symbol_search_variants << "#{allele_data_doc.marker_symbol}<#{allele_data_doc.allele_name}>" # eg) Cbx1<tm1a(EUCOMM)Wtsi>
 
       if !allele_data_doc.cassette_type.blank? && allele_data_doc.cassette_type == 'Promotorless'
         with_feature = 'Promotorless'
@@ -531,6 +629,9 @@ class SolrData::Allele2CoreData
       else
         allele_data_doc.allele_category << allele_data_doc.allele_type
       end
+      
+      allele_data_doc.fixed_tissues_available = true if allele_data_doc.tissue_types.include?('Fixed Tissue')
+      allele_data_doc.paraffin_embedded_sections_available = true if allele_data_doc.tissue_types.include?('Paraffin-embedded Tissue Sections')
 
     end
 
@@ -542,15 +643,17 @@ class SolrData::Allele2CoreData
       gene_data_doc.latest_es_cell_status = gene_data_doc.es_cell_status
       gene_data_doc.latest_mouse_status = gene_data_doc.mouse_status
       gene_data_doc.latest_phenotype_status = gene_data_doc.phenotype_status
-      gene_data_doc.latest_production_centre = gene_data_doc.production_centre
-      gene_data_doc.latest_phenotyping_centre = gene_data_doc.phenotyping_centre
+      gene_data_doc.latest_production_centre = gene_data_doc.production_centres
+      gene_data_doc.latest_phenotyping_centre = gene_data_doc.phenotyping_centres
       gene_data_doc.latest_phenotype_started = (['Phenotyping Started', 'Phenotyping Complete'].include?(gene_data_doc.phenotype_status) ? true : false) unless gene_data_doc.phenotype_status.blank?
       gene_data_doc.latest_phenotype_complete = (['Phenotyping Complete'].include?(gene_data_doc.phenotype_status) ? true : false) unless gene_data_doc.phenotype_status.blank?
+
+      gene_data_doc.late_adult_phenotype_started = (['Late Adult Phenotyping Started', 'Late Adult Phenotyping Complete'].include?(gene_data_doc.late_adult_phenotype_status) ? true : false) unless gene_data_doc.late_adult_phenotype_status.blank?
+      gene_data_doc.late_adult_phenotype_complete = (['Late Adult Phenotyping Complete'].include?(gene_data_doc.late_adult_phenotype_status) ? true : false) unless gene_data_doc.late_adult_phenotype_status.blank?
 
       gene_data_doc.latest_project_status = gene_data_doc.es_cell_status
       gene_data_doc.latest_project_status = gene_data_doc.mouse_status unless gene_data_doc.mouse_status.blank?
       gene_data_doc.latest_project_status = gene_data_doc.phenotype_status unless gene_data_doc.phenotype_status.blank?
-
 
       gene_data_doc.latest_project_status_legacy = @translate_to_legacy_status[gene_data_doc.latest_project_status] if @translate_to_legacy_status.has_key?(gene_data_doc.latest_project_status)
     end
@@ -590,15 +693,12 @@ class SolrData::Allele2CoreData
     links <<   "lrpcr_genotype_primers:#{lrpcr_genotype_primers}" unless lrpcr_genotype_primers.blank?
     links <<   "genotype_primers:#{genotype_primers_url}" unless genotype_primers_url.blank?
 
-    if data_row.has_key?('mi_colony_allele_type') && !data_row['mi_colony_allele_type'].nil? && !data_row['es_cell_allele_type'].nil? && data_row['mi_colony_allele_type'] != data_row['es_cell_allele_type']
-      try_to_find_correct_allele(data_row)
-    end
-
     @allele_data["#{data_row['gene_mgi_accession_id']} #{allele_details['allele_symbol']}"] = Solr::Allele2.new ({
                                                        'allele_design_project' => @allele_design_project,
                                                        'marker_symbol' => data_row['gene_symbol'],
                                                        'mgi_accession_id' => data_row['gene_mgi_accession_id'],
-                                                       'allele_symbol' => [],
+                                                       'allele_symbol' => '',
+                                                       'allele_symbol_search_variants' => [],
                                                        'allele_name' => allele_details['allele_symbol'],
                                                        'allele_mgi_accession_id' => '',
                                                        'allele_type' => allele_details['allele_type'] ,
@@ -622,11 +722,19 @@ class SolrData::Allele2CoreData
                                                        'mouse_available' => false,
                                                        'mouse_status' => '',
                                                        'phenotype_status' => '',
+                                                       'late_adult_phenotype_status' => '',
                                                        'es_cell_status' => '',
                                                        'production_centre' => '',
                                                        'phenotyping_centre' => '',
                                                        'production_centres' => [],
                                                        'phenotyping_centres' => [],
+                                                       'late_adult_phenotyping_centre' => '',
+                                                       'late_adult_phenotyping_centres' => [],
+                                                       'fixed_tissues_available' => false,
+                                                       'paraffin_embedded_sections_available' => false,
+                                                       'tissue_types' => [],
+                                                       'tissue_enquiry_links' => [],
+                                                       'tissue_distribution_centres' => [],
                                                        'links' => links,
                                                        'type' => 'Allele'})
 
@@ -636,7 +744,11 @@ class SolrData::Allele2CoreData
 
   def mouse_allele_update_doc(doc, data_row)
 
-    doc.allele_mgi_accession_id = data_row['colony_mgi_allele_id'] unless data_row['colony_mgi_allele_id'].blank?
+    if !data_row['colony_mgi_allele_id'].blank?
+      doc.allele_mgi_accession_id = data_row['colony_mgi_allele_id']
+    elsif data_row['mouse_allele_mod_id'].blank? && !data_row['es_cell_mgi_allele_id'].blank?
+      doc.allele_mgi_accession_id = data_row['es_cell_mgi_allele_id']
+    end
     doc.allele_description = data_row['auto_allele_description'].blank? ? data_row['allele_description_summary'] : data_row['auto_allele_description']
 
     # set Mouse status
@@ -653,16 +765,36 @@ class SolrData::Allele2CoreData
       doc.phenotyping_centre = data_row['phenotyping_centre']
     end
 
+    if doc.late_adult_phenotype_status.blank? || phenotype_status_is_more_adavanced(data_row['late_adult_phenotyping_status_name'], doc.late_adult_phenotype_status)
+      doc.late_adult_phenotype_status = data_row['late_adult_phenotyping_status_name']
+      doc.late_adult_phenotyping_centre = data_row['late_adult_phenotyping_centre'] if data_row['late_adult_phenotyping_status_name'] != 'Not Registered For Late Adult Phenotyping'
+    end
+
     doc.production_centres << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
     doc.production_centres << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
     self.class.convert_to_array(data_row['phenotyping_centres']).each{|phenotyping_centre| doc.phenotyping_centres << phenotyping_centre}
+    self.class.convert_to_array(data_row['late_adult_phenotyping_centres']).each{|phenotyping_centre| doc.late_adult_phenotyping_centres << phenotyping_centre}
+
 
     doc.production_centres = doc.production_centres.uniq
     doc.phenotyping_centres = doc.phenotyping_centres.uniq
+    doc.late_adult_phenotyping_centres = doc.late_adult_phenotyping_centres.uniq
 
     if !doc.mouse_status.blank? && ['Genotype confirmed', 'Cre Excision Complete'].include?(doc.mouse_status)
       doc.mouse_available = true
     end
+
+    tissue_distribution_centres = self.class.get_tissue_distribution_centres(data_row)
+
+    tissue_distribution_centres.each do |dis_centre|
+      order_name, order_link = self.class.tissue_order_links(dis_centre)
+      if order_name && order_link
+        doc.tissue_types << order_name
+        doc.tissue_enquiry_links << order_link
+        doc.tissue_distribution_centres << dis_centre[:distribution_centre_name]
+      end
+    end
+
     return true
   end
   private :mouse_allele_update_doc
@@ -689,7 +821,7 @@ class SolrData::Allele2CoreData
       doc.vector_allele_image = TargRep::Allele.vector_image_url(data_row['allele_id'])
     end
 
-    doc.allele_mgi_accession_id = data_row['allele_mgi_accession_id']
+    doc.allele_mgi_accession_id = data_row['allele_mgi_accession_id'] unless data_row['allele_mgi_accession_id'].blank?
 
     data_row['es_pipelines'].each{|pipeline| doc.pipeline << pipeline} unless data_row['es_pipelines'].blank?
     data_row['tv_pipelines'].each{|pipeline| doc.pipeline << pipeline} unless data_row['tv_pipelines'].blank?
@@ -725,6 +857,11 @@ class SolrData::Allele2CoreData
                  'ikmc_project' => [],
                  'mouse_status' => '',
                  'phenotype_status' => '',
+                 'late_adult_phenotype_status' => '',
+                 'late_adult_phenotyping_centre' => '',
+                 'late_adult_phenotyping_centres' => [],
+                 'late_adult_phenotype_started' => '',
+                 'late_adult_phenotype_complete' => '',
                  'es_cell_status' => '',
                  'production_centre' => '',
                  'phenotyping_centre' => '',
@@ -775,12 +912,20 @@ class SolrData::Allele2CoreData
       doc.phenotyping_centre = data_row['phenotyping_centre']
     end
 
+    if doc.late_adult_phenotype_status.blank? || phenotype_status_is_more_adavanced(data_row['late_adult_phenotyping_status_name'], doc.late_adult_phenotype_status)
+      doc.late_adult_phenotype_status = data_row['late_adult_phenotyping_status_name']
+      doc.late_adult_phenotyping_centre = data_row['late_adult_phenotyping_centre'] if data_row['late_adult_phenotyping_status_name'] != 'Not Registered For Late Adult Phenotyping'
+    end
+
     doc.production_centres << data_row['mouse_allele_production_centre'] unless data_row['mouse_allele_production_centre'].blank?
     doc.production_centres << data_row['mi_production_centre'] unless data_row['mi_production_centre'].blank?
     self.class.convert_to_array(data_row['phenotyping_centres']).each{|phenotyping_centre| doc.phenotyping_centres << phenotyping_centre}
+    self.class.convert_to_array(data_row['late_adult_phenotyping_centres']).each{|phenotyping_centre| doc.late_adult_phenotyping_centres << phenotyping_centre}
+
 
     doc.production_centres = doc.production_centres.uniq
     doc.phenotyping_centres = doc.phenotyping_centres.uniq
+    doc.late_adult_phenotyping_centres = doc.late_adult_phenotyping_centres.uniq
   end
 
   def es_cell_gene_update_doc(doc, data_row)
@@ -811,41 +956,72 @@ class SolrData::Allele2CoreData
       doc.phenotyping_centre = data_row['phenotyping_centre']
     end
 
+    if doc.late_adult_phenotype_status.blank? || phenotype_status_is_more_adavanced(data_row['late_adult_phenotyping_status_name'], doc.late_adult_phenotype_status)
+      doc.late_adult_phenotype_status = data_row['late_adult_phenotyping_status_name']
+      doc.late_adult_phenotyping_centre = data_row['late_adult_phenotyping_centre'] if data_row['late_adult_phenotyping_status_name'] != 'Not Registered For Late Adult Phenotyping'
+    end
+
     doc.phenotyping_centres << data_row['phenotyping_centre']
     doc.phenotyping_centres = doc.phenotyping_centres.uniq
+
+    doc.late_adult_phenotyping_centres << data_row['late_adult_phenotyping_centre'] unless data_row['late_adult_phenotyping_centre'].blank?
+    doc.late_adult_phenotyping_centres = doc.late_adult_phenotyping_centres.uniq
   end
   private :phenotyping_gene_update_doc
 
-  def try_to_find_correct_allele(row1)
-    sql = <<-EOF
-      SELECT a2.*
-      FROM targ_rep_alleles AS a1
-        JOIN targ_rep_alleles AS a2 ON
-          a1.cassette = a2.cassette AND
-          a1.homology_arm_start = a2.homology_arm_start AND
-          a1.homology_arm_end = a2.homology_arm_end AND
-          a1.cassette_start = a2.cassette_start AND
-          a1.cassette_end = a2.cassette_end AND
-          a1.id != a2.id
-        JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = a2.mutation_type_id
-      WHERE a1.id = #{row1['allele_id']} AND targ_rep_mutation_types.allele_code = '#{row1['mi_mouse_allele_type']}'
-    EOF
+  def self.get_tissue_distribution_centres data_row
+    return [] if data_row['tissue_distribution_centre_names'].blank?
+    dist_centres       = convert_to_array_without_removing_nulls(data_row['tissue_distribution_centre_names'])
+    starts             = convert_to_array_without_removing_nulls(data_row['tissue_start_dates'])
+    ends               = convert_to_array_without_removing_nulls(data_row['tissue_end_dates'])
+    deposited_material = convert_to_array_without_removing_nulls(data_row['tissue_deposited_tissues'])
 
-    rows = ActiveRecord::Base.connection.execute(sql)
-    if rows.count > 0
-      row1['allele_mgi_accession_id'] = ""
-      row1['alleles_id'] = rows[0]['id']
-    else
-      row1['allele_mgi_accession_id'] = ""
+
+    tissue_distribution_centres = []
+    count = dist_centres.count
+    return [] if count == 0
+    (0...count).each do |i|
+      tissue_distribution_centres << {:distribution_centre_name => dist_centres[i] == 'NULL' ?  nil : dist_centres[i],
+                               :start_date               => starts[i] == 'NULL' ? nil : starts[i].to_time,
+                               :end_date                 => ends[i] == 'NULL' ? nil : ends[i].to_time,
+                               :deposited_material       => deposited_material[i] == 'NULL' ? nil : deposited_material[i]
+                                }
+    end
+    return tissue_distribution_centres
+  end
+
+
+  def self.tissue_order_links(tissue_distribution)
+    params = {
+      :distribution_centre_name       => tissue_distribution[:distribution_centre_name],
+      :deposited_material             => tissue_distribution[:deposited_material],
+      :dc_start_date                  => tissue_distribution[:start_date],
+      :dc_end_date                    => tissue_distribution[:end_date]
+    }
+
+    # create the order link
+    begin
+      return PhenotypingProduction::TissueDistributionCentre.calculate_order_link( params )
+    rescue => e
+      puts "Error fetching order link. Exception details:"
+      puts e.inspect
+      puts e.backtrace.join("\n")
+      return []
     end
   end
-  private :try_to_find_correct_allele
 
   def self.convert_to_array psql_array
     return [] if psql_array.blank? || psql_array.length <= 2
 
     new_array = psql_array[1, psql_array.length-2].gsub('"', '').split(',')
     new_array.delete('NULL')
+    return new_array
+  end
+
+  def self.convert_to_array_without_removing_nulls psql_array
+    return [] if psql_array.blank? || psql_array.length <= 2
+
+    new_array = psql_array[1, psql_array.length-2].gsub('"', '').split(',')
     return new_array
   end
 

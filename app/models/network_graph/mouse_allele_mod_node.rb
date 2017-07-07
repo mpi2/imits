@@ -1,7 +1,7 @@
 class NetworkGraph::MouseAlleleModNode < NetworkGraph::NodeWithStates
 
   def initialize(mouse_allele_mod, params)
-    params[:rank] = "4"
+    params[:rank] = "5"
     super(mouse_allele_mod, params)
     find_statuses(mouse_allele_mod)
     @colony_background_strain = mouse_allele_mod.colony.background_strain.try(:name).to_s

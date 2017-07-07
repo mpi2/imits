@@ -4,10 +4,11 @@ class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
     params[:rank] = "3"
     super(mi_attempt, params)
     find_statuses(mi_attempt)
-    @colony_background_strain = mi_attempt.colony_background_strain.try(:name).to_s
+    @es_cell_mf_ref = mi_attempt.es_cell.blank? ? mi_attempt.mutagenesis_factor.external_ref : mi_attempt.es_cell.name
+    @predicted_allele = mi_attempt.es_cell.blank? ? '' : mi_attempt.es_cell.alleles[0].try(:allele_symbol)
+    @blast_strain = mi_attempt.blast_strain.try(:name).to_s
     @test_cross_strain = mi_attempt.test_cross_strain.try(:name).to_s
-    @colony_name = mi_attempt.colony_name.to_s
-    @allele_name = mi_attempt.colony.try(:allele_symbol).to_s
+    @external_ref = mi_attempt.external_ref.to_s
   end
 
   def label_html
@@ -16,11 +17,14 @@ class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
              "<tr><td>Consortium:</td><td>#{CGI.escapeHTML(@consortium)}</td></tr>" +
              "<tr><td>Centre:</td><td>#{CGI.escapeHTML(@centre)}</td></tr>" +
              "<tr><td colspan=\"2\" border=\"0\"></td></tr>" +
-             "<tr><td border=\"0\">Colony Details</td><td border=\"0\"></td></tr>" +
-             "<tr><td>Colony name:</td><td>#{CGI.escapeHTML(@colony_name)}</td></tr>" +
-             "<tr><td>Allele name:</td><td>#{CGI.escapeHTML(@allele_name)}</td></tr>" +
-             "<tr><td>Colony background strain:</td><td>#{CGI.escapeHTML(@colony_background_strain)}</td></tr>" +
-             "<tr><td>Test cross strain:</td><td>#{CGI.escapeHTML(@test_cross_strain)}</td></tr>" +
+             "<tr><td border=\"0\">Micro Injection Details</td><td border=\"0\"></td></tr>" +
+             "<tr><td>Ref:</td><td>#{CGI.escapeHTML(@external_ref)}</td></tr>" +
+             "<tr><td>ES Cell / Mutagenesis Factor Ref:</td><td>#{CGI.escapeHTML(@es_cell_mf_ref)}</td></tr>" +
+             "<tr><td>Predicted Allele:</td><td>#{CGI.escapeHTML(@predicted_allele)}</td></tr>" +
+             "<tr><td colspan=\"2\" border=\"0\"></td></tr>" +
+             "<tr><td border=\"0\">Strain Details</td><td border=\"0\"></td></tr>" +
+             "<tr><td>Blast strain:</td><td>#{CGI.escapeHTML(@blast_strain)}</td></tr>" +
+             "<tr><td>Test Cross strain:</td><td>#{CGI.escapeHTML(@test_cross_strain)}</td></tr>" +
              "<tr><td colspan=\"2\" border=\"0\"></td></tr>" +
              "<tr><td border=\"0\">Status Details</td><td border=\"0\"></td></tr>" +
              "<tr><td>Current Status:</td><td>#{CGI.escapeHTML(@current_status)}</td></tr>"

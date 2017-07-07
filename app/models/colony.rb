@@ -148,6 +148,12 @@ class Colony < ApplicationModel
     gene.try(:marker_symbol)
   end
 
+  def allele_symbol
+    return nil if genotype_confirmed == false
+    alleles.map{|a| a.allele_symbol}.join('')
+  end
+
+
   def mi_plan
     return mi_attempt.mi_plan if !mi_attempt_id.blank?
     return mouse_allele_mod.mi_plan if !mouse_allele_mod_id.blank?

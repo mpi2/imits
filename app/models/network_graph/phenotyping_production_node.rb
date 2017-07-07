@@ -1,7 +1,7 @@
 class NetworkGraph::PhenotypingProductionNode < NetworkGraph::NodeWithStates
 
   def initialize(phenotyping_production, params)
-    params[:rank] = "5"
+    params[:rank] = "6"
     super(phenotyping_production, params)
     find_statuses(phenotyping_production)
     @colony_background_strain = phenotyping_production.colony_background_strain.try(:name).to_s

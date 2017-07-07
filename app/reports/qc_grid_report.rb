@@ -252,25 +252,25 @@ class QcGridReport
         targ_rep_distribution_qcs.chr11a,
         targ_rep_distribution_qcs.chr11b,
         targ_rep_distribution_qcs.chry,
-        colony_qcs.qc_southern_blot AS qc_southern_blot,
-        colony_qcs.qc_five_prime_lr_pcr AS qc_five_prime_lr_pcr,
-        colony_qcs.qc_five_prime_cassette_integrity AS qc_five_prime_cassette_integrity,
-        colony_qcs.qc_tv_backbone_assay AS qc_tv_backbone_assay,
-        colony_qcs.qc_neo_count_qpcr AS qc_neo_count_qpcr,
-        colony_qcs.qc_lacz_count_qpcr AS qc_lacz_count_qpcr,
-        colony_qcs.qc_neo_sr_pcr AS qc_neo_sr_pcr,
-        colony_qcs.qc_loa_qpcr AS qc_loa_qpcr,
-        colony_qcs.qc_homozygous_loa_sr_pcr AS qc_homozygous_loa_sr_pcr,
-        colony_qcs.qc_lacz_sr_pcr AS qc_lacz_sr_pcr,
-        colony_qcs.qc_mutant_specific_sr_pcr AS qc_mutant_specific_sr_pcr,
-        colony_qcs.qc_loxp_confirmation AS qc_loxp_confirmation,
-        colony_qcs.qc_three_prime_lr_pcr AS qc_three_prime_lr_pcr,
-        colony_qcs.qc_critical_region_qpcr AS qc_critical_region_qpcr,
-        colony_qcs.qc_loxp_srpcr AS qc_loxp_srpcr,
-        colony_qcs.qc_loxp_srpcr_and_sequencing AS qc_loxp_srpcr_and_sequencing
+        production_centre_qcs.southern_blot AS qc_southern_blot,
+        production_centre_qcs.five_prime_lr_pcr AS qc_five_prime_lr_pcr,
+        production_centre_qcs.five_prime_cassette_integrity AS qc_five_prime_cassette_integrity,
+        production_centre_qcs.tv_backbone_assay AS qc_tv_backbone_assay,
+        production_centre_qcs.neo_count_qpcr AS qc_neo_count_qpcr,
+        production_centre_qcs.lacz_count_qpcr AS qc_lacz_count_qpcr,
+        production_centre_qcs.neo_sr_pcr AS qc_neo_sr_pcr,
+        production_centre_qcs.loa_qpcr AS qc_loa_qpcr,
+        production_centre_qcs.homozygous_loa_sr_pcr AS qc_homozygous_loa_sr_pcr,
+        production_centre_qcs.lacz_sr_pcr AS qc_lacz_sr_pcr,
+        production_centre_qcs.mutant_specific_sr_pcr AS qc_mutant_specific_sr_pcr,
+        production_centre_qcs.loxp_confirmation AS qc_loxp_confirmation,
+        production_centre_qcs.three_prime_lr_pcr AS qc_three_prime_lr_pcr,
+        production_centre_qcs.critical_region_qpcr AS qc_critical_region_qpcr,
+        production_centre_qcs.loxp_srpcr AS qc_loxp_srpcr,
+        production_centre_qcs.loxp_srpcr_and_sequencing AS qc_loxp_srpcr_and_sequencing
 
       FROM mi_attempts
-        JOIN (colonies LEFT JOIN colony_qcs ON colony_qcs.colony_id = colonies.id) ON colonies.mi_attempt_id = mi_attempts.id
+        JOIN (colonies JOIN alleles ON alleles.colony_id = colonies.id LEFT JOIN production_centre_qcs ON production_centre_qcs.allele_id = alleles.id) ON colonies.mi_attempt_id = mi_attempts.id
         JOIN mi_plans  ON mi_attempts.mi_plan_id = mi_plans.id AND mi_plans.mutagenesis_via_crispr_cas9 = false
         JOIN centres   ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id

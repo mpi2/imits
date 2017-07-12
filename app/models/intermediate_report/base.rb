@@ -111,7 +111,7 @@ class IntermediateReport::Base
   class << self
 
 
-    def report_sql(experiment_types, mouse_pipelines, allele_types = [])
+    def report_sql(experiment_types, mouse_pipelines)
       data = []
 
       # GENERIC SQL RULES:
@@ -127,16 +127,6 @@ class IntermediateReport::Base
           #'micro-injection', 'mouse allele modification', 'ALL'
           data += ActiveRecord::Base.connection.execute(best_production_report_sql(experiment_type, mouse_pipeline, experiment_type_condition, mouse_pipeline_condition)).to_a
         end
-
-        allele_types.keys.each do |allele_type|
-          #{'a', 'e', 'b', '', 'c', 'e.1', '.1', '.2', 'd', 'NHEJ', 'Deletion', 'HDR', 'HR'
-          data += ActiveRecord::Base.connection.execute(best_production_report_sql(experiment_type, 'all', experiment_type_condition, nil, allele_type)).to_a
-
-          allele_types[allele_type].each do |allele_experiment_type|
-#            data += ActiveRecord::Base.connection.execute(best_production_report_sql(experiment_type, allele_experiment_type, experiment_type_condition, nil, allele_type)).to_a
-          end
-        end
-
       end
       return data
     end

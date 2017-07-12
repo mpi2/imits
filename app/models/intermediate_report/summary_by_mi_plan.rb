@@ -21,29 +21,15 @@ module IntermediateReport::SummaryByMiPlan
                          'all' => ''}
       experiment_types = { 'all' => ''}
 
-      allele_types = {#'a' => [],
-#                    'e' => [],
-#                    '' => [],
-#                    'b' => [],
-#                    'c' => [],
-#                    'e.1' => [],
-#                    '.1' => [],
-#                    '.2' => [],
-#                    'd' => [],
-#                    'NHEJ' => ['multiplex', ''],
-#                    'Deletion' => ['1 cut', '2 cut', '3 cut', ''],
-#                    'HDR' => ['1 doner', '2 donor', ''],
-#                    'HR' => []
-        }
 
-      super(experiment_types, mouse_pipelines, allele_types)
+      super(experiment_types, mouse_pipelines)
     end
 
       def experiment_report_logic(experiment_type = nil, plan_condition = nil)
         return []
       end
 
-      def production_sql(allele_type = nil)
+      def production_sql()
         sql = <<-EOF
                   SELECT mi_attempts.id AS mi_attempt_id, NULL AS mouse_allele_mods_id, mi_attempts.mi_plan_id AS mi_plan_id,
                     mi_attempt_statuses.name AS mi_attempt_status,  mi_attempt_status_stamps.created_at AS mi_attempt_status_date, NULL AS mouse_allele_mod_status, NULL AS mouse_allele_mod_status_date,
@@ -111,7 +97,7 @@ module IntermediateReport::SummaryByMiPlan
         return sql
       end
 
-      def best_phenotyping_sql(crispr_condition = nil, excision__condition = nil, allele_type = nil)
+      def best_phenotyping_sql(crispr_condition = nil, excision__condition = nil)
         sql = <<-EOF
                   phenotyping_productions_grouped AS (
                     SELECT
@@ -131,7 +117,7 @@ module IntermediateReport::SummaryByMiPlan
         return sql
       end
 
-      def best_production_report_sql(experiment_type, approach, plan_condition = nil , production_condition = nil, allele_type = nil)
+      def best_production_report_sql(experiment_type, approach, plan_condition = nil , production_condition = nil)
         <<-EOF
           --
           WITH filtered_production AS (SELECT * FROM (#{production_sql}) AS production #{!production_condition.blank? ? "WHERE production.allele_modification = #{production_condition}" : ""} ), #{best_production_sql}, #{best_phenotyping_sql}
@@ -139,7 +125,7 @@ module IntermediateReport::SummaryByMiPlan
           SELECT
               CASE WHEN mi_plans.mutagenesis_via_crispr_cas9 = true THEN 'crispr' ELSE 'es cell' END AS catagory,
               '#{approach}' AS approach,
-              'All' AS allele_type,
+              'all' AS allele_type,
 
               genes.marker_symbol AS gene,
               genes.mgi_accession_id AS mgi_accession_id,

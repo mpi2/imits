@@ -39,8 +39,7 @@ class SolrData::ProductCoreData
       genes.mgi_accession_id AS mgi_accession_id,
       targ_rep_ikmc_projects.name AS ikmc_project,
       targ_rep_pipelines.name AS pipeline,
-      targ_rep_alleles.project_design_id AS design_id,
-      ARRAY['critical:' || targ_rep_alleles.taqman_critical_del_assay_id, 'upstream:' || targ_rep_alleles.taqman_upstream_del_assay_id, 'downstream:' || targ_rep_alleles.taqman_downstream_del_assay_id] AS loa
+      targ_rep_alleles.project_design_id AS design_id
     FROM targ_rep_es_cells
       JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
       JOIN genes ON genes.id = targ_rep_alleles.gene_id SUBS_GENE_TEMPLATE
@@ -103,7 +102,6 @@ class SolrData::ProductCoreData
         es_cells.pipeline AS pipeline,
         es_cells.ikmc_project_id AS ikmc_project,
         es_cells.design_id AS design_id,
-        es_cells.loa AS loa,
         es_cells.created_at AS status_date,
         ARRAY[ES_CELL_QC_RESULTS] AS qc_data,
         distribution_qcs.distribution_qc_data AS distribution_qc
@@ -152,8 +150,7 @@ class SolrData::ProductCoreData
              targ_rep_pipelines.name AS pipeline,
              targ_rep_ikmc_projects.name AS ikmc_project,
              targ_rep_targeting_vectors.created_at AS status_date,
-             targ_rep_alleles.project_design_id AS design_id,
-             ARRAY['critical:' || targ_rep_alleles.taqman_critical_del_assay_id, 'upstream:' || targ_rep_alleles.taqman_upstream_del_assay_id, 'downstream:' || targ_rep_alleles.taqman_downstream_del_assay_id] AS loa
+             targ_rep_alleles.project_design_id AS design_id
       FROM targ_rep_targeting_vectors
         JOIN targ_rep_alleles ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
         JOIN genes ON genes.id = targ_rep_alleles.gene_id SUBS_GENE_TEMPLATE
@@ -213,25 +210,33 @@ class SolrData::ProductCoreData
   def self.mice_lines_sql
     sql = <<-EOF
       WITH plans AS (#{PLAN_SQL}), es_cells AS (#{ES_CELL_SQL}),
-      distribution_centres AS (#{DISTRIBUTION_CENTRES_SQL})
+      distribution_centres AS (#{DISTRIBUTION_CENTRES_SQL}),
+
+      colony_summary AS (
+        SELECT colonies.id, colonies.mi_attempt_id, colonies.mouse_allele_mod_id, colonies.name, colonies.genotype_confirmed, colonies.report_to_public AS report_colony_to_public, 
+               background_strain.name AS background_strain, colonies.is_released_from_genotyping, colonies.genotyping_comment,
+               alleles.mgi_allele_symbol_superscript, alleles. allele_symbol_superscript_template, alleles.mgi_allele_accession_id. alleles.allele_type,
+               ARRAY[COLONY_QC_RESULTS] AS qc_data                                
+        FROM colonies
+          JOIN strains background_strain ON background_strain.id = colonies.background_strain_id
+          JOIN alleles ON colonies.id = alleles.colony_id
+          JOIN production_centre_qcs ON production_centre_qcs.allele_id = alleles.id 
+      )
 
       SELECT 'M' || mi_attempts.id AS product_id,
         'MiAttempt' AS type,
-        colonies.allele_type AS colony_allele_type,
-        '' AS parent_mouse_allele_type,
-        es_cells.allele_type_v2 AS es_cell_allele_type,
-        colonies.allele_name AS colony_allele_name,
-        mi_attempts.allele_target AS allele_target,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
         plans.production_centre_name AS production_centre,
         es_cells.allele_id AS allele_id,
-        es_cells.allele_symbol_superscript_template AS es_cell_allele_superscript_template,
-        es_cells.mgi_allele_symbol_superscript AS es_allele_symbol_superscript,
-        colonies.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template,
-        colonies.mgi_allele_symbol_superscript AS colonies_mgi_allele_symbol_superscript,
+
+        colony_summary.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template,
+        colony_summary.mgi_allele_symbol_superscript AS colonies_mgi_allele_symbol_superscript,
+        colony_summary.allele_type AS colonies_allele_type,
+        colony_summary.genotyping_comment AS genotyping_comment,
+
         plans.crispr_plan AS crispr_plan,
         mi_attempts.mutagenesis_factor_id AS mutagenesis_factor_id,
-        colonies.name AS colony_name,
+        colony_summary.name AS colony_name,
         '' AS parent_colony_name,
         mi_attempt_statuses.name AS mouse_status,
         mi_attempt_status_stamps.created_at AS mouse_status_date,
@@ -240,14 +245,13 @@ class SolrData::ProductCoreData
         es_cells.pipeline AS pipeline,
         es_cells.ikmc_project_id AS ikmc_project_id,
         es_cells.design_id AS design_id,
-        es_cells.loa AS loa,
         es_cells.targeting_vector_name AS vector_name,
         es_cells.mutation_type AS mutation_type,
         es_cells.cassette AS cassette,
         es_cells.cassette_type AS cassette_type,
         es_cells.backbone AS backbone,
         es_cells.mutation_type AS mutation_type,
-        cb_strain.name AS background_colony_strain_name,
+        colony_summary.background_strain AS background_colony_strain_name,
         NULL AS deleter_strain_name,
         test_strain.name AS test_strain_name,
         distribution_centres.centre_names AS distribution_centre_names,
@@ -258,38 +262,35 @@ class SolrData::ProductCoreData
         distribution_centres.available AS distribution_available,
         plans.gene_id AS imits_gene_id,
         false AS excised,
-        ARRAY[COLONY_QC_RESULTS] AS qc_data
+        colony_summary.qc_data AS qc_data
       FROM (mi_attempts
-        LEFT JOIN (colonies JOIN colony_qcs ON colonies.id = colony_qcs.colony_id) ON colonies.mi_attempt_id = mi_attempts.id
+        LEFT JOIN colony_summary ON colony_summary.mi_attempt_id = mi_attempts.id
         JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
         JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = mi_attempts.status_id
         JOIN plans ON plans.id = mi_attempts.mi_plan_id
         )
-        LEFT JOIN strains AS cb_strain ON cb_strain.id = colonies.background_strain_id
         LEFT JOIN strains AS test_strain ON test_strain.id = mi_attempts.test_cross_strain_id
         LEFT JOIN es_cells ON es_cells.id = mi_attempts.es_cell_id
-        LEFT JOIN distribution_centres ON distribution_centres.colony_id = colonies.id
-      WHERE mi_attempts.report_to_public = true AND mi_attempts.is_active = true AND (es_cells.id IS NOT NULL OR (mi_attempts.mutagenesis_factor_id IS NOT NULL AND colonies.genotype_confirmed = true AND colonies.report_to_public = true))
+        LEFT JOIN distribution_centres ON distribution_centres.colony_id = colony_summary.id
+      WHERE mi_attempts.report_to_public = true AND mi_attempts.is_active = true AND
+           (es_cells.id IS NOT NULL OR (mi_attempts.mutagenesis_factor_id IS NOT NULL AND colony_summary.genotype_confirmed = true AND colony_summary.report_colony_to_public = true))
 
       UNION ALL
 
       SELECT 'P' || mouse_allele_mods.id AS product_id,
         'MouseAlleleModification' AS type,
-        colonies.allele_type AS colony_allele_type,
-        mi_colony.allele_type AS parent_mouse_allele_type,
-        es_cells.allele_type_v2 AS es_cell_allele_type,
-        colonies.allele_name AS colony_allele_name,
-        '' AS allele_target,
         plans.marker_symbol AS marker_symbol, plans.mgi_accession_id AS mgi_accession_id,
         plans.production_centre_name AS production_centre,
         es_cells.allele_id AS allele_id,
-        es_cells.allele_symbol_superscript_template AS es_cell_allele_superscript_template,
-        es_cells.mgi_allele_symbol_superscript AS es_allele_symbol_superscript,
-        colonies.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template,
-        colonies.mgi_allele_symbol_superscript AS colonies_mgi_allele_symbol_superscript,
+        
+        colony_summary.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template,
+        colony_summary.mgi_allele_symbol_superscript AS colonies_mgi_allele_symbol_superscript,
+        colony_summary.allele_type AS colonies_allele_type,
+        colony_summary.genotyping_comment AS genotyping_comment,
+
         false AS crispr_plan,
         NULL AS mutagenesis_factor_id,
-        colonies.name AS colony_name,
+        colony_summary.name AS colony_name,
         mi_colony.name AS parent_colony_name,
         mouse_allele_mod_statuses.name AS mouse_status,
         mouse_allele_mod_status_stamps.created_at AS mouse_status_date,
@@ -298,14 +299,13 @@ class SolrData::ProductCoreData
         es_cells.pipeline AS pipeline,
         es_cells.ikmc_project_id AS ikmc_project_id,
         es_cells.design_id AS design_id,
-        ARRAY[NULL] AS loa,
         '' AS vector_name,
         '' AS mutation_type,
         '' AS cassette,
         '' AS cassette_type,
         '' AS backbone,
         es_cells.mutation_type AS mutation_type,
-        cb_strain.name AS background_colony_strain_name,
+        colony_summary.background_strain AS background_colony_strain_name,
         del_strain.name AS deleter_strain_name,
         '' AS test_strain_name,
         distribution_centres.centre_names AS distribution_centre_names,
@@ -316,22 +316,21 @@ class SolrData::ProductCoreData
         distribution_centres.available AS distribution_available,
         plans.gene_id AS imits_gene_id,
         true AS excised,
-        ARRAY[COLONY_QC_RESULTS] AS qc_data
+        colony_summary.qc_data AS qc_data
       FROM (mouse_allele_mods
-        LEFT JOIN (colonies JOIN colony_qcs ON colonies.id = colony_qcs.colony_id) ON colonies.mouse_allele_mod_id = mouse_allele_mods.id
+        LEFT JOIN colony_summary ON colony_summary.mouse_allele_mod_id = mouse_allele_mods.id
         JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
         JOIN mouse_allele_mod_status_stamps ON mouse_allele_mod_status_stamps.mouse_allele_mod_id = mouse_allele_mods.id AND mouse_allele_mod_status_stamps.status_id = mouse_allele_mods.status_id
         JOIN plans ON plans.id = mouse_allele_mods.mi_plan_id
-        JOIN colonies mi_colony ON mi_colony.id = mouse_allele_mods.parent_colony_id
+        JOIN colony_summary mi_colony ON mi_colony.id = mouse_allele_mods.parent_colony_id
         JOIN mi_attempts ON mi_attempts.id = mi_colony.mi_attempt_id
         LEFT JOIN es_cells ON mi_attempts.es_cell_id = es_cells.id)
-        LEFT JOIN strains AS cb_strain ON cb_strain.id = colonies.background_strain_id
         LEFT JOIN deleter_strains AS del_strain ON del_strain.id = mouse_allele_mods.deleter_strain_id
-        LEFT JOIN distribution_centres ON distribution_centres.colony_id = colonies.id
+        LEFT JOIN distribution_centres ON distribution_centres.colony_id = colony_summary.id
       WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.is_active = true
     EOF
 
-    colonies_qc_fields = ColonyQc::QC_FIELDS.map{|field| "'Production QC:#{field.to_s.sub('qc_', '').gsub('_', ' ')}:' || colony_qcs.#{field.to_s}"}.join(', ')
+    colonies_qc_fields = ProductionCentreQc::QC_FIELDS.map{|field, options| "'Production QC:#{options[:name]}:' || colony_qcs.#{field.to_s}"}.join(', ')
     sql.gsub!(/COLONY_QC_RESULTS/, colonies_qc_fields)
     return sql
   end
@@ -430,7 +429,23 @@ class SolrData::ProductCoreData
     puts "#### step #{step_no}.2 create json docs #{Time.now}"
     rows.each do |row|
       row['targ_rep_alleles_id'] = row['allele_id']
-      @docs << self.method(doc_creation_method_name).call(row)
+
+      if !row['mgi_allele_symbol_superscript'].blank?
+        allele_details = {'allele_symbol' => row['mgi_allele_symbol_superscript'], 'allele_type' => row['mutation_type_allele_code']}
+      elsif row['design_id'].blank? || row['cassette'].blank?
+        allele_details = {'allele_symbol' => "tm#{row['design_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
+      elsif row['allele_id'].blank? || row['cassette'].blank?
+        allele_details = {'allele_symbol' => "tm#{row['allele_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
+      else
+        allele_details = {'allele_symbol' => nil, 'allele_type' => nil}
+      end
+
+      if allele_details['allele_symbol'].blank? || allele_details['allele_type'].blank?
+        puts "    ALLELE SYMBOL MISSING FOR #{product_type}: #{row['marker_symbol']}"
+        next
+      end
+
+      @docs << self.method(doc_creation_method_name).call(row, allele_details)
     end
   end
   private :process_product
@@ -463,22 +478,7 @@ class SolrData::ProductCoreData
   end
   private :generate_data
 
-  def create_mouse_doc row
-    allele_template = nil
-    allele_template = row['es_cell_allele_superscript_template'] unless row['es_cell_allele_superscript_template'].blank? #
-    allele_template = row['mi_colony_allele_symbol_superscript_template'] unless row['mi_colony_allele_symbol_superscript_template'].blank?
-    allele_template = row['colony_allele_symbol_superscript_template'] unless row['colony_allele_symbol_superscript_template'].blank?
-
-    allele_info = TargRep::RealAllele.calculate_allele_information( {'es_cell_allele_type' => row['es_cell_allele_type'] || nil,
-                                                                'parent_colony_allele_type' => row['parent_mouse_allele_type'] || nil,
-                                                                'colony_allele_type' => row['colony_allele_type'] || nil,
-                                                                'allele_id' => row['allele_id'] || nil, #
-                                                                'mi_allele_target'   => row['allele_target'] || nil,
-                                                                'allele_name' => row['colony_allele_name'] || nil,
-                                                                'excised' => row['excised'] == 't' ? true : false, #
-                                                                'allele_symbol_superscript_template' => allele_template || nil, #
-                                                                'mgi_allele_symbol_superscript' => row['colonies_mgi_allele_symbol_superscript'] || nil
-                                                              })
+  def create_mouse_doc row, allele_details
 
     doc = Solr::Product.new({
      "allele_design_project"            => @allele_design_project,
@@ -486,8 +486,8 @@ class SolrData::ProductCoreData
      "allele_id"                        => row["allele_id"],
      "marker_symbol"                    => row["marker_symbol"],
      "mgi_accession_id"                 => row["mgi_accession_id"],
-     "allele_type"                      => allele_info['allele_type'],
-     "allele_name"                      => allele_info['allele_symbol'],
+     "allele_type"                      => allele_details['allele_type'],
+     "allele_name"                      => allele_details['allele_symbol'],
      "allele_has_issues"                => row['has_issue'],
      "type"                             => 'mouse',
      "name"                             => row["colony_name"],
@@ -528,16 +528,7 @@ class SolrData::ProductCoreData
   end
   private :create_mouse_doc
 
-  def create_es_cell_doc row
-    allele_info = TargRep::RealAllele.calculate_allele_information( {'mutation_method_allele_prefix' => row['allele_prefix'] || nil,
-                                                                'mutation_type_allele_code' => row['mutation_type_allele_code'] || nil,
-                                                                'es_cell_allele_type' => row['es_cell_allele_type'] || nil,
-                                                                'allele_id' => row['allele_id'] || nil,
-                                                                'design_id' => row['design_id'] || nil,
-                                                                'cassette' => row['cassette'] || nil,
-                                                                'allele_symbol_superscript_template' => row['allele_symbol_superscript_template'] || nil,
-                                                                'mgi_allele_symbol_superscript' => row['allele_symbol_superscript'] || nil
-                                                              })
+  def create_es_cell_doc row, allele_details
 
     doc = Solr::Product.new({
      "allele_design_project"            => @allele_design_project,
@@ -545,8 +536,8 @@ class SolrData::ProductCoreData
      "allele_id"                        => row["allele_id"],
      "marker_symbol"                    => row['marker_symbol'],
      "mgi_accession_id"                 => row['mgi_accession_id'],
-     "allele_type"                      => allele_info['allele_type'],
-     "allele_name"                      => allele_info['allele_symbol'],
+     "allele_type"                      => allele_details['allele_type'],
+     "allele_name"                      => allele_details['allele_symbol'],
      "allele_has_issues"                => row['has_issue'],
      "genetic_info"                     => ["strain:#{row['strain']}", "cassette:#{row['cassette']}","cassette_type:#{row['cassette_type']}","parent_es_cell_line:#{row['parental_cell_line']}"],
      "type"                             => 'es_cell',
@@ -569,15 +560,7 @@ class SolrData::ProductCoreData
   end
   private :create_es_cell_doc
 
-  def create_targeting_vector_doc row
-
-    allele_info = TargRep::RealAllele.calculate_allele_information( {'mutation_method_allele_prefix' => row['allele_prefix'] || nil,
-                                                                'mutation_type_allele_code' => row['mutation_type_allele_code'] || nil,
-                                                                'allele_id' => row['allele_id'] || nil,
-                                                                'design_id' => row['design_id'] || nil,
-                                                                'cassette' => row['cassette'] || nil,
-                                                                'mgi_allele_symbol_superscript' => self.class.convert_to_array(row['allele_names'])[0] || nil
-                                                              })
+  def create_targeting_vector_doc row, allele_details
 
     doc = Solr::Product.new({
      "allele_design_project"            => @allele_design_project,
@@ -585,8 +568,8 @@ class SolrData::ProductCoreData
      "allele_id"                         => row["allele_id"],
      "marker_symbol"                     => row['marker_symbol'],
      "mgi_accession_id"                  => row['mgi_accession_id'],
-     "allele_type"                       => allele_info['allele_type'],
-     "allele_name"                       => allele_info['allele_symbol'],
+     "allele_type"                       => allele_details['allele_type'],
+     "allele_name"                       => allele_details['allele_symbol'],
      "allele_has_issues"                 => row['has_issue'],
      "genetic_info"                      => ["cassette:#{row['cassette']}","cassette_type:#{row['cassette_type']}", "backbone:#{row['backbone']}"],
      "type"                              => 'targeting_vector',
@@ -608,14 +591,7 @@ class SolrData::ProductCoreData
   end
   private :create_targeting_vector_doc
 
-  def create_intermediate_vector_doc row
-
-    allele_info = TargRep::RealAllele.calculate_allele_information( {'mutation_method_allele_prefix' => row['allele_prefix'] || nil,
-                                                                'mutation_type_allele_code' => row['mutation_type_allele_code'] || nil,
-                                                                'allele_id' => row['allele_id'] || nil,
-                                                                'design_id' => row['design_id'] || nil,
-                                                                'mgi_allele_symbol_superscript' => self.class.convert_to_array(row['allele_names'])[0] || nil
-                                                              })
+  def create_intermediate_vector_doc row, allele_details
 
     doc = Solr::Product.new({
      "allele_design_project"            => @allele_design_project,
@@ -623,8 +599,8 @@ class SolrData::ProductCoreData
      "allele_id"                       => row["allele_id"],
      "marker_symbol"                   => row['marker_symbol'],
      "mgi_accession_id"                => row['mgi_accession_id'],
-     "allele_type"                     => allele_info['allele_type'],
-     "allele_name"                     => allele_info['allele_symbol'],
+     "allele_type"                     => allele_details['allele_type'],
+     "allele_name"                     => allele_details['allele_symbol'],
      "type"                            => 'intermediate_vector',
      "name"                            => row['vector_name'],
      "production_pipeline"             => row['pipeline'],

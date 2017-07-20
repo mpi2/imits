@@ -144,13 +144,13 @@ class SolrData::Allele2CoreData
            colony_summary.tissue_start_dates,
            colony_summary.tissue_end_dates
     FROM colony_summary
-      LEFT JOIN (mouse_allele_mods
+      JOIN (mouse_allele_mods
                   JOIN plan_summary AS mam_plan_summary ON mam_plan_summary.mi_plan_id = mouse_allele_mods.mi_plan_id
                   LEFT JOIN strains deleter_strain ON deleter_strain.id = mouse_allele_mods.deleter_strain_id
                   JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
                 ) ON mouse_allele_mods.id = colony_summary.mouse_allele_mod_id
       JOIN mi_attempt_summary ON mi_attempt_summary.mi_colony_id = mouse_allele_mods.parent_colony_id
-    WHERE mouse_allele_mods.report_to_public = true
+    WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mod_statuses.name = 'Cre Excision Complete'
   EOF
 
 

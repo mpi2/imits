@@ -4,8 +4,41 @@ class Mp2Load::GeneInterestReport
 
 
   def gene_statues
-    @gene_statues ||= ActiveRecord::Base.connection.execute(self.class.gene_interest_sql)
+    @gene_statues ||= process_data(ActiveRecord::Base.connection.execute(self.class.gene_interest_sql))
   end
+
+  def process_data(data)
+    process_data = []
+
+    data.each do |row|
+      processed_row = row.dup
+      if !processed_row['gene_assignment_status'].blank? && ['Withdrawn', 'Inactive'].include?(processed_row['gene_assignment_status'])
+        processed_row['gene_assignment_status'] = 'Withdrawn'
+        processed_row['conditional_allele_production_status'] = nil
+        processed_row['conditional_allele_production_centre'] = nil
+        processed_row['conditional_allele_status_date'] = nil
+        processed_row['conditional_allele_production_start_date'] = nil
+        processed_row['conditional_allele_production_completed_date'] = nil
+        processed_row['null_allele_production_status'] = nil
+        processed_row['null_allele_production_centre'] = nil
+        processed_row['null_allele_status_date'] = nil
+        processed_row['null_allele_production_start_date'] = nil
+        processed_row['null_allele_production_completed_date'] = nil
+        processed_row['phenotyping_status'] = nil
+        processed_row['phenotyping_centre'] = nil
+        processed_row['phenotyping_status_date'] = nil
+        processed_row['number_of_significant_phenotypes'] = nil
+      end
+ 
+      processed_row['conditional_allele_production_completed_date'] = processed_row['conditional_allele_status_date'] if processed_row['conditional_allele_production_status'] == 'Genotype confirmed'
+      processed_row['null_allele_production_completed_date'] = processed_row['null_allele_status_date'] if ['Genotype confirmed', 'Cre Excision Complete'].include?(processed_row['null_allele_production_status'])
+
+      process_data << processed_row
+    end
+
+    return process_data
+  end
+  private :process_data
 
   class << self
 
@@ -18,13 +51,20 @@ class Mp2Load::GeneInterestReport
        {'title' => 'conditional_allele_production_status', 'field' => 'conditional_allele_production_status'},
        {'title' => 'conditional_allele_production_centre', 'field' => 'conditional_allele_production_centre'},
        {'title' => 'conditional_allele_status_date', 'field' => 'conditional_allele_status_date'},
+       {'title' => 'conditional_allele_production_start_date', 'field' => 'conditional_allele_production_start_date'},
+       {'title' => 'conditional_allele_production_completed_date', 'field' => 'conditional_allele_production_completed_date'},
+
        {'title' => 'null_allele_production_status', 'field' => 'null_allele_production_status'},
        {'title' => 'null_allele_production_centre', 'field' => 'null_allele_production_centre'},
        {'title' => 'null_allele_status_date', 'field' => 'null_allele_status_date'},
+
+       {'title' => 'null_allele_production_start_date', 'field' => 'null_allele_production_start_date'},
+       {'title' => 'null_allele_production_completed_date', 'field' => 'null_allele_production_completed_date'},
+
        {'title' => 'phenotyping_status', 'field' => 'phenotyping_status'},
        {'title' => 'phenotyping_centre', 'field' => 'phenotyping_centre'},
        {'title' => 'phenotyping_status_date', 'field' => 'phenotyping_status_date'},
-       {'title' => 'number_of_significant_phenotypes', 'field' => 'number_of_significant_phenotpyes'}
+       {'title' => 'number_of_significant_phenotypes', 'field' => 'number_of_significant_phenotypes'}
        ]
     end
 
@@ -65,16 +105,18 @@ class Mp2Load::GeneInterestReport
           ),
         
           ordered_conditional_mi_attempts AS (
-          SELECT  mi_plans.gene_id AS gene_id, mi_plans.id AS mi_plan_id, mi_status.name AS status_name, mi_attempts.id AS mi_attempt_id, mi_plans.production_centre_id AS centre_id, miss.created_at AS state_change_date
+          SELECT  ordered_plans.gene_id AS gene_id, ordered_plans.mi_plan_id AS mi_plan_id, mi_status.name AS status_name, mi_attempts.id AS mi_attempt_id, 
+          ordered_plans.centre_id AS centre_id, miss.created_at AS state_change_date, production_started_stamp.created_at AS production_started_date
           FROM mi_attempts
             LEFT JOIN mutagenesis_oligo_count ON mutagenesis_oligo_count.id = mi_attempts.mutagenesis_factor_id
             LEFT JOIN (targ_rep_es_cells es JOIN targ_rep_alleles a ON a.id = es.allele_id AND a.mutation_type_id = 1) ON es.id = mi_attempts.es_cell_id
             JOIN mi_attempt_statuses mi_status ON mi_status.id = mi_attempts.status_id
             JOIN mi_attempt_status_stamps miss ON mi_attempts.id = miss.mi_attempt_id AND mi_attempts.status_id = miss.status_id
-            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-          WHERE mutagenesis_oligo_count.id IS NOT NULL OR es.id IS NOT NULL AND mi_attempts.report_to_public = true AND mi_attempts.experimental = false AND mi_plans.consortium_id != 17 -- exclude EUCOMMToolsCre
+            JOIN ordered_plans ON ordered_plans.mi_plan_id = mi_attempts.mi_plan_id
+            LEFT JOIN mi_attempt_status_stamps production_started_stamp ON production_started_stamp.mi_attempt_id = mi_attempts.id AND production_started_stamp.status_id = 1
+          WHERE mutagenesis_oligo_count.id IS NOT NULL OR es.id IS NOT NULL AND mi_attempts.report_to_public = true AND mi_attempts.experimental = false
           ORDER BY
-            mi_plans.gene_id,
+            ordered_plans.gene_id,
             mi_status.order_by DESC
           ),
         
@@ -83,42 +125,48 @@ class Mp2Load::GeneInterestReport
             first_value(ordered_conditional_mi_attempts.status_name) OVER (PARTITION BY ordered_conditional_mi_attempts.gene_id) AS status_name,
             first_value(ordered_conditional_mi_attempts.mi_plan_id) OVER (PARTITION BY ordered_conditional_mi_attempts.gene_id) AS mi_plan_id,
             first_value(ordered_conditional_mi_attempts.centre_id) OVER (PARTITION BY ordered_conditional_mi_attempts.gene_id) AS centre_id,
-            first_value(ordered_conditional_mi_attempts.state_change_date) OVER (PARTITION BY ordered_conditional_mi_attempts.gene_id) AS state_change_date
+            first_value(ordered_conditional_mi_attempts.state_change_date) OVER (PARTITION BY ordered_conditional_mi_attempts.gene_id) AS state_change_date,
+            min(ordered_conditional_mi_attempts.production_started_date) OVER (PARTITION BY ordered_conditional_mi_attempts.gene_id) AS production_started_date
             FROM ordered_conditional_mi_attempts
           ),
         
           conditional_production_status AS (
-            SELECT top_conditional_production_status.gene_id AS gene_id, centres.name AS centre_name, top_conditional_production_status.status_name AS status_name, top_conditional_production_status.state_change_date AS state_change_date
+            SELECT top_conditional_production_status.gene_id AS gene_id, centres.name AS centre_name, top_conditional_production_status.status_name AS status_name, 
+            top_conditional_production_status.state_change_date AS state_change_date, top_conditional_production_status.production_started_date AS production_started_date
             FROM top_conditional_production_status
               JOIN centres ON centres.id = top_conditional_production_status.centre_id
           ),
         
         
           null_mi_attempts AS (
-            SELECT  mi_plans.gene_id AS gene_id, mi_plans.id AS mi_plan_id, mi_status.name AS status_name, 
+            SELECT  ordered_plans.gene_id AS gene_id, ordered_plans.mi_plan_id AS mi_plan_id, mi_status.name AS status_name, 
                 CASE WHEN mi_status.name = 'Genotype confirmed' THEN mi_status.order_by + 220 ELSE mi_status.order_by END AS order_by, -- Ensure Genotype Confirmed status trumps mouse_allele_mod statuses.
-                mi_plans.production_centre_id AS centre_id, miss.created_at AS state_change_date
+                ordered_plans.centre_id AS centre_id, miss.created_at AS state_change_date, production_started_stamp.created_at AS production_started_date
             FROM mi_attempts
               LEFT JOIN ordered_conditional_mi_attempts ON ordered_conditional_mi_attempts.mi_attempt_id = mi_attempts.id
               JOIN mi_attempt_statuses mi_status ON mi_status.id = mi_attempts.status_id
               JOIN mi_attempt_status_stamps miss ON mi_attempts.id = miss.mi_attempt_id AND mi_attempts.status_id = miss.status_id
-              JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
-            WHERE ordered_conditional_mi_attempts.mi_attempt_id IS NULL AND mi_attempts.report_to_public = true AND mi_attempts.experimental = false AND mi_plans.consortium_id != 17 -- exclude EUCOMMToolsCre
+              JOIN ordered_plans ON ordered_plans.mi_plan_id = mi_attempts.mi_plan_id
+              LEFT JOIN mi_attempt_status_stamps production_started_stamp ON production_started_stamp.mi_attempt_id = mi_attempts.id AND production_started_stamp.status_id = 1
+            WHERE ordered_conditional_mi_attempts.mi_attempt_id IS NULL AND mi_attempts.report_to_public = true AND mi_attempts.experimental = false
             ORDER BY
-              mi_plans.gene_id,
+              ordered_plans.gene_id,
               mi_status.order_by DESC
           ),
         
         
           all_null_production AS (
-            (SELECT ordered_conditional_mi_attempts.gene_id AS gene_id, mouse_allele_mods.mi_plan_id AS mi_plan_id, mam_status.name AS status_name, mam_status.order_by AS order_by, mi_plans.production_centre_id AS centre_id, mamss.created_at AS state_change_date
+            (SELECT ordered_conditional_mi_attempts.gene_id AS gene_id, mouse_allele_mods.mi_plan_id AS mi_plan_id, mam_status.name AS status_name, 
+              mam_status.order_by AS order_by, 
+                    ordered_plans.centre_id AS centre_id, mamss.created_at AS state_change_date, production_started_stamp.created_at AS production_started_date
             FROM ordered_conditional_mi_attempts
               JOIN colonies ON colonies.mi_attempt_id = ordered_conditional_mi_attempts.mi_attempt_id
               JOIN mouse_allele_mods ON mouse_allele_mods.parent_colony_id = colonies.id
               JOIN mouse_allele_mod_statuses mam_status ON mouse_allele_mods.status_id = mam_status.id
               JOIN mouse_allele_mod_status_stamps mamss ON mouse_allele_mods.status_id = mamss.status_id AND mouse_allele_mods.id = mamss.mouse_allele_mod_id
-              JOIN mi_plans ON mi_plans.id = mouse_allele_mods.mi_plan_id
-            WHERE mouse_allele_mods.is_active = true AND mouse_allele_mods.report_to_public = true AND mam_status.id != 1 AND mam_status.id != 2  AND mi_plans.consortium_id != 17 -- Exclude EUCOMMToolsCre and registered statuses and aborted status.
+              JOIN ordered_plans ON ordered_plans.mi_plan_id = mouse_allele_mods.mi_plan_id
+              LEFT JOIN mouse_allele_mod_status_stamps production_started_stamp ON production_started_stamp.mouse_allele_mod_id = mouse_allele_mods.id AND production_started_stamp.status_id = 1
+            WHERE mouse_allele_mods.is_active = true AND mouse_allele_mods.report_to_public = true AND mam_status.id != 1 AND mam_status.id != 2 -- registered statuses and aborted status.
             )
             UNION
             (
@@ -141,25 +189,27 @@ class Mp2Load::GeneInterestReport
                 first_value(ordered_null_mi_attempts.status_name) OVER (PARTITION BY ordered_null_mi_attempts.gene_id) AS status_name,
                 first_value(ordered_null_mi_attempts.mi_plan_id) OVER (PARTITION BY ordered_null_mi_attempts.gene_id) AS mi_plan_id,
                 first_value(ordered_null_mi_attempts.centre_id) OVER (PARTITION BY ordered_null_mi_attempts.gene_id) AS centre_id,
-                first_value(ordered_null_mi_attempts.state_change_date) OVER (PARTITION BY ordered_null_mi_attempts.gene_id) AS state_change_date
+                first_value(ordered_null_mi_attempts.state_change_date) OVER (PARTITION BY ordered_null_mi_attempts.gene_id) AS state_change_date,
+                min(ordered_null_mi_attempts.production_started_date) OVER (PARTITION BY ordered_null_mi_attempts.gene_id) AS production_started_date
             FROM ordered_null_mi_attempts
           ),
         
           null_production_status AS (
-            SELECT top_null_production_status.gene_id AS gene_id, centres.name AS centre_name, mis.name AS status_name, top_null_production_status.state_change_date AS state_change_date
+            SELECT top_null_production_status.gene_id AS gene_id, centres.name AS centre_name, top_null_production_status.status_name AS status_name,
+                   top_null_production_status.state_change_date AS state_change_date, top_null_production_status.production_started_date AS production_started_date
             FROM top_null_production_status
               JOIN mi_plans ON mi_plans.id = top_null_production_status.mi_plan_id
               JOIN centres ON centres.id = mi_plans.production_centre_id
-              JOIN mi_attempt_statuses mis ON mis.id = mi_plans.status_id
           ),
         
         
           order_phenotyping_productions AS (
-            SELECT mi_plans.gene_id, phenotyping_productions.id AS phenotyping_production_id, mi_plans.id AS mi_plan_id, pps.name AS status_name, mi_plans.production_centre_id AS centre_id, ppss.created_at AS state_change_date
+            SELECT mi_plans.gene_id, phenotyping_productions.id AS phenotyping_production_id, mi_plans.id AS mi_plan_id, pps.name AS status_name, mi_plans.production_centre_id AS centre_id,
+                   ppss.created_at AS state_change_date
             FROM phenotyping_productions
               JOIN phenotyping_production_statuses pps ON pps.id = phenotyping_productions.status_id
               JOIN phenotyping_production_status_stamps ppss ON phenotyping_productions.id = ppss.phenotyping_production_id AND phenotyping_productions.status_id = ppss.status_id 
-              JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id
+              JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id AND mi_plans.report_to_public = true
             WHERE phenotyping_productions.report_to_public = true AND mi_plans.consortium_id != 17 -- exclude EUCOMMToolsCre
             ORDER BY 
               mi_plans.gene_id,
@@ -191,9 +241,11 @@ class Mp2Load::GeneInterestReport
         conditional_production_status.status_name AS conditional_allele_production_status,
         conditional_production_status.centre_name AS conditional_allele_production_centre,
         conditional_production_status.state_change_date AS conditional_allele_status_date,
+        conditional_production_status.production_started_date AS conditional_allele_production_start_date,
         null_production_status.status_name AS null_allele_production_status,
         null_production_status.centre_name AS null_allele_production_centre,
         null_production_status.state_change_date AS null_allele_status_date,
+        null_production_status.production_started_date AS null_allele_production_start_date,
         genes_phenotyping_status.status_name AS phenotyping_status,
         genes_phenotyping_status.centre_name AS phenotyping_centre,
         genes_phenotyping_status.state_change_date AS phenotyping_status_date,

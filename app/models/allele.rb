@@ -35,16 +35,19 @@ class Allele < ApplicationModel
 
 
   CRISPR_ALLELE_OPTIONS = {
-    'NHEJ' => 'NHEJ - CRISPR Injection; Mutation resulted from Non Homology End Joining',
-    'Deletion' => 'Deletion - CRISPR Injection; Exon Deletion resulted from Non Homology End Joining',
-    'HR' => 'HR - CRISPR Injection; Homology directed repair using targeting vector',
-    'HDR' => 'HDR - CRISPR Injection; Homology directed repair using oligos',
+    'Indel' => 'Indel - Cas9 Injection with one gRNA; result of from non-homology end-joining',
+    'Deletion' => 'Deletion - Cas9 Injection with two or more gRNAs; result of non-homology end joining',
+    'HR' => 'HR - Cas9 Injection; homology-directed repair using targeting vector(s)>200 nt/bp',
+    'HDR' => 'HDR - Cas9 Injection; homology-directed repair using oligo(s)<201 nt/bp',
   }.freeze
 
   CRISPR_ALLELE_SUB_TYPE_OPTIONS = [
-    'Small Deletion',
-    'Large Deletion',
+    'Indel',
     'Exon Deletion',
+    'Intra-exdel deletion',
+    'Inter-exdel deletion',
+    'Whole-gene deletion',
+    'Null reporter',
     'Conditional Ready',
     'Point Mutation'
   ].freeze

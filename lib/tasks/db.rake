@@ -13,7 +13,7 @@ namespace :db do
     end
   end
 
-  ['production', 'staging'].each do |envname|
+  ['production', 'beta', 'dev', 'development'].each do |envname|
     desc "Dump #{envname} DB into db/dump.#{envname}.sql"
     task "#{envname}:dump", [:include_genbank_files] do |task, args|
       tmppath = Rails.application.config.paths['tmp'].first
@@ -21,7 +21,7 @@ namespace :db do
       if ! config
         [
          "#{Rails.root}/config/database.#{envname}.yml",
-         "/opt/t87/global/conf/imits/#{envname}/database.yml"
+         "/nfs/web-hx/mouseinformatics/software/imits/#{envname}/config/database.yml"
         ].each do |config_location|
           if File.file? config_location
             config = YAML.load_file(config_location)[envname]
@@ -79,7 +79,7 @@ namespace :db do
     if ! config
       [
        "#{Rails.root}/config/database.#{envname}.yml",
-       "/opt/t87/global/conf/imits/#{envname}/database.yml"
+       "/nfs/web-hx/mouseinformatics/software/imits/#{envname}/config/database.yml"
       ].each do |config_location|
         if File.file? config_location
           config = YAML.load_file(config_location)[envname]

@@ -50,6 +50,7 @@ class IntermediateReport::Base
       ActiveRecord::Base.connection.transaction do
 
         ActiveRecord::Base.connection.execute("TRUNCATE #{self.class.table};")
+        ActiveRecord::Base.connection.execute("SELECT setval('#{self.class.table}_id_seq', 1);")
 
         i = 0
         sql =''

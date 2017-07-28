@@ -18,21 +18,16 @@ class Mp2Load::GeneInterestReport
         processed_row['conditional_allele_production_centre'] = nil
         processed_row['conditional_allele_status_date'] = nil
         processed_row['conditional_allele_production_start_date'] = nil
-        processed_row['conditional_allele_production_completed_date'] = nil
         processed_row['null_allele_production_status'] = nil
         processed_row['null_allele_production_centre'] = nil
         processed_row['null_allele_status_date'] = nil
         processed_row['null_allele_production_start_date'] = nil
-        processed_row['null_allele_production_completed_date'] = nil
         processed_row['phenotyping_status'] = nil
         processed_row['phenotyping_centre'] = nil
         processed_row['phenotyping_status_date'] = nil
         processed_row['number_of_significant_phenotypes'] = nil
       end
  
-      processed_row['conditional_allele_production_completed_date'] = processed_row['conditional_allele_status_date'] if processed_row['conditional_allele_production_status'] == 'Genotype confirmed'
-      processed_row['null_allele_production_completed_date'] = processed_row['null_allele_status_date'] if ['Genotype confirmed', 'Cre Excision Complete'].include?(processed_row['null_allele_production_status'])
-
       process_data << processed_row
     end
 
@@ -52,14 +47,12 @@ class Mp2Load::GeneInterestReport
        {'title' => 'conditional_allele_production_centre', 'field' => 'conditional_allele_production_centre'},
        {'title' => 'conditional_allele_status_date', 'field' => 'conditional_allele_status_date'},
        {'title' => 'conditional_allele_production_start_date', 'field' => 'conditional_allele_production_start_date'},
-       {'title' => 'conditional_allele_production_completed_date', 'field' => 'conditional_allele_production_completed_date'},
 
        {'title' => 'null_allele_production_status', 'field' => 'null_allele_production_status'},
        {'title' => 'null_allele_production_centre', 'field' => 'null_allele_production_centre'},
        {'title' => 'null_allele_status_date', 'field' => 'null_allele_status_date'},
 
        {'title' => 'null_allele_production_start_date', 'field' => 'null_allele_production_start_date'},
-       {'title' => 'null_allele_production_completed_date', 'field' => 'null_allele_production_completed_date'},
 
        {'title' => 'phenotyping_status', 'field' => 'phenotyping_status'},
        {'title' => 'phenotyping_centre', 'field' => 'phenotyping_centre'},

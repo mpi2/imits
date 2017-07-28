@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20170630325302) do
+ActiveRecord::Schema.define(:version => 20170728325302) do
 
   create_table "alleles", :force => true do |t|
     t.integer  "es_cell_id"
@@ -894,11 +894,14 @@ ActiveRecord::Schema.define(:version => 20170630325302) do
   add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
 
   create_table "strains", :force => true do |t|
-    t.string   "name",                    :limit => 100, :null => false
+    t.string   "name",                    :limit => 100,                    :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "mgi_strain_accession_id", :limit => 100
     t.string   "mgi_strain_name",         :limit => 100
+    t.boolean  "background_strain",                      :default => false
+    t.boolean  "test_cross_strain",                      :default => false
+    t.boolean  "blast_strain",                           :default => false
   end
 
   add_index "strains", ["name"], :name => "index_strains_on_name", :unique => true

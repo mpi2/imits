@@ -6,13 +6,18 @@
 </div>
 <div class="adjust-alot">
   <%= form_for Strain.new do |f| %>
+    <% generator = FieldGenerator.new(f) %>
     <fieldset class="collapsible"><br>
         <legend>Add New Strain</legend>
-        <span>
-            Strain Name <%= f.text_field :name%>
-            MGI Accession Id <%= f.text_field :mgi_strain_accession_id%>
-            MGI Strain Name <%= f.text_field :mgi_strain_name%>
-        </span>
+        <div class="container_12">
+            <div class="grid_4"><%= generator.text_field :name%></div>
+            <div class="grid_4"><%= generator.text_field :mgi_strain_accession_id%></div>
+        </div>
+        <div class="container_12">
+          <div class="grid_2"><%= generator.check_box :background_strain %></div>
+          <div class="grid_2"><%= generator.check_box :test_cross_strain %></div>
+          <div class="grid_2"><%= generator.check_box :blast_strain %></div>
+        </div>
     <%= f.submit%>
     </fieldset>
   <% end %>

@@ -2704,7 +2704,10 @@ CREATE TABLE strains (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     mgi_strain_accession_id character varying(100),
-    mgi_strain_name character varying(100)
+    mgi_strain_name character varying(100),
+    background_strain boolean DEFAULT false,
+    test_cross_strain boolean DEFAULT false,
+    blast_strain boolean DEFAULT false
 );
 
 
@@ -5975,3 +5978,5 @@ INSERT INTO schema_migrations (version) VALUES ('20170528125302');
 INSERT INTO schema_migrations (version) VALUES ('20170530125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20170630325302');
+
+INSERT INTO schema_migrations (version) VALUES ('20170728325302');

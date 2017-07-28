@@ -15,7 +15,16 @@ Ext.define('Imits.model.Strain', {
       name: "mgi_strain_accession_id"
     },
     {
-      name: "mgi_strain_name"
+      name: "background_strain",
+      defaultValue: false
+    },
+    {
+      name: "test_cross_strain",
+      defaultValue: false
+    },
+    {
+      name: "blast_strain",
+      defaultValue: false
     }
     ],
     proxy: Ext.create('Imits.data.Proxy', {

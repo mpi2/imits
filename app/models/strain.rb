@@ -1,5 +1,7 @@
 class Strain < ActiveRecord::Base
   acts_as_reportable
+  attr_accessible :name, :mgi_strain_name, :mgi_strain_accession_id, :background_strain, :test_cross_strain, :blast_strain
+
   validates :name, :uniqueness => true, :presence => true
 
   validates_format_of :mgi_strain_accession_id,
@@ -27,6 +29,9 @@ end
 #  updated_at              :datetime
 #  mgi_strain_accession_id :string(100)
 #  mgi_strain_name         :string(100)
+#  background_strain       :boolean          default(FALSE)
+#  test_cross_strain       :boolean          default(FALSE)
+#  blast_strain            :boolean          default(FALSE)
 #
 # Indexes
 #

@@ -57,7 +57,7 @@ Ext.define('Imits.widget.StrainsGrid', {
     },
     {
       dataIndex: 'name',
-      header: 'ID',
+      header: 'Strain Name',
       width:300,
       filter: {
         type: 'string'
@@ -67,21 +67,33 @@ Ext.define('Imits.widget.StrainsGrid', {
     {
       dataIndex: 'mgi_strain_accession_id',
       header: 'MGI Accession Id',
-      width:300,
+      width:200,
       filter: {
         type: 'string'
       },
       editor: 'textfield'
     },
     {
-      dataIndex: 'mgi_strain_name',
-      header: 'MGI Strain Name',
-      width:300,
-      filter: {
-        type: 'string'
-      },
-      editor: 'textfield'
+      dataIndex: 'background_strain',
+      header: 'Background Strain?',
+      width:150,
+      xtype: 'boolgridcolumn'
     },
+    {
+      dataIndex: 'test_cross_strain',
+      header: 'Test Cross Strain?',
+      width:150,
+      xtype: 'boolgridcolumn'
+    },
+    {
+      dataIndex: 'blast_strain',
+      header: 'Blast Strain?',
+      width:150,
+      xtype: 'boolgridcolumn'
+    },
+
+
+
     {
       xtype:'actioncolumn',
       width:21,

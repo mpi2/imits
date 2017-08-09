@@ -1,0 +1,78 @@
+<% generator = MiAttemptFieldGenerator.new(f) %>
+<% allele = f.object %>
+
+<tr>
+  <td><% f.object.marker_symbol = @mi_attempt.marker_symbol %>
+    <%= f.select :marker_symbol, Gene.where("marker_symbol IN ('#{@mi_attempt.marker_symbol}')").all.map(&:marker_symbol), :include_blank => false %>
+  </td>
+  <td>
+    <div class="trace-files" style="padding:0px 10px 0px 10px;">
+      <fieldset class="collapsible" id="distribution_centres">
+      <legend>Upload Sequence Files</legend>
+        <div class="trace-file-container">
+          <table id="trace_files_<%= f.object_id %>_table" class="report_table">
+          <thead class="title">
+            <tr>
+              <th>Gene Targeted</th>
+              <th>File Name</th>
+              <th>Trace Details</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody class="distribution_centres">
+            <tr></tr>
+            <% if allele.trace_files.length > 0 %>
+              <%= f.fields_for :trace_files do |builder| %>
+                <%= render '/shared/trace_file_fields', f: builder %>
+              <% end %>
+            <% end %>
+          </tbody>
+          </table>
+          <%= link_to_add_fields "Add Trace File", f, :trace_files %>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="colony-qc-data" style="padding:0px 10px 0px 10px;">
+      <fieldset class="collapsible hide-by-default">
+        <legend>QC Data</legend>
+        <div>
+          <table>
+            <% if allele.colony_qc.blank? %>
+              <% allele.build_colony_qc %>
+            <% end %>
+            <%= f.fields_for :colony_qc do |builder| %>
+              <% ProductionCentreQc::QC_FIELDS.each do |qc_field| %>
+                <tr>
+                  <td><%= builder.label(:post, qc_field) %></td>
+                  <td><%= builder.select qc_field, ['na', 'pass', 'fail'] %></td>
+                </tr>
+              <% end %>
+            <% end %>
+          </table>
+        </div>
+      </fieldset>
+    </div>
+
+    <div>
+      <fieldset class="collapsible">
+        <legend>Allele Characterisation</legend>
+        <div>
+          <div>Allele sequence (fasta file)</div><div><%= f.text_area :mutant_fa %></div>
+          <div>Allele Description</div><div><%= f.text_area :allele_description %></div>
+          <div>Allele Confirmed? <%= f.check_box :allele_confirmed %></div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div>
+      <fieldset class="collapsible">
+        <legend>MGI Allele</legend>
+        <div>
+          <%= generator.text_field :mgi_allele_symbol_superscript, label: "MGI Allele Symbol Superscript"%>
+          <div>without project abbreviation (IMPC) <%= f.check_box :mgi_allele_symbol_without_impc_abbreviation %></div>
+        </div>
+      </fieldset>
+    </div>
+  </td>
+</tr>

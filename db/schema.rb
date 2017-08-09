@@ -13,6 +13,34 @@
 
 ActiveRecord::Schema.define(:version => 201604011125302) do
 
+  create_table "alleles", :force => true do |t|
+    t.integer  "colony_id",                                                      :null => false
+    t.boolean  "allele_confirmed",                            :default => false, :null => false
+    t.boolean  "mgi_allele_symbol_without_impc_abbreviation"
+    t.string   "mgi_allele_symbol_superscript"
+    t.string   "mgi_allele_accession_id"
+    t.string   "allele_type"
+    t.text     "auto_allele_description"
+    t.text     "allele_description"
+    t.text     "mutant_fa"
+    t.text     "reference_fa"
+    t.text     "mutant_protein_fa"
+    t.text     "reference_protein_fa"
+    t.text     "alignment"
+    t.text     "filtered_analysis_vcf"
+    t.text     "merged_variants_vcf"
+    t.text     "variant_effect_predictor_output"
+    t.text     "primer_reads_fa"
+    t.text     "alignment_data_yaml"
+    t.text     "trace_output"
+    t.text     "trace_error"
+    t.text     "exception_details"
+    t.integer  "return_code"
+    t.string   "exon_id"
+    t.datetime "created_at",                                                     :null => false
+    t.datetime "updated_at",                                                     :null => false
+  end
+
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
     t.string   "auditable_type"
@@ -51,20 +79,9 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer "mi_attempt_id"
     t.boolean "genotype_confirmed",                          :default => false
     t.boolean "report_to_public",                            :default => false
-    t.boolean "unwanted_allele",                             :default => false
-    t.text    "allele_description"
-    t.string  "mgi_allele_id"
-    t.string  "allele_name"
     t.integer "mouse_allele_mod_id"
-    t.string  "mgi_allele_symbol_superscript"
-    t.string  "allele_symbol_superscript_template"
-    t.string  "allele_type"
     t.integer "background_strain_id"
-    t.text    "allele_description_summary"
-    t.text    "auto_allele_description"
     t.boolean "mgi_allele_symbol_without_impc_abbreviation", :default => false
-    t.boolean "private",                                     :default => false, :null => false
-    t.string  "crispr_allele_category"
   end
 
   add_index "colonies", ["name", "mi_attempt_id", "mouse_allele_mod_id"], :name => "mouse_allele_mod_colony_name_uniqueness_index", :unique => true
@@ -82,28 +99,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.datetime "created_at",                                       :null => false
     t.datetime "updated_at",                                       :null => false
   end
-
-  create_table "colony_qcs", :force => true do |t|
-    t.integer "colony_id",                        :null => false
-    t.string  "qc_southern_blot",                 :null => false
-    t.string  "qc_five_prime_lr_pcr",             :null => false
-    t.string  "qc_five_prime_cassette_integrity", :null => false
-    t.string  "qc_tv_backbone_assay",             :null => false
-    t.string  "qc_neo_count_qpcr",                :null => false
-    t.string  "qc_lacz_count_qpcr",               :null => false
-    t.string  "qc_neo_sr_pcr",                    :null => false
-    t.string  "qc_loa_qpcr",                      :null => false
-    t.string  "qc_homozygous_loa_sr_pcr",         :null => false
-    t.string  "qc_lacz_sr_pcr",                   :null => false
-    t.string  "qc_mutant_specific_sr_pcr",        :null => false
-    t.string  "qc_loxp_confirmation",             :null => false
-    t.string  "qc_three_prime_lr_pcr",            :null => false
-    t.string  "qc_critical_region_qpcr",          :null => false
-    t.string  "qc_loxp_srpcr",                    :null => false
-    t.string  "qc_loxp_srpcr_and_sequencing",     :null => false
-  end
-
-  add_index "colony_qcs", ["colony_id"], :name => "index_colony_qcs_on_colony_id", :unique => true
 
   create_table "consortia", :force => true do |t|
     t.string   "name",         :null => false
@@ -537,8 +532,8 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
 
   create_table "mi_attempts", :force => true do |t|
     t.integer  "es_cell_id"
-    t.date     "mi_date",                                                                                           :null => false
-    t.integer  "status_id",                                                                                         :null => false
+    t.date     "mi_date",                                                                                :null => false
+    t.integer  "status_id",                                                                              :null => false
     t.string   "external_ref",                                    :limit => 125
     t.integer  "updated_by_id"
     t.integer  "blast_strain_id"
@@ -567,13 +562,13 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "number_of_cct_offspring"
     t.integer  "number_of_het_offspring"
     t.integer  "number_of_live_glt_offspring"
-    t.boolean  "report_to_public",                                               :default => true,                  :null => false
-    t.boolean  "is_active",                                                      :default => true,                  :null => false
-    t.boolean  "is_released_from_genotyping",                                    :default => false,                 :null => false
+    t.boolean  "report_to_public",                                               :default => true,       :null => false
+    t.boolean  "is_active",                                                      :default => true,       :null => false
+    t.boolean  "is_released_from_genotyping",                                    :default => false,      :null => false
     t.text     "comments"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "mi_plan_id",                                                                                        :null => false
+    t.integer  "mi_plan_id",                                                                             :null => false
     t.string   "genotyping_comment",                              :limit => 512
     t.integer  "legacy_es_cell_id"
     t.date     "cassette_transmission_verified"
@@ -585,10 +580,9 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "crsp_no_founder_pups"
     t.integer  "crsp_num_founders_selected_for_breading"
     t.integer  "allele_id"
-    t.integer  "real_allele_id"
     t.integer  "founder_num_assays"
     t.text     "assay_type"
-    t.boolean  "experimental",                                                   :default => false,                 :null => false
+    t.boolean  "experimental",                                                   :default => false,      :null => false
     t.string   "allele_target"
     t.integer  "parent_colony_id"
     t.string   "mrna_nuclease"
@@ -600,7 +594,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer  "number_of_pulses"
     t.string   "crsp_embryo_transfer_day",                                       :default => "Same Day"
     t.integer  "crsp_embryo_2_cell"
-    t.string   "privacy",                                                        :default => "Share all Allele(s)", :null => false
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -723,15 +716,20 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.datetime "created_at",                                          :null => false
     t.datetime "updated_at",                                          :null => false
     t.integer  "allele_id"
-    t.integer  "real_allele_id"
     t.integer  "parent_colony_id"
   end
 
-  create_table "mutagenesis_factor_vectors", :force => true do |t|
+  create_table "mutagenesis_alleles", :force => true do |t|
+    t.integer "allele_id",             :null => false
+    t.integer "mutagenesis_factor_id", :null => false
+  end
+
+  create_table "mutagenesis_factor_donors", :force => true do |t|
     t.integer "mutagenesis_factor_id", :null => false
     t.integer "vector_id"
     t.float   "concentration"
     t.string  "preparation"
+    t.text    "oligo_sequence_fa"
   end
 
   create_table "mutagenesis_factors", :force => true do |t|
@@ -746,7 +744,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.integer "no_hdr_g0_mutants"
     t.integer "no_hdr_g0_mutants_all_donors_inserted"
     t.integer "no_hdr_g0_mutants_subset_donors_inserted"
-    t.boolean "private",                                  :default => false, :null => false
   end
 
   create_table "notifications", :force => true do |t|
@@ -804,6 +801,26 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   end
 
   add_index "pipelines", ["name"], :name => "index_pipelines_on_name", :unique => true
+
+  create_table "production_centre_qcs", :force => true do |t|
+    t.string  "qc_southern_blot",                 :null => false
+    t.string  "qc_five_prime_lr_pcr",             :null => false
+    t.string  "qc_five_prime_cassette_integrity", :null => false
+    t.string  "qc_tv_backbone_assay",             :null => false
+    t.string  "qc_neo_count_qpcr",                :null => false
+    t.string  "qc_lacz_count_qpcr",               :null => false
+    t.string  "qc_neo_sr_pcr",                    :null => false
+    t.string  "qc_loa_qpcr",                      :null => false
+    t.string  "qc_homozygous_loa_sr_pcr",         :null => false
+    t.string  "qc_lacz_sr_pcr",                   :null => false
+    t.string  "qc_mutant_specific_sr_pcr",        :null => false
+    t.string  "qc_loxp_confirmation",             :null => false
+    t.string  "qc_three_prime_lr_pcr",            :null => false
+    t.string  "qc_critical_region_qpcr",          :null => false
+    t.string  "qc_loxp_srpcr",                    :null => false
+    t.string  "qc_loxp_srpcr_and_sequencing",     :null => false
+    t.integer "allele_id"
+  end
 
   create_table "production_goals", :force => true do |t|
     t.integer  "consortium_id"
@@ -906,8 +923,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.string   "taqman_upstream_del_assay_id"
     t.string   "taqman_downstream_del_assay_id"
     t.string   "wildtype_oligos_sequence"
-    t.boolean  "private",                                       :default => false,                     :null => false
-    t.integer  "production_centre_id"
   end
 
   create_table "targ_rep_centre_pipelines", :force => true do |t|
@@ -1012,7 +1027,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
     t.string   "user_qc_chry"
     t.string   "user_qc_lacz_qpcr"
     t.integer  "ikmc_project_foreign_id"
-    t.integer  "real_allele_id"
   end
 
   add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"
@@ -1088,15 +1102,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
 
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
 
-  create_table "targ_rep_real_alleles", :force => true do |t|
-    t.integer "gene_id",                        :null => false
-    t.string  "allele_name",      :limit => 40, :null => false
-    t.string  "allele_type",      :limit => 10
-    t.string  "mgi_accession_id"
-  end
-
-  add_index "targ_rep_real_alleles", ["gene_id", "allele_name"], :name => "real_allele_logical_key", :unique => true
-
   create_table "targ_rep_sequence_annotation", :force => true do |t|
     t.integer "coordinate_start"
     t.string  "expected_sequence"
@@ -1123,48 +1128,15 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   add_index "targ_rep_targeting_vectors", ["name"], :name => "index_targvec", :unique => true
   add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
 
-  create_table "trace_call_vcf_modifications", :force => true do |t|
-    t.integer  "trace_call_id", :null => false
-    t.string   "mod_type",      :null => false
-    t.string   "chr",           :null => false
-    t.integer  "start",         :null => false
-    t.integer  "end",           :null => false
-    t.text     "ref_seq",       :null => false
-    t.text     "alt_seq",       :null => false
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
-  end
-
-  create_table "trace_calls", :force => true do |t|
-    t.integer  "colony_id",                      :null => false
-    t.integer  "mutagenesis_factor_id",          :null => false
-    t.text     "file_alignment"
-    t.text     "file_filtered_analysis_vcf"
-    t.text     "file_variant_effect_output_txt"
-    t.text     "file_reference_fa"
-    t.text     "file_mutant_fa"
-    t.text     "file_primer_reads_fa"
-    t.text     "file_alignment_data_yaml"
-    t.text     "file_trace_output"
-    t.text     "file_trace_error"
-    t.text     "file_exception_details"
-    t.integer  "file_return_code"
-    t.text     "file_merged_variants_vcf"
-    t.string   "exon_id"
-    t.datetime "created_at",                     :null => false
-    t.datetime "updated_at",                     :null => false
-  end
-
   create_table "trace_files", :force => true do |t|
-    t.integer  "colony_id",                                :null => false
-    t.boolean  "is_het",                :default => false, :null => false
-    t.datetime "created_at",                               :null => false
-    t.datetime "updated_at",                               :null => false
+    t.boolean  "is_het",             :default => false, :null => false
+    t.datetime "created_at",                            :null => false
+    t.datetime "updated_at",                            :null => false
     t.string   "trace_file_name"
     t.string   "trace_content_type"
     t.integer  "trace_file_size"
     t.datetime "trace_updated_at"
-    t.integer  "mutagenesis_factor_id"
+    t.integer  "allele_id"
   end
 
   create_table "traces", :force => true do |t|
@@ -1206,10 +1178,20 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
 
+  create_table "vcf_modifications", :force => true do |t|
+    t.string   "mod_type",   :null => false
+    t.string   "chr",        :null => false
+    t.integer  "start",      :null => false
+    t.integer  "end",        :null => false
+    t.text     "ref_seq",    :null => false
+    t.text     "alt_seq",    :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+    t.integer  "allele_id"
+  end
+
   add_foreign_key "colonies", "mi_attempts", :name => "colonies_mi_attempt_fk"
   add_foreign_key "colonies", "mouse_allele_mods", :name => "colonies_mouse_allele_mod_fk"
-
-  add_foreign_key "colony_qcs", "colonies", :name => "colony_qcs_colonies_fk"
 
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk", :column => "status_id"
 
@@ -1218,7 +1200,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_blast_strain_id_fk", :column => "blast_strain_id"
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
   add_foreign_key "mi_attempts", "targ_rep_alleles", :name => "mi_attempts_targ_rep_allele_id_fk", :column => "allele_id"
-  add_foreign_key "mi_attempts", "targ_rep_real_alleles", :name => "mi_attempts_targ_rep_real_allele_id_fk", :column => "real_allele_id"
   add_foreign_key "mi_attempts", "users", :name => "mi_attempts_updated_by_id_fk", :column => "updated_by_id"
 
   add_foreign_key "mi_plan_es_cell_qcs", "mi_plans", :name => "mi_plan_es_cell_qcs_mi_plan_id_fk"
@@ -1242,7 +1223,6 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   add_foreign_key "mouse_allele_mods", "phenotype_attempt_ids", :name => "mouse_allele_mods_phenotype_attempt_id_fk", :column => "phenotype_attempt_id"
   add_foreign_key "mouse_allele_mods", "strains", :name => "mouse_allele_mods_deleter_strain_id_fk", :column => "deleter_strain_id"
   add_foreign_key "mouse_allele_mods", "targ_rep_alleles", :name => "mouse_allele_mods_targ_rep_allele_id_fk", :column => "allele_id"
-  add_foreign_key "mouse_allele_mods", "targ_rep_real_alleles", :name => "mouse_allele_mods_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
   add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
   add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
@@ -1257,16 +1237,9 @@ ActiveRecord::Schema.define(:version => 201604011125302) do
   add_foreign_key "targ_rep_allele_sequence_annotations", "targ_rep_alleles", :name => "targ_rep_allele_sequence_annotations_allele_id_fk", :column => "allele_id"
 
   add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_qc_mouse_clinic_id_fk", :column => "user_qc_mouse_clinic_id"
-  add_foreign_key "targ_rep_es_cells", "targ_rep_real_alleles", :name => "targ_rep_es_cells_targ_rep_real_allele_id_fk", :column => "real_allele_id"
 
   add_foreign_key "targ_rep_genotype_primers", "mutagenesis_factors", :name => "targ_rep_genotype_primers_mutagenesis_factor_id_fk"
   add_foreign_key "targ_rep_genotype_primers", "targ_rep_alleles", :name => "targ_rep_genotype_primers_allele_id_fk", :column => "allele_id"
-
-  add_foreign_key "targ_rep_real_alleles", "genes", :name => "targ_rep_real_alleles_gene_id_fk"
-
-  add_foreign_key "trace_call_vcf_modifications", "trace_files", :name => "trace_call_vcf_modifications_trace_calls_fk", :column => "trace_call_id"
-
-  add_foreign_key "trace_files", "colonies", :name => "trace_calls_colonies_fk"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

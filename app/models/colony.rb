@@ -14,16 +14,14 @@ class Colony < ApplicationModel
   has_many :micro_injection_attempts, :class_name => 'MiAttempt', :foreign_key => 'parent_colony_id'
   has_many :allele_modifications, :class_name => 'MouseAlleleMod', :foreign_key => 'parent_colony_id'
   has_many :phenotyping_productions, :class_name => 'PhenotypingProduction', :foreign_key => 'parent_colony_id'
-  has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :dependent => :destroy
+  has_many :distribution_centres, :class_name => 'DistributionCentre', :dependent => :destroy
   has_many :trace_files, :dependent => :destroy
-  has_many :trace_calls,  :dependent => :destroy
-
-  has_one :colony_qc, :inverse_of => :colony, :dependent => :destroy
+  has_many :alleles,  :dependent => :destroy
 
   access_association_by_attribute :background_strain, :name
 
-  accepts_nested_attributes_for :colony_qc, :update_only =>true
   accepts_nested_attributes_for :trace_files, :allow_destroy => true
+  accepts_nested_attributes_for :alleles, :allow_destroy => true
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
   accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
 
@@ -35,19 +33,13 @@ class Colony < ApplicationModel
 #  validates_uniqueness_of :name, scope: :mi_attempt_id
 #  validates_uniqueness_of :name, scope: :mouse_allele_mod_id
 
-  validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys + CRISPR_MOUSE_ALLELE_OPTIONS.keys }
-  validate :set_allele_symbol_superscript
+
 
 #  validate do |colony|
 #    if mouse_allele_mod_id.blank? and mi_attempt_id.blank?
 #      colony.errors.add :base, 'A Colony can only be produced via a Micro-Injection or an Allele Modification.'
 #    end
 #  end
-
-validates_format_of :mgi_allele_id,
-    :with      => /^MGI\:\d+$/,
-    :message   => "is not a valid MGI Allele ID",
-    :allow_nil => true
 
   validate do |colony|
     if !mouse_allele_mod.blank?
@@ -76,38 +68,8 @@ validates_format_of :mgi_allele_id,
   end
 
   validate do |colony|
-    if colony.unwanted_allele and colony.genotype_confirmed
-      colony.errors.add :base, ": Colony '#{name}' cannot be marked as both 'Genotype Confirmed' and 'Unwanted Allele'"
-    end
-  end
-
-  validate do |colony|
-    if mgi_allele_symbol_superscript.blank? && genotype_confirmed == true
-      colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
-    end
-  end
-
-  validate do |colony|
-    return if mi_attempt_id.blank? && mouse_allele_mod_id.blank?
-    if !mgi_allele_symbol_superscript.blank?
-      mi_attempt = self.mi_attempt || mouse_allele_mod.parent_colony.mi_attempt
-      
-      if mi_attempt.es_cell.blank?
-
-        if mgi_allele_symbol_without_impc_abbreviation == true && /em\d*/
-          colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}{ILAR code} e.g. em1J"
-          colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
-        elsif /em\d+(IMPC)*/
-          colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}(IMPC){ILAR code} e.g. em1(IMPC)J"
-          colony.errors.add :mgi_allele_symbol_superscript, "must contain IMPC unless marked project abbreviation."       
-        end
-      else
-
-
-      end
-     
-     mgi_allele_symbol_without_impc_abbreviation == false
-      colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
+    if alleles.all?{|a| a.allele_confirmed == false} && genotype_confirmed == true
+      colony.errors.add :genotype_confirmed, "cannot be set to true unless the allele has been confirmed."
     end
   end
 
@@ -143,56 +105,6 @@ validates_format_of :mgi_allele_id,
   end
   protected :add_default_distribution_centre
 
-
-  def self.readable_name
-    return 'colony'
-  end
-
-  def get_template
-    return allele_symbol_superscript_template unless allele_symbol_superscript_template.blank?
-
-    if mi_attempt_id
-
-      if mi_attempt.es_cell_id
-        return mi_attempt.es_cell.allele_symbol_superscript_template
-      elsif mi_attempt.mutagenesis_factor && !mgi_allele_symbol_superscript.blank?
-          return mgi_allele_symbol_superscript
-      else
-        return nil
-      end
-
-    elsif mouse_allele_mod_id
-
-      return mouse_allele_mod.try(:parent_colony).try(:get_template)
-
-    else
-      return nil
-    end
-  end
- # protected :get_template
-
-  def get_type
-    return allele_type unless allele_type.nil?
-
-    if mi_attempt_id
-
-      if mi_attempt.es_cell_id
-        return mi_attempt.es_cell.allele_type
-      else
-        return 'None'
-      end
-
-    elsif mouse_allele_mod_id
-
-      return mouse_allele_mod.try(:parent_colony).try(:get_type)
-
-    else
-      return 'None'
-    end
-  end
-  #protected :get_type
-
-
   def gene
     return mi_attempt.mi_plan.gene if !mi_attempt_id.blank?
     return mouse_allele_mod.mi_plan.gene if !mouse_allele_mod_id.blank?
@@ -207,55 +119,6 @@ validates_format_of :mgi_allele_id,
     return mi_attempt.mi_plan if !mi_attempt_id.blank?
     return mouse_allele_mod.mi_plan if !mouse_allele_mod_id.blank?
     return nil
-  end
-
-  def set_allele_symbol_superscript
-    return if self.allele_symbol_superscript_template_changed?
-
-    if self.mgi_allele_symbol_superscript.blank? || self.mgi_allele_symbol_superscript =~ /em/
-      self.allele_symbol_superscript_template = nil
-      return
-    end
-
-    # if targeted allele.
-    new_template, new_allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
-
-    #prevent MGI from incorrectly overiding the allele name if the allele type does not match that stated by the centres.
-    if !self.allele_type.nil? && self.allele_type == new_allele_type
-      self.allele_symbol_superscript_template = new_template
-    else
-      self.mgi_allele_symbol_superscript = nil
-    end
-
-    if errors.count > 0
-      self.errors.add errors.first[0], errors.first[1]
-    end
-  end
-
-
-  def allele_symbol_superscript
-    template = get_template
-    type = get_type.to_s
-
-    return nil if template.nil?
-
-    if template =~ /#{TargRep::Allele::TEMPLATE_CHARACTER}/
-      if type == 'None'
-        return nil
-      else
-        return template.sub(TargRep::Allele::TEMPLATE_CHARACTER, type)
-      end
-    else
-      return template
-    end
-  end
-
-  def allele_symbol
-    if allele_symbol_superscript
-      return "#{self.gene.marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
-    else
-      return nil
-    end
   end
 
   def production_centre_name
@@ -342,51 +205,6 @@ validates_format_of :mgi_allele_id,
             EOF
   end
 
-
-  #### may not work, should this be in trace call model
-  def get_mutant_nucleotide_sequence_features
-    unless trace_call.trace_call_vcf_modifications.count > 0
-      if trace_call.file_filtered_analysis_vcf
-        vcf_data = trace_call.parse_filtered_vcf_file
-        if vcf_data && vcf_data.length > 0
-          vcf_data.each do |vcf_feature|
-            if vcf_feature.length >= 6
-              tc_mod = TraceCallVcfModification.new(
-                :trace_call_id => trace_call.id,
-                :mod_type      => vcf_feature['mod_type'],
-                :chr           => vcf_feature['chr'],
-                :start         => vcf_feature['start'],
-                :end           => vcf_feature['end'],
-                :ref_seq       => vcf_feature['ref_seq'],
-                :alt_seq       => vcf_feature['alt_seq']
-              )
-              tc_mod.save!
-            else
-              puts "ERROR: unexpected length of VCF data for trace call id #{self.id}"
-            end
-          end
-        end
-      end
-    end
-
-    mut_seq_features = []
-
-    trace_call.trace_call_vcf_modifications.each do |tc_mod|
-      mut_seq_feature = {
-        'chr'          => mi_attempt.mi_plan.gene.chr,
-        'strand'       => mi_attempt.mi_plan.gene.strand_name,
-        'start'        => tc_mod.start,
-        'end'          => tc_mod.end,
-        'ref_sequence' => tc_mod.ref_seq,
-        'alt_sequence' => tc_mod.alt_seq,
-        'sequence'     => tc_mod.alt_seq,
-        'mod_type'     => tc_mod.mod_type
-      }
-      mut_seq_features.push( mut_seq_feature.as_json )
-    end
-
-    return mut_seq_features
-  end
 end
 
 # == Schema Information
@@ -398,20 +216,9 @@ end
 #  mi_attempt_id                               :integer
 #  genotype_confirmed                          :boolean          default(FALSE)
 #  report_to_public                            :boolean          default(FALSE)
-#  unwanted_allele                             :boolean          default(FALSE)
-#  allele_description                          :text
-#  mgi_allele_id                               :string(255)
-#  allele_name                                 :string(255)
 #  mouse_allele_mod_id                         :integer
-#  mgi_allele_symbol_superscript               :string(255)
-#  allele_symbol_superscript_template          :string(255)
-#  allele_type                                 :string(255)
 #  background_strain_id                        :integer
-#  allele_description_summary                  :text
-#  auto_allele_description                     :text
 #  mgi_allele_symbol_without_impc_abbreviation :boolean          default(FALSE)
-#  private                                     :boolean          default(FALSE), not null
-#  crispr_allele_category                      :string(255)
 #
 # Indexes
 #

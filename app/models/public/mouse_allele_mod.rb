@@ -100,6 +100,5 @@ end
 #  created_at                       :datetime         not null
 #  updated_at                       :datetime         not null
 #  allele_id                        :integer
-#  real_allele_id                   :integer
 #  parent_colony_id                 :integer
 #

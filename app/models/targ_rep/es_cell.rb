@@ -13,7 +13,7 @@ class TargRep::EsCell < ActiveRecord::Base
   JSON_OPTIONS = {
       :include => {
         :allele => { :except => [:created_at, :updated_at, :gene_id, :id, :mutation_method_id, :mutation_type_id, :mutation_subtype_id],
-                     :methods => [:mutation_method_name, :mutation_type_name, :mutation_subtype_name, :marker_symbol, :mgi_accession_id]},
+                     :methods => [:mutation_method_name, :mutation_type_name, :mutation_subtype_name, :marker_symbol, :mgi_accession_id, :production_qc_five_prime_screen, :production_qc_three_prime_screen, :production_qc_loxp_screen, :production_qc_loss_of_allele, :production_qc_vector_integrity]},
         :distribution_qcs => { :except => [:created_at, :updated_at] , :methods => [:es_cell_distribution_centre_name]}
       },
       :methods => [:allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name]
@@ -23,7 +23,6 @@ class TargRep::EsCell < ActiveRecord::Base
   ##
   belongs_to :pipeline
   belongs_to :allele
-  belongs_to :real_allele
   belongs_to :ikmc_project, :class_name => "TargRep::IkmcProject", :foreign_key => :ikmc_project_foreign_id
 
   belongs_to :targeting_vector
@@ -34,7 +33,10 @@ class TargRep::EsCell < ActiveRecord::Base
   has_many :distribution_qcs, :dependent => :destroy
   has_many :mi_attempts
 
+  has_many :alleles, :class_name => "Allele"
+
   accepts_nested_attributes_for :distribution_qcs, :allow_destroy => true
+  accepts_nested_attributes_for :alleles, :allow_destroy => true
 
   ##
   ## Validations
@@ -76,6 +78,8 @@ class TargRep::EsCell < ActiveRecord::Base
 
   scope :has_targeting_vector, where('targeting_vector_id is not NULL')
   scope :no_targeting_vector, where(:targeting_vector_id => nil)
+
+  before_validation :manage_alleles_qc_data
 
   ##
   ## QC validations
@@ -143,6 +147,77 @@ class TargRep::EsCell < ActiveRecord::Base
   ##
 
   public
+
+    def manage_alleles_qc_data
+      return if es_cell.blank?
+  
+      alleles_attr_hash = alleles.map{|a| a.try(:attributes)} || [{}]
+      allele_attr_hash = alleles_attr_hash.first
+  
+      allele_attr_hash[:allele_type] = allele_type
+  
+      allele_attr_hash[:production_centre_qc_attributes] = {} if !allele_attr_hash.has_key?(:production_centre_qc_attributes)
+  
+      ProductionCentreQc::QC_FIELDS.each do |qc_field|
+        if allele_attr_hash[:production_centre_qc_attributes].blank? or self.send("#{qc_field}_result") != allele_attr_hash[:production_centre_qc_attributes]["#{qc_field}".to_sym]
+          allele_attr_hash[:production_centre_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
+        end
+      end
+  
+      self.alleles_attributes = alleles_attr_hash
+    end
+    protected :manage_alleles_qc_data
+
+
+    def production_qc_five_prime_screen=(arg)
+      @production_qc_five_prime_screen = arg
+    end
+
+    def production_qc_five_prime_screen
+      return @production_qc_five_prime_screen unless @production_qc_five_prime_screen.blank?
+      return alleles.first.production_centre_qc.qc_five_prime_lr_pcr
+      return nil
+    end
+
+    def production_qc_three_prime_screen=(arg)
+      @production_qc_three_prime_screen = arg
+    end
+
+    def production_qc_three_prime_screen
+      return @production_qc_three_prime_screen unless @production_qc_three_prime_screen.blank?
+      return alleles.first.production_centre_qc.qc_three_prime_lr_pcr
+      return nil
+    end
+
+    def production_qc_loxp_screen=(arg)
+      @production_qc_loxp_screen = arg
+    end
+
+    def production_qc_loxp_screen
+      return @production_qc_loxp_screen unless @production_qc_loxp_screen.blank?
+      return alleles.first.production_centre_qc.qc_loxp_srpcr
+      return nil
+    end
+
+    def production_qc_loss_of_allele=(arg)
+      @production_qc_loss_of_allele = arg
+    end
+
+    def production_qc_loss_of_allele
+      return @production_qc_loss_of_allele unless @production_qc_loss_of_allele.blank?
+      return alleles.first.production_centre_qc.qc_loa_qpcr
+      return nil
+    end
+
+    def production_qc_vector_integrity=(arg)
+      @production_qc_vector_integrity = arg
+    end
+
+    def production_qc_vector_integrity
+      return @production_qc_vector_integrity unless @production_qc_vector_integrity.blank?
+      return alleles.first.production_centre_qc.qc_five_prime_cassette_integrity
+      return nil
+    end
 
     def pipeline_name
       self.pipeline.name
@@ -332,7 +407,6 @@ end
 #  user_qc_chry                          :string(255)
 #  user_qc_lacz_qpcr                     :string(255)
 #  ikmc_project_foreign_id               :integer
-#  real_allele_id                        :integer
 #
 # Indexes
 #

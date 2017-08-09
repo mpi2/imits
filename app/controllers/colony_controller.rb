@@ -15,7 +15,7 @@ class ColonyController < ApplicationController
     @files = {}
 
     return if @colony.nil?
-    return if @colony.trace_call.nil?
+    return if @colony.allele_call.nil?
 
 
     marker_symbol = @colony.try(:mi_attempt).try(:mi_plan).try(:gene).try(:marker_symbol)
@@ -24,19 +24,19 @@ class ColonyController < ApplicationController
     else
       @title         = "Colony #{@colony.name}"
     end
-    @trace_file_name = "#{@colony.try(:trace_call).try(:trace_file_file_name)}"
+    @trace_file_name = "#{@colony.try(:allele_call).try(:trace_file_file_name)}"
 
-    @files[:alignment]                 = {:filename => 'alignment.txt', :name => 'Alignment', :data => @colony.trace_call.targeted_file_alignment, :show => true, :split => true, :titles=> ['Reference Sequence', 'Mutated Sequence'], :ids => ['ref_seq', 'seq_1']}
-    @files[:filtered_analysis_vcf]     = {:filename => 'filtered_analysis.vcf', :name => 'Variant (vcf)', :data => @colony.trace_call.file_filtered_analysis_vcf, :show => true}
-    @files[:merged_variants_vcf]       = {:filename => 'merged_variants.vcf', :name => 'Variant (merged vcf)', :data => @colony.trace_call.file_merged_variants_vcf, :show => true}
-    @files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'Variant (vep)', :data => @colony.trace_call.file_variant_effect_output_txt, :show => true}
-    @files[:reference]                 = {:filename => 'reference.fa', :name => 'Protein Sequence (reference)', :data => @colony.trace_call.file_reference_fa, :show => true, :id => 'ref_protein'}
-    @files[:mutant_fa]                 = {:filename => 'mutated.fa', :name => 'Protein Sequence (mutated)', :data => @colony.trace_call.file_mutant_fa, :show => true, :id => 'protein_seq'}
-    @files[:primer_reads_fa]           = {:filename => 'primer_reads.fa', :name => 'Reads', :data => @colony.trace_call.file_primer_reads_fa, :show => true}
+    @files[:alignment]                 = {:filename => 'alignment.txt', :name => 'Alignment', :data => @colony.allele_call.targeted_file_alignment, :show => true, :split => true, :titles=> ['Reference Sequence', 'Mutated Sequence'], :ids => ['ref_seq', 'seq_1']}
+    @files[:filtered_analysis_vcf]     = {:filename => 'filtered_analysis.vcf', :name => 'Variant (vcf)', :data => @colony.allele_call.filtered_analysis_vcf, :show => true}
+    @files[:merged_variants_vcf]       = {:filename => 'merged_variants.vcf', :name => 'Variant (merged vcf)', :data => @colony.allele_call.merged_variants_vcf, :show => true}
+    @files[:variant_effect_output_txt] = {:filename => 'variant_effect_output.txt', :name => 'Variant (vep)', :data => @colony.allele_call.variant_effect_predictor_output, :show => true}
+    @files[:reference]                 = {:filename => 'reference.fa', :name => 'Protein Sequence (reference)', :data => @colony.allele_call.reference_fa, :show => true, :id => 'ref_protein'}
+    @files[:mutant_fa]                 = {:filename => 'mutated.fa', :name => 'Protein Sequence (mutated)', :data => @colony.allele_call.mutant_fa, :show => true, :id => 'protein_seq'}
+    @files[:primer_reads_fa]           = {:filename => 'primer_reads.fa', :name => 'Reads', :data => @colony.allele_call.primer_reads_fa, :show => true}
 
-    @files[:debug_output]              = {:filename => 'debug_output.txt', :name => 'crispr_damage_analysis output (debug)', :data => @colony.trace_call.file_trace_output, :show => ! Rails.env.production?}
-    @files[:debug_errors]              = {:filename => 'debug_errors.txt', :name => 'crispr_damage_analysis errors (debug)', :data => @colony.trace_call.file_trace_error, :show => ! Rails.env.production?}
-    @files[:debug_exception]           = {:filename => 'debug_exception.txt', :name => 'crispr_damage_analysis exception (debug)', :data => @colony.trace_call.file_exception_details, :show => ! Rails.env.production?}
+    @files[:debug_output]              = {:filename => 'debug_output.txt', :name => 'crispr_damage_analysis output (debug)', :data => @colony.allele_call.trace_output, :show => ! Rails.env.production?}
+    @files[:debug_errors]              = {:filename => 'debug_errors.txt', :name => 'crispr_damage_analysis errors (debug)', :data => @colony.allele_call.trace_error, :show => ! Rails.env.production?}
+    @files[:debug_exception]           = {:filename => 'debug_exception.txt', :name => 'crispr_damage_analysis exception (debug)', :data => @colony.allele_call.exception_details, :show => ! Rails.env.production?}
 
     if params[:filename]
       key = params[:filename].to_sym
@@ -47,9 +47,9 @@ class ColonyController < ApplicationController
       return
     end
 
-    @deletions = @colony.trace_call.deletions
+    @deletions = @colony.allele_call.deletions
 
-    @insertions = @colony.trace_call.insertions
+    @insertions = @colony.allele_call.insertions
 
     @ok = false
 

@@ -1,21 +1,21 @@
-class TraceCallVcfModification < ActiveRecord::Base
+class VcfModification < ActiveRecord::Base
 
   acts_as_audited
   acts_as_reportable
 
-  belongs_to :trace_call
+  belongs_to :allele
 
-  attr_accessible :alt_seq, :chr, :end, :ref_seq, :start, :trace_call_id, :mod_type
+  attr_accessible :alt_seq, :chr, :end, :ref_seq, :start, :allele_id, :mod_type
 
-  validates :trace_call, :presence => true
+  validates :allele, :presence => true
 end
 
 # == Schema Information
 #
-# Table name: trace_call_vcf_modifications
+# Table name: allele_call_vcf_modifications
 #
 #  id            :integer          not null, primary key
-#  trace_call_id :integer          not null
+#  allele_call_id :integer          not null
 #  mod_type      :string(255)      not null
 #  chr           :string(255)      not null
 #  start         :integer          not null

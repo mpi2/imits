@@ -10,8 +10,6 @@ class MouseAlleleMod < ApplicationModel
   include ApplicationModel::BelongsToMiPlan
 
   belongs_to :parent_colony, :class_name => 'Colony'
-  belongs_to :allele
-  belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :status
   belongs_to :deleter_strain
@@ -24,7 +22,7 @@ class MouseAlleleMod < ApplicationModel
   access_association_by_attribute :status, :name
 
 
-  ColonyQc::QC_FIELDS.each do |qc_field|
+  ProductionCentreQc::QC_FIELDS.each do |qc_field|
 
     define_method("#{qc_field}_result=") do |arg|
       instance_variable_set("@#{qc_field}_result",arg)
@@ -33,8 +31,8 @@ class MouseAlleleMod < ApplicationModel
     define_method("#{qc_field}_result") do
       if !instance_variable_get("@#{qc_field}_result").blank?
         return instance_variable_get("@#{qc_field}_result")
-      elsif !colony.blank? and !colony.try(:colony_qc).try(qc_field.to_sym).blank?
-        return colony.colony_qc.send(qc_field)
+      elsif !colony.blank? && !colony.alleles.blank? && !colony.alleles.first.try(:production_centre_qc).blank? && !colony.alleles.first.try(:production_centre_qc).try(qc_field.to_sym).blank?
+        return colony.alleles.first.production_centre_qc.send(qc_field)
       else
         return 'na'
       end
@@ -189,7 +187,7 @@ class MouseAlleleMod < ApplicationModel
 
 ## BEFORE VALIDATION FUNCTIONS
   def set_blank_qc_fields_to_na
-    ColonyQc::QC_FIELDS.each do |qc_field|
+    ProductionCentreQc::QC_FIELDS.each do |qc_field|
       if self.send("#{qc_field}_result").blank?
         self.send("#{qc_field}_result=", 'na')
       end
@@ -220,8 +218,6 @@ class MouseAlleleMod < ApplicationModel
     end
 
     colony_attr_hash[:background_strain_name] = colony_background_strain_name
-    colony_attr_hash[:allele_type] = mouse_allele_type
-
     colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?
 
     if self.status.try(:code) == 'cec'
@@ -230,11 +226,15 @@ class MouseAlleleMod < ApplicationModel
       colony_attr_hash[:genotype_confirmed] = false
     end
 
-    colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
+    colony_attr_hash[:alleles_attributes] = {} if !colony_attr_hash.has_key?(:alleles_attributes)
+    allele_attr_hash = colony_attr_hash[:alleles_attributes].first
+    allele_attr_hash[:allele_type] = mouse_allele_type 
 
-    ColonyQc::QC_FIELDS.each do |qc_field|
-      if colony.try(:colony_qc).blank? or self.send("#{qc_field}_result") != colony.colony_qc.send(qc_field)
-        colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
+    allele_attr_hash[:production_centre_qc_attributes] = {} if !allele_attr_hash.has_key?(:production_centre_qc_attributes)
+
+    ProductionCentreQc::QC_FIELDS.each do |qc_field|
+      if allele_attr_hash[:production_centre_qc_attributes].blank? or self.send("#{qc_field}_result") != allele_attr_hash[:production_centre_qc_attributes]["#{qc_field}".to_sym]
+        allele_attr_hash[:production_centre_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
       end
     end
 
@@ -245,7 +245,7 @@ class MouseAlleleMod < ApplicationModel
 
   def mouse_allele_type
     return @mouse_allele_type unless @mouse_allele_type.nil?
-    return colony.allele_type unless colony.blank?
+    return colony.alleles.first.allele_type unless colony.blank? || colony.alleles.blank?
     return nil
   end
 
@@ -337,6 +337,5 @@ end
 #  created_at                       :datetime         not null
 #  updated_at                       :datetime         not null
 #  allele_id                        :integer
-#  real_allele_id                   :integer
 #  parent_colony_id                 :integer
 #

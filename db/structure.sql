@@ -694,6 +694,59 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE alleles (
+    id integer NOT NULL,
+    colony_id integer NOT NULL,
+    allele_confirmed boolean DEFAULT false NOT NULL,
+    mgi_allele_symbol_without_impc_abbreviation boolean,
+    mgi_allele_symbol_superscript character varying(255),
+    mgi_allele_accession_id character varying(255),
+    allele_type character varying(255),
+    auto_allele_description text,
+    allele_description text,
+    mutant_fa text,
+    reference_fa text,
+    mutant_protein_fa text,
+    reference_protein_fa text,
+    alignment text,
+    filtered_analysis_vcf text,
+    merged_variants_vcf text,
+    variant_effect_predictor_output text,
+    primer_reads_fa text,
+    alignment_data_yaml text,
+    trace_output text,
+    trace_error text,
+    exception_details text,
+    return_code integer,
+    exon_id character varying(255),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: alleles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE alleles_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: alleles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE alleles_id_seq OWNED BY alleles.id;
+
+
+--
 -- Name: audits; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -779,20 +832,9 @@ CREATE TABLE colonies (
     mi_attempt_id integer,
     genotype_confirmed boolean DEFAULT false,
     report_to_public boolean DEFAULT false,
-    unwanted_allele boolean DEFAULT false,
-    allele_description text,
-    mgi_allele_id character varying(255),
-    allele_name character varying(255),
     mouse_allele_mod_id integer,
-    mgi_allele_symbol_superscript character varying(255),
-    allele_symbol_superscript_template character varying(255),
-    allele_type character varying(255),
     background_strain_id integer,
-    allele_description_summary text,
-    auto_allele_description text,
-    mgi_allele_symbol_without_impc_abbreviation boolean DEFAULT false,
-    private boolean DEFAULT false NOT NULL,
-    crispr_allele_category character varying(255)
+    mgi_allele_symbol_without_impc_abbreviation boolean DEFAULT false
 );
 
 
@@ -852,51 +894,6 @@ CREATE SEQUENCE colony_distribution_centres_id_seq
 --
 
 ALTER SEQUENCE colony_distribution_centres_id_seq OWNED BY colony_distribution_centres.id;
-
-
---
--- Name: colony_qcs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE colony_qcs (
-    id integer NOT NULL,
-    colony_id integer NOT NULL,
-    qc_southern_blot character varying(255) NOT NULL,
-    qc_five_prime_lr_pcr character varying(255) NOT NULL,
-    qc_five_prime_cassette_integrity character varying(255) NOT NULL,
-    qc_tv_backbone_assay character varying(255) NOT NULL,
-    qc_neo_count_qpcr character varying(255) NOT NULL,
-    qc_lacz_count_qpcr character varying(255) NOT NULL,
-    qc_neo_sr_pcr character varying(255) NOT NULL,
-    qc_loa_qpcr character varying(255) NOT NULL,
-    qc_homozygous_loa_sr_pcr character varying(255) NOT NULL,
-    qc_lacz_sr_pcr character varying(255) NOT NULL,
-    qc_mutant_specific_sr_pcr character varying(255) NOT NULL,
-    qc_loxp_confirmation character varying(255) NOT NULL,
-    qc_three_prime_lr_pcr character varying(255) NOT NULL,
-    qc_critical_region_qpcr character varying(255) NOT NULL,
-    qc_loxp_srpcr character varying(255) NOT NULL,
-    qc_loxp_srpcr_and_sequencing character varying(255) NOT NULL
-);
-
-
---
--- Name: colony_qcs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE colony_qcs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: colony_qcs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE colony_qcs_id_seq OWNED BY colony_qcs.id;
 
 
 --
@@ -1700,7 +1697,6 @@ CREATE TABLE mi_attempts (
     crsp_no_founder_pups integer,
     crsp_num_founders_selected_for_breading integer,
     allele_id integer,
-    real_allele_id integer,
     founder_num_assays integer,
     assay_type text,
     experimental boolean DEFAULT false NOT NULL,
@@ -1714,8 +1710,7 @@ CREATE TABLE mi_attempts (
     voltage double precision,
     number_of_pulses integer,
     crsp_embryo_transfer_day character varying(255) DEFAULT 'Same Day'::character varying,
-    crsp_embryo_2_cell integer,
-    privacy character varying(255) DEFAULT 'Share all Allele(s)'::character varying NOT NULL
+    crsp_embryo_2_cell integer
 );
 
 
@@ -2076,7 +2071,6 @@ CREATE TABLE mouse_allele_mods (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     allele_id integer,
-    real_allele_id integer,
     parent_colony_id integer
 );
 
@@ -2101,23 +2095,21 @@ ALTER SEQUENCE mouse_allele_mods_id_seq OWNED BY mouse_allele_mods.id;
 
 
 --
--- Name: mutagenesis_factor_vectors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mutagenesis_alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE TABLE mutagenesis_factor_vectors (
+CREATE TABLE mutagenesis_alleles (
     id integer NOT NULL,
-    mutagenesis_factor_id integer NOT NULL,
-    vector_id integer,
-    concentration double precision,
-    preparation character varying(255)
+    allele_id integer NOT NULL,
+    mutagenesis_factor_id integer NOT NULL
 );
 
 
 --
--- Name: mutagenesis_factor_vectors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: mutagenesis_alleles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mutagenesis_factor_vectors_id_seq
+CREATE SEQUENCE mutagenesis_alleles_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2126,10 +2118,43 @@ CREATE SEQUENCE mutagenesis_factor_vectors_id_seq
 
 
 --
--- Name: mutagenesis_factor_vectors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: mutagenesis_alleles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mutagenesis_factor_vectors_id_seq OWNED BY mutagenesis_factor_vectors.id;
+ALTER SEQUENCE mutagenesis_alleles_id_seq OWNED BY mutagenesis_alleles.id;
+
+
+--
+-- Name: mutagenesis_factor_donors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE mutagenesis_factor_donors (
+    id integer NOT NULL,
+    mutagenesis_factor_id integer NOT NULL,
+    vector_id integer,
+    concentration double precision,
+    preparation character varying(255),
+    oligo_sequence_fa text
+);
+
+
+--
+-- Name: mutagenesis_factor_donors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE mutagenesis_factor_donors_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: mutagenesis_factor_donors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE mutagenesis_factor_donors_id_seq OWNED BY mutagenesis_factor_donors.id;
 
 
 --
@@ -2148,8 +2173,7 @@ CREATE TABLE mutagenesis_factors (
     no_hr_g0_mutants integer,
     no_hdr_g0_mutants integer,
     no_hdr_g0_mutants_all_donors_inserted integer,
-    no_hdr_g0_mutants_subset_donors_inserted integer,
-    private boolean DEFAULT false NOT NULL
+    no_hdr_g0_mutants_subset_donors_inserted integer
 );
 
 
@@ -2374,6 +2398,51 @@ CREATE SEQUENCE pipelines_id_seq
 --
 
 ALTER SEQUENCE pipelines_id_seq OWNED BY pipelines.id;
+
+
+--
+-- Name: production_centre_qcs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE production_centre_qcs (
+    id integer NOT NULL,
+    qc_southern_blot character varying(255) NOT NULL,
+    qc_five_prime_lr_pcr character varying(255) NOT NULL,
+    qc_five_prime_cassette_integrity character varying(255) NOT NULL,
+    qc_tv_backbone_assay character varying(255) NOT NULL,
+    qc_neo_count_qpcr character varying(255) NOT NULL,
+    qc_lacz_count_qpcr character varying(255) NOT NULL,
+    qc_neo_sr_pcr character varying(255) NOT NULL,
+    qc_loa_qpcr character varying(255) NOT NULL,
+    qc_homozygous_loa_sr_pcr character varying(255) NOT NULL,
+    qc_lacz_sr_pcr character varying(255) NOT NULL,
+    qc_mutant_specific_sr_pcr character varying(255) NOT NULL,
+    qc_loxp_confirmation character varying(255) NOT NULL,
+    qc_three_prime_lr_pcr character varying(255) NOT NULL,
+    qc_critical_region_qpcr character varying(255) NOT NULL,
+    qc_loxp_srpcr character varying(255) NOT NULL,
+    qc_loxp_srpcr_and_sequencing character varying(255) NOT NULL,
+    allele_id integer
+);
+
+
+--
+-- Name: production_centre_qcs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE production_centre_qcs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: production_centre_qcs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE production_centre_qcs_id_seq OWNED BY production_centre_qcs.id;
 
 
 --
@@ -2657,9 +2726,7 @@ CREATE TABLE targ_rep_alleles (
     taqman_critical_del_assay_id character varying(255),
     taqman_upstream_del_assay_id character varying(255),
     taqman_downstream_del_assay_id character varying(255),
-    wildtype_oligos_sequence character varying(255),
-    private boolean DEFAULT false NOT NULL,
-    production_centre_id integer
+    wildtype_oligos_sequence character varying(255)
 );
 
 
@@ -2886,8 +2953,7 @@ CREATE TABLE targ_rep_es_cells (
     user_qc_chr8 character varying(255),
     user_qc_chry character varying(255),
     user_qc_lacz_qpcr character varying(255),
-    ikmc_project_foreign_id integer,
-    real_allele_id integer
+    ikmc_project_foreign_id integer
 );
 
 
@@ -3188,38 +3254,6 @@ ALTER SEQUENCE targ_rep_pipelines_id_seq OWNED BY targ_rep_pipelines.id;
 
 
 --
--- Name: targ_rep_real_alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE targ_rep_real_alleles (
-    id integer NOT NULL,
-    gene_id integer NOT NULL,
-    allele_name character varying(40) NOT NULL,
-    allele_type character varying(10),
-    mgi_accession_id character varying(255)
-);
-
-
---
--- Name: targ_rep_real_alleles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE targ_rep_real_alleles_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: targ_rep_real_alleles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE targ_rep_real_alleles_id_seq OWNED BY targ_rep_real_alleles.id;
-
-
---
 -- Name: targ_rep_sequence_annotation; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -3292,94 +3326,11 @@ ALTER SEQUENCE targ_rep_targeting_vectors_id_seq OWNED BY targ_rep_targeting_vec
 
 
 --
--- Name: trace_call_vcf_modifications; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE trace_call_vcf_modifications (
-    id integer NOT NULL,
-    trace_call_id integer NOT NULL,
-    mod_type character varying(255) NOT NULL,
-    chr character varying(255) NOT NULL,
-    start integer NOT NULL,
-    "end" integer NOT NULL,
-    ref_seq text NOT NULL,
-    alt_seq text NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE trace_call_vcf_modifications_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE trace_call_vcf_modifications_id_seq OWNED BY trace_call_vcf_modifications.id;
-
-
---
--- Name: trace_calls; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE trace_calls (
-    id integer NOT NULL,
-    colony_id integer NOT NULL,
-    mutagenesis_factor_id integer NOT NULL,
-    file_alignment text,
-    file_filtered_analysis_vcf text,
-    file_variant_effect_output_txt text,
-    file_reference_fa text,
-    file_mutant_fa text,
-    file_primer_reads_fa text,
-    file_alignment_data_yaml text,
-    file_trace_output text,
-    file_trace_error text,
-    file_exception_details text,
-    file_return_code integer,
-    file_merged_variants_vcf text,
-    exon_id character varying(255),
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: trace_calls_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE trace_calls_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: trace_calls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE trace_calls_id_seq OWNED BY trace_calls.id;
-
-
---
 -- Name: trace_files; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE trace_files (
     id integer NOT NULL,
-    colony_id integer NOT NULL,
     is_het boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -3387,7 +3338,7 @@ CREATE TABLE trace_files (
     trace_content_type character varying(255),
     trace_file_size integer,
     trace_updated_at timestamp without time zone,
-    mutagenesis_factor_id integer
+    allele_id integer
 );
 
 
@@ -3523,6 +3474,50 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 --
+-- Name: vcf_modifications; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE vcf_modifications (
+    id integer NOT NULL,
+    mod_type character varying(255) NOT NULL,
+    chr character varying(255) NOT NULL,
+    start integer NOT NULL,
+    "end" integer NOT NULL,
+    ref_seq text NOT NULL,
+    alt_seq text NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    allele_id integer
+);
+
+
+--
+-- Name: vcf_modifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE vcf_modifications_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: vcf_modifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE vcf_modifications_id_seq OWNED BY vcf_modifications.id;
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY alleles ALTER COLUMN id SET DEFAULT nextval('alleles_id_seq'::regclass);
+
+
+--
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -3548,13 +3543,6 @@ ALTER TABLE ONLY colonies ALTER COLUMN id SET DEFAULT nextval('colonies_id_seq':
 --
 
 ALTER TABLE ONLY colony_distribution_centres ALTER COLUMN id SET DEFAULT nextval('colony_distribution_centres_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY colony_qcs ALTER COLUMN id SET DEFAULT nextval('colony_qcs_id_seq'::regclass);
 
 
 --
@@ -3743,7 +3731,14 @@ ALTER TABLE ONLY mouse_allele_mods ALTER COLUMN id SET DEFAULT nextval('mouse_al
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mutagenesis_factor_vectors ALTER COLUMN id SET DEFAULT nextval('mutagenesis_factor_vectors_id_seq'::regclass);
+ALTER TABLE ONLY mutagenesis_alleles ALTER COLUMN id SET DEFAULT nextval('mutagenesis_alleles_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mutagenesis_factor_donors ALTER COLUMN id SET DEFAULT nextval('mutagenesis_factor_donors_id_seq'::regclass);
 
 
 --
@@ -3793,6 +3788,13 @@ ALTER TABLE ONLY phenotyping_productions ALTER COLUMN id SET DEFAULT nextval('ph
 --
 
 ALTER TABLE ONLY pipelines ALTER COLUMN id SET DEFAULT nextval('pipelines_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY production_centre_qcs ALTER COLUMN id SET DEFAULT nextval('production_centre_qcs_id_seq'::regclass);
 
 
 --
@@ -3946,13 +3948,6 @@ ALTER TABLE ONLY targ_rep_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_re
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_real_alleles ALTER COLUMN id SET DEFAULT nextval('targ_rep_real_alleles_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY targ_rep_sequence_annotation ALTER COLUMN id SET DEFAULT nextval('targ_rep_sequence_annotation_id_seq'::regclass);
 
 
@@ -3961,20 +3956,6 @@ ALTER TABLE ONLY targ_rep_sequence_annotation ALTER COLUMN id SET DEFAULT nextva
 --
 
 ALTER TABLE ONLY targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval('targ_rep_targeting_vectors_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY trace_call_vcf_modifications ALTER COLUMN id SET DEFAULT nextval('trace_call_vcf_modifications_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY trace_calls ALTER COLUMN id SET DEFAULT nextval('trace_calls_id_seq'::regclass);
 
 
 --
@@ -4003,6 +3984,21 @@ ALTER TABLE ONLY tracking_goals ALTER COLUMN id SET DEFAULT nextval('tracking_go
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY vcf_modifications ALTER COLUMN id SET DEFAULT nextval('vcf_modifications_id_seq'::regclass);
+
+
+--
+-- Name: alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY alleles
+    ADD CONSTRAINT alleles_pkey PRIMARY KEY (id);
 
 
 --
@@ -4041,7 +4037,7 @@ ALTER TABLE ONLY colony_distribution_centres
 -- Name: colony_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY colony_qcs
+ALTER TABLE ONLY production_centre_qcs
     ADD CONSTRAINT colony_qcs_pkey PRIMARY KEY (id);
 
 
@@ -4254,10 +4250,18 @@ ALTER TABLE ONLY mouse_allele_mods
 
 
 --
+-- Name: mutagenesis_alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY mutagenesis_alleles
+    ADD CONSTRAINT mutagenesis_alleles_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: mutagenesis_factor_vectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY mutagenesis_factor_vectors
+ALTER TABLE ONLY mutagenesis_factor_donors
     ADD CONSTRAINT mutagenesis_factor_vectors_pkey PRIMARY KEY (id);
 
 
@@ -4486,14 +4490,6 @@ ALTER TABLE ONLY targ_rep_pipelines
 
 
 --
--- Name: targ_rep_real_alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY targ_rep_real_alleles
-    ADD CONSTRAINT targ_rep_real_alleles_pkey PRIMARY KEY (id);
-
-
---
 -- Name: targ_rep_sequence_annotation_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -4513,7 +4509,7 @@ ALTER TABLE ONLY targ_rep_targeting_vectors
 -- Name: trace_call_vcf_modifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY trace_call_vcf_modifications
+ALTER TABLE ONLY vcf_modifications
     ADD CONSTRAINT trace_call_vcf_modifications_pkey PRIMARY KEY (id);
 
 
@@ -4523,14 +4519,6 @@ ALTER TABLE ONLY trace_call_vcf_modifications
 
 ALTER TABLE ONLY trace_files
     ADD CONSTRAINT trace_calls_pkey PRIMARY KEY (id);
-
-
---
--- Name: trace_calls_pkey1; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY trace_calls
-    ADD CONSTRAINT trace_calls_pkey1 PRIMARY KEY (id);
 
 
 --
@@ -4604,13 +4592,6 @@ CREATE INDEX index_audits_on_created_at ON audits USING btree (created_at);
 --
 
 CREATE UNIQUE INDEX index_centres_on_name ON centres USING btree (name);
-
-
---
--- Name: index_colony_qcs_on_colony_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX index_colony_qcs_on_colony_id ON colony_qcs USING btree (colony_id);
 
 
 --
@@ -5055,13 +5036,6 @@ CREATE UNIQUE INDEX mouse_allele_mod_colony_name_uniqueness_index ON colonies US
 
 
 --
--- Name: real_allele_logical_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE UNIQUE INDEX real_allele_logical_key ON targ_rep_real_alleles USING btree (gene_id, allele_name);
-
-
---
 -- Name: targ_rep_index_es_cells_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -5110,14 +5084,6 @@ ALTER TABLE ONLY colonies
 
 ALTER TABLE ONLY colonies
     ADD CONSTRAINT colonies_mouse_allele_mod_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
-
-
---
--- Name: colony_qcs_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY colony_qcs
-    ADD CONSTRAINT colony_qcs_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
 
 
 --
@@ -5174,14 +5140,6 @@ ALTER TABLE ONLY mi_attempts
 
 ALTER TABLE ONLY mi_attempts
     ADD CONSTRAINT mi_attempts_targ_rep_allele_id_fk FOREIGN KEY (allele_id) REFERENCES targ_rep_alleles(id);
-
-
---
--- Name: mi_attempts_targ_rep_real_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY mi_attempts
-    ADD CONSTRAINT mi_attempts_targ_rep_real_allele_id_fk FOREIGN KEY (real_allele_id) REFERENCES targ_rep_real_alleles(id);
 
 
 --
@@ -5329,14 +5287,6 @@ ALTER TABLE ONLY mouse_allele_mods
 
 
 --
--- Name: mouse_allele_mods_targ_rep_real_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY mouse_allele_mods
-    ADD CONSTRAINT mouse_allele_mods_targ_rep_real_allele_id_fk FOREIGN KEY (real_allele_id) REFERENCES targ_rep_real_alleles(id);
-
-
---
 -- Name: notifications_contact_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5393,14 +5343,6 @@ ALTER TABLE ONLY targ_rep_allele_sequence_annotations
 
 
 --
--- Name: targ_rep_es_cells_targ_rep_real_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY targ_rep_es_cells
-    ADD CONSTRAINT targ_rep_es_cells_targ_rep_real_allele_id_fk FOREIGN KEY (real_allele_id) REFERENCES targ_rep_real_alleles(id);
-
-
---
 -- Name: targ_rep_es_cells_user_qc_mouse_clinic_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5422,30 +5364,6 @@ ALTER TABLE ONLY targ_rep_genotype_primers
 
 ALTER TABLE ONLY targ_rep_genotype_primers
     ADD CONSTRAINT targ_rep_genotype_primers_mutagenesis_factor_id_fk FOREIGN KEY (mutagenesis_factor_id) REFERENCES mutagenesis_factors(id);
-
-
---
--- Name: targ_rep_real_alleles_gene_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY targ_rep_real_alleles
-    ADD CONSTRAINT targ_rep_real_alleles_gene_id_fk FOREIGN KEY (gene_id) REFERENCES genes(id);
-
-
---
--- Name: trace_call_vcf_modifications_trace_calls_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY trace_call_vcf_modifications
-    ADD CONSTRAINT trace_call_vcf_modifications_trace_calls_fk FOREIGN KEY (trace_call_id) REFERENCES trace_files(id);
-
-
---
--- Name: trace_calls_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY trace_files
-    ADD CONSTRAINT trace_calls_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
 
 
 --
@@ -5888,8 +5806,6 @@ INSERT INTO schema_migrations (version) VALUES ('201604011125302');
 
 INSERT INTO schema_migrations (version) VALUES ('20160602105302');
 
+INSERT INTO schema_migrations (version) VALUES ('20160905105302');
+
 INSERT INTO schema_migrations (version) VALUES ('20160906105302');
-
-INSERT INTO schema_migrations (version) VALUES ('20160927105302');
-
-INSERT INTO schema_migrations (version) VALUES ('20161027105302');

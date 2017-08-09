@@ -3,17 +3,17 @@ class MutagenesisFactor < ActiveRecord::Base
 
   NUCLEASES = [nil, 'CAS9', 'D10A'].freeze
 
-  attr_accessible :crisprs_attributes, :genotype_primers_attributes, :external_ref, :grna_concentration, :individually_set_grna_concentrations, :crisprs_attributes, :vectors_attributes
+  attr_accessible :crisprs_attributes, :genotype_primers_attributes, :external_ref, :grna_concentration, :individually_set_grna_concentrations, :crisprs_attributes, :donors_attributes
 
   # NOTE! make sure that the crispr association always appears above the mi_attempt association. Changing the order will prevent the mi_attempt from saving. This results from the implimention of the nested_attributes method
   has_many :crisprs, :class_name => 'TargRep::Crispr', :inverse_of => :mutagenesis_factor, dependent: :destroy
-  has_many :vectors, :class_name => 'MutagenesisFactor::Vector', dependent: :destroy
+  has_many :donors, :class_name => 'MutagenesisFactor::Donor', dependent: :destroy
   has_many :genotype_primers, :class_name => 'TargRep::GenotypePrimer', :inverse_of => :mutagenesis_factor, dependent: :destroy
 
   has_one :mi_attempt, :inverse_of => :mutagenesis_factor
 
   accepts_nested_attributes_for :crisprs
-  accepts_nested_attributes_for :vectors, :allow_destroy => true
+  accepts_nested_attributes_for :donors, :allow_destroy => true
   accepts_nested_attributes_for :genotype_primers, :allow_destroy => true
 
   delegate :marker_symbol, :to => :mi_attempt
@@ -69,8 +69,8 @@ class MutagenesisFactor < ActiveRecord::Base
     return crisprs
   end
 
-  def vectors_attributes
-    return vectors
+  def donors_attributes
+    return donors
   end
 
   def genotype_primers_attributes
@@ -94,5 +94,4 @@ end
 #  no_hdr_g0_mutants                        :integer
 #  no_hdr_g0_mutants_all_donors_inserted    :integer
 #  no_hdr_g0_mutants_subset_donors_inserted :integer
-#  private                                  :boolean          default(FALSE), not null
 #

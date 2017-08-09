@@ -1,14 +1,217 @@
-class TraceCall < ActiveRecord::Base
+class Allele < ActiveRecord::Base
+  include ::Public::Serializable
 
   acts_as_audited
   acts_as_reportable
 
-  belongs_to :colony
-  belongs_to :mutagenesis_factor
-  has_many :trace_call_vcf_modifications
+  FULL_ACCESS_ATTRIBUTES = %w{
+    mgi_allele_symbol_without_impc_abbreviation
+    mgi_allele_symbol_superscript
+    mgi_allele_accession_id
+    allele_type
+    auto_allele_description
+    allele_description
+    mutant_fa
+    production_centre_qc_attributes
+  }
 
+  READABLE_ATTRIBUTES = %w{
+    id
+  }
+
+  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
+
+  belongs_to :colony
+  belongs_to :es_cell, :class_name => 'TargRepEsCell'
+
+  has_many :vcf_modifications
+
+  has_one :production_centre_qc, :inverse_of => :allele, :dependent => :destroy
+
+  accepts_nested_attributes_for :production_centre_qc, :update_only =>true
+
+
+  validates :allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys + CRISPR_MOUSE_ALLELE_OPTIONS.keys }
+  validate :set_allele_symbol_superscript
+  validates_format_of :mgi_allele_accession_id,
+    :with      => /^MGI\:\d+$/,
+    :message   => "is not a valid MGI Allele ID",
+    :allow_nil => true
+
+  def production_centre_qc_attributes
+    json_options = {
+    :except => ['id']
+    }
+    return mutagenesis_factor.as_json(json_options)
+  end
   # before_save :check_changed
   # after_save :change_colony_allele_description
+
+
+#  validate do |colony|
+#    return if mi_attempt_id.blank? && mouse_allele_mod_id.blank?
+#    if !mgi_allele_symbol_superscript.blank?
+#      mi_attempt = self.mi_attempt || mouse_allele_mod.parent_colony.mi_attempt
+#      
+#      if mi_attempt.es_cell.blank?
+#
+#        if mgi_allele_symbol_without_impc_abbreviation == false && /em\d*/
+#          colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}{ILAR code} e.g. em1J"
+#          colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
+#        elsif /em\d+(IMPC)*/
+#          colony.errors.add :mgi_allele_symbol_superscript, "is invalid. Must have the following format em{Serial number from the laboratory of origin}(IMPC){ILAR code} e.g. em1(IMPC)J"
+#          colony.errors.add :mgi_allele_symbol_superscript, "must contain IMPC unless marked project abbreviation."       
+#        end
+#      else
+#
+#
+#      end
+#     
+#     mgi_allele_symbol_without_impc_abbreviation == true
+#      colony.errors.add :mgi_allele_symbol_superscript, "cannot be blank if mouse colony has been set to Genotype Confirmed."
+#    end
+#  end
+
+#  def get_template
+#    return allele_symbol_superscript_template unless allele_symbol_superscript_template.blank?
+#
+#    if mi_attempt_id
+#
+#      if mi_attempt.es_cell_id
+#        return mi_attempt.es_cell.allele_symbol_superscript_template
+#      elsif mi_attempt.mutagenesis_factor && !mgi_allele_symbol_superscript.blank?
+#          return mgi_allele_symbol_superscript
+#      else
+#        return nil
+#      end
+#
+#    elsif mouse_allele_mod_id
+#
+#      return mouse_allele_mod.try(:parent_colony).try(:get_template)
+#
+#    else
+#      return nil
+#    end
+#  end
+# # protected :get_template
+#
+#  def get_type
+#    return allele_type unless allele_type.nil?
+#
+#    if mi_attempt_id
+#
+#      if mi_attempt.es_cell_id
+#        return mi_attempt.es_cell.allele_type
+#      else
+#        return 'None'
+#      end
+#
+#    elsif mouse_allele_mod_id
+#
+#      return mouse_allele_mod.try(:parent_colony).try(:get_type)
+#
+#    else
+#      return 'None'
+#    end
+#  end
+  #protected :get_type
+
+#  def set_allele_symbol_superscript
+#    return if self.allele_symbol_superscript_template_changed?
+#
+#    if self.mgi_allele_symbol_superscript.blank? || self.mgi_allele_symbol_superscript =~ /em/
+#      self.allele_symbol_superscript_template = nil
+#      return
+#    end
+#
+#    # if targeted allele.
+#    new_template, new_allele_type, errors = TargRep::Allele.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
+#
+#    #prevent MGI from incorrectly overiding the allele name if the allele type does not match that stated by the centres.
+#    if !self.allele_type.nil? && self.allele_type == new_allele_type
+#      self.allele_symbol_superscript_template = new_template
+#    else
+#      self.mgi_allele_symbol_superscript = nil
+#    end
+#
+#    if errors.count > 0
+#      self.errors.add errors.first[0], errors.first[1]
+#    end
+#  end
+#
+#
+#  def allele_symbol_superscript
+#    template = get_template
+#    type = get_type.to_s
+#
+#    return nil if template.nil?
+#
+#    if template =~ /#{TargRep::Allele::TEMPLATE_CHARACTER}/
+#      if type == 'None'
+#        return nil
+#      else
+#        return template.sub(TargRep::Allele::TEMPLATE_CHARACTER, type)
+#      end
+#    else
+#      return template
+#    end
+#  end
+
+#  def allele_symbol
+#    if allele_symbol_superscript
+#      return "#{self.gene.marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
+#    else
+#      return nil
+#    end
+#  end
+
+
+  #### may not work, should this be in trace call model
+#  def get_mutant_nucleotide_sequence_features
+#    unless allele_call.allele_call_vcf_modifications.count > 0
+#      if allele_call.file_filtered_analysis_vcf
+#        vcf_data = allele_call.parse_filtered_vcf_file
+#        if vcf_data && vcf_data.length > 0
+#          vcf_data.each do |vcf_feature|
+#            if vcf_feature.length >= 6
+#              tc_mod = TraceCallVcfModification.new(
+#                :allele_call_id => allele_call.id,
+#                :mod_type      => vcf_feature['mod_type'],
+#                :chr           => vcf_feature['chr'],
+#                :start         => vcf_feature['start'],
+#                :end           => vcf_feature['end'],
+#                :ref_seq       => vcf_feature['ref_seq'],
+#                :alt_seq       => vcf_feature['alt_seq']
+#              )
+#              tc_mod.save!
+#            else
+#              puts "ERROR: unexpected length of VCF data for trace call id #{self.id}"
+#            end
+#          end
+#        end
+#      end
+#    end
+#
+#    mut_seq_features = []
+#
+#    allele_call.allele_call_vcf_modifications.each do |tc_mod|
+#      mut_seq_feature = {
+#        'chr'          => mi_attempt.mi_plan.gene.chr,
+#        'strand'       => mi_attempt.mi_plan.gene.strand_name,
+#        'start'        => tc_mod.start,
+#        'end'          => tc_mod.end,
+#        'ref_sequence' => tc_mod.ref_seq,
+#        'alt_sequence' => tc_mod.alt_seq,
+#        'sequence'     => tc_mod.alt_seq,
+#        'mod_type'     => tc_mod.mod_type
+#      }
+#      mut_seq_features.push( mut_seq_feature.as_json )
+#    end
+#
+#    return mut_seq_features
+#  end
+
+
 
 ### CALLBACK METHODS
 
@@ -27,10 +230,10 @@ class TraceCall < ActiveRecord::Base
   #   allele_mutation_summary = {}
 
   #   [colony.trace_call].each do |tc|
-  #     next if tc.trace_call_vcf_modifications.count == 0
+  #     next if tc.allele_call_vcf_modifications.count == 0
 
   #     allele_mutation_summary[self.exon_id] = {'ins' => 0, 'del' => 0}
-  #     tc.trace_call_vcf_modifications.each do |tcvm|
+  #     tc.allele_call_vcf_modifications.each do |tcvm|
 
   #       next unless ['ins', 'del'].include?(tcvm.mod_type)
   #       allele_mutation_summary[self.exon_id][tcvm.mod_type] += (tcvm.alt_seq.length - tcvm.ref_seq.length).abs
@@ -50,14 +253,6 @@ class TraceCall < ActiveRecord::Base
 
 
 ### VALIDATION METHODS
-
-  validate :colony, :presence => true
-  validate :mutagenesis_factor, :presence => true
-
-
-
-
-
 
   # SYNC                 = false
   # VERBOSE              = false
@@ -205,7 +400,7 @@ class TraceCall < ActiveRecord::Base
 
   #   self.file_alignment                 = save_file "#{output_trace_call_dir}/alignment.txt"
   #   self.file_filtered_analysis_vcf     = save_file "#{output_trace_call_dir}/filtered_analysis.vcf"
-  #   self.file_variant_effect_output_txt = save_file "#{output_trace_call_dir}/variant_effect_output.txt"
+  #   self.variant_effect_predictor_output = save_file "#{output_trace_call_dir}/variant_effect_output.txt"
   #   self.file_reference_fa              = save_file "#{output_trace_call_dir}/reference.fa"
   #   self.file_mutant_fa                 = save_file "#{output_trace_call_dir}/mutated.fa"
   #   self.file_alignment_data_yaml       = save_file "#{output_trace_call_dir}/alignment_data.yaml"
@@ -335,9 +530,9 @@ class TraceCall < ActiveRecord::Base
 
   # def parse_filtered_vep_file
 
-  #   return if self.file_variant_effect_output_txt.blank?
+  #   return if self.variant_effect_predictor_output.blank?
 
-  #   self.file_variant_effect_output_txt.each_line do |line|
+  #   self.variant_effect_predictor_output.each_line do |line|
   #     stripped_line = line.strip
   #     next if stripped_line[0] == '#'
 
@@ -396,7 +591,7 @@ class TraceCall < ActiveRecord::Base
 
 
   # def get_mutant_nucleotide_sequence_features
-  #   unless trace_call.trace_call_vcf_modifications.count > 0
+  #   unless trace_call.allele_call_vcf_modifications.count > 0
   #     if trace_call.file_filtered_analysis_vcf
   #       vcf_data = trace_call.parse_filtered_vcf_file
   #       if vcf_data && vcf_data.length > 0
@@ -422,7 +617,7 @@ class TraceCall < ActiveRecord::Base
 
   #   mut_seq_features = []
 
-  #   trace_call.trace_call_vcf_modifications.each do |tc_mod|
+  #   trace_call.allele_call_vcf_modifications.each do |tc_mod|
   #     mut_seq_feature = {
   #       'chr'          => mi_attempt.mi_plan.gene.chr,
   #       'strand'       => mi_attempt.mi_plan.gene.strand_name,
@@ -443,24 +638,32 @@ end
 
 # == Schema Information
 #
-# Table name: trace_calls
+# Table name: alleles
 #
-#  id                             :integer          not null, primary key
-#  colony_id                      :integer          not null
-#  mutagenesis_factor_id          :integer          not null
-#  file_alignment                 :text
-#  file_filtered_analysis_vcf     :text
-#  file_variant_effect_output_txt :text
-#  file_reference_fa              :text
-#  file_mutant_fa                 :text
-#  file_primer_reads_fa           :text
-#  file_alignment_data_yaml       :text
-#  file_trace_output              :text
-#  file_trace_error               :text
-#  file_exception_details         :text
-#  file_return_code               :integer
-#  file_merged_variants_vcf       :text
-#  exon_id                        :string(255)
-#  created_at                     :datetime         not null
-#  updated_at                     :datetime         not null
+#  id                                          :integer          not null, primary key
+#  colony_id                                   :integer          not null
+#  allele_confirmed                            :boolean          default(FALSE), not null
+#  mgi_allele_symbol_without_impc_abbreviation :boolean
+#  mgi_allele_symbol_superscript               :string(255)
+#  mgi_allele_accession_id                     :string(255)
+#  allele_type                                 :string(255)
+#  auto_allele_description                     :text
+#  allele_description                          :text
+#  mutant_fa                                   :text
+#  reference_fa                                :text
+#  mutant_protein_fa                           :text
+#  reference_protein_fa                        :text
+#  alignment                                   :text
+#  filtered_analysis_vcf                       :text
+#  merged_variants_vcf                         :text
+#  variant_effect_predictor_output             :text
+#  primer_reads_fa                             :text
+#  alignment_data_yaml                         :text
+#  trace_output                                :text
+#  trace_error                                 :text
+#  exception_details                           :text
+#  return_code                                 :integer
+#  exon_id                                     :string(255)
+#  created_at                                  :datetime         not null
+#  updated_at                                  :datetime         not null
 #

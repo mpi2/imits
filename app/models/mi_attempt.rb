@@ -14,7 +14,6 @@ class MiAttempt < ApplicationModel
   DELIVERY_METHODS = ['Cytoplasmic Injection', 'Pronuclear Injection', 'Electroporation'].freeze
   TRANSFER_DAY = ['Same Day', 'Next Day'].freeze
 
-  belongs_to :real_allele
   belongs_to :mi_plan
   belongs_to :es_cell, :class_name => 'TargRep::EsCell'
   belongs_to :status
@@ -37,19 +36,18 @@ class MiAttempt < ApplicationModel
   access_association_by_attribute :test_cross_strain, :name
   access_association_by_attribute :parent_colony, :name
 
-  ColonyQc::QC_FIELDS.each do |qc_field|
-    belongs_to qc_field, :class_name => 'QcResult'
+
+  ProductionCentreQc::QC_FIELDS.each do |qc_field|
 
     define_method("#{qc_field}_result=") do |arg|
       instance_variable_set("@#{qc_field}_result",arg)
     end
 
     define_method("#{qc_field}_result") do
-      return nil if es_cell.blank?
       if !instance_variable_get("@#{qc_field}_result").blank?
         return instance_variable_get("@#{qc_field}_result")
-      elsif !colony.blank? and !colony.try(:colony_qc).try(qc_field.to_sym).blank?
-        return colony.colony_qc.send(qc_field)
+      elsif !colony.blank? && !colony.alleles.blank? && !colony.alleles.first.try(:production_centre_qc).blank? && !colony.alleles.first.try(:production_centre_qc).try(qc_field.to_sym).blank?
+        return colony.alleles.first.production_centre_qc.send(qc_field)
       else
         return 'na'
       end
@@ -137,9 +135,9 @@ class MiAttempt < ApplicationModel
 
   before_validation do |mi|
     return true unless ( ! mi.colony.blank? ) && ( ! mi.colony.colony_qc.blank? ) && mi.colony.colony_qc.qc_loxp_confirmation_changed?
-    return true if !mi.allele.blank? and mi.allele.mutation_type.try(:code) == 'cki'
+    return true if !mi.es_cell_allele.blank? and mi.es_cell_allele.mutation_type.try(:code) == 'cki'
 
-    if mi.qc_loxp_confirmation_result == 'fail' && mi.allele.mutation_type.try(:allele_code) == 'a'
+    if mi.qc_loxp_confirmation_result == 'fail' && mi.es_cell_allele.mutation_type.try(:allele_code) == 'a'
       self.mouse_allele_type = 'e'
     elsif self.mouse_allele_type == 'e' and (mi.qc_loxp_confirmation_result == 'pass')
       self.mouse_allele_type = nil
@@ -175,18 +173,17 @@ class MiAttempt < ApplicationModel
     return unless self.es_cell_id.blank? # Only continue if mi_attempt belongs to crispr pipeline
 
     crispr_count = self.mutagenesis_factor.crisprs.count
-    vector_count = self.mutagenesis_factor.vectors.count
-    vector_type = self.mutagenesis_factor.vectors.blank? ? nil : self.mutagenesis_factor.vectors.first.vector.try(:allele).try(:type)
+    donor_count = self.mutagenesis_factor.donors.count
+    
 
     self.allele_target =  nil
-    self.allele_target = 'NHEJ' if crispr_count == 1  && vector_count == 0
-    self.allele_target = 'Deletion' if crispr_count >= 2 && [mrna_nuclease, protein_nuclease].include?('CAS9') && vector_count == 0
-    self.allele_target = 'NHEJ' if crispr_count < 3 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
-    self.allele_target = 'Deletion' if crispr_count >= 4 && [mrna_nuclease, protein_nuclease].include?('D10A') && vector_count == 0
-    self.allele_target = 'HDR' if vector_count > 0
-    self.allele_target = 'HR' if vector_count > 0 && (self.mutagenesis_factor.vectors.first.try(:preparation).blank? || self.mutagenesis_factor.vectors.first.try(:preparation) != 'Oligo')
-    self.allele_target = 'HDR' if vector_count > 0 && vector_type == 'TargRep::HdrAllele'
-    self.allele_target = 'HR' if vector_count > 0 && ['TargRep::TargetedAllele', 'TargRep::CrisprTargetedAllele'].include?(vector_type)
+    self.allele_target = 'NHEJ' if crispr_count == 1  && donor_count == 0
+    self.allele_target = 'Deletion' if crispr_count >= 2 && [mrna_nuclease, protein_nuclease].include?('CAS9') && donor_count == 0
+    self.allele_target = 'NHEJ' if crispr_count < 3 && [mrna_nuclease, protein_nuclease].include?('D10A') && donor_count == 0
+    self.allele_target = 'Deletion' if crispr_count >= 4 && [mrna_nuclease, protein_nuclease].include?('D10A') && donor_count == 0
+    self.allele_target = 'HDR' if donor_count > 0
+    self.allele_target = 'HR' if donor_count > 0 && (self.mutagenesis_factor.donors.first.try(:preparation).blank? || self.mutagenesis_factor.donors.first.try(:preparation) != 'Oligo')
+    self.allele_target = 'HR' if donor_count > 0 && self.mutagenesis_factor.donors.any?{|d| !d.vector.blank?}
     
   end
   protected :crispr_autofill_allele_target
@@ -229,7 +226,7 @@ class MiAttempt < ApplicationModel
   end
 
   def set_blank_qc_fields_to_na
-    ColonyQc::QC_FIELDS.each do |qc_field|
+    ProductionCentreQc::QC_FIELDS.each do |qc_field|
       if self.send("#{qc_field}_result").blank?
         self.send("#{qc_field}_result=", 'na')
       end
@@ -295,19 +292,22 @@ class MiAttempt < ApplicationModel
       colony_attr_hash[:background_strain_name] = self.colony_background_strain_name
     end
 
-    if self.mouse_allele_type != colony.try(:allele_type)
-      colony_attr_hash[:allele_type] = self.mouse_allele_type
-    end
-
     colony_attr_hash[:distribution_centres_attributes] = self.distribution_centres_attributes unless self.distribution_centres_attributes.blank?
 
-    colony_attr_hash[:colony_qc_attributes] = {} if !colony_attr_hash.has_key?(:colony_qc_attributes)
 
-    ColonyQc::QC_FIELDS.each do |qc_field|
-      if colony.try(:colony_qc).blank? or self.send("#{qc_field}_result") != colony.colony_qc.send(qc_field)
-        colony_attr_hash[:colony_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
+    colony_attr_hash[:allele_attributes] = {} if !colony_attr_hash.has_key?(:allele_attributes)
+    allele_attr_hash = colony_attr_hash[:allele_attributes]
+
+    allele_attr_hash[:allele_type] = mouse_allele_type
+
+    allele_attr_hash[:production_centre_qc_attributes] = {} if !allele_attr_hash.has_key?(:production_centre_qc_attributes)
+
+    ProductionCentreQc::QC_FIELDS.each do |qc_field|
+      if allele_attr_hash[:production_centre_qc_attributes].blank? or self.send("#{qc_field}_result") != allele_attr_hash[:production_centre_qc_attributes]["#{qc_field}".to_sym]
+        allele_attr_hash[:production_centre_qc_attributes]["#{qc_field}".to_sym] = self.send("#{qc_field}_result")
       end
     end
+
     self.colony_attributes = colony_attr_hash
   end
   protected :manage_colony_for_es_cell_micro_injections_qc_data
@@ -402,12 +402,12 @@ class MiAttempt < ApplicationModel
 
   def mouse_allele_symbol_superscript
     return nil unless colony
-    return colony.allele_symbol_superscript
+    return colony.alleles.first.mgi_allele_symbol_superscript
   end
 
   def mouse_allele_symbol
     return nil unless colony
-    return colony.allele_symbol
+    return colony.alleles.first.allele_symbol
   end
 
   def gene
@@ -420,7 +420,7 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  def allele
+  def es_cell_allele
     if !es_cell.blank?
       return es_cell.allele
     end
@@ -445,7 +445,7 @@ class MiAttempt < ApplicationModel
 
   def mouse_allele_type
     return @mouse_allele_type if defined? @mouse_allele_type
-    return colony.allele_type unless es_cell.blank? || colony.blank?
+    return colony.alleles.try(:allele_type) unless es_cell.blank? || colony.blank? || colony.alleles.blank?
   end
 
   def colony_background_strain
@@ -652,7 +652,6 @@ end
 #  crsp_no_founder_pups                            :integer
 #  crsp_num_founders_selected_for_breading         :integer
 #  allele_id                                       :integer
-#  real_allele_id                                  :integer
 #  founder_num_assays                              :integer
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
@@ -667,7 +666,6 @@ end
 #  number_of_pulses                                :integer
 #  crsp_embryo_transfer_day                        :string(255)      default("Same Day")
 #  crsp_embryo_2_cell                              :integer
-#  privacy                                         :string(255)      default("Share all Allele(s)"), not null
 #
 # Indexes
 #

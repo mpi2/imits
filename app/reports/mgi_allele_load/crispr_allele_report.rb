@@ -54,11 +54,11 @@ class MgiAlleleLoad::CrisprAlleleReport
           GROUP BY mi_attempts.id
         ),
         characterized_alleles AS (
-          SELECT trace_calls.colony_id AS colony_id, trace_calls.file_mutant_fa AS protein_sequence,
-          string_agg( 'Chromosome:' || tcvm.chr || ' Start:' || tcvm.start || ' ' || (CASE WHEN tcvm.mod_type = 'del' THEN 'deletion' WHEN tcvm.mod_type = 'ins' THEN 'insertion' WHEN tcvm.mod_type = 'snp' THEN 'nucleotide_substitutions' ELSE tcvm.mod_type END) || ':' || (tcvm.end - tcvm.start + 1) || 'bp ' || (CASE WHEN tcvm.mod_type = 'del' THEN  'mutation:' || substring( tcvm.ref_seq from 2 for (tcvm.end - tcvm.start + 1) ) WHEN tcvm.mod_type = 'ins' THEN 'mutation:' ||  substring( tcvm.alt_seq from 2 for (tcvm.end - tcvm.start + 1) ) WHEN tcvm.mod_type = 'snp' THEN 'mutation:' || tcvm.ref_seq || '/' || tcvm.alt_seq ELSE '' END), '|') AS molecular_characterization
-          FROM trace_calls
-          JOIN trace_call_vcf_modifications tcvm ON trace_calls.id = tcvm.trace_call_id
-          GROUP BY trace_calls.colony_id, trace_calls.file_mutant_fa
+          SELECT allele_calls.colony_id AS colony_id, allele_calls.mutant_protein_fa AS protein_sequence,
+          string_agg( 'Chromosome:' || acvm.chr || ' Start:' || acvm.start || ' ' || (CASE WHEN acvm.mod_type = 'del' THEN 'deletion' WHEN acvm.mod_type = 'ins' THEN 'insertion' WHEN acvm.mod_type = 'snp' THEN 'nucleotide_substitutions' ELSE acvm.mod_type END) || ':' || (acvm.end - acvm.start + 1) || 'bp ' || (CASE WHEN acvm.mod_type = 'del' THEN  'mutation:' || substring( acvm.ref_seq from 2 for (acvm.end - acvm.start + 1) ) WHEN acvm.mod_type = 'ins' THEN 'mutation:' ||  substring( acvm.alt_seq from 2 for (acvm.end - acvm.start + 1) ) WHEN acvm.mod_type = 'snp' THEN 'mutation:' || acvm.ref_seq || '/' || acvm.alt_seq ELSE '' END), '|') AS molecular_characterization
+          FROM allele_calls
+          JOIN allele_call_vcf_modifications acvm ON allele_calls.id = acvm.allele_call_id
+          GROUP BY allele_calls.colony_id, allele_calls.mutant_protein_fa
         )
 
 

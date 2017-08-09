@@ -438,6 +438,4 @@ end
 #  taqman_upstream_del_assay_id   :string(255)
 #  taqman_downstream_del_assay_id :string(255)
 #  wildtype_oligos_sequence       :string(255)
-#  private                        :boolean          default(FALSE), not null
-#  production_centre_id           :integer
 #

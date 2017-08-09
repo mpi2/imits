@@ -2,7 +2,7 @@
 
 class Colony::DistributionCentre < ApplicationModel
   extend AccessAssociationByAttribute
-  include Public::Serializable
+  include ::Public::Serializable
   include ApplicationModel::DistributionCentre
 
   class Error <  ApplicationModel::ValidationError; end

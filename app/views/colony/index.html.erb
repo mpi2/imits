@@ -4,7 +4,7 @@
 
 <% marker_symbol = colony.mi_attempt.mi_plan.gene.marker_symbol %>
 
-<p><a href="/colony/show/<%= colony.id %>"><%= "#{marker_symbol} - #{colony.name} (#{colony.try(:trace_call).first.try(:trace_file_file_name)})" %></a></p>
+<p><a href="/colony/show/<%= colony.id %>"><%= "#{marker_symbol} - #{colony.name} (#{colony.try(:allele_call).first.try(:trace_file_name)})" %></a></p>
 
 <% end %>
 

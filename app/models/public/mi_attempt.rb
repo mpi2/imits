@@ -236,7 +236,6 @@ end
 #  crsp_no_founder_pups                            :integer
 #  crsp_num_founders_selected_for_breading         :integer
 #  allele_id                                       :integer
-#  real_allele_id                                  :integer
 #  founder_num_assays                              :integer
 #  assay_type                                      :text
 #  experimental                                    :boolean          default(FALSE), not null
@@ -251,7 +250,6 @@ end
 #  number_of_pulses                                :integer
 #  crsp_embryo_transfer_day                        :string(255)      default("Same Day")
 #  crsp_embryo_2_cell                              :integer
-#  privacy                                         :string(255)      default("Share all Allele(s)"), not null
 #
 # Indexes
 #

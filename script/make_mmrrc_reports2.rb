@@ -108,7 +108,7 @@ class MmrrcOriginal
 end
 
 class MmrrcNew
-  FOLDER = Rails.env.production? ?  "/nfs/team87/imits/#{Rails.env}/mmrrc" : "#{Rails.root}/tmp/mmrrc"
+  FOLDER = "#{Rails.root}/tmp/mmrrc"
 
   def run
     hash = {}

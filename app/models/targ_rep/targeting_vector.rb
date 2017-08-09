@@ -10,7 +10,6 @@ class TargRep::TargetingVector < ActiveRecord::Base
 
   belongs_to :pipeline
   belongs_to :allele
-  belongs_to :real_allele
   belongs_to :ikmc_project, :class_name => "TargRep::IkmcProject", :foreign_key => :ikmc_project_foreign_id
   has_many :mutagenesis_factors
 

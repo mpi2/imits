@@ -1056,10 +1056,16 @@ ActiveRecord::Schema.define(:version => 20170728325302) do
   add_index "targ_rep_es_cells", ["pipeline_id"], :name => "es_cells_pipeline_id_fk"
 
   create_table "targ_rep_genbank_files", :force => true do |t|
+    t.integer  "allele_id",           :null => false
+    t.text     "escell_clone"
+    t.text     "targeting_vector"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "allele_genbank_file"
     t.text     "file_gb"
   end
+
+  add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
 
   create_table "targ_rep_genotype_primers", :force => true do |t|
     t.string  "sequence",                 :null => false

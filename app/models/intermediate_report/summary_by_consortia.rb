@@ -299,7 +299,7 @@ module IntermediateReport::SummaryByConsortia
           LEFT JOIN (mouse_allele_mods JOIN colonies mi_attempt_colonies ON mi_attempt_colonies.id = mouse_allele_mods.parent_colony_id) ON mouse_allele_mods.id = top_production.mouse_allele_mod_id
           JOIN mi_attempts ON mi_attempts.id = mi_attempt_colonies.mi_attempt_id OR mi_attempts.id = top_production.mi_attempt_id
           LEFT JOIN (top_phenotyping_production JOIN phenotyping_productions ON phenotyping_productions.id = top_phenotyping_production.phenotyping_production_id
-                    )ON top_phenotyping_production.gene_id = top_production.gene_id  AND top_phenotyping_production.consortium_id = top_production.consortium_id
+                    ) ON top_phenotyping_production.gene_id = top_production.gene_id  AND top_phenotyping_production.consortium_id = top_production.consortium_id
 
           LEFT JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
           LEFT JOIN mi_attempt_status_stamps AS in_progress_stamps ON in_progress_stamps.mi_attempt_id = mi_attempts.id AND in_progress_stamps.status_id = 1

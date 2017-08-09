@@ -53,7 +53,7 @@ class AddAgingFieldsToPhenotype < ActiveRecord::Migration
     sql = <<-EOF
       UPDATE phenotyping_productions SET late_adult_status_id = #{PhenotypingProduction::LateAdultStatus.find_by_name('Not Registered For Late Adult Phenotyping').id};
 
-      INSERT INTO phenotyping_production_status_stamps(phenotyping_production_id, status_id, created_at, updated_at)
+      INSERT INTO phenotyping_production_late_adult_status_stamps(phenotyping_production_id, status_id, created_at, updated_at)
       SELECT phenotyping_productions.id, #{PhenotypingProduction::LateAdultStatus.find_by_name('Not Registered For Late Adult Phenotyping').id}, NOW(), NOW() FROM phenotyping_productions
       ;
     EOF

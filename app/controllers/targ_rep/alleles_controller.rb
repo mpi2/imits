@@ -20,6 +20,7 @@ class TargRep::AllelesController < TargRep::BaseController
   skip_before_filter :authenticate_user!, :only => [
     :show,
     :index,
+    :targeting_vector_genbank_file,
     :escell_clone_genbank_file,
     :escell_clone_cre_genbank_file,
     :escell_clone_flp_genbank_file,

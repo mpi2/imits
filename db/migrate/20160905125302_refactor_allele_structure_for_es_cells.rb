@@ -77,11 +77,10 @@ class RefactorAlleleStructureForEsCells < ActiveRecord::Migration
 
       UPDATE targ_rep_alleles SET vector_genbank_file_id = targ_rep_genbank_files.id
       FROM targ_rep_genbank_files
-      WHERE targ_rep_genbank_files.file_gb IS NOT NULL AND targ_rep_genbank_files.escell_clone IS NULL AND targ_rep_genbank_files.targeting_vector IS NOT NULL AND targ_rep_genbank_files.allele_id = targ_rep_alleles.id
+      WHERE targ_rep_genbank_files.file_gb IS NOT NULL AND targ_rep_genbank_files.escell_clone IS NULL 
+      AND targ_rep_genbank_files.targeting_vector IS NULL AND targ_rep_genbank_files.allele_id = targ_rep_alleles.id
       ;
-
     EOF
-
     ActiveRecord::Base.connection.execute(sql)
 
     remove_column :mi_attempts, :real_allele_id
@@ -98,10 +97,10 @@ class RefactorAlleleStructureForEsCells < ActiveRecord::Migration
     remove_column :targ_rep_es_cells, :allele_type
     remove_column :targ_rep_es_cells, :allele_symbol_superscript_template
 
-    remove_column :targ_rep_genbank_files, :allele_id
-    remove_column :targ_rep_genbank_files, :targeting_vector
-    remove_column :targ_rep_genbank_files, :escell_clone
-    remove_column :targ_rep_genbank_files, :allele_genbank_file
+#    remove_column :targ_rep_genbank_files, :allele_id
+#    remove_column :targ_rep_genbank_files, :targeting_vector
+#    remove_column :targ_rep_genbank_files, :escell_clone
+#    remove_column :targ_rep_genbank_files, :allele_genbank_file
 
     drop_table :targ_rep_real_alleles
   end

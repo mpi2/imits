@@ -2,12 +2,16 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 9.5.7
+-- Dumped by pg_dump version 9.5.7
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
@@ -694,7 +698,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: alleles; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE alleles (
@@ -740,7 +744,7 @@ ALTER SEQUENCE alleles_id_seq OWNED BY alleles.id;
 
 
 --
--- Name: audits; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: audits; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE audits (
@@ -781,7 +785,7 @@ ALTER SEQUENCE audits_id_seq OWNED BY audits.id;
 
 
 --
--- Name: centres; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: centres; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE centres (
@@ -816,7 +820,7 @@ ALTER SEQUENCE centres_id_seq OWNED BY centres.id;
 
 
 --
--- Name: colonies; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: colonies; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE colonies (
@@ -852,7 +856,7 @@ ALTER SEQUENCE colonies_id_seq OWNED BY colonies.id;
 
 
 --
--- Name: colony_distribution_centres; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: colony_distribution_centres; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE colony_distribution_centres (
@@ -891,7 +895,7 @@ ALTER SEQUENCE colony_distribution_centres_id_seq OWNED BY colony_distribution_c
 
 
 --
--- Name: consortia; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: consortia; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE consortia (
@@ -925,7 +929,7 @@ ALTER SEQUENCE consortia_id_seq OWNED BY consortia.id;
 
 
 --
--- Name: contacts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: contacts; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE contacts (
@@ -957,7 +961,7 @@ ALTER SEQUENCE contacts_id_seq OWNED BY contacts.id;
 
 
 --
--- Name: deleter_strains; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: deleter_strains; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE deleter_strains (
@@ -989,7 +993,7 @@ ALTER SEQUENCE deleter_strains_id_seq OWNED BY deleter_strains.id;
 
 
 --
--- Name: deposited_materials; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: deposited_materials; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE deposited_materials (
@@ -1020,7 +1024,7 @@ ALTER SEQUENCE deposited_materials_id_seq OWNED BY deposited_materials.id;
 
 
 --
--- Name: email_templates; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: email_templates; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE email_templates (
@@ -1053,7 +1057,7 @@ ALTER SEQUENCE email_templates_id_seq OWNED BY email_templates.id;
 
 
 --
--- Name: es_cells; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: es_cells; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE es_cells (
@@ -1092,7 +1096,7 @@ ALTER SEQUENCE es_cells_id_seq OWNED BY es_cells.id;
 
 
 --
--- Name: genes; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: genes; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE genes (
@@ -1147,7 +1151,7 @@ ALTER SEQUENCE genes_id_seq OWNED BY genes.id;
 
 
 --
--- Name: intermediate_report; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE intermediate_report (
@@ -1217,10 +1221,10 @@ ALTER SEQUENCE intermediate_report_id_seq OWNED BY intermediate_report.id;
 
 
 --
--- Name: intermediate_report_summary_by_centre; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_centre; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE intermediate_report_summary_by_centre (
+CREATE UNLOGGED TABLE intermediate_report_summary_by_centre (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1268,10 +1272,10 @@ CREATE TABLE intermediate_report_summary_by_centre (
 
 
 --
--- Name: intermediate_report_summary_by_centre_and_consortia; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_centre_and_consortia; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE intermediate_report_summary_by_centre_and_consortia (
+CREATE UNLOGGED TABLE intermediate_report_summary_by_centre_and_consortia (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1358,10 +1362,10 @@ ALTER SEQUENCE intermediate_report_summary_by_centre_id_seq OWNED BY intermediat
 
 
 --
--- Name: intermediate_report_summary_by_consortia; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_consortia; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE intermediate_report_summary_by_consortia (
+CREATE UNLOGGED TABLE intermediate_report_summary_by_consortia (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1428,10 +1432,10 @@ ALTER SEQUENCE intermediate_report_summary_by_consortia_id_seq OWNED BY intermed
 
 
 --
--- Name: intermediate_report_summary_by_gene; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_gene; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE intermediate_report_summary_by_gene (
+CREATE UNLOGGED TABLE intermediate_report_summary_by_gene (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1496,10 +1500,10 @@ ALTER SEQUENCE intermediate_report_summary_by_gene_id_seq OWNED BY intermediate_
 
 
 --
--- Name: intermediate_report_summary_by_mi_plan; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_mi_plan; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE intermediate_report_summary_by_mi_plan (
+CREATE UNLOGGED TABLE intermediate_report_summary_by_mi_plan (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1572,7 +1576,7 @@ ALTER SEQUENCE intermediate_report_summary_by_mi_plan_id_seq OWNED BY intermedia
 
 
 --
--- Name: mi_attempt_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_attempt_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_attempt_status_stamps (
@@ -1604,7 +1608,7 @@ ALTER SEQUENCE mi_attempt_status_stamps_id_seq OWNED BY mi_attempt_status_stamps
 
 
 --
--- Name: mi_attempt_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_attempt_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_attempt_statuses (
@@ -1637,7 +1641,7 @@ ALTER SEQUENCE mi_attempt_statuses_id_seq OWNED BY mi_attempt_statuses.id;
 
 
 --
--- Name: mi_attempts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_attempts; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_attempts (
@@ -1726,7 +1730,7 @@ ALTER SEQUENCE mi_attempts_id_seq OWNED BY mi_attempts.id;
 
 
 --
--- Name: mi_plan_es_cell_qcs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_es_cell_qcs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_plan_es_cell_qcs (
@@ -1759,7 +1763,7 @@ ALTER SEQUENCE mi_plan_es_cell_qcs_id_seq OWNED BY mi_plan_es_cell_qcs.id;
 
 
 --
--- Name: mi_plan_es_qc_comments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_es_qc_comments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_plan_es_qc_comments (
@@ -1790,7 +1794,7 @@ ALTER SEQUENCE mi_plan_es_qc_comments_id_seq OWNED BY mi_plan_es_qc_comments.id;
 
 
 --
--- Name: mi_plan_priorities; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_priorities; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_plan_priorities (
@@ -1822,7 +1826,7 @@ ALTER SEQUENCE mi_plan_priorities_id_seq OWNED BY mi_plan_priorities.id;
 
 
 --
--- Name: mi_plan_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_plan_status_stamps (
@@ -1854,7 +1858,7 @@ ALTER SEQUENCE mi_plan_status_stamps_id_seq OWNED BY mi_plan_status_stamps.id;
 
 
 --
--- Name: mi_plan_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_plan_statuses (
@@ -1888,7 +1892,7 @@ ALTER SEQUENCE mi_plan_statuses_id_seq OWNED BY mi_plan_statuses.id;
 
 
 --
--- Name: mi_plan_sub_projects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_sub_projects; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_plan_sub_projects (
@@ -1919,7 +1923,7 @@ ALTER SEQUENCE mi_plan_sub_projects_id_seq OWNED BY mi_plan_sub_projects.id;
 
 
 --
--- Name: mi_plans; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plans; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mi_plans (
@@ -1980,7 +1984,7 @@ ALTER SEQUENCE mi_plans_id_seq OWNED BY mi_plans.id;
 
 
 --
--- Name: mouse_allele_mod_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mouse_allele_mod_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mouse_allele_mod_status_stamps (
@@ -2012,7 +2016,7 @@ ALTER SEQUENCE mouse_allele_mod_status_stamps_id_seq OWNED BY mouse_allele_mod_s
 
 
 --
--- Name: mouse_allele_mod_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mouse_allele_mod_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mouse_allele_mod_statuses (
@@ -2043,7 +2047,7 @@ ALTER SEQUENCE mouse_allele_mod_statuses_id_seq OWNED BY mouse_allele_mod_status
 
 
 --
--- Name: mouse_allele_mods; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mouse_allele_mods; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mouse_allele_mods (
@@ -2087,7 +2091,7 @@ ALTER SEQUENCE mouse_allele_mods_id_seq OWNED BY mouse_allele_mods.id;
 
 
 --
--- Name: mutagenesis_factor_donors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mutagenesis_factor_donors; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mutagenesis_factor_donors (
@@ -2120,7 +2124,7 @@ ALTER SEQUENCE mutagenesis_factor_donors_id_seq OWNED BY mutagenesis_factor_dono
 
 
 --
--- Name: mutagenesis_factors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: mutagenesis_factors; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE mutagenesis_factors (
@@ -2159,7 +2163,7 @@ ALTER SEQUENCE mutagenesis_factors_id_seq OWNED BY mutagenesis_factors.id;
 
 
 --
--- Name: notifications; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: notifications; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE notifications (
@@ -2195,7 +2199,7 @@ ALTER SEQUENCE notifications_id_seq OWNED BY notifications.id;
 
 
 --
--- Name: phenotype_attempt_ids; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotype_attempt_ids; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE phenotype_attempt_ids (
@@ -2223,7 +2227,7 @@ ALTER SEQUENCE phenotype_attempt_ids_id_seq OWNED BY phenotype_attempt_ids.id;
 
 
 --
--- Name: phenotyping_production_late_adult_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_late_adult_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE phenotyping_production_late_adult_status_stamps (
@@ -2255,7 +2259,7 @@ ALTER SEQUENCE phenotyping_production_late_adult_status_stamps_id_seq OWNED BY p
 
 
 --
--- Name: phenotyping_production_late_adult_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_late_adult_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE phenotyping_production_late_adult_statuses (
@@ -2290,7 +2294,7 @@ ALTER SEQUENCE phenotyping_production_late_adult_statuses_id_seq OWNED BY phenot
 
 
 --
--- Name: phenotyping_production_status_stamps; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE phenotyping_production_status_stamps (
@@ -2322,7 +2326,7 @@ ALTER SEQUENCE phenotyping_production_status_stamps_id_seq OWNED BY phenotyping_
 
 
 --
--- Name: phenotyping_production_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE phenotyping_production_statuses (
@@ -2353,7 +2357,7 @@ ALTER SEQUENCE phenotyping_production_statuses_id_seq OWNED BY phenotyping_produ
 
 
 --
--- Name: phenotyping_production_tissue_distribution_centres; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_tissue_distribution_centres; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE phenotyping_production_tissue_distribution_centres (
@@ -2388,7 +2392,7 @@ ALTER SEQUENCE phenotyping_production_tissue_distribution_centres_id_seq OWNED B
 
 
 --
--- Name: phenotyping_productions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_productions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE phenotyping_productions (
@@ -2440,7 +2444,7 @@ ALTER SEQUENCE phenotyping_productions_id_seq OWNED BY phenotyping_productions.i
 
 
 --
--- Name: pipelines; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: pipelines; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE pipelines (
@@ -2472,7 +2476,7 @@ ALTER SEQUENCE pipelines_id_seq OWNED BY pipelines.id;
 
 
 --
--- Name: production_centre_qcs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: production_centre_qcs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE production_centre_qcs (
@@ -2522,7 +2526,7 @@ ALTER SEQUENCE production_centre_qcs_id_seq OWNED BY production_centre_qcs.id;
 
 
 --
--- Name: production_goals; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: production_goals; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE production_goals (
@@ -2561,7 +2565,7 @@ ALTER SEQUENCE production_goals_id_seq OWNED BY production_goals.id;
 
 
 --
--- Name: qc_results; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: qc_results; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE qc_results (
@@ -2592,7 +2596,7 @@ ALTER SEQUENCE qc_results_id_seq OWNED BY qc_results.id;
 
 
 --
--- Name: reagent_names; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: reagent_names; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE reagent_names (
@@ -2622,7 +2626,7 @@ ALTER SEQUENCE reagent_names_id_seq OWNED BY reagent_names.id;
 
 
 --
--- Name: reagents; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: reagents; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE reagents (
@@ -2653,7 +2657,7 @@ ALTER SEQUENCE reagents_id_seq OWNED BY reagents.id;
 
 
 --
--- Name: report_caches; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: report_caches; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE report_caches (
@@ -2686,7 +2690,7 @@ ALTER SEQUENCE report_caches_id_seq OWNED BY report_caches.id;
 
 
 --
--- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE schema_migrations (
@@ -2695,7 +2699,7 @@ CREATE TABLE schema_migrations (
 
 
 --
--- Name: strains; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: strains; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE strains (
@@ -2731,7 +2735,7 @@ ALTER SEQUENCE strains_id_seq OWNED BY strains.id;
 
 
 --
--- Name: targ_rep_allele_sequence_annotations; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_allele_sequence_annotations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_allele_sequence_annotations (
@@ -2769,7 +2773,7 @@ ALTER SEQUENCE targ_rep_allele_sequence_annotations_id_seq OWNED BY targ_rep_all
 
 
 --
--- Name: targ_rep_alleles; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_alleles; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_alleles (
@@ -2831,7 +2835,7 @@ ALTER SEQUENCE targ_rep_alleles_id_seq OWNED BY targ_rep_alleles.id;
 
 
 --
--- Name: targ_rep_centre_pipelines; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_centre_pipelines; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_centre_pipelines (
@@ -2863,7 +2867,7 @@ ALTER SEQUENCE targ_rep_centre_pipelines_id_seq OWNED BY targ_rep_centre_pipelin
 
 
 --
--- Name: targ_rep_crisprs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_crisprs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_crisprs (
@@ -2899,7 +2903,7 @@ ALTER SEQUENCE targ_rep_crisprs_id_seq OWNED BY targ_rep_crisprs.id;
 
 
 --
--- Name: targ_rep_distribution_qcs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_distribution_qcs; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_distribution_qcs (
@@ -2951,7 +2955,7 @@ ALTER SEQUENCE targ_rep_distribution_qcs_id_seq OWNED BY targ_rep_distribution_q
 
 
 --
--- Name: targ_rep_es_cell_distribution_centres; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_es_cell_distribution_centres; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_es_cell_distribution_centres (
@@ -2982,7 +2986,7 @@ ALTER SEQUENCE targ_rep_es_cell_distribution_centres_id_seq OWNED BY targ_rep_es
 
 
 --
--- Name: targ_rep_es_cells; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_es_cells; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_es_cells (
@@ -3030,7 +3034,7 @@ CREATE TABLE targ_rep_es_cells (
 
 
 --
--- Name: targ_rep_mutation_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_mutation_types; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_mutation_types (
@@ -3075,13 +3079,17 @@ ALTER SEQUENCE targ_rep_es_cells_id_seq OWNED BY targ_rep_es_cells.id;
 
 
 --
--- Name: targ_rep_genbank_files; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_genbank_files; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_genbank_files (
     id integer NOT NULL,
+    allele_id integer NOT NULL,
+    escell_clone text,
+    targeting_vector text,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
+    allele_genbank_file text,
     file_gb text
 );
 
@@ -3106,7 +3114,7 @@ ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
 
 
 --
--- Name: targ_rep_genotype_primers; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_genotype_primers; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_genotype_primers (
@@ -3140,7 +3148,7 @@ ALTER SEQUENCE targ_rep_genotype_primers_id_seq OWNED BY targ_rep_genotype_prime
 
 
 --
--- Name: targ_rep_ikmc_project_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_ikmc_project_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_ikmc_project_statuses (
@@ -3171,7 +3179,7 @@ ALTER SEQUENCE targ_rep_ikmc_project_statuses_id_seq OWNED BY targ_rep_ikmc_proj
 
 
 --
--- Name: targ_rep_ikmc_projects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_ikmc_projects; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_ikmc_projects (
@@ -3204,7 +3212,7 @@ ALTER SEQUENCE targ_rep_ikmc_projects_id_seq OWNED BY targ_rep_ikmc_projects.id;
 
 
 --
--- Name: targ_rep_mutation_methods; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_mutation_methods; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_mutation_methods (
@@ -3237,7 +3245,7 @@ ALTER SEQUENCE targ_rep_mutation_methods_id_seq OWNED BY targ_rep_mutation_metho
 
 
 --
--- Name: targ_rep_mutation_subtypes; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_mutation_subtypes; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_mutation_subtypes (
@@ -3288,7 +3296,7 @@ ALTER SEQUENCE targ_rep_mutation_types_id_seq OWNED BY targ_rep_mutation_types.i
 
 
 --
--- Name: targ_rep_pipelines; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_pipelines; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_pipelines (
@@ -3323,7 +3331,7 @@ ALTER SEQUENCE targ_rep_pipelines_id_seq OWNED BY targ_rep_pipelines.id;
 
 
 --
--- Name: targ_rep_sequence_annotation; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_sequence_annotation; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_sequence_annotation (
@@ -3355,7 +3363,7 @@ ALTER SEQUENCE targ_rep_sequence_annotation_id_seq OWNED BY targ_rep_sequence_an
 
 
 --
--- Name: targ_rep_targeting_vectors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_targeting_vectors; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE targ_rep_targeting_vectors (
@@ -3395,7 +3403,7 @@ ALTER SEQUENCE targ_rep_targeting_vectors_id_seq OWNED BY targ_rep_targeting_vec
 
 
 --
--- Name: trace_call_vcf_modifications; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: trace_call_vcf_modifications; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE trace_call_vcf_modifications (
@@ -3432,7 +3440,7 @@ ALTER SEQUENCE trace_call_vcf_modifications_id_seq OWNED BY trace_call_vcf_modif
 
 
 --
--- Name: trace_calls; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: trace_calls; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE trace_calls (
@@ -3481,7 +3489,7 @@ ALTER SEQUENCE trace_calls_id_seq OWNED BY trace_calls.id;
 
 
 --
--- Name: trace_files; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: trace_files; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE trace_files (
@@ -3514,7 +3522,7 @@ ALTER SEQUENCE trace_files_id_seq OWNED BY trace_files.id;
 
 
 --
--- Name: tracking_goals; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: tracking_goals; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE tracking_goals (
@@ -3551,7 +3559,7 @@ ALTER SEQUENCE tracking_goals_id_seq OWNED BY tracking_goals.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE users (
@@ -4090,7 +4098,7 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 
 
 --
--- Name: alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY alleles
@@ -4098,7 +4106,7 @@ ALTER TABLE ONLY alleles
 
 
 --
--- Name: audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY audits
@@ -4106,7 +4114,7 @@ ALTER TABLE ONLY audits
 
 
 --
--- Name: centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY centres
@@ -4114,7 +4122,7 @@ ALTER TABLE ONLY centres
 
 
 --
--- Name: colonies_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: colonies_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY colonies
@@ -4122,7 +4130,7 @@ ALTER TABLE ONLY colonies
 
 
 --
--- Name: colony_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: colony_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY colony_distribution_centres
@@ -4130,7 +4138,7 @@ ALTER TABLE ONLY colony_distribution_centres
 
 
 --
--- Name: consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY consortia
@@ -4138,7 +4146,7 @@ ALTER TABLE ONLY consortia
 
 
 --
--- Name: contacts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: contacts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY contacts
@@ -4146,7 +4154,7 @@ ALTER TABLE ONLY contacts
 
 
 --
--- Name: deleter_strains_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: deleter_strains_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY deleter_strains
@@ -4154,7 +4162,7 @@ ALTER TABLE ONLY deleter_strains
 
 
 --
--- Name: deposited_materials_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: deposited_materials_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY deposited_materials
@@ -4162,7 +4170,7 @@ ALTER TABLE ONLY deposited_materials
 
 
 --
--- Name: email_templates_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: email_templates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY email_templates
@@ -4170,7 +4178,7 @@ ALTER TABLE ONLY email_templates
 
 
 --
--- Name: es_cells_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: es_cells_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY es_cells
@@ -4178,7 +4186,7 @@ ALTER TABLE ONLY es_cells
 
 
 --
--- Name: genes_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: genes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY genes
@@ -4186,7 +4194,7 @@ ALTER TABLE ONLY genes
 
 
 --
--- Name: intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY intermediate_report
@@ -4194,7 +4202,7 @@ ALTER TABLE ONLY intermediate_report
 
 
 --
--- Name: intermediate_report_summary_by_centre_and_consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_centre_and_consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
@@ -4202,7 +4210,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
 
 
 --
--- Name: intermediate_report_summary_by_centre_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_centre_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY intermediate_report_summary_by_centre
@@ -4210,7 +4218,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_centre
 
 
 --
--- Name: intermediate_report_summary_by_consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY intermediate_report_summary_by_consortia
@@ -4218,7 +4226,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_consortia
 
 
 --
--- Name: intermediate_report_summary_by_gene_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_gene_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY intermediate_report_summary_by_gene
@@ -4226,7 +4234,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_gene
 
 
 --
--- Name: intermediate_report_summary_by_mi_plan_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: intermediate_report_summary_by_mi_plan_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
@@ -4234,7 +4242,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
 
 
 --
--- Name: mi_attempt_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_attempt_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_attempt_status_stamps
@@ -4242,7 +4250,7 @@ ALTER TABLE ONLY mi_attempt_status_stamps
 
 
 --
--- Name: mi_attempt_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_attempt_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_attempt_statuses
@@ -4250,7 +4258,7 @@ ALTER TABLE ONLY mi_attempt_statuses
 
 
 --
--- Name: mi_attempts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_attempts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_attempts
@@ -4258,7 +4266,7 @@ ALTER TABLE ONLY mi_attempts
 
 
 --
--- Name: mi_plan_es_cell_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_es_cell_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_plan_es_cell_qcs
@@ -4266,7 +4274,7 @@ ALTER TABLE ONLY mi_plan_es_cell_qcs
 
 
 --
--- Name: mi_plan_es_qc_comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_es_qc_comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_plan_es_qc_comments
@@ -4274,7 +4282,7 @@ ALTER TABLE ONLY mi_plan_es_qc_comments
 
 
 --
--- Name: mi_plan_priorities_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_priorities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_plan_priorities
@@ -4282,7 +4290,7 @@ ALTER TABLE ONLY mi_plan_priorities
 
 
 --
--- Name: mi_plan_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_plan_status_stamps
@@ -4290,7 +4298,7 @@ ALTER TABLE ONLY mi_plan_status_stamps
 
 
 --
--- Name: mi_plan_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_plan_statuses
@@ -4298,7 +4306,7 @@ ALTER TABLE ONLY mi_plan_statuses
 
 
 --
--- Name: mi_plan_sub_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_sub_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_plan_sub_projects
@@ -4306,7 +4314,7 @@ ALTER TABLE ONLY mi_plan_sub_projects
 
 
 --
--- Name: mi_plans_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plans_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mi_plans
@@ -4314,7 +4322,7 @@ ALTER TABLE ONLY mi_plans
 
 
 --
--- Name: mouse_allele_mod_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mouse_allele_mod_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mouse_allele_mod_status_stamps
@@ -4322,7 +4330,7 @@ ALTER TABLE ONLY mouse_allele_mod_status_stamps
 
 
 --
--- Name: mouse_allele_mod_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mouse_allele_mod_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mouse_allele_mod_statuses
@@ -4330,7 +4338,7 @@ ALTER TABLE ONLY mouse_allele_mod_statuses
 
 
 --
--- Name: mouse_allele_mods_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mouse_allele_mods_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mouse_allele_mods
@@ -4338,7 +4346,7 @@ ALTER TABLE ONLY mouse_allele_mods
 
 
 --
--- Name: mutagenesis_factor_vectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mutagenesis_factor_vectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mutagenesis_factor_donors
@@ -4346,7 +4354,7 @@ ALTER TABLE ONLY mutagenesis_factor_donors
 
 
 --
--- Name: mutagenesis_factors_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: mutagenesis_factors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY mutagenesis_factors
@@ -4354,7 +4362,7 @@ ALTER TABLE ONLY mutagenesis_factors
 
 
 --
--- Name: notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY notifications
@@ -4362,7 +4370,7 @@ ALTER TABLE ONLY notifications
 
 
 --
--- Name: phenotype_attempt_ids_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotype_attempt_ids_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY phenotype_attempt_ids
@@ -4370,7 +4378,7 @@ ALTER TABLE ONLY phenotype_attempt_ids
 
 
 --
--- Name: phenotyping_production_late_adult_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_late_adult_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps
@@ -4378,7 +4386,7 @@ ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps
 
 
 --
--- Name: phenotyping_production_late_adult_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_late_adult_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY phenotyping_production_late_adult_statuses
@@ -4386,7 +4394,7 @@ ALTER TABLE ONLY phenotyping_production_late_adult_statuses
 
 
 --
--- Name: phenotyping_production_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY phenotyping_production_status_stamps
@@ -4394,7 +4402,7 @@ ALTER TABLE ONLY phenotyping_production_status_stamps
 
 
 --
--- Name: phenotyping_production_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY phenotyping_production_statuses
@@ -4402,7 +4410,7 @@ ALTER TABLE ONLY phenotyping_production_statuses
 
 
 --
--- Name: phenotyping_production_tissue_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_production_tissue_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres
@@ -4410,7 +4418,7 @@ ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres
 
 
 --
--- Name: phenotyping_productions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: phenotyping_productions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY phenotyping_productions
@@ -4418,7 +4426,7 @@ ALTER TABLE ONLY phenotyping_productions
 
 
 --
--- Name: pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY pipelines
@@ -4426,7 +4434,7 @@ ALTER TABLE ONLY pipelines
 
 
 --
--- Name: production_centre_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: production_centre_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY production_centre_qcs
@@ -4434,7 +4442,7 @@ ALTER TABLE ONLY production_centre_qcs
 
 
 --
--- Name: production_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: production_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY production_goals
@@ -4442,7 +4450,7 @@ ALTER TABLE ONLY production_goals
 
 
 --
--- Name: qc_results_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: qc_results_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY qc_results
@@ -4450,7 +4458,7 @@ ALTER TABLE ONLY qc_results
 
 
 --
--- Name: reagent_names_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: reagent_names_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY reagent_names
@@ -4458,7 +4466,7 @@ ALTER TABLE ONLY reagent_names
 
 
 --
--- Name: reagents_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: reagents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY reagents
@@ -4466,7 +4474,7 @@ ALTER TABLE ONLY reagents
 
 
 --
--- Name: report_caches_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: report_caches_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY report_caches
@@ -4474,7 +4482,7 @@ ALTER TABLE ONLY report_caches
 
 
 --
--- Name: strains_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: strains_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY strains
@@ -4482,7 +4490,7 @@ ALTER TABLE ONLY strains
 
 
 --
--- Name: targ_rep_allele_sequence_annotations_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_allele_sequence_annotations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_allele_sequence_annotations
@@ -4490,7 +4498,7 @@ ALTER TABLE ONLY targ_rep_allele_sequence_annotations
 
 
 --
--- Name: targ_rep_alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_alleles
@@ -4498,7 +4506,7 @@ ALTER TABLE ONLY targ_rep_alleles
 
 
 --
--- Name: targ_rep_centre_pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_centre_pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_centre_pipelines
@@ -4506,7 +4514,7 @@ ALTER TABLE ONLY targ_rep_centre_pipelines
 
 
 --
--- Name: targ_rep_crisprs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_crisprs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_crisprs
@@ -4514,7 +4522,7 @@ ALTER TABLE ONLY targ_rep_crisprs
 
 
 --
--- Name: targ_rep_distribution_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_distribution_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_distribution_qcs
@@ -4522,7 +4530,7 @@ ALTER TABLE ONLY targ_rep_distribution_qcs
 
 
 --
--- Name: targ_rep_es_cell_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_es_cell_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_es_cell_distribution_centres
@@ -4530,7 +4538,7 @@ ALTER TABLE ONLY targ_rep_es_cell_distribution_centres
 
 
 --
--- Name: targ_rep_es_cells_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_es_cells_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_es_cells
@@ -4538,7 +4546,7 @@ ALTER TABLE ONLY targ_rep_es_cells
 
 
 --
--- Name: targ_rep_genbank_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_genbank_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_genbank_files
@@ -4546,7 +4554,7 @@ ALTER TABLE ONLY targ_rep_genbank_files
 
 
 --
--- Name: targ_rep_genotype_primers_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_genotype_primers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_genotype_primers
@@ -4554,7 +4562,7 @@ ALTER TABLE ONLY targ_rep_genotype_primers
 
 
 --
--- Name: targ_rep_ikmc_project_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_ikmc_project_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_ikmc_project_statuses
@@ -4562,7 +4570,7 @@ ALTER TABLE ONLY targ_rep_ikmc_project_statuses
 
 
 --
--- Name: targ_rep_ikmc_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_ikmc_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_ikmc_projects
@@ -4570,7 +4578,7 @@ ALTER TABLE ONLY targ_rep_ikmc_projects
 
 
 --
--- Name: targ_rep_mutation_methods_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_mutation_methods_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_mutation_methods
@@ -4578,7 +4586,7 @@ ALTER TABLE ONLY targ_rep_mutation_methods
 
 
 --
--- Name: targ_rep_mutation_subtypes_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_mutation_subtypes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_mutation_subtypes
@@ -4586,7 +4594,7 @@ ALTER TABLE ONLY targ_rep_mutation_subtypes
 
 
 --
--- Name: targ_rep_mutation_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_mutation_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_mutation_types
@@ -4594,7 +4602,7 @@ ALTER TABLE ONLY targ_rep_mutation_types
 
 
 --
--- Name: targ_rep_pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_pipelines
@@ -4602,7 +4610,7 @@ ALTER TABLE ONLY targ_rep_pipelines
 
 
 --
--- Name: targ_rep_sequence_annotation_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_sequence_annotation_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_sequence_annotation
@@ -4610,7 +4618,7 @@ ALTER TABLE ONLY targ_rep_sequence_annotation
 
 
 --
--- Name: targ_rep_targeting_vectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_targeting_vectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_targeting_vectors
@@ -4618,7 +4626,7 @@ ALTER TABLE ONLY targ_rep_targeting_vectors
 
 
 --
--- Name: trace_call_vcf_modifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: trace_call_vcf_modifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY trace_call_vcf_modifications
@@ -4626,7 +4634,7 @@ ALTER TABLE ONLY trace_call_vcf_modifications
 
 
 --
--- Name: trace_calls_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: trace_calls_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY trace_calls
@@ -4634,7 +4642,7 @@ ALTER TABLE ONLY trace_calls
 
 
 --
--- Name: trace_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: trace_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY trace_files
@@ -4642,7 +4650,7 @@ ALTER TABLE ONLY trace_files
 
 
 --
--- Name: tracking_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: tracking_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY tracking_goals
@@ -4650,7 +4658,7 @@ ALTER TABLE ONLY tracking_goals
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -4658,518 +4666,525 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: associated_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: associated_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX associated_index ON audits USING btree (associated_id, associated_type);
 
 
 --
--- Name: auditable_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: auditable_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auditable_index ON audits USING btree (auditable_id, auditable_type);
 
 
 --
--- Name: es_cells_allele_id_fk; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: es_cells_allele_id_fk; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX es_cells_allele_id_fk ON targ_rep_es_cells USING btree (allele_id);
 
 
 --
--- Name: es_cells_pipeline_id_fk; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: es_cells_pipeline_id_fk; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX es_cells_pipeline_id_fk ON targ_rep_es_cells USING btree (pipeline_id);
 
 
 --
--- Name: index_audits_on_created_at; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: genbank_files_allele_id_fk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX genbank_files_allele_id_fk ON targ_rep_genbank_files USING btree (allele_id);
+
+
+--
+-- Name: index_audits_on_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_audits_on_created_at ON audits USING btree (created_at);
 
 
 --
--- Name: index_centres_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_centres_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_centres_on_name ON centres USING btree (name);
 
 
 --
--- Name: index_consortia_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_consortia_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_consortia_on_name ON consortia USING btree (name);
 
 
 --
--- Name: index_contacts_on_email; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_contacts_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_contacts_on_email ON contacts USING btree (email);
 
 
 --
--- Name: index_deposited_materials_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_deposited_materials_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_deposited_materials_on_name ON deposited_materials USING btree (name);
 
 
 --
--- Name: index_distribution_qcs_centre_es_cell; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_distribution_qcs_centre_es_cell; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_distribution_qcs_centre_es_cell ON targ_rep_distribution_qcs USING btree (es_cell_distribution_centre_id, es_cell_id);
 
 
 --
--- Name: index_es_cells_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_es_cells_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_es_cells_on_name ON es_cells USING btree (name);
 
 
 --
--- Name: index_genes_on_marker_symbol; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_genes_on_marker_symbol; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_genes_on_marker_symbol ON genes USING btree (marker_symbol);
 
 
 --
--- Name: index_genes_on_mgi_accession_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_genes_on_mgi_accession_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_genes_on_mgi_accession_id ON genes USING btree (mgi_accession_id);
 
 
 --
--- Name: index_mi_attempt_statuses_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_mi_attempt_statuses_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_mi_attempt_statuses_on_name ON mi_attempt_statuses USING btree (name);
 
 
 --
--- Name: index_mi_attempts_on_colony_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_mi_attempts_on_colony_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_mi_attempts_on_colony_name ON mi_attempts USING btree (external_ref);
 
 
 --
--- Name: index_mi_plan_es_qc_comments_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_mi_plan_es_qc_comments_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_mi_plan_es_qc_comments_on_name ON mi_plan_es_qc_comments USING btree (name);
 
 
 --
--- Name: index_mi_plan_priorities_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_mi_plan_priorities_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_mi_plan_priorities_on_name ON mi_plan_priorities USING btree (name);
 
 
 --
--- Name: index_mi_plan_statuses_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_mi_plan_statuses_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_mi_plan_statuses_on_name ON mi_plan_statuses USING btree (name);
 
 
 --
--- Name: index_one_status_stamp_per_status_and_mi_attempt; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_one_status_stamp_per_status_and_mi_attempt; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_one_status_stamp_per_status_and_mi_attempt ON mi_attempt_status_stamps USING btree (status_id, mi_attempt_id);
 
 
 --
--- Name: index_one_status_stamp_per_status_and_mi_plan; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_one_status_stamp_per_status_and_mi_plan; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_one_status_stamp_per_status_and_mi_plan ON mi_plan_status_stamps USING btree (status_id, mi_plan_id);
 
 
 --
--- Name: index_pipelines_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_pipelines_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_pipelines_on_name ON pipelines USING btree (name);
 
 
 --
--- Name: index_production_goals_on_consortium_id_and_year_and_month; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_production_goals_on_consortium_id_and_year_and_month; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_production_goals_on_consortium_id_and_year_and_month ON production_goals USING btree (consortium_id, year, month);
 
 
 --
--- Name: index_qc_results_on_description; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_qc_results_on_description; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_qc_results_on_description ON qc_results USING btree (description);
 
 
 --
--- Name: index_report_caches_on_name_and_format; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_report_caches_on_name_and_format; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_report_caches_on_name_and_format ON report_caches USING btree (name, format);
 
 
 --
--- Name: index_strains_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_strains_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_strains_on_name ON strains USING btree (name);
 
 
 --
--- Name: index_targ_rep_pipelines_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_targ_rep_pipelines_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_targ_rep_pipelines_on_name ON targ_rep_pipelines USING btree (name);
 
 
 --
--- Name: index_targvec; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_targvec; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_targvec ON targ_rep_targeting_vectors USING btree (name);
 
 
 --
--- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
 
 
 --
--- Name: irsc_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsc_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsc_allele_type ON intermediate_report_summary_by_consortia USING btree (allele_type);
 
 
 --
--- Name: irsc_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsc_approach; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsc_approach ON intermediate_report_summary_by_consortia USING btree (approach);
 
 
 --
--- Name: irsc_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsc_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsc_catagory ON intermediate_report_summary_by_consortia USING btree (catagory);
 
 
 --
--- Name: irsc_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsc_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsc_mi_attempts ON intermediate_report_summary_by_consortia USING btree (mi_attempt_id);
 
 
 --
--- Name: irsc_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsc_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsc_mi_plans ON intermediate_report_summary_by_consortia USING btree (mi_plan_id);
 
 
 --
--- Name: irsc_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsc_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsc_mouse_allele_mods ON intermediate_report_summary_by_consortia USING btree (mouse_allele_mod_id);
 
 
 --
--- Name: irsc_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsc_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsc_phenotyping_productions ON intermediate_report_summary_by_consortia USING btree (phenotyping_production_id);
 
 
 --
--- Name: irscc_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscc_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscc_allele_type ON intermediate_report_summary_by_centre_and_consortia USING btree (allele_type);
 
 
 --
--- Name: irscc_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscc_approach; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscc_approach ON intermediate_report_summary_by_centre_and_consortia USING btree (approach);
 
 
 --
--- Name: irscc_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscc_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscc_catagory ON intermediate_report_summary_by_centre_and_consortia USING btree (catagory);
 
 
 --
--- Name: irscc_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscc_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscc_mi_attempts ON intermediate_report_summary_by_centre_and_consortia USING btree (mi_attempt_id);
 
 
 --
--- Name: irscc_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscc_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscc_mi_plans ON intermediate_report_summary_by_centre_and_consortia USING btree (mi_plan_id);
 
 
 --
--- Name: irscc_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscc_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscc_mouse_allele_mods ON intermediate_report_summary_by_centre_and_consortia USING btree (mouse_allele_mod_id);
 
 
 --
--- Name: irscc_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscc_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscc_phenotyping_productions ON intermediate_report_summary_by_centre_and_consortia USING btree (phenotyping_production_id);
 
 
 --
--- Name: irscen_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_allele_type ON intermediate_report_summary_by_centre USING btree (allele_type);
 
 
 --
--- Name: irscen_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_approach; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_approach ON intermediate_report_summary_by_centre USING btree (approach);
 
 
 --
--- Name: irscen_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_catagory ON intermediate_report_summary_by_centre USING btree (catagory);
 
 
 --
--- Name: irscen_gene_centre; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_gene_centre; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_gene_centre ON intermediate_report_summary_by_centre USING btree (gene, production_centre);
 
 
 --
--- Name: irscen_gene_centre_consortia; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_gene_centre_consortia; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_gene_centre_consortia ON intermediate_report_summary_by_centre_and_consortia USING btree (gene, production_centre, consortium);
 
 
 --
--- Name: irscen_gene_consortia; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_gene_consortia; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_gene_consortia ON intermediate_report_summary_by_consortia USING btree (gene, consortium);
 
 
 --
--- Name: irscen_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_mi_attempts ON intermediate_report_summary_by_centre USING btree (mi_attempt_id);
 
 
 --
--- Name: irscen_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_mi_plans ON intermediate_report_summary_by_centre USING btree (mi_plan_id);
 
 
 --
--- Name: irscen_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_mouse_allele_mods ON intermediate_report_summary_by_centre USING btree (mouse_allele_mod_id);
 
 
 --
--- Name: irscen_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irscen_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irscen_phenotyping_productions ON intermediate_report_summary_by_centre USING btree (phenotyping_production_id);
 
 
 --
--- Name: irsg_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsg_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsg_allele_type ON intermediate_report_summary_by_gene USING btree (allele_type);
 
 
 --
--- Name: irsg_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsg_approach; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsg_approach ON intermediate_report_summary_by_gene USING btree (approach);
 
 
 --
--- Name: irsg_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsg_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsg_catagory ON intermediate_report_summary_by_gene USING btree (catagory);
 
 
 --
--- Name: irsg_gene; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsg_gene; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsg_gene ON intermediate_report_summary_by_gene USING btree (gene);
 
 
 --
--- Name: irsg_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsg_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsg_mi_attempts ON intermediate_report_summary_by_gene USING btree (mi_attempt_id);
 
 
 --
--- Name: irsg_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsg_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsg_mi_plans ON intermediate_report_summary_by_gene USING btree (mi_plan_id);
 
 
 --
--- Name: irsg_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsg_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsg_mouse_allele_mods ON intermediate_report_summary_by_gene USING btree (mouse_allele_mod_id);
 
 
 --
--- Name: irsg_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsg_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsg_phenotyping_productions ON intermediate_report_summary_by_gene USING btree (phenotyping_production_id);
 
 
 --
--- Name: irsmp_allele_type; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsmp_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsmp_allele_type ON intermediate_report_summary_by_mi_plan USING btree (allele_type);
 
 
 --
--- Name: irsmp_approach; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsmp_approach; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsmp_approach ON intermediate_report_summary_by_mi_plan USING btree (approach);
 
 
 --
--- Name: irsmp_catagory; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsmp_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsmp_catagory ON intermediate_report_summary_by_mi_plan USING btree (catagory);
 
 
 --
--- Name: irsmp_mi_attempts; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsmp_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsmp_mi_attempts ON intermediate_report_summary_by_mi_plan USING btree (mi_attempt_id);
 
 
 --
--- Name: irsmp_mi_plans; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsmp_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsmp_mi_plans ON intermediate_report_summary_by_mi_plan USING btree (mi_plan_id);
 
 
 --
--- Name: irsmp_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsmp_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsmp_mouse_allele_mods ON intermediate_report_summary_by_mi_plan USING btree (mouse_allele_mod_id);
 
 
 --
--- Name: irsmp_phenotyping_productions; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: irsmp_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX irsmp_phenotyping_productions ON intermediate_report_summary_by_mi_plan USING btree (phenotyping_production_id);
 
 
 --
--- Name: mi_plan_logical_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: mi_plan_logical_key; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only, mutagenesis_via_crispr_cas9);
 
 
 --
--- Name: mouse_allele_mod_colony_name_uniqueness_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: mouse_allele_mod_colony_name_uniqueness_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX mouse_allele_mod_colony_name_uniqueness_index ON colonies USING btree (name, mi_attempt_id, mouse_allele_mod_id);
 
 
 --
--- Name: targ_rep_index_es_cells_on_name; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: targ_rep_index_es_cells_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX targ_rep_index_es_cells_on_name ON targ_rep_es_cells USING btree (name);
 
 
 --
--- Name: targeting_vectors_allele_id_fk; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: targeting_vectors_allele_id_fk; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX targeting_vectors_allele_id_fk ON targ_rep_targeting_vectors USING btree (allele_id);
 
 
 --
--- Name: targeting_vectors_pipeline_id_fk; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: targeting_vectors_pipeline_id_fk; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX targeting_vectors_pipeline_id_fk ON targ_rep_targeting_vectors USING btree (pipeline_id);
 
 
 --
--- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (version);
 
 
 --
--- Name: user_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: user_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX user_index ON audits USING btree (user_id, user_type);

@@ -18,11 +18,13 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :rememberable, :validatable, :recoverable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me,
-          :production_centre, :production_centre_id, :name, :is_contactable
+          :production_centre, :filter_by_centre_name, :production_centre_id, :filter_by_centre_id, :name, :is_contactable
 
   validates :production_centre_id, :presence => true
 
   belongs_to :production_centre, :class_name => 'Centre'
+  belongs_to :filter_by_centre, :class_name => 'Centre'
+
   belongs_to :es_cell_distribution_centre, :class_name => "TargRep::EsCellDistributionCentre"
 
   after_initialize do
@@ -40,6 +42,11 @@ class User < ActiveRecord::Base
   def production_centre_name
     return nil if production_centre.blank?
     production_centre.name
+  end
+
+  def filter_by_centre_name
+    return nil if filter_by_centre.blank?
+    filter_by_centre.name
   end
 end
 
@@ -62,6 +69,7 @@ end
 #  legacy_id                      :integer
 #  admin                          :boolean          default(FALSE)
 #  active                         :boolean          default(TRUE)
+#  filter_by_centre_id            :string(255)
 #
 # Indexes
 #

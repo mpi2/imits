@@ -5,7 +5,7 @@
   <%= javascript_include_tag('phenotype_attempts/new') %>
 <% end %>
 
-<div id="object-new-bottom" class="grid_8 prefix_2 suffix_2">
+<div id="object-new-bottom" class="grid_12">
   <%= form_for @phenotype_attempt, :method => :post, :as => :phenotype_attempt, :url => "#{root_path}phenotype_attempts", :html => {'onsubmit' => 'return false;'} do |form| %>
 
     <% if !form.object.errors.blank? %>

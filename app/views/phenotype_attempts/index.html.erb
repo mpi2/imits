@@ -1,7 +1,7 @@
 <% @tab = 'Phenotyping' %>
 
 <% content_for :pre_js_footer do %>
-  <% production_centre = current_user.try(:production_centre).try(:name) %>
+  <% production_centre = current_user.try(:filter_by_centre).try(:name) %>
   <% production_centre = '' if ! production_centre %>
   <%= javascript_tag "USER_PRODUCTION_CENTRE = '#{production_centre}'" %>
   <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>

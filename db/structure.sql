@@ -3084,12 +3084,8 @@ ALTER SEQUENCE targ_rep_es_cells_id_seq OWNED BY targ_rep_es_cells.id;
 
 CREATE TABLE targ_rep_genbank_files (
     id integer NOT NULL,
-    allele_id integer NOT NULL,
-    escell_clone text,
-    targeting_vector text,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
-    allele_genbank_file text,
     file_gb text
 );
 
@@ -3577,7 +3573,8 @@ CREATE TABLE users (
     es_cell_distribution_centre_id integer,
     legacy_id integer,
     admin boolean DEFAULT false,
-    active boolean DEFAULT true
+    active boolean DEFAULT true,
+    filter_by_centre_id character varying(255)
 );
 
 
@@ -4691,13 +4688,6 @@ CREATE INDEX es_cells_allele_id_fk ON targ_rep_es_cells USING btree (allele_id);
 --
 
 CREATE INDEX es_cells_pipeline_id_fk ON targ_rep_es_cells USING btree (pipeline_id);
-
-
---
--- Name: genbank_files_allele_id_fk; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX genbank_files_allele_id_fk ON targ_rep_genbank_files USING btree (allele_id);
 
 
 --
@@ -5995,3 +5985,5 @@ INSERT INTO schema_migrations (version) VALUES ('20170530125302');
 INSERT INTO schema_migrations (version) VALUES ('20170630325302');
 
 INSERT INTO schema_migrations (version) VALUES ('20170728325302');
+
+INSERT INTO schema_migrations (version) VALUES ('20170808141602');

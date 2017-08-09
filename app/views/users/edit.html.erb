@@ -37,6 +37,13 @@
           </td>
         </tr>
 
+        <tr>
+          <td>
+            <%= form.label :filter_by_centre %>
+            <span><%= resource.filter_by_centre.blank? ? 'None Set' : resource.filter_by_centre.try(:name) %></span>
+          </td>
+        </tr>
+
       </table>
     </fieldset>
 

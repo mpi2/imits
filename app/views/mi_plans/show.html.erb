@@ -5,7 +5,7 @@
   <%= javascript_include_tag('mi_attempts/new') %>
 <% end %>
 
-<div id="object-box" class="grid_8 prefix_2 suffix_2">
+<div id="object-box" class="grid_12">
     <h2><%= @title %></h2>
 
     <%= link_to 'History', mi_plan_path(@mi_plan) + '/history' %>
@@ -42,7 +42,7 @@
         </div>
     <% end %>
 </div>
-<div  id="object-box" class="grid_8 prefix_2 suffix_2" style="margin-top:15px">
+<div  id="object-box" class="grid_12" style="margin-top:15px">
   <%= button_to '  Delete  ', {:action => "destroy", :id =>@mi_plan.id}, :id => "mi_plan_delete_button", :confirm => "Are you sure you want to delete this Mi Plan?", :method => :delete%>
 </div>
 

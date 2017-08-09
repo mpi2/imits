@@ -11,7 +11,7 @@ class UsersController < Devise::RegistrationsController
 
   def index
     @users = User.all
-    respond_with @users.to_json(:only => [:id, :production_centre_id], :methods => [:production_centre_name])
+    respond_with @users.to_json(:only => [:id, :name], :methods => [:production_centre_name, :filter_by_centre_name])
   end
 
   def update

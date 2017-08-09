@@ -56,16 +56,8 @@ end
 #
 # Table name: targ_rep_genbank_files
 #
-#  id                  :integer          not null, primary key
-#  allele_id           :integer          not null
-#  escell_clone        :text
-#  targeting_vector    :text
-#  created_at          :datetime
-#  updated_at          :datetime
-#  allele_genbank_file :text
-#  file_gb             :text
-#
-# Indexes
-#
-#  genbank_files_allele_id_fk  (allele_id)
+#  id         :integer          not null, primary key
+#  created_at :datetime
+#  updated_at :datetime
+#  file_gb    :text
 #

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20170728325302) do
+ActiveRecord::Schema.define(:version => 20170808141602) do
 
   create_table "alleles", :force => true do |t|
     t.integer  "es_cell_id"
@@ -1056,16 +1056,10 @@ ActiveRecord::Schema.define(:version => 20170728325302) do
   add_index "targ_rep_es_cells", ["pipeline_id"], :name => "es_cells_pipeline_id_fk"
 
   create_table "targ_rep_genbank_files", :force => true do |t|
-    t.integer  "allele_id",           :null => false
-    t.text     "escell_clone"
-    t.text     "targeting_vector"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "allele_genbank_file"
     t.text     "file_gb"
   end
-
-  add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
 
   create_table "targ_rep_genotype_primers", :force => true do |t|
     t.string  "sequence",                 :null => false
@@ -1222,6 +1216,7 @@ ActiveRecord::Schema.define(:version => 20170728325302) do
     t.integer  "legacy_id"
     t.boolean  "admin",                                         :default => false
     t.boolean  "active",                                        :default => true
+    t.string   "filter_by_centre_id"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

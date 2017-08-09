@@ -39,6 +39,12 @@
             <%= form.collection_select :production_centre_id, Centre.all.sort_by(&:name), :id, :name %>
           </td>
         </tr>
+        <tr>
+          <td>
+            <%= form.label :filter_by_centre %>
+            <%= form.collection_select :filter_by_centre_id, Centre.all.sort_by(&:name), :id, :name %>
+          </td>
+        </tr>
       </table>
 
       <div class="submit">

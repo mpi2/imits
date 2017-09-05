@@ -82,7 +82,7 @@ class Allele < ApplicationModel
     :allow_nil => true
 
   validates_format_of :mutant_fa,
-    :with      => /^(>[\w\\+\?\.\*\^\$\(\)\[\]\{\}\|\\\/\-\'\" +=:;~@#&]+\n)?([ACGTacgt]+\n$)/m,
+    :with      => /^(>[\w\\+\?\.\*\^\$\(\)\[\]\{\}\|\\\/\-\'\" +=:;~@#&]+\n)?([ACGTNRYKMSWacgtnrykmsw]+\n$)/m,
     :message   => "is not a valid FASTA file format.",
     :allow_nil => true
 

@@ -720,7 +720,7 @@ class Public::PhenotypeAttempt
     # Then Select Mouse Allele Mod Audits After 12/06/2015
     # Then Select Phenotyping Production Audits
 
-    Audit.where("(auditable_type = 'PhenotypeAttempt' AND auditable_id = #{self.id}) #{ !mouse_allele_mod.blank? ? " OR (auditable_type = 'MouseAlleleMod' AND auditable_id = #{self.mouse_allele_mod.id} AND created_at > '2015/06/11')" : ""} #{ !linked_phenotyping_production.blank? ?  " OR (auditable_type = 'PhenotypingProduction' AND auditable_id = #{self.id}) AND created_at > '2015/06/11'" : ""}")
+    Audit.where("(auditable_type = 'PhenotypeAttempt' AND auditable_id = #{self.id}) #{ !mouse_allele_mod.blank? ? " OR (auditable_type = 'MouseAlleleMod' AND auditable_id = #{self.mouse_allele_mod.id} AND created_at > '2015/06/11')" : ""} #{ !linked_phenotyping_production.blank? ?  " OR (auditable_type = 'PhenotypingProduction' AND auditable_id = #{linked_phenotyping_production.id}) AND created_at > '2015/06/11'" : ""}")
   end
 
 

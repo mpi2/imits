@@ -61,6 +61,8 @@ class Allele < ApplicationModel
 
   has_one :production_centre_qc, :inverse_of => :allele, :dependent => :destroy
 
+  has_many :annotations, :dependent => :destroy
+
   accepts_nested_attributes_for :production_centre_qc, :update_only =>true
 
 ### MODEL VALIDATION

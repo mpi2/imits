@@ -27,25 +27,25 @@ class MutagenesisFactorController < ApplicationController
     @mutagenesis_factor = MutagenesisFactor.find_by_id(params[:id])
     mi_attempt = @mutagenesis_factor.mi_attempt
 
-    @vector = @mutagenesis_factor.vector
+#    @vector = @mutagenesis_factor.donors
 
     @vector_features = []
 
-    if @vector
-      @allele      = @vector.allele
-      allele_type  = @allele.type
-
-      #   "TargRep::HdrAllele" -> oligo
-      case allele_type
-        when "TargRep::GeneTrap", "TargRep::CrisprTargetedAllele", "TargRep::TargetedAllele"
-            parent_feature = build_vector_features()
-        else
-          puts "Error: Allele type #{allele_type} not recognised as a vector."
-      end
-
-      @vector_features.push(parent_feature)
-    end
-
+#    if @vector
+#      @allele      = @vector.allele
+#      allele_type  = @allele.type
+#
+#      #   "TargRep::HdrAllele" -> oligo
+#      case allele_type
+#        when "TargRep::GeneTrap", "TargRep::CrisprTargetedAllele", "TargRep::TargetedAllele"
+#            parent_feature = build_vector_features()
+#        else
+#          puts "Error: Allele type #{allele_type} not recognised as a vector."
+#      end
+#
+#      @vector_features.push(parent_feature)
+#    end
+#
     respond_with @vector_features do |format|
       format.json do
         render :json => @vector_features

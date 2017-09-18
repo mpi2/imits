@@ -297,6 +297,7 @@ class TraceCall < ActiveRecord::Base
   end
 
   def only_select_target_region(seq_type)
+    return nil if self.file_alignment.blank?
     if seq_type == 'reference'
       seq = self.file_alignment.split("\n")[0]
     else

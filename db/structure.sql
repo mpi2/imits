@@ -698,6 +698,43 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: allele_annotations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE allele_annotations (
+    id integer NOT NULL,
+    allele_id integer NOT NULL,
+    mod_type character varying(255) NOT NULL,
+    chr character varying(255) NOT NULL,
+    start integer NOT NULL,
+    "end" integer NOT NULL,
+    ref_seq text,
+    alt_seq text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: allele_annotations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE allele_annotations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: allele_annotations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE allele_annotations_id_seq OWNED BY allele_annotations.id;
+
+
+--
 -- Name: alleles; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3601,6 +3638,13 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY allele_annotations ALTER COLUMN id SET DEFAULT nextval('allele_annotations_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY alleles ALTER COLUMN id SET DEFAULT nextval('alleles_id_seq'::regclass);
 
 
@@ -4092,6 +4136,14 @@ ALTER TABLE ONLY tracking_goals ALTER COLUMN id SET DEFAULT nextval('tracking_go
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: allele_annotations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY allele_annotations
+    ADD CONSTRAINT allele_annotations_pkey PRIMARY KEY (id);
 
 
 --
@@ -5987,3 +6039,5 @@ INSERT INTO schema_migrations (version) VALUES ('20170630325302');
 INSERT INTO schema_migrations (version) VALUES ('20170728325302');
 
 INSERT INTO schema_migrations (version) VALUES ('20170808141602');
+
+INSERT INTO schema_migrations (version) VALUES ('20170913141602');

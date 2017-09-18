@@ -11,7 +11,19 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20170808141602) do
+ActiveRecord::Schema.define(:version => 20170913141602) do
+
+  create_table "allele_annotations", :force => true do |t|
+    t.integer  "allele_id",  :null => false
+    t.string   "mod_type",   :null => false
+    t.string   "chr",        :null => false
+    t.integer  "start",      :null => false
+    t.integer  "end",        :null => false
+    t.text     "ref_seq"
+    t.text     "alt_seq"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
   create_table "alleles", :force => true do |t|
     t.integer  "es_cell_id"

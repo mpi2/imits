@@ -13,6 +13,8 @@ class CrisprDataUpload
     @value_mismatch = []
     @stamp_date_mismatch = []
     @grna_sequence_mismatch = []
+    @annotation = []
+    @annotation_count = 0
     @data_uploaded = false
     @status_stamps_uploaded = false
   end
@@ -49,6 +51,14 @@ class CrisprDataUpload
     @grna_sequence_mismatch
   end
 
+  def mutation_annotation
+    @annotation
+  end
+  
+  def annotation_count
+    @annotation_count
+  end
+
   def read_data
     
     @cripsr_file.each do |row|
@@ -62,8 +72,10 @@ class CrisprDataUpload
       crisprs = mutagenesis_factor.crisprs
       status_stamps = mi_attempt.status_stamps
     
-    
-      @mi_attempts_to_delete << row if row[columns.find_index("Delete")] == 'Yes'
+      if row[columns.find_index("Delete")] == 'Yes'
+        @mi_attempts_to_delete << row 
+        next
+      end
       
     
     
@@ -114,7 +126,31 @@ class CrisprDataUpload
       compile_grna_sequence_mismatch['additional gRNA detected'] = additional unless additional.blank?
       compile_grna_sequence_mismatch['concentration mismatch'] = concentration_mismatch unless concentration_mismatch.blank?
       @grna_sequence_mismatch << [mi_attempt, compile_grna_sequence_mismatch] unless compile_grna_sequence_mismatch.blank?
-    
+
+
+      compile_annotations = []
+      @annotation_count =0
+
+      deletion_1_chr = row[columns.find_index("1st Del Chr")]
+      deletion_1_start = row[columns.find_index("1st start bp")]
+      deletion_1_end = row[columns.find_index("1st end bp")]
+      deletion_2_chr = row[columns.find_index("2nd Del Chr")]
+      deletion_2_start = row[columns.find_index("2nd start bp")]
+      deletion_2_end = row[columns.find_index("2nd end bp")]
+      deletion_3_chr = row[columns.find_index("3rd Del Chr")]
+      deletion_3_start = row[columns.find_index("3rd start bp")]
+      deletion_3_end = row[columns.find_index("3rd end bp")]
+
+      if colonies.all?{|c| c.alleles.first.annotations.blank?}
+        compile_annotations << [deletion_1_chr, deletion_1_start, deletion_1_end] unless deletion_1_chr.blank? || deletion_1_start.blank? || deletion_1_end.blank?
+        compile_annotations << [deletion_2_chr, deletion_2_start, deletion_2_end] unless deletion_2_chr.blank? || deletion_2_start.blank? || deletion_2_end.blank?
+        compile_annotations << [deletion_3_chr, deletion_3_start, deletion_3_end] unless deletion_3_chr.blank? || deletion_3_start.blank? || deletion_3_end.blank?
+      else
+        @annotation_count += 1
+      end
+
+      @annotation << [mi_attempt, compile_annotations] unless compile_annotations.blank?
+
       mi_date = row[columns.find_index("mi_date")].to_s.to_date
       g0_date = row[columns.find_index("g0_obtained_date")].to_s.to_date
       glt_date = row[columns.find_index("genotype_confirmed_date")].to_s.to_date
@@ -227,30 +263,52 @@ class CrisprDataUpload
     Audit.as_user(User.find_by_email('pm9@ebi.ac.uk')) do
       mi_attempts_to_delete.each do |row|
         mi_attempt = MiAttempt.find(row[columns.find_index("mi_attempt_id")])
+        next id mi_attempt.blank?
         mi_attempt.destroy
       end
     end
   end
 
   def update_crispr_attributes
-    grna_sequence_mismatch.each do |mi_attempt, grna_data|
-      mf = MutagenesisFactor.find(mi_attempt.mutagenesis_factor_id)
+    Audit.as_user(User.find_by_email('pm9@ebi.ac.uk')) do
+      grna_sequence_mismatch.each do |mi_attempt, grna_data|
+        mf = MutagenesisFactor.find(mi_attempt.mutagenesis_factor_id)
+        next if grna_data['concentration mismatch'].blank?
+        grna_data['concentration mismatch'].select{|a| a[0] == false}.each do |row|
+          mf.grna_concentration = row[2]
+          mf.individually_set_grna_concentrations = false
 
-      grna_data['concentration mismatch'].select{|a| a[0] == false}.each do |row|
-        mf.grna_concentration = row[2]
-        mf.individually_set_grna_concentrations = false
-
-        mf.save
+          mf.save
+        end
       end
     end
     return true
   end
 
+  def insert_mutation_annotations
+    Audit.as_user(User.find_by_email('pm9@ebi.ac.uk')) do
+      mutation_annotation.each do |mi_attempt, anotation_data|
+        colony = mi_attempt.colonies.select{|c| c.genotype_confirmed}
+        next if colony.blank? || colony.length > 1
+        next if colony.first.alleles.count > 1
+        allele = colony.first.alleles.first
+
+        next unless allele.annotations.blank?
+
+        anotation_data.each do |a|
+          aa = Allele::Annotation.new({:allele_id => allele.id, :mod_type => 'del', :chr => a[0], :start => a[1], :end => a[2]})
+          aa.save
+        end
+      end
+    end
+    return true
+  end
+
+
   def update_mutagenesis_factor_attributes
     mutagenesis_factor_attributes = ["no_nhej_g0_mutants", "no_deletion_g0_mutants", "no_hdr_g0_mutants_all_donors_inserted", "no_hdr_g0_mutants_subset_donors_inserted", "no_hr_g0_mutants", "no_hdr_g0_mutants"]
 
     value_mismatch.each do |mi_attempt, changed_values|
-
       att_to_update = changed_values.select{|k, v| mutagenesis_factor_attributes.include?(k)}
       att_to_update.each{|k, v| att_to_update[k]=v[1]}
       next if att_to_update.blank?

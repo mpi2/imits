@@ -254,51 +254,32 @@ class Colony < ApplicationModel
             EOF
   end
 
-
-  #### may not work, should this be in trace call model
   def get_mutant_nucleotide_sequence_features
-    unless trace_call.trace_call_vcf_modifications.count > 0
-      if trace_call.file_filtered_analysis_vcf
-        vcf_data = trace_call.parse_filtered_vcf_file
-        if vcf_data && vcf_data.length > 0
-          vcf_data.each do |vcf_feature|
-            if vcf_feature.length >= 6
-              tc_mod = TraceCallVcfModification.new(
-                :trace_call_id => trace_call.id,
-                :mod_type      => vcf_feature['mod_type'],
-                :chr           => vcf_feature['chr'],
-                :start         => vcf_feature['start'],
-                :end           => vcf_feature['end'],
-                :ref_seq       => vcf_feature['ref_seq'],
-                :alt_seq       => vcf_feature['alt_seq']
-              )
-              tc_mod.save!
-            else
-              puts "ERROR: unexpected length of VCF data for trace call id #{self.id}"
-            end
-          end
-        end
-      end
-    end
-
     mut_seq_features = []
 
-    trace_call.trace_call_vcf_modifications.each do |tc_mod|
-      mut_seq_feature = {
-        'chr'          => mi_attempt.mi_plan.gene.chr,
-        'strand'       => mi_attempt.mi_plan.gene.strand_name,
-        'start'        => tc_mod.start,
-        'end'          => tc_mod.end,
-        'ref_sequence' => tc_mod.ref_seq,
-        'alt_sequence' => tc_mod.alt_seq,
-        'sequence'     => tc_mod.alt_seq,
-        'mod_type'     => tc_mod.mod_type
-      }
-      mut_seq_features.push( mut_seq_feature.as_json )
+    alleles.each do |a|
+      a.annotations.each do |tc_mod|
+        mut_seq_feature = {
+          'chr'          => mi_attempt.mi_plan.gene.chr,
+          'strand'       => mi_attempt.mi_plan.gene.strand_name,
+          'start'        => tc_mod.start,
+          'end'          => tc_mod.end,
+          'ref_sequence' => tc_mod.ref_seq,
+          'alt_sequence' => tc_mod.alt_seq,
+          'sequence'     => tc_mod.alt_seq,
+          'mod_type'     => tc_mod.mod_type
+        }
+        mut_seq_features.push( mut_seq_feature.as_json )
+      end
     end
 
     return mut_seq_features
   end
+
+  def allele_annotations_available 
+    alleles.any?{|a| !a.annotations.blank?}
+  end
+    
 end
 
 # == Schema Information

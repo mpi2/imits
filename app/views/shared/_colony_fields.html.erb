@@ -55,28 +55,7 @@
                   <legend>Upload Trace File Evidence</legend>
                   <div>
                     <%= f.fields_for :trace_call do |ftc| %>
-                      <% ftc_generator = MiAttemptFieldGenerator.new(ftc) %>
-                      <% if ftc.object.trace_data_error %>
-                        <% if ftc.object.file_error.to_s.length > 0 %>
-                          <p>Error: <%= ftc.object.file_error %></p>
-                          <% if ! Rails.env.production? %>
-                            <p>debug stderr:</p>
-                            <p><%= ftc.object.file_trace_error %></p>
-                            <p>debug stdout:</p>
-                            <p><%= ftc.object.file_trace_output %></p>
-                          <% end %>
-         
-                        <% else %>
-                          <p>error</p>
-                        <% end %>
-                        
-                      <% elsif ftc.object.trace_data_pending %>
-                        <p>Analysis pending</p>
-                        
-                      <% elsif ! f.object.new_record? && ftc.object.trace_data_available %>
-                        <%= link_to 'view results', :controller => :colony, :action => :show, :id => f.object.id %>
-                      <% end %>
-                        
+                      <% ftc_generator = MiAttemptFieldGenerator.new(ftc) %>                        
                       <% if ! f.object.new_record? && (ftc.object.trace_data_available || ftc.object.trace_data_pending) %>
                         <button id="cbutton_<%= f.object.id %>" type="button" onclick="$(this).toggle();var id = '#cdiv_<%= f.object.id %>'; $(id).toggle();">Replace</button>
                         <div id="cdiv_<%= f.object.id %>" style="display:none;">
@@ -87,6 +66,10 @@
                       <% else %>
                         <%= ftc.file_field :trace_file %></br>
                         <%= ftc_generator.check_box :is_het, :label => 'Heterozygous Trace?' %>
+                      <% end %>
+
+                      <% if ! colony.new_record? && colony.allele_annotations_available %>
+                        <%= link_to 'view analysis results', :controller => :colony, :action => :show, :id => colony.id %>
                       <% end %>
                     </div>
                   <% end %>

@@ -124,6 +124,13 @@ class PhenotypingProduction < ApplicationModel
   validates :parent_colony, :presence => true
   validates :colony_name, :presence => true, :uniqueness => {:case_sensitive => false}, :allow_nil => false
 
+  # colony_name cannot be changed once phenotype_started = true
+  validate do |pp|
+    if pp.changes.has_key?('colony_name') && pp.phenotyping_started == true
+      pp.errors.add(:colony_name, 'cannot be changed once data has been submitted to PhenoDCC.')
+    end
+  end
+
   # colony_background_strain
   validate do |pp|
     if !colony_background_strain_name.blank? && Strain.find_by_name(colony_background_strain_name).blank?

@@ -402,7 +402,7 @@ class SolrData::Allele2CoreData
   def run
     check_params
     generate_data
-#    save_to_file
+    save_to_file
   end
 
   def check_params
@@ -567,8 +567,18 @@ class SolrData::Allele2CoreData
 
     ## append additional data based on already collated data
     @allele_data.each do |key, allele_data_doc|
-      allele_data_doc.synonym = @gene_data[allele_data_doc.mgi_accession_id].synonym
-      allele_data_doc.feature_type = @gene_data[allele_data_doc.mgi_accession_id].feature_type 
+
+      gene_doc = @gene_data[allele_data_doc.mgi_accession_id]
+
+      allele_data_doc.marker_type = gene_doc.marker_type
+      allele_data_doc.marker_name = gene_doc.marker_name
+      allele_data_doc.marker_synonym = gene_doc.synonym
+      allele_data_doc.marker_mgi_accession_id = gene_doc.mgi_accession_id
+      allele_data_doc.feature_type = gene_doc.feature_type
+
+      allele_data_doc.human_gene_symbol = gene_doc.human_gene_symbol
+      allele_data_doc.human_entrez_gene_id = gene_doc.human_entrez_gene_id
+      allele_data_doc.human_homolo_gene_id = gene_doc.human_homolo_gene_id
 
       allele_data_doc.allele_description = TargRep::Allele.allele_description({
                                                'marker_symbol'               => allele_data_doc.marker_symbol,
@@ -640,6 +650,7 @@ class SolrData::Allele2CoreData
 
       gene_data_doc.es_cell_status = 'No ES Cell Production' if gene_data_doc.es_cell_status.blank? && gene_data_doc.feature_type == 'protein coding gene'
 
+      gene_data_doc.marker_mgi_accession_id = gene_data_doc.mgi_accession_id
       gene_data_doc.latest_es_cell_status = gene_data_doc.es_cell_status
       gene_data_doc.latest_mouse_status = gene_data_doc.mouse_status
       gene_data_doc.latest_phenotype_status = gene_data_doc.phenotype_status
@@ -845,7 +856,12 @@ class SolrData::Allele2CoreData
                  'marker_type' => data_row['marker_type'],
                  'marker_name' => data_row['marker_name'],
                  'synonym' => !data_row['synonyms'].blank? ? data_row['synonyms'].split('|') : '',
+                 'marker_type' => data_row['marker_type'],
+                 'marker_name' => data_row['marker_name'],
                  'feature_type' => data_row['feature_type'],
+                 'human_gene_symbol' => data_row['human_marker_symbol'],
+                 'human_entrez_gene_id' => data_row['human_entrez_gene_id'],
+                 'human_homolo_gene_id' => data_row['human_homolo_gene_id'],
                  'feature_chromosome' => data_row['chr'],
                  'feature_strand' => data_row['strand_name'],
                  'feature_coord_start' => data_row['start_coordinates'],

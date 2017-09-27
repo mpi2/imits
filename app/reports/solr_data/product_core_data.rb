@@ -24,9 +24,9 @@ class SolrData::ProductCoreData
 # NOTES Remove Gene Trap alleles by only selecting TargetedAlleles
   ES_CELL_SQL= <<-EOF
     SELECT targ_rep_es_cells.*,
-      CASE WHEN targ_rep_es_cells.allele_type IS NULL AND targ_rep_es_cells.allele_symbol_superscript_template IS NOT NULL THEN ''
-      ELSE targ_rep_es_cells.allele_type END
-      AS allele_type_v2,
+      CASE WHEN alleles.allele_type IS NULL AND alleles.allele_symbol_superscript_template IS NOT NULL THEN ''
+      ELSE alleles.allele_type END
+      AS allele_type,
       targ_rep_targeting_vectors.name AS targeting_vector_name,
       targ_rep_mutation_types.name AS mutation_type,
       targ_rep_mutation_types.allele_code AS mutation_type_allele_code,
@@ -41,6 +41,7 @@ class SolrData::ProductCoreData
       targ_rep_pipelines.name AS pipeline,
       targ_rep_alleles.project_design_id AS design_id
     FROM targ_rep_es_cells
+      JOIN alleles ON alleles.es_cell_id = targ_rep_es_cells.id
       JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
       JOIN genes ON genes.id = targ_rep_alleles.gene_id SUBS_GENE_TEMPLATE
       LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_es_cells.ikmc_project_foreign_id
@@ -94,9 +95,9 @@ class SolrData::ProductCoreData
         es_cells.mgi_accession_id AS mgi_accession_id,
         es_cells.allele_id AS allele_id,
         es_cells.has_issue AS has_issue,
-        es_cells.allele_symbol_superscript_template AS allele_symbol_superscript_template,
-        es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
-        es_cells.allele_type_v2 AS es_cell_allele_type,
+        alleles.allele_symbol_superscript_template AS allele_symbol_superscript_template,
+        alleles.mgi_allele_symbol_superscript AS allele_symbol_superscript,
+        alleles.allele_type AS es_cell_allele_type,
         es_cells.strain AS strain,
         mouse_colonies.list AS colonies,
         es_cells.pipeline AS pipeline,
@@ -106,6 +107,7 @@ class SolrData::ProductCoreData
         ARRAY[ES_CELL_QC_RESULTS] AS qc_data,
         distribution_qcs.distribution_qc_data AS distribution_qc
       FROM es_cells
+      JOIN alleles ON alleles.es_cell_id = es_cells.id
       LEFT JOIN mouse_colonies ON mouse_colonies.es_cell_id = es_cells.id
       LEFT JOIN distribution_qcs ON distribution_qcs.es_cell_id = es_cells.id
       WHERE es_cells.report_to_public = true
@@ -122,11 +124,13 @@ class SolrData::ProductCoreData
     #es_cell_names finds all es_cells created from the targeting vector and orders them by the allele_type (tm1, tm1a then tm1e).This will allow your to determine the targeting vector allele_type by selecting the first allele_type off the list
     <<-EOF
       WITH es_cell_names AS (
-        SELECT es_cells.targeting_vector_id AS targeting_vector_id, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(es_cells.allele_type) AS allele_types, array_agg(es_cells.name) AS list
+        SELECT es_cells.targeting_vector_id AS targeting_vector_id, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,
+        array_agg(es_cells.allele_type) AS allele_types, array_agg(es_cells.name) AS list
         FROM
-          (SELECT targ_rep_es_cells.*
+          (SELECT targ_rep_es_cells.*, alleles.*
           FROM targ_rep_es_cells
-          ORDER BY targ_rep_es_cells.targeting_vector_id, targ_rep_es_cells.mgi_allele_symbol_superscript) AS es_cells
+          JOIN alleles ON alleles.es_cell_id = targ_rep_es_cells.id
+          ORDER BY targ_rep_es_cells.targeting_vector_id, alleles.mgi_allele_symbol_superscript) AS es_cells
         WHERE es_cells.report_to_public = true
         GROUP BY es_cells.targeting_vector_id
       )
@@ -170,13 +174,14 @@ class SolrData::ProductCoreData
       WITH es_cell_names AS (
         SELECT es_cells.intermediate_vector AS intermediate_vector, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(es_cells.allele_type) AS allele_types
         FROM
-          (SELECT targ_rep_es_cells.*, targ_rep_targeting_vectors.intermediate_vector AS intermediate_vector
+          (SELECT targ_rep_es_cells.*, alleles.*, targ_rep_targeting_vectors.intermediate_vector AS intermediate_vector
           FROM targ_rep_es_cells
+          JOIN alleles ON alleles.es_cell_id = targ_rep_es_cells.id
           JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.id = targ_rep_es_cells.targeting_vector_id
           WHERE targ_rep_targeting_vectors.intermediate_vector IS NOT NULL AND targ_rep_targeting_vectors.intermediate_vector != '' AND
-            targ_rep_es_cells.mgi_allele_symbol_superscript IS NOT NULL AND targ_rep_es_cells.mgi_allele_symbol_superscript != '' AND
-            targ_rep_es_cells.allele_type IS NOT NULL AND targ_rep_es_cells.allele_type != ''
-          ORDER BY targ_rep_targeting_vectors.intermediate_vector, targ_rep_es_cells.mgi_allele_symbol_superscript) AS es_cells
+            alleles.mgi_allele_symbol_superscript IS NOT NULL AND alleles.mgi_allele_symbol_superscript != '' AND
+            alleles.allele_type IS NOT NULL AND alleles.allele_type != ''
+          ORDER BY targ_rep_targeting_vectors.intermediate_vector, alleles.mgi_allele_symbol_superscript) AS es_cells
         GROUP BY es_cells.intermediate_vector
       )
 
@@ -215,7 +220,7 @@ class SolrData::ProductCoreData
       colony_summary AS (
         SELECT colonies.id, colonies.mi_attempt_id, colonies.mouse_allele_mod_id, colonies.name, colonies.genotype_confirmed, colonies.report_to_public AS report_colony_to_public, 
                background_strain.name AS background_strain, colonies.is_released_from_genotyping, colonies.genotyping_comment,
-               alleles.mgi_allele_symbol_superscript, alleles. allele_symbol_superscript_template, alleles.mgi_allele_accession_id. alleles.allele_type,
+               alleles.mgi_allele_symbol_superscript, alleles. allele_symbol_superscript_template, alleles.mgi_allele_accession_id, alleles.allele_type,
                ARRAY[COLONY_QC_RESULTS] AS qc_data                                
         FROM colonies
           JOIN strains background_strain ON background_strain.id = colonies.background_strain_id
@@ -330,7 +335,7 @@ class SolrData::ProductCoreData
       WHERE mouse_allele_mods.report_to_public = true AND mouse_allele_mods.is_active = true
     EOF
 
-    colonies_qc_fields = ProductionCentreQc::QC_FIELDS.map{|field, options| "'Production QC:#{options[:name]}:' || colony_qcs.#{field.to_s}"}.join(', ')
+    colonies_qc_fields = ProductionCentreQc::QC_FIELDS.map{|field, options| "'Production QC:#{options[:name].gsub("'", "''")}:' || production_centre_qcs.#{field.to_s}"}.join(', ')
     sql.gsub!(/COLONY_QC_RESULTS/, colonies_qc_fields)
     return sql
   end
@@ -353,11 +358,44 @@ class SolrData::ProductCoreData
     @process_intermediate_vectors = options[:process_intermediate_vectors] || true
 
     @look_up_contact = {}
-    @qc_results = {}
     @docs = []
 
     Centre.all.each{|production_centre| if !production_centre.contact_email.blank? ; @look_up_contact[production_centre.name] = production_centre.contact_email; end }
-    QcResult.all.each{|result| @qc_results[result.id] = result.description}
+
+    @mice_lines_sql = self.class.mice_lines_sql
+    @es_cell_sql = self.class.es_cell_sql
+    @targeting_vectors_sql = self.class.targeting_vectors_sql
+    @intermediate_vectors_sql = self.class.intermediate_vectors_sql
+    [@mice_lines_sql, @es_cell_sql, @targeting_vectors_sql, @intermediate_vectors_sql].each do |product_sql|
+      if @show_eucommtoolscre == true
+        product_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
+      else
+        product_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
+      end
+  
+      if !@marker_symbols.blank?
+        marker_symbols = @marker_symbols.to_a.map {|ms| "'#{ms}'" }.join(',')
+        product_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
+      else
+        product_sql.gsub!(/SUBS_GENE_TEMPLATE/, "")
+      end
+    end
+  end
+
+  def mice_lines_sql
+    @mice_lines_sql
+  end
+
+  def es_cell_sql
+    @es_cell_sql
+  end
+
+  def targeting_vectors_sql
+    @targeting_vectors_sql
+  end
+
+  def intermediate_vectors_sql
+    @intermediate_vectors_sql
   end
 
   def run
@@ -408,20 +446,6 @@ class SolrData::ProductCoreData
     puts "#### step #{step_no} #{product_type} Products #{Time.now}"
     puts "#### step #{step_no}.1 Select #{Time.now}"
 
-    # modify sql to either remove or select EUCOMMToolsCre
-    if @show_eucommtoolscre == true
-      product_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " = 'EUCOMMToolsCre'")
-    else
-      product_sql.gsub!(/SUBS_EUCOMMTOOLSCRE/, " != 'EUCOMMToolsCre'")
-    end
-
-    if !@marker_symbols.blank?
-      marker_symbols = @marker_symbols.to_a.map {|ms| "'#{ms}'" }.join(',')
-      product_sql.gsub!(/SUBS_GENE_TEMPLATE/, " AND genes.marker_symbol IN (#{marker_symbols})")
-    else
-      product_sql.gsub!(/SUBS_GENE_TEMPLATE/, "")
-    end
-
     rows = ActiveRecord::Base.connection.execute(product_sql)
     product_count = rows.count
 
@@ -450,29 +474,29 @@ class SolrData::ProductCoreData
   end
   private :process_product
 
-
+  
   def generate_data
 
     step_no = 1
     puts "#### Starting #{Time.now}"
 
     if @process_mice == true
-      process_product(step_no, 'mouse', self.class.mice_lines_sql, 'create_mouse_doc')
+      process_product(step_no, 'mouse', mice_lines_sql, 'create_mouse_doc')
       step_no += 1
     end
 
     if @process_es_cells == true
-      process_product(step_no, 'es_cell', self.class.es_cell_sql, 'create_es_cell_doc')
+      process_product(step_no, 'es_cell', es_cell_sql, 'create_es_cell_doc')
       step_no += 1
     end
 
     if @process_targeting_vectors == true
-      process_product(step_no, 'targeting_vector', self.class.targeting_vectors_sql, 'create_targeting_vector_doc')
+      process_product(step_no, 'targeting_vector', targeting_vectors_sql, 'create_targeting_vector_doc')
       step_no += 1
     end
 
     if @process_intermediate_vectors == true
-      process_product(step_no, 'intermediate_vector', self.class.intermediate_vectors_sql, 'create_intermediate_vector_doc')
+      process_product(step_no, 'intermediate_vector', intermediate_vectors_sql, 'create_intermediate_vector_doc')
       step_no += 1
     end
   end
@@ -496,7 +520,7 @@ class SolrData::ProductCoreData
      "production_completed"             => ['Genotype confirmed','Cre Excision Complete'].include?(row['mouse_status']) ? true : false,
      "status"                           => row["mouse_status"],
      "status_date"                      => row["mouse_status_date"].to_date.to_s,
-     "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; if !@qc_results.has_key?(qc_data[2].to_i) && qc_data[2] != 'na'; "#{qc_data[0]}:#{qc_data[1]}:#{qc_data[2]}" ; else @qc_results.has_key?(qc_data[2].to_i) && @qc_results[qc_data[2].to_i] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{@qc_results[qc_data[2].to_i]}" : nil ; end}.compact,
+     "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; qc_data[2] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{qc_data[2]}" : nil }.compact,
      "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == 't' ? 'Cas9/Crispr' : 'ES Cell'}"],
      "associated_product_es_cell_name"  => row["es_cell_name"],
      "associated_product_colony_name"   => row["parent_colony_name"],
@@ -721,6 +745,9 @@ class SolrData::ProductCoreData
 
     elsif 'NARLabs' == pipeline
       return {:urls => ["mailto:geniechin@narlabs.org.tw?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['NARLabs']}
+
+    elsif 'GENCODYS' == pipeline
+      return {:urls => ["mailto:info@gencodys.eu?Subject=Mutant ES Cell line for #{marker_symbol}"], :names => ['GENCODYS']}
 
     else
       puts "PIPELINE : #{pipeline}"

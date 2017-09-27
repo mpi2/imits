@@ -127,7 +127,7 @@ class PhenotypingProduction < ApplicationModel
   # colony_name cannot be changed once phenotype_started = true
   validate do |pp|
     if pp.changes.has_key?('colony_name') && pp.phenotyping_started == true
-      pp.errors.add(:colony_name, 'cannot be changed once data has been submitted to PhenoDCC.')
+      pp.errors.add(:base, 'Cohort Colony name cannot be changed once data has been submitted to PhenoDCC.')
     end
   end
 

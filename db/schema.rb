@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20170913141602) do
+ActiveRecord::Schema.define(:version => 20170927101602) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",  :null => false
@@ -193,6 +193,9 @@ ActiveRecord::Schema.define(:version => 20170913141602) do
     t.integer  "komp_repo_geneid"
     t.string   "marker_name"
     t.string   "cm_position"
+    t.string   "human_marker_symbol"
+    t.string   "human_entrez_gene_id"
+    t.string   "human_homolo_gene_id"
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true

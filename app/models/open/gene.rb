@@ -162,6 +162,9 @@ end
 #  komp_repo_geneid                   :integer
 #  marker_name                        :string(255)
 #  cm_position                        :string(255)
+#  human_marker_symbol                :string(255)
+#  human_entrez_gene_id               :string(255)
+#  human_homolo_gene_id               :string(255)
 #
 # Indexes
 #

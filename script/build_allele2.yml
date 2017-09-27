@@ -1,5 +1,0 @@
----
-options:
-  LOAD_FROM_FILE: # workspace/imits/imits_test/solr_update.csv
-  SAVE_AS_CSV: false
-  MARKER_SYMBOL: #Asxl1 #Tdrd12 #Tceal5 #Aaas #Prdm14 #Lrrc20 #Podxl2 # "Cbx4" #"Tmod2"  # "3110035E14Rik"   #"Akt2"   #"Htra4" #"Exoc3l2"	#"Cdkn2a"   #"CGI_11865" #"Man2b2"   #"Cabp1|Cdkal1|Dnmt3a|Man2b2|Pfkfb4|Rsad1|Sirt3|Skida1|Xbp1"

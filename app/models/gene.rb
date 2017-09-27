@@ -590,11 +590,12 @@ class Gene < ActiveRecord::Base
     headers = []
     genes_data = {}
     ccds_data = {}
+    human_data = {}
 
     logger.info "Load gene info"
     logger.info "downloading MGI_MRK_Coord"
     url = 'http://www.informatics.jax.org/downloads/reports/MGI_MRK_Coord.rpt'
-    open(url, :proxy => nil) do |file|
+    open(url) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_index = headers.index('1. MGI Marker Accession ID')
       marker_symbol_index = headers.index('4. Marker Symbol')
@@ -636,7 +637,7 @@ class Gene < ActiveRecord::Base
 
     logger.info "Downloading Vega report"
     url = "http://www.informatics.jax.org/downloads/reports/MRK_VEGA.rpt"
-    open(url, :proxy => nil) do |file|
+    open(url) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
       vega_ids_index = 5
@@ -648,7 +649,7 @@ class Gene < ActiveRecord::Base
 
     logger.info "Downloading Ensemble report"
     url = "http://www.informatics.jax.org/downloads/reports/MRK_ENSEMBL.rpt"
-    open(url, :proxy => nil) do |file|
+    open(url) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
       ens_ids_index = 5
@@ -660,7 +661,7 @@ class Gene < ActiveRecord::Base
 
     logger.info "Downloading ncbi report"
     url = "http://www.informatics.jax.org/downloads/reports/MGI_EntrezGene.rpt"
-    open(url, :proxy => nil) do |file|
+    open(url) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
       cm_position_index = 4
@@ -683,9 +684,31 @@ class Gene < ActiveRecord::Base
       end
     end
 
+    logger.info "Downloading human ortholog report"
+    url = "http://www.informatics.jax.org/downloads/reports/HMD_HumanPhenotype.rpt"
+    open(url) do |file|
+      human_symbol_index = 0
+      human_entrez_gene_id_index = 1
+      human_homolo_gene_id_index = 2
+      mouse_mgi_id_index = 5
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t").map{|a| a.strip}
+        if !human_data.has_key?(row[mouse_mgi_id_index])
+          human_data[row[mouse_mgi_id_index]] = {
+            'human_gene_symbol' => [], 'human_entrez_gene_id' => [], 'human_homolo_gene_id' => []
+          }
+        end
+        human_data[row[mouse_mgi_id_index]]['human_gene_symbol'] << row[human_symbol_index]
+        human_data[row[mouse_mgi_id_index]]['human_entrez_gene_id'] << row[human_entrez_gene_id_index]
+        human_data[row[mouse_mgi_id_index]]['human_homolo_gene_id'] << row[human_homolo_gene_id_index]
+      end
+    end
+    logger.error "failed to download file" if human_data.blank?
+
+
     logger.info "Downloading ccds report"
     url = "ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_mouse/CCDS.current.txt"
-    open(url, :proxy => nil) do |file|
+    open(url) do |file|
       headers = file.readline.strip.split("\t")
       ncbi_id_index = headers.index('gene_id')
       ccds_ids_index = headers.index('ccds_id')
@@ -740,6 +763,14 @@ class Gene < ActiveRecord::Base
       gene.ensembl_ids = gene_data['ens_ids'].join(',')
       gene.ncbi_ids = gene_data['ncbi_ids'].join(',')
       gene.ccds_ids = gene_data['ncbi_ids'].map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids'] if ccds_data.has_key?(ncbi_id)}.flatten.join(',')
+
+      if human_data.has_key?(gene.mgi_accession_id)
+        human_row = human_data[gene.mgi_accession_id]
+        gene.human_marker_symbol = human_row['human_gene_symbol'].flatten.join('|')
+        gene.human_entrez_gene_id = human_row['human_entrez_gene_id'].flatten.join('|')
+        gene.human_homolo_gene_id = human_row['human_homolo_gene_id'].flatten.join('|')
+      end
+
       if gene.changed?
         logger.info "update gene references for #{gene.mgi_accession_id}"
         if gene.valid?
@@ -769,6 +800,13 @@ class Gene < ActiveRecord::Base
       ng.ensembl_ids = new_gene['ncbi_ids'].join('')
 
       ng.ccds_ids = new_gene['ncbi_ids'].map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids'] if ccds_data.has_key?(ncbi_id)}.flatten.join(',')
+
+      if human_data.has_key?(new_gene['mgi_accession_id'])
+        human_row = human_data[new_gene['mgi_accession_id']]
+        ng.human_marker_symbol = human_row['human_gene_symbol'].flatten.join('|')
+        ng.human_entrez_gene_id = human_row['human_entrez_gene_id'].flatten.join('|')
+        ng.human_homolo_gene_id = human_row['human_homolo_gene_id'].flatten.join('|')
+      end
 
       if ng.valid?
         logger.info "Successfuly Created new gene: #{new_gene['mgi_accession_id']}"
@@ -880,6 +918,9 @@ end
 #  komp_repo_geneid                   :integer
 #  marker_name                        :string(255)
 #  cm_position                        :string(255)
+#  human_marker_symbol                :string(255)
+#  human_entrez_gene_id               :string(255)
+#  human_homolo_gene_id               :string(255)
 #
 # Indexes
 #

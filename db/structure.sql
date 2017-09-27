@@ -1164,7 +1164,10 @@ CREATE TABLE genes (
     synonyms character varying(255),
     komp_repo_geneid integer,
     marker_name character varying(255),
-    cm_position character varying(255)
+    cm_position character varying(255),
+    human_marker_symbol character varying(255),
+    human_entrez_gene_id character varying(255),
+    human_homolo_gene_id character varying(255)
 );
 
 
@@ -6041,3 +6044,5 @@ INSERT INTO schema_migrations (version) VALUES ('20170728325302');
 INSERT INTO schema_migrations (version) VALUES ('20170808141602');
 
 INSERT INTO schema_migrations (version) VALUES ('20170913141602');
+
+INSERT INTO schema_migrations (version) VALUES ('20170927101602');

@@ -376,7 +376,8 @@ class MiAttempt < ApplicationModel
       'es_cell_marker_symbol'   => 'es_cell_allele_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_alleles_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
-      'production_centre_name'  => 'mi_plan_production_centre_name'
+      'production_centre_name'  => 'mi_plan_production_centre_name',
+      'marker_symbol'           => 'mi_plan_gene_marker_symbol'
     }
   end
 

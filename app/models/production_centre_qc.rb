@@ -3,8 +3,8 @@ class ProductionCentreQc < ActiveRecord::Base
   acts_as_reportable
 
   QC_FIELDS = {
-      "five_prime_screen"             => { :name => "5' Screen",   :values => ["pass","not confirmed","no reads detected","not attempted"] },
-      "three_prime_screen"            => { :name => "3' Screen",   :values => ["pass","not confirmed","no reads detected"] },
+      "five_prime_screen"             => { :name => "5 Prime Screen",   :values => ["pass","not confirmed","no reads detected","not attempted"] },
+      "three_prime_screen"            => { :name => "3 Prime Screen",   :values => ["pass","not confirmed","no reads detected"] },
       "loxp_screen"                   => { :name => "LoxP Screen", :values => ["pass","not confirmed","no reads detected"] },
       "loss_of_allele"                => { :name => "Loss of WT Allele (LOA)", :values => ["pass","passb","fail"] },
       "vector_integrity"              => { :name => "Vector Integrity", :values => ["pass","passb","fail"] },

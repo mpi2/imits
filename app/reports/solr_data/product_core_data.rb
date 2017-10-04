@@ -28,9 +28,6 @@ class SolrData::ProductCoreData
       ELSE alleles.allele_type END
       AS allele_type,
       targ_rep_targeting_vectors.name AS targeting_vector_name,
-      targ_rep_mutation_types.name AS mutation_type,
-      targ_rep_mutation_types.allele_code AS mutation_type_allele_code,
-      targ_rep_mutation_methods.allele_prefix AS allele_prefix,
       targ_rep_alleles.cassette AS cassette,
       targ_rep_alleles.cassette_type AS cassette_type,
       targ_rep_alleles.backbone AS backbone,
@@ -84,9 +81,6 @@ class SolrData::ProductCoreData
       SELECT es_cells.id AS es_cell_id,
         es_cells.name AS es_cell_name,
         es_cells.targeting_vector_name AS vector_name,
-        es_cells.allele_prefix AS allele_prefix,
-        es_cells.mutation_type AS mutation_type,
-        es_cells.mutation_type_allele_code AS mutation_type_allele_code,
         es_cells.parental_cell_line AS parental_cell_line,
         es_cells.cassette AS cassette,
         es_cells.cassette_type AS cassette_type,
@@ -96,8 +90,8 @@ class SolrData::ProductCoreData
         es_cells.allele_id AS allele_id,
         es_cells.has_issue AS has_issue,
         alleles.allele_symbol_superscript_template AS allele_symbol_superscript_template,
-        alleles.mgi_allele_symbol_superscript AS allele_symbol_superscript,
-        alleles.allele_type AS es_cell_allele_type,
+        alleles.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript,
+        alleles.allele_type AS allele_type,
         es_cells.strain AS strain,
         mouse_colonies.list AS colonies,
         es_cells.pipeline AS pipeline,
@@ -121,18 +115,24 @@ class SolrData::ProductCoreData
   end
 
   def self.targeting_vectors_sql
-    #es_cell_names finds all es_cells created from the targeting vector and orders them by the allele_type (tm1, tm1a then tm1e).This will allow your to determine the targeting vector allele_type by selecting the first allele_type off the list
     <<-EOF
       WITH es_cell_names AS (
-        SELECT es_cells.targeting_vector_id AS targeting_vector_id, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,
-        array_agg(es_cells.allele_type) AS allele_types, array_agg(es_cells.name) AS list
+        SELECT es_cells.targeting_vector_id AS targeting_vector_id, es_cells.mgi_allele_symbol_superscript AS allele_name, es_cells.allele_type AS allele_type,
+               es_cells.gene_marker_symbol, es_cells.cassette, es_cells.project_design_id, es_cells.allele_code, es_cells.allele_prefix,
+               array_agg(es_cells.name) AS list
         FROM
-          (SELECT targ_rep_es_cells.*, alleles.*
+          (SELECT targ_rep_es_cells.*, alleles.*, genes.marker_symbol AS gene_marker_symbol, targ_rep_alleles.cassette, targ_rep_alleles.project_design_id, 
+                  targ_rep_mutation_types.allele_code, targ_rep_mutation_methods.allele_prefix
           FROM targ_rep_es_cells
+          JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
+          JOIN genes ON genes.id = targ_rep_alleles.gene_id
+          JOIN targ_rep_mutation_methods ON targ_rep_mutation_methods.id = targ_rep_alleles.mutation_method_id
+          JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
           JOIN alleles ON alleles.es_cell_id = targ_rep_es_cells.id
           ORDER BY targ_rep_es_cells.targeting_vector_id, alleles.mgi_allele_symbol_superscript) AS es_cells
-        WHERE es_cells.report_to_public = true
-        GROUP BY es_cells.targeting_vector_id
+        WHERE es_cells.report_to_public = true AND es_cells.allele_type != 'e'
+        GROUP BY es_cells.targeting_vector_id, es_cells.mgi_allele_symbol_superscript, es_cells.allele_type, 
+                 es_cells.gene_marker_symbol, es_cells.cassette, es_cells.project_design_id, es_cells.allele_code, es_cells.allele_prefix
       )
 
       SELECT targ_rep_targeting_vectors.id AS targeting_vector_id,
@@ -148,9 +148,9 @@ class SolrData::ProductCoreData
              targ_rep_targeting_vectors.name AS vector_name,
              'Targeting Vector' AS vector_type,
              targ_rep_mutation_methods.allele_prefix AS allele_prefix,
-             es_cell_names.list AS es_cell_names,
-             es_cell_names.allele_names AS allele_names,
-             es_cell_names.allele_types AS allele_types,
+             CASE WHEN es_cell_names.targeting_vector_id = targ_rep_targeting_vectors.id THEN es_cell_names.list else NULL end AS es_cell_names,
+             es_cell_names.allele_name AS mgi_allele_symbol_superscript,
+             es_cell_names.allele_type AS allele_type,
              targ_rep_pipelines.name AS pipeline,
              targ_rep_ikmc_projects.name AS ikmc_project,
              targ_rep_targeting_vectors.created_at AS status_date,
@@ -158,9 +158,13 @@ class SolrData::ProductCoreData
       FROM targ_rep_targeting_vectors
         JOIN targ_rep_alleles ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
         JOIN genes ON genes.id = targ_rep_alleles.gene_id SUBS_GENE_TEMPLATE
-        LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
+        LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id AND targ_rep_mutation_types.name != 'Targeted Non Conditional'
         LEFT JOIN targ_rep_mutation_methods ON targ_rep_mutation_methods.id = targ_rep_alleles.mutation_method_id
-        LEFT JOIN es_cell_names ON es_cell_names.targeting_vector_id = targ_rep_targeting_vectors.id
+        LEFT JOIN es_cell_names ON  es_cell_names.gene_marker_symbol = genes.marker_symbol
+                                    AND es_cell_names.cassette = targ_rep_alleles.cassette
+                                    AND es_cell_names.project_design_id = targ_rep_alleles.project_design_id
+                                    AND es_cell_names.allele_code       = targ_rep_mutation_types.allele_code
+                                    AND es_cell_names.allele_prefix     = targ_rep_mutation_methods.allele_prefix
         LEFT JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = targ_rep_targeting_vectors.ikmc_project_foreign_id
         LEFT JOIN targ_rep_pipelines ON targ_rep_pipelines.id = targ_rep_ikmc_projects.pipeline_id
       WHERE targ_rep_targeting_vectors.report_to_public = true AND targ_rep_alleles.type = 'TargRep::TargetedAllele'
@@ -170,6 +174,8 @@ class SolrData::ProductCoreData
   end
 
   def self.intermediate_vectors_sql
+    # Currently disabled as not used.
+    # This is incorrect. Need to replicate the logic in the targeting vector section
     <<-EOF
       WITH es_cell_names AS (
         SELECT es_cells.intermediate_vector AS intermediate_vector, array_agg(es_cells.mgi_allele_symbol_superscript) AS allele_names,array_agg(es_cells.allele_type) AS allele_types
@@ -188,7 +194,8 @@ class SolrData::ProductCoreData
       SELECT distinct_intermediate_vectors.*, es_cell_names.allele_names AS allele_names, es_cell_names.allele_types AS allele_types
       FROM
       (
-        SELECT DISTINCT intermediate.design_id AS design_id, intermediate.marker_symbol AS marker_symbol, intermediate.mgi_accession_id AS mgi_accession_id, intermediate.vector_name AS vector_name,
+        SELECT DISTINCT intermediate.design_id AS design_id, intermediate.marker_symbol AS marker_symbol, 
+        intermediate.mgi_accession_id AS mgi_accession_id, intermediate.vector_name AS vector_name,
           intermediate.mutation_type_allele_code AS mutation_type_allele_code,
           intermediate.allele_prefix AS allele_prefix,
           'Intermediate Vector' AS vector_type,
@@ -196,7 +203,9 @@ class SolrData::ProductCoreData
           intermediate.pipeline AS pipeline,
           intermediate.allele_id AS allele_id
         FROM
-          (SELECT targ_rep_alleles.project_design_id AS design_id, targ_rep_mutation_methods.allele_prefix AS allele_prefix, targ_rep_targeting_vectors.intermediate_vector AS vector_name, targ_rep_alleles.cassette AS cassette, targ_rep_pipelines.name AS pipeline, genes.marker_symbol AS marker_symbol, genes.mgi_accession_id AS mgi_accession_id, targ_rep_mutation_types.allele_code AS mutation_type_allele_code, targ_rep_targeting_vectors.allele_id AS allele_id
+          (SELECT targ_rep_alleles.project_design_id AS design_id, targ_rep_mutation_methods.allele_prefix AS allele_prefix, targ_rep_targeting_vectors.intermediate_vector AS vector_name, 
+                  targ_rep_alleles.cassette AS cassette, targ_rep_pipelines.name AS pipeline, genes.marker_symbol AS marker_symbol, genes.mgi_accession_id AS mgi_accession_id, 
+                  targ_rep_mutation_types.allele_code AS mutation_type_allele_code, targ_rep_targeting_vectors.allele_id AS allele_id
             FROM targ_rep_targeting_vectors
               JOIN targ_rep_alleles ON targ_rep_targeting_vectors.allele_id = targ_rep_alleles.id
               JOIN genes ON genes.id = targ_rep_alleles.gene_id SUBS_GENE_TEMPLATE
@@ -220,10 +229,10 @@ class SolrData::ProductCoreData
       colony_summary AS (
         SELECT colonies.id, colonies.mi_attempt_id, colonies.mouse_allele_mod_id, colonies.name, colonies.genotype_confirmed, colonies.report_to_public AS report_colony_to_public, 
                background_strain.name AS background_strain, colonies.is_released_from_genotyping, colonies.genotyping_comment,
-               alleles.mgi_allele_symbol_superscript, alleles. allele_symbol_superscript_template, alleles.mgi_allele_accession_id, alleles.allele_type,
+               alleles.mgi_allele_symbol_superscript, alleles.allele_symbol_superscript_template, alleles.mgi_allele_accession_id, alleles.allele_type,
                ARRAY[COLONY_QC_RESULTS] AS qc_data                                
         FROM colonies
-          JOIN strains background_strain ON background_strain.id = colonies.background_strain_id
+          LEFT JOIN strains background_strain ON background_strain.id = colonies.background_strain_id
           JOIN alleles ON colonies.id = alleles.colony_id
           JOIN production_centre_qcs ON production_centre_qcs.allele_id = alleles.id 
       )
@@ -234,9 +243,9 @@ class SolrData::ProductCoreData
         plans.production_centre_name AS production_centre,
         es_cells.allele_id AS allele_id,
 
-        colony_summary.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template,
-        colony_summary.mgi_allele_symbol_superscript AS colonies_mgi_allele_symbol_superscript,
-        colony_summary.allele_type AS colonies_allele_type,
+        colony_summary.allele_symbol_superscript_template AS allele_symbol_superscript_template,
+        colony_summary.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript,
+        colony_summary.allele_type AS allele_type,
         colony_summary.genotyping_comment AS genotyping_comment,
 
         plans.crispr_plan AS crispr_plan,
@@ -251,11 +260,9 @@ class SolrData::ProductCoreData
         es_cells.ikmc_project_id AS ikmc_project_id,
         es_cells.design_id AS design_id,
         es_cells.targeting_vector_name AS vector_name,
-        es_cells.mutation_type AS mutation_type,
         es_cells.cassette AS cassette,
         es_cells.cassette_type AS cassette_type,
         es_cells.backbone AS backbone,
-        es_cells.mutation_type AS mutation_type,
         colony_summary.background_strain AS background_colony_strain_name,
         NULL AS deleter_strain_name,
         test_strain.name AS test_strain_name,
@@ -270,7 +277,7 @@ class SolrData::ProductCoreData
         colony_summary.qc_data AS qc_data
       FROM (mi_attempts
         LEFT JOIN colony_summary ON colony_summary.mi_attempt_id = mi_attempts.id
-        JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
+        JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id AND mi_attempt_statuses.name = 'Genotype confirmed'
         JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = mi_attempts.status_id
         JOIN plans ON plans.id = mi_attempts.mi_plan_id
         )
@@ -288,9 +295,9 @@ class SolrData::ProductCoreData
         plans.production_centre_name AS production_centre,
         es_cells.allele_id AS allele_id,
         
-        colony_summary.allele_symbol_superscript_template AS colony_allele_symbol_superscript_template,
-        colony_summary.mgi_allele_symbol_superscript AS colonies_mgi_allele_symbol_superscript,
-        colony_summary.allele_type AS colonies_allele_type,
+        colony_summary.allele_symbol_superscript_template AS allele_symbol_superscript_template,
+        colony_summary.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript,
+        colony_summary.allele_type AS allele_type,
         colony_summary.genotyping_comment AS genotyping_comment,
 
         false AS crispr_plan,
@@ -305,11 +312,9 @@ class SolrData::ProductCoreData
         es_cells.ikmc_project_id AS ikmc_project_id,
         es_cells.design_id AS design_id,
         '' AS vector_name,
-        '' AS mutation_type,
         '' AS cassette,
         '' AS cassette_type,
         '' AS backbone,
-        es_cells.mutation_type AS mutation_type,
         colony_summary.background_strain AS background_colony_strain_name,
         del_strain.name AS deleter_strain_name,
         '' AS test_strain_name,
@@ -324,7 +329,7 @@ class SolrData::ProductCoreData
         colony_summary.qc_data AS qc_data
       FROM (mouse_allele_mods
         LEFT JOIN colony_summary ON colony_summary.mouse_allele_mod_id = mouse_allele_mods.id
-        JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id
+        JOIN mouse_allele_mod_statuses ON mouse_allele_mod_statuses.id = mouse_allele_mods.status_id AND mouse_allele_mod_statuses.name = 'Cre Excision Complete'
         JOIN mouse_allele_mod_status_stamps ON mouse_allele_mod_status_stamps.mouse_allele_mod_id = mouse_allele_mods.id AND mouse_allele_mod_status_stamps.status_id = mouse_allele_mods.status_id
         JOIN plans ON plans.id = mouse_allele_mods.mi_plan_id
         JOIN colony_summary mi_colony ON mi_colony.id = mouse_allele_mods.parent_colony_id
@@ -355,7 +360,7 @@ class SolrData::ProductCoreData
     @process_mice = options[:process_mice] || true
     @process_es_cells = options[:process_es_cells] || true
     @process_targeting_vectors = options[:process_targeting_vectors] || true
-    @process_intermediate_vectors = options[:process_intermediate_vectors] || true
+    @process_intermediate_vectors = options[:process_intermediate_vectors] || false
 
     @look_up_contact = {}
     @docs = []
@@ -396,6 +401,10 @@ class SolrData::ProductCoreData
 
   def intermediate_vectors_sql
     @intermediate_vectors_sql
+  end
+
+  def products
+    return @docs
   end
 
   def run
@@ -439,7 +448,7 @@ class SolrData::ProductCoreData
 #puts doc.doc_to_tsv
     end
   end
-  private :save_to_file
+
 
   def process_product(step_no, product_type, product_sql, doc_creation_method_name)
 
@@ -454,12 +463,12 @@ class SolrData::ProductCoreData
     rows.each do |row|
       row['targ_rep_alleles_id'] = row['allele_id']
 
-      if !row['mgi_allele_symbol_superscript'].blank?
-        allele_details = {'allele_symbol' => row['mgi_allele_symbol_superscript'], 'allele_type' => row['mutation_type_allele_code']}
-      elsif row['design_id'].blank? || row['cassette'].blank?
-        allele_details = {'allele_symbol' => "tm#{row['design_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
-      elsif row['allele_id'].blank? || row['cassette'].blank?
-        allele_details = {'allele_symbol' => "tm#{row['allele_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
+      if !row['mgi_allele_symbol_superscript'].blank? && !row['allele_type'].blank?
+        allele_details = {'allele_symbol' => row['mgi_allele_symbol_superscript'], 'allele_type' => row['allele_type']}
+      elsif !row['design_id'].blank? && !row['cassette'].blank? && !row['mutation_type_allele_code'].blank? && !row['allele_prefix'].blank?
+        allele_details = {'allele_symbol' => "#{row['allele_prefix']}#{row['design_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
+      elsif !row['allele_id'].blank? && !row['cassette'].blank? && !row['mutation_type_allele_code'].blank? && !row['allele_prefix'].blank?
+        allele_details = {'allele_symbol' => "#{row['allele_prefix']}#{row['allele_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
       else
         allele_details = {'allele_symbol' => nil, 'allele_type' => nil}
       end
@@ -500,7 +509,7 @@ class SolrData::ProductCoreData
       step_no += 1
     end
   end
-  private :generate_data
+
 
   def create_mouse_doc row, allele_details
 
@@ -520,7 +529,7 @@ class SolrData::ProductCoreData
      "production_completed"             => ['Genotype confirmed','Cre Excision Complete'].include?(row['mouse_status']) ? true : false,
      "status"                           => row["mouse_status"],
      "status_date"                      => row["mouse_status_date"].to_date.to_s,
-     "qc_data"                          => self.class.convert_to_array(row['qc_data']).map{|qc| qc_data = qc.split(':') ; qc_data[2] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{qc_data[2]}" : nil }.compact,
+     "qc_data"                          => self.class.convert_to_array(row['qc_data']).select{|qc| qc != 'NULL'}.map{|qc| qc_data = qc.split(':') ; qc_data[2] != 'na' ? "#{qc_data[0]}:#{qc_data[1]}:#{qc_data[2]}" : nil }.compact,
      "production_info"                  => ["type_of_microinjection:#{row["crispr_plan"] == 't' ? 'Cas9/Crispr' : 'ES Cell'}"],
      "associated_product_es_cell_name"  => row["es_cell_name"],
      "associated_product_colony_name"   => row["parent_colony_name"],

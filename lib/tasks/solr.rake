@@ -104,4 +104,41 @@ namespace :solr do
     puts output if output
   end
 
+  desc "Check allele2 and product core are in sync"
+  task 'check_allele2_and_product_cores_are_insync' => [:environment] do |t, args|
+    options = {}
+    rake_options = {}
+    # Defaults
+    options[:eucommtoolscre] = false
+
+    OptionParser.new do |opts|
+      opts.banner = "Usage: rake index:generate:allele2:tsv [options]"
+      opts.on("-c", "--[no-]show_eucommtoolscre", "Include Cre Data") { |show_eucommtoolscre| rake_options[:eucommtoolscre] = eucommtoolscre }
+      opts.on("-g", "--marker_symbols x,y,z", Array, "Specify Gene Marker Symbols to create docs for") { |marker_symbols| options[:marker_symbols] = marker_symbols }
+    end.parse!
+
+    if rake_options[:eucommtoolscre] != true
+      puts "## Start Build of IMPC Allele 2 Core #{Time.now}"
+      a = SolrData::Allele2CoreData.new(options)
+      a.generate_data;nil
+      p = SolrData::ProductCoreData.new(options)
+      p.generate_data;nil
+      puts "## Completed Build of IMPC Allele 2 Core#{Time.now}"
+    else 
+      puts "## Start Build of Cre Allele 2 Core #{Time.now}"
+      a = SolrData::Allele2CoreData.new(options.merge({:show_eucommtoolscre => true}))
+      a.generate_data;nil
+      p = SolrData::ProductCoreData.new(options.merge({:show_eucommtoolscre => true}))
+      p.generate_data;nil
+      puts "## Completed Build of Cre Allele 2 Core#{Time.now}"
+    end
+
+    missing_allele = []
+
+
+    p.products.each do |p|
+      puts "## OUT OF SYNC: [#{p.mgi_accession_id}, #{p.allele_name}, #{p.type}]" unless a.allele_data.has_key?("#{p.mgi_accession_id} #{p.allele_name}")
+    end;nil
+  end
+
 end

@@ -41,7 +41,7 @@ class SolrData::Allele2CoreData
             LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
             LEFT JOIN alleles ON alleles.es_cell_id = targ_rep_es_cells.id
             LEFT JOIN mutagenesis_factors ON mutagenesis_factors.id = mi_attempts.mutagenesis_factor_id
-        WHERE mi_attempts.experimental = false AND mi_attempt_statuses.name != 'Micro-injection aborted'
+        WHERE mi_attempt_statuses.name != 'Micro-injection aborted'
 
     ),
 
@@ -178,7 +178,7 @@ class SolrData::Allele2CoreData
                 LEFT JOIN targ_rep_targeting_vectors ON  targ_rep_targeting_vectors.id = targ_rep_es_cells.targeting_vector_id
                 JOIN allele_details ON allele_details.allele_id = targ_rep_es_cells.allele_id
                 JOIN targ_rep_pipelines es_pipelines ON es_pipelines.id = targ_rep_es_cells.pipeline_id AND es_pipelines.id SUBS_EUCOMMTOOLSCRE_ID
-              WHERE targ_rep_es_cells.report_to_public = true OR targ_rep_targeting_vectors.report_to_public = true
+              WHERE targ_rep_es_cells.report_to_public = true
               GROUP BY targ_rep_targeting_vectors.id, allele_details.gene_symbol, allele_details.gene_mgi_accession_id, alleles.mgi_allele_symbol_superscript,
                        alleles.allele_type, allele_details.allele_design_id, allele_details.allele_cassette, allele_details.cassette_type, allele_details.mutation_method_allele_prefix, allele_details.mutation_type_allele_code
   ),
@@ -249,7 +249,7 @@ class SolrData::Allele2CoreData
                 AND alleles_produced_from_vectors.allele_code       = targeting_vector_info.tv_allele_code
                 AND alleles_produced_from_vectors.allele_prefix     = targeting_vector_info.tv_allele_prefix
 
-        WHERE targeting_vector_info.report_to_public = true OR targeting_vector_info.id IS NULL
+        WHERE alleles_produced_from_vectors.gene_symbol IS NOT NULL OR targeting_vector_info.report_to_public = true
     )
 
 
@@ -492,7 +492,11 @@ class SolrData::Allele2CoreData
       doc = get_gene_doc(row['gene_mgi_accession_id'])
       mouse_gene_update_doc(doc, row)
 
-      next if row['colony_mgi_allele_symbol_superscript'].blank? || row['colony_allele_type'].blank?
+      if row['colony_mgi_allele_symbol_superscript'].blank? || row['colony_allele_type'].blank?
+        puts "    ALLELE SYMBOL MISSING FOR mouse: #{row['gene_symbol']}"
+        next
+      end
+
       allele_details = {'allele_symbol' => row['colony_mgi_allele_symbol_superscript'], 'allele_type' => row['colony_allele_type']}
 
       # Update allele doc
@@ -518,10 +522,6 @@ class SolrData::Allele2CoreData
       row['allele_mgi_accession_id'] = self.class.convert_to_array("{#{row['es_mgi_allele_ids_not_distinct']}}").reject { |c| c.empty? }.first
       row['es_cell_name'] = self.class.convert_to_array("{#{row['es_cell_names']}}").first
 
-      if !row['num_es_cells'].blank? && row['num_es_cells'].to_i > 0
-        row['es_cell_allele_type'] = row['es_cell_allele_type'].blank? ? '' : row['es_cell_allele_type']
-      end
-
       row['es_ikmc_projects'] = self.class.convert_to_array("{#{row['es_ikmc_projects_not_distinct']}}").uniq
       row['es_pipelines'] = self.class.convert_to_array("{#{row['es_pipelines_not_distinct']}}").uniq
       row['tv_ikmc_projects'] = self.class.convert_to_array("{#{row['tv_ikmc_projects_not_distinct']}}").uniq
@@ -533,16 +533,19 @@ class SolrData::Allele2CoreData
       es_cell_gene_update_doc(doc, row)
 
       if !row['mgi_allele_symbol_superscript'].blank?
-        allele_details = {'allele_symbol' => row['mgi_allele_symbol_superscript'], 'allele_type' => row['mutation_type_allele_code']}
-      elsif row['design_id'].blank? || row['cassette'].blank?
-        allele_details = {'allele_symbol' => "tm#{row['design_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
-      elsif row['allele_id'].blank? || row['cassette'].blank?
-        allele_details = {'allele_symbol' => "tm#{row['allele_id']}#{}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
+        allele_details = {'allele_symbol' => row['mgi_allele_symbol_superscript'], 'allele_type' => row['allele_type']}
+      elsif !row['design_id'].blank? && !row['cassette'].blank? && !row['mutation_type_allele_code'].blank?
+        allele_details = {'allele_symbol' => "#{row['allele_prefix']}#{row['design_id']}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
+      elsif !row['allele_id'].blank? && !row['cassette'].blank? && !row['mutation_type_allele_code'].blank?
+        allele_details = {'allele_symbol' => "#{row['allele_prefix']}#{row['allele_id']}(#{row['cassette']})", 'allele_type' => row['mutation_type_allele_code']}
       else
         allele_details = {'allele_symbol' => nil, 'allele_type' => nil}
       end
 
-      next if allele_details['allele_symbol'].blank? || allele_details['allele_type'].blank?
+      if allele_details['allele_symbol'].blank? || allele_details['allele_type'].blank?
+        puts "    ALLELE SYMBOL MISSING FOR es_cell: #{row['gene_symbol']}"
+        next
+      end
       # Update allele doc
       #puts "Grab allele doc for #{allele_details['allele_symbol']} and update ES Cell information"
       doc = get_allele_doc(row, allele_details)
@@ -670,7 +673,7 @@ class SolrData::Allele2CoreData
     end
     puts "#### step 4 - Complete"
   end
-  private :generate_data
+
 
   def get_allele_doc(data_row, allele_details)
     doc =  @allele_data["#{data_row['gene_mgi_accession_id']} #{allele_details['allele_symbol']}"] || create_new_default_allele_doc(data_row, allele_details)
@@ -755,17 +758,23 @@ class SolrData::Allele2CoreData
 
   def mouse_allele_update_doc(doc, data_row)
 
+# I think the is is not nessary any more you can just use the colony_mgi_allelle_id
     if !data_row['colony_mgi_allele_id'].blank?
       doc.allele_mgi_accession_id = data_row['colony_mgi_allele_id']
     elsif data_row['mouse_allele_mod_id'].blank? && !data_row['es_cell_mgi_allele_id'].blank?
       doc.allele_mgi_accession_id = data_row['es_cell_mgi_allele_id']
     end
+
+# auto_allele_description is this still automatically calculated?
     doc.allele_description = data_row['auto_allele_description'].blank? ? data_row['allele_description_summary'] : data_row['auto_allele_description']
 
     # set Mouse status
+# can mouse status not be collapsed into one field returned from the query?
     mouse_status = data_row['mouse_allele_status_name'] || data_row['mi_status_name']
+# can mouse production Centre not be collapsed into one field returned from the query?
     mouse_production_centre = data_row['mouse_allele_production_centre'] || data_row['mi_production_centre']
 
+# only going to add alleles with genotype confirmed mice
     if doc.mouse_status.blank? || mouse_status_is_more_adavanced(mouse_status, doc.mouse_status)
       doc.mouse_status = mouse_status
       doc.production_centre = mouse_production_centre
@@ -791,6 +800,7 @@ class SolrData::Allele2CoreData
     doc.phenotyping_centres = doc.phenotyping_centres.uniq
     doc.late_adult_phenotyping_centres = doc.late_adult_phenotyping_centres.uniq
 
+# mice will always be available
     if !doc.mouse_status.blank? && ['Genotype confirmed', 'Cre Excision Complete'].include?(doc.mouse_status)
       doc.mouse_available = true
     end
@@ -820,8 +830,6 @@ class SolrData::Allele2CoreData
     if data_row['num_es_cells'].to_i > 0 || doc.es_cell_status == 'ES Cell Targeting Confirmed'
       doc.es_cell_status = 'ES Cell Targeting Confirmed'
       doc.es_cell_available = true
-    elsif data_row['num_targeting_vectors'].to_i > 0 || doc.es_cell_status == 'ES Cell Production in Progress'
-      doc.es_cell_status = 'ES Cell Production in Progress'
     else
       doc.es_cell_status = 'No ES Cell Production'
     end
@@ -948,8 +956,6 @@ class SolrData::Allele2CoreData
     # set ES Cell status
     if data_row['num_es_cells'].to_i > 0 || doc.es_cell_status == 'ES Cell Targeting Confirmed'
       doc.es_cell_status = 'ES Cell Targeting Confirmed'
-    elsif data_row['num_targeting_vectors'].to_i > 0 || doc.es_cell_status == 'ES Cell Production in Progress'
-      doc.es_cell_status = 'ES Cell Production in Progress'
     else
       doc.es_cell_status = 'No ES Cell Production'
     end

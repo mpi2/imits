@@ -85,7 +85,7 @@ class SolrData::Allele2CoreData
       colony_summary AS (
         SELECT colonies.id AS id, colonies.name AS colony_name, colonies.mouse_allele_mod_id AS mouse_allele_mod_id, alleles.mgi_allele_accession_id AS mgi_allele_accession_id,
                alleles.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript,
-               alleles.allele_type AS allele_type, colony_background_strain.name AS background_strain_name,
+               alleles.allele_type AS allele_type, alleles.allele_subtype AS allele_subtype, colony_background_strain.name AS background_strain_name,
                phenotyping_production_summary.phenotyping_status_name AS phenotyping_status_name,
                phenotyping_production_summary.phenotyping_centre AS phenotyping_centre,
                phenotyping_production_summary.phenotyping_centres AS phenotyping_centres,
@@ -110,7 +110,7 @@ class SolrData::Allele2CoreData
 
     SELECT 'MiAttempt' AS colony_created_by,
            colony_summary.colony_name AS colony_name, colony_summary.mgi_allele_accession_id AS colony_mgi_allele_id, colony_summary.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
-           colony_summary.allele_type AS colony_allele_type, colony_summary.background_strain_name AS colony_background_strain_name,
+           colony_summary.allele_type AS colony_allele_type, colony_summary.allele_subtype, colony_summary.background_strain_name AS colony_background_strain_name,
            NULL AS mouse_allele_status_name, NULL AS mouse_allele_mod_deleter_strain, NULL AS mouse_allele_mod_id, NULL AS excised,
            mi_attempt_summary.*,
            NULL AS mouse_allele_production_centre,
@@ -131,7 +131,7 @@ class SolrData::Allele2CoreData
 
     SELECT 'MouseAlleleMod' AS colony_created_by,
            colony_summary.colony_name AS colony_name, colony_summary.mgi_allele_accession_id AS colony_mgi_allele_id, colony_summary.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
-           colony_summary.allele_type AS colony_allele_type, colony_summary.background_strain_name AS colony_background_strain_name,
+           colony_summary.allele_type AS colony_allele_type, colony_summary.allele_subtype, colony_summary.background_strain_name AS colony_background_strain_name,
            mouse_allele_mod_statuses.name AS mouse_allele_status_name, deleter_strain.name AS mouse_allele_mod_deleter_strain, mouse_allele_mods.id AS mouse_allele_mod_id, mouse_allele_mods.cre_excision AS excised,
            mi_attempt_summary.*,
            mam_plan_summary.production_centre AS mouse_allele_production_centre,
@@ -255,7 +255,7 @@ class SolrData::Allele2CoreData
 
 
     SELECT allele_summary.marker_symbol AS gene_symbol, allele_summary.mgi_accession_id AS gene_mgi_accession_id,
-           allele_summary.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript, allele_summary.allele_type AS allele_type,
+           allele_summary.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript, allele_summary.allele_type AS allele_type, NULL AS allele_subtype,
            allele_summary.project_design_id AS design_id, allele_summary.cassette, allele_summary.cassette_type, allele_summary.allele_prefix, allele_summary.allele_code AS mutation_type_allele_code,
            string_agg(allele_summary.es_allele_ids, ',') AS es_allele_ids_not_distinct,
            string_agg(allele_summary.es_mgi_allele_ids_not_distinct, ',') AS es_mgi_allele_ids_not_distinct,
@@ -324,7 +324,7 @@ class SolrData::Allele2CoreData
                                    'ES Cell Targeting Confirmed'    => 'ES Cells Produced',
                                    'Micro-injection in progress'    => 'Assigned for Mouse Production and Phenotyping',
                                    'Chimeras obtained'              => 'Assigned for Mouse Production and Phenotyping',
-                                   'Founders obtained'              => 'Assigned for Mouse Production and Phenotyping',
+                                   'Founder obtained'              => 'Assigned for Mouse Production and Phenotyping',
                                    'Genotype confirmed'             => 'Mice Produced',
                                    'Rederivation Started'           => 'Mice Produced',
                                    'Rederivation Complete'          => 'Mice Produced',
@@ -397,6 +397,10 @@ class SolrData::Allele2CoreData
 
   def allele_data
     @allele_data
+  end
+
+  def gene_data
+    @gene_data
   end
 
   def run
@@ -628,7 +632,7 @@ class SolrData::Allele2CoreData
         'd'  => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         'e'  => {'allele_category' => 'Targeted, Non-Conditional', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag", "Non-Expressive"], 'without_features' => ["#{without_feature} Selection Tag"]},
         'e.1'  => {'allele_category' => 'Targeted, Non-Conditional', 'features' => ['Reporter Tag'], 'without_features' => ["Promoterless Selection Tag", "Promotor Driven Selection Tag"]},
-        ''   => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag"], 'without_features' => ["#{without_feature} Selection Tag"]},
+        "''"   => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag"], 'without_features' => ["#{without_feature} Selection Tag"]},
         '.1' => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag'], 'without_features' => ["Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         '.2' => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         'NHEJ' => {'allele_category' => 'Indel', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
@@ -670,6 +674,9 @@ class SolrData::Allele2CoreData
       gene_data_doc.latest_project_status = gene_data_doc.phenotype_status unless gene_data_doc.phenotype_status.blank?
 
       gene_data_doc.latest_project_status_legacy = @translate_to_legacy_status[gene_data_doc.latest_project_status] if @translate_to_legacy_status.has_key?(gene_data_doc.latest_project_status)
+      gene_data_doc.conditional_mouse_status = @translate_to_legacy_status[gene_data_doc.conditional_mouse_status] if @translate_to_legacy_status.has_key?(gene_data_doc.conditional_mouse_status)
+      gene_data_doc.deletion_mouse_status = @translate_to_legacy_status[gene_data_doc.deletion_mouse_status] if @translate_to_legacy_status.has_key?(gene_data_doc.deletion_mouse_status)
+      gene_data_doc.disease_model_status = @translate_to_legacy_status[gene_data_doc.disease_model_status] if @translate_to_legacy_status.has_key?(gene_data_doc.disease_model_status)
     end
     puts "#### step 4 - Complete"
   end
@@ -880,6 +887,9 @@ class SolrData::Allele2CoreData
                  'pipeline' => [],
                  'ikmc_project' => [],
                  'mouse_status' => '',
+                 'conditional_mouse_status' => '',
+                 'deletion_mouse_status' => '',
+                 'disease_model_status' => '',
                  'phenotype_status' => '',
                  'late_adult_phenotype_status' => '',
                  'late_adult_phenotyping_centre' => '',
@@ -924,11 +934,22 @@ class SolrData::Allele2CoreData
 
     # set Mouse status
     mouse_status = data_row['mouse_allele_status_name'] || data_row['mi_status_name']
+    allele_type = data_row['colony_allele_type']
     mouse_production_centre = data_row['mouse_allele_production_centre'] || data_row['mi_production_centre']
 
     if doc.mouse_status.blank? || mouse_status_is_more_adavanced(mouse_status, doc.mouse_status)
       doc.mouse_status = mouse_status
       doc.production_centre = mouse_production_centre
+    end
+
+    if ['a', 'c'].include?(allele_type) || data_row['allele_subtype'] == 'Conditional Ready'
+      if doc.conditional_mouse_status.blank? || mouse_status_is_more_adavanced(mouse_status, doc.conditional_mouse_status)
+        doc.conditional_mouse_status = mouse_status
+      end
+    elsif ['b', "''", 'd', '.1', '.2', 'Deletion', 'NHEJ'].include?(allele_type)
+      if doc.deletion_mouse_status.blank? || mouse_status_is_more_adavanced(mouse_status, doc.deletion_mouse_status)
+        doc.deletion_mouse_status = mouse_status
+      end
     end
 
     if doc.phenotype_status.blank? || mouse_status_is_more_adavanced(data_row['phenotyping_status_name'], doc.phenotype_status)

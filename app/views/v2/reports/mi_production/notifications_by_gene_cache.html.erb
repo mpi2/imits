@@ -7,7 +7,7 @@
 <div class="grid_12">
   <h2><%= @title %></h2>
 
-  <% if @title =~ /IDG/ %>
+  <% if @title =~ /IDG/ || @title =~ /CMG/ %>
     <%= link_to('Download as CSV', url_for({:action => action, :controller => '/v2/reports/mi_production', :format => :csv})) %>
   <% else %>
     <%= form_tag( { :action => action}, :method => :get, :class => 'report-form' ) do |form| %>

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.7
+-- Dumped from database version 9.3.14
 -- Dumped by pg_dump version 9.5.7
 
 SET statement_timeout = 0;
@@ -1130,6 +1130,38 @@ CREATE SEQUENCE es_cells_id_seq
 --
 
 ALTER SEQUENCE es_cells_id_seq OWNED BY es_cells.id;
+
+
+--
+-- Name: gene_private_annotations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE gene_private_annotations (
+    id integer NOT NULL,
+    gene_id integer NOT NULL,
+    idg boolean DEFAULT false,
+    cmg_tier1 boolean DEFAULT false,
+    cmg_tier2 boolean DEFAULT false
+);
+
+
+--
+-- Name: gene_private_annotations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE gene_private_annotations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: gene_private_annotations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE gene_private_annotations_id_seq OWNED BY gene_private_annotations.id;
 
 
 --
@@ -3725,6 +3757,13 @@ ALTER TABLE ONLY es_cells ALTER COLUMN id SET DEFAULT nextval('es_cells_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY gene_private_annotations ALTER COLUMN id SET DEFAULT nextval('gene_private_annotations_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY genes ALTER COLUMN id SET DEFAULT nextval('genes_id_seq'::regclass);
 
 
@@ -4235,6 +4274,14 @@ ALTER TABLE ONLY email_templates
 
 ALTER TABLE ONLY es_cells
     ADD CONSTRAINT es_cells_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: gene_private_annotations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY gene_private_annotations
+    ADD CONSTRAINT gene_private_annotations_pkey PRIMARY KEY (id);
 
 
 --
@@ -6046,3 +6093,5 @@ INSERT INTO schema_migrations (version) VALUES ('20170808141602');
 INSERT INTO schema_migrations (version) VALUES ('20170913141602');
 
 INSERT INTO schema_migrations (version) VALUES ('20170927101602');
+
+INSERT INTO schema_migrations (version) VALUES ('20171024111602');

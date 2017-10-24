@@ -9,7 +9,10 @@
     <thead>
       <tr>
         <th>Gene</th>
-        <th>MGI Accession ID</th>
+        <th style="min-width:140px">MGI Accession</th>
+        <th style="min-width:100px">IDG</th>
+        <th style="min-width:100px">CMG Tier 1</th>
+        <th style="min-width:100px">CMG Tier 2</th>
         <th>Number of notifications</th>
         <th>Status</th>
         <th style="min-width:180px !important"># Clones</th>
@@ -23,8 +26,11 @@
     <tbody>
       <% @mi_plan_summary.each do |rec|%>
         <tr>
-          <td><%= rec['gene'] %></td>
+          <td><%= rec['marker_symbol'] %></td>
           <td><%= rec['mgi_accession_id'] %></td>
+          <td><%= rec['idg'] == 't' ? 'Yes' : '' %></td>
+          <td><%= rec['cmg_tier1'] == 't' ? 'Yes' : '' %></td>
+          <td><%= rec['cmg_tier2'] == 't' ? 'Yes' : '' %></td>
           <td><%= rec['number_of_notifications'] %></td>
           <td><%= rec['status'].to_s.humanize.titleize %></td>
           <td><%= @pretty_print_types_of_cells_available[rec['marker_symbol']].to_s %></td>

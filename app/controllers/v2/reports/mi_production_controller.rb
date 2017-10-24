@@ -367,35 +367,10 @@ class V2::Reports::MiProductionController < ApplicationController
 
   def notifications_by_gene_for_idg
     notifications_by_gene_for_idg_cache
-    #notifications_by_gene_for_idg_live
   end
 
-  def notifications_by_gene_for_idg_live
-    consortium = Consortium.find_by_name(params[:consortium]).try(:name)
-    show_eucommtoolscre_data = false
-    show_eucommtoolscre_data = true if consortium == 'EUCOMMToolsCre'
-    production_centre = Centre.find_by_name(params[:production_centre]).try(:name)
-
-    @report = NotificationsByGene.new({:crispr => true, :show_eucommtoolscre_data => show_eucommtoolscre_data})
-    @mi_plan_summary = @report.mi_plan_summary(production_centre, consortium)
-    @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
-    @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
-    @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
-    @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
-    @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
-    @pretty_print_types_of_cells_available = @report.pretty_print_types_of_cells_available
-    @production_centre = production_centre.blank? ? '' : production_centre
-    @consortium = consortium.blank? ? '' : consortium
-    @blurb = ""
-    @blurb = "#{consortium} " if ! consortium.blank?
-    @blurb += "#{production_centre}" if ! production_centre.blank?
-    @blurb = "All" if consortium.blank? && production_centre.blank?
-    @count = @report.blank? ? 0 : @mi_plan_summary.count
-#    @pretty_print_statuses = @report.pretty_print_statuses
-    params[:commit] = true
-
-    @title = 'IDG Gene List Activity'
-    render :template => 'v2/reports/mi_production/notifications_by_gene_live'
+  def notifications_by_gene_for_cmg
+    notifications_by_gene_for_cmg_cache
   end
 
   def notifications_by_gene_for_idg_cache
@@ -418,6 +393,30 @@ class V2::Reports::MiProductionController < ApplicationController
     end
 
     @title = 'IDG Gene List Activity'
+    render :template => 'v2/reports/mi_production/notifications_by_gene_cache'
+  end
+
+
+  def notifications_by_gene_for_cmg_cache
+    consortium = Consortium.find_by_name(params[:consortium]).try(:name)
+    production_centre = nil
+    params[:commit] = true
+
+    format = 'csv' if request.format == :csv
+    format = 'html' if request.format == :html
+
+    @report = ReportCache.find_by_name_and_format('notifications_by_gene_for_cmg_' + consortium.to_s, format)
+
+    @report.data.gsub!(/\n\n/, "\n")
+
+    if request.format == :csv
+      send_data @report.data,
+      :type => 'text/csv; charset=iso-8859-1; header=present',
+      :disposition => "attachment; filename=notifications_by_gene_for_cmg-#{Time.now.strftime('%d-%m-%y--%H-%M')}.csv"
+      return
+    end
+
+    @title = 'CMG Gene List Activity'
     render :template => 'v2/reports/mi_production/notifications_by_gene_cache'
   end
 

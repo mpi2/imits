@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20170927101602) do
+ActiveRecord::Schema.define(:version => 20171024111602) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",  :null => false
@@ -164,6 +164,13 @@ ActiveRecord::Schema.define(:version => 20170927101602) do
   end
 
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true
+
+  create_table "gene_private_annotations", :force => true do |t|
+    t.integer "gene_id",                      :null => false
+    t.boolean "idg",       :default => false
+    t.boolean "cmg_tier1", :default => false
+    t.boolean "cmg_tier2", :default => false
+  end
 
   create_table "genes", :force => true do |t|
     t.string   "marker_symbol",                      :limit => 75, :null => false

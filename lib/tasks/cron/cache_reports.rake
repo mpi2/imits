@@ -57,7 +57,10 @@ begin
 
       task :part7 => [:environment] do
         puts "#### cron:reports:part7: NotificationsByGene idg"
-        Reports::NotificationsByGene.new(nil, true).cache
+        Reports::NotificationsByGene.new(nil, 'idg').cache
+
+        puts "#### cron:reports:part7: NotificationsByGene cmg"
+        Reports::NotificationsByGene.new(nil, 'cmg').cache
 
         consortia = Consortium.all.map(&:name)
         consortia = ['<all>', '<none>'] + consortia

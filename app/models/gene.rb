@@ -1,6 +1,8 @@
 class Gene < ActiveRecord::Base
   acts_as_reportable
 
+  has_one :private_annotation, dependent: :destroy
+
   has_many :mi_plans
   has_many :mi_attempts, :through => :mi_plans
   has_many :mouse_allele_mods, :through => :mi_plans
@@ -13,6 +15,7 @@ class Gene < ActiveRecord::Base
 
   validates :marker_symbol, :presence => true, :uniqueness => true
 
+  before_create :build_associations
   before_save :set_cgi_and_gm_feature_types
 
   # GENE PRODUCTS
@@ -24,6 +27,15 @@ class Gene < ActiveRecord::Base
   def phenotype_attempts
     phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.uniq.map{|pa_id| Public::PhenotypeAttempt.find(pa_id)}
   end
+
+  def private_annotation
+    super || build_private_annotation()
+  end
+
+  def build_associations
+    private_annotation || true
+  end
+  private :build_associations
 
   def retreive_genes_vectors_sql
     sql = <<-EOF

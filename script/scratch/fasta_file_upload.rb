@@ -43,11 +43,41 @@ class FastaFileUpload
 
   def read_wtsi_data
     @loaded_data = []
+    @fasta_file.each do |d|
+    d.split("\r").each do |line|
+      puts line
+        data = line.split(',').map{|a| a.strip}
+        mi_attempt_id = data[0].strip
+        colony_name = data[1].strip
+        sequence = data[2].strip
+
+        colony = Colony.where("mi_attempt_id IS NOT NULL AND (UPPER(trim(both from name))) = '#{colony_name}'")
+        raise "Missing colony #{colony_name} for mi_attempt_id #{mi_attempt_id}" if colony.blank? || colony.length > 1
+        colony = colony.first
+
+        raise "mi_attempt_id does not match #{mi_attempt_id}, #{colony.mi_attempt_id}" if mi_attempt_id.blank? && mi_attempt_id.to_i != colony.mi_attempt_id.to_i
+        raise "Allele Sequence contains unexpected characters #{data[1]} for colony #{colony_name}" if sequence !~ /^[AGCTNagctn]+$/
+        raise "more than one allele #{colony_name} for mi_attempt #{mi_attempt_id}" if colony.alleles.blank? || colony.alleles.length > 1
+        
+        allele = Allele.find_by_colony_id(colony.id)
+
+        unless allele.mutant_fa.blank?
+          puts "fasta sequence already exists for #{colony_name} for mi_attempt #{mi_attempt_id}"
+          next
+        end
+
+        @loaded_data << [allele, sequence]
+    end
+    end
+  end
+
+  def read_wtsi_data_2
+    @loaded_data = []
     @fasta_file.each do |line|
-        data = line[1..-1].split(',').map{|a| a.strip}
-        ids = data[0].split('_')
-        mi_attempt_id = ids[0].strip
-     
+        data = line.split(',').map{|a| a.strip}
+        mi_attempt_id = data[0].strip
+        colony_name = data[1].strip
+        mutant_sequence = data[2].strip
 #        next if [16136, 16282].include?(mi_attempt_id.to_i)
         mi_attempt = MiAttempt.find(mi_attempt_id)
 

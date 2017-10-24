@@ -78,7 +78,7 @@ class BaseSummaryByMonthReport
       end
 
       month_difference = (next_goal_year.to_i - this_goal_year.to_i) * 12 + (next_goal_month.to_i - this_goal_month.to_i)
-      goal = last_goal + ( (next_goal - last_goal) / (month_difference))
+      goal = month_difference == 0 ? 0 : last_goal + ( (next_goal - last_goal) / (month_difference))
       @back_fill_goals[row['consortium']][goal_type]['last_goal'] = goal
 
     else
@@ -388,7 +388,7 @@ class BaseSummaryByMonthReport
       FROM counts
       LEFT JOIN consortia ON consortia.name = consortium
       LEFT JOIN goals_with_next_goal ON date_part('year', date) = goals_with_next_goal.year AND date_part('month', date) = goals_with_next_goal.month AND consortia.id = goals_with_next_goal.consortium_id
-      ORDER BY date ASC;
+      ORDER BY date_part('year', date), date_part('month', date) DESC;
     EOF
   end
 

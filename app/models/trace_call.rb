@@ -23,7 +23,7 @@ class TraceCall < ActiveRecord::Base
   attr_accessible :is_het
 
   before_save :check_changed
-  after_save :change_colony_allele_description
+#  after_save :change_colony_allele_description
 
   def check_changed
     if trace_file_file_name_changed?
@@ -34,30 +34,30 @@ class TraceCall < ActiveRecord::Base
   end
   protected :check_changed
 
-  def change_colony_allele_description
-    colony = self.colony
-
-    allele_mutation_summary = {}
-
-    [colony.trace_call].each do |tc|
-      next if tc.trace_call_vcf_modifications.count == 0
-
-      allele_mutation_summary[self.exon_id] = {'ins' => 0, 'del' => 0}
-      tc.trace_call_vcf_modifications.each do |tcvm|
-
-        next unless ['ins', 'del'].include?(tcvm.mod_type)
-        allele_mutation_summary[self.exon_id][tcvm.mod_type] += (tcvm.alt_seq.length - tcvm.ref_seq.length).abs
-      end
-    end
-
-    description = allele_mutation_summary.map{|exon, mutation| "#{ mutation['del'] != 0 ? "#{mutation['del']}bp deletion" : '' }#{ mutation['del'] != 0 && mutation['ins'] != 0 ? " and " : ''}#{ mutation['ins'] != 0 ? "#{mutation['ins']}bp insertion" : '' }#{!exon.blank? ? " in #{exon}" : '' }"}.join(' and ')
-
-    if !description.blank?
-      colony.update_column(:auto_allele_description, "Frameshift mutation caused by a #{description}")
-    end
-
-  end
-  protected :check_changed
+#  def change_colony_allele_description
+#    colony = self.colony
+#
+#    allele_mutation_summary = {}
+#
+#    [colony.trace_call].each do |tc|
+#      next if tc.trace_call_vcf_modifications.count == 0
+#
+#      allele_mutation_summary[self.exon_id] = {'ins' => 0, 'del' => 0}
+#      tc.trace_call_vcf_modifications.each do |tcvm|
+#
+#        next unless ['ins', 'del'].include?(tcvm.mod_type)
+#        allele_mutation_summary[self.exon_id][tcvm.mod_type] += (tcvm.alt_seq.length - tcvm.ref_seq.length).abs
+#      end
+#    end
+#
+#    description = allele_mutation_summary.map{|exon, mutation| "#{ mutation['del'] != 0 ? "#{mutation['del']}bp deletion" : '' }#{ mutation['del'] != 0 && mutation['ins'] != 0 ? " and " : ''}#{ mutation['ins'] != 0 ? "#{mutation['ins']}bp insertion" : '' }#{!exon.blank? ? " in #{exon}" : '' }"}.join(' and ')
+#
+#    if !description.blank?
+#      colony.update_column(:auto_allele_description, "Frameshift mutation caused by a #{description}")
+#    end
+#
+#  end
+#  protected :check_changed
 
   SYNC                 = false
   VERBOSE              = false

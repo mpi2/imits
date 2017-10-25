@@ -61,6 +61,8 @@ class Reports::NotificationsByGene < Reports::Base
     @blurb = "All" if (consortium.blank? && production_centre.blank?) || consortium =~ /all/
     @blurb = "no consortium" if consortium =~ /none/
     @count = @report.blank? ? 0 : @mi_plan_summary.count
+    @percentage_in_production = @count == 0 ? 0 : (@mi_plan_summary.select{|a| !a['status'].blank? && a['status'] !~ /Aborted/}.length.to_f * 100) / @count
+    @percentage_complete = @count == 0 ? 0 : (@mi_plan_summary.select{|a| a['status'] =~ /Phenotyp/ || a['status'] == 'Genotype Confirmed' }.length.to_f * 100) / @count
 #    @pretty_print_statuses = @report.pretty_print_statuses
     @cached = true
 
@@ -92,6 +94,8 @@ class Reports::NotificationsByGene < Reports::Base
     @blurb = "All" if (consortium.blank? && production_centre.blank?) || consortium =~ /all/
     @blurb = "no consortium" if consortium =~ /none/
     @count = @report.blank? ? 0 : @mi_plan_summary.count
+    @percentage_in_production = @count == 0 ? 0 : (@mi_plan_summary.select{|a| !a['status'].blank? && a['status'] !~ /Aborted/}.length.to_f * 100) / @count
+    @percentage_complete = @count == 0 ? 0 : (@mi_plan_summary.select{|a| a['status'] =~ /Phenotyp/ || a['status'] == 'Genotype Confirmed' }.length.to_f * 100) / @count
 #    @pretty_print_statuses = @report.pretty_print_statuses
     @cached = true
 
@@ -123,6 +127,8 @@ class Reports::NotificationsByGene < Reports::Base
     @blurb = "no consortium" if consortium =~ /none/
 
     @count = @report.blank? ? 0 : @mi_plan_summary.count
+    @percentage_in_production = @count == 0 ? 0 : (@mi_plan_summary.select{|a| !a['status'].blank? && a['status'] !~ /Aborted/}.length.to_f * 100) / @count
+    @percentage_complete = @count == 0 ? 0 : (@mi_plan_summary.select{|a| a['status'] =~ /Phenotyp/ || a['status'] == 'Genotype Confirmed' }.length.to_f * 100) / @count
 #    @pretty_print_statuses = @report.pretty_print_statuses
     @cached = true
 

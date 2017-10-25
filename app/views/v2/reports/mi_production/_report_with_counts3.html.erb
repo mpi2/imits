@@ -3,7 +3,9 @@
 <% if @count == 0 %>
   <p><em>Sorry, no <%= label %> found</em></p>
 <% else %>
-  <p><%= @count %> <%= label %> found for <%= @blurb %> </p>
+
+  <p><%= @count %> <%= label %> found for <%= @blurb %>. </p>
+  <p>Production has commenced for <%= @percentage_in_production.round(2) %>% with <%= @percentage_complete.round(2) %>% producing Genotype Confirmed Mice.</p>
 
   <table>
     <thead>

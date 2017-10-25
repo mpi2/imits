@@ -318,7 +318,7 @@ class TargRep::Allele < ActiveRecord::Base
                               'HR'       => "Wild type floxed exon"
                             }
 
-      return allele_descriptions['tmCGI'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == ''
+      return allele_descriptions['tmCGI'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == "''"
       return allele_descriptions['tmCGI-cre'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == '.1'
       return allele_descriptions['tmCGI-flp'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == '.2'
       return allele_descriptions['tmCGI-dre'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == '.3'
@@ -335,11 +335,11 @@ class TargRep::Allele < ActiveRecord::Base
       return allele_descriptions['HR'] if allele_type == 'HR'
 
       if !cassette.blank? && cassette =~ /Cre/
-        return allele_descriptions['tmCreSC'] if allele_type == ''
+        return allele_descriptions['tmCreSC'] if allele_type == "''"
         return allele_descriptions['tmCre'] if allele_type == '.1'
       end
 
-      return allele_descriptions['tm'] if allele_type == ''
+      return allele_descriptions['tm'] if allele_type == "''"
       return allele_descriptions['tm.1'] if allele_type == '.1'
       return allele_descriptions['tm.2'] if allele_type == '.2'
 

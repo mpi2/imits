@@ -647,8 +647,8 @@ class SolrData::Allele2CoreData
         allele_data_doc.allele_category << allele_data_doc.allele_type
       end
       
-      allele_data_doc.fixed_tissues_available = true if allele_data_doc.tissue_types.include?('Fixed Tissue')
-      allele_data_doc.paraffin_embedded_sections_available = true if allele_data_doc.tissue_types.include?('Paraffin-embedded Tissue Sections')
+      allele_data_doc.tissues_available = true if allele_data_doc.tissue_types.include?('Fixed Tissue') || allele_data_doc.tissue_types.include?('Paraffin-embedded Tissue Sections')
+
 
     end
 
@@ -751,8 +751,7 @@ class SolrData::Allele2CoreData
                                                        'phenotyping_centres' => [],
                                                        'late_adult_phenotyping_centre' => '',
                                                        'late_adult_phenotyping_centres' => [],
-                                                       'fixed_tissues_available' => false,
-                                                       'paraffin_embedded_sections_available' => false,
+                                                       'fixed_available' => false,
                                                        'tissue_types' => [],
                                                        'tissue_enquiry_links' => [],
                                                        'tissue_distribution_centres' => [],

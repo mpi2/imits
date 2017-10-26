@@ -15,7 +15,7 @@ class Solr::Allele2 < Solr::Tableless
                 :production_centre, :phenotyping_centre, :production_centres, :phenotyping_centres, :late_adult_phenotyping_centre, :late_adult_phenotyping_centres, 
                 :latest_production_centre, :latest_phenotyping_centre,
                 :latest_phenotype_started, :latest_phenotype_complete, :late_adult_phenotype_started, :late_adult_phenotype_complete,
-                :fixed_tissues_available, :paraffin_embedded_sections_available, :tissue_types,
+                :tissues_available, :tissue_types,
                 :tissue_enquiry_links, :tissue_distribution_centres,
                 :notes
 

@@ -39,7 +39,10 @@ class Mp2Load::PhenotypingColoniesReport
        {'title' => 'Phenotyping Centre', 'field' => 'phenotyping_centre'},
        {'title' => 'Phenotyping Consortium', 'field' => 'phenotyping_consortia'},
        {'title' => 'Cohort Production Centre', 'field' => 'cohort_production_centre_name'},
-       {'title' => 'Allele Symbol', 'field' => 'allele_symbol'}
+       {'title' => 'Allele Symbol', 'field' => 'allele_symbol'},
+       {'title' => 'Report Phenotype data To Public', 'field' => 'report_to_public'},
+       {'title' => 'Selected For Late Adult Pipeline', 'field' => 'selected_for_late_adult_phenotyping'},
+       {'title' => 'Report Late Adult Phenotype data To Public', 'field' => 'late_adult_report_to_public'}
        ]
     end
 
@@ -87,8 +90,10 @@ class Mp2Load::PhenotypingColoniesReport
              ELSE colony.centre_name 
         END AS cohort_production_centre_name,
         CASE WHEN colony.es_cell_name IS NOT NULL AND colony.es_cell_name != '' THEN colony.es_cell_name ELSE mi_colony.es_cell_name END AS es_cell_name, 
-        colony.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript
-
+        colony.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript,
+        phenotyping_productions.report_to_public,
+        CASE WHEN late_adult_is_active = true AND phenotyping_productions.selected_for_late_adult_phenotyping = true THEN true ELSE NULL END,
+        CASE WHEN late_adult_is_active = true AND phenotyping_productions.selected_for_late_adult_phenotyping = true THEN phenotyping_productions.late_adult_report_to_public ELSE NULL END
       FROM phenotyping_productions
         JOIN plans pp_plans ON pp_plans.id = phenotyping_productions.mi_plan_id
         JOIN genes ON genes.id = pp_plans.gene_id

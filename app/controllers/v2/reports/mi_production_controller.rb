@@ -420,6 +420,12 @@ class V2::Reports::MiProductionController < ApplicationController
     render :template => 'v2/reports/mi_production/notifications_by_gene_cache'
   end
 
+  def test_excel
+    respond_to do |format|
+      format.xlsx
+    end
+  end
+
   def impc_centre_pa_detail
     @report = ImpcCentreByMonthDetail.new
     @centre = params[:centre]

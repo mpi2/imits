@@ -7,6 +7,9 @@ gem 'rack', '~> 1.4.0'
 gem 'hoptoad_notifier', '2.4.11'
 gem 'jammit', '0.6.5'
 gem 'json'
+gem 'rubyzip', '~> 1.1.0'
+gem 'axlsx', '2.1.0.pre'
+gem 'axlsx_rails'
 
 ## gem used to query mouse moines InterMine Warehouse
 gem 'intermine', '~> 1.4'
@@ -57,7 +60,6 @@ group :development, :test do
 end
 
 gem 'nokogiri', '1.6'
-gem 'zipruby', '~> 0.3.6'
 gem "paperclip", "~> 4.1"
 gem "paperclip_database", "~> 2.0"
 

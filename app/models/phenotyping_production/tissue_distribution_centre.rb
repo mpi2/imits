@@ -18,7 +18,7 @@ class PhenotypingProduction::TissueDistributionCentre < ActiveRecord::Base
 
   DEPOSITED_TISSUE_MATERIAL = %w{
     Fixed\ Tissue
-    Paraffin-embedded\ Tissue\ Sections
+    Paraffin-embedded\ Sections
   }
 
   belongs_to :phenotyping_production

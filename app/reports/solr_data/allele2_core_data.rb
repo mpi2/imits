@@ -647,7 +647,7 @@ class SolrData::Allele2CoreData
         allele_data_doc.allele_category << allele_data_doc.allele_type
       end
       
-      allele_data_doc.tissues_available = true if allele_data_doc.tissue_types.include?('Fixed Tissue') || allele_data_doc.tissue_types.include?('Paraffin-embedded Tissue Sections')
+      allele_data_doc.tissues_available = true if allele_data_doc.tissue_types.include?('Fixed Tissue') || allele_data_doc.tissue_types.include?('Paraffin-embedded Sections')
 
 
     end

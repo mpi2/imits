@@ -37,6 +37,7 @@ class PhenotypingProduction::TissueDistributionCentre < ActiveRecord::Base
   validates :centre, :presence => true
   validates :deposited_material, :presence => true
   validates :deposited_material, uniqueness: { scope: :phenotyping_production_id, message: "is already been distributed" }
+  validates :deposited_material, :inclusion => { :in => DEPOSITED_TISSUE_MATERIAL}
 
   def calculate_order_link
     params = {}

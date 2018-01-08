@@ -751,7 +751,7 @@ class SolrData::Allele2CoreData
                                                        'phenotyping_centres' => [],
                                                        'late_adult_phenotyping_centre' => '',
                                                        'late_adult_phenotyping_centres' => [],
-                                                       'fixed_available' => false,
+                                                       'tissues_available' => false,
                                                        'tissue_types' => [],
                                                        'tissue_enquiry_links' => [],
                                                        'tissue_distribution_centres' => [],

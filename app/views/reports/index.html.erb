@@ -252,7 +252,7 @@
       </a>
     </div>
 
-  <h3>Production Summaries (Legacy)</h3>
+  <h3>Production Summaries</h3>
   <!--
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :mi_attempts_by_gene) %>">
@@ -269,6 +269,14 @@
       <p>Summary report showing production statistics for each production centre on a month-by-month basis.</p>
     </a>
   </div>-->
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :micro_injection_missing_data) %>">
+      <h4>Cas9 Micro-Injection Excel download</h4>
+      <p>Downloads a lists of all Cas9 micro-injections attempts. Missing data is highlighted; <font color="red">red</font> = missing data; <font color="orange">orange</font> = data to be reviewed</p>
+    </a>
+  </div>
+
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :mi_attempts_list) %>">
       <h4>All Micro-Injection Attempts</h4>

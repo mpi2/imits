@@ -1,0 +1,182 @@
+index_hash = Hash.new {|hash,key| hash[key] = hash[key - 1].next }.merge({0 => "A"})
+wb = xlsx_package.workbook
+rows = []
+wb.styles do |s|
+  @header_cell = s.add_style :sz => 12, :b => true
+  @red_cell = s.add_style :bg_color => "FF0000", :border => {:style => :thin, :color => "00", :edges => [:left, :right]}
+  @orange_cell =  s.add_style  :bg_color => "FFA500", :border => {:style => :thin, :color => "00", :edges => [:left, :right]}
+  @blue_cell = s.add_style  :fg_color => "0033FF", :border => {:style => :thin, :color => "00", :edges => [:left, :right]}
+  @default_cell =  s.add_style  :border => {:style => :thin, :color => "00", :edges => [:left, :right]}
+end
+
+wb.add_worksheet(:name => "Mouse Production") do |sheet|
+  sheet.add_row ["Micro Injection / Electroporation Details"], :style => instance_variable_get("@header_cell".to_sym)
+  sheet.merge_cells('A1:B1')
+
+  mi_attempt_titles = []
+  merge_cells = []
+  MissingDataReport.mi_attempt_titles.each do |field|
+    title = field[:title]
+    blank_count = field[:position_range][1].to_i - field[:position_range][0].to_i
+    mi_attempt_titles << title
+    (0..(blank_count - 1)).each{|i| mi_attempt_titles << ''} unless blank_count <= 0
+    merge_cells << "#{index_hash[field[:position_range][0].to_i - 1]}2:#{index_hash[field[:position_range][1].to_i - 1]}2" unless field[:position_range][0] == field[:position_range][1]
+  end
+  rows << mi_attempt_titles
+  sheet.add_row mi_attempt_titles, :style => mi_attempt_titles.map{|d| instance_variable_get("@header_cell".to_sym)}
+  merge_cells.each{|merge| sheet.merge_cells(merge) }
+
+  fields = MissingDataReport.mi_attempt_titles.select{|f| !f[:nested].blank?}
+  i = 3
+  while !fields.blank?
+    mi_attempt_titles1 = []
+    merge_cells1 = []
+    mi_attempt_titles2 = []
+    merge_cells2 = []
+
+    nested_end_pos = 0
+    fields.each do |parent_field|
+
+      blank_count = parent_field[:position_range][0].to_i - nested_end_pos.to_i - 1
+      (0..(blank_count - 1)).each{|k| mi_attempt_titles1 << ''; mi_attempt_titles2 << ''} unless blank_count <= 0
+      nested_end_pos = parent_field[:position_range][1].to_i
+
+      interval = (parent_field[:position_range][1].to_i - parent_field[:position_range][0].to_i) / parent_field[:nested].length + 1
+      (0..(parent_field[:nested].length - 1)).each do |j|
+        merge_cells1 << "#{index_hash[parent_field[:position_range][0].to_i + (interval * j) - 1]}#{i}:#{index_hash[parent_field[:position_range][0].to_i + (interval * (j + 1))- 2]}#{i}"
+      end
+
+      parent_field[:nested].flatten.each do |field|
+        title = field[:title]
+        blank_count = field[:position_range][1].to_i - field[:position_range][0].to_i
+        mi_attempt_titles2 << title
+        (0..(blank_count - 1)).each{|k| mi_attempt_titles2 << ''} unless blank_count <= 0
+        merge_cells2 << "#{index_hash[field[:position_range][0].to_i - 1]}#{i+1}:#{index_hash[field[:position_range][1].to_i - 1]}#{i+1}" unless field[:position_range][0] == field[:position_range][1]
+      end
+    end
+    rows << mi_attempt_titles1
+    sheet.add_row mi_attempt_titles1, :style => mi_attempt_titles1.map{|d| instance_variable_get("@header_cell".to_sym)}
+    merge_cells1.each{|merge| sheet.merge_cells(merge) }
+
+    rows << mi_attempt_titles2
+    sheet.add_row mi_attempt_titles2, :style => mi_attempt_titles2.map{|d| instance_variable_get("@header_cell".to_sym)}
+    merge_cells2.each{|merge| sheet.merge_cells(merge) }
+
+    i += 2
+    fields = fields.map{|f| f[:nested]}.flatten.select{|f| !f[:nested].blank?}
+  end
+ 
+  no_rows = rows.length
+  no_cols = rows[0].length
+
+  (0..(no_cols - 1)).each do |col_index|
+    no_blanks = 0
+    (0..(no_rows - 1)).reverse_each do |row_index|
+      break if !rows[row_index][col_index].blank?
+      no_blanks += 1
+    end
+    sheet.merge_cells("#{index_hash[col_index]}#{no_rows - no_blanks + 1}:#{index_hash[col_index]}#{no_rows + 1}") unless no_blanks == 0
+  end
+
+  @mi_report.each do |data|
+    sheet.add_row data.map{|d| d[0].class == String ? d[0][0..32766] : d[0]}, :types => data.map{|d| d[1].to_sym }, :style => data.map{|d| instance_variable_get("@#{d[2]}".to_sym) }
+  end
+
+  sheet.auto_filter = 'A6:BL7'
+  sheet.sheet_view.pane do |pane|
+    pane.top_left_cell = "D7"
+    pane.state = :frozen_split
+    pane.y_split = 6
+    pane.x_split = 3
+    pane.active_pane = :bottom_right
+  end
+end
+
+wb.add_worksheet(:name => "F1 Colonies") do |sheet|
+  sheet.add_row ["F1 Colonies produced via Micro Injection or Electroporation"], :style => instance_variable_get("@header_cell".to_sym)
+  sheet.merge_cells('A1:B1')
+
+  f1_colony_titles = []
+  merge_cells = []
+  rows = []
+
+  MissingDataReport.f1_colony_titles.each do |field|
+    title = field[:title]
+    blank_count = field[:position_range][1].to_i - field[:position_range][0].to_i
+    f1_colony_titles << title
+    (0..(blank_count - 1)).each{|i| f1_colony_titles << ''} unless blank_count <= 0
+    merge_cells << "#{index_hash[field[:position_range][0].to_i - 1]}2:#{index_hash[field[:position_range][1].to_i - 1]}2" unless field[:position_range][0] == field[:position_range][1]
+  end
+  rows << f1_colony_titles
+  sheet.add_row f1_colony_titles, :style => f1_colony_titles.map{|d| instance_variable_get("@header_cell".to_sym)}
+  merge_cells.each{|merge| sheet.merge_cells(merge) }
+
+  fields = MissingDataReport.f1_colony_titles.select{|f| !f[:nested].blank?}
+  i = 3
+  while !fields.blank?
+    f1_colony_titles1 = []
+    merge_cells1 = []
+    f1_colony_titles2 = []
+    merge_cells2 = []
+
+    nested_end_pos = 0
+    fields.each do |parent_field|
+
+      blank_count = parent_field[:position_range][0].to_i - nested_end_pos.to_i - 1
+      (0..(blank_count - 1)).each{|k| f1_colony_titles1 << ''; f1_colony_titles2 << ''} unless blank_count <= 0
+      nested_end_pos = parent_field[:position_range][1].to_i
+
+      interval = (parent_field[:position_range][1].to_i - parent_field[:position_range][0].to_i) / parent_field[:nested].length + 1
+      (0..(parent_field[:nested].length - 1)).each do |j|
+        merge_cells1 << "#{index_hash[parent_field[:position_range][0].to_i + (interval * j) - 1]}#{i}:#{index_hash[parent_field[:position_range][0].to_i + (interval * (j + 1))- 2]}#{i}"
+      end
+
+      parent_field[:nested].flatten.each do |field|
+        title = field[:title]
+        blank_count = field[:position_range][1].to_i - field[:position_range][0].to_i
+        f1_colony_titles2 << title
+        (0..(blank_count - 1)).each{|k| f1_colony_titles2 << ''} unless blank_count <= 0
+        merge_cells2 << "#{index_hash[field[:position_range][0].to_i - 1]}#{i+1}:#{index_hash[field[:position_range][1].to_i - 1]}#{i+1}" unless field[:position_range][0] == field[:position_range][1]
+      end
+    end
+    rows << f1_colony_titles1
+    sheet.add_row f1_colony_titles1, :style => f1_colony_titles1.map{|d| instance_variable_get("@header_cell".to_sym)}
+    merge_cells1.each{|merge| sheet.merge_cells(merge) }
+
+    rows << f1_colony_titles2
+    sheet.add_row f1_colony_titles2, :style => f1_colony_titles2.map{|d| instance_variable_get("@header_cell".to_sym)}
+    merge_cells2.each{|merge| sheet.merge_cells(merge) }
+
+    i += 2
+    fields = fields.map{|f| f[:nested]}.flatten.select{|f| !f[:nested].blank?}
+  end
+
+  no_rows = rows.length
+  no_cols = rows[0].length
+
+  (0..(no_cols - 1)).each do |col_index|
+    no_blanks = 0
+    (0..(no_rows - 1)).reverse_each do |row_index|
+      break if !rows[row_index][col_index].blank?
+      no_blanks += 1
+    end
+    sheet.merge_cells("#{index_hash[col_index]}#{no_rows - no_blanks + 1}:#{index_hash[col_index]}#{no_rows + 1}") unless no_blanks == 0
+  end
+
+
+  @f1_colonies.each do |data|
+    sheet.add_row data.map{|d| d[0].class == String ? d[0][0..32766] : d[0]}, :types => data.map{|d| d[1].to_sym }, :style => data.map{|d| instance_variable_get("@#{d[2]}".to_sym) }
+  end
+
+
+  sheet.auto_filter = 'A4:R5'
+  sheet.sheet_view.pane do |pane|
+    pane.top_left_cell = "D5"
+    pane.state = :frozen_split
+    pane.y_split = 4
+    pane.x_split = 3
+    pane.active_pane = :bottom_right
+  end
+end
+
+

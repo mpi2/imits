@@ -1,0 +1,32 @@
+<% suppress_centre_filters ||= false %>
+<% unless suppress_centre_filters %>
+  <div class="grid_4">
+    <fieldset>
+      <legend>Filter Data On</legend>
+      <table>
+        <tr>
+          <td>
+            <%= label_tag( 'centre', "Production Centre:" ) %>
+            <%=
+              select_tag(
+                'centre',
+                options_from_collection_for_select( Centre.order("name").all, :name, :name, params[:centre] ),
+                { :include_blank => true, :size => 5 }
+              )
+            %>
+          </td>
+        </tr>
+      </table>
+    </fieldset>
+  </div>
+<% end %>
+
+<div class="clear"></div>
+
+<div class="grid_12">
+  <%= hidden_field_tag( 'commit', 'true' ) %>
+  <%= hidden_field_tag( 'format', 'xlsx' ) %>
+  <%= submit_tag 'Generate Report' %>
+</div>
+
+<div class="clear"></div>

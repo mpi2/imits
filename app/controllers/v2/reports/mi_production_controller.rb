@@ -420,9 +420,18 @@ class V2::Reports::MiProductionController < ApplicationController
     render :template => 'v2/reports/mi_production/notifications_by_gene_cache'
   end
 
-  def test_excel
+  def micro_injection_missing_data
+    centre = Centre.find_by_name(params[:centre]).try(:name)
+
+    if request.format == 'xlsx'
+      @report = MissingDataReport.new(:centre => centre)
+      @mi_report = @report.mi_attempts
+      @f1_colonies = @report.f1_colonies
+    end
+
     respond_to do |format|
       format.xlsx
+      format.html
     end
   end
 

@@ -1,0 +1,9 @@
+<% @title = 'All CAS9 Micro-Injections excel download' %>
+
+<div class="grid_12">
+  <h2><%= @title %></h2>
+</div>
+
+<%= form_tag( { :action => :micro_injection_missing_data }, :method => :get, :class => 'report-form' ) do |form| %>
+  <%= render 'report_centre_controls' %>
+<% end %>

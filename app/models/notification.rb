@@ -1,6 +1,5 @@
 
 class Notification < ActiveRecord::Base
-  include Notification::StatusChecker
   extend ::AccessAssociationByAttribute
   acts_as_audited
 
@@ -40,21 +39,6 @@ class Notification < ActiveRecord::Base
     last_email_text
   end
 
-  def retry!
-    if last_email_sent.blank?
-      self.welcome_email_sent = Time.now.utc
-      #last_email_sent = self.welcome_email_sent
-      self.retry = true
-      self.save!
-      NotificationMailer.welcome_email(self).deliver
-    else
-      self.last_email_sent = Time.now.utc
-      self.retry = true
-      self.save!
-      NotificationMailer.status_email(self).deliver
-    end
-  end
-
   def self.notifications_by_gene
     sql = <<-EOF
     SELECT genes.marker_symbol, count(*) as total
@@ -68,17 +52,6 @@ class Notification < ActiveRecord::Base
 
     result = ActiveRecord::Base.connection.execute sql
     result.to_a.map(&:symbolize_keys)
-  end
-
-  def send_welcome_email
-    return unless valid?
-
-    if mailer = NotificationMailer.welcome_email(self)
-      self.welcome_email_text = mailer.body.to_s
-      self.welcome_email_sent = Time.now.utc
-      self.save!
-      mailer.deliver
-    end
   end
 end
 

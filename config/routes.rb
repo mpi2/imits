@@ -15,13 +15,6 @@ TarMits::Application.routes.draw do
       end
     end
 
-    resources :notifications do
-      member do
-        put 'retry'
-        get 'history'
-      end
-    end
-
     resources :contacts
 
     resources :email_templates do

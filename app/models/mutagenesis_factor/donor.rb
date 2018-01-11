@@ -34,7 +34,7 @@ class MutagenesisFactor::Donor < ActiveRecord::Base
     :message   => "is not a valid FASTA file format.",
     :allow_nil => true
 
-  PREPARATION = ['', 'Circular', 'Linearized', 'Supercoiled', 'Oligo'].freeze
+  PREPARATION = ['', 'Circular', 'Linearized', 'Supercoiled', 'Oligo', 'ssDNA Oligo'].freeze
 
   access_association_by_attribute :vector, :name
 

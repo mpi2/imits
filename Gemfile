@@ -26,8 +26,7 @@ gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', '1.1.1', :require => 'ruport/acts_as_reportable'
 
 gem 'rmagick', '2.13.2', :require => false
-#gem 'scruffy_Sanger','0.2.6.1', :require => 'scruffy'
-
+gem 'scruffy_Sanger', :require => 'scruffy', :git => 'git@github.com:mpi2/scruffy.git'
 gem 'unicorn', '4.3.0'
 
 ## For TargRep

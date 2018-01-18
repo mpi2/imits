@@ -304,7 +304,7 @@ class Allele < ApplicationModel
 
     if md
       if 'tm' == md[1][0..1]
-        symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3] + md[4]
+        symbol_superscript_template = md[1].to_s + TEMPLATE_CHARACTER + md[3].to_s + md[4].to_s
         type = md[2].blank? ? "''" : md[2]
       else
         symbol_superscript_template = nil

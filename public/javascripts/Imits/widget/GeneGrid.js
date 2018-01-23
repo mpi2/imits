@@ -185,6 +185,7 @@ Ext.define('Imits.widget.GeneGrid', {
         var productionCentreName = grid.centreCombo.getSubmitValue();
         var subProjectName       = grid.subprojectCombo.getSubmitValue();
         var PhenotypeOnly        = grid.phenotypeonlyCheck.getSubmitValue() || false;
+        var esCellQcOnly         = grid.escellqconlyCheck.getSubmitValue() || false;
         var Crispr               = grid.crisprCheck.getSubmitValue() || false;
         var priorityName         = grid.priorityCombo.getSubmitValue();
         var isBespokeAllele      = grid.isbespokealleleCheck.getSubmitValue() || false;
@@ -219,6 +220,7 @@ Ext.define('Imits.widget.GeneGrid', {
                 'production_centre_name' : productionCentreName,
                 'sub_project_name'       : subProjectName,
                 'phenotype_only'         : PhenotypeOnly,
+                'es_cell_qc_only'        : esCellQcOnly,
                 'mutagenesis_via_crispr_cas9' : Crispr,
                 'priority_name'          : priorityName,
                 'is_bespoke_allele'      : isBespokeAllele,
@@ -267,8 +269,9 @@ Ext.define('Imits.widget.GeneGrid', {
         grid.centreCombo      = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_OPTIONS, true, false);
         grid.subprojectCombo  = grid.createComboBox('sub_project', 'Sub Project', 65, window.SUB_PROJECT_OPTIONS, false, isSubProjectHidden);
         grid.priorityCombo    = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS, false, false);
-        grid.phenotypeonlyCheck     = grid.createCheckBox('phenotype_only', 'Phenotype Only', 95, false);
-        grid.crisprCheck              = grid.createCheckBox('mutagenesis_via_crispr_cas9', 'Mutagenesis Via Crispr/Cas9?', 95, false);
+        grid.phenotypeonlyCheck     = grid.createCheckBox('phenotype_only', 'Phenotype Only', 85, false);
+        grid.escellqconlyCheck     = grid.createCheckBox('es_cell_qc_only', 'ES Cell QC Only', 85, false);
+        grid.crisprCheck              = grid.createCheckBox('mutagenesis_via_crispr_cas9', 'Mutagenesis Via Crispr/Cas9?', 85, false);
         grid.isbespokealleleCheck     = grid.createCheckBox('is_bespoke_allele', 'Bespoke', 52, false);
         grid.isconditionalalleleCheck = grid.createCheckBox('is_conditional_allele', 'Knockout First Tm1a', 120, false);
         grid.isdeletionalleleCheck    = grid.createCheckBox('is_deletion_allele', 'Deletion', 57, false);
@@ -285,8 +288,9 @@ Ext.define('Imits.widget.GeneGrid', {
             grid.centreCombo,
             grid.subprojectCombo,
             grid.priorityCombo,
+            grid.crisprCheck,
             grid.phenotypeonlyCheck,
-            grid.crisprCheck
+            grid.escellqconlyCheck
             ]
         }));
 

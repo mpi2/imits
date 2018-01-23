@@ -74,7 +74,6 @@ class MiPlan < ApplicationModel
   end
 
   validate do |plan|
-puts "PLAN: #{plan.attributes}"
     statuses = MiPlan::Status.all_non_assigned
 
     if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
@@ -115,7 +114,8 @@ puts "PLAN: #{plan.attributes}"
       :point_mutation => plan.point_mutation,
       :conditional_point_mutation => plan.conditional_point_mutation,
       :mutagenesis_via_crispr_cas9 => plan.mutagenesis_via_crispr_cas9,
-      :phenotype_only => plan.phenotype_only).map(&:id)
+      :phenotype_only => plan.phenotype_only,
+      :es_cell_qc_only => plan.es_cell_qc_only).map(&:id)
     other_ids -= [plan.id]
     if(other_ids.count != 0)
       plan.errors.add(:gene, 'already has a plan by that consortium/production centre and allele discription')
@@ -156,6 +156,12 @@ puts "PLAN: #{plan.attributes}"
     end
   end
 
+  validate do |plan|
+    if plan.phenotype_only == true and plan.es_cell_qc_only == true
+      plan.errors.add(:phenotype_only, 'cannot be set to true when es_cell_qc_only is also set to true')
+      plan.errors.add(:es_cell_qc_only, 'cannot be set to true when phenotype_only is also set to true')
+    end
+  end
   # BEGIN Callbacks
 
   before_validation :set_default_number_of_es_cells_starting_qc
@@ -375,7 +381,7 @@ puts "PLAN: #{plan.attributes}"
       return "MI already in progress at: #{other_centres_consortia.join(', ')}"
     when 'Inspect - Conflict'
       other_consortia = MiPlan.where('gene_id = :gene_id AND id != :id',
-        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status.all_assigned ).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq.sort
+        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status.all_assigned ).where(:es_cell_qc_only => false).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq.sort
       return "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
     when 'Conflict'
       other_consortia = MiPlan.where('gene_id = :gene_id AND id != :id',
@@ -394,7 +400,7 @@ puts "PLAN: #{plan.attributes}"
   end
 
   def assigned?
-    return MiPlan::Status.all_assigned.include?(status)
+    return MiPlan::Status.all_assigned.include?(status) && es_cell_qc_only == false
   end
 
   def distinct_old_genotype_confirmed_es_cells_count

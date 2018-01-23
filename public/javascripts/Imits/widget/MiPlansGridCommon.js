@@ -137,6 +137,13 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
         readOnly: true
     },
     {
+        dataIndex: 'es_cell_qc_only',
+        header: 'ES Cell QC Only',
+        xtype: 'boolgridcolumn',
+        width: 90,
+        readOnly: true
+    },
+    {
         dataIndex: 'is_conditional_allele',
         header: 'Knockout First tm1a',
         xtype: 'boolgridcolumn',

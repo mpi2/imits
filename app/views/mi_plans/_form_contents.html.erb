@@ -29,7 +29,10 @@
         <%= form.label 'phenotype_only', 'Phenotype Only' %>
         <%= form.check_box 'phenotype_only' %>
       </div>
-
+      <div>
+        <%= form.label 'es_cell_qc_only', 'ES Cell QC Only' %>
+        <%= form.check_box 'es_cell_qc_only' %>
+      </div>
 
       <%  if current_user.can_see_sub_project? %>
         <div>

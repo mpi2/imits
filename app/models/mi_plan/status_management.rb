@@ -8,58 +8,78 @@ module MiPlan::StatusManagement
       if gene
         plans = gene.mi_plans
         mi_attempts = gene.mi_attempts
+        phenotyping_productions = gene.phenotyping_productions
 
         @all_gtc_mi_attempts = mi_attempts.search(:status_code_eq => 'gtc').result.all.dup
         @all_non_gtc_active_mi_attempts = mi_attempts.search(:status_code_not_in => ['gtc', 'abt']).result.all.dup
         @all_assigned_plans = plans.where(:status_id => MiPlan::Status.all_assigned.map(&:id)).all
         @all_pre_assignment_plans = plans.where(:status_id => MiPlan::Status.all_pre_assignment.map(&:id)).all
+        @all_phenotyping_productions = phenotyping_productions.search(:phenotyping_experiments_started_not_null => 1).result.all.dup
       else
         @all_gtc_mi_attempts = []
         @all_non_gtc_active_mi_attempts = []
         @all_assigned_plans = []
         @all_pre_assignment_plans = []
+        @all_phenotyping_productions = []
       end
     end
 
     def get_pre_assigned_status(plan)
-      if ! plan.new_record? and ! MiPlan::Status.all_pre_assignment.include?(plan.status)
-        return nil
+      if plan.es_cell_qc_only == true
+        return 'Assigned for ES Cell QC'
+      elsif plan.phenotype_only == true
+        return 'Inspect - Phenotype Conflict' if @all_phenotyping_productions.size != 0 && plan.force_assignment.blank?
+        return 'Assigned to phenotype'
+      elsif ! plan.new_record? and ! MiPlan::Status.all_pre_assignment.include?(plan.status)
+        return 'Assigned'
       elsif plan.force_assignment == true
-        return nil
+        return 'Assigned'
       elsif( @all_gtc_mi_attempts.size != 0 )
-        return MiPlan::Status['Inspect - GLT Mouse']
+        return 'Inspect - GLT Mouse'
       elsif( @all_non_gtc_active_mi_attempts.size != 0 )
-        return MiPlan::Status['Inspect - MI Attempt']
+        return 'Inspect - MI Attempt'
       elsif( @all_assigned_plans.size != 0 )
-        return MiPlan::Status['Inspect - Conflict']
+        return 'Inspect - Conflict'
       elsif( @all_pre_assignment_plans.size > 1 )
-        return MiPlan::Status['Conflict']
+        return 'Conflict'
       end
 
-      return nil
+      return 'Assigned'
     end
   end
 
   ss = ApplicationModel::StatusManager.new(MiPlan)
 
+  ss.add('Assigned for ES Cell QC') do |plan|
+    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Assigned for ES Cell QC'
+  end
+
+  ss.add('Assigned to phenotype') do |plan|
+    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Assigned to phenotype'
+  end
+
   ss.add('Assigned') do |plan|
-    plan.conflict_resolver.get_pre_assigned_status(plan) == nil
+    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Assigned'
   end
 
   ss.add('Inspect - Conflict') do |plan|
-    plan.conflict_resolver.get_pre_assigned_status(plan).try(:name) == 'Inspect - Conflict'
+    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Inspect - Conflict'
   end
 
   ss.add('Inspect - MI Attempt') do |plan|
-    plan.conflict_resolver.get_pre_assigned_status(plan).try(:name) == 'Inspect - MI Attempt'
+    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Inspect - MI Attempt'
   end
 
   ss.add('Inspect - GLT Mouse') do |plan|
-    plan.conflict_resolver.get_pre_assigned_status(plan).try(:name) == 'Inspect - GLT Mouse'
+    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Inspect - GLT Mouse'
+  end
+
+  ss.add('Inspect - Phenotype Conflict') do |plan|
+    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Inspect - Phenotype Conflict'
   end
 
   ss.add('Conflict') do |plan|
-    plan.conflict_resolver.get_pre_assigned_status(plan).try(:name) == 'Conflict'
+    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Conflict'
   end
 
   ss.add('Assigned - ES Cell QC In Progress') do |plan|

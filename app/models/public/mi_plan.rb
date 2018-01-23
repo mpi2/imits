@@ -22,6 +22,7 @@ class Public::MiPlan < ::MiPlan
     'is_cre_bac_allele',
     'comment',
     'phenotype_only',
+    'es_cell_qc_only',
     'conditional_tm1c',
     'ignore_available_mice',
     'completion_note',

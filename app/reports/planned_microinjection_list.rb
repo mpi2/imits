@@ -57,7 +57,7 @@ class PlannedMicroinjectionList #< Reports::Base
            CASE
              WHEN conflict_plans.mi_attempt_status IN ('Genotype confirmed') THEN 'Inspect - GLT Mouse'
              WHEN conflict_plans.mi_attempt_status IN ('Micro-injection in progress', 'Chimeras obtained') THEN 'Inspect - MI Attempt'
-             WHEN conflict_plans.mi_plan_status IN ('#{MiPlan::Status.all_assigned.map{|status| status.name}.join("','")}') THEN 'Inspect - Conflict'
+             WHEN conflict_plans.mi_plan_status IN ('#{MiPlan::Status.all_assigned.map{|status| status.name}.join("','")}') AND conflict_plans.es_cell_qc_only = false THEN 'Inspect - Conflict'
              WHEN conflict_plans.mi_plan_status IN ('Conflict') THEN 'Conflict'
              ELSE NULL
            END AS possible_conflict

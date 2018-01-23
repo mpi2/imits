@@ -15,7 +15,9 @@ class MiPlan::Status < ActiveRecord::Base
       MiPlan::Status['Inspect - MI Attempt'],
       MiPlan::Status['Inspect - Conflict'],
       MiPlan::Status['Aborted - ES Cell QC Failed'],
-      MiPlan::Status['Withdrawn']
+      MiPlan::Status['Withdrawn'],
+      MiPlan::Status['Assigned for ES Cell QC'],
+      MiPlan::Status['Inspect - Phenotype Conflict' ]
     ]
   end
 

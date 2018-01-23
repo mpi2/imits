@@ -69,6 +69,10 @@ Ext.define('Imits.model.MiPlan', {
         defaultValue: false
     },
     {
+        name: 'es_cell_qc_only',
+        defaultValue: false
+    },
+    {
         name: 'is_conditional_allele',
         defaultValue: false
     },

@@ -16,16 +16,6 @@ class ReportsController < ApplicationController
     @mmrrc_reports = MmrrcNew.new.get_files
   end
 
-  def double_assigned_plans_matrix
-    @report = Reports::MiPlans::DoubleAssignment.get_matrix
-    send_data_csv('double_assigned_matrix.csv', @report.to_csv)
-  end
-
-  def double_assigned_plans_list
-    @report = Reports::MiPlans::DoubleAssignment.get_list
-    send_data_csv('double_assigned_list.csv', @report.to_csv)
-  end
-
   def double_assigned_plans
     @report1 = Reports::MiPlans::DoubleAssignment.get_matrix
     @report2 = Reports::MiPlans::DoubleAssignment.get_list
@@ -36,45 +26,47 @@ class ReportsController < ApplicationController
   end
 
   def genes_list
-    @report = Table(
-      [
-        'Marker Symbol',
-        'MGI Accession ID',
-        '# IKMC Projects',
-        '# Clones',
-        'Non-Assigned Plans',
-        'Assigned Plans',
-        'Aborted MIs',
-        'MIs in Progress',
-        'GLT Mice'
+    @report = CSV.generate do |csv|
+
+
+      csv << [
+          'Marker Symbol',
+          'MGI Accession ID',
+          '# IKMC Projects',
+          '# Clones',
+          'Non-Assigned Plans',
+          'Assigned Plans',
+          'Aborted MIs',
+          'MIs in Progress',
+          'GLT Mice'
       ]
-    )
+  
+      result = Gene.gene_production_summary()
 
-    result = Gene.gene_production_summary()
+      assigned_mis = Gene.pretty_print_assigned_mi_plans_in_bulk(:result => result['assigned plans'])
+      non_assigned_mis = Gene.pretty_print_non_assigned_mi_plans_in_bulk(:result => result['non assigned plans'])
+      mis_in_progress = Gene.pretty_print_mi_attempts_in_bulk_helper(:result => result['in progress mi attempts'])
+      glt_mice = Gene.pretty_print_mi_attempts_in_bulk_helper(:result => result['genotype confirmed mi attempts'])
+      aborted_mis = Gene.pretty_print_mi_attempts_in_bulk_helper(:result => result['aborted mi attempts'])
+  #    phenotype_attempts = Gene.pretty_print_phenotype_attempts_in_bulk_helper(:result => result['phenotype attempts'])
 
-    assigned_mis = Gene.pretty_print_assigned_mi_plans_in_bulk(:result => result['assigned plans'])
-    non_assigned_mis = Gene.pretty_print_non_assigned_mi_plans_in_bulk(:result => result['non assigned plans'])
-    mis_in_progress = Gene.pretty_print_mi_attempts_in_bulk_helper(:result => result['in progress mi attempts'])
-    glt_mice = Gene.pretty_print_mi_attempts_in_bulk_helper(:result => result['genotype confirmed mi attempts'])
-    aborted_mis = Gene.pretty_print_mi_attempts_in_bulk_helper(:result => result['aborted mi attempts'])
-#    phenotype_attempts = Gene.pretty_print_phenotype_attempts_in_bulk_helper(:result => result['phenotype attempts'])
-
-    Gene.find_by_sql("SELECT DISTINCT genes.* FROM genes LEFT JOIN mi_plans ON mi_plans.gene_id = genes.id WHERE genes.feature_type = 'protein coding gene' OR mi_plans.id IS NOT NULL ORDER BY genes.marker_symbol asc").each do |gene|
-      @report << [
-        gene.marker_symbol,
-        gene.mgi_accession_id,
-        gene.ikmc_projects_count,
-        gene.pretty_print_types_of_cells_available.gsub('<br/>',' '),
-        non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-        assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-        aborted_mis[gene.marker_symbol] ? aborted_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-        mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('<br/>',' ') : nil,
-        glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('<br/>',' ') : nil
-      ]
+      Gene.find_by_sql("SELECT DISTINCT genes.* FROM genes LEFT JOIN mi_plans ON mi_plans.gene_id = genes.id WHERE genes.feature_type = 'protein coding gene' OR mi_plans.id IS NOT NULL ORDER BY genes.marker_symbol asc").each do |gene|
+        csv << [
+          gene.marker_symbol,
+          gene.mgi_accession_id,
+          gene.ikmc_projects_count,
+          gene.pretty_print_types_of_cells_available.gsub('<br/>',' '),
+          non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+          assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+          aborted_mis[gene.marker_symbol] ? aborted_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+          mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('<br/>',' ') : nil,
+          glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('<br/>',' ') : nil
+        ]
+      end
     end
 
     send_data(
-      @report.to_csv,
+      @report,
       :type     => 'text/csv; charset=utf-8; header=present',
       :filename => 'genes_list.csv'
     )

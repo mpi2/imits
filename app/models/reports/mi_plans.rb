@@ -145,7 +145,7 @@ class Reports::MiPlans
 
       columns = get_matrix_columns
 
-      report = Table(['']+columns)
+      report = Ruport::Table(['']+columns)
 
       consortia = get_consortia
 
@@ -190,7 +190,7 @@ class Reports::MiPlans
 
       consortia = get_consortia
 
-      report = Table( LIST_COLUMNS )
+      report = Ruport::Table( LIST_COLUMNS )
 
       consortia.each do |consortium|
         group_heading = "Double - Production for Consortium: #{consortium}"

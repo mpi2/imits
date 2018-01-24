@@ -55,7 +55,16 @@ class MutagenesisFactor < ActiveRecord::Base
   def set_external_ref_if_blank
     if self.external_ref.blank?
       prefix = 'MF'
-      i = 0
+
+      sql = <<-EOF
+        SELECT CAST(TRIM(leading 'MF-' from external_ref) AS INTEGER) AS current_index
+          FROM mutagenesis_factors WHERE external_ref ~ '^MF-[0-9]+$'
+       ORDER BY CAST(TRIM(leading 'MF-' from external_ref) AS INTEGER) DESC
+      EOF
+
+      result = ActiveRecord::Base.connection.execute(sql)
+      i = 0 if result.first.blank?
+      i = result.first['current_index'].to_i
       begin
         i += 1
         self.external_ref = "#{prefix}-#{i}"

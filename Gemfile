@@ -4,11 +4,10 @@ source 'http://rubygems.org'
 gem 'rake', '10.0.2'
 gem 'rails', '3.2.22.5'
 ##gem 'rack', '~> 1.5.4'
-gem 'rubyzip', '~> 1.1.7'
 gem 'hoptoad_notifier', '2.4.11'
 gem 'jammit', '0.6.5'
 gem 'json'
-gem 'axlsx', '2.1.0.pre'
+gem 'axlsx', :git => 'git@github.com:randym/axlsx.git', :branch => 'release-3.0.0'
 gem 'axlsx_rails'
 
 ## gem used to query mouse moines InterMine Warehouse

@@ -1,12 +1,12 @@
 GIT
-  remote: git@github.com:mpi2/scruffy.git
+  remote: https://github.com/mpi2/scruffy.git
   revision: d1ad116846aab63c12a9b96d18ab9d2becf85e7a
   specs:
     scruffy_Sanger (0.2.6.1)
       builder (>= 2.0.0)
 
 GIT
-  remote: git@github.com:randym/axlsx.git
+  remote: https://github.com/randym/axlsx.git
   revision: 64038e6af1db608daae2aad49874071070285eac
   branch: release-3.0.0
   specs:

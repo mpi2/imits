@@ -7,7 +7,7 @@ gem 'rails', '3.2.22.5'
 gem 'hoptoad_notifier', '2.4.11'
 gem 'jammit', '0.6.5'
 gem 'json'
-gem 'axlsx', :git => 'git@github.com:randym/axlsx.git', :branch => 'release-3.0.0'
+gem 'axlsx', :git => 'https://github.com/randym/axlsx.git', :branch => 'release-3.0.0'
 gem 'axlsx_rails'
 
 ## gem used to query mouse moines InterMine Warehouse
@@ -25,7 +25,7 @@ gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', '1.1.1', :require => 'ruport/acts_as_reportable'
 
 gem 'rmagick', '2.13.2', :require => false
-gem 'scruffy_Sanger', :require => 'scruffy', :git => 'git@github.com:mpi2/scruffy.git'
+gem 'scruffy_Sanger', :require => 'scruffy', :git => 'https://github.com/mpi2/scruffy.git'
 gem 'unicorn', '4.3.0'
 
 ## For TargRep

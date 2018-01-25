@@ -484,10 +484,12 @@ class Gene < ActiveRecord::Base
 
       WITH status_summary AS (
 
-      SELECT production_summary.mi_plan_id, production_summary.gene_id, production_summary.consortium_id, production_summary.production_centre_id, production_summary.status_name, count(production_summary.mi_plan_id) AS status_count
+      SELECT production_summary.mi_plan_id, production_summary.gene_id, production_summary.consortium_id, production_summary.production_centre_id, production_summary.status_name, count(production_summary.mi_plan_id) AS status_count, production_summary.es_cell_qc_only, production_summary.mi_plan_status_name
       FROM
       (
-        (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id, CASE WHEN mi_attempt_statuses.name IS NOT NULL THEN mi_attempt_statuses.name ELSE mi_plan_statuses.name END AS status_name
+        (SELECT mi_plans.id AS mi_plan_id, mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id, 
+                mi_attempt_statuses.name AS status_name, 
+                mi_plans.es_cell_qc_only, mi_plan_statuses.name AS mi_plan_status_name
          FROM mi_plans
            JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id #{[true, false].include?(crispr) ? "AND mi_plans.mutagenesis_via_crispr_cas9 = #{crispr}" : ''}
            LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempts.status_id = mi_attempt_statuses.id) ON mi_plans.id = mi_attempts.mi_plan_id
@@ -511,7 +513,8 @@ class Gene < ActiveRecord::Base
                  WHEN mouse_allele_mod_statuses.name = 'Mouse Allele Modification Aborted'
                    THEN 'Phenotype Attempt Aborted'
                  ELSE mouse_allele_mod_statuses.name
-               END AS status_name
+               END AS status_name,
+               false AS es_cell_qc_only, '' AS mi_plan_status_name
 
          FROM mi_plans
            LEFT JOIN (phenotyping_productions JOIN phenotyping_production_statuses ON phenotyping_production_statuses.id = phenotyping_productions.status_id JOIN colonies parent_colony ON parent_colony.id = phenotyping_productions.parent_colony_id) ON phenotyping_productions.mi_plan_id = mi_plans.id
@@ -524,11 +527,10 @@ class Gene < ActiveRecord::Base
            #{show_eucommtoolscre_data == false ? " AND mi_plans.consortium_id != 17" : ''}
         )
       ) AS production_summary
-      #{statuses.nil? ? "" : "WHERE production_summary.status_name IN ('#{statuses.map{|status| status.name}.join("','")}')"}
-      GROUP BY production_summary.mi_plan_id, production_summary.gene_id, production_summary.consortium_id, production_summary.production_centre_id, production_summary.status_name
+      GROUP BY production_summary.mi_plan_id, production_summary.gene_id, production_summary.consortium_id, production_summary.production_centre_id, production_summary.status_name, production_summary.es_cell_qc_only, production_summary.mi_plan_status_name
       )
 
-      SELECT genes.marker_symbol AS marker_symbol, consortia.name AS consortium, centres.name AS centre, status_summary.status_name AS status_name, status_summary.mi_plan_id AS mi_plan_id, status_summary.status_count AS status_count
+      SELECT genes.marker_symbol AS marker_symbol, consortia.name AS consortium, centres.name AS centre, status_summary.status_name AS status_name, status_summary.mi_plan_id AS mi_plan_id, status_summary.status_count AS status_count, status_summary.es_cell_qc_only, status_summary.mi_plan_status_name
       FROM status_summary
         JOIN genes ON genes.id = status_summary.gene_id
         JOIN consortia ON consortia.id = status_summary.consortium_id
@@ -556,6 +558,26 @@ class Gene < ActiveRecord::Base
       end
       data['full_data'][production_record['mi_plan_id']][:status_count] += production_record['status_count'].to_i
 
+      
+
+      if ['Assigned for phenotyping'].include?(production_record['mi_plan_status_name'])
+        if !data['phenotype attempts'].has_key?(production_record['mi_plan_id'])
+          data['phenotype attempts'][production_record['mi_plan_id']] = {:marker_symbol => production_record['marker_symbol'], :mi_plan_id => production_record['mi_plan_id'], :consortium => production_record['consortium'], :centre => production_record['centre'], :status_name => production_record['mi_plan_status_name'], :status_count => 0}
+        end
+
+      elsif ['Assigned', 'Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete'].include?(production_record['mi_plan_status_name']) && production_record['es_cell_qc_only'] == 'f'
+        if !data['assigned plans'].has_key?(production_record['mi_plan_id'])
+          data['assigned plans'][production_record['mi_plan_id']] = {:marker_symbol => production_record['marker_symbol'], :mi_plan_id => production_record['mi_plan_id'], :consortium => production_record['consortium'], :centre => production_record['centre'], :status_name => production_record['mi_plan_status_name'], :status_count => 0}
+        end
+        data['assigned plans'][production_record['mi_plan_id']][:status_count] += production_record['status_count'].to_i
+
+      elsif !['Inactive', ''].include?(production_record['mi_plan_status_name'])
+        if !data['non assigned plans'].has_key?(production_record['mi_plan_id'])
+          data['non assigned plans'][production_record['mi_plan_id']] = {:marker_symbol => production_record['marker_symbol'], :mi_plan_id => production_record['mi_plan_id'], :consortium => production_record['consortium'], :centre => production_record['centre'], :status_name => production_record['mi_plan_status_name'], :status_count => 0}
+        end
+        data['non assigned plans'][production_record['mi_plan_id']][:status_count] += production_record['status_count'].to_i
+      end
+
 
       if ['Micro-injection in progress', 'Chimeras obtained', 'Founder obtained'].include?(production_record['status_name'])
         if !data['in progress mi attempts'].has_key?(production_record['mi_plan_id'])
@@ -580,18 +602,6 @@ class Gene < ActiveRecord::Base
           data['phenotype attempts'][production_record['mi_plan_id']] = {:marker_symbol => production_record['marker_symbol'], :mi_plan_id => production_record['mi_plan_id'], :consortium => production_record['consortium'], :centre => production_record['centre'], :status_name => production_record['status_name'], :status_count => 0}
         end
         data['phenotype attempts'][production_record['mi_plan_id']][:status_count] += production_record['status_count'].to_i
-
-      elsif ['Assigned', 'Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete'].include?(production_record['status_name'])
-        if !data['assigned plans'].has_key?(production_record['mi_plan_id'])
-          data['assigned plans'][production_record['mi_plan_id']] = {:marker_symbol => production_record['marker_symbol'], :mi_plan_id => production_record['mi_plan_id'], :consortium => production_record['consortium'], :centre => production_record['centre'], :status_name => production_record['status_name'], :status_count => 0}
-        end
-        data['assigned plans'][production_record['mi_plan_id']][:status_count] += production_record['status_count'].to_i
-
-      elsif !['Inactive'].include?(production_record['status_name'])
-        if !data['non assigned plans'].has_key?(production_record['mi_plan_id'])
-          data['non assigned plans'][production_record['mi_plan_id']] = {:marker_symbol => production_record['marker_symbol'], :mi_plan_id => production_record['mi_plan_id'], :consortium => production_record['consortium'], :centre => production_record['centre'], :status_name => production_record['status_name'], :status_count => 0}
-        end
-        data['non assigned plans'][production_record['mi_plan_id']][:status_count] += production_record['status_count'].to_i
       end
     end
     return return_value.nil? ? data : data[return_value]

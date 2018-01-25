@@ -80,16 +80,11 @@ Ext.define('Imits.widget.GeneGridCommon', {
             renderer: function (symbol, metaData, record) {
                 var mgi_accession_id = record.get('mgi_accession_id');
                 if (mgi_accession_id != '') {
-                  return Ext.String.format('<a href="https://www.mousephenotype.org/data/genes/{0}">{1}</a>', mgi_accession_id, symbol);
+                  return Ext.String.format('<a href="https://www.mousephenotype.org/data/search/gene?kw=&quot;{0}&quot;">{1}</a>', mgi_accession_id, symbol);
                 } else {
                   return Ext.String.format('{0}', symbol);
                 }
             }
-        },
-        {
-            header: '# IKMC Projects',
-            dataIndex: 'ikmc_projects_count',
-            readOnly: true
         },
         {
             header: '# Clones',

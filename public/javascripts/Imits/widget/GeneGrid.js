@@ -117,25 +117,13 @@ Ext.define('Imits.widget.GeneGrid', {
                                   xtype: 'templatecolumn',
                                   tpl: new Ext.XTemplate(
                                       '<tpl for="this.processedMIs(pretty_print_phenotype_attempts)">',
-                                      '<a href="' + window.basePath + '/open/phenotype_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
+                                      '<a href="' + window.basePath + '/phenotype_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
                                       '</tpl>',
                                       {
                                           processedMIs: splitResultString
                                       }
                                   )
                                  }
-                        },
-                        {'position': 1 ,
-                         'data': {header: 'Tree',
-                                  readOnly: true,
-                                  renderer: function (value, metaData, record) {
-                                      var mgiId = record.get('mgi_accession_id');
-                                      var iconURL = '<img src="' + window.basePath + '/images/icons/application_side_tree.png" alt="Blah"/>';
-                                      return Ext.String.format('<a href="{0}/genes/{1}/relationship_tree">{2}</a>', window.basePath, mgiId, iconURL);
-                                  },
-                                  width: 40,
-                                  sortable: false
-                                  }
                         },
                         {'position': 1,
                          'data': {header: 'Production History',

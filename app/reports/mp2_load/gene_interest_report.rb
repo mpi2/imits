@@ -68,7 +68,7 @@ class Mp2Load::GeneInterestReport
           FROM mi_plans
             JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id
             JOIN mi_plan_status_stamps mpss ON mi_plans.id = mpss.mi_plan_id AND mi_plans.status_id = mpss.status_id
-          WHERE phenotype_only = false AND mi_plans.report_to_public = true AND mi_plans.consortium_id != 17 -- exclude EUCOMMToolsCre   
+          WHERE phenotype_only = false AND es_cell_qc_only = false AND mi_plans.report_to_public = true AND mi_plans.consortium_id != 17 -- exclude EUCOMMToolsCre   
           ORDER BY
             mi_plans.gene_id,
             mi_plan_statuses.order_by DESC

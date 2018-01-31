@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20171024111602) do
+ActiveRecord::Schema.define(:version => 20180118111602) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",  :null => false
@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(:version => 20171024111602) do
     t.string   "contact_email", :limit => 100
     t.string   "code"
     t.string   "superscript"
+    t.string   "full_name"
   end
 
   add_index "centres", ["name"], :name => "index_centres_on_name", :unique => true
@@ -107,12 +108,13 @@ ActiveRecord::Schema.define(:version => 20171024111602) do
   end
 
   create_table "consortia", :force => true do |t|
-    t.string   "name",         :null => false
+    t.string   "name",                                            :null => false
     t.string   "funding"
     t.text     "participants"
     t.string   "contact"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "credit_centre_with_production", :default => true
   end
 
   add_index "consortia", ["name"], :name => "index_consortia_on_name", :unique => true
@@ -697,6 +699,7 @@ ActiveRecord::Schema.define(:version => 20171024111602) do
     t.boolean  "report_to_public",                              :default => true,  :null => false
     t.text     "completion_comment"
     t.boolean  "mutagenesis_via_crispr_cas9",                   :default => false
+    t.boolean  "es_cell_qc_only",                               :default => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only", "mutagenesis_via_crispr_cas9"], :name => "mi_plan_logical_key", :unique => true

@@ -185,6 +185,7 @@ end
 #  report_to_public               :boolean          default(TRUE), not null
 #  completion_comment             :text
 #  mutagenesis_via_crispr_cas9    :boolean          default(FALSE)
+#  es_cell_qc_only                :boolean          default(FALSE)
 #
 # Indexes
 #

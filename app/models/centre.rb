@@ -40,6 +40,7 @@ end
 #  contact_email :string(100)
 #  code          :string(255)
 #  superscript   :string(255)
+#  full_name     :string(255)
 #
 # Indexes
 #

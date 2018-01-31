@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.3.14
+-- Dumped from database version 9.5.7
 -- Dumped by pg_dump version 9.5.7
 
 SET statement_timeout = 0;
@@ -833,7 +833,8 @@ CREATE TABLE centres (
     contact_name character varying(100),
     contact_email character varying(100),
     code character varying(255),
-    superscript character varying(255)
+    superscript character varying(255),
+    full_name character varying(255)
 );
 
 
@@ -942,7 +943,8 @@ CREATE TABLE consortia (
     participants text,
     contact character varying(255),
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    credit_centre_with_production boolean DEFAULT true
 );
 
 
@@ -2032,7 +2034,8 @@ CREATE TABLE mi_plans (
     allele_symbol_superscript text,
     report_to_public boolean DEFAULT true NOT NULL,
     completion_comment text,
-    mutagenesis_via_crispr_cas9 boolean DEFAULT false
+    mutagenesis_via_crispr_cas9 boolean DEFAULT false,
+    es_cell_qc_only boolean DEFAULT false
 );
 
 
@@ -5646,6 +5649,8 @@ ALTER TABLE ONLY users
 -- PostgreSQL database dump complete
 --
 
+SET search_path TO "$user", public;
+
 INSERT INTO schema_migrations (version) VALUES ('20110315000000');
 
 INSERT INTO schema_migrations (version) VALUES ('20110419101838');
@@ -6095,3 +6100,7 @@ INSERT INTO schema_migrations (version) VALUES ('20170913141602');
 INSERT INTO schema_migrations (version) VALUES ('20170927101602');
 
 INSERT INTO schema_migrations (version) VALUES ('20171024111602');
+
+INSERT INTO schema_migrations (version) VALUES ('20180110111602');
+
+INSERT INTO schema_migrations (version) VALUES ('20180118111602');

@@ -57,13 +57,14 @@ end
 #
 # Table name: consortia
 #
-#  id           :integer          not null, primary key
-#  name         :string(255)      not null
-#  funding      :string(255)
-#  participants :text
-#  contact      :string(255)
-#  created_at   :datetime
-#  updated_at   :datetime
+#  id                            :integer          not null, primary key
+#  name                          :string(255)      not null
+#  funding                       :string(255)
+#  participants                  :text
+#  contact                       :string(255)
+#  created_at                    :datetime
+#  updated_at                    :datetime
+#  credit_centre_with_production :boolean          default(TRUE)
 #
 # Indexes
 #

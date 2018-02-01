@@ -1,0 +1,36 @@
+---
+pa_registerd:
+  id: 1
+  name: Phenotype Attempt Registered
+  order_by: 420
+  code: mpr
+registered:
+  id: 2
+  name: Phenotyping Production Registered
+  order_by: 411
+  code: ppr
+started:
+  id: 3
+  name: Phenotyping Started
+  order_by: 530
+  code: pds
+  id: 4
+complete:
+  name: Phenotyping Complete
+  order_by: 540
+  code: pdc
+rederivation_started:
+  id: 6
+  name: Rederivation Started
+  order_by: 430
+  code: res
+rederivation_complete:
+  id: 7
+  name: Rederivation Complete
+  order_by: 440
+  code: rec
+aborted:
+  id: 5
+  name: Phenotype Production Aborted
+  order_by: 212
+  code: abt

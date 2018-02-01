@@ -1,44 +1,43 @@
 ---
-1:
+mi_in_progress:
   code: mip
   id: 1
   name: Micro-injection in progress
   order_by: 220
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-2:
+genotype_confirmed:
   code: gtc
   id: 2
   name: Genotype confirmed
   order_by: 240
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-3:
+aborted:
   code: abt
   id: 3
   name: Micro-injection aborted
   order_by: 210
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-4:
+chimeras_obtained:
   code: chr
   id: 4
   name: Chimeras obtained
   order_by: 230
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-5:
+founder_obtained:
   code: fod
   id: 5
   name: Founder obtained
   order_by: 231
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-6:
+obtained:
   code: cof
   id: 6
   name: Chimeras/Founder obtained
   order_by: 229
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-

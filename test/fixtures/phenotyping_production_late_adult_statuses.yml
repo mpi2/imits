@@ -1,0 +1,31 @@
+---
+not_registered:
+  id: 1
+  name: Not Registered For Late Adult Phenotyping
+  order_by: 200
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+registered:
+  id: 2
+  name: Registered for Late Adult Phenotyping Production
+  order_by: 610
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+started:
+  id: 3
+  name: Late Adult Phenotyping Started
+  order_by: 630
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+complete:
+  id: 4
+  name: Late Adult Phenotyping Complete
+  order_by: 640
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+aborted:
+  id: 5
+  name: Late Adult Phenotype Production Aborted
+  order_by: 213
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>

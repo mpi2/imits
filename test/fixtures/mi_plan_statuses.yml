@@ -1,96 +1,113 @@
 ---
-1:
-  code: asg
-  description: Assigned - A single consortium has expressed an interest in injecting
-    this gene
-  id: 1
-  name: Assigned
-  order_by: 80
-  created_at: <%= 5.day.ago.to_s(:db) %>
-  updated_at: <%= 5.day.ago.to_s(:db) %>
-2:
-  code: int
-  description: Interest - A consortium has expressed an interest to micro-inject this
-    gene
-  id: 2
-  name: Interest
-  order_by: 30
-  created_at: <%= 5.day.ago.to_s(:db) %>
-  updated_at: <%= 5.day.ago.to_s(:db) %>
-3:
-  code: con
-  description: Conflict - More than one consortium has expressed an interest in micro-injecting
-    this gene
-  id: 3
-  name: Conflict
-  order_by: 40
-  created_at: <%= 5.day.ago.to_s(:db) %>
-  updated_at: <%= 5.day.ago.to_s(:db) %>
-4:
-  code: ins-gtc
-  description: Inspect - A GLT mouse is already recorded in iMits
-  id: 4
-  name: Inspect - GLT Mouse
-  order_by: 70
-  created_at: <%= 5.day.ago.to_s(:db) %>
-  updated_at: <%= 5.day.ago.to_s(:db) %>
-5:
-  code: ins-mip
-  description: Inspect - An active micro-injection attempt is already in progress
-  id: 5
-  name: Inspect - MI Attempt
-  order_by: 60
-  created_at: <%= 5.day.ago.to_s(:db) %>
-  updated_at: <%= 5.day.ago.to_s(:db) %>
-6:
-  code: ins-con
-  description: Inspect - This gene is already assigned in another planned micro-injection
-  id: 6
-  name: Inspect - Conflict
-  order_by: 50
-  created_at: <%= 5.day.ago.to_s(:db) %>
-  updated_at: <%= 5.day.ago.to_s(:db) %>
-7:
-  code: ina
-  description: Inactive - A consortium/production centre has failed micro-injections
-    on this gene dated over 6 months ago - they have given up
-  id: 7
-  name: Inactive
-  order_by: 20
-  created_at: <%= 5.day.ago.to_s(:db) %>
-  updated_at: <%= 5.day.ago.to_s(:db) %>
-8:
-  code: asg-esp
-  description: Assigned - The ES cells are currently being QCed by the production
-    centre
+assigned_qc_in_progress:
   id: 8
   name: Assigned - ES Cell QC In Progress
+  description: Assigned - The ES cells are currently being QCed by the production centre
   order_by: 110
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-9:
-  code: asg-esc
-  description: Assigned - ES cells have passed the QC phase and are ready for micro-injection
+  code: asg-esp
+assigned_qc_complete:
   id: 9
   name: Assigned - ES Cell QC Complete
+  description: Assigned - ES cells have passed the QC phase and are ready for micro-injection
   order_by: 100
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-10:
-  code: abt-esf
-  description: Aborted - ES cells have failed the QC phase, and micro-injection cannot
-    proceed
+  code: asg-esc
+aborted_qc_failed:
   id: 10
   name: Aborted - ES Cell QC Failed
+  description: Aborted - ES cells have failed the QC phaseand micro-injection cannot proceed
   order_by: 90
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-11:
-  code: wit
-  description: Withdrawn - Interest in micro-injecting this gene was withdrawn by
-    the parties involved
+  code: abt-esf
+assigned:
+  id: 1
+  name: Assigned
+  description: Assigned - A single consortium has expressed an interest in injecting this gene
+  order_by: 80
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: asg
+inspect_conflict:
+  id: 6
+  name: Inspect - Conflict
+  description: Inspect - This gene is already assigned in another planned micro-injection
+  order_by: 50
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: ins-con
+conflict:
+  id: 3
+  name: Conflict
+  description: Conflict - More than one consortium has expressed an interest in micro-injecting this gene
+  order_by: 40
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: con
+interest:
+  id: 2
+  name: Interest
+  description: Interest - A consortium has expressed an interest to micro-inject this gene
+  order_by: 30
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: int
+inactive:
+  id: 7
+  name: Inactive
+  description: Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up
+  order_by: 20
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: ina
+withdrawn:
   id: 11
   name: Withdrawn
+  description: Withdrawn - Interest in micro-injecting this gene was withdrawn by the parties involved
   order_by: 10
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: wit
+inspect_mi:
+  id: 5
+  name: Inspect - MI Attempt
+  description: Inspect - An active micro-injection attempt is already in progress
+  order_by: 60
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: ins-mip
+inspect_glt:
+  id: 4
+  name: Inspect - GLT Mouse
+  description: Inspect - A GLT mouse is already recorded in iMits
+  order_by: 70
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: ins-gtc
+assigned_for_phenotyping:
+  id: 40
+  name: Assigned for phenotyping
+  description: Assigned - A consortium/Centre has indicated their intention to only phenotype this gene
+  order_by: 9
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: asg-phen
+inspect_phenotyping_conflict:
+  id: 41
+  name: Inspect - Phenotype Conflict
+  description: Inspect - A phenotype attempt has already been recorded in iMITS
+  order_by: 8
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: ins-phen
+assigned_for_qc:
+  id: 42
+  name: Assigned for ES Cell QC
+  description: Assigned - A consortium/Centre has indicated their intention to only QC ES Cells
+  order_by: 7
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
+  code: asg-es

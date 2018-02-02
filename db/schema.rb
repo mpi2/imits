@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20180118111602) do
+ActiveRecord::Schema.define(:version => 20180202111914) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",  :null => false
@@ -702,7 +702,7 @@ ActiveRecord::Schema.define(:version => 20180118111602) do
     t.boolean  "es_cell_qc_only",                               :default => false
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only", "mutagenesis_via_crispr_cas9"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only", "mutagenesis_via_crispr_cas9", "es_cell_qc_only"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "mouse_allele_mod_status_stamps", :force => true do |t|
     t.integer  "mouse_allele_mod_id", :null => false

@@ -5240,7 +5240,7 @@ CREATE INDEX irsmp_phenotyping_productions ON intermediate_report_summary_by_mi_
 -- Name: mi_plan_logical_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only, mutagenesis_via_crispr_cas9);
+CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only, mutagenesis_via_crispr_cas9, es_cell_qc_only);
 
 
 --
@@ -6104,3 +6104,5 @@ INSERT INTO schema_migrations (version) VALUES ('20171024111602');
 INSERT INTO schema_migrations (version) VALUES ('20180110111602');
 
 INSERT INTO schema_migrations (version) VALUES ('20180118111602');
+
+INSERT INTO schema_migrations (version) VALUES ('20180202111914');

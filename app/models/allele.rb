@@ -316,6 +316,66 @@ class Allele < ApplicationModel
 
     return [symbol_superscript_template, type]
   end
+
+  def self.allele_description (options)
+    marker_symbol = options.has_key?('marker_symbol') ? options['marker_symbol'] : nil
+    cassette       = options.has_key?('cassette') ? options['cassette'] : nil
+    allele_type   = options.has_key?('allele_type') ? options['allele_type'] : nil
+    allele_subtype   = options.has_key?('allele_subtype') ? options['allele_subtype'] : nil
+
+    return '' if allele_type.nil?
+
+    allele_descriptions = { 'tma'     => "KO first allele (reporter-tagged insertion with conditional potential)",
+                              'tme'     => "Targeted, non-conditional allele",
+                              'tme.1'   => "Targeted, non-conditional allele (post-Cre)",
+                              'tm'      => "Reporter-tagged deletion allele (with selection cassette)",
+                              'tmb'     => "Reporter-tagged deletion allele (post-Cre)",
+                              'tm.1'    => "Reporter-tagged deletion allele (post Cre, with no selection cassette)",
+                              'tmc'     => "Wild type floxed exon (post-Flp)",
+                              'tm.2'    => "Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette)",
+                              'tmd'     => "Deletion allele (post-Flp and Cre with no reporter)",
+                              'tmCreSC' => "Cre driver allele (with selection cassette)",
+                              'tmCre'   => "Cre driver allele",
+                              'tmCGI'   => "Truncation cassette with conditional potential (selection cassette)",
+                              'tmCGI-cre'   => "Truncated CpG island (post-Cre)",
+                              'tmCGI-flp'   => "Wild type floxed CpG island (post-Flp)",
+                              'tmCGI-dre'   => "Truncation cassette  with conditional potential (post-Dre, with no selection cassette)",
+                              'gt'      => "Gene Trap",
+                              'Gene Trap' => "Gene Trap",
+                              'Indel'     => "Indel causing a Frameshift Mutation",
+                              'Deletion' => "#{if !allele_subtype.blank?; allele_subtype; else; "Deletion of an Exon / Partial Exon deletion"; end;}",
+                              'HDR'      => "#{if !allele_subtype.blank?; allele_subtype; else; "Point Mutation"; end;}",
+                              'HR'       => "#{if !allele_subtype.blank?; allele_subtype; else; "Conditional Ready / Null reporter"; end;}"
+                            }
+
+    return allele_descriptions['tmCGI'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == "''"
+    return allele_descriptions['tmCGI-cre'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == '.1'
+    return allele_descriptions['tmCGI-flp'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == '.2'
+    return allele_descriptions['tmCGI-dre'] if !marker_symbol.blank? && marker_symbol =~ /Cpgi/ && allele_type == '.3'
+
+    return allele_descriptions['tma'] if allele_type == 'a'
+    return allele_descriptions['tmb'] if allele_type == 'b'
+    return allele_descriptions['tmc'] if allele_type == 'c'
+    return allele_descriptions['tmd'] if allele_type == 'd'
+    return allele_descriptions['tme'] if allele_type == 'e'
+    return allele_descriptions['gt'] if allele_type == 'gt'
+    return allele_descriptions['Indel'] if allele_type == 'Indel'
+    return allele_descriptions['Deletion'] if allele_type == 'Deletion'
+    return allele_descriptions['HDR'] if allele_type == 'HDR'
+    return allele_descriptions['HR'] if allele_type == 'HR'
+
+    if !cassette.blank? && cassette =~ /Cre/
+      return allele_descriptions['tmCreSC'] if allele_type == "''"
+      return allele_descriptions['tmCre'] if allele_type == '.1'
+    end
+
+    return allele_descriptions['tm'] if allele_type == "''"
+    return allele_descriptions['tm.1'] if allele_type == '.1'
+    return allele_descriptions['tm.2'] if allele_type == '.2'
+
+  end
+
+
 end
 
 # == Schema Information

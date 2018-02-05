@@ -24,7 +24,7 @@ class SolrData::Allele2CoreData
         SELECT plan_summary.gene_symbol AS gene_symbol, plan_summary.gene_mgi_accession_id AS gene_mgi_accession_id, targ_rep_es_cells.allele_id AS allele_id,
                mi_attempts.id AS mi_attempt_id, mi_attempts.external_ref AS mi_external_ref, mi_attempt_statuses.name AS mi_status_name, mi_attempts.report_to_public AS mi_report_to_public,
                blast_strain.name AS mi_blast_strain_name, test_cross_strain.name AS mi_test_cross_strain_name,
-               targ_rep_es_cells.id AS es_cell_id, targ_rep_es_cells.name AS es_cell_name, alleles.mgi_allele_accession_id AS es_cell_mgi_allele_id, alleles.mgi_allele_symbol_superscript AS es_cell_mgi_allele_symbol_superscript, CASE WHEN alleles.allele_type IS NULL THEN '' ELSE alleles.allele_type END AS es_cell_allele_type, alleles.allele_symbol_superscript_template AS es_cell_allele_superscript_template,
+               targ_rep_es_cells.id AS es_cell_id, targ_rep_es_cells.name AS es_cell_name, targ_rep_alleles.cassette AS cassette, alleles.mgi_allele_accession_id AS es_cell_mgi_allele_id, alleles.mgi_allele_symbol_superscript AS es_cell_mgi_allele_symbol_superscript, CASE WHEN alleles.allele_type IS NULL THEN '' ELSE alleles.allele_type END AS es_cell_allele_type, alleles.allele_symbol_superscript_template AS es_cell_allele_superscript_template,
                mutagenesis_factors.id AS mutagenesis_factor_id,
                colonies.id AS mi_colony_id, colonies.name AS mi_colony_name, colony_alleles.mgi_allele_accession_id AS mi_colony_mgi_allele_id,
                colony_alleles.mgi_allele_symbol_superscript AS mi_colony_mgi_allele_symbol_superscript,
@@ -39,6 +39,7 @@ class SolrData::Allele2CoreData
             LEFT JOIN strains test_cross_strain ON test_cross_strain.id = mi_attempts.test_cross_strain_id
             LEFT JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
             LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+            LEFT JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
             LEFT JOIN alleles ON alleles.es_cell_id = targ_rep_es_cells.id
             LEFT JOIN mutagenesis_factors ON mutagenesis_factors.id = mi_attempts.mutagenesis_factor_id
         WHERE mi_attempt_statuses.name != 'Micro-injection aborted'
@@ -587,12 +588,6 @@ class SolrData::Allele2CoreData
       allele_data_doc.human_entrez_gene_id = gene_doc.human_entrez_gene_id
       allele_data_doc.human_homolo_gene_id = gene_doc.human_homolo_gene_id
 
-      allele_data_doc.allele_description = TargRep::Allele.allele_description({
-                                               'marker_symbol'               => allele_data_doc.marker_symbol,
-                                               'cassette'                    => allele_data_doc.cassette,
-                                               'allele_type'                 => allele_data_doc.allele_type
-                                             })
-
       if allele_data_doc.mutation_type == 'tm'
         allele_data_doc.mutation_type = 'Targeted'
       elsif allele_data_doc.mutation_type == 'em'
@@ -635,7 +630,7 @@ class SolrData::Allele2CoreData
         "''"   => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag', "#{with_feature} Selection Tag"], 'without_features' => ["#{without_feature} Selection Tag"]},
         '.1' => {'allele_category' => 'Deletion', 'features' => ['Reporter Tag'], 'without_features' => ["Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         '.2' => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
-        'NHEJ' => {'allele_category' => 'Indel', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'Indel' => {'allele_category' => 'Indel', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         'Deletion' => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]}, 
       }
 
@@ -764,15 +759,19 @@ class SolrData::Allele2CoreData
 
   def mouse_allele_update_doc(doc, data_row)
 
-# I think the is is not nessary any more you can just use the colony_mgi_allelle_id
+    doc.allele_description = Allele.allele_description({
+                                             'marker_symbol'               => data_row['gene_symbol'],
+                                             'cassette'                    => data_row['cassette'],
+                                             'allele_type'                 => data_row['colony_allele_type'],
+                                             'allele_subtype'              => data_row['allele_subtype']
+                                           })
+
+# I think the is not nessary any more you can just use the colony_mgi_allelle_id
     if !data_row['colony_mgi_allele_id'].blank?
       doc.allele_mgi_accession_id = data_row['colony_mgi_allele_id']
     elsif data_row['mouse_allele_mod_id'].blank? && !data_row['es_cell_mgi_allele_id'].blank?
       doc.allele_mgi_accession_id = data_row['es_cell_mgi_allele_id']
     end
-
-# auto_allele_description is this still automatically calculated?
-    doc.allele_description = data_row['auto_allele_description'].blank? ? data_row['allele_description_summary'] : data_row['auto_allele_description']
 
     # set Mouse status
 # can mouse status not be collapsed into one field returned from the query?
@@ -827,6 +826,13 @@ class SolrData::Allele2CoreData
   private :mouse_allele_update_doc
 
   def es_cell_allele_update_doc(doc, data_row)
+    doc.allele_description = Allele.allele_description({
+                                         'marker_symbol'               => data_row['gene_symbol'],
+                                         'cassette'                    => data_row['cassette'],
+                                         'allele_type'                 => data_row['allele_type'],
+                                         'allele_subtype'              => data_row['allele_subtype']
+                                       })
+
     doc.design_id = data_row['design_id']
     doc.cassette = data_row['cassette']
     doc.cassette_type = data_row['cassette_type']
@@ -945,7 +951,7 @@ class SolrData::Allele2CoreData
       if doc.conditional_mouse_status.blank? || mouse_status_is_more_adavanced(mouse_status, doc.conditional_mouse_status)
         doc.conditional_mouse_status = mouse_status
       end
-    elsif ['b', "''", 'd', '.1', '.2', 'Deletion', 'NHEJ'].include?(allele_type)
+    elsif ['b', "''", 'd', '.1', '.2', 'Deletion', 'Indel'].include?(allele_type)
       if doc.deletion_mouse_status.blank? || mouse_status_is_more_adavanced(mouse_status, doc.deletion_mouse_status)
         doc.deletion_mouse_status = mouse_status
       end

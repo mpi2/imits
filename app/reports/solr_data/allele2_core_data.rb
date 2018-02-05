@@ -873,8 +873,6 @@ class SolrData::Allele2CoreData
                  'allele_design_project' => @allele_design_project,
                  'marker_symbol' => data_row['marker_symbol'],
                  'mgi_accession_id' => data_row['mgi_accession_id'],
-                 'marker_type' => data_row['marker_type'],
-                 'marker_name' => data_row['marker_name'],
                  'synonym' => !data_row['synonyms'].blank? ? data_row['synonyms'].split('|') : '',
                  'marker_type' => data_row['marker_type'],
                  'marker_name' => data_row['marker_name'],
@@ -916,9 +914,7 @@ class SolrData::Allele2CoreData
                  'latest_phenotyping_centre' => [],
                  'latest_phenotype_started' => '',
                  'latest_phenotype_complete' => '',
-                 'latest_phenotype_status' => '',
-                 'latest_es_cell_status' => '',
-                 'latest_mouse_status' => ''
+                 'latest_phenotype_status' => ''
                 } )
 
     unless  data_row['chr'].blank? || data_row['start_coordinates'].blank? || data_row['end_coordinates'].blank?

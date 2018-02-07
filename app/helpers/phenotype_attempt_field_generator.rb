@@ -9,7 +9,7 @@ class PhenotypeAttemptFieldGenerator < FieldGenerator
   def strains_field_no_label(name)
     element_classes = []
     name = name.to_s
-    field_html = @form.collection_select(name+'_name', Strain.where("#{name.gsub('colony_', '')} = true").order(:name), :name, :pretty_drop_down, :include_blank => true)
+    field_html = @form.collection_select(name+'_name', Strain.send("#{name.gsub('colony_', '')}").order(:name), :name, :pretty_drop_down, :include_blank => true)
 
     return content_tag(:div, field_html.html_safe, :class => element_classes.join(' ')).html_safe
   end

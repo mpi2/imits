@@ -5,16 +5,15 @@ class Centre < ActiveRecord::Base
   validates :name, :presence => true, :uniqueness => true
 
   has_many :mi_plans, :foreign_key => 'production_centre_id'
-  has_many :targ_rep_es_cells, :foreign_key => 'user_mouse_clinic_id'
-  has_many :mi_attempt_distribution_centres, :class_name => "MiAttempt::DistributionCentre"
+  has_many :colony_distribution_centres, :class_name => "Colony::DistributionCentre"
   has_many :phenotype_attempt_distribution_centres, :class_name => "PhenotypeAttempt::DistributionCentre"
 
-  has_many :tracking_goals
+  has_many :tracking_goals, :foreign_key => 'production_centre_id'
 
   default_scope :order => 'name ASC'
 
   def has_children?
-    ! (mi_plans.empty? && mi_attempt_distribution_centres.empty? && phenotype_attempt_distribution_centres.empty?)
+    ! (mi_plans.empty? && colony_distribution_centres.empty?)
   end
 
   def destroy

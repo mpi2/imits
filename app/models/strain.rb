@@ -2,6 +2,10 @@ class Strain < ActiveRecord::Base
   acts_as_reportable
   attr_accessible :name, :mgi_strain_name, :mgi_strain_accession_id, :background_strain, :test_cross_strain, :blast_strain
 
+  scope :background_strain, where(:background_strain => true)
+  scope :test_cross_strain, where(:test_cross_strain => true)
+  scope :blast_strain, where(:blast_strain => true)
+
   validates :name, :uniqueness => true, :presence => true
 
   validates_format_of :mgi_strain_accession_id,

@@ -8,7 +8,7 @@ class MiAttemptFieldGenerator < FieldGenerator
   def strains_field(name, options = {})
     label = options.has_key?(:label) ? options[:label] : nil
     name = name.to_s
-    field_html = @form.collection_select(name+'_name', Strain.where("#{name} = true").order(:name), :name, :pretty_drop_down, :include_blank => true)
+    field_html = @form.collection_select(name+'_name', Strain.send(name).order(:name), :name, :pretty_drop_down, :include_blank => true)
     form_field(name+'_name', label, field_html)
   end
   

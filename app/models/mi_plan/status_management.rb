@@ -29,7 +29,7 @@ module MiPlan::StatusManagement
         return 'Assigned for ES Cell QC'
       elsif plan.phenotype_only == true
         return 'Inspect - Phenotype Conflict' if @all_phenotyping_productions.size != 0 && plan.force_assignment.blank?
-        return 'Assigned to phenotype'
+        return 'Assigned for phenotyping'
       elsif ! plan.new_record? and ! MiPlan::Status.all_pre_assignment.include?(plan.status)
         return 'Assigned'
       elsif plan.force_assignment == true
@@ -54,8 +54,8 @@ module MiPlan::StatusManagement
     plan.conflict_resolver.get_pre_assigned_status(plan) == 'Assigned for ES Cell QC'
   end
 
-  ss.add('Assigned to phenotype') do |plan|
-    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Assigned to phenotype'
+  ss.add('Assigned for phenotyping') do |plan|
+    plan.conflict_resolver.get_pre_assigned_status(plan) == 'Assigned for phenotyping'
   end
 
   ss.add('Assigned') do |plan|

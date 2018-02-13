@@ -1,7 +1,7 @@
 class Contact < ActiveRecord::Base
   acts_as_audited
 
-  attr_accessible :email
+  attr_accessible :email, :report_to_public
 
   has_many :notifications, :dependent => :destroy
   has_many :genes, :through => :notifications

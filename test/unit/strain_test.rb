@@ -20,9 +20,6 @@ class StrainTest < ActiveSupport::TestCase
     context 'Associations and Validations' do
       should validate_presence_of :name
       should validate_uniqueness_of :name
-#      should have_many :mi_plans
-#      should have_many :colony_distribution_centres
-#      should have_many(:tracking_goals)
     end
 
     should 'have accessible attributes' do

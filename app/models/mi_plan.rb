@@ -7,6 +7,7 @@ class MiPlan < ApplicationModel
   extend AccessAssociationByAttribute
   include MiPlan::StatusManagement
 
+## Constants
   FUNDING = {'IMPC' => {
                  'HMGU' => ['Helmholtz GMC'],
                  'ICS' => ['Phenomin', 'Helmholtz GMC'],
@@ -26,12 +27,13 @@ class MiPlan < ApplicationModel
                ]
            }
 
-  belongs_to :sub_project
+## Associations
   belongs_to :gene
   belongs_to :consortium
+  belongs_to :production_centre, :class_name => 'Centre'
   belongs_to :status
   belongs_to :priority
-  belongs_to :production_centre, :class_name => 'Centre'
+  belongs_to :sub_project
   belongs_to :es_qc_comment
 
   belongs_to :es_cells_received_from, :class_name => 'TargRep::CentrePipeline'
@@ -43,16 +45,50 @@ class MiPlan < ApplicationModel
   has_many :phenotyping_productions
   has_many :es_cell_qcs, :dependent => :delete_all
 
+
+## Nested Attributes
   accepts_nested_attributes_for :status_stamps
 
+## access_associations
   access_association_by_attribute :es_cells_received_from, :name
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
 
+## Delegates
   delegate :marker_symbol, :to => :gene
+  delegate :mgi_accession_id, :to => :gene
+
+## Scopes
+  scope :phenotype_only, where(:phenotype_only => true)
+  scope :es_cell_qc_only, where(:es_cell_qc_only => true)
+  scope :planned_injection, where(:phenotype_only => false, :es_cell_qc_only => false)
+  scope :with_mi_attempt, -> { planned_injection.joins(:mi_attempts).uniq }
+  scope :without_mi_attempt, -> { planned_injection.joins("LEFT JOIN mi_attempts ON mi_attempts.mi_plan_id = mi_plans.id").where("mi_attempts.id IS NULL").uniq }
+  scope :with_active_mi_attempt, -> { planned_injection.joins(:mi_attempts).where("mi_attempts.is_active = true").uniq }
+  scope :without_active_mi_attempt, -> { planned_injection.joins("LEFT JOIN mi_attempts ON mi_attempts.mi_plan_id = mi_plans.id AND mi_attempts.is_active = true").where("mi_attempts.id IS NULL").uniq }
+  scope :with_genotype_confirmed_mouse, -> { planned_injection.joins(:mi_attempts).where("mi_attempts.status_id = #{MiAttempt::Status.genotype_confirmed.id}").uniq }
 
   protected :status=
 
+##Callbacks
+  before_validation :set_default_number_of_es_cells_starting_qc
+  before_validation :check_number_of_es_cells_passing_qc
+  before_validation :set_default_sub_project
+  before_validation :change_status
+  before_validation :check_completion_note
+
+  before_save :update_es_cell_qc
+  before_save :update_es_cell_received
+
+  after_save :manage_status_stamps
+  after_save :conflict_resolve_others
+  after_save :reset_status_stamp_created_at
+
+  after_destroy :conflict_resolve_others
+
+
+##Validations
+  ## Validation Blocks
   validate do |plan|
     if plan.is_active == false
       plan.mi_attempts.each do |mi_attempt|
@@ -123,14 +159,9 @@ class MiPlan < ApplicationModel
   end
 
   validate do |plan|
-    # if new record can be withdrawn
-    if ( self.new_record? )
-      return true
-    end
-
     # if we want to set the withdrawn state, do further checks
     if ( self.withdrawn == true )
-      unless plan.validate_withdrawal_allowed?
+      unless plan.can_be_withdrawn?
         plan.errors.add(:withdrawn, 'cannot be set - plan is not currently in a withdrawable state')
       end
     end
@@ -162,29 +193,39 @@ class MiPlan < ApplicationModel
       plan.errors.add(:es_cell_qc_only, 'cannot be set to true when phenotype_only is also set to true')
     end
   end
-  # BEGIN Callbacks
 
-  before_validation :set_default_number_of_es_cells_starting_qc
-  before_validation :check_number_of_es_cells_passing_qc
-  before_validation :set_default_sub_project
+## Validation Methods
+  def check_number_of_es_cells_passing_qc
+    if ! number_of_es_cells_starting_qc.blank? && ! number_of_es_cells_passing_qc.blank?
+      if number_of_es_cells_starting_qc < number_of_es_cells_passing_qc
+        self.errors.add :number_of_es_cells_passing_qc, "passing qc exceeds starting qc"
+      end
+    end
+  end
 
-  before_validation :change_status
-  before_validation :check_completion_note
+  def check_completion_note
+    self.completion_note = '' if self.completion_note.blank?
 
-  after_save :manage_status_stamps
-  after_save :conflict_resolve_others
+    if ! MiPlan.get_completion_note_enum.include?(self.completion_note)
+      legal_values = MiPlan.get_completion_note_enum.map { |k| "'#{k}'" }.join(', ')
+      self.errors.add :completion_note, "recognised values are #{legal_values}"
+    end
+  end
 
-  after_save :reset_status_stamp_created_at
+## Callback Methods
+  def set_default_number_of_es_cells_starting_qc
+    if number_of_es_cells_starting_qc.nil?
+      self.number_of_es_cells_starting_qc = number_of_es_cells_passing_qc
+    end
+  end
 
-  after_destroy :conflict_resolve_others
-
-  before_save :update_es_cell_qc
-
-  before_save :update_es_cell_received
-
-  scope :phenotype_only, where(:phenotype_only => true)
-
-  private
+  def set_default_sub_project
+    if self.consortium && self.consortium.name == 'MGP'
+      self.sub_project ||= SubProject.find_by_name!('MGPinterest')
+    else
+      self.sub_project ||= SubProject.find_by_name!('')
+    end
+  end
 
   def update_es_cell_qc
 
@@ -202,47 +243,12 @@ class MiPlan < ApplicationModel
 
   end
 
-  def set_default_number_of_es_cells_starting_qc
-    if number_of_es_cells_starting_qc.nil?
-      self.number_of_es_cells_starting_qc = number_of_es_cells_passing_qc
-    end
-  end
-
-  def check_number_of_es_cells_passing_qc
-    if ! number_of_es_cells_starting_qc.blank? && ! number_of_es_cells_passing_qc.blank?
-      if number_of_es_cells_starting_qc < number_of_es_cells_passing_qc
-        self.errors.add :number_of_es_cells_passing_qc, "passing qc exceeds starting qc"
-      end
-    end
-  end
-
-  def set_default_sub_project
-    if self.consortium && self.consortium.name == 'MGP'
-      self.sub_project ||= SubProject.find_by_name!('MGPinterest')
-    else
-      self.sub_project ||= SubProject.find_by_name!('')
-    end
-  end
-
-  def new_qc_in_progress?
-    !self.status_id_changed? &&
-    self.status.name == 'Assigned - ES Cell QC In Progress' &&
-    self.number_of_es_cells_starting_qc_changed?
-  end
-
   def reset_status_stamp_created_at
     return unless new_qc_in_progress?
     status_stamp = self.status_stamps.find_by_status_id!(self.status_id)
     status_stamp.created_at = Time.now
     status_stamp.save!
   end
-
-  public
-
-  # END Callbacks
-
-  delegate :marker_symbol, :to => :gene
-  delegate :mgi_accession_id, :to => :gene
 
   def update_es_cell_received
     if number_of_es_cells_received.blank? && number_of_es_cells_starting_qc.to_i > 0
@@ -254,6 +260,57 @@ class MiPlan < ApplicationModel
     end
   end
 
+# Private Instance Methods
+  def add_status_stamp(status_to_add)
+    self.status_stamps.create!(:status => status_to_add)
+  end
+  private :add_status_stamp
+
+
+# Instance Methods
+  def new_qc_in_progress?
+    !self.status_id_changed? &&
+    self.status.name == 'Assigned - ES Cell QC In Progress' &&
+    self.number_of_es_cells_starting_qc_changed?
+  end
+
+  def assigned?
+    return MiPlan::Status.all_assigned.include?(status) && es_cell_qc_only == false
+  end
+
+  # check whether the Plan can be withdrawn, for validation
+  def can_be_withdrawn?
+
+    return true if ( self.new_record? )
+    return true if ( self.assigned? && self.mi_attempts.count == 0 && self.phenotype_attempts.count == 0 )
+
+    withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id) << MiPlan::Status.find_by_name('Withdrawn').id
+
+    if ( self.changes.has_key?('status_id') )
+      return true if ( withdrawable_ids.include?(self.changes['status_id'][0]) )
+    else
+      return true if ( withdrawable_ids.include?(self.status_id) )
+    end
+    
+    return false
+  end
+
+
+  def impc_activity?
+    return false if self.production_centre.blank? || self.consortium.blank?
+
+    if !FUNDING['IMPC'][self.production_centre.name].blank? && (FUNDING['IMPC'][self.production_centre.name] == 'all' || FUNDING['IMPC'][self.production_centre.name].include?(self.consortium.name))
+      return true
+    else
+      return false
+    end
+  end
+
+  def komp_activity?
+    return false if self.consortium.blank? || !FUNDING['KOMP'].include?(self.consortium.name)
+    return true
+  end
+
   def centre_pipeline
     @centre_pipeline ||= TargRep::CentrePipeline.all.find{|p| p.centres.include?(default_pipeline.try(:name)) }.try(:name)
   end
@@ -262,14 +319,48 @@ class MiPlan < ApplicationModel
     @default_pipeline ||= self.mi_attempts.first.try(:es_cell).try(:pipeline)
   end
 
+  def products
+   @products ||= {:mi_attempts => mi_attempts.where("is_active = true"), :phenotype_attempts => phenotype_attempts.reject{|pa| !pa.is_active}}
+  end
+
+  def phenotype_attempts
+    pas = []
+    phenotype_attempt_ids = []
+    phenotype_attempt_ids << mouse_allele_mods.map{|mam| mam.phenotype_attempt_id}.reject { |c| c.blank? }
+    phenotype_attempt_ids << phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.reject { |c| c.blank? }
+
+    pas = phenotype_attempt_ids.flatten.uniq.reject { |c| c.blank? }.map{ |pa_id| Public::PhenotypeAttempt.find(pa_id)}
+    return pas
+  end
+
   def es_cell_qc_in_progress_date
     status_stamp = self.status_stamps.where(status_id: MiPlan::Status['Assigned - ES Cell QC In Progress'].id).first
     status_stamp.created_at.to_date if status_stamp
   end
 
-  def products
-   @products ||= {:mi_attempts => mi_attempts.where("is_active = true"), :phenotype_attempts => phenotype_attempts.reject{|pa| !pa.is_active}}
+  def reason_for_inspect_or_conflict
+    case self.status.name
+    when 'Inspect - GLT Mouse'
+      other_centres_consortia = MiPlan.scoped.where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',
+        { :gene_id => self.gene_id, :id => self.id }).with_genotype_confirmed_mouse.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq.sort
+      return "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
+    when 'Inspect - MI Attempt'
+      other_centres_consortia = MiPlan.scoped.where('gene_id = :gene_id AND id != :id',
+        { :gene_id => self.gene_id, :id => self.id }).with_active_mi_attempt.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq.sort
+      return "MI already in progress at: #{other_centres_consortia.join(', ')}"
+    when 'Inspect - Conflict'
+      other_consortia = MiPlan.where('gene_id = :gene_id AND id != :id',
+        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status.all_assigned ).where(:es_cell_qc_only => false).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq.sort
+      return "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
+    when 'Conflict'
+      other_consortia = MiPlan.where('gene_id = :gene_id AND id != :id',
+        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status[:Conflict] ).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq.sort
+      return "Other MI plans for: #{other_consortia.join(', ')}"
+    else
+      return nil
+    end
   end
+
 
   def latest_relevant_mi_attempt
 
@@ -313,11 +404,6 @@ class MiPlan < ApplicationModel
     end
   end
 
-  def add_status_stamp(status_to_add)
-    self.status_stamps.create!(:status => status_to_add)
-  end
-  private :add_status_stamp
-
   def reportable_statuses_with_latest_dates
     retval = {}
     status_stamps.each do |status_stamp|
@@ -329,100 +415,6 @@ class MiPlan < ApplicationModel
     end
 
     return retval
-  end
-
-  def phenotype_attempts
-    pas = []
-    phenotype_attempt_ids = []
-    phenotype_attempt_ids << mouse_allele_mods.map{|mam| mam.phenotype_attempt_id}.reject { |c| c.blank? }
-    phenotype_attempt_ids << phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.reject { |c| c.blank? }
-
-    pas = phenotype_attempt_ids.flatten.uniq.reject { |c| c.blank? }.map{ |pa_id| Public::PhenotypeAttempt.find(pa_id)}
-    return pas
-  end
-
-  def self.with_mi_attempt
-    ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    raise "Cannot run 'mi_plan.with_mi_attempt' when there are no mi_attempts" if ids.empty?
-    where("#{self.table_name}.id in (?)",ids)
-  end
-
-  def self.without_mi_attempt
-    ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    raise "Cannot run 'mi_plan.without_mi_attempt' when there are no mi_attempts" if ids.empty?
-    where("#{self.table_name}.id not in (?)",ids)
-  end
-
-  def self.with_active_mi_attempt
-    ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    return [] if ids.empty?
-    where("#{self.table_name}.id in (?)",ids)
-  end
-
-  def self.without_active_mi_attempt
-    ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    raise "Cannot run 'mi_plan.without_active_mi_attempt' when there are no active mi_attempts" if ids.empty?
-    where("#{self.table_name}.id not in (?)",ids)
-  end
-
-  def self.with_genotype_confirmed_mouse
-    where("#{self.table_name}.id in (?)", MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
-  end
-
-  def reason_for_inspect_or_conflict
-    case self.status.name
-    when 'Inspect - GLT Mouse'
-      other_centres_consortia = MiPlan.scoped.where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',
-        { :gene_id => self.gene_id, :id => self.id }).with_genotype_confirmed_mouse.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq.sort
-      return "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
-    when 'Inspect - MI Attempt'
-      other_centres_consortia = MiPlan.scoped.where('gene_id = :gene_id AND id != :id',
-        { :gene_id => self.gene_id, :id => self.id }).with_active_mi_attempt.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq.sort
-      return "MI already in progress at: #{other_centres_consortia.join(', ')}"
-    when 'Inspect - Conflict'
-      other_consortia = MiPlan.where('gene_id = :gene_id AND id != :id',
-        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status.all_assigned ).where(:es_cell_qc_only => false).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq.sort
-      return "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
-    when 'Conflict'
-      other_consortia = MiPlan.where('gene_id = :gene_id AND id != :id',
-        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status[:Conflict] ).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq.sort
-      return "Other MI plans for: #{other_consortia.join(', ')}"
-    else
-      return nil
-    end
-  end
-
-  def self.check_for_upgradeable(params)
-    params = params.symbolize_keys
-    return self.search(:gene_marker_symbol_eq => params[:marker_symbol],
-      :consortium_name_eq => params[:consortium_name],
-      :production_centre_id_null => true).result.first
-  end
-
-  def assigned?
-    return MiPlan::Status.all_assigned.include?(status) && es_cell_qc_only == false
-  end
-
-  def distinct_old_genotype_confirmed_es_cells_count
-    es_cells = []
-    mi_attempts.genotype_confirmed.each do |mi|
-      dates = mi.reportable_statuses_with_latest_dates
-      mip_date = dates["Micro-injection in progress"]
-      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date && mi.es_cell
-    end
-
-    return es_cells.sort.uniq.size
-  end
-
-  def distinct_old_non_genotype_confirmed_es_cells_count
-    es_cells = []
-    mi_attempts.search(:status_id_not_eq => MiAttempt::Status.genotype_confirmed.id).result.each do |mi|
-      dates = mi.reportable_statuses_with_latest_dates
-      mip_date = dates["Micro-injection in progress"]
-      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date && mi.es_cell
-    end
-
-    return es_cells.sort.uniq.size
   end
 
   def latest_relevant_status
@@ -491,6 +483,28 @@ class MiPlan < ApplicationModel
     return retval
   end
 
+  def distinct_old_genotype_confirmed_es_cells_count
+    es_cells = []
+    mi_attempts.genotype_confirmed.each do |mi|
+      dates = mi.reportable_statuses_with_latest_dates
+      mip_date = dates["Micro-injection in progress"]
+      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date && mi.es_cell
+    end
+
+    return es_cells.sort.uniq.size
+  end
+
+  def distinct_old_non_genotype_confirmed_es_cells_count
+    es_cells = []
+    mi_attempts.search(:status_id_not_eq => MiAttempt::Status.genotype_confirmed.id).result.each do |mi|
+      dates = mi.reportable_statuses_with_latest_dates
+      mip_date = dates["Micro-injection in progress"]
+      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date && mi.es_cell
+    end
+
+    return es_cells.sort.uniq.size
+  end
+
   def total_pipeline_efficiency_gene_count
     mi_attempts.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
@@ -511,21 +525,19 @@ class MiPlan < ApplicationModel
     return 0
   end
 
+  def self.check_for_upgradeable(params)
+    params = params.symbolize_keys
+    return self.search(:gene_marker_symbol_eq => params[:marker_symbol],
+      :consortium_name_eq => params[:consortium_name],
+      :production_centre_id_null => true).result.first
+  end
+
   def self.readable_name
     return 'plan'
   end
 
   def self.get_completion_note_enum
     ['', "Handoff complete", "Allele not needed", "Effort concluded"]
-  end
-
-  def check_completion_note
-    self.completion_note = '' if self.completion_note.blank?
-
-    if ! MiPlan.get_completion_note_enum.include?(self.completion_note)
-      legal_values = MiPlan.get_completion_note_enum.map { |k| "'#{k}'" }.join(', ')
-      self.errors.add :completion_note, "recognised values are #{legal_values}"
-    end
   end
 
   def self.find_or_create_plan(object, params, &check_plan_exists)
@@ -547,81 +559,6 @@ class MiPlan < ApplicationModel
     end
     return mi_plan
 
-  end
-
-  # check whether the Plan can be withdrawn, for validation
-  def validate_withdrawal_allowed?
-
-    # if state already set then Ok as no change
-    if ( self.status.name == 'Withdrawn' )
-      return true
-    else
-      if ( self.status.name == 'Assigned' && self.mi_attempts.count == 0 && self.phenotype_attempts.count == 0 )
-          return true
-      end
-
-      withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id)
-
-      if ( self.changes.has_key?('status_id') )
-        if ( withdrawable_ids.include?(self.changes['status_id'][0]) )
-          return true
-        end
-      else
-        if ( withdrawable_ids.include?(self.status_id) )
-          return true
-        end
-      end
-    end
-
-    return false
-
-  end
-
-  # check whether the Plan can be withdrawn, for the view
-  def can_be_withdrawn?
-
-    if ( self.new_record? )
-      return true
-    end
-
-    # check if currently withdrawn, allow in-withdrawing
-    if ( self.status.name == 'Withdrawn')
-      return true
-    end
-
-    # check if status is one of the pre-assigment types or type Assigned but with no attempts yet
-    withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id)
-
-    if ( self.status.name == 'Assigned' && self.mi_attempts.count == 0 && self.phenotype_attempts.count == 0 )
-        return true
-    end
-
-    if ( self.changes.has_key?('status_id') )
-      if ( withdrawable_ids.include?(self.changes['status_id'][0]) )
-        return true
-      end
-    else
-      if ( withdrawable_ids.include?(self.status_id) )
-        return true
-      end
-    end
-
-    return false
-  end
-
-  def impc_activity?
-    return false if self.production_centre.blank? || self.consortium.blank?
-
-    if !FUNDING['IMPC'][self.production_centre.name].blank? && (FUNDING['IMPC'][self.production_centre.name] == 'all' || FUNDING['IMPC'][self.production_centre.name].include?(self.consortium.name))
-      return true
-    else
-      return false
-    end
-  end
-
-  def komp_activity?
-    return false if self.consortium.blank? || !FUNDING['KOMP'].include?(self.consortium.name)
-    return true
   end
 
   def self.impc_activity_sql_where

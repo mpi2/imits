@@ -1,5 +1,5 @@
 ---
-1:
+blank:
   id: 1
   name: ''
   created_at: <%= 5.day.ago.to_s(:db) %>

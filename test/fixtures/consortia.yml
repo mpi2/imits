@@ -23,7 +23,7 @@
   participants: Mouse Genetics Project, WTSI
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
-4:
+bash:
   contact:
   funding: KOMP2
   id: 4

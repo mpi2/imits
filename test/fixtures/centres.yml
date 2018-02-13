@@ -1,5 +1,5 @@
 ---
-1:
+wtsi:
   id: 1
   name: WTSI
   created_at: <%= 5.day.ago.to_s(:db) %>
@@ -11,7 +11,7 @@
   updated_at: <%= 5.day.ago.to_s(:db) %>
 3:
   id: 3
-  name: MRC - Harwell
+  name: Harwell
   created_at: <%= 5.day.ago.to_s(:db) %>
   updated_at: <%= 5.day.ago.to_s(:db) %>
 4:

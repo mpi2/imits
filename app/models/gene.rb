@@ -1,6 +1,12 @@
 class Gene < ActiveRecord::Base
   acts_as_reportable
 
+  PRIVATE_ATTRIBUTES = [
+    'created_at', 'updated_at'
+  ]
+
+  attr_protected *PRIVATE_ATTRIBUTES
+
   has_one :private_annotation, dependent: :destroy
 
   has_many :mi_plans
@@ -27,6 +33,31 @@ class Gene < ActiveRecord::Base
   def phenotype_attempts
     phenotyping_productions.map{|pp| pp.phenotype_attempt_id}.uniq.map{|pa_id| Public::PhenotypeAttempt.find(pa_id)}
   end
+
+  def as_json(options = {})
+    super(default_serializer_options(options))
+  end
+
+  def to_xml(options = {})
+    super(default_serializer_options(options))
+  end
+
+  def default_serializer_options(options = {})
+    options ||= {}
+    options.symbolize_keys!
+    options[:methods] ||= [
+      :pretty_print_types_of_cells_available,
+      :non_assigned_mi_plans,
+      :assigned_mi_plans,
+      :pretty_print_mi_attempts_in_progress,
+      :pretty_print_mi_attempts_genotype_confirmed,
+      :pretty_print_aborted_mi_attempts,
+      :pretty_print_phenotype_attempts
+    ]
+    options[:except] ||= PRIVATE_ATTRIBUTES.dup + []
+    return options
+  end
+  private :default_serializer_options
 
   def private_annotation
     super || build_private_annotation()
@@ -123,37 +154,6 @@ class Gene < ActiveRecord::Base
   def es_cells_count
     return conditional_es_cells_count.to_i + non_conditional_es_cells_count.to_i + deletion_es_cells_count.to_i
   end
-
-  def as_json(options = {})
-    super(default_serializer_options(options))
-  end
-
-  def to_xml(options = {})
-    super(default_serializer_options(options))
-  end
-
-  PRIVATE_ATTRIBUTES = [
-    'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-  ]
-
-  attr_protected *PRIVATE_ATTRIBUTES
-
-  def default_serializer_options(options = {})
-    options ||= {}
-    options.symbolize_keys!
-    options[:methods] ||= [
-      :pretty_print_types_of_cells_available,
-      :non_assigned_mi_plans,
-      :assigned_mi_plans,
-      :pretty_print_mi_attempts_in_progress,
-      :pretty_print_mi_attempts_genotype_confirmed,
-      :pretty_print_aborted_mi_attempts,
-      :pretty_print_phenotype_attempts
-    ]
-    options[:except] ||= PRIVATE_ATTRIBUTES.dup + []
-    return options
-  end
-  private :default_serializer_options
 
   def create_extjs_relationship_tree_node(object, extra_attributes = {})
     return {
@@ -727,24 +727,24 @@ class Gene < ActiveRecord::Base
     end
     logger.error "failed to download file" if human_data.blank?
 
-
-    logger.info "Downloading ccds report"
-    url = "ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_mouse/CCDS.current.txt"
-    open(url) do |file|
-      headers = file.readline.strip.split("\t")
-      ncbi_id_index = headers.index('gene_id')
-      ccds_ids_index = headers.index('ccds_id')
-      file.each_line do |line|
-        row = line.strip.gsub(/\"/, '').split("\t")
-        if !ccds_data.has_key?(row[ncbi_id_index])
-          ccds_data[row[ncbi_id_index]] = {
-            'ccds_ids' => []
-          }
-        end
-        ccds_data[row[ncbi_id_index]]['ccds_ids'] << row[ccds_ids_index]
-      end
-    end
-    logger.error "failed to download file" if ccds_data.blank?
+# PRODUCTION SYSTEM CAN NOT DOWNLOAD FROM FTP SITE
+#    logger.info "Downloading ccds report"
+#    url = "ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_mouse/CCDS.current.txt"
+#    open(url) do |file|
+#      headers = file.readline.strip.split("\t")
+#      ncbi_id_index = headers.index('gene_id')
+#      ccds_ids_index = headers.index('ccds_id')
+#      file.each_line do |line|
+#        row = line.strip.gsub(/\"/, '').split("\t")
+#        if !ccds_data.has_key?(row[ncbi_id_index])
+#          ccds_data[row[ncbi_id_index]] = {
+#            'ccds_ids' => []
+#          }
+#        end
+#        ccds_data[row[ncbi_id_index]]['ccds_ids'] << row[ccds_ids_index]
+#      end
+#    end
+#    logger.error "failed to download file" if ccds_data.blank?
 
 
     logger.info "Update Gene List"

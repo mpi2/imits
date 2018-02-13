@@ -7,6 +7,7 @@ class MiAttempt < ApplicationModel
   extend AccessAssociationByAttribute
   include MiAttempt::StatusManagement
   include MiAttempt::WarningGenerator
+  include Public::ColonyAttributes
   include ApplicationModel::BelongsToMiPlan
 
   CRISPR_ASSAY_TYPES = ['PCR', 'Surveyor', 'T7EN1', 'LOA'].freeze

@@ -50,9 +50,8 @@ group :development, :test do
 
   gem 'test-unit', '2.5.3', :require => nil
   gem 'shoulda', '~> 3.5.0', :require => nil
-  gem 'mocha', '0.13.3', :require => nil
-  gem 'database_cleaner', '0.6.7', :require => nil
-  gem 'factory_girl_rails', '1.1.0', :require => nil
+  gem 'mocha', '1.3', :require => nil
+  gem 'factory_girl_rails', '4.9', :require => nil
 
   gem 'simplecov', '>= 0.4.0', :require => nil
   gem 'simplecov-rcov', '0.2.0',        :require => nil

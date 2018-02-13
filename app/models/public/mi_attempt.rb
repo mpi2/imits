@@ -1,7 +1,6 @@
 class Public::MiAttempt < ::MiAttempt
 
   include ::Public::Serializable
-  include ::Public::ColonyAttributes
   include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{

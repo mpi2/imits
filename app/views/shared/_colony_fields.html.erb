@@ -49,7 +49,6 @@
         <fieldset class="collapsible">
           <legend>Allele</legend>
           <div>
-            <% if ['gtc', 'chr', 'fod'].include?(mi_attempt.status.try(:code)) %>
               <% if mi_attempt.es_cell_name.blank?%>
                 <fieldset class="collapsible">
                   <legend>Upload Trace File Evidence</legend>
@@ -161,9 +160,6 @@
               
 
               <% end %>     
-            <% else %>
-              Allele and QC can not be set until Status is Genotype confirmed.
-            <% end %>
               </div>
             </fieldset>
           </div>

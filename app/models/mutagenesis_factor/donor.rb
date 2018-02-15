@@ -32,7 +32,7 @@ class MutagenesisFactor::Donor < ActiveRecord::Base
    validates_format_of :oligo_sequence_fa,
     :with      => /^(>[\w\\+\?\.\*\^\$\(\)\[\]\{\}\|\\\/\-\'\" +=:;~@#&]+\n)?([ACGTacgt]+\n$)/m,
     :message   => "is not a valid FASTA file format.",
-    :allow_nil => true
+    :allow_blank => true
 
   PREPARATION = ['', 'Circular', 'Linearized', 'Supercoiled', 'Oligo', 'ssDNA Oligo'].freeze
 

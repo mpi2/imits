@@ -34,7 +34,6 @@ class PhenotypingProduction < ApplicationModel
   before_validation :change_status
   before_validation :late_adult_change_status
 
-  before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_colony_background_strain
   before_save :set_phenotyping_experiments_started_if_blank
   before_save :set_late_adult_phenotyping_experiments_started_if_blank

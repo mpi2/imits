@@ -92,7 +92,7 @@ class Allele < ApplicationModel
     return true if allele.mgi_allele_symbol_superscript.blank?
 
     if allele.mgi_allele_symbol_superscript =~ /^tm/
-      return true if allele.mgi_allele_symbol_superscript =~ /^(tm\d+)([a-e]|.\d+|e.\d+)(\(\w+\))?\w+$/
+      return true if allele.mgi_allele_symbol_superscript =~ /^(tm\d+)([a-e]|.\d+|e.\d+)?(\(\w+\))?\w+$/
       allele.errors.add :mgi_allele_symbol_superscript, 'invalid format for targeted mutation (tm). Here are some examples of valid mgi_allele_symbol_superscripts tm1a(KOMP)Wtsi, tm1aWtsi, tm2b(EUCOMM)Hmgu.'
     elsif allele.mgi_allele_symbol_superscript =~ /^Gt/
       return true if allele.mgi_allele_symbol_superscript =~ /^(Gt)(\(\w+\))?\w+$/

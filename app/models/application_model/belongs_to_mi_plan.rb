@@ -36,13 +36,6 @@ module ApplicationModel::BelongsToMiPlan
 
   # BEFORE SAVE METHODS
 
-  # Overridden in Public
-  def deal_with_unassigned_or_inactive_plans
-    raise UnsuitableMiPlanError, "mi_plan is in status #{mi_plan.status.name} - it must be in an assigned state." unless mi_plan.assigned?
-  end
-  protected :deal_with_unassigned_or_inactive_plans
-
-
   #COMMON METHODS
   def consortium_name
     if @consortium_name.blank?

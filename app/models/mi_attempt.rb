@@ -128,7 +128,6 @@ class MiAttempt < ApplicationModel
     return true
   end
 
-  before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   before_save :set_cassette_transmission_verified
   before_save :set_default_background_strain_for_crispr_produced_colonies
   before_save :make_mi_date_and_in_progress_status_consistent

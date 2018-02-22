@@ -1,0 +1,63 @@
+<% @tab = 'Centres Management' %>
+
+<style>
+body {
+    font-family: "Lato", sans-serif;
+}
+
+.sidenav {
+    width: 160px;
+    position: fixed;
+    background: #eee;
+    overflow-x: hidden;
+    padding: 8px 0;
+}
+
+.sidenav a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 15px;
+    color: #333;
+    display: block;
+}
+
+.sidenav h2 {
+    padding: 6px 8px 6px 16px;
+    color: #333;
+}
+
+.sidenav .current {
+    background: #EF7B0B;
+    color: #FFFFFF;
+}
+
+.sidenav a:hover {
+    background: #EF7B0B;
+    color: #FFFFFF;
+}
+
+.main {
+    margin-left: 170px; /* Same width as the sidebar + left position in px */
+    padding: 0px 10px;
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
+</style>
+</head>
+
+
+<div class="grid_12"><h2><%= @title %></h2></div>
+
+<div class="sidenav">
+  <h2><%= @centre.name %></h2>
+  <%= link_to "Details", @centre, :remote => true, id:"centres_details" %>
+  <a id="gene_list" href="/mi_plans">Gene List</a>
+  <a id="withdrawn_gene_list" href="/mi_plans">Withdrawn Genes</a>
+</div>
+
+<div id="main", class="main">
+
+</div>

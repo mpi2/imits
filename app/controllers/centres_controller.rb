@@ -1,5 +1,6 @@
 class CentresController < ApplicationController
 
+  respond_to :js
   respond_to :json
   respond_to :html, :except => [:show]
 
@@ -36,10 +37,14 @@ class CentresController < ApplicationController
 
     respond_to do |format|
       if @centre.update_attributes(params[:centre])
-        format.html { redirect_to :centres, :notice => "Centre was updated successfully." }
+        flash[:notice] = 'Centre was updated successfully.'
+        format.html { redirect_to :centres }
+        format.js { }
         format.json { respond_with @centre }
       else
-        format.html { redirect_to :centres, :alert => 'Could not update centre (name must be present and unique)' }
+        flash[:alert] = 'Could not update centre (name must be present and unique).'
+        format.html { redirect_to :centres }
+        format.js { }
         format.json { render(:json => {'error' => 'Could not update centre (name must be present and unique)'}, :status => 422) }
       end
     end
@@ -57,6 +62,10 @@ class CentresController < ApplicationController
         format.json { render(:json => {'error' => 'Could not delete centre (has children)'}, :status => 422) }
       end
     end
+  end
+
+  def management
+    @centre = Centre.find_by_name(params[:centre_name])
   end
 
   private

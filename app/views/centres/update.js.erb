@@ -1,0 +1,23 @@
+$("#notice_message").remove();
+$("#error_message").remove();
+$("#alert_message").remove();
+$("#centre_contact_name").parent().removeClass("errors");
+$("#centre_contact_name_error").remove();
+$("#centre_contact_email").parent().removeClass("errors");
+$("#centre_contact_email_error").remove();
+
+<% if !flash[:notice].blank? %> $("#messages").append("<div id='notice_message' class='message notice'><%= flash[:notice] %></div>"); <% end %>
+<% if !flash[:error].blank? %> $("#messages").append("<div id='error_message' class='message error'><%= flash[:error] %></div>"); <% end %>
+<% if !flash[:alert].blank? %> $("#messages").append("<div id='alert_message' class='message alert'><%= flash[:alert] %></div>"); <% end %>
+
+<% if !@centre.errors.blank? %>
+  <% if !@centre.errors.messages[:centre_contact_name].blank? %>
+    $("#centre_contact_name").parent().addClass("errors");
+    $("#centre_contact_name").parent().append("<span id='centre_contact_name_error' class='error-message'>cannot be blank</span>");
+  <% end %>
+
+  <% if !@centre.errors.messages[:centre_contact_email].blank? %>
+    $("#centre_contact_email").parent().addClass("errors");
+    $("#centre_contact_email").parent().append("<span id='centre_contact_email_error' class='error-message'>cannot be blank</span>") ;
+  <% end %>
+<% end %>

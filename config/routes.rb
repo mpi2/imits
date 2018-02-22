@@ -33,6 +33,7 @@ TarMits::Application.routes.draw do
   match 'tracking_goals_by_consortium' => "tracking_goals#index_by_consortium"
 
   resources :centres
+  match "/centre_management/:centre_name" => "centres#management", :via => :get
 
   resources :strains
 

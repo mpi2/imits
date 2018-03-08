@@ -1201,7 +1201,10 @@ CREATE TABLE genes (
     cm_position character varying(255),
     human_marker_symbol character varying(255),
     human_entrez_gene_id character varying(255),
-    human_homolo_gene_id character varying(255)
+    human_homolo_gene_id character varying(255),
+    cmg_tier1 boolean DEFAULT false,
+    cmg_tier2 boolean DEFAULT false,
+    idg boolean DEFAULT false
 );
 
 
@@ -6106,3 +6109,5 @@ INSERT INTO schema_migrations (version) VALUES ('20180110111602');
 INSERT INTO schema_migrations (version) VALUES ('20180118111602');
 
 INSERT INTO schema_migrations (version) VALUES ('20180202111914');
+
+INSERT INTO schema_migrations (version) VALUES ('20180301111914');

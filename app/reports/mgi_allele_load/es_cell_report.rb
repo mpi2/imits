@@ -47,7 +47,10 @@ class MgiAlleleLoad::EsCellReport
              targ_rep_alleles.cassette_start AS cassette_start, targ_rep_alleles.cassette_end AS cassette_end, targ_rep_alleles.loxp_start AS loxp_start, targ_rep_alleles.loxp_end AS loxp_end,
              targ_rep_pipelines.name AS pipeline, targ_rep_es_cells.ikmc_project_id AS ikmc_project_id, targ_rep_es_cells.name AS es_cell_clone, targ_rep_es_cells.parental_cell_line AS parent_cell_line,
              alleles.mgi_allele_symbol_superscript AS allele_symbol_superscript,
-             CASE WHEN alleles.allele_type IS NOT NULL THEN alleles.allele_type ELSE targ_rep_mutation_types.name END AS mutation_type,
+             CASE WHEN targ_rep_mutation_subtypes.name IN ('Insertion', 'Point Mutation') THEN targ_rep_mutation_subtypes.name 
+                  WHEN alleles.allele_type IS NOT NULL THEN (CASE WHEN alleles.allele_type = '''''' THEN 'Deletion' ELSE alleles.allele_type END) 
+                  ELSE (CASE WHEN targ_rep_mutation_types.name = '''''' THEN 'Deletion' ELSE targ_rep_mutation_types.name END)
+             END AS mutation_type,
              targ_rep_mutation_subtypes.name AS mutation_subtype,
              CASE WHEN clones_injected.es_cell_id IS NOT NULL THEN 'yes' ELSE 'no' END AS is_mixed
       FROM targ_rep_es_cells

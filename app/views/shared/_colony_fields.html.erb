@@ -4,9 +4,6 @@
 <% if colony.alleles.blank? %>
   <% a = colony.alleles.build %>
 <% end %>
-<% if colony.trace_call.blank? %>
-  <% tc = colony.build_trace_call %>
-<% end %>
 
   <tr>
     <td style="text-align: left;vertical-align: top;">
@@ -50,29 +47,31 @@
           <legend>Allele</legend>
           <div>
               <% if mi_attempt.es_cell_name.blank?%>
-                <fieldset class="collapsible">
-                  <legend>Upload Trace File Evidence</legend>
-                  <div>
-                    <%= f.fields_for :trace_call do |ftc| %>
-                      <% ftc_generator = MiAttemptFieldGenerator.new(ftc) %>                        
-                      <% if ! f.object.new_record? && (ftc.object.trace_data_available || ftc.object.trace_data_pending) %>
-                        <button id="cbutton_<%= f.object.id %>" type="button" onclick="$(this).toggle();var id = '#cdiv_<%= f.object.id %>'; $(id).toggle();">Replace</button>
-                        <div id="cdiv_<%= f.object.id %>" style="display:none;">
-                          <%= ftc.file_field :trace_file %>
-                        </div>
-                        <%= ftc_generator.check_box :is_het, :label => 'Heterozygous Trace?' %>
-                         <!-- see http://stackoverflow.com/questions/2187008/styling-an-anchor-tag-to-look-like-a-submit-button for download button -->
-                      <% else %>
-                        <%= ftc.file_field :trace_file %></br>
-                        <%= ftc_generator.check_box :is_het, :label => 'Heterozygous Trace?' %>
-                      <% end %>
-
-                      <% if ! colony.new_record? && colony.allele_annotations_available %>
-                        <%= link_to 'view analysis results', :controller => :colony, :action => :show, :id => colony.id %>
-                      <% end %>
+                <div class="trace-files" style="padding:0px 10px 0px 10px;">
+                  <fieldset class="collapsible" id="distribution_centres">
+                  <legend>Upload Sequence Files</legend>
+                    <div class="trace-file-container">
+                      <table id="trace_files_<%= f.object_id %>_table" class="report_table">
+                      <thead class="title">
+                        <tr>
+                          <th>File Name</th>
+                          <th>Trace Details</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody class="distribution_centres">
+                        <tr></tr>
+                        <% if colony.trace_files.length > 0 %>
+                          <%= f.fields_for :trace_files do |builder| %>
+                            <%= render '/shared/trace_file_fields', f: builder %>
+                          <% end %>
+                        <% end %>
+                      </tbody>
+                      </table>
+                      <%= link_to_add_fields "Add Trace File", f, :trace_files %>
                     </div>
-                  <% end %>
-                </fieldset>
+                  </fieldset>
+                </div>
               <% end %>
 
               <%= f.fields_for :alleles do |allele_builder| %>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20180301111914) do
+ActiveRecord::Schema.define(:version => 20180320111914) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",  :null => false
@@ -1185,36 +1185,23 @@ ActiveRecord::Schema.define(:version => 20180301111914) do
     t.datetime "updated_at",    :null => false
   end
 
-  create_table "trace_calls", :force => true do |t|
-    t.integer  "colony_id",                                         :null => false
-    t.text     "file_alignment"
-    t.text     "file_filtered_analysis_vcf"
-    t.text     "file_variant_effect_output_txt"
-    t.text     "file_reference_fa"
-    t.text     "file_mutant_fa"
-    t.text     "file_primer_reads_fa"
-    t.text     "file_alignment_data_yaml"
-    t.text     "file_trace_output"
-    t.text     "file_trace_error"
-    t.text     "file_exception_details"
-    t.integer  "file_return_code"
-    t.text     "file_merged_variants_vcf"
-    t.boolean  "is_het",                         :default => false, :null => false
-    t.datetime "created_at",                                        :null => false
-    t.datetime "updated_at",                                        :null => false
-    t.string   "trace_file_file_name"
-    t.string   "trace_file_content_type"
-    t.integer  "trace_file_file_size"
-    t.datetime "trace_file_updated_at"
-    t.string   "exon_id"
+  create_table "trace_files", :force => true do |t|
+    t.integer  "colony_id",                             :null => false
+    t.boolean  "is_het",             :default => false, :null => false
+    t.datetime "created_at",                            :null => false
+    t.datetime "updated_at",                            :null => false
+    t.string   "trace_file_name"
+    t.string   "trace_content_type"
+    t.integer  "trace_file_size"
+    t.datetime "trace_updated_at"
   end
 
-  create_table "trace_files", :force => true do |t|
+  create_table "traces", :force => true do |t|
     t.string   "style"
     t.binary   "file_contents"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
-    t.integer  "trace_call_id", :null => false
+    t.integer  "trace_file_id", :null => false
   end
 
   create_table "tracking_goals", :force => true do |t|
@@ -1307,9 +1294,9 @@ ActiveRecord::Schema.define(:version => 20180301111914) do
   add_foreign_key "targ_rep_genotype_primers", "mutagenesis_factors", :name => "targ_rep_genotype_primers_mutagenesis_factor_id_fk"
   add_foreign_key "targ_rep_genotype_primers", "targ_rep_alleles", :name => "targ_rep_genotype_primers_allele_id_fk", :column => "allele_id"
 
-  add_foreign_key "trace_call_vcf_modifications", "trace_calls", :name => "trace_call_vcf_modifications_trace_calls_fk"
+  add_foreign_key "trace_call_vcf_modifications", "trace_files", :name => "trace_call_vcf_modifications_trace_calls_fk", :column => "trace_call_id"
 
-  add_foreign_key "trace_calls", "colonies", :name => "trace_calls_colonies_fk"
+  add_foreign_key "trace_files", "colonies", :name => "trace_calls_colonies_fk"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

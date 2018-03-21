@@ -17,12 +17,11 @@ class Colony < ApplicationModel
 
   has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :inverse_of => :colony, :dependent => :destroy
   has_many :alleles, :dependent => :destroy, :inverse_of => :colony
-
-  has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
+  has_many :trace_files, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceFile"
 
   access_association_by_attribute :background_strain, :name
 
-  accepts_nested_attributes_for :trace_call
+  accepts_nested_attributes_for :trace_files, :allow_destroy => true 
   accepts_nested_attributes_for :alleles, :allow_destroy => true 
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
   accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
@@ -39,7 +38,6 @@ class Colony < ApplicationModel
   end
 
   before_validation :set_default_alleles
-  before_validation :set_default_trace_file
 
   before_save :set_default_background_strain_for_crispr_produced_colonies
 
@@ -100,14 +98,6 @@ class Colony < ApplicationModel
      end
   end
   protected :set_default_alleles
-
-  def set_default_trace_file
-    if !mi_attempt_id.blank? && !mi_attempt.mutagenesis_factor.blank? && trace_call.blank?
-       trace_call_attr = {}
-       self.trace_call_attributes = trace_call_attr 
-    end
-  end
-  protected :set_default_trace_file
 
   def set_default_background_strain_for_crispr_produced_colonies
     return unless self.background_strain_id.blank?
@@ -189,7 +179,7 @@ class Colony < ApplicationModel
   end
 
   def trace_call_attributes
-    return trace_call(&:as_json) unless trace_call.blank?
+    return trace_files(&:as_json) unless trace_files.blank?
     return nil
   end
 

@@ -11,18 +11,26 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20180320111914) do
+ActiveRecord::Schema.define(:version => 20180329151915) do
 
   create_table "allele_annotations", :force => true do |t|
-    t.integer  "allele_id",  :null => false
-    t.string   "mod_type",   :null => false
-    t.string   "chr",        :null => false
-    t.integer  "start",      :null => false
-    t.integer  "end",        :null => false
+    t.integer  "allele_id",             :null => false
+    t.string   "mod_type",              :null => false
+    t.string   "chr",                   :null => false
+    t.integer  "start",                 :null => false
+    t.integer  "end",                   :null => false
     t.text     "ref_seq"
     t.text     "alt_seq"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",            :null => false
+    t.datetime "updated_at",            :null => false
+    t.string   "exdels"
+    t.string   "partial_exdels"
+    t.string   "txc"
+    t.boolean  "splice_donor"
+    t.boolean  "splice_acceptor"
+    t.boolean  "protein_coding_region"
+    t.boolean  "intronic"
+    t.boolean  "frameshift"
   end
 
   create_table "alleles", :force => true do |t|
@@ -44,6 +52,10 @@ ActiveRecord::Schema.define(:version => 20180320111914) do
     t.boolean  "same_as_es_cell"
     t.string   "allele_subtype"
     t.boolean  "contains_lacZ",                               :default => false
+    t.binary   "bam_file"
+    t.binary   "bam_file_index"
+    t.binary   "vcf_file"
+    t.binary   "vcf_file_index"
   end
 
   create_table "audits", :force => true do |t|
@@ -1173,18 +1185,6 @@ ActiveRecord::Schema.define(:version => 20180320111914) do
   add_index "targ_rep_targeting_vectors", ["name"], :name => "index_targvec", :unique => true
   add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
 
-  create_table "trace_call_vcf_modifications", :force => true do |t|
-    t.integer  "trace_call_id", :null => false
-    t.string   "mod_type",      :null => false
-    t.string   "chr",           :null => false
-    t.integer  "start",         :null => false
-    t.integer  "end",           :null => false
-    t.text     "ref_seq",       :null => false
-    t.text     "alt_seq",       :null => false
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
-  end
-
   create_table "trace_files", :force => true do |t|
     t.integer  "colony_id",                             :null => false
     t.boolean  "is_het",             :default => false, :null => false
@@ -1293,8 +1293,6 @@ ActiveRecord::Schema.define(:version => 20180320111914) do
 
   add_foreign_key "targ_rep_genotype_primers", "mutagenesis_factors", :name => "targ_rep_genotype_primers_mutagenesis_factor_id_fk"
   add_foreign_key "targ_rep_genotype_primers", "targ_rep_alleles", :name => "targ_rep_genotype_primers_allele_id_fk", :column => "allele_id"
-
-  add_foreign_key "trace_call_vcf_modifications", "trace_files", :name => "trace_call_vcf_modifications_trace_calls_fk", :column => "trace_call_id"
 
   add_foreign_key "trace_files", "colonies", :name => "trace_calls_colonies_fk"
 

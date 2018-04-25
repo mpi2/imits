@@ -225,6 +225,78 @@ class Allele < ApplicationModel
     return true
   end
 
+  before_validation do |allele|
+    if allele.changed.include?('vcf_file')
+      allele.annotations.delete
+    end
+  end
+
+  after_save do |allele|
+    if !allele.vcf_file.blank? && allele.annotations.blank?
+      vcf_file = get_vcf_file.read.split("\n").select{|vcf| vcf[0] != '#'}
+
+      index = {'CHROM' => 0, 'POS' => 1, 'ID' => 2, 'REF' => 3, 'ALT' => 4, 'QUAL' => 5, 'FILTER' => 6, 'INFO' => 7}
+      vcf_file.each do |vcf_line|
+        vcf_data = vcf_line.split("\t")
+        info = vcf_data[ index['INFO'] ].split(";").map{|info_string| i = info_string.split("="); [i[0], i[1]]}.to_h
+
+        chromosome = vcf_data[ index['CHROM'] ]
+        start_pos = vcf_data[ index['POS'] ]
+        end_pos = info.has_key?('END') ? info['END'] : start_pos
+        sv_type = info['SVTYPE']
+        ref = vcf_data[ index['REF'] ]
+        alt = vcf_data[ index['ALT'] ]
+        bcsq = info['BCSQ']
+        splice_acceptor = bcsq =~ /splice_acceptor/
+        splice_donor = bcsq =~ /splice_donor/
+        protein_coding = bcsq =~ /protein_coding/
+        intron = bcsq =~ /intron/
+        retained_intron = bcsq =~ /retained_intron/
+        frameshift = bcsq =~ /frameshift/
+        inframe_deletion = bcsq =~ /inframe_deletion/
+        inframe_insertion = bcsq =~ /inframe_insertion/
+        three_prime = bcsq =~ /3_prime_utr/
+        nmd = bcsq =~ /NMD/
+        txc = info['TXC'].split(',') if info.has_key?('TXC')
+        
+        if sv_type.blank?
+          sv_type = 'SNP' if ref.length == alt.length
+          sv_type = 'INDEL' if ref.length > alt.length
+          sv_type = 'INS' if ref.length < alt.length
+        end
+        raise 'Missing SV_TYPE' if sv_type.blank?
+
+        exdels = '' # comma separated list of ensembl exons deleted
+        partial_exdels = '' # comma separated list of ensembl exons that have been partially deleted
+
+        allele.annotations.create({
+          :mod_type => sv_type,
+          :chr => chromosome,
+          :start => start_pos,
+          :end => end_pos,
+          :ref_seq => ref,
+          :alt_seq => alt,
+          :exdels => exdels,
+          :partial_exdels => partial_exdels,
+          :splice_donor => splice_donor.blank? ? false : true,
+          :splice_acceptor => splice_acceptor.blank? ? false : true,
+          :protein_coding_region => protein_coding.blank? ? false : true,
+          :intronic => intron.blank? ? false : true,
+          :frameshift => frameshift.blank? ? false : true,
+          :txc => txc.blank? ? '' : "#{txc[0]}:{txc[1]}-{txc[2]}"
+          })
+      end
+    end
+  end
+
+
+  before_save do |allele|
+    if allele.changed.include?('mutant_fa')
+      allele.annotations.delete
+    end
+  end
+
+
   after_save do |allele|
     # sync downstream alleles
     if allele.belongs_to_es_cell?
@@ -292,6 +364,12 @@ class Allele < ApplicationModel
     :except => ['id', 'allele_id']
     }
     return production_centre_qc.as_json(json_options)
+  end
+
+  def get_vcf_file
+    return nil if vcf_file.empty?
+    f = StringIO.new(vcf_file)
+    Zlib::GzipReader.new(f)
   end
 
   def self.extract_symbol_superscript_template(mgi_allele_symbol_superscript)
@@ -376,6 +454,10 @@ class Allele < ApplicationModel
   end
 
 
+  def self.allowed_to_be_blank
+    return ['bam_file', 'bam_file_index', 'vcf_file', 'vcf_file_index']
+  end
+
 end
 
 # == Schema Information
@@ -401,4 +483,8 @@ end
 #  same_as_es_cell                             :boolean
 #  allele_subtype                              :string(255)
 #  contains_lacZ                               :boolean          default(FALSE)
+#  bam_file                                    :binary
+#  bam_file_index                              :binary
+#  vcf_file                                    :binary
+#  vcf_file_index                              :binary
 #

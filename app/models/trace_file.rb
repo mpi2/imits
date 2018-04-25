@@ -22,3 +22,18 @@ class TraceFile < ActiveRecord::Base
   attr_accessible :trace
 
 end
+
+# == Schema Information
+#
+# Table name: trace_files
+#
+#  id                 :integer          not null, primary key
+#  colony_id          :integer          not null
+#  is_het             :boolean          default(FALSE), not null
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  trace_file_name    :string(255)
+#  trace_content_type :string(255)
+#  trace_file_size    :integer
+#  trace_updated_at   :datetime
+#

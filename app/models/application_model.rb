@@ -18,7 +18,7 @@ class ApplicationModel < ActiveRecord::Base
 
   def set_blank_strings_to_nil
     self.attributes.each do |name, value|
-      if self[name].respond_to?(:to_str) && self[name].blank? && !self.class.allowed_to_be_blank.include?(name)
+      if !self.class.allowed_to_be_blank.include?(name) && self[name].respond_to?(:to_str) && self[name].blank?
         self[name] = nil
       end
     end

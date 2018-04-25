@@ -68,6 +68,7 @@ TarMits::Application.routes.draw do
   get "mutagenesis_factor/crisprs/:id" => 'mutagenesis_factor#crisprs'
   get "mutagenesis_factor/vector/:id"  => 'mutagenesis_factor#vector'
   get "mutagenesis_factor/oligo/:id"   => 'mutagenesis_factor#oligo'
+  get "mutagenesis_factor/designs/:position" => 'mutagenesis_factor#designs'
 
   namespace :mi_attempts do
     resources :distribution_centres do

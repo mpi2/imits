@@ -14,13 +14,11 @@
 
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag '/genoverse/js/genoverse.combined.js', :recursive => true %>
-  <%= javascript_include_tag 'genoverse_custom_tracks' %>
-  <%= javascript_include_tag 'colony/show' %>
-  <%= javascript_include_tag 'alignment_highlighting' %>
+  <%= javascript_include_tag 'genoverse_tracks/genoverse_custom_tracks' %>
+  <%= javascript_include_tag 'genoverse_tracks/mutagenesis_tracks' %>
 <% end %>
 
 <h1><%= @title %></h1>
-<h4>Trace File&nbsp;:&nbsp;<%= @trace_file_name %></h4>
 <br />
 
 <% if @colony then %>
@@ -41,12 +39,11 @@
     <% url_prefix = '/imits' %>
   <% end %>
   <script type="text/javascript">
-    var chr_num               = <%= chr_num %>;
-    var seq_start             = <%= seq_start %>;
-    var seq_end               = <%= seq_end %>;
-    var mutagenesis_factor_id = <%= mutagenesis_factor_id %>;
-    var colony_id             = <%= @colony.id %>;
-    var url_prefix            = '<%= url_prefix %>';
+    var chr_num                   = <%= chr_num %>;
+    var seq_start                 = <%= seq_start %>;
+    var seq_end                   = <%= seq_end %>;
+    var design_track_url          = '<%= "#{url_prefix}/mutagenesis_factor/designs/__CHR__:__START__-__END__?id=#{mutagenesis_factor_id};feature=crisprtrack;content-type=application/json"%>';
+    var mutant_sequence_track_url = '<%= "#{url_prefix}/colony/mut_nucleotide_sequences/#{@colony.id}?feature=mutsequencetrack;content-type=application/json" %>';
   </script>
 
   <h2>Genoverse Interface</h2>
@@ -56,66 +53,4 @@
 
 <% end %>
 
-<% if ! @ok || @files.empty? || @files.keys.length < 1 %>
 
-  <h4>Not Found!</h4>
-
-<% else %>
-
-  <% @files.keys.each do |key| %>
-    <% if @files[key][:name] && @files[key][:show] && @files[key][:data] %>
-
-      <h2 style="text-align:left;float:left;"><%= @files[key][:name] %></h2>&nbsp;&nbsp;
-        <a href="<%= "#{root_path}colony/show/#{@id}/#{key}" %>">Download</a> &nbsp;&nbsp; <a data-name="<%= "#{key}" %>" class="toggle" href="<%= "#" %>">View</a>
-      <hr style="clear:both;"/>
-
-      <div id="<%= "#{key}" %>" style="display:none">
-
-        <% if @files[key][:data].class.name == "Array"%>
-
-          <% i = 0 %>
-          <% @files[key][:data].each do |line| %>
-            <h4><b><%=@files[key][:titles][i] %></b></h4>
-            <div class="bundle" id="<%= @files[key][:ids][i] %>"><%= line %></div><br/>
-            <% i += 1 %>
-          <% end %>
-
-        <% else %>
-          <pre class="bundle">
-            <div <%= if @files[key].has_key?(:id) then "id = #{@files[key][:id]}" else "" end%>><%= @files[key][:data] %></div>
-          </pre>
-        <% end %>
-
-      </div>
-
-    <% end %>
-  <% end %>
-
-  <% if ! @insertions.empty? %>
-    <h2>Insertions</h2>
-    <% @insertions.each do |i| %>
-      <p><%= i %></p>
-    <% end %>
-  <% else %>
-    <h2>Insertions</h2>
-    <p>None</p>
-  <% end %>
-
-  <hr style="clear:both;"/>
-  <%#= debug @deletions %>
-
-  <% if ! @deletions.empty? %>
-    <h2>Deletions</h2>
-    <% @deletions.each do |d| %>
-      <p><%= d %></p>
-    <% end %>
-  <% else %>
-    <h2>Deletions</h2>
-    <p>None</p>
-  <% end %>
-
-<% end %>
-
-<% if @debug %>
-  <%= debug @colony %>
-<% end %>

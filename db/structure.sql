@@ -711,7 +711,15 @@ CREATE TABLE allele_annotations (
     ref_seq text,
     alt_seq text,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    exdels character varying(255),
+    partial_exdels character varying(255),
+    txc character varying(255),
+    splice_donor boolean,
+    splice_acceptor boolean,
+    protein_coding_region boolean,
+    intronic boolean,
+    frameshift boolean
 );
 
 
@@ -757,7 +765,11 @@ CREATE TABLE alleles (
     genbank_transition character varying(255),
     same_as_es_cell boolean,
     allele_subtype character varying(255),
-    "contains_lacZ" boolean DEFAULT false
+    "contains_lacZ" boolean DEFAULT false,
+    bam_file bytea,
+    bam_file_index bytea,
+    vcf_file bytea,
+    vcf_file_index bytea
 );
 
 
@@ -3477,43 +3489,6 @@ ALTER SEQUENCE targ_rep_targeting_vectors_id_seq OWNED BY targ_rep_targeting_vec
 
 
 --
--- Name: trace_call_vcf_modifications; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE trace_call_vcf_modifications (
-    id integer NOT NULL,
-    trace_call_id integer NOT NULL,
-    mod_type character varying(255) NOT NULL,
-    chr character varying(255) NOT NULL,
-    start integer NOT NULL,
-    "end" integer NOT NULL,
-    ref_seq text NOT NULL,
-    alt_seq text NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE trace_call_vcf_modifications_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE trace_call_vcf_modifications_id_seq OWNED BY trace_call_vcf_modifications.id;
-
-
---
 -- Name: trace_files; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -4142,13 +4117,6 @@ ALTER TABLE ONLY targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval(
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY trace_call_vcf_modifications ALTER COLUMN id SET DEFAULT nextval('trace_call_vcf_modifications_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY trace_files ALTER COLUMN id SET DEFAULT nextval('trace_files_id_seq'::regclass);
 
 
@@ -4715,14 +4683,6 @@ ALTER TABLE ONLY targ_rep_sequence_annotation
 
 ALTER TABLE ONLY targ_rep_targeting_vectors
     ADD CONSTRAINT targ_rep_targeting_vectors_pkey PRIMARY KEY (id);
-
-
---
--- Name: trace_call_vcf_modifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY trace_call_vcf_modifications
-    ADD CONSTRAINT trace_call_vcf_modifications_pkey PRIMARY KEY (id);
 
 
 --
@@ -5612,14 +5572,6 @@ ALTER TABLE ONLY targ_rep_genotype_primers
 
 
 --
--- Name: trace_call_vcf_modifications_trace_calls_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY trace_call_vcf_modifications
-    ADD CONSTRAINT trace_call_vcf_modifications_trace_calls_fk FOREIGN KEY (trace_call_id) REFERENCES trace_files(id);
-
-
---
 -- Name: trace_calls_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6100,3 +6052,5 @@ INSERT INTO schema_migrations (version) VALUES ('20180202111914');
 INSERT INTO schema_migrations (version) VALUES ('20180301111914');
 
 INSERT INTO schema_migrations (version) VALUES ('20180320111914');
+
+INSERT INTO schema_migrations (version) VALUES ('20180329151915');

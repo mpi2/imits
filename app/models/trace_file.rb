@@ -21,6 +21,20 @@ class TraceFile < ActiveRecord::Base
 
   attr_accessible :trace
 
+  def self.trace_file_url(id)
+    raise ':id must be supplied' if id.blank?
+    tf = TraceFile.find(id)
+    raise "invalid :id provided" if tf.blank?
+
+    url_prefix = ''
+    if !Rails.env.development?
+      url_prefix = 'https://www.i-dcc.org/imits'
+    else
+      url_prefix = ''
+    end
+
+    "#{url_prefix}/colony/trace_files/#{tf.id}"
+  end
 end
 
 # == Schema Information

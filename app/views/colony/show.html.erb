@@ -35,15 +35,15 @@
   <% end %>
 
   <% url_prefix = '' %>
-  <% if Rails.env.production? %>
+  <% if !Rails.env.development? %>
     <% url_prefix = '/imits' %>
   <% end %>
   <script type="text/javascript">
     var chr_num                   = <%= chr_num %>;
     var seq_start                 = <%= seq_start %>;
     var seq_end                   = <%= seq_end %>;
-    var design_track_url          = '<%= "#{url_prefix}/mutagenesis_factor/designs/__CHR__:__START__-__END__?id=#{mutagenesis_factor_id};feature=crisprtrack;content-type=application/json"%>';
-    var mutant_sequence_track_url = '<%= "#{url_prefix}/colony/mut_nucleotide_sequences/#{@colony.id}?feature=mutsequencetrack;content-type=application/json" %>';
+    var design_track_url          = '<%= MutagenesisFactor.design_track_url(mutagenesis_factor_id)%>';
+    var mutant_sequence_track_url = '<%= Colony.mut_sequences_track_url(@colony.id) %>';
   </script>
 
   <h2>Genoverse Interface</h2>

@@ -421,7 +421,7 @@ class Allele < ApplicationModel
                               'gt'      => "Gene Trap",
                               'Gene Trap' => "Gene Trap",
                               'Indel'     => "Indel causing a Frameshift Mutation",
-                              'Deletion' => "#{if !allele_subtype.blank?; allele_subtype; else; "Deletion of an Exon / Partial Exon deletion"; end;}",
+                              'Deletion' => "#{if !allele_subtype.blank?; allele_subtype; else; "Exdel"; end;}",
                               'HDR'      => "#{if !allele_subtype.blank?; allele_subtype; else; "Point Mutation"; end;}",
                               'HR'       => "#{if !allele_subtype.blank?; allele_subtype; else; "Conditional Ready / Null reporter"; end;}"
                             }
@@ -452,7 +452,6 @@ class Allele < ApplicationModel
     return allele_descriptions['tm.2'] if allele_type == '.2'
 
   end
-
 
   def self.allowed_to_be_blank
     return ['bam_file', 'bam_file_index', 'vcf_file', 'vcf_file_index']

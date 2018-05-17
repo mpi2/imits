@@ -56,6 +56,7 @@ class MutagenesisFactorController < ApplicationController
   def designs
 
     position = params[:position]
+    ids_str = params.has_key?(:ids) ? params[:ids].split(',') : []
     chr = nil
     coord_start = nil
     coord_end = nil
@@ -64,13 +65,19 @@ class MutagenesisFactorController < ApplicationController
       coord_start, coord_end = coord.split('-')
     end
 
+    crisprs = []
     @crisprs_list = []
 
     if !chr.blank? && !coord_start.blank? && !coord_end.blank?
-      crisprs = TargRep::Crispr.where("chr = '#{chr}' AND start > #{coord_start} AND start < #{coord_end} #{params.has_key?(:id) ? 'AND mutagenesis_factor_id = ' + params[:id] : ''}")
-    else
-      crisprs = @mutagenesis_factor.crisprs
+      if !ids_str.blank?
+        crisprs = TargRep::Crispr.where("chr = '#{chr}' AND start > :coord_start AND start < :coord_end AND mutagenesis_factor_id IN ( :ids_str )", {coord_start: coord_start, coord_end: coord_end, ids_str: ids_str})
+      else
+        crisprs = TargRep::Crispr.where("chr = '#{chr}' AND start > :coord_start AND start < :coord_end", {coord_start: coord_start, coord_end: coord_end})
+      end
+    elsif !ids_str.blank?
+      crisprs = TargRep::Crispr.where("mutagenesis_factor_id IN ( :ids_str )", {ids_str: ids_str})
     end
+
     crisprs.each do |crispr|
         parent_feature = build_crispr_features(crispr)
         @crisprs_list.push( parent_feature )

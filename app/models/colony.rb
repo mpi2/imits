@@ -244,32 +244,27 @@ class Colony < ApplicationModel
             EOF
   end
 
-  def get_mutant_nucleotide_sequence_features
-    mut_seq_features = []
-
-    alleles.each do |a|
-      a.annotations.each do |tc_mod|
-        mut_seq_feature = {
-          'chr'          => mi_attempt.mi_plan.gene.chr,
-          'strand'       => mi_attempt.mi_plan.gene.strand_name,
-          'start'        => tc_mod.start,
-          'end'          => tc_mod.end,
-          'ref_sequence' => tc_mod.ref_seq,
-          'alt_sequence' => tc_mod.alt_seq,
-          'sequence'     => tc_mod.alt_seq,
-          'mod_type'     => tc_mod.mod_type
-        }
-        mut_seq_features.push( mut_seq_feature.as_json )
-      end
-    end
-
-    return mut_seq_features
-  end
-
   def allele_annotations_available 
     alleles.any?{|a| !a.annotations.blank?}
   end
-    
+   
+  def self.mut_sequences_track_url(ids)
+    if ids.is_a?(Array) 
+      colony_id = ids.join(',')
+    else
+      colony_id = ids
+    end
+
+    url_prefix = ''
+    if !Rails.env.development?
+      url_prefix = 'https://www.i-dcc.org/imits'
+    else
+      url_prefix = ''
+    end
+
+    "#{url_prefix}/colony/mut_nucleotide_sequences/__CHR__:__START__-__END__?ids=#{colony_id};feature=mutsequencetrack;content-type=application/json"
+  end
+
 end
 
 # == Schema Information

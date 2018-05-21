@@ -719,7 +719,11 @@ CREATE TABLE allele_annotations (
     splice_acceptor boolean,
     protein_coding_region boolean,
     intronic boolean,
-    frameshift boolean
+    frameshift boolean,
+    linked_concequence text,
+    downstream_of_stop boolean,
+    stop_gained boolean,
+    amino_acid text
 );
 
 

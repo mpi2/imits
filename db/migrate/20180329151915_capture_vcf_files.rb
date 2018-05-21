@@ -15,6 +15,10 @@ class CaptureVcfFiles < ActiveRecord::Migration
     add_column :allele_annotations, :protein_coding_region, :boolean, :defalut => false
     add_column :allele_annotations, :intronic, :boolean, :defalut => false
     add_column :allele_annotations, :frameshift, :boolean, :defalut => false
+    add_column :allele_annotations, :linked_concequence, :text 
+    add_column :allele_annotations, :downstream_of_stop, :boolean, :defalut => false
+    add_column :allele_annotations, :stop_gained, :boolean, :defalut => false
+    add_column :allele_annotations, :amino_acid, :text
 
     sql = <<-EOF
       DELETE FROM allele_annotations;

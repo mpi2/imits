@@ -31,6 +31,10 @@ ActiveRecord::Schema.define(:version => 20180329151915) do
     t.boolean  "protein_coding_region"
     t.boolean  "intronic"
     t.boolean  "frameshift"
+    t.text     "linked_concequence"
+    t.boolean  "downstream_of_stop"
+    t.boolean  "stop_gained"
+    t.text     "amino_acid"
   end
 
   create_table "alleles", :force => true do |t|

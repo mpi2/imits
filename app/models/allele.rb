@@ -236,9 +236,32 @@ class Allele < ApplicationModel
       vcf_file = get_vcf_file.read.split("\n").select{|vcf| vcf[0] != '#'}
 
       index = {'CHROM' => 0, 'POS' => 1, 'ID' => 2, 'REF' => 3, 'ALT' => 4, 'QUAL' => 5, 'FILTER' => 6, 'INFO' => 7}
+      index_bcsq = {'consequence' => 0, 'gene' => 1, 'transcript' => 2, 'biotype' => 3, 'strand' => 4, 'amino_acid_change' => 5, 'dna_change' => 6}
       vcf_file.each do |vcf_line|
         vcf_data = vcf_line.split("\t")
         info = vcf_data[ index['INFO'] ].split(";").map{|info_string| i = info_string.split("="); [i[0], i[1]]}.to_h
+        bcsq = info['BCSQ']
+        bcsq_transcripts = []
+        bcsq_linked = ''
+        downstream_of_stop = false
+        if bcsq[0] == '@'
+          bcsq_linked = bcsq[1..-1]
+        elsif bcsq[0] == '*'
+          downstream_of_stop = true
+        else
+          bcsq_transcripts = bcsq.split(',')
+        end
+        amino_acid_consequence = {}
+        bcsq_transcripts.each do |tran| 
+          tran_fileds = tran.split{'|'}
+          next if tran_field.length < 7
+          amino_acid_consequence[tran_field[ index_bcsq['amino_acid_change'] ]] = [] if !amino_acid_consequence.has_key?(tran_field[ index_bcsq['amino_acid_change'] ])
+          amino_acid_consequence[tran_field[ index_bcsq['amino_acid_change'] ]] << amino_acid_consequence[tran_field[ index_bcsq['transcript'] ]]
+        end
+
+        amino_acid_str = ''
+        amino_acid_str = amino_acid_consequence.map{|aac, transcripts| ">#{transcripts.join('&')}\n#{aac}" }.join("\n")
+
 
         chromosome = vcf_data[ index['CHROM'] ]
         start_pos = vcf_data[ index['POS'] ]
@@ -246,7 +269,7 @@ class Allele < ApplicationModel
         sv_type = info['SVTYPE']
         ref = vcf_data[ index['REF'] ]
         alt = vcf_data[ index['ALT'] ]
-        bcsq = info['BCSQ']
+        
         splice_acceptor = bcsq =~ /splice_acceptor/
         splice_donor = bcsq =~ /splice_donor/
         protein_coding = bcsq =~ /protein_coding/
@@ -255,6 +278,7 @@ class Allele < ApplicationModel
         frameshift = bcsq =~ /frameshift/
         inframe_deletion = bcsq =~ /inframe_deletion/
         inframe_insertion = bcsq =~ /inframe_insertion/
+        stop_gained = bcsq =~ /stop_gained/
         three_prime = bcsq =~ /3_prime_utr/
         nmd = bcsq =~ /NMD/
         txc = info['TXC'].split(',') if info.has_key?('TXC')
@@ -276,13 +300,17 @@ class Allele < ApplicationModel
           :end => end_pos,
           :ref_seq => ref,
           :alt_seq => alt,
+          :linked_concequence => !bcsq_linked.blank? ? bcsq_linked : '',
+          :downstream_of_stop => downstream_of_stop,
           :exdels => exdels,
           :partial_exdels => partial_exdels,
           :splice_donor => splice_donor.blank? ? false : true,
           :splice_acceptor => splice_acceptor.blank? ? false : true,
           :protein_coding_region => protein_coding.blank? ? false : true,
+          :stop_gained => stop_gained.blank? ? false : true,
           :intronic => intron.blank? ? false : true,
           :frameshift => frameshift.blank? ? false : true,
+          :amino_acid => amino_acid_str,
           :txc => txc.blank? ? '' : "#{txc[0]}:{txc[1]}-{txc[2]}"
           })
       end
@@ -455,6 +483,60 @@ class Allele < ApplicationModel
 
   def self.allowed_to_be_blank
     return ['bam_file', 'bam_file_index', 'vcf_file', 'vcf_file_index']
+  end
+
+  def self.generate_allele_description(options)
+    raise 'allele_id must be provided' if !options.has_key?('allele_id')
+    allele = Allele.find(options['allele_id'])
+    raise 'invalid allele id provided' if allele.blank?
+
+    annotations = allele.annotations
+    raise 'Cannot generate allele description if there are no annotations' if annotations.blank?
+
+    colony = allele.colony
+    mi_attempt = colony.mi_attempt
+    raise 'cannot set allele description for colonies not produced via cripsr mi' if mi_attempt.blank? || mi_attempt.mutagenesis_factor_id.blank?
+
+    mutagenesis_factor = mi_attempt.mutagenesis_factor
+    cripsrs = mutagenesis_factor.crisprs
+    donors = mutagenesis_factor.donors
+    centre_name = mi_attempt.mi_plan.production_centre.full_name
+
+    nuclease = 'Cas9'
+    if !mi_attempt.protein_nuclease.blank?
+      nuclease = "#{mi_attempt.protein_nuclease} Protein"
+    elsif !mi_attempt.mrna_nuclease.blank?
+      nuclease = "#{mi_attempt.mrna_nuclease} RNA"
+    end
+
+    grna_str = ''
+    grna_str << 's ' if crisprs.length > 1
+    grna_str << crisprs.map{|c| c.sequence}.to_sentence
+
+
+    donor_str = ''
+    if donors.select{|d| !d.oligo_sequence_fa.blank?}.length == donors.length
+      donor_str = 'the following donor'
+      donor_str << 's ' if donors.length > 1 
+      donor_str << donors.map{|c| c.oligo_sequence_fa}.to_sentence
+    else
+      donor_str = "#{donors.length} donor"
+      donor_str << 's ' if donors.length > 1 
+    end
+
+    mutagenesis_factor_array = ["#{nuclease}", "guide sequence#{grna_str}"]
+    mutagenesis_factor_array << donor_str if !donors.blank?
+
+    target_region = [crisprs.map{|c| c.start}.min , crisprs.map{|c| c.end}.max]
+
+    mutations = []
+    upstream_mutations = []
+    downstream_mutations =[]
+    cause = ''
+
+    annotations.sort{|a1, a2| (a1.end - a1.start) <=> (a2.end - a1.start) }
+
+    allele_description = "This allele from IMPC was generated at #{centre_name} by injecting #{mutagenesis_factor_array.to_sentence}, which resulted in a"
   end
 
 end

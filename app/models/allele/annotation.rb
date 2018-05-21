@@ -32,4 +32,8 @@ end
 #  protein_coding_region :boolean
 #  intronic              :boolean
 #  frameshift            :boolean
+#  linked_concequence    :text
+#  downstream_of_stop    :boolean
+#  stop_gained           :boolean
+#  amino_acid            :text
 #

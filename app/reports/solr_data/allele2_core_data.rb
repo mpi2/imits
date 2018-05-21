@@ -83,6 +83,13 @@ class SolrData::Allele2CoreData
         GROUP BY parent_colony_id
       ),
 
+      trace_file_ids AS (
+        SELECT trace_files.colony_id AS colony_id, array_agg(trace_files.id) AS trace_file_id
+        FROM trace_files
+        WHERE trace_files.trace_file_name IS NOT NULL
+        GROUP BY trace_files.colony_id
+      ),
+
       colony_summary AS (
         SELECT colonies.id AS id, colonies.name AS colony_name, colonies.mouse_allele_mod_id AS mouse_allele_mod_id, alleles.mgi_allele_accession_id AS mgi_allele_accession_id,
                alleles.mgi_allele_symbol_superscript AS mgi_allele_symbol_superscript,
@@ -97,9 +104,11 @@ class SolrData::Allele2CoreData
                tissue_summary.tissue_distribution_centre_names AS tissue_distribution_centre_names,
                tissue_summary.start_dates AS tissue_start_dates,
                tissue_summary.end_dates AS tissue_end_dates,
-               colonies.report_to_public AS report_to_public, colonies.genotype_confirmed AS genotype_confirmed
+               colonies.report_to_public AS report_to_public, colonies.genotype_confirmed AS genotype_confirmed,
+               trace_file_ids.trace_file_id AS trace_file_id
         FROM colonies
         JOIN alleles ON alleles.colony_id = colonies.id
+        LEFT JOIN trace_file_ids ON trace_file_ids.colony_id = colonies.id
         LEFT JOIN strains colony_background_strain ON colony_background_strain.id = colonies.background_strain_id
         LEFT JOIN phenotyping_production_summary ON phenotyping_production_summary.parent_colony_id = colonies.id
         LEFT JOIN late_adult_phenotyping_production_summary ON late_adult_phenotyping_production_summary.parent_colony_id = colonies.id
@@ -110,10 +119,10 @@ class SolrData::Allele2CoreData
     -- Note! the colony data in colonies and mi_attempt_summary is the same when the colony was created via micro_injection.
 
     SELECT 'MiAttempt' AS colony_created_by,
-           colony_summary.colony_name AS colony_name, colony_summary.mgi_allele_accession_id AS colony_mgi_allele_id, colony_summary.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
+           colony_summary.id AS colony_id, colony_summary.colony_name AS colony_name, colony_summary.mgi_allele_accession_id AS colony_mgi_allele_id, colony_summary.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
            colony_summary.allele_type AS colony_allele_type, colony_summary.allele_subtype, colony_summary.background_strain_name AS colony_background_strain_name,
            NULL AS mouse_allele_status_name, NULL AS mouse_allele_mod_deleter_strain, NULL AS mouse_allele_mod_id, NULL AS excised,
-           mi_attempt_summary.*,
+           mi_attempt_summary.*, mi_attempt_summary.mutagenesis_factor_id AS mi_attempt_mutagenesis_factor_id,
            NULL AS mouse_allele_production_centre,
            colony_summary.phenotyping_status_name AS phenotyping_status_name, colony_summary.phenotyping_centre AS phenotyping_centre,
            colony_summary.phenotyping_centres AS phenotyping_centres,
@@ -122,7 +131,8 @@ class SolrData::Allele2CoreData
            colony_summary.tissue_deposited_tissues,
            colony_summary.tissue_distribution_centre_names,
            colony_summary.tissue_start_dates,
-           colony_summary.tissue_end_dates
+           colony_summary.tissue_end_dates,
+           colony_summary.trace_file_id AS trace_file_ids
     FROM mi_attempt_summary
       LEFT JOIN colony_summary ON mi_attempt_summary.mi_colony_id = colony_summary.id
     WHERE ((colony_summary.report_to_public = true AND colony_summary.genotype_confirmed = true) OR (mi_attempt_summary.mutagenesis_factor_id IS NULL)) 
@@ -131,10 +141,10 @@ class SolrData::Allele2CoreData
     UNION ALL
 
     SELECT 'MouseAlleleMod' AS colony_created_by,
-           colony_summary.colony_name AS colony_name, colony_summary.mgi_allele_accession_id AS colony_mgi_allele_id, colony_summary.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
+           colony_summary.id AS colony_id, colony_summary.colony_name AS colony_name, colony_summary.mgi_allele_accession_id AS colony_mgi_allele_id, colony_summary.mgi_allele_symbol_superscript AS colony_mgi_allele_symbol_superscript,
            colony_summary.allele_type AS colony_allele_type, colony_summary.allele_subtype, colony_summary.background_strain_name AS colony_background_strain_name,
            mouse_allele_mod_statuses.name AS mouse_allele_status_name, deleter_strain.name AS mouse_allele_mod_deleter_strain, mouse_allele_mods.id AS mouse_allele_mod_id, mouse_allele_mods.cre_excision AS excised,
-           mi_attempt_summary.*,
+           mi_attempt_summary.*, NULL AS mi_attempt_mutagenesis_factor_id,
            mam_plan_summary.production_centre AS mouse_allele_production_centre,
            colony_summary.phenotyping_status_name AS phenotyping_status_name, colony_summary.phenotyping_centre AS phenotyping_centre,
            colony_summary.phenotyping_centres AS phenotyping_centres,
@@ -143,7 +153,8 @@ class SolrData::Allele2CoreData
            colony_summary.tissue_deposited_tissues,
            colony_summary.tissue_distribution_centre_names,
            colony_summary.tissue_start_dates,
-           colony_summary.tissue_end_dates
+           colony_summary.tissue_end_dates,
+           NULL AS trace_file_ids
     FROM colony_summary
       JOIN (mouse_allele_mods
                   JOIN plan_summary AS mam_plan_summary ON mam_plan_summary.mi_plan_id = mouse_allele_mods.mi_plan_id
@@ -632,12 +643,19 @@ class SolrData::Allele2CoreData
         '.2' => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         'Indel' => {'allele_category' => 'Indel', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
         'Deletion' => {'allele_category' => 'Deletion', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]}, 
+        'Null reporter' => {'allele_category' => 'Deletion', 'features' => ["Reporter Tag"], 'without_features' => ["Promotorless Selection Tag", "Promotor Driven Selection Tag"]}, 
+        'Conditional Ready' => {'allele_category' => 'Wild type Floxed Exon', 'features' => ["Conditional Potential"], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]},
+        'Point Mutation' => {'allele_category' => 'Point Mutation', 'features' => [], 'without_features' => ["Reporter Tag", "Promotorless Selection Tag", "Promotor Driven Selection Tag"]}, 
       }
 
       if allele_features.include?(allele_data_doc.allele_type)
         allele_data_doc.allele_category = allele_features[allele_data_doc.allele_type]['allele_category']
         allele_data_doc.allele_features = allele_features[allele_data_doc.allele_type]['features']
         allele_data_doc.without_allele_features = allele_features[allele_data_doc.allele_type]['without_features']
+      elsif allele_features.include?(allele_data_doc.allele_subtype)
+        allele_data_doc.allele_category = allele_features[allele_data_doc.allele_subtype]['allele_category']
+        allele_data_doc.allele_features = allele_features[allele_data_doc.allele_subtype]['features']
+        allele_data_doc.without_allele_features = allele_features[allele_data_doc.allele_subtype]['without_features']  
       else
         allele_data_doc.allele_category << allele_data_doc.allele_type
       end
@@ -717,13 +735,21 @@ class SolrData::Allele2CoreData
                                                        'allele_symbol_search_variants' => [],
                                                        'allele_name' => allele_details['allele_symbol'],
                                                        'allele_mgi_accession_id' => '',
-                                                       'allele_type' => allele_details['allele_type'] ,
+                                                       'allele_type' => allele_details['allele_type'],
+                                                       'allele_subtype' => allele_details['allele_subtype'],
                                                        'allele_description' => '',
+                                                       'full_allele_description' => '',
                                                        'genbank_file' => TargRep::Allele.genbank_file_url(data_row['allele_id'], "#{allele_details['allele_type'].blank? ? nil : allele_details['allele_type']}"),
-                                                       'allele_image' => TargRep::Allele.allele_image_url(data_row['gene_symbol'], data_row['allele_id'], "#{allele_details['allele_type'].blank? ? nil : allele_details['allele_type']}"),
-                                                       'allele_simple_image' => TargRep::Allele.simple_allele_image_url(data_row['gene_symbol'], data_row['allele_id'], "#{allele_details['allele_type'].blank? ? nil : allele_details['allele_type']}"),
+                                                       'allele_image' => TargRep::Allele.allele_image_url(data_row['gene_symbol'], data_row['allele_id'], "#{allele_details['allele_type'].blank? ? nil : allele_details['allele_type']}", "#{allele_details['allele_subtype'].blank? ? nil : allele_details['allele_subtype']}"),
+                                                       'allele_simple_image' => TargRep::Allele.simple_allele_image_url(data_row['gene_symbol'], data_row['allele_id'], "#{allele_details['allele_type'].blank? ? nil : allele_details['allele_type']}", "#{allele_details['allele_subtype'].blank? ? nil : allele_details['allele_subtype']}"),
                                                        'vector_genbank_file' => '',
                                                        'vector_allele_image' => '',
+                                                       'sequence_files_urls' => [],
+                                                       'vcf_file_url' => '',
+                                                       'bam_file_url' => '',
+                                                       'genoverse_design_track_url' => '',
+                                                       'genoverse_mut_allele_track_url' => '', 
+                                                       'genoverse_predicted_allele_track_url' => '',
                                                        'design_id' => '',
                                                        'cassette' => '',
                                                        'cassette_type' => '',
@@ -819,6 +845,13 @@ class SolrData::Allele2CoreData
         doc.tissue_enquiry_links << order_link
         doc.tissue_distribution_centres << dis_centre[:distribution_centre_name]
       end
+    end
+
+    doc.genoverse_design_track_url = MutagenesisFactor.design_track_url(data_row['mutagenesis_factor_id']) if !data_row['mi_attempt_mutagenesis_factor_id'].blank?
+    doc.genoverse_mut_allele_track_url = Colony.mut_sequences_track_url(data_row['colony.id']) if !data_row['colony_id'].blank?
+    
+    convert_to_array(data_row['trace_file_ids']).each do |trace_file_id|
+      doc.sequence_files_urls << TraceFile.trace_file_url(trace_file_id)
     end
 
     return true

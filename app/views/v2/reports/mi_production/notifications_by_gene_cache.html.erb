@@ -1,5 +1,20 @@
+<% unless current_user.komp_centre? %>
+  <style>
+    .private {display: none;}
+  </style>
+  
+  <% content_for :post_js_footer do %>
+    <script>
+      $(".private").remove();
+    </script>
+  <% end %>
+<% end %>
+
+
 <% if @title =~ /IDG/ %>
 <% action = :notifications_by_gene_for_idg  %>
+<% elsif @title =~ /CMG/ %>
+<% action = :notifications_by_gene_for_cmg  %>
 <% else %>
 <% action = :notifications_by_gene%>
 <% end %>

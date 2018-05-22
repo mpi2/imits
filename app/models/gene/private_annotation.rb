@@ -2,15 +2,15 @@ class Gene::PrivateAnnotation < ActiveRecord::Base
 
   belongs_to :gene
 
-  def self.load_annoations
-    idg_config = "#{Rails.root}/config/idg_symbols.yml"
-    cmg_tier1_config = "#{Rails.root}/config/cmg_tier1_symbols.yml"
-    cmg_tier2_config = "#{Rails.root}/config/cmg_tier2_symbols.yml"
+  def self.load_annoations(files)
+    idg_config = files.has_key?(:idg_private_gene_list) ? files[:idg_private_gene_list] : nil
+    cmg_tier1_config = files.has_key?(:cmg_private_tier1_gene_list) ? files[:cmg_private_tier1_gene_list] : nil
+    cmg_tier2_config = files.has_key?(:cmg_private_tier2_gene_list) ? files[:cmg_private_tier2_gene_list] : nil
 
     genes = {}
 
     if File.file?(idg_config)
-      idg_gene_list = YAML.load_file("#{Rails.root}/config/idg_symbols.yml")
+      idg_gene_list = YAML.load_file(idg_config)
       sql = 'SELECT genes.marker_symbol FROM genes JOIN gene_private_annotations gpa ON gpa.gene_id = genes.id WHERE gpa.idg = true'
       remove_idg_genes = ActiveRecord::Base.connection.execute(sql).map{|g| g['marker_symbol']}
 
@@ -31,7 +31,7 @@ class Gene::PrivateAnnotation < ActiveRecord::Base
     end
   
     if File.file?(cmg_tier1_config)
-      cmg_tier1_gene_list = YAML.load_file("#{Rails.root}/config/cmg_tier1_symbols.yml")
+      cmg_tier1_gene_list = YAML.load_file(cmg_tier1_config)
       sql = 'SELECT genes.marker_symbol FROM genes JOIN gene_private_annotations gpa ON gpa.gene_id = genes.id WHERE gpa.cmg_tier1 = true'
       remove_cmg_tier1_genes = ActiveRecord::Base.connection.execute(sql).map{|g| g['marker_symbol']}
 
@@ -51,7 +51,7 @@ class Gene::PrivateAnnotation < ActiveRecord::Base
     end
 
     if File.file?(cmg_tier2_config)
-      cmg_tier2_gene_list = YAML.load_file("#{Rails.root}/config/cmg_tier2_symbols.yml")
+      cmg_tier2_gene_list = YAML.load_file(cmg_tier2_config)
       sql = 'SELECT genes.marker_symbol FROM genes JOIN gene_private_annotations gpa ON gpa.gene_id = genes.id WHERE gpa.cmg_tier2 = true'
       remove_cmg_tier2_genes = ActiveRecord::Base.connection.execute(sql).map{|g| g['marker_symbol']}
 

@@ -322,10 +322,30 @@ class V2::Reports::MiProductionController < ApplicationController
 
       @report = ReportCache.find_by_name_and_format('notifications_by_gene_' + consortium.to_s, format)
 
-      @report.data.gsub!(/\n\n/, "\n")
-
       if request.format == :csv
-        send_data @report.data,
+        if current_user.komp_centre?
+          filtered_csv_file = @report.data
+        else
+          filtered_csv_file = ''
+
+          csv_file = CSV.parse(@report.data)
+          headers = csv_file.delete_at(0)
+          private_cmg_tier1_index = headers.find_index("Private CMG Tier1")
+          private_cmg_tier2_index = headers.find_index("Private CMG Tier 2")
+          private_index =  headers.find_index("Private")
+
+          headers.delete_at(private_cmg_tier2_index)
+          headers.delete_at(private_cmg_tier1_index)
+          filtered_csv_file << CSV.generate_line(headers)
+          csv_file.each do |row|
+            next if row[private_index] == 'Yes' 
+            row.delete_at(private_cmg_tier2_index)
+            row.delete_at(private_cmg_tier1_index)
+            filtered_csv_file << CSV.generate_line(row)
+          end
+        end
+
+        send_data filtered_csv_file,
         :type => 'text/csv; charset=iso-8859-1; header=present',
         :disposition => "attachment; filename=notifications_by_gene-#{Time.now.strftime('%d-%m-%y--%H-%M')}.csv"
         return
@@ -386,7 +406,29 @@ class V2::Reports::MiProductionController < ApplicationController
     @report.data.gsub!(/\n\n/, "\n")
 
     if request.format == :csv
-      send_data @report.data,
+      if current_user.komp_centre?
+        filtered_csv_file = @report.data
+      else
+        filtered_csv_file = ''
+
+        csv_file = CSV.parse(@report.data)
+        headers = csv_file.delete_at(0)
+        private_cmg_tier1_index = headers.find_index("Private CMG Tier1")
+        private_cmg_tier2_index = headers.find_index("Private CMG Tier 2")
+        private_index =  headers.find_index("Private")
+
+        headers.delete_at(private_cmg_tier2_index)
+        headers.delete_at(private_cmg_tier1_index)
+        filtered_csv_file << CSV.generate_line(headers)
+        csv_file.each do |row|
+          next if row[private_index] == 'Yes' 
+          row.delete_at(private_cmg_tier2_index)
+          row.delete_at(private_cmg_tier1_index)
+          filtered_csv_file << CSV.generate_line(row)
+        end
+      end
+
+      send_data filtered_csv_file,
       :type => 'text/csv; charset=iso-8859-1; header=present',
       :disposition => "attachment; filename=notifications_by_gene_for_idg-#{Time.now.strftime('%d-%m-%y--%H-%M')}.csv"
       return
@@ -407,10 +449,31 @@ class V2::Reports::MiProductionController < ApplicationController
 
     @report = ReportCache.find_by_name_and_format('notifications_by_gene_for_cmg_' + consortium.to_s, format)
 
-    @report.data.gsub!(/\n\n/, "\n")
-
     if request.format == :csv
-      send_data @report.data,
+      if current_user.komp_centre?
+        filtered_csv_file = @report.data
+      else
+        filtered_csv_file = ''
+
+        csv_file = CSV.parse(@report.data)
+        headers = csv_file.delete_at(0)
+        private_cmg_tier1_index = headers.find_index("Private CMG Tier1")
+        private_cmg_tier2_index = headers.find_index("Private CMG Tier 2")
+        private_index =  headers.find_index("Private")
+
+        headers.delete_at(private_cmg_tier2_index)
+        headers.delete_at(private_cmg_tier1_index)
+        filtered_csv_file << CSV.generate_line(headers)
+        csv_file.each do |row|
+          next if row[private_index] == 'Yes' 
+          row.delete_at(private_cmg_tier2_index)
+          row.delete_at(private_cmg_tier1_index)
+          filtered_csv_file << CSV.generate_line(row)
+        end
+      end
+
+
+      send_data filtered_csv_file,
       :type => 'text/csv; charset=iso-8859-1; header=present',
       :disposition => "attachment; filename=notifications_by_gene_for_cmg-#{Time.now.strftime('%d-%m-%y--%H-%M')}.csv"
       return

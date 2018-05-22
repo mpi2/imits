@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20180202111914) do
+ActiveRecord::Schema.define(:version => 20180301111914) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",  :null => false
@@ -175,7 +175,7 @@ ActiveRecord::Schema.define(:version => 20180202111914) do
   end
 
   create_table "genes", :force => true do |t|
-    t.string   "marker_symbol",                      :limit => 75, :null => false
+    t.string   "marker_symbol",                      :limit => 75,                    :null => false
     t.string   "mgi_accession_id",                   :limit => 40
     t.integer  "ikmc_projects_count"
     t.integer  "conditional_es_cells_count"
@@ -205,6 +205,9 @@ ActiveRecord::Schema.define(:version => 20180202111914) do
     t.string   "human_marker_symbol"
     t.string   "human_entrez_gene_id"
     t.string   "human_homolo_gene_id"
+    t.boolean  "cmg_tier1",                                        :default => false
+    t.boolean  "cmg_tier2",                                        :default => false
+    t.boolean  "idg",                                              :default => false
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true

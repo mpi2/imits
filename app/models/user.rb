@@ -30,6 +30,10 @@ class User < ActiveRecord::Base
     return ['WTSI','JAX'].include?(production_centre.name)
   end
 
+  def komp_centre?
+    Centre.komp.include?(production_centre) ? true : false
+  end
+
   def production_centre_name
     return nil if production_centre.blank?
     production_centre.name

@@ -39,15 +39,18 @@ class NotificationsByGene < PlannedMicroinjectionList
     SELECT genes.marker_symbol, 
            genes.mgi_accession_id, 
            count(*) as number_of_notifications, 
-           gpa.idg, 
-           gpa.cmg_tier1, 
-           gpa.cmg_tier2,
-           intermediate_report.overall_status AS status
+           genes.idg,
+           genes.cmg_tier1 AS public_cmg_tier1, 
+           genes.cmg_tier2 AS public_cmg_tier2, 
+           gpa.cmg_tier1 AS private_cmg_tier1, 
+           gpa.cmg_tier2 AS private_cmg_tier2,
+           intermediate_report.overall_status AS status,
+           'f' AS private
     FROM genes
       JOIN gene_private_annotations gpa ON gpa.gene_id = genes.id AND gpa.idg = true
       LEFT JOIN (notifications JOIN contacts ON contacts.id = notifications.contact_id AND contacts.report_to_public is true) ON genes.id = notifications.gene_id
       LEFT JOIN intermediate_report ON intermediate_report.gene = genes.marker_symbol
-    GROUP BY genes.marker_symbol, genes.mgi_accession_id, gpa.idg, gpa.cmg_tier1, gpa.cmg_tier2, intermediate_report.overall_status
+    GROUP BY genes.marker_symbol, genes.mgi_accession_id, genes.idg, genes.cmg_tier1, genes.cmg_tier2, gpa.cmg_tier1, gpa.cmg_tier2, intermediate_report.overall_status
     ORDER BY genes.marker_symbol
     EOF
 
@@ -62,15 +65,19 @@ class NotificationsByGene < PlannedMicroinjectionList
     SELECT genes.marker_symbol, 
            genes.mgi_accession_id, 
            count(*) as number_of_notifications, 
-           gpa.idg, 
-           gpa.cmg_tier1, 
-           gpa.cmg_tier2,
-           intermediate_report.overall_status AS status
+           genes.idg,
+           genes.cmg_tier1 AS public_cmg_tier1, 
+           genes.cmg_tier2 AS public_cmg_tier2, 
+           gpa.cmg_tier1 AS private_cmg_tier1, 
+           gpa.cmg_tier2 AS private_cmg_tier2,
+           intermediate_report.overall_status AS status,
+           CASE WHEN (genes.cmg_tier1 = true OR genes.cmg_tier2 = true)  THEN 'f' ELSE 't' END AS private
     FROM genes
-      JOIN gene_private_annotations gpa ON gpa.gene_id = genes.id AND (gpa.cmg_tier1 = true OR gpa.cmg_tier2 = true)
+      JOIN gene_private_annotations gpa ON gpa.gene_id = genes.id
       LEFT JOIN (notifications JOIN contacts ON contacts.id = notifications.contact_id AND contacts.report_to_public is true) ON genes.id = notifications.gene_id
       LEFT JOIN intermediate_report ON intermediate_report.gene = genes.marker_symbol
-    GROUP BY genes.marker_symbol, genes.mgi_accession_id, gpa.idg, gpa.cmg_tier1, gpa.cmg_tier2, intermediate_report.overall_status
+    WHERE gpa.cmg_tier1 = true OR gpa.cmg_tier2 = true OR genes.cmg_tier1 = true OR genes.cmg_tier2 = true
+    GROUP BY genes.marker_symbol, genes.mgi_accession_id, genes.idg, genes.cmg_tier1, genes.cmg_tier2, gpa.cmg_tier1, gpa.cmg_tier2, intermediate_report.overall_status
     ORDER BY genes.marker_symbol
     EOF
 
@@ -114,19 +121,22 @@ class NotificationsByGene < PlannedMicroinjectionList
       SELECT
         genes.marker_symbol,
         count(*) as number_of_notifications,
-        gpa.idg,
-        gpa.cmg_tier1,
-        gpa.cmg_tier2,
+        genes.idg,
+        genes.cmg_tier1 AS public_cmg_tier1, 
+        genes.cmg_tier2 AS public_cmg_tier2, 
+        gpa.cmg_tier1 AS private_cmg_tier1, 
+        gpa.cmg_tier2 AS private_cmg_tier2,
         genes.marker_symbol as marker_symbol,
         genes.mgi_accession_id AS mgi_accession_id,
-        intermediate_report.overall_status AS status
+        intermediate_report.overall_status AS status,
+        'f' AS private
       FROM notifications
         JOIN contacts ON contacts.id = notifications.contact_id and contacts.report_to_public is true
         JOIN genes ON genes.id = notifications.gene_id
         JOIN gene_private_annotations gpa ON gpa.gene_id = genes.id
         LEFT JOIN intermediate_report ON intermediate_report.gene = genes.marker_symbol
         #{where_clause}
-      GROUP BY genes.marker_symbol, genes.mgi_accession_id, gpa.idg, gpa.cmg_tier1, gpa.cmg_tier2, intermediate_report.overall_status
+      GROUP BY genes.marker_symbol, genes.mgi_accession_id, genes.idg, genes.cmg_tier1, genes.cmg_tier2, gpa.cmg_tier1, gpa.cmg_tier2, intermediate_report.overall_status
       ORDER BY number_of_notifications desc, marker_symbol, intermediate_report.overall_status
     EOF
 

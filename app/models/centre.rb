@@ -21,6 +21,16 @@ class Centre < ActiveRecord::Base
     super
   end
 
+  def self.komp
+    return [
+      Centre.find_by_name('BCM'),
+      Centre.find_by_name('UCD'),
+      Centre.find_by_name('TCP'),
+      Centre.find_by_name('JAX'),
+      Centre.find_by_name('Harwell')
+    ]
+  end
+
   def self.readable_name
     return 'centre'
   end

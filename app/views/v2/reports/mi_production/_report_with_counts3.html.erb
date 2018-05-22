@@ -12,9 +12,11 @@
       <tr>
         <th>Gene</th>
         <th style="min-width:140px">MGI Accession</th>
-        <th style="min-width:100px">IDG</th>
-        <th style="min-width:100px">CMG Tier 1</th>
-        <th style="min-width:100px">CMG Tier 2</th>
+        <th style="min-width:100px">Public IDG</th>
+        <th style="min-width:100px">CMG Public Tier 1</th>
+        <th style="min-width:100px">CMG Public Tier 2</th>
+        <th class="private" style="min-width:100px">CMG Private Tier 1</th>
+        <th class="private" style="min-width:100px">CMG Private Tier 2</th>
         <th>Number of notifications</th>
         <th>Status</th>
         <th style="min-width:180px !important"># Clones</th>
@@ -28,19 +30,21 @@
     <tbody>
       <% @mi_plan_summary.each do |rec|%>
         <tr>
-          <td><%= rec['marker_symbol'] %></td>
-          <td><%= rec['mgi_accession_id'] %></td>
-          <td><%= rec['idg'] == 't' ? 'Yes' : '' %></td>
-          <td><%= rec['cmg_tier1'] == 't' ? 'Yes' : '' %></td>
-          <td><%= rec['cmg_tier2'] == 't' ? 'Yes' : '' %></td>
-          <td><%= rec['number_of_notifications'] %></td>
-          <td><%= rec['status'].to_s.humanize.titleize %></td>
-          <td><%= @pretty_print_types_of_cells_available[rec['marker_symbol']].to_s %></td>
-          <td><%= @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
-          <td><%= @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
-          <td><%= @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
-          <td><%= @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
-          <td><%= @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= rec['marker_symbol'] %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= rec['mgi_accession_id'] %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= rec['idg'] == 't' ? 'Yes' : '' %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= rec['public_cmg_tier1'] == 't' ? 'Yes' : '' %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= rec['public_cmg_tier2'] == 't' ? 'Yes' : '' %></td>
+          <td class="private"><%= rec['private_cmg_tier1'] == 't' ? 'Yes' : '' %></td>
+          <td class="private"><%= rec['private_cmg_tier2'] == 't' ? 'Yes' : '' %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= rec['number_of_notifications'] %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= rec['status'].to_s.humanize.titleize %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= @pretty_print_types_of_cells_available[rec['marker_symbol']].to_s %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td <% 'class="private"' if rec['private'] != 't' %> ><%= @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
         </tr>
       <% end %>
     </tbody>

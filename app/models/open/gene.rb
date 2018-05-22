@@ -165,6 +165,9 @@ end
 #  human_marker_symbol                :string(255)
 #  human_entrez_gene_id               :string(255)
 #  human_homolo_gene_id               :string(255)
+#  cmg_tier1                          :boolean          default(FALSE)
+#  cmg_tier2                          :boolean          default(FALSE)
+#  idg                                :boolean          default(FALSE)
 #
 # Indexes
 #

@@ -10,7 +10,7 @@
   <% else -%>
     | <%= link_to 'Go to TargRep', targ_rep_root_path %>
   <% end -%>
-
+  | <%= link_to 'Privacy Notice', 'https://www.ebi.ac.uk/data-protection/privacy-notice/imits-submissionservices' %>
 <% else %>
   <% url_str = request.fullpath['/open/'] ? request.fullpath.gsub(/\/open\//,'/') : new_user_session_path %>
   <%= link_to "login", url_str, :class => "ss_sprite ss_key" %>
@@ -19,4 +19,6 @@
   <% else -%>
     | <%= link_to 'Go to TargRep', targ_rep_root_path %>
   <% end -%>
+  | <%= link_to 'Privacy Notice', 'https://www.ebi.ac.uk/data-protection/privacy-notice/imits-i-dcc-org' %>
 <% end %>
+ 

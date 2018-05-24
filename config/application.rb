@@ -60,9 +60,9 @@ module TarMits
 
     #config.maintenance_mode.response = Proc.new { |env| [503, {'Content-Type' => 'text/html'}, [Rails.root.join("public/maintenance.html").read]] }
 
-    config.htgt_root = "http://www.sanger.ac.uk/htgt/htgt2"
-    config.wge_root = "http://www.sanger.ac.uk/htgt//wge"
-    config.lims2_root = "http://www.sanger.ac.uk/htgt/lims2"
+    config.htgt_root = "https://www.sanger.ac.uk/htgt/htgt2"
+    config.wge_root = "https://www.sanger.ac.uk/htgt/wge"
+    config.lims2_root = "https://www.sanger.ac.uk/htgt/lims2"
     config.mousemine_root = "http://www.mousemine.org/mousemine"
   end
 

@@ -255,16 +255,24 @@ class Colony < ApplicationModel
       colony_id = ids
     end
 
-    url_prefix = ''
-    if !Rails.env.development?
-      url_prefix = 'https://www.i-dcc.org/imits'
-    else
-      url_prefix = ''
-    end
-
-    "#{url_prefix}/colony/mut_nucleotide_sequences/__CHR__:__START__-__END__?ids=#{colony_id};feature=mutsequencetrack;content-type=application/json"
+    "#{self.url_prefix}/colony/mut_nucleotide_sequences/__CHR__:__START__-__END__?ids=#{colony_id};feature=mutsequencetrack;content-type=application/json"
   end
 
+  def self.trace_file_url(id)
+    "#{self.url_prefix}/colony/#{id}/evidence?download=trace"
+  end
+
+  def self.alignment_url(id)
+    "#{self.url_prefix}/colony/#{id}/evidence?download=alignment"
+  end
+
+  def self.vcf_url(id, view = 'download')
+    "#{self.url_prefix}/colony/#{id}/evidence?download=vcf#{view == 'in_browser' ? "&view=#{view}" : ''}"
+  end
+
+  def self.mutant_sequence_url(id, view = 'download')
+    "#{self.url_prefix}/colony/#{id}/evidence?download=mutant_sequence#{view == 'in_browser' ? "&view=#{view}" : ''}"
+  end
 end
 
 # == Schema Information

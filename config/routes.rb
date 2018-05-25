@@ -61,6 +61,7 @@ TarMits::Application.routes.draw do
 
   get "colony/trace_files/:id" => 'trace_file#show'
   get "colony/alleles/:id/:filename" => 'trace_file#show'
+  get "colony/:id/evidence" => 'colony#evidence'
 
   get "mutagenesis_factor/crisprs/:id" => 'mutagenesis_factor#crisprs'
   get "mutagenesis_factor/vector/:id"  => 'mutagenesis_factor#vector'

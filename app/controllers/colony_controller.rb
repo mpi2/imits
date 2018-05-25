@@ -1,4 +1,5 @@
 class ColonyController < ApplicationController
+  require 'rubygems/package'
 
   respond_to :json
 
@@ -30,6 +31,41 @@ class ColonyController < ApplicationController
 
     redirect_to :controller => 'phenotype_attempts', :action => :new, :colony_id => @colony.try(:id)
   end
+
+  def evidence
+    colony_id = params[:id]
+    download = params[:download]
+    serve_as = params.has_key?(:view) && ['in_browser', 'download'].include?(params[:view]) ? params[:view] : 'download'
+
+    colony = Colony.find(params[:id])
+    raise 'colony not found' if colony.blank?
+
+
+    downloads = {
+                  'trace' => {'data_files' => !colony.trace_files.blank? ? colony.trace_files.select{|tf| !tf.trace_file_name.blank?}.map{|tc| [tc.trace_file_name, tc.trace.file_contents] } : [] }, 
+                  'alignment' => {'data_files' => colony.alleles.select{|a| !a.bam_file?}.map{|a| ["#{a.gene.marker_symbol}_#{a.mgi_allele_symbol_superscript}_#{colony.name}_bam", a.bam_file]}}, 
+                  'vcf' => {'data_files' => colony.alleles.select{|a| !a.vcf_file.blank?}.map{|a| [ ["#{a.gene.marker_symbol}_#{a.mgi_allele_symbol_superscript}_#{colony.name}_vcf.gz", a.vcf_file], ["#{a.gene.marker_symbol}_#{a.mgi_allele_symbol_superscript}_#{colony.name}_vcf.gz.tbi", a.vcf_file_index] ] }.flatten(1)}, 
+                  'mutant_sequence' => {'data_files' => colony.alleles.select{|a| !a.mutant_fa.blank?}.map{|a| ["#{a.gene.marker_symbol}_#{a.mgi_allele_symbol_superscript}_#{colony.name}.fa", a.mutant_fa]}}
+                  }
+
+    raise "evidence contoller has not been configured for '#{download}'" if !downloads.has_key?(download)
+
+    raise 'no download available' if downloads[download]['data_files'].all?{|f| f[1].blank?}
+    file = StringIO.open("new.tar.gz", "wb")
+    Zlib::GzipWriter.wrap(file) do |gz|
+      Gem::Package::TarWriter.new(gz) do |tar|
+        downloads[download]['data_files'].each do |f|
+          tar.add_file_simple("#{f[0]}", 0444, f[1].length) do |io|
+            io.write(f[1])
+          end
+        end
+      end
+    end
+
+    send_data file.string, :filename => "#{colony.name}_evidence.tar.gz", :disposition => 'attachment'
+
+  end
+
 
   def mut_nucleotide_sequences
     position = params[:position]

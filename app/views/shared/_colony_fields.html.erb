@@ -78,14 +78,25 @@
                 <% alelle_generator = AlleleFieldGenerator.new(allele_builder) %>
 
                 <fieldset class="collapsible">
-                  <legend>Allele Characterization</legend>                
+                  <legend>Allele Characterization
+                    <% if !colony.alleles.first.vcf_file.blank? %>
+                    <%= link_to "View Allele Details", "/colony/show/#{colony.id}", :target => "_blank" %>
+                    <% elsif !colony.alleles.first.mutant_fa.blank? %>
+                    <span style="color:red;">(Allele Analysis Pending)</span>
+                    <% end %>
+                  </legend>
+                  <% if !colony.alleles.first.auto_allele_description.blank? %>
+                    <%= f.label :allele_description %>
+                    <p><%= colony.alleles.first.auto_allele_description %></p></br>
+                  <% end %>
+                  
                   <%= alelle_generator.mouse_allele_type_field %>
 
                 <% if mi_attempt.es_cell.blank?%> 
                   <%= alelle_generator.mouse_allele_subtype_field %>
                   <%= alelle_generator.check_box :contains_lacZ, :label => 'Allele contains LacZ?' %>
                   <%= alelle_generator.text_area :mutant_fa, :label => 'Mutant Nucleotide Sequence (FASTA format; >100 bp flanking regions)' %>
-                  <%= alelle_generator.text_area :allele_description %>
+                  <%= alelle_generator.text_area :allele_description , :label => "Centres Allele Notes"%>
                 </fieldset>
 
                   <fieldset class="collapsible">

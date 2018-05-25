@@ -24,6 +24,14 @@ class ApplicationModel < ActiveRecord::Base
     end
   end
 
+  def self.url_prefix
+    if !Rails.env.development?
+       return 'https://www.i-dcc.org/imits'
+    else
+      return ''
+    end
+  end
+
   public
 
   # END Callbacks

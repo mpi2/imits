@@ -102,16 +102,33 @@
     </div>
   </div>
 
+  <!-- imits-submissionservices -->
+  <div id="data-protection-message-configuration"
+  data-message="This website requires cookies, and the limited processing of your personal data in order to function. By using the site you are agreeing to this as outlined in our <a target='_blank' href='https://www.ebi.ac.uk/data-protection/privacy-notice/<%= user_signed_in? ? 'imits-submissionservices' : 'imits-i-dcc-org' %>'>Privacy Notice</a> and <a target='_blank' href='https://www.ebi.ac.uk/about/terms-of-use'>Terms of Use</a>." data-service-id="<%= user_signed_in? ? 'imits-submissionservices' : 'imits-i-dcc-org' %>" data-data-protection-version="0.1"></div>
+
+  <script type="text/javascript">
+    var localFrameworkVersion = 'other'; // 1.1 or 1.2 or compliance or other
+    // if you select compliance or other we will add some helpful
+    // CSS styling, but you may need to add some CSS yourself
+    var newDataProtectionNotificationBanner = document.createElement('script');
+    newDataProtectionNotificationBanner.src = 'https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/js/ebi-global-includes/script/5_ebiFrameworkNotificationBanner.js?legacyRequest='+localFrameworkVersion;
+    document.head.appendChild(newDataProtectionNotificationBanner);
+    newDataProtectionNotificationBanner.onload = function() {
+      ebiFrameworkRunDataProtectionBanner(); // invoke the banner
+    };
+  </script>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-43136334-2', 'mousephenotype.org');
+    ga('send', 'pageview');
+
+  </script>
+
 </body>
 </html>
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-43136334-2', 'mousephenotype.org');
-  ga('send', 'pageview');
-
-</script>

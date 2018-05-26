@@ -244,7 +244,8 @@ class Allele < ApplicationModel
         bcsq_transcripts = []
         bcsq_linked = ''
         downstream_of_stop = false
-        if bcsq[0] == '@'
+        if bcsq.blank?
+        elsif bcsq[0] == '@'
           bcsq_linked = bcsq[1..-1]
         elsif bcsq[0] == '*'
           downstream_of_stop = true
@@ -253,10 +254,10 @@ class Allele < ApplicationModel
         end
         amino_acid_consequence = {}
         bcsq_transcripts.each do |tran| 
-          tran_fileds = tran.split{'|'}
-          next if tran_field.length < 7
-          amino_acid_consequence[tran_field[ index_bcsq['amino_acid_change'] ]] = [] if !amino_acid_consequence.has_key?(tran_field[ index_bcsq['amino_acid_change'] ])
-          amino_acid_consequence[tran_field[ index_bcsq['amino_acid_change'] ]] << amino_acid_consequence[tran_field[ index_bcsq['transcript'] ]]
+          tran_fields = tran.split{'|'}
+          next if tran_fields.length < 7
+          amino_acid_consequence[tran_fields[ index_bcsq['amino_acid_change'] ]] = [] if !amino_acid_consequence.has_key?(tran_fields[ index_bcsq['amino_acid_change'] ])
+          amino_acid_consequence[tran_fields[ index_bcsq['amino_acid_change'] ]] << amino_acid_consequence[tran_fields[ index_bcsq['transcript'] ]]
         end
 
         amino_acid_str = ''

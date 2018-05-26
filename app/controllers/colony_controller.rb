@@ -43,7 +43,7 @@ class ColonyController < ApplicationController
 
     downloads = {
                   'trace' => {'data_files' => !colony.trace_files.blank? ? colony.trace_files.select{|tf| !tf.trace_file_name.blank?}.map{|tc| [tc.trace_file_name, tc.trace.file_contents] } : [] }, 
-                  'alignment' => {'data_files' => colony.alleles.select{|a| !a.bam_file?}.map{|a| ["#{a.gene.marker_symbol}_#{a.mgi_allele_symbol_superscript}_#{colony.name}_bam", a.bam_file]}}, 
+                  'alignment' => {'data_files' => colony.alleles.select{|a| !a.bam_file.blank?}.map{|a| ["#{a.gene.marker_symbol}_#{a.mgi_allele_symbol_superscript}_#{colony.name}.bam", a.bam_file]}}, 
                   'vcf' => {'data_files' => colony.alleles.select{|a| !a.vcf_file.blank?}.map{|a| [ ["#{a.gene.marker_symbol}_#{a.mgi_allele_symbol_superscript}_#{colony.name}_vcf.gz", a.vcf_file], ["#{a.gene.marker_symbol}_#{a.mgi_allele_symbol_superscript}_#{colony.name}_vcf.gz.tbi", a.vcf_file_index] ] }.flatten(1)}, 
                   'mutant_sequence' => {'data_files' => colony.alleles.select{|a| !a.mutant_fa.blank?}.map{|a| ["#{a.gene.marker_symbol}_#{a.mgi_allele_symbol_superscript}_#{colony.name}.fa", a.mutant_fa]}}
                   }

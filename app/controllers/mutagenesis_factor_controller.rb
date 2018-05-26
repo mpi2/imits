@@ -64,7 +64,9 @@ class MutagenesisFactorController < ApplicationController
       chr, coord = position.split(':')
       coord_start, coord_end = coord.split('-')
     end
-
+    chr = 'x' if chr == 'X'
+    chr = 'y' if chr == 'Y'
+    
     crisprs = []
     @crisprs_list = []
 

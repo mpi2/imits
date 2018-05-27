@@ -499,7 +499,7 @@ class Allele < ApplicationModel
     raise 'cannot set allele description for colonies not produced via cripsr mi' if mi_attempt.blank? || mi_attempt.mutagenesis_factor_id.blank?
 
     mutagenesis_factor = mi_attempt.mutagenesis_factor
-    cripsrs = mutagenesis_factor.crisprs
+    crisprs = mutagenesis_factor.crisprs
     donors = mutagenesis_factor.donors
     centre_name = mi_attempt.mi_plan.production_centre.full_name
 
@@ -510,8 +510,12 @@ class Allele < ApplicationModel
       nuclease = "#{mi_attempt.mrna_nuclease} RNA"
     end
 
-    grna_str = ''
-    grna_str << 's ' if crisprs.length > 1
+    if crisprs.length > 1
+      grna_str = 's ' 
+    else
+      grna_str = ' '
+    end
+    
     grna_str << crisprs.map{|c| c.sequence}.to_sentence
 
 
@@ -530,16 +534,95 @@ class Allele < ApplicationModel
 
     target_region = [crisprs.map{|c| c.start}.min , crisprs.map{|c| c.end}.max]
 
-    mutations = []
-    upstream_mutations = []
-    downstream_mutations =[]
-    cause = ''
+    mapping = {"DEL" => 'deletion', "SNP" => 'snp', "INS" => 'insertion', 
+    "ITX" => 'insertion', "INVITX" => 'insertion', "INV" => 'inversion', 
+    "DUP:TANDEM" => 'insertion', "INS:FRT" => 'insertion', 
+    "INS:LOXP" => 'insertion', "CTX" => 'insertion', "INVCTX" => 'inverted insertion', "INDEL" => 'indel'}
 
-    annotations.sort{|a1, a2| (a1.end - a1.start) <=> (a2.end - a1.start) }
+    snps = {'intronic' => [], 'exonic' => []}
+    del = {'intronic' => [], 'exonic' => []}
+    ins = {'intronic' => [], 'exonic' => []}
+    inv = {'intronic' => [], 'exonic' => []}
 
-    allele_description = "This allele from IMPC was generated at #{centre_name} by injecting #{mutagenesis_factor_array.to_sentence}, which resulted in a"
+    annotations.each do |a|
+      del['intronic'] << a if ["DEL", "INDEL"].include?(a.mod_type) && a.intronic
+      del['exonic'] << a if ["DEL", "INDEL"].include?(a.mod_type) && !a.intronic
+      ins['intronic'] if ["INS", "ITX", "INVITX", "DUP:TANDEM", "INS:FRT", "INS:LOXP", "CTX", "INVCTX"].include?(a.mod_type) && a.intronic
+      ins['exonic'] << a if ["INS", "ITX", "INVITX", "DUP:TANDEM", "INS:FRT", "INS:LOXP", "CTX", "INVCTX"].include?(a.mod_type) && !a.intronic
+      snps['intronic'] << a if ["SNP"].include?(a.mod_type) && a.intronic
+      snps['exonic'] << a if ["SNP"].include?(a.mod_type) && !a.intronic
+      inv['intronic'] << a if ["INV"].include?(a.mod_type) && a.intronic
+      inv['exonic'] << a if ["INV"].include?(a.mod_type) && !a.intronic
+    end
+
+    mutations = {}
+    upstream = []
+    downstream = []
+    inside = []
+
+    (del['exonic'] + ins['exonic'] + inv['exonic']).each do |a|
+      start = !a.linked_concequence.blank? ? a.linked_concequence : a.start
+      mutations[start] = [{ 'coding_sequence' => false, 'splice_acceptor' => false, 'splice_donor' => false, 'frameshift' => false},[]] if !mutations.has_key?(a.start)
+      mutations[start][0]['coding_sequence'] = true if a.protein_coding_region == true
+      mutations[start][0]['splice_acceptor'] = true if a.splice_acceptor == true
+      mutations[start][0]['splice_donor'] = true if a.splice_donor == true
+      mutations[start][0]['frameshift'] = true if a.frameshift == true
+        
+      mutations[a.start][1] << {'type' => mapping[a.mod_type], 'size' => (a.end - a.start).abs, 'sequence' => a.ref_seq.length < a.alt_seq.length ? a.alt_seq[( a.ref_seq.length)..-1] : a.ref_seq[( a.alt_seq.length)..-1], 'start' => a.start, 'end' => a.end, 'chr' => a.chr}
+    end
+    puts "#{mutations.keys}"
+
+    if !mutations.keys.blank?
+      region_start = mutations.keys.min 
+      region_end = mutations.keys.max
+      (del['intronic'] + ins['intronic'] + inv['intronic']).each do |a|
+        if (a.start >= region_start && a.start <= region_end) || (a.end <= region_end && a.end >= region_start)
+          inside << {'type' => mapping[a.mod_type], 'size' => (a.end - a.start + 1).abs, 'sequence' => a.ref_seq.length < a.alt_seq.length ? a.alt_seq[( a.ref_seq.length)..-1] : a.ref_seq[( a.alt_seq.length)..-1], 'start' => a.start, 'end' => a.end, 'chr' => a.chr}
+        elsif a.end < region_start
+          upstream << {'type' => mapping[a.mod_type], 'size' => (a.end - a.start + 1).abs, 'sequence' => a.ref_seq.length < a.alt_seq.length ? a.alt_seq[( a.ref_seq.length)..-1] : a.ref_seq[( a.alt_seq.length)..-1], 'start' => a.start, 'end' => a.end, 'chr' => a.chr}
+        elsif a.start > region_end
+          downstream << {'type' => mapping[a.mod_type], 'size' => (a.end - a.start + 1).abs, 'sequence' => a.ref_seq.length < a.alt_seq.length ? a.alt_seq[( a.ref_seq.length)..-1] : a.ref_seq[( a.alt_seq.length)..-1], 'start' => a.start, 'end' => a.end, 'chr' => a.chr}
+        end
+      end
+    end  
+    
+    compiling_mut_arr = []
+    mutations.each do |key, value|
+      mut_arr = []
+      consequence = []
+      consequence << "cause a frameshift" if value[0]['frameshift'] == true
+      consequence << "remove coding sequence" if value[0]['coding_sequence'] == true && value[0]['frameshift'] == false && value[1].any?{|m| m['type'] == 'deletion'}
+      consequence << "remove the splice acceptor" if value[0]['splice_acceptor'] == true && value[1].any?{|m| m['type'] == 'deletion'}
+      consequence << "remove the splice donor" if value[0]['splice_donor'] == true && value[1].any?{|m| m['type'] == 'deletion'}
+      mutation_description = value[1]
+      mutation_description.each do |md|
+        mut_arr << "#{md['size']} bp #{md['type']} #{md['size'] < 10 ? "#{md['sequence']}, " : ''}beginning at Chromosome #{md['chr']} position #{md['start']} (GRCm38/mm10)"
+      end
+      mut_str = mut_arr.to_sentence
+      mut_str << " that is predicted to #{consequence.to_sentence}." unless consequence.blank?
+      compiling_mut_arr << mut_str
+    end
+
+    ind_arr = []
+    inside.each do |ind|
+      ind_arr << "#{ind['size']} bp #{ind['type']} at position #{ind['start']}"
+    end
+    ins_str = ind_arr.blank? ? "" : " In addition there is a #{ind_arr.to_sentence} in the intron sequence, which will not affect the exon deletion"
+
+    upstream_arr = []
+    upstream.each do |ind|
+      upstream_arr << "#{ind['size']} bp #{ind['type']} at position #{ind['start']}"
+    end
+    upstream_str = upstream_arr.blank? ? "" : " Upstream of the deletion there is a #{upstream_arr.to_sentence}, which will not affect the exon deletion"
+
+    downstream_arr = []
+    downstream.each do |ind|
+      downstream_arr << "#{ind['size']} bp #{ind['type']} at position #{ind['start']}"
+    end
+    downstream_str = downstream_arr.blank? ? "" : " Downstream of the deletion there is a #{downstream_arr.to_sentence}, which will not affect the exon deletion"
+
+    allele_description = "This allele from IMPC was generated at #{centre_name} by injecting #{mutagenesis_factor_array.to_sentence}, which resulted in a #{compiling_mut_arr.join(' There is also ')}#{ins_str}#{upstream_str}#{downstream_str}"
   end
-
 end
 
 # == Schema Information

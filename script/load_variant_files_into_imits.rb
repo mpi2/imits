@@ -102,3 +102,9 @@ f.readlines.each do |line|
     invalid4 << a
   end
 end
+
+Allele.where("vcf_file IS NOT NULL").each do |a|
+  next if a.annotations.blank?
+  a.auto_allele_description = Allele.generate_allele_description( {'allele_id' => a.id} )
+  raise "Error saving allele #{a.id}" unless a.save
+end

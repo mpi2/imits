@@ -1,4 +1,4 @@
-class MutagenesisFactor < ActiveRecord::Base
+class MutagenesisFactor < ApplicationModel
   acts_as_audited
 
   NUCLEASES = [nil, 'CAS9', 'D10A'].freeze
@@ -93,14 +93,7 @@ class MutagenesisFactor < ActiveRecord::Base
       mutagenesis_factor_id = ids
     end
 
-    url_prefix = ''
-    if !Rails.env.development?
-      url_prefix = 'https://www.i-dcc.org/imits'
-    else
-      url_prefix = ''
-    end
-
-    "#{url_prefix}/mutagenesis_factor/designs/__CHR__:__START__-__END__?ids=#{mutagenesis_factor_id};feature=crisprtrack;content-type=application/json"
+    "#{self.url_prefix}/mutagenesis_factor/designs/__CHR__:__START__-__END__?ids=#{mutagenesis_factor_id};feature=crisprtrack;content-type=application/json"
   end
 end
 

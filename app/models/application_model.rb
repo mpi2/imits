@@ -25,8 +25,12 @@ class ApplicationModel < ActiveRecord::Base
   end
 
   def self.url_prefix
-    if !Rails.env.development?
-       return 'https://www.i-dcc.org/imits'
+    if Rails.env.production?
+      return 'https://www.i-dcc.org/imits'
+    elsif Rails.env.beta?
+      return 'https://www.i-dcc.org/beta/imits'
+    elsif Rails.env.dev? 
+      return 'https://www.i-dcc.org/dev/imits'
     else
       return ''
     end

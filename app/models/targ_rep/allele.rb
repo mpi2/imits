@@ -314,7 +314,7 @@ class TargRep::Allele < ActiveRecord::Base
       if ["NHEJ", "Deletion", "HR", "HDR"].include?(modified_allele_type)
         return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg" if ["Indel", "Intra-exdel deletion"].include?(modified_allele_subtype)
         return "https://www.i-dcc.org/imits/images/targ_rep/crispr_exon_deletion_map.jpg" if ['Exon Deletion', 'Inter-exdel deletion', 'Whole-gene deletion'].include?(modified_allele_subtype)
-        return "https://www.i-dcc.org/imits/images/targ_rep/crispr_conditional_map.jpg" if modified_allele_subtype = "Conditional Ready"
+        return "https://www.i-dcc.org/imits/images/targ_rep/crispr_conditional_map.jpg" if modified_allele_subtype == "Conditional Ready"
         return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_hdr_map.jpg" if modified_allele_type == 'HDR' || ['Null reporter', 'Point Mutation'].include?(modified_allele_subtype)
       end
 
@@ -344,7 +344,7 @@ class TargRep::Allele < ActiveRecord::Base
       if ["NHEJ", "Deletion", "HR", "HDR"].include?(modified_allele_type)
         return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg" if ["Indel", "Intra-exdel deletion"].include?(modified_allele_subtype)
         return "https://www.i-dcc.org/imits/images/targ_rep/crispr_exon_deletion_map.jpg" if ['Exon Deletion', 'Inter-exdel deletion', 'Whole-gene deletion'].include?(modified_allele_subtype)
-        return "https://www.i-dcc.org/imits/images/targ_rep/crispr_conditional_map.jpg" if modified_allele_subtype = "Conditional Ready"
+        return "https://www.i-dcc.org/imits/images/targ_rep/crispr_conditional_map.jpg" if modified_allele_subtype == "Conditional Ready"
         return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_hdr_map.jpg" if modified_allele_type == 'HDR' || ['Null reporter', 'Point Mutation'].include?(modified_allele_subtype)
       end
 

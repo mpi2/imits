@@ -236,7 +236,8 @@ class Allele < ApplicationModel
       vcf_file = get_vcf_file.read.split("\n").select{|vcf| vcf[0] != '#'}
 
       index = {'CHROM' => 0, 'POS' => 1, 'ID' => 2, 'REF' => 3, 'ALT' => 4, 'QUAL' => 5, 'FILTER' => 6, 'INFO' => 7}
-      index_bcsq = {'consequence' => 0, 'gene' => 1, 'transcript' => 2, 'biotype' => 3, 'strand' => 4, 'amino_acid_change' => 5, 'dna_change' => 6}
+      index_bcsq = {'consequence' => 0, 'gene' => 1, 'transcript' => 2, 'biotype' => 3, 'biotype_name' => -2, 'biotype_proportion_affected' => -1}
+      optional_index_bcsq = {'strand' => 4, 'amino_acid_change' => 5, 'dna_change' => 6}
       vcf_file.each do |vcf_line|
         vcf_data = vcf_line.split("\t")
         info = vcf_data[ index['INFO'] ].split(";").map{|info_string| i = info_string.split("="); [i[0], i[1]]}.to_h
@@ -252,17 +253,6 @@ class Allele < ApplicationModel
         else
           bcsq_transcripts = bcsq.split(',')
         end
-        amino_acid_consequence = {}
-        bcsq_transcripts.each do |tran| 
-          tran_fields = tran.split{'|'}
-          next if tran_fields.length < 7
-          amino_acid_consequence[tran_fields[ index_bcsq['amino_acid_change'] ]] = [] if !amino_acid_consequence.has_key?(tran_fields[ index_bcsq['amino_acid_change'] ])
-          amino_acid_consequence[tran_fields[ index_bcsq['amino_acid_change'] ]] << amino_acid_consequence[tran_fields[ index_bcsq['transcript'] ]]
-        end
-
-        amino_acid_str = ''
-        amino_acid_str = amino_acid_consequence.map{|aac, transcripts| ">#{transcripts.join('&')}\n#{aac}" }.join("\n")
-
 
         chromosome = vcf_data[ index['CHROM'] ]
         start_pos = vcf_data[ index['POS'] ]
@@ -270,19 +260,79 @@ class Allele < ApplicationModel
         sv_type = info['SVTYPE']
         ref = vcf_data[ index['REF'] ]
         alt = vcf_data[ index['ALT'] ]
+
+        if ['DEL', 'INDEL'].include?(sv_type)
+          start_pos += 1
+          alt = ''
+          ref = ref[1..-1]
+        end
+
+        amino_acid_consequence = {}
+        exdel = {}
+        partial_exdels = {}
+        bcsq_transcripts.each do |tran|
+          tran_fields = tran.split{'|'}
+#         first 4 fields always exist
+          next if tran_fields[ index_bcsq['biotype'] ] == 'NMD'
+
+          if tran_fields.length == 6 || tran_fields.length == 9
+            # last two fields should be biotype_name & biotype_proportion_affected. If they exist then there will either be 6 or 9 columns returned in the BSCQ field
+            bpa = tran_fields[ index_bcsq['biotype_proportion_affected'] ].split('&')
+            bn = tran_fields[ index_bcsq['biotype_name'] ].split('&')
+
+            exon_list = []
+            partial_exon_list = []
+            bpa.each_index do |i|
+              next unless bn[i] =~ /exon/ 
+              if bpa[i].to_f == 1.0
+                exon_list << bn[i]
+              else
+                partial_exon_list << bn[i]
+              end
+            end
+
+            splice_acceptor = tran =~ /splice_acceptor/
+            splice_donor = tran =~ /splice_donor/
+            protein_coding = tran =~ /protein_coding/
+            intron = tran =~ /intron/
+            retained_intron = tran =~ /retained_intron/
+            frameshift = tran =~ /frameshift/
+            inframe_deletion = tran =~ /inframe_deletion/
+            inframe_insertion = tran =~ /inframe_insertion/
+            stop_gained = tran =~ /stop_gained/
+            stop_lost = tran =~ /stop_lost/
+            three_prime = tran =~ /3_prime_utr/
+
+
+            key = {:protein_coding_region => ,
+                   :exdel => exon_list.join('&'),
+                   :partial_exdel => partial_exon_list.join('&'), 
+                   :intronic => , 
+                   :splice_donor => , 
+                   :splice_acceptor => , 
+                   :frameshift => , 
+                   :stop_gained => ,
+                 }
+            exdel[key] = [] if !exdel.has_key?( exon_key )
+            exdel[key] << tran_fields['transcript']
+            
+          elsif tran_fields.length > 6
+            # if there are more than 6 fields then the optional fields have been provided
+
+          else
+            next
+          end
+
+
+          amino_acid_consequence[tran_fields[ index_bcsq['amino_acid_change'] ]] = [] if !amino_acid_consequence.has_key?(tran_fields[ index_bcsq['amino_acid_change'] ])
+          amino_acid_consequence[tran_fields[ index_bcsq['amino_acid_change'] ]] << amino_acid_consequence[tran_fields[ index_bcsq['transcript'] ]]
+        end
+
+        amino_acid_str = ''
+        amino_acid_str = amino_acid_consequence.map{|aac, transcripts| ">#{transcripts.join('&')}\n#{aac}" }.join("\n")
         
-        splice_acceptor = bcsq =~ /splice_acceptor/
-        splice_donor = bcsq =~ /splice_donor/
-        protein_coding = bcsq =~ /protein_coding/
-        intron = bcsq =~ /intron/
-        retained_intron = bcsq =~ /retained_intron/
-        frameshift = bcsq =~ /frameshift/
-        inframe_deletion = bcsq =~ /inframe_deletion/
-        inframe_insertion = bcsq =~ /inframe_insertion/
-        stop_gained = bcsq =~ /stop_gained/
-        three_prime = bcsq =~ /3_prime_utr/
-        nmd = bcsq =~ /NMD/
-        txc = info['TXC'].split(',') if info.has_key?('TXC')
+
+        dup_coords = info['DUPCOORDS'].split(',') if info.has_key?('DUPCOORDS')
         
         if sv_type.blank?
           sv_type = 'SNP' if ref.length == alt.length
@@ -303,16 +353,8 @@ class Allele < ApplicationModel
           :alt_seq => alt,
           :linked_concequence => !bcsq_linked.blank? ? bcsq_linked : '',
           :downstream_of_stop => downstream_of_stop,
-          :exdels => exdels,
-          :partial_exdels => partial_exdels,
-          :splice_donor => splice_donor.blank? ? false : true,
-          :splice_acceptor => splice_acceptor.blank? ? false : true,
-          :protein_coding_region => protein_coding.blank? ? false : true,
-          :stop_gained => stop_gained.blank? ? false : true,
-          :intronic => intron.blank? ? false : true,
-          :frameshift => frameshift.blank? ? false : true,
           :amino_acid => amino_acid_str,
-          :txc => txc.blank? ? '' : "#{txc[0]}:{txc[1]}-{txc[2]}"
+          :dup_coords => dup_coords.blank? ? '' : "#{dup_coords[0]}:{dup_coords[1]}-{dup_coords[2]}"
           })
       end
     end

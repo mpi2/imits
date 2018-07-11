@@ -18,11 +18,11 @@ class ImpcCentreByMonthReport
   end
 
   def by_month_mis
-    @by_month_mi ||= ActiveRecord::Base.connection.execute(self.class.by_month_mi_sql( @category == 'crispr' ? 'true' : 'false')).to_a
+    @by_month_mi ||= ActiveRecord::Base.connection.execute(self.class.by_month_mi_sql( @category == 'crispr' ? ['true'] : (@category == 'all' ? ['true', 'false'] : ['false']) )).to_a
   end
 
   def by_month_genes
-    @by_month_genes ||= ActiveRecord::Base.connection.execute(self.class.by_month_genes_sql( @category == 'crispr' ? 'true' : 'false')).to_a
+    @by_month_genes ||= ActiveRecord::Base.connection.execute(self.class.by_month_genes_sql( @category == 'crispr' ? ['true'] : (@category == 'all' ? ['true', 'false'] : ['false']) )).to_a
   end
 
   def cumulative_clones
@@ -30,11 +30,11 @@ class ImpcCentreByMonthReport
   end
 
   def cumulative_mis
-    @cumulative_mis ||= ActiveRecord::Base.connection.execute(self.class.cumulative_mi_sql(self.class.real_start_date, @category == 'crispr' ? 'true' : 'false')).to_a
+    @cumulative_mis ||= ActiveRecord::Base.connection.execute(self.class.cumulative_mi_sql(self.class.real_start_date, @category == 'crispr' ? ['true'] : (@category == 'all' ? ['true', 'false'] : ['false']) )).to_a
   end
 
   def cumulative_genes
-    @cumulative_cre ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.real_start_date, @category == 'crispr' ? 'true' : 'false') ).to_a
+    @cumulative_cre ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.real_start_date, @category == 'crispr' ? ['true'] : (@category == 'all' ? ['true', 'false'] : ['false']) )).to_a
   end
 
   def cumulative_received
@@ -56,9 +56,9 @@ class ImpcCentreByMonthReport
   def generate_cumulatives
     total_to_date = {}
 
-    to_date_cumulative ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.end_date, @category == 'crispr' ? 'true' : 'false') ).to_a
+    to_date_cumulative ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.end_date, @category == 'crispr' ? ['true'] : (@category == 'all' ? ['true', 'false'] : ['false'])) ).to_a
     to_date_clones = ActiveRecord::Base.connection.execute(self.class.cumulative_clones_sql(self.class.end_date) ).to_a
-    to_date_mis ||= ActiveRecord::Base.connection.execute(self.class.cumulative_mi_sql(self.class.end_date, @category == 'crispr' ? 'true' : 'false') ).to_a
+    to_date_mis ||= ActiveRecord::Base.connection.execute(self.class.cumulative_mi_sql(self.class.end_date, @category == 'crispr' ? ['true'] : (@category == 'all' ? ['true', 'false'] : ['false'])) ).to_a
     to_date_received = ActiveRecord::Base.connection.execute(self.class.cumulative_received_sql(self.class.end_date) ).to_a
 
     (to_date_mis + to_date_clones + to_date_cumulative).each do |report_row|
@@ -179,11 +179,11 @@ class ImpcCentreByMonthReport
     def filter_by_centre_consortium
         @filter_by_centre_consortium ||=
         {'HMGU' => ['Helmholtz GMC'],
-         'ICS' => ['Phenomin', 'Helmholtz GMC'],
-         'BCM' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'BCM' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
-         'TCP' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'TCP' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
-         'JAX' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'JAX' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
-         'RIKEN BRC' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'RIKEN BRC' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
+         'ICS' => ['Phenomin'],
+         'BCM' => ['BaSH'],
+         'TCP' => ['NorCOMM2', 'DTCC'],
+         'JAX' => ['JAX'],
+         'RIKEN BRC' => ['RIKEN BRC'],
          'Harwell' => ['BaSH', 'MRC'],
          'UCD' => ['DTCC'],
          'WTSI' => ['MGP', 'BaSH'],
@@ -241,7 +241,7 @@ class ImpcCentreByMonthReport
     end
 
 
-    def cumulative_mi_sql(cut_off_date, category_condition = 'false')
+    def cumulative_mi_sql(cut_off_date, category_condition = ['false'])
       <<-EOF
         WITH
           counts AS (
@@ -249,7 +249,7 @@ class ImpcCentreByMonthReport
               centres.name AS production_centre,
               count(*) AS mi_in_progress_count
             FROM mi_attempts
-              JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
+              JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 IN (#{category_condition.join(', ')})
               JOIN centres ON centres.id = mi_plans.production_centre_id
               JOIN consortia ON consortia.id = mi_plans.consortium_id
               JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at <= '#{cut_off_date}'
@@ -358,7 +358,7 @@ class ImpcCentreByMonthReport
       EOF
     end
 
-    def cumulative_genes_sql (cut_off_date, category_condition = 'false')
+    def cumulative_genes_sql (cut_off_date, category_condition = ['false'])
       <<-EOF
 
         WITH
@@ -369,7 +369,7 @@ class ImpcCentreByMonthReport
                   centres.name AS production_centre_name,
                   consortia.name AS consortium_name
                 FROM genes
-                JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
+                JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 IN (#{category_condition.join(', ')})
                 JOIN centres ON centres.id = mi_plans.production_centre_id
                 JOIN consortia ON consortia.id = mi_plans.consortium_id
 
@@ -518,7 +518,7 @@ class ImpcCentreByMonthReport
       EOF
     end
 
-    def by_month_mi_sql(category_condition = 'false')
+    def by_month_mi_sql(category_condition = ['false'])
       <<-EOF
         WITH series AS (
           SELECT generate_series('#{start_date}', '#{end_date}', interval '1 month')::date as date
@@ -529,7 +529,7 @@ class ImpcCentreByMonthReport
           centres.name AS production_centre,
           date_trunc('MONTH', mip_stamps.created_at) as mip_date
         FROM mi_attempts
-        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
+        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id AND mi_plans.mutagenesis_via_crispr_cas9 IN (#{category_condition.join(', ')})
         JOIN centres ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
 
@@ -641,7 +641,7 @@ class ImpcCentreByMonthReport
       EOF
     end
 
-    def by_month_genes_sql( category_condition = 'false' )
+    def by_month_genes_sql( category_condition = ['false'] )
       <<-EOF
         WITH series AS (
           SELECT generate_series('#{start_date}', '#{end_date}', interval '1 month')::date as date
@@ -653,7 +653,7 @@ class ImpcCentreByMonthReport
           centres.name AS production_centre_name,
           consortia.name AS consortium_name
         FROM genes
-        JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 = #{category_condition}
+        JOIN mi_plans ON mi_plans.gene_id = genes.id AND mi_plans.mutagenesis_via_crispr_cas9 IN (#{category_condition.join(', ')})
         JOIN centres ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
 

@@ -17,12 +17,11 @@ class Colony < ApplicationModel
 
   has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :inverse_of => :colony, :dependent => :destroy
   has_many :alleles, :dependent => :destroy, :inverse_of => :colony
-
-  has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceCall"
+  has_many :trace_files, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceFile"
 
   access_association_by_attribute :background_strain, :name
 
-  accepts_nested_attributes_for :trace_call
+  accepts_nested_attributes_for :trace_files, :allow_destroy => true 
   accepts_nested_attributes_for :alleles, :allow_destroy => true 
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
   accepts_nested_attributes_for :phenotyping_productions, :allow_destroy => true
@@ -39,7 +38,6 @@ class Colony < ApplicationModel
   end
 
   before_validation :set_default_alleles
-  before_validation :set_default_trace_file
 
   before_save :set_default_background_strain_for_crispr_produced_colonies
 
@@ -100,14 +98,6 @@ class Colony < ApplicationModel
      end
   end
   protected :set_default_alleles
-
-  def set_default_trace_file
-    if !mi_attempt_id.blank? && !mi_attempt.mutagenesis_factor.blank? && trace_call.blank?
-       trace_call_attr = {}
-       self.trace_call_attributes = trace_call_attr 
-    end
-  end
-  protected :set_default_trace_file
 
   def set_default_background_strain_for_crispr_produced_colonies
     return unless self.background_strain_id.blank?
@@ -189,7 +179,7 @@ class Colony < ApplicationModel
   end
 
   def trace_call_attributes
-    return trace_call(&:as_json) unless trace_call.blank?
+    return trace_files(&:as_json) unless trace_files.blank?
     return nil
   end
 
@@ -254,32 +244,35 @@ class Colony < ApplicationModel
             EOF
   end
 
-  def get_mutant_nucleotide_sequence_features
-    mut_seq_features = []
-
-    alleles.each do |a|
-      a.annotations.each do |tc_mod|
-        mut_seq_feature = {
-          'chr'          => mi_attempt.mi_plan.gene.chr,
-          'strand'       => mi_attempt.mi_plan.gene.strand_name,
-          'start'        => tc_mod.start,
-          'end'          => tc_mod.end,
-          'ref_sequence' => tc_mod.ref_seq,
-          'alt_sequence' => tc_mod.alt_seq,
-          'sequence'     => tc_mod.alt_seq,
-          'mod_type'     => tc_mod.mod_type
-        }
-        mut_seq_features.push( mut_seq_feature.as_json )
-      end
-    end
-
-    return mut_seq_features
-  end
-
   def allele_annotations_available 
     alleles.any?{|a| !a.annotations.blank?}
   end
-    
+   
+  def self.mut_sequences_track_url(ids)
+    if ids.is_a?(Array) 
+      colony_id = ids.join(',')
+    else
+      colony_id = ids
+    end
+
+    "#{self.url_prefix}/colony/mut_nucleotide_sequences/__CHR__:__START__-__END__?ids=#{colony_id};feature=mutsequencetrack;content-type=application/json"
+  end
+
+  def self.trace_file_url(id)
+    "#{self.url_prefix}/colony/#{id}/evidence?download=trace"
+  end
+
+  def self.alignment_url(id)
+    "#{self.url_prefix}/colony/#{id}/evidence?download=alignment"
+  end
+
+  def self.vcf_url(id, view = 'download')
+    "#{self.url_prefix}/colony/#{id}/evidence?download=vcf#{view == 'in_browser' ? "&view=#{view}" : ''}"
+  end
+
+  def self.mutant_sequence_url(id, view = 'download')
+    "#{self.url_prefix}/colony/#{id}/evidence?download=mutant_sequence#{view == 'in_browser' ? "&view=#{view}" : ''}"
+  end
 end
 
 # == Schema Information

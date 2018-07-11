@@ -85,6 +85,23 @@ class MutagenesisFactor < ActiveRecord::Base
   def genotype_primers_attributes
     return genotype_primers
   end
+
+  def self.design_track_url(ids)
+    if ids.is_a?(Array) 
+      mutagenesis_factor_id = ids.join(',')
+    else
+      mutagenesis_factor_id = ids
+    end
+
+    url_prefix = ''
+    if !Rails.env.development?
+      url_prefix = 'https://www.i-dcc.org/imits'
+    else
+      url_prefix = ''
+    end
+
+    "#{url_prefix}/mutagenesis_factor/designs/__CHR__:__START__-__END__?ids=#{mutagenesis_factor_id};feature=crisprtrack;content-type=application/json"
+  end
 end
 
 # == Schema Information

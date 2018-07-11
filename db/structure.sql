@@ -710,7 +710,19 @@ CREATE TABLE public.allele_annotations (
     ref_seq text,
     alt_seq text,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    exdels character varying(255),
+    partial_exdels character varying(255),
+    txc character varying(255),
+    splice_donor boolean,
+    splice_acceptor boolean,
+    protein_coding_region boolean,
+    intronic boolean,
+    frameshift boolean,
+    linked_concequence text,
+    downstream_of_stop boolean,
+    stop_gained boolean,
+    amino_acid text
 );
 
 
@@ -756,7 +768,11 @@ CREATE TABLE public.alleles (
     genbank_transition character varying(255),
     same_as_es_cell boolean,
     allele_subtype character varying(255),
-    "contains_lacZ" boolean DEFAULT false
+    "contains_lacZ" boolean DEFAULT false,
+    bam_file bytea,
+    bam_file_index bytea,
+    vcf_file bytea,
+    vcf_file_index bytea
 );
 
 
@@ -3477,6 +3493,7 @@ ALTER SEQUENCE public.targ_rep_targeting_vectors_id_seq OWNED BY public.targ_rep
 
 
 --
+<<<<<<< HEAD
 -- Name: trace_call_vcf_modifications; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3518,61 +3535,21 @@ ALTER SEQUENCE public.trace_call_vcf_modifications_id_seq OWNED BY public.trace_
 --
 
 CREATE TABLE public.trace_calls (
-    id integer NOT NULL,
-    colony_id integer NOT NULL,
-    file_alignment text,
-    file_filtered_analysis_vcf text,
-    file_variant_effect_output_txt text,
-    file_reference_fa text,
-    file_mutant_fa text,
-    file_primer_reads_fa text,
-    file_alignment_data_yaml text,
-    file_trace_output text,
-    file_trace_error text,
-    file_exception_details text,
-    file_return_code integer,
-    file_merged_variants_vcf text,
-    is_het boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    trace_file_file_name character varying(255),
-    trace_file_content_type character varying(255),
-    trace_file_file_size integer,
-    trace_file_updated_at timestamp without time zone,
-    exon_id character varying(255)
-);
-
-
---
--- Name: trace_calls_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.trace_calls_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: trace_calls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.trace_calls_id_seq OWNED BY public.trace_calls.id;
-
-
---
+=======
 -- Name: trace_files; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.trace_files (
+CREATE TABLE trace_files (
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
     id integer NOT NULL,
-    style character varying(255),
-    file_contents bytea,
+    colony_id integer NOT NULL,
+    is_het boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    trace_call_id integer NOT NULL
+    trace_file_name character varying(255),
+    trace_content_type character varying(255),
+    trace_file_size integer,
+    trace_updated_at timestamp without time zone
 );
 
 
@@ -3580,7 +3557,11 @@ CREATE TABLE public.trace_files (
 -- Name: trace_files_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.trace_files_id_seq
+<<<<<<< HEAD
+CREATE SEQUENCE public.trace_calls_id_seq
+=======
+CREATE SEQUENCE trace_files_id_seq
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3592,7 +3573,56 @@ CREATE SEQUENCE public.trace_files_id_seq
 -- Name: trace_files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
+<<<<<<< HEAD
+ALTER SEQUENCE public.trace_calls_id_seq OWNED BY public.trace_calls.id;
+=======
+ALTER SEQUENCE trace_files_id_seq OWNED BY trace_files.id;
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
+
+
+--
+-- Name: traces; Type: TABLE; Schema: public; Owner: -
+--
+
+<<<<<<< HEAD
+CREATE TABLE public.trace_files (
+=======
+CREATE TABLE traces (
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
+    id integer NOT NULL,
+    style character varying(255),
+    file_contents bytea,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    trace_file_id integer NOT NULL
+);
+
+
+--
+-- Name: traces_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+<<<<<<< HEAD
+CREATE SEQUENCE public.trace_files_id_seq
+=======
+CREATE SEQUENCE traces_id_seq
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: traces_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+<<<<<<< HEAD
 ALTER SEQUENCE public.trace_files_id_seq OWNED BY public.trace_files.id;
+=======
+ALTER SEQUENCE traces_id_seq OWNED BY traces.id;
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
 
 
 --
@@ -4155,6 +4185,7 @@ ALTER TABLE ONLY public.targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT n
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+<<<<<<< HEAD
 ALTER TABLE ONLY public.trace_call_vcf_modifications ALTER COLUMN id SET DEFAULT nextval('public.trace_call_vcf_modifications_id_seq'::regclass);
 
 
@@ -4163,13 +4194,20 @@ ALTER TABLE ONLY public.trace_call_vcf_modifications ALTER COLUMN id SET DEFAULT
 --
 
 ALTER TABLE ONLY public.trace_calls ALTER COLUMN id SET DEFAULT nextval('public.trace_calls_id_seq'::regclass);
+=======
+ALTER TABLE ONLY trace_files ALTER COLUMN id SET DEFAULT nextval('trace_files_id_seq'::regclass);
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+<<<<<<< HEAD
 ALTER TABLE ONLY public.trace_files ALTER COLUMN id SET DEFAULT nextval('public.trace_files_id_seq'::regclass);
+=======
+ALTER TABLE ONLY traces ALTER COLUMN id SET DEFAULT nextval('traces_id_seq'::regclass);
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
 
 
 --
@@ -4731,6 +4769,7 @@ ALTER TABLE ONLY public.targ_rep_targeting_vectors
 
 
 --
+<<<<<<< HEAD
 -- Name: trace_call_vcf_modifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4743,6 +4782,12 @@ ALTER TABLE ONLY public.trace_call_vcf_modifications
 --
 
 ALTER TABLE ONLY public.trace_calls
+=======
+-- Name: trace_calls_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY trace_files
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
     ADD CONSTRAINT trace_calls_pkey PRIMARY KEY (id);
 
 
@@ -4750,7 +4795,11 @@ ALTER TABLE ONLY public.trace_calls
 -- Name: trace_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
+<<<<<<< HEAD
 ALTER TABLE ONLY public.trace_files
+=======
+ALTER TABLE ONLY traces
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
     ADD CONSTRAINT trace_files_pkey PRIMARY KEY (id);
 
 
@@ -5625,6 +5674,7 @@ ALTER TABLE ONLY public.targ_rep_genotype_primers
 
 
 --
+<<<<<<< HEAD
 -- Name: trace_call_vcf_modifications_trace_calls_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5638,6 +5688,13 @@ ALTER TABLE ONLY public.trace_call_vcf_modifications
 
 ALTER TABLE ONLY public.trace_calls
     ADD CONSTRAINT trace_calls_colonies_fk FOREIGN KEY (colony_id) REFERENCES public.colonies(id);
+=======
+-- Name: trace_calls_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY trace_files
+    ADD CONSTRAINT trace_calls_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6
 
 
 --
@@ -6112,4 +6169,10 @@ INSERT INTO schema_migrations (version) VALUES ('20180202111914');
 
 INSERT INTO schema_migrations (version) VALUES ('20180301111914');
 
+<<<<<<< HEAD
 INSERT INTO schema_migrations (version) VALUES ('20180709130733');
+=======
+INSERT INTO schema_migrations (version) VALUES ('20180320111914');
+
+INSERT INTO schema_migrations (version) VALUES ('20180329151915');
+>>>>>>> 6f3a9a757d95cb46f2957a81389e35024bf141b6

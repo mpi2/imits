@@ -56,18 +56,18 @@ TarMits::Application.routes.draw do
   end
 
   get "colony/show/:id" => 'colony#show'
-  get "colony/show/:id/:filename" => 'colony#show'
   get "colony/:mi_attempt_colony_name/phenotype_attempts/new" => 'colony#phenotype_attempts_new'
-
-
-  #get "colony/:id" => 'colony#show'
-  #get "colony/:id/:filename" => 'colony#show'
   get "colony" => 'colony#index'
-  get "/colony/mut_nucleotide_sequences/:id" => 'colony#mut_nucleotide_sequences'
+
+  get "colony/trace_files/:id" => 'trace_file#show'
+  get "colony/alleles/:id/:filename" => 'trace_file#show'
+  get "colony/:id/evidence" => 'colony#evidence'
 
   get "mutagenesis_factor/crisprs/:id" => 'mutagenesis_factor#crisprs'
   get "mutagenesis_factor/vector/:id"  => 'mutagenesis_factor#vector'
   get "mutagenesis_factor/oligo/:id"   => 'mutagenesis_factor#oligo'
+  get "mutagenesis_factor/designs/:position" => 'mutagenesis_factor#designs'
+  get "/colony/mut_nucleotide_sequences/:position" => 'colony#mut_nucleotide_sequences'
 
   namespace :mi_attempts do
     resources :distribution_centres do

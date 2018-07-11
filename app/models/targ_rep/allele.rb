@@ -294,7 +294,7 @@ class TargRep::Allele < ActiveRecord::Base
       return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/escell-clone-#{!transformation.blank? ? transformation + '-' : ''}genbank-file"
     end
 
-    def self.allele_image_url(marker_symbol, allele_id, modified_allele_type = nil)
+    def self.allele_image_url(marker_symbol, allele_id, modified_allele_type = nil, modified_allele_subtype = nil)
       return "" if modified_allele_type.nil? || marker_symbol.blank?
 
       if marker_symbol =~ /Cpgi/
@@ -311,10 +311,11 @@ class TargRep::Allele < ActiveRecord::Base
         end
       end
 
-      if ["NHEJ", "Deletion", "HR"].include?(modified_allele_type)
-        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg"
-      elsif modified_allele_type == 'HDR'
-        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_hdr_map.jpg"
+      if ["NHEJ", "Deletion", "HR", "HDR"].include?(modified_allele_type)
+        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg" if ["Indel", "Intra-exdel deletion"].include?(modified_allele_subtype)
+        return "https://www.i-dcc.org/imits/images/targ_rep/crispr_exon_deletion_map.jpg" if ['Exon Deletion', 'Inter-exdel deletion', 'Whole-gene deletion'].include?(modified_allele_subtype)
+        return "https://www.i-dcc.org/imits/images/targ_rep/crispr_conditional_map.jpg" if modified_allele_subtype = "Conditional Ready"
+        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_hdr_map.jpg" if modified_allele_type == 'HDR' || ['Null reporter', 'Point Mutation'].include?(modified_allele_subtype)
       end
 
       return "" if allele_id.blank?
@@ -323,7 +324,7 @@ class TargRep::Allele < ActiveRecord::Base
       return "https://www.i-dcc.org/imits/targ_rep/alleles/#{allele_id}/allele-image#{!transformation.blank? ? '-' + transformation : ''}"
     end
 
-    def self.simple_allele_image_url(marker_symbol, allele_id, modified_allele_type = nil)
+    def self.simple_allele_image_url(marker_symbol, allele_id, modified_allele_type = nil, modified_allele_subtype = nil)
       return "" if modified_allele_type.nil? || marker_symbol.blank?
 
       if marker_symbol =~ /Cpgi/
@@ -340,10 +341,11 @@ class TargRep::Allele < ActiveRecord::Base
         end
       end
 
-      if ["NHEJ", "Deletion", "HR"].include?(modified_allele_type)
-        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg"
-      elsif modified_allele_type == 'HDR'
-        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_hdr_map.jpg"
+      if ["NHEJ", "Deletion", "HR", "HDR"].include?(modified_allele_type)
+        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_map.jpg" if ["Indel", "Intra-exdel deletion"].include?(modified_allele_subtype)
+        return "https://www.i-dcc.org/imits/images/targ_rep/crispr_exon_deletion_map.jpg" if ['Exon Deletion', 'Inter-exdel deletion', 'Whole-gene deletion'].include?(modified_allele_subtype)
+        return "https://www.i-dcc.org/imits/images/targ_rep/crispr_conditional_map.jpg" if modified_allele_subtype = "Conditional Ready"
+        return "https://www.i-dcc.org/imits/images/targ_rep/cripsr_hdr_map.jpg" if modified_allele_type == 'HDR' || ['Null reporter', 'Point Mutation'].include?(modified_allele_subtype)
       end
 
       return "" if allele_id.blank?

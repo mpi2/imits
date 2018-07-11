@@ -521,7 +521,7 @@ input[type=checkbox] ~ label {
     display: inline;
 }
 
-form fieldset {
+fieldset {
     border: 2px solid #a6c5ec;
     padding: 20px;
     padding-top: 0;
@@ -529,17 +529,17 @@ form fieldset {
     border-radius: 4px;
 }
 
-form fieldset legend {
+fieldset legend {
 	padding-left: 5px;
 	padding-right: 5px;
 	font: italic 1.4em Georgia, "Times New Roman", Times, serif;
 }
 
-form fieldset > div {
+fieldset > div {
     margin-bottom: 1em;
 }
 
-form fieldset > div > div, form fieldset > table, form fieldset > div > table {
+fieldset > div > div, form fieldset > table, form fieldset > div > table {
     margin-top: 1em;
 }
 
@@ -575,25 +575,25 @@ form span.error-message {
 
 /* @group Collapsible Fieldsets */
 
-form fieldset legend.collapsible-control {
+fieldset legend.collapsible-control {
 	padding-left: 16px;
 	background-position: 0 center;
 	background-repeat: no-repeat;
 }
 
-form fieldset legend.collapsible-control:hover {
+fieldset legend.collapsible-control:hover {
 	cursor: pointer;
 }
 
-form fieldset.collapsible-content-shown legend.collapsible-control {
+fieldset.collapsible-content-shown legend.collapsible-control {
 	background-image: url('../images/icons/bullet_arrow_down.png');
 }
 
-form fieldset.collapsible-content-hidden legend.collapsible-control {
+fieldset.collapsible-content-hidden legend.collapsible-control {
 	background-image: url('../images/icons/bullet_arrow_right.png');
 }
 
-form fieldset.collapsible-content-hidden {
+fieldset.collapsible-content-hidden {
 	padding: 0 20px;
 	border-bottom: none;
 	border-left: none;

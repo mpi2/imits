@@ -72,7 +72,10 @@
                 <%= generator.check_box :is_active %>
             </div>
             <div> 
-                <%= generator.check_box :report_to_public, :label => 'Report Phenotype Data to Public'%>
+                <%= generator.check_box :report_to_public, :label => 'Report Phenotype Data to Public' %>
+            </div>
+            <div> 
+                <%= generator.check_box :do_not_count_towards_completeness, :label => 'Do Not Count Towards Completeness' %>
             </div>
           </div>
         </fieldset>

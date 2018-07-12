@@ -35,7 +35,7 @@ colonies = [
   "BL3258_TCP",
   "BL3290_TCP",
   "BL3307_TCP",
-  # "BL3331_TCP",
+  # "BL3331_TCP", ## Not found
   "BL3395_TCP",
   "BL3396_TCP",
   "BL3409_TCP",
@@ -59,9 +59,9 @@ colonies = [
   "BL3601_TCP",
   "BL3615_TCP",
   "BL3616_TCP",
-  "BL3627",
-  # "BL3627_TCP",
-  # "BL3628_TCP",
+  # "BL3627", ## One centre
+  # "BL3627_TCP", ## Not found
+  # "BL3628_TCP", ## Not found
   "BL3667_TCP",
   "BL3674_TCP",
   "BL3679_TCP",
@@ -141,7 +141,7 @@ colonies = [
   "BL5322_TCP",
   "BL5331_TCP",
   "BL5414_TCP",
-  # "BL5556_TCP",
+  # "BL5556_TCP", ## Not found
   "BL5593_TCP",
   "BL5613_TCP",
   "BL5617_TCP",
@@ -168,10 +168,10 @@ colonies = [
   "ET9675_TCP",
   "ET9750_TCP",
   "TCPA0037Cre_TCP",
-  "TCPA0050",
+  # "TCPA0050", ## One centre
   "TCPA0501Cre_TCP",
   "TCPA0503Cre_TCP",
-  "TCPA0504Cre",
+  # "TCPA0504Cre", ## One centre
   "TCPA0528Cre_TCP",
   "TCPA0546Cre_TCP",
   "TCPA0608Cre_TCP",
@@ -179,24 +179,24 @@ colonies = [
   "TCPA0696Cre_TCP",
   "TCPA0749Cre_TCP",
   "TCPA0796Cre_TCP",
-  "TCPA0830Cre",
+  # "TCPA0830Cre", ## One centre
   "TCPA0843Cre_TCP",
   "TCPA0862Cre_TCP",
   "TCPA0900Cre_TCP",
   "TCPA0905Cre_TCP",
-  "TCPA0906Cre",
-  "TCPA0916Cre",
+  # "TCPA0906Cre", ## One centre
+  # "TCPA0916Cre", ## One centre
   "TCPA0925Cre_TCP",
-  # "TCPA0926Cre",
-  "TCPA0926Cre_TCP",
+  # "TCPA0926Cre", ## Not found
+  # "TCPA0926Cre_TCP", ## One centre
   "TCPA0932Cre_TCP",
   "TCPA0933Cre_TCP",
   "TCPA0934Cre_TCP",
   "TCPA0937Cre_TCP",
   "TCPA0940Cre_TCP",
   "TCPA0970Cre_TCP",
-  # "TCPA0991Cre",
-  "TCPA0991Cre_TCP",
+  # "TCPA0991Cre", ## Not found
+  # "TCPA0991Cre_TCP", ## One centre
   "TCPA1021Cre_TCP",
   "TCPA1025Cre_TCP",
   "TCPA1050Cre_TCP",
@@ -204,25 +204,91 @@ colonies = [
   "TCPM0549Cre_TCP",
   "TCPM0893Cre_TCP",
   "TCPM0953Cre_TCP",
-  "TCPM0957Cre",
-  "TCPM0957Cre_TCP",
+  # "TCPM0957Cre", ## One centre
+  # "TCPM0957Cre_TCP", ## One centre
   "TCPM0988Cre_TCP",
   "TCPM0994Cre_TCP",
-  "TCPR0320_ACHC",
-  # "TCPR0320_em1",
+  # "TCPR0320_ACHC", ## One centre
+  # "TCPR0320_em1", ## Not found
   "TCPR0357_ACLX_TCP",
   "TCPR0368_ACSD_TCP",
-  # "UCD-EPD0396_4_E05-1-1",
-  # "UCD-EPD0396_4_E05-1-1_TCP",
+  # "UCD-EPD0396_4_E05-1-1", ## Not found
+  # "UCD-EPD0396_4_E05-1-1_TCP", ## Not found
   "UCD-EPD0502_2_D07-2-1_TCP",
 ]
 
-
+conflict_colonies = Array.new
 colonies.each do |c|
   this_phenotype = PhenotypingProduction.where(:colony_name => c).first
-  this_phenotype.do_not_count_towards_completeness = true
-  this_phenotype.save!
+  parent_colony = this_phenotype.parent_colony
+  phenotypes = parent_colony.phenotyping_productions
+  if phenotypes.count >= 2 && phenotypes.any? { |p| p.phenotyping_centre_name == 'UCD' }
+    this_phenotype.do_not_count_towards_completeness = true
+    this_phenotype.save!
+  else
+    conflict_colonies.push c
+  end
 end
+puts conflict_colonies
+
+##############################################################
+
+one_centre_colony = [
+  "BL3627",
+  "TCPA0050",
+  "TCPA0504Cre",
+  "TCPA0830Cre",
+  "TCPA0906Cre",
+  "TCPA0916Cre",
+  "TCPA0926Cre", #####
+  "TCPA0926Cre_TCP",
+  "TCPA0991Cre", #####
+  "TCPA0991Cre_TCP",
+  "TCPM0957Cre",
+  "TCPM0957Cre_TCP",
+  "TCPR0320_ACHC",
+  "UCD-EPD0396_4_E05-1-1" #####
+]
+
+one_centre_colony.each do |c|
+  this_phenotype = PhenotypingProduction.where(:colony_name => c).first
+  parent_colony = this_phenotype.parent_colony
+  phenotypes = parent_colony.phenotyping_productions
+  centres = phenotypes[0].phenotyping_centre_name
+  puts centres
+end
+
+
+##############################################################
+
+conflict_colonies = [
+  "BL3331_TCP", # "BL3331"
+  "BL3627_TCP", # "BL3627"
+  "BL3628_TCP", # "BL3628"
+  "BL5556_TCP", # "BL5556"
+  "TCPR0320_em1",
+  "UCD-EPD0396_4_E05-1-1_TCP" # "UCD-EPD0396_4_E05-1-1"
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

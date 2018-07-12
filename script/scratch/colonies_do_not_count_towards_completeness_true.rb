@@ -240,22 +240,22 @@ one_centre_colony = [
   "TCPA0830Cre",
   "TCPA0906Cre",
   "TCPA0916Cre",
-  "TCPA0926Cre", #####
+  # "TCPA0926Cre", #####
   "TCPA0926Cre_TCP",
-  "TCPA0991Cre", #####
+  # "TCPA0991Cre", #####
   "TCPA0991Cre_TCP",
   "TCPM0957Cre",
   "TCPM0957Cre_TCP",
   "TCPR0320_ACHC",
-  "UCD-EPD0396_4_E05-1-1" #####
+  # "UCD-EPD0396_4_E05-1-1" #####
 ]
 
 one_centre_colony.each do |c|
   this_phenotype = PhenotypingProduction.where(:colony_name => c).first
   parent_colony = this_phenotype.parent_colony
   phenotypes = parent_colony.phenotyping_productions
-  centres = phenotypes[0].phenotyping_centre_name
-  puts centres
+  this_phenotype.do_not_count_towards_completeness = true
+  this_phenotype.save!
 end
 
 

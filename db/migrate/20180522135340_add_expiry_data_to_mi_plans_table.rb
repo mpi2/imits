@@ -1,6 +1,6 @@
 class AddExpiryDataToMiPlansTable < ActiveRecord::Migration
   def self.up
-    add_column :mi_plans, :expiry_date, :date, default: false 
+    add_column :mi_plans, :expiry_date, :date
 
     sql = <<-EOF
       UPDATE mi_plans a SET crispr_legacy_data = true
@@ -15,3 +15,5 @@ class AddExpiryDataToMiPlansTable < ActiveRecord::Migration
     remove_column :mi_plans, :expiry_date
   end
 end
+
+

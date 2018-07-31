@@ -3,7 +3,7 @@ class Allele::Annotation < ActiveRecord::Base
   acts_as_audited
   acts_as_reportable
 
-  belongs_to :allele
+  belongs_to :allele, :class_name => 'Allele'
 
   attr_accessible :allele_id, :mod_type, :chr, :start, :end, :ref_seq, :alt_seq
 

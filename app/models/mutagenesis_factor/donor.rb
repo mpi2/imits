@@ -4,7 +4,7 @@ class MutagenesisFactor::Donor < ActiveRecord::Base
 
   attr_accessible :mutagenesis_factor_id, :vector_name, :oligo_sequence_fa, :concentration, :preparation
 
-  belongs_to :mutagensis_factor
+  belongs_to :mutagenesis_factor, :class_name => 'MutagenesisFactor'
   belongs_to :vector, :class_name => 'TargRep::TargetingVector'
 
   before_validation :set_preparation_when_oligo_sequence_is_set

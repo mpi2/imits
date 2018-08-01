@@ -240,7 +240,7 @@ class Allele < ApplicationModel
       optional_index_bcsq = {'strand' => 4, 'amino_acid_change' => 5, 'dna_change' => 6}
       vcf_file.each do |vcf_line|
         vcf_data = vcf_line.split("\t")
-        info = vcf_data[ index['INFO'] ].split(";").map{|info_string| i = info_string.split("="); [i[0], i[1]]}.to_h
+        info = vcf_data[ index['INFO'] ].blank? ? {} : vcf_data[ index['INFO'] ].split(";").map{|info_string| i = info_string.split("="); [i[0], i[1]]}.to_h
         bcsq = info['BCSQ']
         bcsq_transcripts = []
         bcsq_linked = ''
@@ -255,8 +255,8 @@ class Allele < ApplicationModel
         end
 
         chromosome = vcf_data[ index['CHROM'] ]
-        start_pos = vcf_data[ index['POS'] ]
-        end_pos = info.has_key?('END') ? info['END'] : start_pos
+        start_pos = vcf_data[ index['POS'] ].to_i
+        end_pos = info.has_key?('END') ? info['END'].to_i : start_pos
         sv_type = info['SVTYPE']
         ref = vcf_data[ index['REF'] ]
         alt = vcf_data[ index['ALT'] ]
@@ -267,13 +267,35 @@ class Allele < ApplicationModel
           ref = ref[1..-1]
         end
 
-        amino_acid_consequence = {}
-        exdel = {}
-        partial_exdels = {}
+        consequence = {}
         bcsq_transcripts.each do |tran|
           tran_fields = tran.split{'|'}
 #         first 4 fields always exist
           next if tran_fields[ index_bcsq['biotype'] ] == 'NMD'
+
+          splice_acceptor = tran =~ /splice_acceptor/
+          splice_donor = tran =~ /splice_donor/
+          protein_coding = tran =~ /protein_coding/
+          intron = tran =~ /intron/
+          retained_intron = tran =~ /retained_intron/
+          frameshift = tran =~ /frameshift/
+          inframe_deletion = tran =~ /inframe_deletion/
+          inframe_insertion = tran =~ /inframe_insertion/
+          stop_gained = tran =~ /stop_gained/
+          stop_lost = tran =~ /stop_lost/
+          three_prime = tran =~ /3_prime_utr/
+
+
+          key = {:protein_coding_region => protein_coding ? true : false,
+                   :exdel => '',
+                   :partial_exdel => '', 
+                   :intronic => intron ? true : false, 
+                   :splice_donor => splice_donor ? true : false, 
+                   :splice_acceptor => splice_acceptor ? true : false, 
+                   :frameshift => frameshift ? true : false, 
+                   :stop_gained => stop_gained ? true : false,
+                   :stop_lost => stop_lost ? true : false
+               }
 
           if tran_fields.length == 6 || tran_fields.length == 9
             # last two fields should be biotype_name & biotype_proportion_affected. If they exist then there will either be 6 or 9 columns returned in the BSCQ field
@@ -291,48 +313,19 @@ class Allele < ApplicationModel
               end
             end
 
-            splice_acceptor = tran =~ /splice_acceptor/
-            splice_donor = tran =~ /splice_donor/
-            protein_coding = tran =~ /protein_coding/
-            intron = tran =~ /intron/
-            retained_intron = tran =~ /retained_intron/
-            frameshift = tran =~ /frameshift/
-            inframe_deletion = tran =~ /inframe_deletion/
-            inframe_insertion = tran =~ /inframe_insertion/
-            stop_gained = tran =~ /stop_gained/
-            stop_lost = tran =~ /stop_lost/
-            three_prime = tran =~ /3_prime_utr/
-
-
-            key = {:protein_coding_region => ,
-                   :exdel => exon_list.join('&'),
-                   :partial_exdel => partial_exon_list.join('&'), 
-                   :intronic => , 
-                   :splice_donor => , 
-                   :splice_acceptor => , 
-                   :frameshift => , 
-                   :stop_gained => ,
-                 }
-            exdel[key] = [] if !exdel.has_key?( exon_key )
-            exdel[key] << tran_fields['transcript']
+            key[:exdel] = exon_list.join('&')
+            key[:partial_exdel] = partial_exon_list.join('&')
             
-          elsif tran_fields.length > 6
-            # if there are more than 6 fields then the optional fields have been provided
-
-          else
+          elsif tran_fields.length < 4
             next
           end
 
+          amino_acid_sequence = nil
+          consequence[key] = [] if !exdel.has_key?( exon_key )
+          consequence[key] << [tran_fields['transcript'], amino_acid_sequence]
+        end 
 
-          amino_acid_consequence[tran_fields[ index_bcsq['amino_acid_change'] ]] = [] if !amino_acid_consequence.has_key?(tran_fields[ index_bcsq['amino_acid_change'] ])
-          amino_acid_consequence[tran_fields[ index_bcsq['amino_acid_change'] ]] << amino_acid_consequence[tran_fields[ index_bcsq['transcript'] ]]
-        end
-
-        amino_acid_str = ''
-        amino_acid_str = amino_acid_consequence.map{|aac, transcripts| ">#{transcripts.join('&')}\n#{aac}" }.join("\n")
-        
-
-        dup_coords = info['DUPCOORDS'].split(',') if info.has_key?('DUPCOORDS')
+        dup_coords = info['DUPCOORDS'] if info.has_key?('DUPCOORDS')
         
         if sv_type.blank?
           sv_type = 'SNP' if ref.length == alt.length
@@ -340,9 +333,6 @@ class Allele < ApplicationModel
           sv_type = 'INS' if ref.length < alt.length
         end
         raise 'Missing SV_TYPE' if sv_type.blank?
-
-        exdels = '' # comma separated list of ensembl exons deleted
-        partial_exdels = '' # comma separated list of ensembl exons that have been partially deleted
 
         allele.annotations.create({
           :mod_type => sv_type,
@@ -353,8 +343,8 @@ class Allele < ApplicationModel
           :alt_seq => alt,
           :linked_concequence => !bcsq_linked.blank? ? bcsq_linked : '',
           :downstream_of_stop => downstream_of_stop,
-          :amino_acid => amino_acid_str,
-          :dup_coords => dup_coords.blank? ? '' : "#{dup_coords[0]}:{dup_coords[1]}-{dup_coords[2]}"
+          :consequence => consequence.to_a.sort{|c1, c2| c2[1].length <=> c1[1].length}.to_json, # list of consequences caused be each transcript. These are ordered by the consequence which covers the most transcripts.
+          :dup_coords => dup_coords.blank? ? '' : "#{dup_coords}"
           })
       end
     end

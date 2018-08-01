@@ -10,7 +10,7 @@ f.readlines.each do |line|
   gene = md[1]
   colony = md[2]
 
-  c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(genes.marker_symbol, ' ', '') = '#{gene}' AND replace(colonies.name, ' ', '') = '#{colony}'")
+  c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(genes.marker_symbol, ' ', '') = '#{gene}' AND replace(replace(colonies.name, ' ', ''),'&', '_') = '#{colony}'")
   c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(colonies.name, ' ', '') = '#{colony}'") if c.blank?  
   if c.blank?
     missing << "#{gene}, #{colony}"
@@ -35,7 +35,7 @@ f.readlines.each do |line|
   gene = md[1]
   colony = md[2]
 
-  c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(genes.marker_symbol, ' ', '') = '#{gene}' AND replace(colonies.name, ' ', '') = '#{colony}'")
+  c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(genes.marker_symbol, ' ', '') = '#{gene}' AND replace(replace(colonies.name, ' ', ''),'&', '_') = '#{colony}'")
   c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(colonies.name, ' ', '') = '#{colony}'") if c.blank?  
   if c.blank?
     missing2 << "#{gene}, #{colony}"
@@ -61,7 +61,7 @@ f.readlines.each do |line|
   gene = md[1]
   colony = md[2]
 
-  c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(genes.marker_symbol, ' ', '') = '#{gene}' AND replace(colonies.name, ' ', '') = '#{colony}'")
+  c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(genes.marker_symbol, ' ', '') = '#{gene}' AND replace(replace(colonies.name, ' ', ''),'&', '_') = '#{colony}'")
   c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(colonies.name, ' ', '') = '#{colony}'") if c.blank?  
   if c.blank?
     missing3 << "#{gene}, #{colony}"
@@ -88,7 +88,7 @@ f.readlines.each do |line|
   gene = md[1]
   colony = md[2]
 
-  c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(genes.marker_symbol, ' ', '') = '#{gene}' AND replace(colonies.name, ' ', '') = '#{colony}'")
+  c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(genes.marker_symbol, ' ', '') = '#{gene}' AND replace(replace(colonies.name, ' ', ''),'&', '_') = '#{colony}'")
   c = Colony.joins(mi_attempt: [mi_plan: :gene]).where("replace(colonies.name, ' ', '') = '#{colony}'") if c.blank?  
   if c.blank?
     missing4 << "#{gene}, #{colony}"

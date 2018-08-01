@@ -712,18 +712,11 @@ CREATE TABLE allele_annotations (
     alt_seq text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    exdels character varying(255),
-    partial_exdels character varying(255),
-    txc character varying(255),
-    splice_donor boolean,
-    splice_acceptor boolean,
-    protein_coding_region boolean,
-    intronic boolean,
-    frameshift boolean,
+    dup_coords character varying(255),
     linked_concequence text,
     downstream_of_stop boolean,
     stop_gained boolean,
-    amino_acid text
+    consequence json
 );
 
 

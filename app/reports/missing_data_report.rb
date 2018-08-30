@@ -435,7 +435,7 @@ class MissingDataReport
     <<-EOF
       SELECT '=HYPERLINK("https://www.mousephenotype.org/imits/mi_attempts/' || mi_attempts.id || '")' AS mi_attempt_url, mi_attempts.external_ref,
       genes.mgi_accession_id, genes.marker_symbol, consortia.name AS consortium_name, centres.name AS production_centre_name,
-      #{FIELDS['colonies'].map{|f| "colonies.#{f} AS #{f}"}.join(', ')}, strains.name AS background_strain_name, tc.trace_file_file_name AS trace_file_name,
+      #{FIELDS['colonies'].map{|f| "colonies.#{f} AS #{f}"}.join(', ')}, strains.name AS background_strain_name, tc.trace_file_name,
       json_agg( ROW( #{ALLELE_FIELDS.map{|k, field| "alleles.#{field}" }.join(', ')} ) ) AS colonies_alleles
       FROM colonies
         JOIN alleles ON alleles.colony_id = colonies.id
@@ -445,10 +445,10 @@ class MissingDataReport
         JOIN centres ON centres.id = mi_plans.production_centre_id #{ !@centre.blank? ? " AND centres.name = '#{@centre}'" : ''}
         JOIN consortia ON consortia.id = mi_plans.consortium_id
         LEFT JOIN strains ON strains.id = colonies.background_strain_id
-        LEFT JOIN trace_calls tc ON tc.colony_id = colonies.id
+        LEFT JOIN trace_files tc ON tc.colony_id = colonies.id
       WHERE mi_attempts.mutagenesis_factor_id IS NOT NULL
       GROUP BY mi_attempts.id, mi_attempts.external_ref, genes.mgi_accession_id, genes.marker_symbol, consortia.name, centres.name,
-      colonies.id, #{FIELDS['colonies'].map{|f| "colonies.#{f}"}.join(', ')}, strains.name, tc.trace_file_file_name
+      colonies.id, #{FIELDS['colonies'].map{|f| "colonies.#{f}"}.join(', ')}, strains.name, tc.trace_file_name
     EOF
   end
 end

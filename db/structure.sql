@@ -2,13 +2,14 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.7
--- Dumped by pg_dump version 9.5.7
+-- Dumped from database version 9.5.12
+-- Dumped by pg_dump version 9.5.12
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
@@ -27,13 +28,11 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
-SET search_path = public, pg_catalog;
-
 --
 -- Name: get_best_status_pa(integer, boolean); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION get_best_status_pa(integer, boolean) RETURNS text
+CREATE FUNCTION public.get_best_status_pa(integer, boolean) RETURNS text
     LANGUAGE plpgsql
     AS $_$
 DECLARE
@@ -63,7 +62,7 @@ $_$;
 -- Name: solr_get_allele_order_from_names(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_allele_order_from_names(integer) RETURNS text
+CREATE FUNCTION public.solr_get_allele_order_from_names(integer) RETURNS text
     LANGUAGE plpgsql
     AS $_$
 DECLARE
@@ -95,7 +94,7 @@ $_$;
 -- Name: solr_get_allele_order_from_urls(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_allele_order_from_urls(integer) RETURNS text
+CREATE FUNCTION public.solr_get_allele_order_from_urls(integer) RETURNS text
     LANGUAGE plpgsql
     AS $_$
 DECLARE
@@ -145,7 +144,7 @@ $_$;
 -- Name: solr_get_best_status_pa_cre(integer, boolean); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_best_status_pa_cre(integer, boolean) RETURNS text
+CREATE FUNCTION public.solr_get_best_status_pa_cre(integer, boolean) RETURNS text
     LANGUAGE plpgsql
     AS $_$
 DECLARE
@@ -190,7 +189,7 @@ $_$;
 -- Name: solr_get_mi_allele_name(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_mi_allele_name(integer) RETURNS text
+CREATE FUNCTION public.solr_get_mi_allele_name(integer) RETURNS text
     LANGUAGE plpgsql
     AS $_$
   DECLARE
@@ -238,7 +237,7 @@ $_$;
 -- Name: solr_get_mi_order_from_names(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_mi_order_from_names(integer) RETURNS text
+CREATE FUNCTION public.solr_get_mi_order_from_names(integer) RETURNS text
     LANGUAGE plpgsql
     AS $_$
   DECLARE
@@ -288,7 +287,7 @@ $_$;
 -- Name: solr_get_mi_order_from_urls(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_mi_order_from_urls(integer) RETURNS text
+CREATE FUNCTION public.solr_get_mi_order_from_urls(integer) RETURNS text
     LANGUAGE plpgsql
     AS $_$
   DECLARE
@@ -362,7 +361,7 @@ $_$;
 -- Name: solr_get_pa_allele_name(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_pa_allele_name(integer) RETURNS text
+CREATE FUNCTION public.solr_get_pa_allele_name(integer) RETURNS text
     LANGUAGE plpgsql
     AS $_$
   DECLARE
@@ -406,7 +405,7 @@ $_$;
 -- Name: solr_get_pa_allele_type(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_pa_allele_type(integer) RETURNS text
+CREATE FUNCTION public.solr_get_pa_allele_type(integer) RETURNS text
     LANGUAGE plpgsql
     AS $_$
 DECLARE
@@ -457,7 +456,7 @@ $_$;
 -- Name: solr_get_pa_get_order_from_urls(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_pa_get_order_from_urls(integer) RETURNS text
+CREATE FUNCTION public.solr_get_pa_get_order_from_urls(integer) RETURNS text
     LANGUAGE plpgsql
     AS $_$
   DECLARE
@@ -526,7 +525,7 @@ $_$;
 -- Name: solr_get_pa_order_from_names(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_get_pa_order_from_names(integer) RETURNS text
+CREATE FUNCTION public.solr_get_pa_order_from_names(integer) RETURNS text
     LANGUAGE plpgsql
     AS $_$
   DECLARE
@@ -568,7 +567,7 @@ $_$;
 -- Name: solr_ikmc_projects_details_builder(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION solr_ikmc_projects_details_builder() RETURNS integer
+CREATE FUNCTION public.solr_ikmc_projects_details_builder() RETURNS integer
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -701,7 +700,7 @@ SET default_with_oids = false;
 -- Name: allele_annotations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE allele_annotations (
+CREATE TABLE public.allele_annotations (
     id integer NOT NULL,
     allele_id integer NOT NULL,
     mod_type character varying(255) NOT NULL,
@@ -711,7 +710,19 @@ CREATE TABLE allele_annotations (
     ref_seq text,
     alt_seq text,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    exdels character varying(255),
+    partial_exdels character varying(255),
+    txc character varying(255),
+    splice_donor boolean,
+    splice_acceptor boolean,
+    protein_coding_region boolean,
+    intronic boolean,
+    frameshift boolean,
+    linked_concequence text,
+    downstream_of_stop boolean,
+    stop_gained boolean,
+    amino_acid text
 );
 
 
@@ -719,7 +730,7 @@ CREATE TABLE allele_annotations (
 -- Name: allele_annotations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE allele_annotations_id_seq
+CREATE SEQUENCE public.allele_annotations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -731,14 +742,14 @@ CREATE SEQUENCE allele_annotations_id_seq
 -- Name: allele_annotations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE allele_annotations_id_seq OWNED BY allele_annotations.id;
+ALTER SEQUENCE public.allele_annotations_id_seq OWNED BY public.allele_annotations.id;
 
 
 --
 -- Name: alleles; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE alleles (
+CREATE TABLE public.alleles (
     id integer NOT NULL,
     es_cell_id integer,
     allele_confirmed boolean DEFAULT false NOT NULL,
@@ -757,7 +768,11 @@ CREATE TABLE alleles (
     genbank_transition character varying(255),
     same_as_es_cell boolean,
     allele_subtype character varying(255),
-    "contains_lacZ" boolean DEFAULT false
+    "contains_lacZ" boolean DEFAULT false,
+    bam_file bytea,
+    bam_file_index bytea,
+    vcf_file bytea,
+    vcf_file_index bytea
 );
 
 
@@ -765,7 +780,7 @@ CREATE TABLE alleles (
 -- Name: alleles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE alleles_id_seq
+CREATE SEQUENCE public.alleles_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -777,14 +792,14 @@ CREATE SEQUENCE alleles_id_seq
 -- Name: alleles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE alleles_id_seq OWNED BY alleles.id;
+ALTER SEQUENCE public.alleles_id_seq OWNED BY public.alleles.id;
 
 
 --
 -- Name: audits; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE audits (
+CREATE TABLE public.audits (
     id integer NOT NULL,
     auditable_id integer,
     auditable_type character varying(255),
@@ -806,7 +821,7 @@ CREATE TABLE audits (
 -- Name: audits_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE audits_id_seq
+CREATE SEQUENCE public.audits_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -818,14 +833,14 @@ CREATE SEQUENCE audits_id_seq
 -- Name: audits_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE audits_id_seq OWNED BY audits.id;
+ALTER SEQUENCE public.audits_id_seq OWNED BY public.audits.id;
 
 
 --
 -- Name: centres; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE centres (
+CREATE TABLE public.centres (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_at timestamp without time zone,
@@ -842,7 +857,7 @@ CREATE TABLE centres (
 -- Name: centres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE centres_id_seq
+CREATE SEQUENCE public.centres_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -854,14 +869,14 @@ CREATE SEQUENCE centres_id_seq
 -- Name: centres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE centres_id_seq OWNED BY centres.id;
+ALTER SEQUENCE public.centres_id_seq OWNED BY public.centres.id;
 
 
 --
 -- Name: colonies; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE colonies (
+CREATE TABLE public.colonies (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     mi_attempt_id integer,
@@ -878,7 +893,7 @@ CREATE TABLE colonies (
 -- Name: colonies_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE colonies_id_seq
+CREATE SEQUENCE public.colonies_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -890,14 +905,14 @@ CREATE SEQUENCE colonies_id_seq
 -- Name: colonies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE colonies_id_seq OWNED BY colonies.id;
+ALTER SEQUENCE public.colonies_id_seq OWNED BY public.colonies.id;
 
 
 --
 -- Name: colony_distribution_centres; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE colony_distribution_centres (
+CREATE TABLE public.colony_distribution_centres (
     id integer NOT NULL,
     colony_id integer NOT NULL,
     deposited_material_id integer NOT NULL,
@@ -917,7 +932,7 @@ CREATE TABLE colony_distribution_centres (
 -- Name: colony_distribution_centres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE colony_distribution_centres_id_seq
+CREATE SEQUENCE public.colony_distribution_centres_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -929,14 +944,14 @@ CREATE SEQUENCE colony_distribution_centres_id_seq
 -- Name: colony_distribution_centres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE colony_distribution_centres_id_seq OWNED BY colony_distribution_centres.id;
+ALTER SEQUENCE public.colony_distribution_centres_id_seq OWNED BY public.colony_distribution_centres.id;
 
 
 --
 -- Name: consortia; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE consortia (
+CREATE TABLE public.consortia (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     funding character varying(255),
@@ -952,7 +967,7 @@ CREATE TABLE consortia (
 -- Name: consortia_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE consortia_id_seq
+CREATE SEQUENCE public.consortia_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -964,14 +979,14 @@ CREATE SEQUENCE consortia_id_seq
 -- Name: consortia_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE consortia_id_seq OWNED BY consortia.id;
+ALTER SEQUENCE public.consortia_id_seq OWNED BY public.consortia.id;
 
 
 --
 -- Name: contacts; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE contacts (
+CREATE TABLE public.contacts (
     id integer NOT NULL,
     email character varying(255) NOT NULL,
     created_at timestamp without time zone,
@@ -984,7 +999,7 @@ CREATE TABLE contacts (
 -- Name: contacts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE contacts_id_seq
+CREATE SEQUENCE public.contacts_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -996,14 +1011,14 @@ CREATE SEQUENCE contacts_id_seq
 -- Name: contacts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE contacts_id_seq OWNED BY contacts.id;
+ALTER SEQUENCE public.contacts_id_seq OWNED BY public.contacts.id;
 
 
 --
 -- Name: deleter_strains; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE deleter_strains (
+CREATE TABLE public.deleter_strains (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_at timestamp without time zone,
@@ -1016,7 +1031,7 @@ CREATE TABLE deleter_strains (
 -- Name: deleter_strains_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE deleter_strains_id_seq
+CREATE SEQUENCE public.deleter_strains_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1028,14 +1043,14 @@ CREATE SEQUENCE deleter_strains_id_seq
 -- Name: deleter_strains_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE deleter_strains_id_seq OWNED BY deleter_strains.id;
+ALTER SEQUENCE public.deleter_strains_id_seq OWNED BY public.deleter_strains.id;
 
 
 --
 -- Name: deposited_materials; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE deposited_materials (
+CREATE TABLE public.deposited_materials (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     created_at timestamp without time zone,
@@ -1047,7 +1062,7 @@ CREATE TABLE deposited_materials (
 -- Name: deposited_materials_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE deposited_materials_id_seq
+CREATE SEQUENCE public.deposited_materials_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1059,14 +1074,14 @@ CREATE SEQUENCE deposited_materials_id_seq
 -- Name: deposited_materials_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE deposited_materials_id_seq OWNED BY deposited_materials.id;
+ALTER SEQUENCE public.deposited_materials_id_seq OWNED BY public.deposited_materials.id;
 
 
 --
 -- Name: email_templates; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE email_templates (
+CREATE TABLE public.email_templates (
     id integer NOT NULL,
     status character varying(255),
     welcome_body text,
@@ -1080,7 +1095,7 @@ CREATE TABLE email_templates (
 -- Name: email_templates_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE email_templates_id_seq
+CREATE SEQUENCE public.email_templates_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1092,14 +1107,14 @@ CREATE SEQUENCE email_templates_id_seq
 -- Name: email_templates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE email_templates_id_seq OWNED BY email_templates.id;
+ALTER SEQUENCE public.email_templates_id_seq OWNED BY public.email_templates.id;
 
 
 --
 -- Name: es_cells; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE es_cells (
+CREATE TABLE public.es_cells (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     allele_symbol_superscript_template character varying(75),
@@ -1119,7 +1134,7 @@ CREATE TABLE es_cells (
 -- Name: es_cells_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE es_cells_id_seq
+CREATE SEQUENCE public.es_cells_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1131,14 +1146,14 @@ CREATE SEQUENCE es_cells_id_seq
 -- Name: es_cells_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE es_cells_id_seq OWNED BY es_cells.id;
+ALTER SEQUENCE public.es_cells_id_seq OWNED BY public.es_cells.id;
 
 
 --
 -- Name: gene_private_annotations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE gene_private_annotations (
+CREATE TABLE public.gene_private_annotations (
     id integer NOT NULL,
     gene_id integer NOT NULL,
     idg boolean DEFAULT false,
@@ -1151,7 +1166,7 @@ CREATE TABLE gene_private_annotations (
 -- Name: gene_private_annotations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE gene_private_annotations_id_seq
+CREATE SEQUENCE public.gene_private_annotations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1163,14 +1178,14 @@ CREATE SEQUENCE gene_private_annotations_id_seq
 -- Name: gene_private_annotations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE gene_private_annotations_id_seq OWNED BY gene_private_annotations.id;
+ALTER SEQUENCE public.gene_private_annotations_id_seq OWNED BY public.gene_private_annotations.id;
 
 
 --
 -- Name: genes; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE genes (
+CREATE TABLE public.genes (
     id integer NOT NULL,
     marker_symbol character varying(75) NOT NULL,
     mgi_accession_id character varying(40),
@@ -1212,7 +1227,7 @@ CREATE TABLE genes (
 -- Name: genes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE genes_id_seq
+CREATE SEQUENCE public.genes_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1224,14 +1239,14 @@ CREATE SEQUENCE genes_id_seq
 -- Name: genes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE genes_id_seq OWNED BY genes.id;
+ALTER SEQUENCE public.genes_id_seq OWNED BY public.genes.id;
 
 
 --
 -- Name: intermediate_report; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE intermediate_report (
+CREATE TABLE public.intermediate_report (
     id integer NOT NULL,
     consortium character varying(255) NOT NULL,
     sub_project character varying(255) NOT NULL,
@@ -1282,7 +1297,7 @@ CREATE TABLE intermediate_report (
 -- Name: intermediate_report_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE intermediate_report_id_seq
+CREATE SEQUENCE public.intermediate_report_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1294,14 +1309,14 @@ CREATE SEQUENCE intermediate_report_id_seq
 -- Name: intermediate_report_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE intermediate_report_id_seq OWNED BY intermediate_report.id;
+ALTER SEQUENCE public.intermediate_report_id_seq OWNED BY public.intermediate_report.id;
 
 
 --
 -- Name: intermediate_report_summary_by_centre; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE UNLOGGED TABLE intermediate_report_summary_by_centre (
+CREATE UNLOGGED TABLE public.intermediate_report_summary_by_centre (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1352,7 +1367,7 @@ CREATE UNLOGGED TABLE intermediate_report_summary_by_centre (
 -- Name: intermediate_report_summary_by_centre_and_consortia; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE UNLOGGED TABLE intermediate_report_summary_by_centre_and_consortia (
+CREATE UNLOGGED TABLE public.intermediate_report_summary_by_centre_and_consortia (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1404,7 +1419,7 @@ CREATE UNLOGGED TABLE intermediate_report_summary_by_centre_and_consortia (
 -- Name: intermediate_report_summary_by_centre_and_consortia_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE intermediate_report_summary_by_centre_and_consortia_id_seq
+CREATE SEQUENCE public.intermediate_report_summary_by_centre_and_consortia_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1416,14 +1431,14 @@ CREATE SEQUENCE intermediate_report_summary_by_centre_and_consortia_id_seq
 -- Name: intermediate_report_summary_by_centre_and_consortia_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE intermediate_report_summary_by_centre_and_consortia_id_seq OWNED BY intermediate_report_summary_by_centre_and_consortia.id;
+ALTER SEQUENCE public.intermediate_report_summary_by_centre_and_consortia_id_seq OWNED BY public.intermediate_report_summary_by_centre_and_consortia.id;
 
 
 --
 -- Name: intermediate_report_summary_by_centre_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE intermediate_report_summary_by_centre_id_seq
+CREATE SEQUENCE public.intermediate_report_summary_by_centre_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1435,14 +1450,14 @@ CREATE SEQUENCE intermediate_report_summary_by_centre_id_seq
 -- Name: intermediate_report_summary_by_centre_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE intermediate_report_summary_by_centre_id_seq OWNED BY intermediate_report_summary_by_centre.id;
+ALTER SEQUENCE public.intermediate_report_summary_by_centre_id_seq OWNED BY public.intermediate_report_summary_by_centre.id;
 
 
 --
 -- Name: intermediate_report_summary_by_consortia; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE UNLOGGED TABLE intermediate_report_summary_by_consortia (
+CREATE UNLOGGED TABLE public.intermediate_report_summary_by_consortia (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1493,7 +1508,7 @@ CREATE UNLOGGED TABLE intermediate_report_summary_by_consortia (
 -- Name: intermediate_report_summary_by_consortia_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE intermediate_report_summary_by_consortia_id_seq
+CREATE SEQUENCE public.intermediate_report_summary_by_consortia_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1505,14 +1520,14 @@ CREATE SEQUENCE intermediate_report_summary_by_consortia_id_seq
 -- Name: intermediate_report_summary_by_consortia_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE intermediate_report_summary_by_consortia_id_seq OWNED BY intermediate_report_summary_by_consortia.id;
+ALTER SEQUENCE public.intermediate_report_summary_by_consortia_id_seq OWNED BY public.intermediate_report_summary_by_consortia.id;
 
 
 --
 -- Name: intermediate_report_summary_by_gene; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE UNLOGGED TABLE intermediate_report_summary_by_gene (
+CREATE UNLOGGED TABLE public.intermediate_report_summary_by_gene (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1561,7 +1576,7 @@ CREATE UNLOGGED TABLE intermediate_report_summary_by_gene (
 -- Name: intermediate_report_summary_by_gene_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE intermediate_report_summary_by_gene_id_seq
+CREATE SEQUENCE public.intermediate_report_summary_by_gene_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1573,14 +1588,14 @@ CREATE SEQUENCE intermediate_report_summary_by_gene_id_seq
 -- Name: intermediate_report_summary_by_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE intermediate_report_summary_by_gene_id_seq OWNED BY intermediate_report_summary_by_gene.id;
+ALTER SEQUENCE public.intermediate_report_summary_by_gene_id_seq OWNED BY public.intermediate_report_summary_by_gene.id;
 
 
 --
 -- Name: intermediate_report_summary_by_mi_plan; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE UNLOGGED TABLE intermediate_report_summary_by_mi_plan (
+CREATE UNLOGGED TABLE public.intermediate_report_summary_by_mi_plan (
     id integer NOT NULL,
     catagory character varying(255) NOT NULL,
     approach character varying(255) NOT NULL,
@@ -1637,7 +1652,7 @@ CREATE UNLOGGED TABLE intermediate_report_summary_by_mi_plan (
 -- Name: intermediate_report_summary_by_mi_plan_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE intermediate_report_summary_by_mi_plan_id_seq
+CREATE SEQUENCE public.intermediate_report_summary_by_mi_plan_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1649,14 +1664,14 @@ CREATE SEQUENCE intermediate_report_summary_by_mi_plan_id_seq
 -- Name: intermediate_report_summary_by_mi_plan_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE intermediate_report_summary_by_mi_plan_id_seq OWNED BY intermediate_report_summary_by_mi_plan.id;
+ALTER SEQUENCE public.intermediate_report_summary_by_mi_plan_id_seq OWNED BY public.intermediate_report_summary_by_mi_plan.id;
 
 
 --
 -- Name: mi_attempt_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_attempt_status_stamps (
+CREATE TABLE public.mi_attempt_status_stamps (
     id integer NOT NULL,
     mi_attempt_id integer NOT NULL,
     status_id integer NOT NULL,
@@ -1669,7 +1684,7 @@ CREATE TABLE mi_attempt_status_stamps (
 -- Name: mi_attempt_status_stamps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_attempt_status_stamps_id_seq
+CREATE SEQUENCE public.mi_attempt_status_stamps_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1681,14 +1696,14 @@ CREATE SEQUENCE mi_attempt_status_stamps_id_seq
 -- Name: mi_attempt_status_stamps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_attempt_status_stamps_id_seq OWNED BY mi_attempt_status_stamps.id;
+ALTER SEQUENCE public.mi_attempt_status_stamps_id_seq OWNED BY public.mi_attempt_status_stamps.id;
 
 
 --
 -- Name: mi_attempt_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_attempt_statuses (
+CREATE TABLE public.mi_attempt_statuses (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     created_at timestamp without time zone,
@@ -1702,7 +1717,7 @@ CREATE TABLE mi_attempt_statuses (
 -- Name: mi_attempt_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_attempt_statuses_id_seq
+CREATE SEQUENCE public.mi_attempt_statuses_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1714,14 +1729,14 @@ CREATE SEQUENCE mi_attempt_statuses_id_seq
 -- Name: mi_attempt_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_attempt_statuses_id_seq OWNED BY mi_attempt_statuses.id;
+ALTER SEQUENCE public.mi_attempt_statuses_id_seq OWNED BY public.mi_attempt_statuses.id;
 
 
 --
 -- Name: mi_attempts; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_attempts (
+CREATE TABLE public.mi_attempts (
     id integer NOT NULL,
     es_cell_id integer,
     mi_date date NOT NULL,
@@ -1791,7 +1806,7 @@ CREATE TABLE mi_attempts (
 -- Name: mi_attempts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_attempts_id_seq
+CREATE SEQUENCE public.mi_attempts_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1803,14 +1818,14 @@ CREATE SEQUENCE mi_attempts_id_seq
 -- Name: mi_attempts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_attempts_id_seq OWNED BY mi_attempts.id;
+ALTER SEQUENCE public.mi_attempts_id_seq OWNED BY public.mi_attempts.id;
 
 
 --
 -- Name: mi_plan_es_cell_qcs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_plan_es_cell_qcs (
+CREATE TABLE public.mi_plan_es_cell_qcs (
     id integer NOT NULL,
     number_starting_qc integer,
     number_passing_qc integer,
@@ -1824,7 +1839,7 @@ CREATE TABLE mi_plan_es_cell_qcs (
 -- Name: mi_plan_es_cell_qcs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_plan_es_cell_qcs_id_seq
+CREATE SEQUENCE public.mi_plan_es_cell_qcs_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1836,14 +1851,14 @@ CREATE SEQUENCE mi_plan_es_cell_qcs_id_seq
 -- Name: mi_plan_es_cell_qcs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_plan_es_cell_qcs_id_seq OWNED BY mi_plan_es_cell_qcs.id;
+ALTER SEQUENCE public.mi_plan_es_cell_qcs_id_seq OWNED BY public.mi_plan_es_cell_qcs.id;
 
 
 --
 -- Name: mi_plan_es_qc_comments; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_plan_es_qc_comments (
+CREATE TABLE public.mi_plan_es_qc_comments (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     created_at timestamp without time zone,
@@ -1855,7 +1870,7 @@ CREATE TABLE mi_plan_es_qc_comments (
 -- Name: mi_plan_es_qc_comments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_plan_es_qc_comments_id_seq
+CREATE SEQUENCE public.mi_plan_es_qc_comments_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1867,14 +1882,14 @@ CREATE SEQUENCE mi_plan_es_qc_comments_id_seq
 -- Name: mi_plan_es_qc_comments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_plan_es_qc_comments_id_seq OWNED BY mi_plan_es_qc_comments.id;
+ALTER SEQUENCE public.mi_plan_es_qc_comments_id_seq OWNED BY public.mi_plan_es_qc_comments.id;
 
 
 --
 -- Name: mi_plan_priorities; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_plan_priorities (
+CREATE TABLE public.mi_plan_priorities (
     id integer NOT NULL,
     name character varying(10) NOT NULL,
     description character varying(100),
@@ -1887,7 +1902,7 @@ CREATE TABLE mi_plan_priorities (
 -- Name: mi_plan_priorities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_plan_priorities_id_seq
+CREATE SEQUENCE public.mi_plan_priorities_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1899,14 +1914,14 @@ CREATE SEQUENCE mi_plan_priorities_id_seq
 -- Name: mi_plan_priorities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_plan_priorities_id_seq OWNED BY mi_plan_priorities.id;
+ALTER SEQUENCE public.mi_plan_priorities_id_seq OWNED BY public.mi_plan_priorities.id;
 
 
 --
 -- Name: mi_plan_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_plan_status_stamps (
+CREATE TABLE public.mi_plan_status_stamps (
     id integer NOT NULL,
     mi_plan_id integer NOT NULL,
     status_id integer NOT NULL,
@@ -1919,7 +1934,7 @@ CREATE TABLE mi_plan_status_stamps (
 -- Name: mi_plan_status_stamps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_plan_status_stamps_id_seq
+CREATE SEQUENCE public.mi_plan_status_stamps_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1931,14 +1946,14 @@ CREATE SEQUENCE mi_plan_status_stamps_id_seq
 -- Name: mi_plan_status_stamps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_plan_status_stamps_id_seq OWNED BY mi_plan_status_stamps.id;
+ALTER SEQUENCE public.mi_plan_status_stamps_id_seq OWNED BY public.mi_plan_status_stamps.id;
 
 
 --
 -- Name: mi_plan_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_plan_statuses (
+CREATE TABLE public.mi_plan_statuses (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     description character varying(255),
@@ -1953,7 +1968,7 @@ CREATE TABLE mi_plan_statuses (
 -- Name: mi_plan_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_plan_statuses_id_seq
+CREATE SEQUENCE public.mi_plan_statuses_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1965,14 +1980,14 @@ CREATE SEQUENCE mi_plan_statuses_id_seq
 -- Name: mi_plan_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_plan_statuses_id_seq OWNED BY mi_plan_statuses.id;
+ALTER SEQUENCE public.mi_plan_statuses_id_seq OWNED BY public.mi_plan_statuses.id;
 
 
 --
 -- Name: mi_plan_sub_projects; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_plan_sub_projects (
+CREATE TABLE public.mi_plan_sub_projects (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     created_at timestamp without time zone,
@@ -1984,7 +1999,7 @@ CREATE TABLE mi_plan_sub_projects (
 -- Name: mi_plan_sub_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_plan_sub_projects_id_seq
+CREATE SEQUENCE public.mi_plan_sub_projects_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1996,14 +2011,14 @@ CREATE SEQUENCE mi_plan_sub_projects_id_seq
 -- Name: mi_plan_sub_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_plan_sub_projects_id_seq OWNED BY mi_plan_sub_projects.id;
+ALTER SEQUENCE public.mi_plan_sub_projects_id_seq OWNED BY public.mi_plan_sub_projects.id;
 
 
 --
 -- Name: mi_plans; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mi_plans (
+CREATE TABLE public.mi_plans (
     id integer NOT NULL,
     gene_id integer NOT NULL,
     consortium_id integer NOT NULL,
@@ -2046,7 +2061,7 @@ CREATE TABLE mi_plans (
 -- Name: mi_plans_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mi_plans_id_seq
+CREATE SEQUENCE public.mi_plans_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2058,14 +2073,14 @@ CREATE SEQUENCE mi_plans_id_seq
 -- Name: mi_plans_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mi_plans_id_seq OWNED BY mi_plans.id;
+ALTER SEQUENCE public.mi_plans_id_seq OWNED BY public.mi_plans.id;
 
 
 --
 -- Name: mouse_allele_mod_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mouse_allele_mod_status_stamps (
+CREATE TABLE public.mouse_allele_mod_status_stamps (
     id integer NOT NULL,
     mouse_allele_mod_id integer NOT NULL,
     status_id integer NOT NULL,
@@ -2078,7 +2093,7 @@ CREATE TABLE mouse_allele_mod_status_stamps (
 -- Name: mouse_allele_mod_status_stamps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mouse_allele_mod_status_stamps_id_seq
+CREATE SEQUENCE public.mouse_allele_mod_status_stamps_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2090,14 +2105,14 @@ CREATE SEQUENCE mouse_allele_mod_status_stamps_id_seq
 -- Name: mouse_allele_mod_status_stamps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mouse_allele_mod_status_stamps_id_seq OWNED BY mouse_allele_mod_status_stamps.id;
+ALTER SEQUENCE public.mouse_allele_mod_status_stamps_id_seq OWNED BY public.mouse_allele_mod_status_stamps.id;
 
 
 --
 -- Name: mouse_allele_mod_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mouse_allele_mod_statuses (
+CREATE TABLE public.mouse_allele_mod_statuses (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     order_by integer NOT NULL,
@@ -2109,7 +2124,7 @@ CREATE TABLE mouse_allele_mod_statuses (
 -- Name: mouse_allele_mod_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mouse_allele_mod_statuses_id_seq
+CREATE SEQUENCE public.mouse_allele_mod_statuses_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2121,14 +2136,14 @@ CREATE SEQUENCE mouse_allele_mod_statuses_id_seq
 -- Name: mouse_allele_mod_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mouse_allele_mod_statuses_id_seq OWNED BY mouse_allele_mod_statuses.id;
+ALTER SEQUENCE public.mouse_allele_mod_statuses_id_seq OWNED BY public.mouse_allele_mod_statuses.id;
 
 
 --
 -- Name: mouse_allele_mods; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mouse_allele_mods (
+CREATE TABLE public.mouse_allele_mods (
     id integer NOT NULL,
     mi_plan_id integer NOT NULL,
     status_id integer NOT NULL,
@@ -2153,7 +2168,7 @@ CREATE TABLE mouse_allele_mods (
 -- Name: mouse_allele_mods_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mouse_allele_mods_id_seq
+CREATE SEQUENCE public.mouse_allele_mods_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2165,14 +2180,14 @@ CREATE SEQUENCE mouse_allele_mods_id_seq
 -- Name: mouse_allele_mods_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mouse_allele_mods_id_seq OWNED BY mouse_allele_mods.id;
+ALTER SEQUENCE public.mouse_allele_mods_id_seq OWNED BY public.mouse_allele_mods.id;
 
 
 --
 -- Name: mutagenesis_factor_donors; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mutagenesis_factor_donors (
+CREATE TABLE public.mutagenesis_factor_donors (
     id integer NOT NULL,
     mutagenesis_factor_id integer NOT NULL,
     vector_id integer,
@@ -2186,7 +2201,7 @@ CREATE TABLE mutagenesis_factor_donors (
 -- Name: mutagenesis_factor_donors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mutagenesis_factor_donors_id_seq
+CREATE SEQUENCE public.mutagenesis_factor_donors_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2198,14 +2213,14 @@ CREATE SEQUENCE mutagenesis_factor_donors_id_seq
 -- Name: mutagenesis_factor_donors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mutagenesis_factor_donors_id_seq OWNED BY mutagenesis_factor_donors.id;
+ALTER SEQUENCE public.mutagenesis_factor_donors_id_seq OWNED BY public.mutagenesis_factor_donors.id;
 
 
 --
 -- Name: mutagenesis_factors; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE mutagenesis_factors (
+CREATE TABLE public.mutagenesis_factors (
     id integer NOT NULL,
     external_ref character varying(255),
     individually_set_grna_concentrations boolean DEFAULT false NOT NULL,
@@ -2225,7 +2240,7 @@ CREATE TABLE mutagenesis_factors (
 -- Name: mutagenesis_factors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE mutagenesis_factors_id_seq
+CREATE SEQUENCE public.mutagenesis_factors_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2237,14 +2252,14 @@ CREATE SEQUENCE mutagenesis_factors_id_seq
 -- Name: mutagenesis_factors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE mutagenesis_factors_id_seq OWNED BY mutagenesis_factors.id;
+ALTER SEQUENCE public.mutagenesis_factors_id_seq OWNED BY public.mutagenesis_factors.id;
 
 
 --
 -- Name: notifications; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE notifications (
+CREATE TABLE public.notifications (
     id integer NOT NULL,
     welcome_email_sent timestamp without time zone,
     welcome_email_text text,
@@ -2261,7 +2276,7 @@ CREATE TABLE notifications (
 -- Name: notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE notifications_id_seq
+CREATE SEQUENCE public.notifications_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2273,14 +2288,14 @@ CREATE SEQUENCE notifications_id_seq
 -- Name: notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE notifications_id_seq OWNED BY notifications.id;
+ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
 
 
 --
 -- Name: phenotype_attempt_ids; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE phenotype_attempt_ids (
+CREATE TABLE public.phenotype_attempt_ids (
     id integer NOT NULL
 );
 
@@ -2289,7 +2304,7 @@ CREATE TABLE phenotype_attempt_ids (
 -- Name: phenotype_attempt_ids_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE phenotype_attempt_ids_id_seq
+CREATE SEQUENCE public.phenotype_attempt_ids_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2301,14 +2316,14 @@ CREATE SEQUENCE phenotype_attempt_ids_id_seq
 -- Name: phenotype_attempt_ids_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE phenotype_attempt_ids_id_seq OWNED BY phenotype_attempt_ids.id;
+ALTER SEQUENCE public.phenotype_attempt_ids_id_seq OWNED BY public.phenotype_attempt_ids.id;
 
 
 --
 -- Name: phenotyping_production_late_adult_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE phenotyping_production_late_adult_status_stamps (
+CREATE TABLE public.phenotyping_production_late_adult_status_stamps (
     id integer NOT NULL,
     phenotyping_production_id integer NOT NULL,
     status_id integer NOT NULL,
@@ -2321,7 +2336,7 @@ CREATE TABLE phenotyping_production_late_adult_status_stamps (
 -- Name: phenotyping_production_late_adult_status_stamps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE phenotyping_production_late_adult_status_stamps_id_seq
+CREATE SEQUENCE public.phenotyping_production_late_adult_status_stamps_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2333,14 +2348,14 @@ CREATE SEQUENCE phenotyping_production_late_adult_status_stamps_id_seq
 -- Name: phenotyping_production_late_adult_status_stamps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE phenotyping_production_late_adult_status_stamps_id_seq OWNED BY phenotyping_production_late_adult_status_stamps.id;
+ALTER SEQUENCE public.phenotyping_production_late_adult_status_stamps_id_seq OWNED BY public.phenotyping_production_late_adult_status_stamps.id;
 
 
 --
 -- Name: phenotyping_production_late_adult_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE phenotyping_production_late_adult_statuses (
+CREATE TABLE public.phenotyping_production_late_adult_statuses (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     order_by character varying(255),
@@ -2356,7 +2371,7 @@ CREATE TABLE phenotyping_production_late_adult_statuses (
 -- Name: phenotyping_production_late_adult_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE phenotyping_production_late_adult_statuses_id_seq
+CREATE SEQUENCE public.phenotyping_production_late_adult_statuses_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2368,14 +2383,14 @@ CREATE SEQUENCE phenotyping_production_late_adult_statuses_id_seq
 -- Name: phenotyping_production_late_adult_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE phenotyping_production_late_adult_statuses_id_seq OWNED BY phenotyping_production_late_adult_statuses.id;
+ALTER SEQUENCE public.phenotyping_production_late_adult_statuses_id_seq OWNED BY public.phenotyping_production_late_adult_statuses.id;
 
 
 --
 -- Name: phenotyping_production_status_stamps; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE phenotyping_production_status_stamps (
+CREATE TABLE public.phenotyping_production_status_stamps (
     id integer NOT NULL,
     phenotyping_production_id integer NOT NULL,
     status_id integer NOT NULL,
@@ -2388,7 +2403,7 @@ CREATE TABLE phenotyping_production_status_stamps (
 -- Name: phenotyping_production_status_stamps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE phenotyping_production_status_stamps_id_seq
+CREATE SEQUENCE public.phenotyping_production_status_stamps_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2400,14 +2415,14 @@ CREATE SEQUENCE phenotyping_production_status_stamps_id_seq
 -- Name: phenotyping_production_status_stamps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE phenotyping_production_status_stamps_id_seq OWNED BY phenotyping_production_status_stamps.id;
+ALTER SEQUENCE public.phenotyping_production_status_stamps_id_seq OWNED BY public.phenotyping_production_status_stamps.id;
 
 
 --
 -- Name: phenotyping_production_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE phenotyping_production_statuses (
+CREATE TABLE public.phenotyping_production_statuses (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     order_by integer NOT NULL,
@@ -2419,7 +2434,7 @@ CREATE TABLE phenotyping_production_statuses (
 -- Name: phenotyping_production_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE phenotyping_production_statuses_id_seq
+CREATE SEQUENCE public.phenotyping_production_statuses_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2431,14 +2446,14 @@ CREATE SEQUENCE phenotyping_production_statuses_id_seq
 -- Name: phenotyping_production_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE phenotyping_production_statuses_id_seq OWNED BY phenotyping_production_statuses.id;
+ALTER SEQUENCE public.phenotyping_production_statuses_id_seq OWNED BY public.phenotyping_production_statuses.id;
 
 
 --
 -- Name: phenotyping_production_tissue_distribution_centres; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE phenotyping_production_tissue_distribution_centres (
+CREATE TABLE public.phenotyping_production_tissue_distribution_centres (
     id integer NOT NULL,
     start_date date,
     end_date date,
@@ -2454,7 +2469,7 @@ CREATE TABLE phenotyping_production_tissue_distribution_centres (
 -- Name: phenotyping_production_tissue_distribution_centres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE phenotyping_production_tissue_distribution_centres_id_seq
+CREATE SEQUENCE public.phenotyping_production_tissue_distribution_centres_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2466,14 +2481,14 @@ CREATE SEQUENCE phenotyping_production_tissue_distribution_centres_id_seq
 -- Name: phenotyping_production_tissue_distribution_centres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE phenotyping_production_tissue_distribution_centres_id_seq OWNED BY phenotyping_production_tissue_distribution_centres.id;
+ALTER SEQUENCE public.phenotyping_production_tissue_distribution_centres_id_seq OWNED BY public.phenotyping_production_tissue_distribution_centres.id;
 
 
 --
 -- Name: phenotyping_productions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE phenotyping_productions (
+CREATE TABLE public.phenotyping_productions (
     id integer NOT NULL,
     mi_plan_id integer NOT NULL,
     status_id integer NOT NULL,
@@ -2498,7 +2513,8 @@ CREATE TABLE phenotyping_productions (
     late_adult_is_active boolean DEFAULT true,
     late_adult_report_to_public boolean DEFAULT true,
     late_adult_phenotyping_experiments_started date,
-    late_adult_status_id integer
+    late_adult_status_id integer,
+    do_not_count_towards_completeness boolean DEFAULT false
 );
 
 
@@ -2506,7 +2522,7 @@ CREATE TABLE phenotyping_productions (
 -- Name: phenotyping_productions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE phenotyping_productions_id_seq
+CREATE SEQUENCE public.phenotyping_productions_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2518,14 +2534,14 @@ CREATE SEQUENCE phenotyping_productions_id_seq
 -- Name: phenotyping_productions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE phenotyping_productions_id_seq OWNED BY phenotyping_productions.id;
+ALTER SEQUENCE public.phenotyping_productions_id_seq OWNED BY public.phenotyping_productions.id;
 
 
 --
 -- Name: pipelines; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE pipelines (
+CREATE TABLE public.pipelines (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     description text,
@@ -2538,7 +2554,7 @@ CREATE TABLE pipelines (
 -- Name: pipelines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE pipelines_id_seq
+CREATE SEQUENCE public.pipelines_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2550,14 +2566,14 @@ CREATE SEQUENCE pipelines_id_seq
 -- Name: pipelines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE pipelines_id_seq OWNED BY pipelines.id;
+ALTER SEQUENCE public.pipelines_id_seq OWNED BY public.pipelines.id;
 
 
 --
 -- Name: production_centre_qcs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE production_centre_qcs (
+CREATE TABLE public.production_centre_qcs (
     id integer NOT NULL,
     allele_id integer,
     five_prime_screen character varying(255),
@@ -2588,7 +2604,7 @@ CREATE TABLE production_centre_qcs (
 -- Name: production_centre_qcs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE production_centre_qcs_id_seq
+CREATE SEQUENCE public.production_centre_qcs_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2600,14 +2616,14 @@ CREATE SEQUENCE production_centre_qcs_id_seq
 -- Name: production_centre_qcs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE production_centre_qcs_id_seq OWNED BY production_centre_qcs.id;
+ALTER SEQUENCE public.production_centre_qcs_id_seq OWNED BY public.production_centre_qcs.id;
 
 
 --
 -- Name: production_goals; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE production_goals (
+CREATE TABLE public.production_goals (
     id integer NOT NULL,
     consortium_id integer,
     year integer,
@@ -2627,7 +2643,7 @@ CREATE TABLE production_goals (
 -- Name: production_goals_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE production_goals_id_seq
+CREATE SEQUENCE public.production_goals_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2639,14 +2655,14 @@ CREATE SEQUENCE production_goals_id_seq
 -- Name: production_goals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE production_goals_id_seq OWNED BY production_goals.id;
+ALTER SEQUENCE public.production_goals_id_seq OWNED BY public.production_goals.id;
 
 
 --
 -- Name: qc_results; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE qc_results (
+CREATE TABLE public.qc_results (
     id integer NOT NULL,
     description character varying(50) NOT NULL,
     created_at timestamp without time zone,
@@ -2658,7 +2674,7 @@ CREATE TABLE qc_results (
 -- Name: qc_results_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE qc_results_id_seq
+CREATE SEQUENCE public.qc_results_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2670,14 +2686,14 @@ CREATE SEQUENCE qc_results_id_seq
 -- Name: qc_results_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE qc_results_id_seq OWNED BY qc_results.id;
+ALTER SEQUENCE public.qc_results_id_seq OWNED BY public.qc_results.id;
 
 
 --
 -- Name: reagent_names; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE reagent_names (
+CREATE TABLE public.reagent_names (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     description text
@@ -2688,7 +2704,7 @@ CREATE TABLE reagent_names (
 -- Name: reagent_names_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE reagent_names_id_seq
+CREATE SEQUENCE public.reagent_names_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2700,14 +2716,14 @@ CREATE SEQUENCE reagent_names_id_seq
 -- Name: reagent_names_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE reagent_names_id_seq OWNED BY reagent_names.id;
+ALTER SEQUENCE public.reagent_names_id_seq OWNED BY public.reagent_names.id;
 
 
 --
 -- Name: reagents; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE reagents (
+CREATE TABLE public.reagents (
     id integer NOT NULL,
     mi_attempt_id integer NOT NULL,
     reagent_id integer NOT NULL,
@@ -2719,7 +2735,7 @@ CREATE TABLE reagents (
 -- Name: reagents_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE reagents_id_seq
+CREATE SEQUENCE public.reagents_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2731,14 +2747,14 @@ CREATE SEQUENCE reagents_id_seq
 -- Name: reagents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE reagents_id_seq OWNED BY reagents.id;
+ALTER SEQUENCE public.reagents_id_seq OWNED BY public.reagents.id;
 
 
 --
 -- Name: report_caches; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE report_caches (
+CREATE TABLE public.report_caches (
     id integer NOT NULL,
     name text NOT NULL,
     data text NOT NULL,
@@ -2752,7 +2768,7 @@ CREATE TABLE report_caches (
 -- Name: report_caches_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE report_caches_id_seq
+CREATE SEQUENCE public.report_caches_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2764,14 +2780,14 @@ CREATE SEQUENCE report_caches_id_seq
 -- Name: report_caches_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE report_caches_id_seq OWNED BY report_caches.id;
+ALTER SEQUENCE public.report_caches_id_seq OWNED BY public.report_caches.id;
 
 
 --
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE schema_migrations (
+CREATE TABLE public.schema_migrations (
     version character varying(255) NOT NULL
 );
 
@@ -2780,7 +2796,7 @@ CREATE TABLE schema_migrations (
 -- Name: strains; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE strains (
+CREATE TABLE public.strains (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_at timestamp without time zone,
@@ -2797,7 +2813,7 @@ CREATE TABLE strains (
 -- Name: strains_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE strains_id_seq
+CREATE SEQUENCE public.strains_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2809,14 +2825,14 @@ CREATE SEQUENCE strains_id_seq
 -- Name: strains_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE strains_id_seq OWNED BY strains.id;
+ALTER SEQUENCE public.strains_id_seq OWNED BY public.strains.id;
 
 
 --
 -- Name: targ_rep_allele_sequence_annotations; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_allele_sequence_annotations (
+CREATE TABLE public.targ_rep_allele_sequence_annotations (
     id integer NOT NULL,
     mutation_type character varying(255),
     expected character varying(255),
@@ -2835,7 +2851,7 @@ CREATE TABLE targ_rep_allele_sequence_annotations (
 -- Name: targ_rep_allele_sequence_annotations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_allele_sequence_annotations_id_seq
+CREATE SEQUENCE public.targ_rep_allele_sequence_annotations_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2847,14 +2863,14 @@ CREATE SEQUENCE targ_rep_allele_sequence_annotations_id_seq
 -- Name: targ_rep_allele_sequence_annotations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_allele_sequence_annotations_id_seq OWNED BY targ_rep_allele_sequence_annotations.id;
+ALTER SEQUENCE public.targ_rep_allele_sequence_annotations_id_seq OWNED BY public.targ_rep_allele_sequence_annotations.id;
 
 
 --
 -- Name: targ_rep_alleles; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_alleles (
+CREATE TABLE public.targ_rep_alleles (
     id integer NOT NULL,
     gene_id integer,
     assembly character varying(255) DEFAULT 'GRCm38'::character varying NOT NULL,
@@ -2897,7 +2913,7 @@ CREATE TABLE targ_rep_alleles (
 -- Name: targ_rep_alleles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_alleles_id_seq
+CREATE SEQUENCE public.targ_rep_alleles_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2909,14 +2925,14 @@ CREATE SEQUENCE targ_rep_alleles_id_seq
 -- Name: targ_rep_alleles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_alleles_id_seq OWNED BY targ_rep_alleles.id;
+ALTER SEQUENCE public.targ_rep_alleles_id_seq OWNED BY public.targ_rep_alleles.id;
 
 
 --
 -- Name: targ_rep_centre_pipelines; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_centre_pipelines (
+CREATE TABLE public.targ_rep_centre_pipelines (
     id integer NOT NULL,
     name character varying(255),
     centres text,
@@ -2929,7 +2945,7 @@ CREATE TABLE targ_rep_centre_pipelines (
 -- Name: targ_rep_centre_pipelines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_centre_pipelines_id_seq
+CREATE SEQUENCE public.targ_rep_centre_pipelines_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2941,14 +2957,14 @@ CREATE SEQUENCE targ_rep_centre_pipelines_id_seq
 -- Name: targ_rep_centre_pipelines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_centre_pipelines_id_seq OWNED BY targ_rep_centre_pipelines.id;
+ALTER SEQUENCE public.targ_rep_centre_pipelines_id_seq OWNED BY public.targ_rep_centre_pipelines.id;
 
 
 --
 -- Name: targ_rep_crisprs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_crisprs (
+CREATE TABLE public.targ_rep_crisprs (
     id integer NOT NULL,
     mutagenesis_factor_id integer NOT NULL,
     sequence character varying(255) NOT NULL,
@@ -2965,7 +2981,7 @@ CREATE TABLE targ_rep_crisprs (
 -- Name: targ_rep_crisprs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_crisprs_id_seq
+CREATE SEQUENCE public.targ_rep_crisprs_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2977,14 +2993,14 @@ CREATE SEQUENCE targ_rep_crisprs_id_seq
 -- Name: targ_rep_crisprs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_crisprs_id_seq OWNED BY targ_rep_crisprs.id;
+ALTER SEQUENCE public.targ_rep_crisprs_id_seq OWNED BY public.targ_rep_crisprs.id;
 
 
 --
 -- Name: targ_rep_distribution_qcs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_distribution_qcs (
+CREATE TABLE public.targ_rep_distribution_qcs (
     id integer NOT NULL,
     five_prime_sr_pcr character varying(255),
     three_prime_sr_pcr character varying(255),
@@ -3017,7 +3033,7 @@ CREATE TABLE targ_rep_distribution_qcs (
 -- Name: targ_rep_distribution_qcs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_distribution_qcs_id_seq
+CREATE SEQUENCE public.targ_rep_distribution_qcs_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3029,14 +3045,14 @@ CREATE SEQUENCE targ_rep_distribution_qcs_id_seq
 -- Name: targ_rep_distribution_qcs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_distribution_qcs_id_seq OWNED BY targ_rep_distribution_qcs.id;
+ALTER SEQUENCE public.targ_rep_distribution_qcs_id_seq OWNED BY public.targ_rep_distribution_qcs.id;
 
 
 --
 -- Name: targ_rep_es_cell_distribution_centres; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_es_cell_distribution_centres (
+CREATE TABLE public.targ_rep_es_cell_distribution_centres (
     id integer NOT NULL,
     name character varying(255),
     created_at timestamp without time zone NOT NULL,
@@ -3048,7 +3064,7 @@ CREATE TABLE targ_rep_es_cell_distribution_centres (
 -- Name: targ_rep_es_cell_distribution_centres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_es_cell_distribution_centres_id_seq
+CREATE SEQUENCE public.targ_rep_es_cell_distribution_centres_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3060,14 +3076,14 @@ CREATE SEQUENCE targ_rep_es_cell_distribution_centres_id_seq
 -- Name: targ_rep_es_cell_distribution_centres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_es_cell_distribution_centres_id_seq OWNED BY targ_rep_es_cell_distribution_centres.id;
+ALTER SEQUENCE public.targ_rep_es_cell_distribution_centres_id_seq OWNED BY public.targ_rep_es_cell_distribution_centres.id;
 
 
 --
 -- Name: targ_rep_es_cells; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_es_cells (
+CREATE TABLE public.targ_rep_es_cells (
     id integer NOT NULL,
     allele_id integer NOT NULL,
     targeting_vector_id integer,
@@ -3115,7 +3131,7 @@ CREATE TABLE targ_rep_es_cells (
 -- Name: targ_rep_mutation_types; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_mutation_types (
+CREATE TABLE public.targ_rep_mutation_types (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     code character varying(100) NOT NULL,
@@ -3129,19 +3145,19 @@ CREATE TABLE targ_rep_mutation_types (
 -- Name: targ_rep_es_cell_mutation_types; Type: VIEW; Schema: public; Owner: -
 --
 
-CREATE VIEW targ_rep_es_cell_mutation_types AS
+CREATE VIEW public.targ_rep_es_cell_mutation_types AS
  SELECT es.id AS es_cell_id,
     types.name AS mutation_type
-   FROM ((targ_rep_es_cells es
-     LEFT JOIN targ_rep_alleles al ON ((es.allele_id = al.id)))
-     LEFT JOIN targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
+   FROM ((public.targ_rep_es_cells es
+     LEFT JOIN public.targ_rep_alleles al ON ((es.allele_id = al.id)))
+     LEFT JOIN public.targ_rep_mutation_types types ON ((al.mutation_type_id = types.id)));
 
 
 --
 -- Name: targ_rep_es_cells_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_es_cells_id_seq
+CREATE SEQUENCE public.targ_rep_es_cells_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3153,14 +3169,14 @@ CREATE SEQUENCE targ_rep_es_cells_id_seq
 -- Name: targ_rep_es_cells_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_es_cells_id_seq OWNED BY targ_rep_es_cells.id;
+ALTER SEQUENCE public.targ_rep_es_cells_id_seq OWNED BY public.targ_rep_es_cells.id;
 
 
 --
 -- Name: targ_rep_genbank_files; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_genbank_files (
+CREATE TABLE public.targ_rep_genbank_files (
     id integer NOT NULL,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
@@ -3172,7 +3188,7 @@ CREATE TABLE targ_rep_genbank_files (
 -- Name: targ_rep_genbank_files_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_genbank_files_id_seq
+CREATE SEQUENCE public.targ_rep_genbank_files_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3184,14 +3200,14 @@ CREATE SEQUENCE targ_rep_genbank_files_id_seq
 -- Name: targ_rep_genbank_files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
+ALTER SEQUENCE public.targ_rep_genbank_files_id_seq OWNED BY public.targ_rep_genbank_files.id;
 
 
 --
 -- Name: targ_rep_genotype_primers; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_genotype_primers (
+CREATE TABLE public.targ_rep_genotype_primers (
     id integer NOT NULL,
     sequence character varying(255) NOT NULL,
     name character varying(255),
@@ -3206,7 +3222,7 @@ CREATE TABLE targ_rep_genotype_primers (
 -- Name: targ_rep_genotype_primers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_genotype_primers_id_seq
+CREATE SEQUENCE public.targ_rep_genotype_primers_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3218,14 +3234,14 @@ CREATE SEQUENCE targ_rep_genotype_primers_id_seq
 -- Name: targ_rep_genotype_primers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_genotype_primers_id_seq OWNED BY targ_rep_genotype_primers.id;
+ALTER SEQUENCE public.targ_rep_genotype_primers_id_seq OWNED BY public.targ_rep_genotype_primers.id;
 
 
 --
 -- Name: targ_rep_ikmc_project_statuses; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_ikmc_project_statuses (
+CREATE TABLE public.targ_rep_ikmc_project_statuses (
     id integer NOT NULL,
     name character varying(255),
     product_type character varying(255),
@@ -3237,7 +3253,7 @@ CREATE TABLE targ_rep_ikmc_project_statuses (
 -- Name: targ_rep_ikmc_project_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_ikmc_project_statuses_id_seq
+CREATE SEQUENCE public.targ_rep_ikmc_project_statuses_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3249,14 +3265,14 @@ CREATE SEQUENCE targ_rep_ikmc_project_statuses_id_seq
 -- Name: targ_rep_ikmc_project_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_ikmc_project_statuses_id_seq OWNED BY targ_rep_ikmc_project_statuses.id;
+ALTER SEQUENCE public.targ_rep_ikmc_project_statuses_id_seq OWNED BY public.targ_rep_ikmc_project_statuses.id;
 
 
 --
 -- Name: targ_rep_ikmc_projects; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_ikmc_projects (
+CREATE TABLE public.targ_rep_ikmc_projects (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     status_id integer,
@@ -3270,7 +3286,7 @@ CREATE TABLE targ_rep_ikmc_projects (
 -- Name: targ_rep_ikmc_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_ikmc_projects_id_seq
+CREATE SEQUENCE public.targ_rep_ikmc_projects_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3282,14 +3298,14 @@ CREATE SEQUENCE targ_rep_ikmc_projects_id_seq
 -- Name: targ_rep_ikmc_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_ikmc_projects_id_seq OWNED BY targ_rep_ikmc_projects.id;
+ALTER SEQUENCE public.targ_rep_ikmc_projects_id_seq OWNED BY public.targ_rep_ikmc_projects.id;
 
 
 --
 -- Name: targ_rep_mutation_methods; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_mutation_methods (
+CREATE TABLE public.targ_rep_mutation_methods (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     code character varying(100) NOT NULL,
@@ -3303,7 +3319,7 @@ CREATE TABLE targ_rep_mutation_methods (
 -- Name: targ_rep_mutation_methods_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_mutation_methods_id_seq
+CREATE SEQUENCE public.targ_rep_mutation_methods_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3315,14 +3331,14 @@ CREATE SEQUENCE targ_rep_mutation_methods_id_seq
 -- Name: targ_rep_mutation_methods_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_mutation_methods_id_seq OWNED BY targ_rep_mutation_methods.id;
+ALTER SEQUENCE public.targ_rep_mutation_methods_id_seq OWNED BY public.targ_rep_mutation_methods.id;
 
 
 --
 -- Name: targ_rep_mutation_subtypes; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_mutation_subtypes (
+CREATE TABLE public.targ_rep_mutation_subtypes (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     code character varying(100) NOT NULL,
@@ -3335,7 +3351,7 @@ CREATE TABLE targ_rep_mutation_subtypes (
 -- Name: targ_rep_mutation_subtypes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_mutation_subtypes_id_seq
+CREATE SEQUENCE public.targ_rep_mutation_subtypes_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3347,14 +3363,14 @@ CREATE SEQUENCE targ_rep_mutation_subtypes_id_seq
 -- Name: targ_rep_mutation_subtypes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_mutation_subtypes_id_seq OWNED BY targ_rep_mutation_subtypes.id;
+ALTER SEQUENCE public.targ_rep_mutation_subtypes_id_seq OWNED BY public.targ_rep_mutation_subtypes.id;
 
 
 --
 -- Name: targ_rep_mutation_types_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_mutation_types_id_seq
+CREATE SEQUENCE public.targ_rep_mutation_types_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3366,14 +3382,14 @@ CREATE SEQUENCE targ_rep_mutation_types_id_seq
 -- Name: targ_rep_mutation_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_mutation_types_id_seq OWNED BY targ_rep_mutation_types.id;
+ALTER SEQUENCE public.targ_rep_mutation_types_id_seq OWNED BY public.targ_rep_mutation_types.id;
 
 
 --
 -- Name: targ_rep_pipelines; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_pipelines (
+CREATE TABLE public.targ_rep_pipelines (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     description character varying(255),
@@ -3389,7 +3405,7 @@ CREATE TABLE targ_rep_pipelines (
 -- Name: targ_rep_pipelines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_pipelines_id_seq
+CREATE SEQUENCE public.targ_rep_pipelines_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3401,14 +3417,14 @@ CREATE SEQUENCE targ_rep_pipelines_id_seq
 -- Name: targ_rep_pipelines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_pipelines_id_seq OWNED BY targ_rep_pipelines.id;
+ALTER SEQUENCE public.targ_rep_pipelines_id_seq OWNED BY public.targ_rep_pipelines.id;
 
 
 --
 -- Name: targ_rep_sequence_annotation; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_sequence_annotation (
+CREATE TABLE public.targ_rep_sequence_annotation (
     id integer NOT NULL,
     coordinate_start integer,
     expected_sequence character varying(255),
@@ -3421,7 +3437,7 @@ CREATE TABLE targ_rep_sequence_annotation (
 -- Name: targ_rep_sequence_annotation_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_sequence_annotation_id_seq
+CREATE SEQUENCE public.targ_rep_sequence_annotation_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3433,14 +3449,14 @@ CREATE SEQUENCE targ_rep_sequence_annotation_id_seq
 -- Name: targ_rep_sequence_annotation_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_sequence_annotation_id_seq OWNED BY targ_rep_sequence_annotation.id;
+ALTER SEQUENCE public.targ_rep_sequence_annotation_id_seq OWNED BY public.targ_rep_sequence_annotation.id;
 
 
 --
 -- Name: targ_rep_targeting_vectors; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE targ_rep_targeting_vectors (
+CREATE TABLE public.targ_rep_targeting_vectors (
     id integer NOT NULL,
     allele_id integer NOT NULL,
     name character varying(255) NOT NULL,
@@ -3461,7 +3477,7 @@ CREATE TABLE targ_rep_targeting_vectors (
 -- Name: targ_rep_targeting_vectors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE targ_rep_targeting_vectors_id_seq
+CREATE SEQUENCE public.targ_rep_targeting_vectors_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3473,106 +3489,23 @@ CREATE SEQUENCE targ_rep_targeting_vectors_id_seq
 -- Name: targ_rep_targeting_vectors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE targ_rep_targeting_vectors_id_seq OWNED BY targ_rep_targeting_vectors.id;
-
-
---
--- Name: trace_call_vcf_modifications; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE trace_call_vcf_modifications (
-    id integer NOT NULL,
-    trace_call_id integer NOT NULL,
-    mod_type character varying(255) NOT NULL,
-    chr character varying(255) NOT NULL,
-    start integer NOT NULL,
-    "end" integer NOT NULL,
-    ref_seq text NOT NULL,
-    alt_seq text NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE trace_call_vcf_modifications_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: trace_call_vcf_modifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE trace_call_vcf_modifications_id_seq OWNED BY trace_call_vcf_modifications.id;
-
-
---
--- Name: trace_calls; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE trace_calls (
-    id integer NOT NULL,
-    colony_id integer NOT NULL,
-    file_alignment text,
-    file_filtered_analysis_vcf text,
-    file_variant_effect_output_txt text,
-    file_reference_fa text,
-    file_mutant_fa text,
-    file_primer_reads_fa text,
-    file_alignment_data_yaml text,
-    file_trace_output text,
-    file_trace_error text,
-    file_exception_details text,
-    file_return_code integer,
-    file_merged_variants_vcf text,
-    is_het boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    trace_file_file_name character varying(255),
-    trace_file_content_type character varying(255),
-    trace_file_file_size integer,
-    trace_file_updated_at timestamp without time zone,
-    exon_id character varying(255)
-);
-
-
---
--- Name: trace_calls_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE trace_calls_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: trace_calls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE trace_calls_id_seq OWNED BY trace_calls.id;
+ALTER SEQUENCE public.targ_rep_targeting_vectors_id_seq OWNED BY public.targ_rep_targeting_vectors.id;
 
 
 --
 -- Name: trace_files; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE trace_files (
+CREATE TABLE public.trace_files (
     id integer NOT NULL,
-    style character varying(255),
-    file_contents bytea,
+    colony_id integer NOT NULL,
+    is_het boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    trace_call_id integer NOT NULL
+    trace_file_name character varying(255),
+    trace_content_type character varying(255),
+    trace_file_size integer,
+    trace_updated_at timestamp without time zone
 );
 
 
@@ -3580,7 +3513,7 @@ CREATE TABLE trace_files (
 -- Name: trace_files_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE trace_files_id_seq
+CREATE SEQUENCE public.trace_files_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3592,14 +3525,47 @@ CREATE SEQUENCE trace_files_id_seq
 -- Name: trace_files_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE trace_files_id_seq OWNED BY trace_files.id;
+ALTER SEQUENCE public.trace_files_id_seq OWNED BY public.trace_files.id;
+
+
+--
+-- Name: traces; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.traces (
+    id integer NOT NULL,
+    style character varying(255),
+    file_contents bytea,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    trace_file_id integer NOT NULL
+);
+
+
+--
+-- Name: traces_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.traces_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: traces_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.traces_id_seq OWNED BY public.traces.id;
 
 
 --
 -- Name: tracking_goals; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE tracking_goals (
+CREATE TABLE public.tracking_goals (
     id integer NOT NULL,
     production_centre_id integer,
     date date,
@@ -3617,7 +3583,7 @@ CREATE TABLE tracking_goals (
 -- Name: tracking_goals_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE tracking_goals_id_seq
+CREATE SEQUENCE public.tracking_goals_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3629,14 +3595,14 @@ CREATE SEQUENCE tracking_goals_id_seq
 -- Name: tracking_goals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE tracking_goals_id_seq OWNED BY tracking_goals.id;
+ALTER SEQUENCE public.tracking_goals_id_seq OWNED BY public.tracking_goals.id;
 
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE users (
+CREATE TABLE public.users (
     id integer NOT NULL,
     email character varying(255) DEFAULT ''::character varying NOT NULL,
     encrypted_password character varying(128) DEFAULT ''::character varying NOT NULL,
@@ -3660,7 +3626,7 @@ CREATE TABLE users (
 -- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE users_id_seq
+CREATE SEQUENCE public.users_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3672,525 +3638,518 @@ CREATE SEQUENCE users_id_seq
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE users_id_seq OWNED BY users.id;
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY allele_annotations ALTER COLUMN id SET DEFAULT nextval('allele_annotations_id_seq'::regclass);
+ALTER TABLE ONLY public.allele_annotations ALTER COLUMN id SET DEFAULT nextval('public.allele_annotations_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY alleles ALTER COLUMN id SET DEFAULT nextval('alleles_id_seq'::regclass);
+ALTER TABLE ONLY public.alleles ALTER COLUMN id SET DEFAULT nextval('public.alleles_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY audits ALTER COLUMN id SET DEFAULT nextval('audits_id_seq'::regclass);
+ALTER TABLE ONLY public.audits ALTER COLUMN id SET DEFAULT nextval('public.audits_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY centres ALTER COLUMN id SET DEFAULT nextval('centres_id_seq'::regclass);
+ALTER TABLE ONLY public.centres ALTER COLUMN id SET DEFAULT nextval('public.centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY colonies ALTER COLUMN id SET DEFAULT nextval('colonies_id_seq'::regclass);
+ALTER TABLE ONLY public.colonies ALTER COLUMN id SET DEFAULT nextval('public.colonies_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY colony_distribution_centres ALTER COLUMN id SET DEFAULT nextval('colony_distribution_centres_id_seq'::regclass);
+ALTER TABLE ONLY public.colony_distribution_centres ALTER COLUMN id SET DEFAULT nextval('public.colony_distribution_centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY consortia ALTER COLUMN id SET DEFAULT nextval('consortia_id_seq'::regclass);
+ALTER TABLE ONLY public.consortia ALTER COLUMN id SET DEFAULT nextval('public.consortia_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY contacts ALTER COLUMN id SET DEFAULT nextval('contacts_id_seq'::regclass);
+ALTER TABLE ONLY public.contacts ALTER COLUMN id SET DEFAULT nextval('public.contacts_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY deleter_strains ALTER COLUMN id SET DEFAULT nextval('deleter_strains_id_seq'::regclass);
+ALTER TABLE ONLY public.deleter_strains ALTER COLUMN id SET DEFAULT nextval('public.deleter_strains_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY deposited_materials ALTER COLUMN id SET DEFAULT nextval('deposited_materials_id_seq'::regclass);
+ALTER TABLE ONLY public.deposited_materials ALTER COLUMN id SET DEFAULT nextval('public.deposited_materials_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY email_templates ALTER COLUMN id SET DEFAULT nextval('email_templates_id_seq'::regclass);
+ALTER TABLE ONLY public.email_templates ALTER COLUMN id SET DEFAULT nextval('public.email_templates_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY es_cells ALTER COLUMN id SET DEFAULT nextval('es_cells_id_seq'::regclass);
+ALTER TABLE ONLY public.es_cells ALTER COLUMN id SET DEFAULT nextval('public.es_cells_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY gene_private_annotations ALTER COLUMN id SET DEFAULT nextval('gene_private_annotations_id_seq'::regclass);
+ALTER TABLE ONLY public.gene_private_annotations ALTER COLUMN id SET DEFAULT nextval('public.gene_private_annotations_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY genes ALTER COLUMN id SET DEFAULT nextval('genes_id_seq'::regclass);
+ALTER TABLE ONLY public.genes ALTER COLUMN id SET DEFAULT nextval('public.genes_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report ALTER COLUMN id SET DEFAULT nextval('intermediate_report_id_seq'::regclass);
+ALTER TABLE ONLY public.intermediate_report ALTER COLUMN id SET DEFAULT nextval('public.intermediate_report_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_centre ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_centre_id_seq'::regclass);
+ALTER TABLE ONLY public.intermediate_report_summary_by_centre ALTER COLUMN id SET DEFAULT nextval('public.intermediate_report_summary_by_centre_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_centre_and_consortia_id_seq'::regclass);
+ALTER TABLE ONLY public.intermediate_report_summary_by_centre_and_consortia ALTER COLUMN id SET DEFAULT nextval('public.intermediate_report_summary_by_centre_and_consortia_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_consortia ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_consortia_id_seq'::regclass);
+ALTER TABLE ONLY public.intermediate_report_summary_by_consortia ALTER COLUMN id SET DEFAULT nextval('public.intermediate_report_summary_by_consortia_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_gene ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_gene_id_seq'::regclass);
+ALTER TABLE ONLY public.intermediate_report_summary_by_gene ALTER COLUMN id SET DEFAULT nextval('public.intermediate_report_summary_by_gene_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_mi_plan ALTER COLUMN id SET DEFAULT nextval('intermediate_report_summary_by_mi_plan_id_seq'::regclass);
+ALTER TABLE ONLY public.intermediate_report_summary_by_mi_plan ALTER COLUMN id SET DEFAULT nextval('public.intermediate_report_summary_by_mi_plan_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_attempt_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('public.mi_attempt_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('mi_attempt_statuses_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('public.mi_attempt_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempts ALTER COLUMN id SET DEFAULT nextval('mi_attempts_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_attempts ALTER COLUMN id SET DEFAULT nextval('public.mi_attempts_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_es_cell_qcs ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_cell_qcs_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_plan_es_cell_qcs ALTER COLUMN id SET DEFAULT nextval('public.mi_plan_es_cell_qcs_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_es_qc_comments ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_qc_comments_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_plan_es_qc_comments ALTER COLUMN id SET DEFAULT nextval('public.mi_plan_es_qc_comments_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_priorities ALTER COLUMN id SET DEFAULT nextval('mi_plan_priorities_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_plan_priorities ALTER COLUMN id SET DEFAULT nextval('public.mi_plan_priorities_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_plan_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_plan_status_stamps ALTER COLUMN id SET DEFAULT nextval('public.mi_plan_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_statuses ALTER COLUMN id SET DEFAULT nextval('mi_plan_statuses_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_plan_statuses ALTER COLUMN id SET DEFAULT nextval('public.mi_plan_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_sub_projects ALTER COLUMN id SET DEFAULT nextval('mi_plan_sub_projects_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_plan_sub_projects ALTER COLUMN id SET DEFAULT nextval('public.mi_plan_sub_projects_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plans ALTER COLUMN id SET DEFAULT nextval('mi_plans_id_seq'::regclass);
+ALTER TABLE ONLY public.mi_plans ALTER COLUMN id SET DEFAULT nextval('public.mi_plans_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mod_status_stamps ALTER COLUMN id SET DEFAULT nextval('mouse_allele_mod_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY public.mouse_allele_mod_status_stamps ALTER COLUMN id SET DEFAULT nextval('public.mouse_allele_mod_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mod_statuses ALTER COLUMN id SET DEFAULT nextval('mouse_allele_mod_statuses_id_seq'::regclass);
+ALTER TABLE ONLY public.mouse_allele_mod_statuses ALTER COLUMN id SET DEFAULT nextval('public.mouse_allele_mod_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mods ALTER COLUMN id SET DEFAULT nextval('mouse_allele_mods_id_seq'::regclass);
+ALTER TABLE ONLY public.mouse_allele_mods ALTER COLUMN id SET DEFAULT nextval('public.mouse_allele_mods_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mutagenesis_factor_donors ALTER COLUMN id SET DEFAULT nextval('mutagenesis_factor_donors_id_seq'::regclass);
+ALTER TABLE ONLY public.mutagenesis_factor_donors ALTER COLUMN id SET DEFAULT nextval('public.mutagenesis_factor_donors_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mutagenesis_factors ALTER COLUMN id SET DEFAULT nextval('mutagenesis_factors_id_seq'::regclass);
+ALTER TABLE ONLY public.mutagenesis_factors ALTER COLUMN id SET DEFAULT nextval('public.mutagenesis_factors_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY notifications ALTER COLUMN id SET DEFAULT nextval('notifications_id_seq'::regclass);
+ALTER TABLE ONLY public.notifications ALTER COLUMN id SET DEFAULT nextval('public.notifications_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotype_attempt_ids ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_ids_id_seq'::regclass);
+ALTER TABLE ONLY public.phenotype_attempt_ids ALTER COLUMN id SET DEFAULT nextval('public.phenotype_attempt_ids_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps ALTER COLUMN id SET DEFAULT nextval('phenotyping_production_late_adult_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY public.phenotyping_production_late_adult_status_stamps ALTER COLUMN id SET DEFAULT nextval('public.phenotyping_production_late_adult_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_late_adult_statuses ALTER COLUMN id SET DEFAULT nextval('phenotyping_production_late_adult_statuses_id_seq'::regclass);
+ALTER TABLE ONLY public.phenotyping_production_late_adult_statuses ALTER COLUMN id SET DEFAULT nextval('public.phenotyping_production_late_adult_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_status_stamps ALTER COLUMN id SET DEFAULT nextval('phenotyping_production_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY public.phenotyping_production_status_stamps ALTER COLUMN id SET DEFAULT nextval('public.phenotyping_production_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_statuses ALTER COLUMN id SET DEFAULT nextval('phenotyping_production_statuses_id_seq'::regclass);
+ALTER TABLE ONLY public.phenotyping_production_statuses ALTER COLUMN id SET DEFAULT nextval('public.phenotyping_production_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres ALTER COLUMN id SET DEFAULT nextval('phenotyping_production_tissue_distribution_centres_id_seq'::regclass);
+ALTER TABLE ONLY public.phenotyping_production_tissue_distribution_centres ALTER COLUMN id SET DEFAULT nextval('public.phenotyping_production_tissue_distribution_centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_productions ALTER COLUMN id SET DEFAULT nextval('phenotyping_productions_id_seq'::regclass);
+ALTER TABLE ONLY public.phenotyping_productions ALTER COLUMN id SET DEFAULT nextval('public.phenotyping_productions_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pipelines ALTER COLUMN id SET DEFAULT nextval('pipelines_id_seq'::regclass);
+ALTER TABLE ONLY public.pipelines ALTER COLUMN id SET DEFAULT nextval('public.pipelines_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY production_centre_qcs ALTER COLUMN id SET DEFAULT nextval('production_centre_qcs_id_seq'::regclass);
+ALTER TABLE ONLY public.production_centre_qcs ALTER COLUMN id SET DEFAULT nextval('public.production_centre_qcs_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY production_goals ALTER COLUMN id SET DEFAULT nextval('production_goals_id_seq'::regclass);
+ALTER TABLE ONLY public.production_goals ALTER COLUMN id SET DEFAULT nextval('public.production_goals_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY qc_results ALTER COLUMN id SET DEFAULT nextval('qc_results_id_seq'::regclass);
+ALTER TABLE ONLY public.qc_results ALTER COLUMN id SET DEFAULT nextval('public.qc_results_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY reagent_names ALTER COLUMN id SET DEFAULT nextval('reagent_names_id_seq'::regclass);
+ALTER TABLE ONLY public.reagent_names ALTER COLUMN id SET DEFAULT nextval('public.reagent_names_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY reagents ALTER COLUMN id SET DEFAULT nextval('reagents_id_seq'::regclass);
+ALTER TABLE ONLY public.reagents ALTER COLUMN id SET DEFAULT nextval('public.reagents_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY report_caches ALTER COLUMN id SET DEFAULT nextval('report_caches_id_seq'::regclass);
+ALTER TABLE ONLY public.report_caches ALTER COLUMN id SET DEFAULT nextval('public.report_caches_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY strains ALTER COLUMN id SET DEFAULT nextval('strains_id_seq'::regclass);
+ALTER TABLE ONLY public.strains ALTER COLUMN id SET DEFAULT nextval('public.strains_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_allele_sequence_annotations ALTER COLUMN id SET DEFAULT nextval('targ_rep_allele_sequence_annotations_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_allele_sequence_annotations ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_allele_sequence_annotations_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_alleles ALTER COLUMN id SET DEFAULT nextval('targ_rep_alleles_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_alleles ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_alleles_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_centre_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_centre_pipelines_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_centre_pipelines ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_centre_pipelines_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_crisprs ALTER COLUMN id SET DEFAULT nextval('targ_rep_crisprs_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_crisprs ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_crisprs_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_distribution_qcs ALTER COLUMN id SET DEFAULT nextval('targ_rep_distribution_qcs_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_distribution_qcs ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_distribution_qcs_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_es_cell_distribution_centres ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cell_distribution_centres_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_es_cell_distribution_centres ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_es_cell_distribution_centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_es_cells ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cells_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_es_cells ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_es_cells_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_genbank_files ALTER COLUMN id SET DEFAULT nextval('targ_rep_genbank_files_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_genbank_files ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_genbank_files_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_genotype_primers ALTER COLUMN id SET DEFAULT nextval('targ_rep_genotype_primers_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_genotype_primers ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_genotype_primers_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_ikmc_project_statuses ALTER COLUMN id SET DEFAULT nextval('targ_rep_ikmc_project_statuses_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_ikmc_project_statuses ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_ikmc_project_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_ikmc_projects ALTER COLUMN id SET DEFAULT nextval('targ_rep_ikmc_projects_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_ikmc_projects ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_ikmc_projects_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_mutation_methods ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_methods_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_mutation_methods ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_mutation_methods_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_mutation_subtypes ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_subtypes_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_mutation_subtypes ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_mutation_subtypes_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_mutation_types ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_types_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_mutation_types ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_mutation_types_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_pipelines_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_pipelines ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_pipelines_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_sequence_annotation ALTER COLUMN id SET DEFAULT nextval('targ_rep_sequence_annotation_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_sequence_annotation ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_sequence_annotation_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval('targ_rep_targeting_vectors_id_seq'::regclass);
+ALTER TABLE ONLY public.targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval('public.targ_rep_targeting_vectors_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY trace_call_vcf_modifications ALTER COLUMN id SET DEFAULT nextval('trace_call_vcf_modifications_id_seq'::regclass);
+ALTER TABLE ONLY public.trace_files ALTER COLUMN id SET DEFAULT nextval('public.trace_files_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY trace_calls ALTER COLUMN id SET DEFAULT nextval('trace_calls_id_seq'::regclass);
+ALTER TABLE ONLY public.traces ALTER COLUMN id SET DEFAULT nextval('public.traces_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY trace_files ALTER COLUMN id SET DEFAULT nextval('trace_files_id_seq'::regclass);
+ALTER TABLE ONLY public.tracking_goals ALTER COLUMN id SET DEFAULT nextval('public.tracking_goals_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY tracking_goals ALTER COLUMN id SET DEFAULT nextval('tracking_goals_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 
 --
 -- Name: allele_annotations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY allele_annotations
+ALTER TABLE ONLY public.allele_annotations
     ADD CONSTRAINT allele_annotations_pkey PRIMARY KEY (id);
 
 
@@ -4198,7 +4157,7 @@ ALTER TABLE ONLY allele_annotations
 -- Name: alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY alleles
+ALTER TABLE ONLY public.alleles
     ADD CONSTRAINT alleles_pkey PRIMARY KEY (id);
 
 
@@ -4206,7 +4165,7 @@ ALTER TABLE ONLY alleles
 -- Name: audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY audits
+ALTER TABLE ONLY public.audits
     ADD CONSTRAINT audits_pkey PRIMARY KEY (id);
 
 
@@ -4214,7 +4173,7 @@ ALTER TABLE ONLY audits
 -- Name: centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY centres
+ALTER TABLE ONLY public.centres
     ADD CONSTRAINT centres_pkey PRIMARY KEY (id);
 
 
@@ -4222,7 +4181,7 @@ ALTER TABLE ONLY centres
 -- Name: colonies_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY colonies
+ALTER TABLE ONLY public.colonies
     ADD CONSTRAINT colonies_pkey PRIMARY KEY (id);
 
 
@@ -4230,7 +4189,7 @@ ALTER TABLE ONLY colonies
 -- Name: colony_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY colony_distribution_centres
+ALTER TABLE ONLY public.colony_distribution_centres
     ADD CONSTRAINT colony_distribution_centres_pkey PRIMARY KEY (id);
 
 
@@ -4238,7 +4197,7 @@ ALTER TABLE ONLY colony_distribution_centres
 -- Name: consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY consortia
+ALTER TABLE ONLY public.consortia
     ADD CONSTRAINT consortia_pkey PRIMARY KEY (id);
 
 
@@ -4246,7 +4205,7 @@ ALTER TABLE ONLY consortia
 -- Name: contacts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY contacts
+ALTER TABLE ONLY public.contacts
     ADD CONSTRAINT contacts_pkey PRIMARY KEY (id);
 
 
@@ -4254,7 +4213,7 @@ ALTER TABLE ONLY contacts
 -- Name: deleter_strains_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY deleter_strains
+ALTER TABLE ONLY public.deleter_strains
     ADD CONSTRAINT deleter_strains_pkey PRIMARY KEY (id);
 
 
@@ -4262,7 +4221,7 @@ ALTER TABLE ONLY deleter_strains
 -- Name: deposited_materials_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY deposited_materials
+ALTER TABLE ONLY public.deposited_materials
     ADD CONSTRAINT deposited_materials_pkey PRIMARY KEY (id);
 
 
@@ -4270,7 +4229,7 @@ ALTER TABLE ONLY deposited_materials
 -- Name: email_templates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY email_templates
+ALTER TABLE ONLY public.email_templates
     ADD CONSTRAINT email_templates_pkey PRIMARY KEY (id);
 
 
@@ -4278,7 +4237,7 @@ ALTER TABLE ONLY email_templates
 -- Name: es_cells_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY es_cells
+ALTER TABLE ONLY public.es_cells
     ADD CONSTRAINT es_cells_pkey PRIMARY KEY (id);
 
 
@@ -4286,7 +4245,7 @@ ALTER TABLE ONLY es_cells
 -- Name: gene_private_annotations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY gene_private_annotations
+ALTER TABLE ONLY public.gene_private_annotations
     ADD CONSTRAINT gene_private_annotations_pkey PRIMARY KEY (id);
 
 
@@ -4294,7 +4253,7 @@ ALTER TABLE ONLY gene_private_annotations
 -- Name: genes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY genes
+ALTER TABLE ONLY public.genes
     ADD CONSTRAINT genes_pkey PRIMARY KEY (id);
 
 
@@ -4302,7 +4261,7 @@ ALTER TABLE ONLY genes
 -- Name: intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report
+ALTER TABLE ONLY public.intermediate_report
     ADD CONSTRAINT intermediate_report_pkey PRIMARY KEY (id);
 
 
@@ -4310,7 +4269,7 @@ ALTER TABLE ONLY intermediate_report
 -- Name: intermediate_report_summary_by_centre_and_consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
+ALTER TABLE ONLY public.intermediate_report_summary_by_centre_and_consortia
     ADD CONSTRAINT intermediate_report_summary_by_centre_and_consortia_pkey PRIMARY KEY (id);
 
 
@@ -4318,7 +4277,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_centre_and_consortia
 -- Name: intermediate_report_summary_by_centre_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_centre
+ALTER TABLE ONLY public.intermediate_report_summary_by_centre
     ADD CONSTRAINT intermediate_report_summary_by_centre_pkey PRIMARY KEY (id);
 
 
@@ -4326,7 +4285,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_centre
 -- Name: intermediate_report_summary_by_consortia_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_consortia
+ALTER TABLE ONLY public.intermediate_report_summary_by_consortia
     ADD CONSTRAINT intermediate_report_summary_by_consortia_pkey PRIMARY KEY (id);
 
 
@@ -4334,7 +4293,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_consortia
 -- Name: intermediate_report_summary_by_gene_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_gene
+ALTER TABLE ONLY public.intermediate_report_summary_by_gene
     ADD CONSTRAINT intermediate_report_summary_by_gene_pkey PRIMARY KEY (id);
 
 
@@ -4342,7 +4301,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_gene
 -- Name: intermediate_report_summary_by_mi_plan_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
+ALTER TABLE ONLY public.intermediate_report_summary_by_mi_plan
     ADD CONSTRAINT intermediate_report_summary_by_mi_plan_pkey PRIMARY KEY (id);
 
 
@@ -4350,7 +4309,7 @@ ALTER TABLE ONLY intermediate_report_summary_by_mi_plan
 -- Name: mi_attempt_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempt_status_stamps
+ALTER TABLE ONLY public.mi_attempt_status_stamps
     ADD CONSTRAINT mi_attempt_status_stamps_pkey PRIMARY KEY (id);
 
 
@@ -4358,7 +4317,7 @@ ALTER TABLE ONLY mi_attempt_status_stamps
 -- Name: mi_attempt_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempt_statuses
+ALTER TABLE ONLY public.mi_attempt_statuses
     ADD CONSTRAINT mi_attempt_statuses_pkey PRIMARY KEY (id);
 
 
@@ -4366,7 +4325,7 @@ ALTER TABLE ONLY mi_attempt_statuses
 -- Name: mi_attempts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempts
+ALTER TABLE ONLY public.mi_attempts
     ADD CONSTRAINT mi_attempts_pkey PRIMARY KEY (id);
 
 
@@ -4374,7 +4333,7 @@ ALTER TABLE ONLY mi_attempts
 -- Name: mi_plan_es_cell_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_es_cell_qcs
+ALTER TABLE ONLY public.mi_plan_es_cell_qcs
     ADD CONSTRAINT mi_plan_es_cell_qcs_pkey PRIMARY KEY (id);
 
 
@@ -4382,7 +4341,7 @@ ALTER TABLE ONLY mi_plan_es_cell_qcs
 -- Name: mi_plan_es_qc_comments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_es_qc_comments
+ALTER TABLE ONLY public.mi_plan_es_qc_comments
     ADD CONSTRAINT mi_plan_es_qc_comments_pkey PRIMARY KEY (id);
 
 
@@ -4390,7 +4349,7 @@ ALTER TABLE ONLY mi_plan_es_qc_comments
 -- Name: mi_plan_priorities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_priorities
+ALTER TABLE ONLY public.mi_plan_priorities
     ADD CONSTRAINT mi_plan_priorities_pkey PRIMARY KEY (id);
 
 
@@ -4398,7 +4357,7 @@ ALTER TABLE ONLY mi_plan_priorities
 -- Name: mi_plan_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_status_stamps
+ALTER TABLE ONLY public.mi_plan_status_stamps
     ADD CONSTRAINT mi_plan_status_stamps_pkey PRIMARY KEY (id);
 
 
@@ -4406,7 +4365,7 @@ ALTER TABLE ONLY mi_plan_status_stamps
 -- Name: mi_plan_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_statuses
+ALTER TABLE ONLY public.mi_plan_statuses
     ADD CONSTRAINT mi_plan_statuses_pkey PRIMARY KEY (id);
 
 
@@ -4414,7 +4373,7 @@ ALTER TABLE ONLY mi_plan_statuses
 -- Name: mi_plan_sub_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_sub_projects
+ALTER TABLE ONLY public.mi_plan_sub_projects
     ADD CONSTRAINT mi_plan_sub_projects_pkey PRIMARY KEY (id);
 
 
@@ -4422,7 +4381,7 @@ ALTER TABLE ONLY mi_plan_sub_projects
 -- Name: mi_plans_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plans
+ALTER TABLE ONLY public.mi_plans
     ADD CONSTRAINT mi_plans_pkey PRIMARY KEY (id);
 
 
@@ -4430,7 +4389,7 @@ ALTER TABLE ONLY mi_plans
 -- Name: mouse_allele_mod_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mod_status_stamps
+ALTER TABLE ONLY public.mouse_allele_mod_status_stamps
     ADD CONSTRAINT mouse_allele_mod_status_stamps_pkey PRIMARY KEY (id);
 
 
@@ -4438,7 +4397,7 @@ ALTER TABLE ONLY mouse_allele_mod_status_stamps
 -- Name: mouse_allele_mod_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mod_statuses
+ALTER TABLE ONLY public.mouse_allele_mod_statuses
     ADD CONSTRAINT mouse_allele_mod_statuses_pkey PRIMARY KEY (id);
 
 
@@ -4446,7 +4405,7 @@ ALTER TABLE ONLY mouse_allele_mod_statuses
 -- Name: mouse_allele_mods_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mods
+ALTER TABLE ONLY public.mouse_allele_mods
     ADD CONSTRAINT mouse_allele_mods_pkey PRIMARY KEY (id);
 
 
@@ -4454,7 +4413,7 @@ ALTER TABLE ONLY mouse_allele_mods
 -- Name: mutagenesis_factor_vectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mutagenesis_factor_donors
+ALTER TABLE ONLY public.mutagenesis_factor_donors
     ADD CONSTRAINT mutagenesis_factor_vectors_pkey PRIMARY KEY (id);
 
 
@@ -4462,7 +4421,7 @@ ALTER TABLE ONLY mutagenesis_factor_donors
 -- Name: mutagenesis_factors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mutagenesis_factors
+ALTER TABLE ONLY public.mutagenesis_factors
     ADD CONSTRAINT mutagenesis_factors_pkey PRIMARY KEY (id);
 
 
@@ -4470,7 +4429,7 @@ ALTER TABLE ONLY mutagenesis_factors
 -- Name: notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY notifications
+ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
 
 
@@ -4478,7 +4437,7 @@ ALTER TABLE ONLY notifications
 -- Name: phenotype_attempt_ids_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotype_attempt_ids
+ALTER TABLE ONLY public.phenotype_attempt_ids
     ADD CONSTRAINT phenotype_attempt_ids_pkey PRIMARY KEY (id);
 
 
@@ -4486,7 +4445,7 @@ ALTER TABLE ONLY phenotype_attempt_ids
 -- Name: phenotyping_production_late_adult_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps
+ALTER TABLE ONLY public.phenotyping_production_late_adult_status_stamps
     ADD CONSTRAINT phenotyping_production_late_adult_status_stamps_pkey PRIMARY KEY (id);
 
 
@@ -4494,7 +4453,7 @@ ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps
 -- Name: phenotyping_production_late_adult_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_late_adult_statuses
+ALTER TABLE ONLY public.phenotyping_production_late_adult_statuses
     ADD CONSTRAINT phenotyping_production_late_adult_statuses_pkey PRIMARY KEY (id);
 
 
@@ -4502,7 +4461,7 @@ ALTER TABLE ONLY phenotyping_production_late_adult_statuses
 -- Name: phenotyping_production_status_stamps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_status_stamps
+ALTER TABLE ONLY public.phenotyping_production_status_stamps
     ADD CONSTRAINT phenotyping_production_status_stamps_pkey PRIMARY KEY (id);
 
 
@@ -4510,7 +4469,7 @@ ALTER TABLE ONLY phenotyping_production_status_stamps
 -- Name: phenotyping_production_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_statuses
+ALTER TABLE ONLY public.phenotyping_production_statuses
     ADD CONSTRAINT phenotyping_production_statuses_pkey PRIMARY KEY (id);
 
 
@@ -4518,7 +4477,7 @@ ALTER TABLE ONLY phenotyping_production_statuses
 -- Name: phenotyping_production_tissue_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres
+ALTER TABLE ONLY public.phenotyping_production_tissue_distribution_centres
     ADD CONSTRAINT phenotyping_production_tissue_distribution_centres_pkey PRIMARY KEY (id);
 
 
@@ -4526,7 +4485,7 @@ ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres
 -- Name: phenotyping_productions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_productions
+ALTER TABLE ONLY public.phenotyping_productions
     ADD CONSTRAINT phenotyping_productions_pkey PRIMARY KEY (id);
 
 
@@ -4534,7 +4493,7 @@ ALTER TABLE ONLY phenotyping_productions
 -- Name: pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY pipelines
+ALTER TABLE ONLY public.pipelines
     ADD CONSTRAINT pipelines_pkey PRIMARY KEY (id);
 
 
@@ -4542,7 +4501,7 @@ ALTER TABLE ONLY pipelines
 -- Name: production_centre_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY production_centre_qcs
+ALTER TABLE ONLY public.production_centre_qcs
     ADD CONSTRAINT production_centre_qcs_pkey PRIMARY KEY (id);
 
 
@@ -4550,7 +4509,7 @@ ALTER TABLE ONLY production_centre_qcs
 -- Name: production_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY production_goals
+ALTER TABLE ONLY public.production_goals
     ADD CONSTRAINT production_goals_pkey PRIMARY KEY (id);
 
 
@@ -4558,7 +4517,7 @@ ALTER TABLE ONLY production_goals
 -- Name: qc_results_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY qc_results
+ALTER TABLE ONLY public.qc_results
     ADD CONSTRAINT qc_results_pkey PRIMARY KEY (id);
 
 
@@ -4566,7 +4525,7 @@ ALTER TABLE ONLY qc_results
 -- Name: reagent_names_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY reagent_names
+ALTER TABLE ONLY public.reagent_names
     ADD CONSTRAINT reagent_names_pkey PRIMARY KEY (id);
 
 
@@ -4574,7 +4533,7 @@ ALTER TABLE ONLY reagent_names
 -- Name: reagents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY reagents
+ALTER TABLE ONLY public.reagents
     ADD CONSTRAINT reagents_pkey PRIMARY KEY (id);
 
 
@@ -4582,7 +4541,7 @@ ALTER TABLE ONLY reagents
 -- Name: report_caches_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY report_caches
+ALTER TABLE ONLY public.report_caches
     ADD CONSTRAINT report_caches_pkey PRIMARY KEY (id);
 
 
@@ -4590,7 +4549,7 @@ ALTER TABLE ONLY report_caches
 -- Name: strains_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY strains
+ALTER TABLE ONLY public.strains
     ADD CONSTRAINT strains_pkey PRIMARY KEY (id);
 
 
@@ -4598,7 +4557,7 @@ ALTER TABLE ONLY strains
 -- Name: targ_rep_allele_sequence_annotations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_allele_sequence_annotations
+ALTER TABLE ONLY public.targ_rep_allele_sequence_annotations
     ADD CONSTRAINT targ_rep_allele_sequence_annotations_pkey PRIMARY KEY (id);
 
 
@@ -4606,7 +4565,7 @@ ALTER TABLE ONLY targ_rep_allele_sequence_annotations
 -- Name: targ_rep_alleles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_alleles
+ALTER TABLE ONLY public.targ_rep_alleles
     ADD CONSTRAINT targ_rep_alleles_pkey PRIMARY KEY (id);
 
 
@@ -4614,7 +4573,7 @@ ALTER TABLE ONLY targ_rep_alleles
 -- Name: targ_rep_centre_pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_centre_pipelines
+ALTER TABLE ONLY public.targ_rep_centre_pipelines
     ADD CONSTRAINT targ_rep_centre_pipelines_pkey PRIMARY KEY (id);
 
 
@@ -4622,7 +4581,7 @@ ALTER TABLE ONLY targ_rep_centre_pipelines
 -- Name: targ_rep_crisprs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_crisprs
+ALTER TABLE ONLY public.targ_rep_crisprs
     ADD CONSTRAINT targ_rep_crisprs_pkey PRIMARY KEY (id);
 
 
@@ -4630,7 +4589,7 @@ ALTER TABLE ONLY targ_rep_crisprs
 -- Name: targ_rep_distribution_qcs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_distribution_qcs
+ALTER TABLE ONLY public.targ_rep_distribution_qcs
     ADD CONSTRAINT targ_rep_distribution_qcs_pkey PRIMARY KEY (id);
 
 
@@ -4638,7 +4597,7 @@ ALTER TABLE ONLY targ_rep_distribution_qcs
 -- Name: targ_rep_es_cell_distribution_centres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_es_cell_distribution_centres
+ALTER TABLE ONLY public.targ_rep_es_cell_distribution_centres
     ADD CONSTRAINT targ_rep_es_cell_distribution_centres_pkey PRIMARY KEY (id);
 
 
@@ -4646,7 +4605,7 @@ ALTER TABLE ONLY targ_rep_es_cell_distribution_centres
 -- Name: targ_rep_es_cells_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_es_cells
+ALTER TABLE ONLY public.targ_rep_es_cells
     ADD CONSTRAINT targ_rep_es_cells_pkey PRIMARY KEY (id);
 
 
@@ -4654,7 +4613,7 @@ ALTER TABLE ONLY targ_rep_es_cells
 -- Name: targ_rep_genbank_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_genbank_files
+ALTER TABLE ONLY public.targ_rep_genbank_files
     ADD CONSTRAINT targ_rep_genbank_files_pkey PRIMARY KEY (id);
 
 
@@ -4662,7 +4621,7 @@ ALTER TABLE ONLY targ_rep_genbank_files
 -- Name: targ_rep_genotype_primers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_genotype_primers
+ALTER TABLE ONLY public.targ_rep_genotype_primers
     ADD CONSTRAINT targ_rep_genotype_primers_pkey PRIMARY KEY (id);
 
 
@@ -4670,7 +4629,7 @@ ALTER TABLE ONLY targ_rep_genotype_primers
 -- Name: targ_rep_ikmc_project_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_ikmc_project_statuses
+ALTER TABLE ONLY public.targ_rep_ikmc_project_statuses
     ADD CONSTRAINT targ_rep_ikmc_project_statuses_pkey PRIMARY KEY (id);
 
 
@@ -4678,7 +4637,7 @@ ALTER TABLE ONLY targ_rep_ikmc_project_statuses
 -- Name: targ_rep_ikmc_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_ikmc_projects
+ALTER TABLE ONLY public.targ_rep_ikmc_projects
     ADD CONSTRAINT targ_rep_ikmc_projects_pkey PRIMARY KEY (id);
 
 
@@ -4686,7 +4645,7 @@ ALTER TABLE ONLY targ_rep_ikmc_projects
 -- Name: targ_rep_mutation_methods_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_mutation_methods
+ALTER TABLE ONLY public.targ_rep_mutation_methods
     ADD CONSTRAINT targ_rep_mutation_methods_pkey PRIMARY KEY (id);
 
 
@@ -4694,7 +4653,7 @@ ALTER TABLE ONLY targ_rep_mutation_methods
 -- Name: targ_rep_mutation_subtypes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_mutation_subtypes
+ALTER TABLE ONLY public.targ_rep_mutation_subtypes
     ADD CONSTRAINT targ_rep_mutation_subtypes_pkey PRIMARY KEY (id);
 
 
@@ -4702,7 +4661,7 @@ ALTER TABLE ONLY targ_rep_mutation_subtypes
 -- Name: targ_rep_mutation_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_mutation_types
+ALTER TABLE ONLY public.targ_rep_mutation_types
     ADD CONSTRAINT targ_rep_mutation_types_pkey PRIMARY KEY (id);
 
 
@@ -4710,7 +4669,7 @@ ALTER TABLE ONLY targ_rep_mutation_types
 -- Name: targ_rep_pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_pipelines
+ALTER TABLE ONLY public.targ_rep_pipelines
     ADD CONSTRAINT targ_rep_pipelines_pkey PRIMARY KEY (id);
 
 
@@ -4718,7 +4677,7 @@ ALTER TABLE ONLY targ_rep_pipelines
 -- Name: targ_rep_sequence_annotation_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_sequence_annotation
+ALTER TABLE ONLY public.targ_rep_sequence_annotation
     ADD CONSTRAINT targ_rep_sequence_annotation_pkey PRIMARY KEY (id);
 
 
@@ -4726,23 +4685,15 @@ ALTER TABLE ONLY targ_rep_sequence_annotation
 -- Name: targ_rep_targeting_vectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_targeting_vectors
+ALTER TABLE ONLY public.targ_rep_targeting_vectors
     ADD CONSTRAINT targ_rep_targeting_vectors_pkey PRIMARY KEY (id);
-
-
---
--- Name: trace_call_vcf_modifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY trace_call_vcf_modifications
-    ADD CONSTRAINT trace_call_vcf_modifications_pkey PRIMARY KEY (id);
 
 
 --
 -- Name: trace_calls_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY trace_calls
+ALTER TABLE ONLY public.trace_files
     ADD CONSTRAINT trace_calls_pkey PRIMARY KEY (id);
 
 
@@ -4750,7 +4701,7 @@ ALTER TABLE ONLY trace_calls
 -- Name: trace_files_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY trace_files
+ALTER TABLE ONLY public.traces
     ADD CONSTRAINT trace_files_pkey PRIMARY KEY (id);
 
 
@@ -4758,7 +4709,7 @@ ALTER TABLE ONLY trace_files
 -- Name: tracking_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY tracking_goals
+ALTER TABLE ONLY public.tracking_goals
     ADD CONSTRAINT tracking_goals_pkey PRIMARY KEY (id);
 
 
@@ -4766,7 +4717,7 @@ ALTER TABLE ONLY tracking_goals
 -- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY users
+ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
@@ -4774,878 +4725,870 @@ ALTER TABLE ONLY users
 -- Name: associated_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX associated_index ON audits USING btree (associated_id, associated_type);
+CREATE INDEX associated_index ON public.audits USING btree (associated_id, associated_type);
 
 
 --
 -- Name: auditable_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX auditable_index ON audits USING btree (auditable_id, auditable_type);
+CREATE INDEX auditable_index ON public.audits USING btree (auditable_id, auditable_type);
 
 
 --
 -- Name: es_cells_allele_id_fk; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX es_cells_allele_id_fk ON targ_rep_es_cells USING btree (allele_id);
+CREATE INDEX es_cells_allele_id_fk ON public.targ_rep_es_cells USING btree (allele_id);
 
 
 --
 -- Name: es_cells_pipeline_id_fk; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX es_cells_pipeline_id_fk ON targ_rep_es_cells USING btree (pipeline_id);
+CREATE INDEX es_cells_pipeline_id_fk ON public.targ_rep_es_cells USING btree (pipeline_id);
 
 
 --
 -- Name: index_audits_on_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_audits_on_created_at ON audits USING btree (created_at);
+CREATE INDEX index_audits_on_created_at ON public.audits USING btree (created_at);
 
 
 --
 -- Name: index_centres_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_centres_on_name ON centres USING btree (name);
+CREATE UNIQUE INDEX index_centres_on_name ON public.centres USING btree (name);
 
 
 --
 -- Name: index_consortia_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_consortia_on_name ON consortia USING btree (name);
+CREATE UNIQUE INDEX index_consortia_on_name ON public.consortia USING btree (name);
 
 
 --
 -- Name: index_contacts_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_contacts_on_email ON contacts USING btree (email);
+CREATE UNIQUE INDEX index_contacts_on_email ON public.contacts USING btree (email);
 
 
 --
 -- Name: index_deposited_materials_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_deposited_materials_on_name ON deposited_materials USING btree (name);
+CREATE UNIQUE INDEX index_deposited_materials_on_name ON public.deposited_materials USING btree (name);
 
 
 --
 -- Name: index_distribution_qcs_centre_es_cell; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_distribution_qcs_centre_es_cell ON targ_rep_distribution_qcs USING btree (es_cell_distribution_centre_id, es_cell_id);
+CREATE UNIQUE INDEX index_distribution_qcs_centre_es_cell ON public.targ_rep_distribution_qcs USING btree (es_cell_distribution_centre_id, es_cell_id);
 
 
 --
 -- Name: index_es_cells_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_es_cells_on_name ON es_cells USING btree (name);
+CREATE UNIQUE INDEX index_es_cells_on_name ON public.es_cells USING btree (name);
 
 
 --
 -- Name: index_genes_on_marker_symbol; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_genes_on_marker_symbol ON genes USING btree (marker_symbol);
+CREATE UNIQUE INDEX index_genes_on_marker_symbol ON public.genes USING btree (marker_symbol);
 
 
 --
 -- Name: index_genes_on_mgi_accession_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_genes_on_mgi_accession_id ON genes USING btree (mgi_accession_id);
+CREATE UNIQUE INDEX index_genes_on_mgi_accession_id ON public.genes USING btree (mgi_accession_id);
 
 
 --
 -- Name: index_mi_attempt_statuses_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_mi_attempt_statuses_on_name ON mi_attempt_statuses USING btree (name);
+CREATE UNIQUE INDEX index_mi_attempt_statuses_on_name ON public.mi_attempt_statuses USING btree (name);
 
 
 --
 -- Name: index_mi_attempts_on_colony_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_mi_attempts_on_colony_name ON mi_attempts USING btree (external_ref);
+CREATE UNIQUE INDEX index_mi_attempts_on_colony_name ON public.mi_attempts USING btree (external_ref);
 
 
 --
 -- Name: index_mi_plan_es_qc_comments_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_mi_plan_es_qc_comments_on_name ON mi_plan_es_qc_comments USING btree (name);
+CREATE UNIQUE INDEX index_mi_plan_es_qc_comments_on_name ON public.mi_plan_es_qc_comments USING btree (name);
 
 
 --
 -- Name: index_mi_plan_priorities_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_mi_plan_priorities_on_name ON mi_plan_priorities USING btree (name);
+CREATE UNIQUE INDEX index_mi_plan_priorities_on_name ON public.mi_plan_priorities USING btree (name);
 
 
 --
 -- Name: index_mi_plan_statuses_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_mi_plan_statuses_on_name ON mi_plan_statuses USING btree (name);
+CREATE UNIQUE INDEX index_mi_plan_statuses_on_name ON public.mi_plan_statuses USING btree (name);
 
 
 --
 -- Name: index_one_status_stamp_per_status_and_mi_attempt; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_one_status_stamp_per_status_and_mi_attempt ON mi_attempt_status_stamps USING btree (status_id, mi_attempt_id);
+CREATE UNIQUE INDEX index_one_status_stamp_per_status_and_mi_attempt ON public.mi_attempt_status_stamps USING btree (status_id, mi_attempt_id);
 
 
 --
 -- Name: index_one_status_stamp_per_status_and_mi_plan; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_one_status_stamp_per_status_and_mi_plan ON mi_plan_status_stamps USING btree (status_id, mi_plan_id);
+CREATE UNIQUE INDEX index_one_status_stamp_per_status_and_mi_plan ON public.mi_plan_status_stamps USING btree (status_id, mi_plan_id);
 
 
 --
 -- Name: index_pipelines_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_pipelines_on_name ON pipelines USING btree (name);
+CREATE UNIQUE INDEX index_pipelines_on_name ON public.pipelines USING btree (name);
 
 
 --
 -- Name: index_production_goals_on_consortium_id_and_year_and_month; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_production_goals_on_consortium_id_and_year_and_month ON production_goals USING btree (consortium_id, year, month);
+CREATE UNIQUE INDEX index_production_goals_on_consortium_id_and_year_and_month ON public.production_goals USING btree (consortium_id, year, month);
 
 
 --
 -- Name: index_qc_results_on_description; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_qc_results_on_description ON qc_results USING btree (description);
+CREATE UNIQUE INDEX index_qc_results_on_description ON public.qc_results USING btree (description);
 
 
 --
 -- Name: index_report_caches_on_name_and_format; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_report_caches_on_name_and_format ON report_caches USING btree (name, format);
+CREATE UNIQUE INDEX index_report_caches_on_name_and_format ON public.report_caches USING btree (name, format);
 
 
 --
 -- Name: index_strains_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_strains_on_name ON strains USING btree (name);
+CREATE UNIQUE INDEX index_strains_on_name ON public.strains USING btree (name);
 
 
 --
 -- Name: index_targ_rep_pipelines_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_targ_rep_pipelines_on_name ON targ_rep_pipelines USING btree (name);
+CREATE UNIQUE INDEX index_targ_rep_pipelines_on_name ON public.targ_rep_pipelines USING btree (name);
 
 
 --
 -- Name: index_targvec; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_targvec ON targ_rep_targeting_vectors USING btree (name);
+CREATE UNIQUE INDEX index_targvec ON public.targ_rep_targeting_vectors USING btree (name);
 
 
 --
 -- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
+CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 
 
 --
 -- Name: irsc_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsc_allele_type ON intermediate_report_summary_by_consortia USING btree (allele_type);
+CREATE INDEX irsc_allele_type ON public.intermediate_report_summary_by_consortia USING btree (allele_type);
 
 
 --
 -- Name: irsc_approach; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsc_approach ON intermediate_report_summary_by_consortia USING btree (approach);
+CREATE INDEX irsc_approach ON public.intermediate_report_summary_by_consortia USING btree (approach);
 
 
 --
 -- Name: irsc_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsc_catagory ON intermediate_report_summary_by_consortia USING btree (catagory);
+CREATE INDEX irsc_catagory ON public.intermediate_report_summary_by_consortia USING btree (catagory);
 
 
 --
 -- Name: irsc_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsc_mi_attempts ON intermediate_report_summary_by_consortia USING btree (mi_attempt_id);
+CREATE INDEX irsc_mi_attempts ON public.intermediate_report_summary_by_consortia USING btree (mi_attempt_id);
 
 
 --
 -- Name: irsc_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsc_mi_plans ON intermediate_report_summary_by_consortia USING btree (mi_plan_id);
+CREATE INDEX irsc_mi_plans ON public.intermediate_report_summary_by_consortia USING btree (mi_plan_id);
 
 
 --
 -- Name: irsc_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsc_mouse_allele_mods ON intermediate_report_summary_by_consortia USING btree (mouse_allele_mod_id);
+CREATE INDEX irsc_mouse_allele_mods ON public.intermediate_report_summary_by_consortia USING btree (mouse_allele_mod_id);
 
 
 --
 -- Name: irsc_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsc_phenotyping_productions ON intermediate_report_summary_by_consortia USING btree (phenotyping_production_id);
+CREATE INDEX irsc_phenotyping_productions ON public.intermediate_report_summary_by_consortia USING btree (phenotyping_production_id);
 
 
 --
 -- Name: irscc_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscc_allele_type ON intermediate_report_summary_by_centre_and_consortia USING btree (allele_type);
+CREATE INDEX irscc_allele_type ON public.intermediate_report_summary_by_centre_and_consortia USING btree (allele_type);
 
 
 --
 -- Name: irscc_approach; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscc_approach ON intermediate_report_summary_by_centre_and_consortia USING btree (approach);
+CREATE INDEX irscc_approach ON public.intermediate_report_summary_by_centre_and_consortia USING btree (approach);
 
 
 --
 -- Name: irscc_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscc_catagory ON intermediate_report_summary_by_centre_and_consortia USING btree (catagory);
+CREATE INDEX irscc_catagory ON public.intermediate_report_summary_by_centre_and_consortia USING btree (catagory);
 
 
 --
 -- Name: irscc_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscc_mi_attempts ON intermediate_report_summary_by_centre_and_consortia USING btree (mi_attempt_id);
+CREATE INDEX irscc_mi_attempts ON public.intermediate_report_summary_by_centre_and_consortia USING btree (mi_attempt_id);
 
 
 --
 -- Name: irscc_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscc_mi_plans ON intermediate_report_summary_by_centre_and_consortia USING btree (mi_plan_id);
+CREATE INDEX irscc_mi_plans ON public.intermediate_report_summary_by_centre_and_consortia USING btree (mi_plan_id);
 
 
 --
 -- Name: irscc_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscc_mouse_allele_mods ON intermediate_report_summary_by_centre_and_consortia USING btree (mouse_allele_mod_id);
+CREATE INDEX irscc_mouse_allele_mods ON public.intermediate_report_summary_by_centre_and_consortia USING btree (mouse_allele_mod_id);
 
 
 --
 -- Name: irscc_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscc_phenotyping_productions ON intermediate_report_summary_by_centre_and_consortia USING btree (phenotyping_production_id);
+CREATE INDEX irscc_phenotyping_productions ON public.intermediate_report_summary_by_centre_and_consortia USING btree (phenotyping_production_id);
 
 
 --
 -- Name: irscen_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_allele_type ON intermediate_report_summary_by_centre USING btree (allele_type);
+CREATE INDEX irscen_allele_type ON public.intermediate_report_summary_by_centre USING btree (allele_type);
 
 
 --
 -- Name: irscen_approach; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_approach ON intermediate_report_summary_by_centre USING btree (approach);
+CREATE INDEX irscen_approach ON public.intermediate_report_summary_by_centre USING btree (approach);
 
 
 --
 -- Name: irscen_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_catagory ON intermediate_report_summary_by_centre USING btree (catagory);
+CREATE INDEX irscen_catagory ON public.intermediate_report_summary_by_centre USING btree (catagory);
 
 
 --
 -- Name: irscen_gene_centre; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_gene_centre ON intermediate_report_summary_by_centre USING btree (gene, production_centre);
+CREATE INDEX irscen_gene_centre ON public.intermediate_report_summary_by_centre USING btree (gene, production_centre);
 
 
 --
 -- Name: irscen_gene_centre_consortia; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_gene_centre_consortia ON intermediate_report_summary_by_centre_and_consortia USING btree (gene, production_centre, consortium);
+CREATE INDEX irscen_gene_centre_consortia ON public.intermediate_report_summary_by_centre_and_consortia USING btree (gene, production_centre, consortium);
 
 
 --
 -- Name: irscen_gene_consortia; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_gene_consortia ON intermediate_report_summary_by_consortia USING btree (gene, consortium);
+CREATE INDEX irscen_gene_consortia ON public.intermediate_report_summary_by_consortia USING btree (gene, consortium);
 
 
 --
 -- Name: irscen_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_mi_attempts ON intermediate_report_summary_by_centre USING btree (mi_attempt_id);
+CREATE INDEX irscen_mi_attempts ON public.intermediate_report_summary_by_centre USING btree (mi_attempt_id);
 
 
 --
 -- Name: irscen_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_mi_plans ON intermediate_report_summary_by_centre USING btree (mi_plan_id);
+CREATE INDEX irscen_mi_plans ON public.intermediate_report_summary_by_centre USING btree (mi_plan_id);
 
 
 --
 -- Name: irscen_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_mouse_allele_mods ON intermediate_report_summary_by_centre USING btree (mouse_allele_mod_id);
+CREATE INDEX irscen_mouse_allele_mods ON public.intermediate_report_summary_by_centre USING btree (mouse_allele_mod_id);
 
 
 --
 -- Name: irscen_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irscen_phenotyping_productions ON intermediate_report_summary_by_centre USING btree (phenotyping_production_id);
+CREATE INDEX irscen_phenotyping_productions ON public.intermediate_report_summary_by_centre USING btree (phenotyping_production_id);
 
 
 --
 -- Name: irsg_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsg_allele_type ON intermediate_report_summary_by_gene USING btree (allele_type);
+CREATE INDEX irsg_allele_type ON public.intermediate_report_summary_by_gene USING btree (allele_type);
 
 
 --
 -- Name: irsg_approach; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsg_approach ON intermediate_report_summary_by_gene USING btree (approach);
+CREATE INDEX irsg_approach ON public.intermediate_report_summary_by_gene USING btree (approach);
 
 
 --
 -- Name: irsg_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsg_catagory ON intermediate_report_summary_by_gene USING btree (catagory);
+CREATE INDEX irsg_catagory ON public.intermediate_report_summary_by_gene USING btree (catagory);
 
 
 --
 -- Name: irsg_gene; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsg_gene ON intermediate_report_summary_by_gene USING btree (gene);
+CREATE INDEX irsg_gene ON public.intermediate_report_summary_by_gene USING btree (gene);
 
 
 --
 -- Name: irsg_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsg_mi_attempts ON intermediate_report_summary_by_gene USING btree (mi_attempt_id);
+CREATE INDEX irsg_mi_attempts ON public.intermediate_report_summary_by_gene USING btree (mi_attempt_id);
 
 
 --
 -- Name: irsg_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsg_mi_plans ON intermediate_report_summary_by_gene USING btree (mi_plan_id);
+CREATE INDEX irsg_mi_plans ON public.intermediate_report_summary_by_gene USING btree (mi_plan_id);
 
 
 --
 -- Name: irsg_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsg_mouse_allele_mods ON intermediate_report_summary_by_gene USING btree (mouse_allele_mod_id);
+CREATE INDEX irsg_mouse_allele_mods ON public.intermediate_report_summary_by_gene USING btree (mouse_allele_mod_id);
 
 
 --
 -- Name: irsg_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsg_phenotyping_productions ON intermediate_report_summary_by_gene USING btree (phenotyping_production_id);
+CREATE INDEX irsg_phenotyping_productions ON public.intermediate_report_summary_by_gene USING btree (phenotyping_production_id);
 
 
 --
 -- Name: irsmp_allele_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsmp_allele_type ON intermediate_report_summary_by_mi_plan USING btree (allele_type);
+CREATE INDEX irsmp_allele_type ON public.intermediate_report_summary_by_mi_plan USING btree (allele_type);
 
 
 --
 -- Name: irsmp_approach; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsmp_approach ON intermediate_report_summary_by_mi_plan USING btree (approach);
+CREATE INDEX irsmp_approach ON public.intermediate_report_summary_by_mi_plan USING btree (approach);
 
 
 --
 -- Name: irsmp_catagory; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsmp_catagory ON intermediate_report_summary_by_mi_plan USING btree (catagory);
+CREATE INDEX irsmp_catagory ON public.intermediate_report_summary_by_mi_plan USING btree (catagory);
 
 
 --
 -- Name: irsmp_mi_attempts; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsmp_mi_attempts ON intermediate_report_summary_by_mi_plan USING btree (mi_attempt_id);
+CREATE INDEX irsmp_mi_attempts ON public.intermediate_report_summary_by_mi_plan USING btree (mi_attempt_id);
 
 
 --
 -- Name: irsmp_mi_plans; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsmp_mi_plans ON intermediate_report_summary_by_mi_plan USING btree (mi_plan_id);
+CREATE INDEX irsmp_mi_plans ON public.intermediate_report_summary_by_mi_plan USING btree (mi_plan_id);
 
 
 --
 -- Name: irsmp_mouse_allele_mods; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsmp_mouse_allele_mods ON intermediate_report_summary_by_mi_plan USING btree (mouse_allele_mod_id);
+CREATE INDEX irsmp_mouse_allele_mods ON public.intermediate_report_summary_by_mi_plan USING btree (mouse_allele_mod_id);
 
 
 --
 -- Name: irsmp_phenotyping_productions; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX irsmp_phenotyping_productions ON intermediate_report_summary_by_mi_plan USING btree (phenotyping_production_id);
+CREATE INDEX irsmp_phenotyping_productions ON public.intermediate_report_summary_by_mi_plan USING btree (phenotyping_production_id);
 
 
 --
 -- Name: mi_plan_logical_key; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX mi_plan_logical_key ON mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only, mutagenesis_via_crispr_cas9, es_cell_qc_only);
+CREATE UNIQUE INDEX mi_plan_logical_key ON public.mi_plans USING btree (gene_id, consortium_id, production_centre_id, sub_project_id, is_bespoke_allele, is_conditional_allele, is_deletion_allele, is_cre_knock_in_allele, is_cre_bac_allele, conditional_tm1c, phenotype_only, mutagenesis_via_crispr_cas9, es_cell_qc_only);
 
 
 --
 -- Name: mouse_allele_mod_colony_name_uniqueness_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX mouse_allele_mod_colony_name_uniqueness_index ON colonies USING btree (name, mi_attempt_id, mouse_allele_mod_id);
+CREATE UNIQUE INDEX mouse_allele_mod_colony_name_uniqueness_index ON public.colonies USING btree (name, mi_attempt_id, mouse_allele_mod_id);
 
 
 --
 -- Name: targ_rep_index_es_cells_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX targ_rep_index_es_cells_on_name ON targ_rep_es_cells USING btree (name);
+CREATE UNIQUE INDEX targ_rep_index_es_cells_on_name ON public.targ_rep_es_cells USING btree (name);
 
 
 --
 -- Name: targeting_vectors_allele_id_fk; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX targeting_vectors_allele_id_fk ON targ_rep_targeting_vectors USING btree (allele_id);
+CREATE INDEX targeting_vectors_allele_id_fk ON public.targ_rep_targeting_vectors USING btree (allele_id);
 
 
 --
 -- Name: targeting_vectors_pipeline_id_fk; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX targeting_vectors_pipeline_id_fk ON targ_rep_targeting_vectors USING btree (pipeline_id);
+CREATE INDEX targeting_vectors_pipeline_id_fk ON public.targ_rep_targeting_vectors USING btree (pipeline_id);
 
 
 --
 -- Name: unique_schema_migrations; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (version);
+CREATE UNIQUE INDEX unique_schema_migrations ON public.schema_migrations USING btree (version);
 
 
 --
 -- Name: user_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX user_index ON audits USING btree (user_id, user_type);
+CREATE INDEX user_index ON public.audits USING btree (user_id, user_type);
 
 
 --
 -- Name: colonies_mi_attempt_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY colonies
-    ADD CONSTRAINT colonies_mi_attempt_fk FOREIGN KEY (mi_attempt_id) REFERENCES mi_attempts(id);
+ALTER TABLE ONLY public.colonies
+    ADD CONSTRAINT colonies_mi_attempt_fk FOREIGN KEY (mi_attempt_id) REFERENCES public.mi_attempts(id);
 
 
 --
 -- Name: colonies_mouse_allele_mod_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY colonies
-    ADD CONSTRAINT colonies_mouse_allele_mod_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
+ALTER TABLE ONLY public.colonies
+    ADD CONSTRAINT colonies_mouse_allele_mod_fk FOREIGN KEY (mouse_allele_mod_id) REFERENCES public.mouse_allele_mods(id);
 
 
 --
 -- Name: fk_late_adult_pp_status_stamps_pp; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps
-    ADD CONSTRAINT fk_late_adult_pp_status_stamps_pp FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
+ALTER TABLE ONLY public.phenotyping_production_late_adult_status_stamps
+    ADD CONSTRAINT fk_late_adult_pp_status_stamps_pp FOREIGN KEY (phenotyping_production_id) REFERENCES public.phenotyping_productions(id);
 
 
 --
 -- Name: fk_late_adult_pp_status_stamps_status; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_late_adult_status_stamps
-    ADD CONSTRAINT fk_late_adult_pp_status_stamps_status FOREIGN KEY (status_id) REFERENCES phenotyping_production_late_adult_statuses(id);
+ALTER TABLE ONLY public.phenotyping_production_late_adult_status_stamps
+    ADD CONSTRAINT fk_late_adult_pp_status_stamps_status FOREIGN KEY (status_id) REFERENCES public.phenotyping_production_late_adult_statuses(id);
 
 
 --
 -- Name: fk_mouse_allele_mods; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mod_status_stamps
-    ADD CONSTRAINT fk_mouse_allele_mods FOREIGN KEY (mouse_allele_mod_id) REFERENCES mouse_allele_mods(id);
+ALTER TABLE ONLY public.mouse_allele_mod_status_stamps
+    ADD CONSTRAINT fk_mouse_allele_mods FOREIGN KEY (mouse_allele_mod_id) REFERENCES public.mouse_allele_mods(id);
 
 
 --
 -- Name: fk_phenotyinging_production_late_adult_status; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_productions
-    ADD CONSTRAINT fk_phenotyinging_production_late_adult_status FOREIGN KEY (late_adult_status_id) REFERENCES phenotyping_production_late_adult_statuses(id);
+ALTER TABLE ONLY public.phenotyping_productions
+    ADD CONSTRAINT fk_phenotyinging_production_late_adult_status FOREIGN KEY (late_adult_status_id) REFERENCES public.phenotyping_production_late_adult_statuses(id);
 
 
 --
 -- Name: fk_phenotyping_productions; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_status_stamps
-    ADD CONSTRAINT fk_phenotyping_productions FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
+ALTER TABLE ONLY public.phenotyping_production_status_stamps
+    ADD CONSTRAINT fk_phenotyping_productions FOREIGN KEY (phenotyping_production_id) REFERENCES public.phenotyping_productions(id);
 
 
 --
 -- Name: fk_tdc_centre; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres
-    ADD CONSTRAINT fk_tdc_centre FOREIGN KEY (centre_id) REFERENCES centres(id);
+ALTER TABLE ONLY public.phenotyping_production_tissue_distribution_centres
+    ADD CONSTRAINT fk_tdc_centre FOREIGN KEY (centre_id) REFERENCES public.centres(id);
 
 
 --
 -- Name: fk_tdc_phenotyinging_production; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_tissue_distribution_centres
-    ADD CONSTRAINT fk_tdc_phenotyinging_production FOREIGN KEY (phenotyping_production_id) REFERENCES phenotyping_productions(id);
+ALTER TABLE ONLY public.phenotyping_production_tissue_distribution_centres
+    ADD CONSTRAINT fk_tdc_phenotyinging_production FOREIGN KEY (phenotyping_production_id) REFERENCES public.phenotyping_productions(id);
 
 
 --
 -- Name: mi_attempt_status_stamps_mi_attempt_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempt_status_stamps
-    ADD CONSTRAINT mi_attempt_status_stamps_mi_attempt_status_id_fk FOREIGN KEY (status_id) REFERENCES mi_attempt_statuses(id);
+ALTER TABLE ONLY public.mi_attempt_status_stamps
+    ADD CONSTRAINT mi_attempt_status_stamps_mi_attempt_status_id_fk FOREIGN KEY (status_id) REFERENCES public.mi_attempt_statuses(id);
 
 
 --
 -- Name: mi_attempts_blast_strain_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempts
-    ADD CONSTRAINT mi_attempts_blast_strain_id_fk FOREIGN KEY (blast_strain_id) REFERENCES strains(id);
+ALTER TABLE ONLY public.mi_attempts
+    ADD CONSTRAINT mi_attempts_blast_strain_id_fk FOREIGN KEY (blast_strain_id) REFERENCES public.strains(id);
 
 
 --
 -- Name: mi_attempts_mi_attempt_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempts
-    ADD CONSTRAINT mi_attempts_mi_attempt_status_id_fk FOREIGN KEY (status_id) REFERENCES mi_attempt_statuses(id);
+ALTER TABLE ONLY public.mi_attempts
+    ADD CONSTRAINT mi_attempts_mi_attempt_status_id_fk FOREIGN KEY (status_id) REFERENCES public.mi_attempt_statuses(id);
 
 
 --
 -- Name: mi_attempts_mi_plan_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempts
-    ADD CONSTRAINT mi_attempts_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
+ALTER TABLE ONLY public.mi_attempts
+    ADD CONSTRAINT mi_attempts_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES public.mi_plans(id);
 
 
 --
 -- Name: mi_attempts_targ_rep_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempts
-    ADD CONSTRAINT mi_attempts_targ_rep_allele_id_fk FOREIGN KEY (allele_id) REFERENCES targ_rep_alleles(id);
+ALTER TABLE ONLY public.mi_attempts
+    ADD CONSTRAINT mi_attempts_targ_rep_allele_id_fk FOREIGN KEY (allele_id) REFERENCES public.targ_rep_alleles(id);
 
 
 --
 -- Name: mi_attempts_test_cross_strain_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempts
-    ADD CONSTRAINT mi_attempts_test_cross_strain_id_fk FOREIGN KEY (test_cross_strain_id) REFERENCES strains(id);
+ALTER TABLE ONLY public.mi_attempts
+    ADD CONSTRAINT mi_attempts_test_cross_strain_id_fk FOREIGN KEY (test_cross_strain_id) REFERENCES public.strains(id);
 
 
 --
 -- Name: mi_attempts_updated_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_attempts
-    ADD CONSTRAINT mi_attempts_updated_by_id_fk FOREIGN KEY (updated_by_id) REFERENCES users(id);
+ALTER TABLE ONLY public.mi_attempts
+    ADD CONSTRAINT mi_attempts_updated_by_id_fk FOREIGN KEY (updated_by_id) REFERENCES public.users(id);
 
 
 --
 -- Name: mi_plan_es_cell_qcs_mi_plan_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_es_cell_qcs
-    ADD CONSTRAINT mi_plan_es_cell_qcs_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
+ALTER TABLE ONLY public.mi_plan_es_cell_qcs
+    ADD CONSTRAINT mi_plan_es_cell_qcs_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES public.mi_plans(id);
 
 
 --
 -- Name: mi_plan_status_stamps_mi_plan_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_status_stamps
-    ADD CONSTRAINT mi_plan_status_stamps_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
+ALTER TABLE ONLY public.mi_plan_status_stamps
+    ADD CONSTRAINT mi_plan_status_stamps_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES public.mi_plans(id);
 
 
 --
 -- Name: mi_plan_status_stamps_mi_plan_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plan_status_stamps
-    ADD CONSTRAINT mi_plan_status_stamps_mi_plan_status_id_fk FOREIGN KEY (status_id) REFERENCES mi_plan_statuses(id);
+ALTER TABLE ONLY public.mi_plan_status_stamps
+    ADD CONSTRAINT mi_plan_status_stamps_mi_plan_status_id_fk FOREIGN KEY (status_id) REFERENCES public.mi_plan_statuses(id);
 
 
 --
 -- Name: mi_plans_consortium_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_consortium_id_fk FOREIGN KEY (consortium_id) REFERENCES consortia(id);
+ALTER TABLE ONLY public.mi_plans
+    ADD CONSTRAINT mi_plans_consortium_id_fk FOREIGN KEY (consortium_id) REFERENCES public.consortia(id);
 
 
 --
 -- Name: mi_plans_es_qc_comment_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_es_qc_comment_id_fk FOREIGN KEY (es_qc_comment_id) REFERENCES mi_plan_es_qc_comments(id);
+ALTER TABLE ONLY public.mi_plans
+    ADD CONSTRAINT mi_plans_es_qc_comment_id_fk FOREIGN KEY (es_qc_comment_id) REFERENCES public.mi_plan_es_qc_comments(id);
 
 
 --
 -- Name: mi_plans_gene_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_gene_id_fk FOREIGN KEY (gene_id) REFERENCES genes(id);
+ALTER TABLE ONLY public.mi_plans
+    ADD CONSTRAINT mi_plans_gene_id_fk FOREIGN KEY (gene_id) REFERENCES public.genes(id);
 
 
 --
 -- Name: mi_plans_mi_plan_priority_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_mi_plan_priority_id_fk FOREIGN KEY (priority_id) REFERENCES mi_plan_priorities(id);
+ALTER TABLE ONLY public.mi_plans
+    ADD CONSTRAINT mi_plans_mi_plan_priority_id_fk FOREIGN KEY (priority_id) REFERENCES public.mi_plan_priorities(id);
 
 
 --
 -- Name: mi_plans_mi_plan_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_mi_plan_status_id_fk FOREIGN KEY (status_id) REFERENCES mi_plan_statuses(id);
+ALTER TABLE ONLY public.mi_plans
+    ADD CONSTRAINT mi_plans_mi_plan_status_id_fk FOREIGN KEY (status_id) REFERENCES public.mi_plan_statuses(id);
 
 
 --
 -- Name: mi_plans_production_centre_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_production_centre_id_fk FOREIGN KEY (production_centre_id) REFERENCES centres(id);
+ALTER TABLE ONLY public.mi_plans
+    ADD CONSTRAINT mi_plans_production_centre_id_fk FOREIGN KEY (production_centre_id) REFERENCES public.centres(id);
 
 
 --
 -- Name: mi_plans_sub_project_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mi_plans
-    ADD CONSTRAINT mi_plans_sub_project_id_fk FOREIGN KEY (sub_project_id) REFERENCES mi_plan_sub_projects(id);
+ALTER TABLE ONLY public.mi_plans
+    ADD CONSTRAINT mi_plans_sub_project_id_fk FOREIGN KEY (sub_project_id) REFERENCES public.mi_plan_sub_projects(id);
 
 
 --
 -- Name: mouse_allele_mod_status_stamps_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mod_status_stamps
-    ADD CONSTRAINT mouse_allele_mod_status_stamps_status_id_fk FOREIGN KEY (status_id) REFERENCES mouse_allele_mod_statuses(id);
+ALTER TABLE ONLY public.mouse_allele_mod_status_stamps
+    ADD CONSTRAINT mouse_allele_mod_status_stamps_status_id_fk FOREIGN KEY (status_id) REFERENCES public.mouse_allele_mod_statuses(id);
 
 
 --
 -- Name: mouse_allele_mods_deleter_strain_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mods
-    ADD CONSTRAINT mouse_allele_mods_deleter_strain_id_fk FOREIGN KEY (deleter_strain_id) REFERENCES strains(id);
+ALTER TABLE ONLY public.mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_deleter_strain_id_fk FOREIGN KEY (deleter_strain_id) REFERENCES public.strains(id);
 
 
 --
 -- Name: mouse_allele_mods_mi_plan_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mods
-    ADD CONSTRAINT mouse_allele_mods_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
+ALTER TABLE ONLY public.mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES public.mi_plans(id);
 
 
 --
 -- Name: mouse_allele_mods_phenotype_attempt_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mods
-    ADD CONSTRAINT mouse_allele_mods_phenotype_attempt_id_fk FOREIGN KEY (phenotype_attempt_id) REFERENCES phenotype_attempt_ids(id);
+ALTER TABLE ONLY public.mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_phenotype_attempt_id_fk FOREIGN KEY (phenotype_attempt_id) REFERENCES public.phenotype_attempt_ids(id);
 
 
 --
 -- Name: mouse_allele_mods_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mods
-    ADD CONSTRAINT mouse_allele_mods_status_id_fk FOREIGN KEY (status_id) REFERENCES mouse_allele_mod_statuses(id);
+ALTER TABLE ONLY public.mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_status_id_fk FOREIGN KEY (status_id) REFERENCES public.mouse_allele_mod_statuses(id);
 
 
 --
 -- Name: mouse_allele_mods_targ_rep_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY mouse_allele_mods
-    ADD CONSTRAINT mouse_allele_mods_targ_rep_allele_id_fk FOREIGN KEY (allele_id) REFERENCES targ_rep_alleles(id);
+ALTER TABLE ONLY public.mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_targ_rep_allele_id_fk FOREIGN KEY (allele_id) REFERENCES public.targ_rep_alleles(id);
 
 
 --
 -- Name: notifications_contact_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY notifications
-    ADD CONSTRAINT notifications_contact_id_fk FOREIGN KEY (contact_id) REFERENCES contacts(id);
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT notifications_contact_id_fk FOREIGN KEY (contact_id) REFERENCES public.contacts(id);
 
 
 --
 -- Name: notifications_gene_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY notifications
-    ADD CONSTRAINT notifications_gene_id_fk FOREIGN KEY (gene_id) REFERENCES genes(id);
+ALTER TABLE ONLY public.notifications
+    ADD CONSTRAINT notifications_gene_id_fk FOREIGN KEY (gene_id) REFERENCES public.genes(id);
 
 
 --
 -- Name: phenotyping_production_status_stamps_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_production_status_stamps
-    ADD CONSTRAINT phenotyping_production_status_stamps_status_id_fk FOREIGN KEY (status_id) REFERENCES phenotyping_production_statuses(id);
+ALTER TABLE ONLY public.phenotyping_production_status_stamps
+    ADD CONSTRAINT phenotyping_production_status_stamps_status_id_fk FOREIGN KEY (status_id) REFERENCES public.phenotyping_production_statuses(id);
 
 
 --
 -- Name: phenotyping_productions_mi_plan_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_productions
-    ADD CONSTRAINT phenotyping_productions_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES mi_plans(id);
+ALTER TABLE ONLY public.phenotyping_productions
+    ADD CONSTRAINT phenotyping_productions_mi_plan_id_fk FOREIGN KEY (mi_plan_id) REFERENCES public.mi_plans(id);
 
 
 --
 -- Name: phenotyping_productions_phenotype_attempt_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_productions
-    ADD CONSTRAINT phenotyping_productions_phenotype_attempt_id_fk FOREIGN KEY (phenotype_attempt_id) REFERENCES phenotype_attempt_ids(id);
+ALTER TABLE ONLY public.phenotyping_productions
+    ADD CONSTRAINT phenotyping_productions_phenotype_attempt_id_fk FOREIGN KEY (phenotype_attempt_id) REFERENCES public.phenotype_attempt_ids(id);
 
 
 --
 -- Name: phenotyping_productions_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY phenotyping_productions
-    ADD CONSTRAINT phenotyping_productions_status_id_fk FOREIGN KEY (status_id) REFERENCES phenotyping_production_statuses(id);
+ALTER TABLE ONLY public.phenotyping_productions
+    ADD CONSTRAINT phenotyping_productions_status_id_fk FOREIGN KEY (status_id) REFERENCES public.phenotyping_production_statuses(id);
 
 
 --
 -- Name: targ_rep_allele_sequence_annotations_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_allele_sequence_annotations
-    ADD CONSTRAINT targ_rep_allele_sequence_annotations_allele_id_fk FOREIGN KEY (allele_id) REFERENCES targ_rep_alleles(id);
+ALTER TABLE ONLY public.targ_rep_allele_sequence_annotations
+    ADD CONSTRAINT targ_rep_allele_sequence_annotations_allele_id_fk FOREIGN KEY (allele_id) REFERENCES public.targ_rep_alleles(id);
 
 
 --
 -- Name: targ_rep_es_cells_user_qc_mouse_clinic_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_es_cells
-    ADD CONSTRAINT targ_rep_es_cells_user_qc_mouse_clinic_id_fk FOREIGN KEY (user_qc_mouse_clinic_id) REFERENCES centres(id);
+ALTER TABLE ONLY public.targ_rep_es_cells
+    ADD CONSTRAINT targ_rep_es_cells_user_qc_mouse_clinic_id_fk FOREIGN KEY (user_qc_mouse_clinic_id) REFERENCES public.centres(id);
 
 
 --
 -- Name: targ_rep_genotype_primers_allele_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_genotype_primers
-    ADD CONSTRAINT targ_rep_genotype_primers_allele_id_fk FOREIGN KEY (allele_id) REFERENCES targ_rep_alleles(id);
+ALTER TABLE ONLY public.targ_rep_genotype_primers
+    ADD CONSTRAINT targ_rep_genotype_primers_allele_id_fk FOREIGN KEY (allele_id) REFERENCES public.targ_rep_alleles(id);
 
 
 --
 -- Name: targ_rep_genotype_primers_mutagenesis_factor_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_genotype_primers
-    ADD CONSTRAINT targ_rep_genotype_primers_mutagenesis_factor_id_fk FOREIGN KEY (mutagenesis_factor_id) REFERENCES mutagenesis_factors(id);
-
-
---
--- Name: trace_call_vcf_modifications_trace_calls_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY trace_call_vcf_modifications
-    ADD CONSTRAINT trace_call_vcf_modifications_trace_calls_fk FOREIGN KEY (trace_call_id) REFERENCES trace_calls(id);
+ALTER TABLE ONLY public.targ_rep_genotype_primers
+    ADD CONSTRAINT targ_rep_genotype_primers_mutagenesis_factor_id_fk FOREIGN KEY (mutagenesis_factor_id) REFERENCES public.mutagenesis_factors(id);
 
 
 --
 -- Name: trace_calls_colonies_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY trace_calls
-    ADD CONSTRAINT trace_calls_colonies_fk FOREIGN KEY (colony_id) REFERENCES colonies(id);
+ALTER TABLE ONLY public.trace_files
+    ADD CONSTRAINT trace_calls_colonies_fk FOREIGN KEY (colony_id) REFERENCES public.colonies(id);
 
 
 --
 -- Name: users_es_cell_distribution_centre_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY users
-    ADD CONSTRAINT users_es_cell_distribution_centre_id_fk FOREIGN KEY (es_cell_distribution_centre_id) REFERENCES targ_rep_es_cell_distribution_centres(id);
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_es_cell_distribution_centre_id_fk FOREIGN KEY (es_cell_distribution_centre_id) REFERENCES public.targ_rep_es_cell_distribution_centres(id);
 
 
 --
@@ -6111,3 +6054,9 @@ INSERT INTO schema_migrations (version) VALUES ('20180118111602');
 INSERT INTO schema_migrations (version) VALUES ('20180202111914');
 
 INSERT INTO schema_migrations (version) VALUES ('20180301111914');
+
+INSERT INTO schema_migrations (version) VALUES ('20180320111914');
+
+INSERT INTO schema_migrations (version) VALUES ('20180329151915');
+
+INSERT INTO schema_migrations (version) VALUES ('20180709130733');

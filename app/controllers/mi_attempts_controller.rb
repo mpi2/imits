@@ -93,7 +93,7 @@ class MiAttemptsController < ApplicationController
 
   def update
     # TODO: put this somewhere more sensible
-    Paperclip.options[:content_type_mappings] = { scf: 'application/octet-stream' }
+    Paperclip.options[:content_type_mappings] = { scf: 'application/octet-stream', abi: 'application/octet-stream', ab1: 'application/octet-stream' }
 
     @mi_attempt = Public::MiAttempt.find(params[:id])
     return unless authorize_user_production_centre(@mi_attempt)
@@ -115,6 +115,8 @@ class MiAttemptsController < ApplicationController
     respond_with @mi_attempt do |format|
       format.html do
         if ! @mi_attempt.valid?
+          @mi_attempt.errors.add :base, 'trace file was not uploaded due to validation error. Fix the above validation error(s) and then reupload trace file.' if @mi_attempt.colonies.any?{|c| c.trace_files.any?{|a| a.new_record?}}
+          @mi_attempt.colonies.each{|c| c.trace_files.delete_if{|a| a.new_record?}}
           flash.now[:alert] = 'Micro-injection could not be updated - please check the values you entered'
         end
         # temp fix for when update fails silently (mi_plan status change problem eg. mi_attempt 12165)

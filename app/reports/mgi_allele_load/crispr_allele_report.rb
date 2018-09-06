@@ -89,11 +89,12 @@ class MgiAlleleLoad::CrisprAlleleReport
           GROUP BY mi_attempts.id
         ),
         characterized_alleles AS (
-          SELECT trace_calls.colony_id AS colony_id, trace_calls.file_mutant_fa AS protein_sequence,
-          string_agg( 'Chromosome:' || tcvm.chr || ' Start:' || tcvm.start || ' ' || (CASE WHEN tcvm.mod_type = 'del' THEN 'deletion' WHEN tcvm.mod_type = 'ins' THEN 'insertion' WHEN tcvm.mod_type = 'snp' THEN 'nucleotide_substitutions' ELSE tcvm.mod_type END) || ':' || (tcvm.end - tcvm.start + 1) || 'bp ' || (CASE WHEN tcvm.mod_type = 'del' THEN  'mutation:' || substring( tcvm.ref_seq from 2 for (tcvm.end - tcvm.start + 1) ) WHEN tcvm.mod_type = 'ins' THEN 'mutation:' ||  substring( tcvm.alt_seq from 2 for (tcvm.end - tcvm.start + 1) ) WHEN tcvm.mod_type = 'snp' THEN 'mutation:' || tcvm.ref_seq || '/' || tcvm.alt_seq ELSE '' END), '|') AS molecular_characterization
-          FROM trace_calls
-          JOIN trace_call_vcf_modifications tcvm ON trace_calls.id = tcvm.trace_call_id
-          GROUP BY trace_calls.colony_id, trace_calls.file_mutant_fa
+          SELECT trace_files.colony_id AS colony_id, a.mutant_fa AS protein_sequence,
+          string_agg( 'Chromosome:' || aa.chr || ' Start:' || aa.start || ' ' || (CASE WHEN aa.mod_type = 'del' THEN 'deletion' WHEN aa.mod_type = 'ins' THEN 'insertion' WHEN aa.mod_type = 'snp' THEN 'nucleotide_substitutions' ELSE aa.mod_type END) || ':' || (aa.end - aa.start + 1) || 'bp ' || (CASE WHEN aa.mod_type = 'del' THEN  'mutation:' || substring( aa.ref_seq from 2 for (aa.end - aa.start + 1) ) WHEN aa.mod_type = 'ins' THEN 'mutation:' ||  substring( aa.alt_seq from 2 for (aa.end - aa.start + 1) ) WHEN aa.mod_type = 'snp' THEN 'mutation:' || aa.ref_seq || '/' || aa.alt_seq ELSE '' END), '|') AS molecular_characterization
+          FROM trace_files
+          JOIN alleles a ON trace_files.colony_id = a.colony_id
+          JOIN allele_annotations aa ON a.id = aa.allele_id
+          GROUP BY trace_files.colony_id, a.mutant_fa
         )
 
 

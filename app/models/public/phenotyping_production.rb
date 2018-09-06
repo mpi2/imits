@@ -108,4 +108,5 @@ end
 #  late_adult_report_to_public                :boolean          default(TRUE)
 #  late_adult_phenotyping_experiments_started :date
 #  late_adult_status_id                       :integer
+#  do_not_count_towards_completeness          :boolean          default(FALSE)
 #

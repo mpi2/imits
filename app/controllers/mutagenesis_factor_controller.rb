@@ -53,6 +53,46 @@ class MutagenesisFactorController < ApplicationController
     end
   end
 
+  def designs
+
+    position = params[:position]
+    ids_str = params.has_key?(:ids) ? params[:ids].split(',') : []
+    chr = nil
+    coord_start = nil
+    coord_end = nil
+    unless position.blank?
+      chr, coord = position.split(':')
+      coord_start, coord_end = coord.split('-')
+    end
+    chr = 'x' if chr == 'X'
+    chr = 'y' if chr == 'Y'
+    
+    crisprs = []
+    @crisprs_list = []
+
+    if !chr.blank? && !coord_start.blank? && !coord_end.blank?
+      if !ids_str.blank?
+        crisprs = TargRep::Crispr.where("chr = '#{chr}' AND start > :coord_start AND start < :coord_end AND mutagenesis_factor_id IN ( :ids_str )", {coord_start: coord_start, coord_end: coord_end, ids_str: ids_str})
+      else
+        crisprs = TargRep::Crispr.where("chr = '#{chr}' AND start > :coord_start AND start < :coord_end", {coord_start: coord_start, coord_end: coord_end})
+      end
+    elsif !ids_str.blank?
+      crisprs = TargRep::Crispr.where("mutagenesis_factor_id IN ( :ids_str )", {ids_str: ids_str})
+    end
+
+    crisprs.each do |crispr|
+        parent_feature = build_crispr_features(crispr)
+        @crisprs_list.push( parent_feature )
+    end
+
+    respond_with @crisprs_list do |format|
+      format.json do
+        render :json => @crisprs_list
+      end
+    end    
+    
+  end
+
   private
     def build_crispr_features(crispr)
       puts "Error: no crispr present " unless crispr
@@ -69,11 +109,13 @@ class MutagenesisFactorController < ApplicationController
       sequence = crispr.sequence
 
       parent_feature = {
-        'chr'            => crispr.chr,
-        'start'          => crispr.start,
-        'end'            => crispr.end,
-        'sequence'       => crispr.sequence,
-        'cds'            => []
+        'design_id'   => crispr.mutagenesis_factor.external_ref,
+        'chr'         => crispr.chr,
+        'name'        => 'CRISPR',
+        'start'       => crispr.start,
+        'end'         => crispr.end,
+        'sequence'    => crispr.sequence,
+        'cds'         => []
       }
 
       # we don't store where the PAM sites are currently so we have to look for CC/GG at ends
@@ -81,23 +123,25 @@ class MutagenesisFactorController < ApplicationController
 
       # NB seem to have to add 1 to ends to get to draw last nucleotide
       central_feature_details = {
-        'chr'    => crispr.chr,
-        'name'   => 'PAM',
-        'type'   => 'CDS',
-        'start'  => crispr.start,
-        'end'    => crispr.end.to_i + 1,
-        'color'  => '#45A825'
+        'design_id'  => crispr.mutagenesis_factor.external_ref,
+        'chr'        => crispr.chr,
+        'name'       => 'gRNA',
+        'type'       => 'CDS',
+        'start'      => crispr.start,
+        'end'        => crispr.end.to_i + 1,
+        'color'      => '#45A825'
       }
 
       if ['GG','CC'].include?(sequence[0..1])
         # PAM left features
         pam_left_details = {
-          'chr'    => crispr.chr,
-          'name'   => 'PAM',
-          'type'   => 'CDS',
-          'start'  => crispr.start,
-          'end'    => crispr.start.to_i + 3,
-          'color'  => '#1A8599'
+          'design_id'   => crispr.mutagenesis_factor.external_ref,
+          'chr'         => crispr.chr,
+          'name'        => 'PAM',
+          'type'        => 'CDS',
+          'start'       => crispr.start,
+          'end'         => crispr.start.to_i + 3,
+          'color'       => '#1A8599'
         }
         parent_feature['cds'].push(pam_left_details)
         central_feature_details['start'] = ( crispr.start.to_i + 3 )
@@ -106,12 +150,13 @@ class MutagenesisFactorController < ApplicationController
       if ['GG','CC'].include?(sequence[-2..-1])
         # PAM left features
         pam_right_details = {
-          'chr'    => crispr.chr,
-          'name'   => 'PAM',
-          'type'   => 'CDS',
-          'start'  => crispr.end.to_i - 2,
-          'end'    => crispr.end.to_i + 1,
-          'color'  => '#1A8599'
+          'design_id'   => crispr.mutagenesis_factor.external_ref,
+          'chr'         => crispr.chr,
+          'name'        => 'PAM',
+          'type'        => 'CDS',
+          'start'       => crispr.end.to_i - 2,
+          'end'         => crispr.end.to_i + 1,
+          'color'       => '#1A8599'
         }
         parent_feature['cds'].push(pam_right_details)
         central_feature_details['end'] = ( crispr.end.to_i - 2 )

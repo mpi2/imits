@@ -17,12 +17,7 @@ class Colony < ApplicationModel
 
   has_many :distribution_centres, :class_name => 'Colony::DistributionCentre', :inverse_of => :colony, :dependent => :destroy
   has_many :alleles, :dependent => :destroy, :inverse_of => :colony
-<<<<<<< HEAD
-
-  has_one :trace_call, :inverse_of =>:colony, :dependent => :destroy
-=======
   has_many :trace_files, :inverse_of =>:colony, :dependent => :destroy, :class_name => "TraceFile"
->>>>>>> master
 
   access_association_by_attribute :background_strain, :name
 

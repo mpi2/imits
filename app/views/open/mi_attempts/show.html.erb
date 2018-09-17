@@ -34,7 +34,9 @@
       <% end %>
 
       <div class="label">Colony Name</div>
-      <span><%= @mi_attempt.colony_name %></span>
+      <% @mi_attempt.colonies.each do |colony| %>
+        <span><%= colony.name %></span>
+      <% end %>
 
       <div class="label">Consortium Name</div>
       <span><%= @mi_attempt.consortium_name %></span>
@@ -130,7 +132,9 @@
     <legend>Chimera Mating Details</legend>
     <div>
       <div class="label">Colony Background Strain</div>
-      <span><%= @mi_attempt.colony_background_strain.try(:name) %></span>
+      <% @mi_attempt.colonies.each do |colony| %>
+        <span><%= colony.background_strain.try(:name) %></span>
+      <% end %>
 
       <div class="label">Test Cross Strain</div>
       <span><%= @mi_attempt.test_cross_strain.try(:name) %></span>
@@ -179,6 +183,9 @@
     </div>
   </fieldset>
 
+<% 
+=begin %>
+
   <fieldset class="collapsible">
     <legend>QC Details</legend>
     <div>
@@ -191,6 +198,8 @@
         <div class="label"><%= qc_field.to_s.gsub('_', ' ') %></div>
         <span><%= statuses[@mi_attempt[qc_field.to_s + '_id']] %></span>
       <% end %>
+<% 
+=end %>
 
     </div>
   </fieldset>

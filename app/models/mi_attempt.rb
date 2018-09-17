@@ -29,6 +29,7 @@ class MiAttempt < ApplicationModel
   has_many   :crisprs, through: :mutagenesis_factor
   has_many   :genotype_primers, through: :mutagenesis_factor
   has_many   :reagents, :class_name => 'Reagent', :inverse_of => :mi_attempt
+  has_many   :distribution_centres, :class_name => 'Colony::DistributionCentre', through: :colonies
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :test_cross_strain, :name

@@ -850,7 +850,7 @@ class SolrData::Allele2CoreData
     doc.genoverse_design_track_url = MutagenesisFactor.design_track_url(data_row['mutagenesis_factor_id']) if !data_row['mi_attempt_mutagenesis_factor_id'].blank?
     doc.genoverse_mut_allele_track_url = Colony.mut_sequences_track_url(data_row['colony.id']) if !data_row['colony_id'].blank?
     
-    convert_to_array(data_row['trace_file_ids']).each do |trace_file_id|
+    self.class.convert_to_array(data_row['trace_file_ids']).each do |trace_file_id|
       doc.sequence_files_urls << TraceFile.trace_file_url(trace_file_id)
     end
 

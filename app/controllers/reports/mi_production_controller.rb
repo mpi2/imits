@@ -13,7 +13,7 @@ class Reports::MiProductionController < ApplicationController
       @approach = 'all'
 
       @intermediate_table = IntermediateReportSummaryByCentreAndConsortia.new
-      @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByCentreAndConsortia.where_sql(category, @approach, nil, {}))
+      @intermediate_report = ActiveRecord::Base.connection.execute(IntermediateReportSummaryByCentreAndConsortia.where_sql(category, @approach))
       render :template => 'v2/reports/mi_production/production_detail'
 
     end

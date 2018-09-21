@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20180329151915) do
+ActiveRecord::Schema.define(:version => 20180709130733) do
 
 # Could not dump table "allele_annotations" because of following StandardError
 #   Unknown type 'json' for column 'consequence'
@@ -835,6 +835,7 @@ ActiveRecord::Schema.define(:version => 20180329151915) do
     t.boolean  "late_adult_report_to_public",                :default => true
     t.date     "late_adult_phenotyping_experiments_started"
     t.integer  "late_adult_status_id"
+    t.boolean  "do_not_count_towards_completeness",          :default => false
   end
 
   create_table "pipelines", :force => true do |t|

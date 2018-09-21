@@ -196,13 +196,13 @@ class ImpcCentreByMonthReport
 
     ## Start date is the first of March for that year (Except January/February where it's the previous year)
     def start_date
-      year = Time.now.year
+      year = Time.now.year - 1
 
       if Time.now.month <= 2
         year = Time.now.year - 1
       end
 
-      Date.parse("#{year}-03-01").to_s(:db)
+      Date.parse("#{year}-09-01").to_s(:db)
     end
 
     def real_start_date

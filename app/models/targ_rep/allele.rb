@@ -21,7 +21,8 @@ class TargRep::Allele < ActiveRecord::Base
   belongs_to :mutation_method, :class_name => 'TargRep::MutationMethod'
   belongs_to :mutation_type, :class_name => 'TargRep::MutationType'
   belongs_to :mutation_subtype, :class_name => 'TargRep::MutationSubtype'
-  belongs_to :gene
+  belongs_to :gene, :class_name => 'Gene'
+  belongs_to :colony, :class_name => 'Colony'
   belongs_to :allele_genbank_file, :class_name => 'TargRep::GenbankFile', :dependent => :destroy, :foreign_key => 'allele_genbank_file_id'
   belongs_to :vector_genbank_file, :class_name => 'TargRep::GenbankFile', :dependent => :destroy, :foreign_key => 'vector_genbank_file_id'
 

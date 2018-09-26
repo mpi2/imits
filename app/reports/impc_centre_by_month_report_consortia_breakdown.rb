@@ -169,13 +169,13 @@ class ImpcCentreByMonthReportConsortiaBreakdown
 
     ## Start date is the first of March for that year (Except January/February where it's the previous year)
     def start_date
-      year = Time.now.year
+      year = Time.now.year - 1 
 
       if Time.now.month <= 2
         year = Time.now.year - 1
       end
 
-      Date.parse("#{year}-03-01").to_s(:db)
+      Date.parse("#{year}-09-01").to_s(:db)
     end
 
     def real_start_date
@@ -207,7 +207,8 @@ class ImpcCentreByMonthReportConsortiaBreakdown
          'UCD' => ['DTCC'],
          'WTSI' => ['MGP', 'BaSH'],
          'Monterotondo' => ['Monterotondo'],
-         'MARC' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'MARC' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name}
+         'MARC' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'MARC' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
+         'IMG' => ['CCP', 'Helmholtz GMC']
         }
     end
 

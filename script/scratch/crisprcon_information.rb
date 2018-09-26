@@ -32,22 +32,16 @@ allele.each do |a|
   crispr_end = mi_attempt.crisprs.maximum("end")
 
   # Find oligo sequence 
-  # mutagenesis_factor_donors = MutagenesisFactor::Donor.where(mutagenesis_factor_id: mi_attempt.mutagenesis_factor_id).select("oligo_sequence_fa").first 
-  # if mutagenesis_factor_donors.nil? 
-  # 	oligo = nil 
-  # else 
-  # 	oligo = mutagenesis_factor_donors.oligo_sequence_fa 
-  # end
-  mutagenesis_factor_donors = mi_attempt.mutagenesis_factor.donors.first
-  if mutagenesis_factor_donors.empty? 
-    oligo = nil 
+  mutagenesis_factor_donors = MutagenesisFactor::Donor.where(mutagenesis_factor_id: mi_attempt.mutagenesis_factor_id).select("oligo_sequence_fa").first 
+  if mutagenesis_factor_donors.nil? 
+  	oligo = nil 
   else 
-    oligo = mutagenesis_factor_donors.oligo_sequence_fa 
+  	oligo = mutagenesis_factor_donors.oligo_sequence_fa 
   end
 
   # Find strain 
   # strain = Strain.where(id: mi_attempt.blast_strain_id).select("name").first 
-  strain = mi.blast_strain
+  strain = mi_attempt.blast_strain.name
 
   # Create hash object 
   hash_obj = { 

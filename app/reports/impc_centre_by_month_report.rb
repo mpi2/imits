@@ -191,7 +191,7 @@ class ImpcCentreByMonthReport
          'MARC' => ['MARC'],
          'KMPC' => ['KMPC'],
          'NARLabs' => ['NarLabs'],
-         'IMG' => ['CCP', 'Helmholtz GMC']
+         'CCP-IMG' => ['Helmholtz GMC', 'CCP-IMG']
         }
     end
 
@@ -238,7 +238,7 @@ class ImpcCentreByMonthReport
         'TCP',
         'UCD',
         'WTSI',
-        'IMG'
+        'CCP-IMG'
       ]
     end
 

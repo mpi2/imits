@@ -16,7 +16,7 @@ class AddCentresFullName < ActiveRecord::Migration
       UPDATE centres SET full_name = 'Medical Research Council Harwell' WHERE centres.name = 'Harwell';
       UPDATE centres SET full_name = 'Helmholtz-Zentrum Muenchen' WHERE centres.name = 'HMGU';
       UPDATE centres SET full_name = 'Institut Clinique de la Souris' WHERE centres.name = 'ICS';
-      UPDATE centres SET full_name = 'Czech centre for Phenogenomics' WHERE centres.name = 'IMG';
+      UPDATE centres SET full_name = 'Czech centre for Phenogenomics' WHERE centres.name = 'CCP-IMG';
       UPDATE centres SET full_name = 'The Jackson Laboratory' WHERE centres.name = 'JAX';
       UPDATE centres SET full_name = 'Korea Mouse Phenotype Consortium' WHERE centres.name = 'KMPC';
       UPDATE centres SET full_name = 'Korea Research Institute of Bioscience and Biotechnology' WHERE centres.name = 'KRIBB';

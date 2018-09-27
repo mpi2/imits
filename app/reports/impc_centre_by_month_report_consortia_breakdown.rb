@@ -208,7 +208,7 @@ class ImpcCentreByMonthReportConsortiaBreakdown
          'WTSI' => ['MGP', 'BaSH'],
          'Monterotondo' => ['Monterotondo'],
          'MARC' => Consortium.find_by_sql("SELECT DISTINCT consortia.* FROM mi_plans JOIN consortia ON consortia.id = mi_plans.consortium_id JOIN centres ON centres.id = mi_plans.production_centre_id WHERE centres.name = 'MARC' AND mi_plans.mutagenesis_via_crispr_cas9 = false").map{|consortium| consortium.name},
-         'IMG' => ['CCP', 'Helmholtz GMC']
+         'CCP-IMG' => ['CCP-IMG', 'Helmholtz GMC']
         }
     end
 

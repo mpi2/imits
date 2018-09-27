@@ -238,7 +238,7 @@ Seeds.load Consortium, [
   {:id=>20, :name=>"KMPC", :funding=>"Korean Government", :participants=>"KMPC", :contact=>nil},
   {:id=>21, :name=>"NarLabs", :funding=>nil, :participants=>nil, :contact=>"Genie Chin"},
   {:id=>22, :name=>"CAM-SU GRC", :funding=>"China", :participants=>nil, :contact=>nil},
-  {:id=>23, :name=>"CCP", :funding=>"Czech Centre for Phenogenomics", :participants=>nil, :contact=>nil},
+  {:id=>23, :name=>"CCP-IMG", :funding=>"Czech Centre for Phenogenomics", :participants=>nil, :contact=>nil},
   {:id=>24, :name=>"NorCOMM", :funding=>"Genome Canada", :participants=>"TCP", :contact=>nil},
   {:id=>25, :name=>"GENCODYS", :funding=>"GENCODYS", :participants=>nil, :contact=>nil}
 ]
@@ -258,7 +258,7 @@ Seeds.load Centre, [
   {:id=>3, :name=>"Harwell", :code=>"H", :superscript=>nil},
   {:id=>6, :name=>"HMGU", :code=>"Hmgu", :superscript=>nil},
   {:id=>2, :name=>"ICS", :code=>"Ics", :superscript=>nil},
-  {:id=>17, :name=>"IMG", :code=>"Img", :superscript=>nil},
+  {:id=>17, :name=>"CCP-IMG", :code=>"CCP-IMG", :superscript=>nil},
   {:id=>14, :name=>"JAX", :code=>"J", :superscript=>nil},
   {:id=>33, :name=>"KMPC", :code=>"KMPC", :superscript=>nil},
   {:id=>35, :name=>"KOMP Repo", :code=>"KOMP Repo", :superscript=>nil},

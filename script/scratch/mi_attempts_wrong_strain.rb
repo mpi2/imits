@@ -1,25 +1,41 @@
-mi_attempts = [1645, 2449, 2451, 2454, 2495, 2496, 2497, 2610, 2925, 16945, 16952, 16953, 16946, 16971, 16969, 16972, 16970, 16958, 16968, 16973, 16962, 16967, 16634, 17235, 17237, 17477, 17475, 17476, 17572, 17573, 17474, 16786, 18183, 18180, 18182, 18179, 18181, 18723, 18184, 18855, 19126, 19168, 10886, 10887, 13798, 15346, 13884, 13933, 12350, 12993, 12994, 12996, 12997, 13000, 12998, 12992, 12995, 13001, 13569, 13567, 13568, 12261, 12262, 12355, 12340, 12338, 12353, 8467, 10461, 12260, 14184, 14182, 14303, 15390, 15391, 15392, 16793, 16794, 16795, 17133, 17132, 17134, 17130, 17131, 10462, 17377, 17375, 17376, 18156, 18341, 18279, 18340, 18342, 18343, 18349, 18348, 18365, 18366, 18367, 18364, 18592, 18610, 18619, 18593, 18614, 18620, 18621, 18727, 18739, 18740, 18947, 19006, 18971, 19015, 19039, 19145, 19140, 19149, 19139, 19141, 19142, 19143, 19151, 19144, 19146, 19148, 19150, 19147, 19152, 19153, 19154, 13815, 13819, 13821, 12930, 12931, 12932, 12933, 12935, 12954, 13818, 13999, 13998, 13996, 14000, 15402, 12934, 12137, 14355, 14359, 14345, 14595, 14775, 15241, 15248, 15249, 14343, 14353, 14342, 14497, 14789, 14804, 14778, 14785, 14777, 14366, 14354, 15244, 14360, 15231, 15238, 14346, 14347, 14362, 14350, 14365, 14344, 14356, 14348, 14351, 14358, 14656, 14653, 14654, 14790, 14644, 14349, 14597, 14363, 14651, 14596, 14645, 14791, 14652, 14357, 14473, 14811, 14812, 14598, 14813, 14657, 14655, 15108, 14805, 14776, 15107, 14803, 14650, 14364, 15232, 14814, 14649, 15235, 15247, 15250, 15246, 15242, 15236, 15254, 15252, 15245, 15243, 15234, 15253, 15251, 14646, 15240, 15233, 14352, 15239, 14519, 14516, 15174, 15201]
+misspelt_strain_id = Strain.find_by_name('C57BL6/NCrl').id
 
-correct_strain = Strain.find_by_name("C57BL/6NCrl").id
+mi_attempts = MiAttempt.where(:blast_strain_id => misspelt_strain_id).map{ |mi| mi.id }
+
+correct_strain_id = Strain.find_by_name("C57BL/6NCrl").id
 mi_attempts_inactive = Array.new
 
 mi_attempts.each do |mi_id|
   mi = MiAttempt.find(mi_id)
-  if mi.is_active?
-	mi.blast_strain_id = correct_strain
-	mi.save!
-  else
-  	p = mi.mi_plan
-  	p.is_active = true
-  	p.save!
-  	mi.blast_strain_id = correct_strain
-	mi.save!
-	mi_attempts_inactive.push(mi_id)
-  	# p.is_active = false
-  	# p.save!
+  begin
+	  mi.blast_strain_id = correct_strain_id
+	  mi.save!
+  rescue
+    mi_attempts_inactive.push(mi_id)
   end
 end
 
-puts mi_attempts_inactive
+mi_attempts_inactive_2 = Array.new
 
+mi_attempts_inactive.each do |mi_id|
+  mi = MiAttempt.find(mi_id)
+  p = mi.mi_plan
+  if !p.is_active?
+    p.is_active = true
+    p.save!
+    mi.blast_strain_id = correct_strain_id
+    mi.save!
+    p.is_active = false
+    p.save!
+  else
+    mi_attempts_inactive_2.push(mi_id)
+  end
+end
 
+mi_attempts.count
+
+mi_attempts_inactive.count
+
+mi_attempts_inactive_2.count
+
+# {:id=>20, :name=>"C57BL6/NCrl", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>true, :test_cross_strain=>true, :blast_strain=>true},

@@ -49,7 +49,7 @@ Seeds.load Strain, [
   {:id=>17, :name=>"C57BL/6JcBrd/cBrd", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>true},
   {:id=>18, :name=>"C57BL/6N", :mgi_strain_accession_id=>"MGI:2159965", :mgi_strain_name=>"", :background_strain=>true, :test_cross_strain=>true, :blast_strain=>true},
   {:id=>19, :name=>"C57BL/6NCrl", :mgi_strain_accession_id=>"MGI:2683688", :mgi_strain_name=>nil, :background_strain=>true, :test_cross_strain=>true, :blast_strain=>true},
-  
+  # {:id=>20, :name=>"C57BL6/NCrl", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>true, :test_cross_strain=>true, :blast_strain=>true},
   {:id=>21, :name=>"C57Bl/6J Albino", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>true, :blast_strain=>true},
   {:id=>22, :name=>"CD1", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>true, :blast_strain=>true},
   {:id=>23, :name=>"FVB", :mgi_strain_accession_id=>"MGI:3609372", :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>true},
@@ -140,7 +140,8 @@ Seeds.load Strain, [
   {:id=>113, :name=>"129S5;129P2", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>false},
   {:id=>114, :name=>"STOCK Cdh23<v>", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>false},
   {:id=>115, :name=>"STOCK Hmx3<hx>", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>false},
-  {:id=>116, :name=>"lmna", :mgi_strain_accession_id=>"", :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>false}
+  {:id=>116, :name=>"lmna", :mgi_strain_accession_id=>"", :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>false},
+  {:id=>117, :name=>"CBA/Ca", :mgi_strain_accession_id=>"", :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>false}
 ]
 
 Seeds.load MiPlan::Status, [
@@ -209,7 +210,7 @@ Seeds.load DepositedMaterial, [
 
 
 Seeds.load ReagentName, [
-  {:id=>1, :name=>"Ligase IV", :description=>"NHEJ Inhibitor"}
+  {:id=>1, :name=>"Ligase IV", :description=>"NHEJ Inhibitor"},
   {:id=>2, :name=>"Xrcc5", :description=>"NHEJ Inhibitor"}
 ]
 

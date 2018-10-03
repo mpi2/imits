@@ -1,14 +1,18 @@
 misspelt_strain_id = Strain.find_by_name('C57BL6/NCrl').id
 
 mi_attempts = MiAttempt.where(:blast_strain_id => misspelt_strain_id).map{ |mi| mi.id }
+mi_attempts_test = MiAttempt.where(:test_cross_strain_id => misspelt_strain_id).map{ |mi| mi.id }
+
 
 correct_strain_id = Strain.find_by_name("C57BL/6NCrl").id
 mi_attempts_inactive = Array.new
 
-mi_attempts.each do |mi_id|
+# mi_attempts.each do |mi_id|
+mi_attempts_test.each do |mi_id|
   mi = MiAttempt.find(mi_id)
   begin
 	  mi.blast_strain_id = correct_strain_id
+    mi.test_cross_strain_id = correct_strain_id
 	  mi.save!
   rescue
     mi_attempts_inactive.push(mi_id)

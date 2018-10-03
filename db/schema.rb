@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20180709130733) do
+ActiveRecord::Schema.define(:version => 20181003104106) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",             :null => false

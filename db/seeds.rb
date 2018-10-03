@@ -49,7 +49,11 @@ Seeds.load Strain, [
   {:id=>17, :name=>"C57BL/6JcBrd/cBrd", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>true},
   {:id=>18, :name=>"C57BL/6N", :mgi_strain_accession_id=>"MGI:2159965", :mgi_strain_name=>"", :background_strain=>true, :test_cross_strain=>true, :blast_strain=>true},
   {:id=>19, :name=>"C57BL/6NCrl", :mgi_strain_accession_id=>"MGI:2683688", :mgi_strain_name=>nil, :background_strain=>true, :test_cross_strain=>true, :blast_strain=>true},
+<<<<<<< HEAD
   # {:id=>20, :name=>"C57BL6/NCrl", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>true, :test_cross_strain=>true, :blast_strain=>true},
+=======
+#   {:id=>20, :name=>"C57BL6/NCrl", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>true, :test_cross_strain=>true, :blast_strain=>true},
+>>>>>>> ade88ce2a428d9b9ce0c958439f36084313ad120
   {:id=>21, :name=>"C57Bl/6J Albino", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>true, :blast_strain=>true},
   {:id=>22, :name=>"CD1", :mgi_strain_accession_id=>nil, :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>true, :blast_strain=>true},
   {:id=>23, :name=>"FVB", :mgi_strain_accession_id=>"MGI:3609372", :mgi_strain_name=>nil, :background_strain=>false, :test_cross_strain=>false, :blast_strain=>true},

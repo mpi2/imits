@@ -711,10 +711,19 @@ CREATE TABLE public.allele_annotations (
     alt_seq text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    dup_coords character varying(255),
+    exdels character varying(255),
+    partial_exdels character varying(255),
+    txc character varying(255),
+    splice_donor boolean,
+    splice_acceptor boolean,
+    protein_coding_region boolean,
+    intronic boolean,
+    frameshift boolean,
     linked_concequence text,
     downstream_of_stop boolean,
     stop_gained boolean,
+    amino_acid text,
+    dup_coords character varying(255),
     consequence json
 );
 
@@ -6053,3 +6062,7 @@ INSERT INTO schema_migrations (version) VALUES ('20180320111914');
 INSERT INTO schema_migrations (version) VALUES ('20180329151915');
 
 INSERT INTO schema_migrations (version) VALUES ('20180709130733');
+
+INSERT INTO schema_migrations (version) VALUES ('20181003104106');
+
+INSERT INTO schema_migrations (version) VALUES ('20181005091344');

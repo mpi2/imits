@@ -7,7 +7,7 @@ class Colony < ApplicationModel
 
   extend AccessAssociationByAttribute
 
-  belongs_to :mi_attempt
+  belongs_to :mi_attempt, :class_name => 'MiAttempt'
   belongs_to :mouse_allele_mod
   belongs_to :background_strain, :class_name => 'Strain'
 

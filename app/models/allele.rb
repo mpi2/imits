@@ -628,7 +628,7 @@ class Allele < ApplicationModel
       consequence << "remove the splice donor" if value[0]['splice_donor'] == true && value[1].any?{|m| m['type'] == 'deletion'}
       mutation_description = value[1]
       mutation_description.each do |md|
-        mut_arr << "#{md['size']} bp #{md['type']} #{md['size'] < 10 ? "#{md['sequence']}, " : ''}beginning at Chromosome #{md['chr']} position #{md['start']} (GRCm38/mm10)"
+        mut_arr << "#{md['size']} bp #{md['type']} #{md['size'] < 10 ? "#{md['sequence']}, " : ''}beginning at Chromosome #{md['chr']} position #{md['start']} (GRCm38/mm10)."
       end
       mut_str = mut_arr.to_sentence
       mut_str << " that is predicted to #{consequence.to_sentence}." unless consequence.blank?
@@ -637,23 +637,23 @@ class Allele < ApplicationModel
 
     ind_arr = []
     inside.each do |ind|
-      ind_arr << "#{ind['size']} bp #{ind['type']} at position #{ind['start']}"
+      ind_arr << "#{ind['size']} bp #{ind['type']} at position #{ind['start']}."
     end
-    ins_str = ind_arr.blank? ? "" : " In addition there is a #{ind_arr.to_sentence} in the intron sequence, which will not affect the exon deletion"
+    ins_str = ind_arr.blank? ? "" : " In addition there is a #{ind_arr.to_sentence} in the intron sequence, which will not affect the exon deletion."
 
     upstream_arr = []
     upstream.each do |ind|
-      upstream_arr << "#{ind['size']} bp #{ind['type']} at position #{ind['start']}"
+      upstream_arr << "#{ind['size']} bp #{ind['type']} at position #{ind['start']}."
     end
-    upstream_str = upstream_arr.blank? ? "" : " Upstream of the deletion there is a #{upstream_arr.to_sentence}, which will not affect the exon deletion"
+    upstream_str = upstream_arr.blank? ? "" : " Upstream of the deletion there is a #{upstream_arr.to_sentence}, which will not affect the exon deletion."
 
     downstream_arr = []
     downstream.each do |ind|
-      downstream_arr << "#{ind['size']} bp #{ind['type']} at position #{ind['start']}"
+      downstream_arr << "#{ind['size']} bp #{ind['type']} at position #{ind['start']}."
     end
-    downstream_str = downstream_arr.blank? ? "" : " Downstream of the deletion there is a #{downstream_arr.to_sentence}, which will not affect the exon deletion"
+    downstream_str = downstream_arr.blank? ? "" : " Downstream of the deletion there is a #{downstream_arr.to_sentence}, which will not affect the exon deletion."
 
-    allele_description = "This allele from IMPC was generated at #{centre_name} by injecting #{mutagenesis_factor_array.to_sentence}, which resulted in a #{compiling_mut_arr.join(' There is also ')}#{ins_str}#{upstream_str}#{downstream_str}"
+    allele_description = "This allele from IMPC was generated at #{centre_name} by injecting #{mutagenesis_factor_array.to_sentence}, which resulted in a #{compiling_mut_arr.join(' There is also ')}#{ins_str}#{upstream_str}#{downstream_str}."
   end
 end
 

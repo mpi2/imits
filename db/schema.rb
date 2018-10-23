@@ -11,10 +11,38 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(:version => 20181005091344) do
 
 # Could not dump table "allele_annotations" because of following StandardError
 #   Unknown type 'json' for column 'consequence'
+=======
+ActiveRecord::Schema.define(:version => 20181003104106) do
+
+  create_table "allele_annotations", :force => true do |t|
+    t.integer  "allele_id",             :null => false
+    t.string   "mod_type",              :null => false
+    t.string   "chr",                   :null => false
+    t.integer  "start",                 :null => false
+    t.integer  "end",                   :null => false
+    t.text     "ref_seq"
+    t.text     "alt_seq"
+    t.datetime "created_at",            :null => false
+    t.datetime "updated_at",            :null => false
+    t.string   "exdels"
+    t.string   "partial_exdels"
+    t.string   "txc"
+    t.boolean  "splice_donor"
+    t.boolean  "splice_acceptor"
+    t.boolean  "protein_coding_region"
+    t.boolean  "intronic"
+    t.boolean  "frameshift"
+    t.text     "linked_concequence"
+    t.boolean  "downstream_of_stop"
+    t.boolean  "stop_gained"
+    t.text     "amino_acid"
+  end
+>>>>>>> 15823ea1ae3d318478c85d1070eddc7a8e6ee3a4
 
   create_table "alleles", :force => true do |t|
     t.integer  "es_cell_id"

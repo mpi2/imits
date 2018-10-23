@@ -513,7 +513,7 @@ class SolrData::Allele2CoreData
         next
       end
 
-      allele_details = {'allele_symbol' => row['colony_mgi_allele_symbol_superscript'], 'allele_type' => row['colony_allele_type']}
+      allele_details = {'allele_symbol' => row['colony_mgi_allele_symbol_superscript'], 'allele_type' => row['colony_allele_type'], 'allele_subtype' => row['allele_subtype']}
 
       # Update allele doc
       #puts "Grab allele doc for #{allele_details['allele_symbol']} and update mouse information"

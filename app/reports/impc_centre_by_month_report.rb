@@ -190,7 +190,8 @@ class ImpcCentreByMonthReport
          'Monterotondo' => ['Monterotondo'],
          'MARC' => ['MARC'],
          'KMPC' => ['KMPC'],
-         'NARLabs' => ['NarLabs']
+         'NARLabs' => ['NarLabs'],
+         'CCP-IMG' => ['Helmholtz GMC', 'CCP-IMG']
         }
     end
 
@@ -236,7 +237,8 @@ class ImpcCentreByMonthReport
         'RIKEN BRC',
         'TCP',
         'UCD',
-        'WTSI'
+        'WTSI',
+        'CCP-IMG'
       ]
     end
 

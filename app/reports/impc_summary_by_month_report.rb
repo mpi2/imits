@@ -5,6 +5,7 @@ class ImpcSummaryByMonthReport < BaseSummaryByMonthReport
   def available_consortia
     [
         'BaSH',
+        'CCP-IMG',
         'DTCC',
         'DTCC-Legacy',
         'EUCOMM-EUMODIC',

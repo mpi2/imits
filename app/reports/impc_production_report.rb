@@ -11,10 +11,12 @@ class ImpcProductionReport < BaseProductionReport
     def available_consortia
       [
         'BaSH',
+        'CCP-IMG',
         'DTCC',
         'DTCC-Legacy',
         'EUCOMM-EUMODIC',
         'Helmholtz GMC',
+        'Infrafrontier-S3',
         'JAX',
         'KMPC',
         'MARC',
@@ -27,8 +29,7 @@ class ImpcProductionReport < BaseProductionReport
         'NorCOMM2',
         'Phenomin',
         'RIKEN BRC',
-        'UCD-KOMP',
-        'Infrafrontier-S3'
+        'UCD-KOMP'
       ]
     end
   end

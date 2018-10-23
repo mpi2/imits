@@ -291,12 +291,12 @@ class MiAttempt < ApplicationModel
   end
 
   def mouse_allele_symbol_superscript
-    return '' if self.es_cell.blank? || colonies.blank?
+    return '' if (self.es_cell.blank? || colonies.blank?) && self.mutagenesis_factor.blank?
     colonies.first.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
   end
 
   def mouse_allele_symbol
-    return '' if self.es_cell.blank? || colonies.blank?
+    return '' if (self.es_cell.blank? || colonies.blank?) && self.mutagenesis_factor.blank?
     colony_alleles = colonies.first.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
     if !colony_alleles.blank?
       return self.marker_symbol + '<sup>' + colony_alleles + '</sup>'

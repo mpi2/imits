@@ -1,5 +1,5 @@
 class CaptureVcfFiles < ActiveRecord::Migration
-  def self.up
+  def self.change
     add_column :alleles, :bam_file, :bytea
     add_column :alleles, :bam_file_index, :bytea
     add_column :alleles, :vcf_file, :bytea
@@ -19,3 +19,6 @@ class CaptureVcfFiles < ActiveRecord::Migration
     ActiveRecord::Base.connection.execute(sql)
   end
 end
+
+
+# Allele::Annotation(id: integer, allele_id: integer, mod_type: string, chr: string, start: integer, end: integer, ref_seq: text, alt_seq: text, created_at: datetime, updated_at: datetime, exdels: string, partial_exdels: string, txc: string, splice_donor: boolean, splice_acceptor: boolean, protein_coding_region: boolean, intronic: boolean, frameshift: boolean, linked_concequence: text, downstream_of_stop: boolean, stop_gained: boolean, amino_acid: text) 

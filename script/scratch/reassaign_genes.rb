@@ -2,7 +2,7 @@ genes = Gene.all
 
 result = Array.new
 
-genes.each do |g|
+Gene.all.each do |g|
   puts "\n", g.id, "\n"
   latest_status = nil
   ps = g.mi_plans

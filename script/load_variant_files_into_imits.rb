@@ -80,6 +80,7 @@ end
 
 
 missing4 = []
+
 invalid4 = []
 f = open('hdr_vcf_files.txt', 'r')
 f.readlines.each do |line|

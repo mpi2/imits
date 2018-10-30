@@ -5,7 +5,7 @@ class Allele::Annotation < ActiveRecord::Base
 
   belongs_to :allele, :class_name => 'Allele'
 
-  attr_accessible :allele_id, :mod_type, :chr, :start, :end, :ref_seq, :alt_seq, :linked_concequence, :downstream_of_stop, :consequence, :dup_coords, :stop_gained
+  attr_accessible :allele_id, :mod_type, :chr, :start, :end, :ref_seq, :alt_seq, :linked_concequence, :downstream_of_stop, :consequence, :dup_coords, :stop_gained, :exdels, :partial_exdels, :splice_donor, :splice_acceptor, :protein_coding_region, :intronic, :frameshift
 
   validates :allele, :presence => true
 end
@@ -37,5 +37,4 @@ end
 #  stop_gained           :boolean
 #  amino_acid            :text
 #  dup_coords            :string(255)
-#  consequence           :json
 #

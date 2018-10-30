@@ -723,8 +723,7 @@ CREATE TABLE public.allele_annotations (
     downstream_of_stop boolean,
     stop_gained boolean,
     amino_acid text,
-    dup_coords character varying(255),
-    consequence json
+    dup_coords character varying(255)
 );
 
 
@@ -6063,10 +6062,6 @@ INSERT INTO schema_migrations (version) VALUES ('20180329151915');
 
 INSERT INTO schema_migrations (version) VALUES ('20180709130733');
 
-<<<<<<< HEAD
 INSERT INTO schema_migrations (version) VALUES ('20181003104106');
 
 INSERT INTO schema_migrations (version) VALUES ('20181005091344');
-=======
-INSERT INTO schema_migrations (version) VALUES ('20181003104106');
->>>>>>> 15823ea1ae3d318478c85d1070eddc7a8e6ee3a4

@@ -292,7 +292,7 @@ class MiAttempt < ApplicationModel
 
   def mouse_allele_symbol_superscript
     return '' if self.es_cell.blank? && colonies.blank?
-    return colonies.first.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
+    colonies.first.alleles.map{|a| a.mgi_allele_symbol_superscript}.join('')
   end
 
   def mouse_allele_symbol

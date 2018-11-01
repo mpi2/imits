@@ -7,6 +7,8 @@ gene_info_array = []
 
 # Find the rest of the information and create a json file 
 allele.each do |a| 
+  colony = a.colony.name
+
   # Find mi attempt id 
   mi = a.colony.mi_attempt
 
@@ -39,7 +41,8 @@ allele.each do |a|
     "gene_chromosome" => gene.chr, 
     "gene_start_coord" => gene.start_coordinates, 
     "gene_end_coordinate" => gene.end_coordinates, 
-    "mutant_ref" => mi.external_ref, 
+    # "mutant_ref" => mi.external_ref, 
+    "mutant_ref" => colony, 
     "mutant_fasta_file" => mutant_fa, 
     "targeted_region_start" => crispr_start, 
     "targeted_region_end" => crispr_end, 
@@ -52,7 +55,7 @@ allele.each do |a|
 end 
 
 # Write info to a JSON file
-File.open("crisprcon.json","w") do |f| 
+File.open("/Users⁩/albagomez⁩/Documents⁩/iMits⁩/crisprcon_outputfiles⁩/crisprcon.json","w") do |f| 
   f.write(gene_info_array.to_json) 
 end 
 

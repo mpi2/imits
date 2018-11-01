@@ -92,17 +92,17 @@ class Allele < ApplicationModel
     return true if allele.mgi_allele_symbol_superscript.blank?
 
     if allele.mgi_allele_symbol_superscript =~ /^tm/
-      return true if allele.mgi_allele_symbol_superscript =~ /^(tm\d+)([a-e]|.\d+|e.\d+)?(\(\w+\))?\w+$/
+      return true if allele.mgi_allele_symbol_superscript =~ /^(tm\d+)([a-e]|.\d+|e.\d+)?(\([\w\/]+\))?\w+$/
       allele.errors.add :mgi_allele_symbol_superscript, 'invalid format for targeted mutation (tm). Here are some examples of valid mgi_allele_symbol_superscripts tm1a(KOMP)Wtsi, tm1aWtsi, tm2b(EUCOMM)Hmgu.'
     elsif allele.mgi_allele_symbol_superscript =~ /^Gt/
-      return true if allele.mgi_allele_symbol_superscript =~ /^(Gt)(\(\w+\))?\w+$/
+      return true if allele.mgi_allele_symbol_superscript =~ /^(Gt)(\([\w\/]+\))?\w+$/
       allele.errors.add :mgi_allele_symbol_superscript, 'invalid format for Gene Trap (Gt). Here are some examples of valid mgi_allele_symbol_superscripts Gt(IST12471H5)Wtsi, GtHmgu.'
     elsif allele.mgi_allele_symbol_superscript =~ /^em/
       if allele.mgi_allele_symbol_without_impc_abbreviation
         return true if allele.mgi_allele_symbol_superscript =~ /^(em\d+)\w+$/
         allele.errors.add :mgi_allele_symbol_superscript, 'invalid format for endonuclease mutation (em). Here are some examples of valid mgi_allele_symbol_superscripts em1Wtsi, em2Hmgu.'
       else
-        return true if allele.mgi_allele_symbol_superscript =~ /^(em\d+)(\(\w+\))\w+$/
+        return true if allele.mgi_allele_symbol_superscript =~ /^(em\d+)(\([\w\/]+\))\w+$/
         allele.errors.add :mgi_allele_symbol_superscript, 'invalid format for endonuclease mutation (em). Here are some examples of valid mgi_allele_symbol_superscripts em1(IMPC)Wtsi, em2(IMPC)Hmgu.'
       end
     else
@@ -195,7 +195,9 @@ class Allele < ApplicationModel
           allele.mgi_allele_accession_id = nil if allele.mgi_allele_accession_id == es_cell.alleles[0].mgi_allele_accession_id 
           if allele.mgi_allele_accession_id.blank?
             allele.allele_symbol_superscript_template = es_cell.alleles[0].allele_symbol_superscript_template
-            allele.mgi_allele_symbol_superscript = es_cell.alleles[0].allele_symbol_superscript_template.gsub(/\@/, allele.allele_type.to_s.gsub("''", ''))
+            if !allele.allele_symbol_superscript_template.blank?
+              allele.mgi_allele_symbol_superscript = es_cell.alleles[0].allele_symbol_superscript_template.gsub(/\@/, allele.allele_type.to_s.gsub("''", ''))
+            end
           else
             extacted = allele.class.extract_symbol_superscript_template(allele.mgi_allele_symbol_superscript)
             allele.allele_type = extacted[1]

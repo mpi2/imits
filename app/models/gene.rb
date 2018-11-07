@@ -754,7 +754,7 @@ class Gene < ActiveRecord::Base
       gene_data = genes_data.delete(gene.mgi_accession_id)
       if gene_data.blank?
         logger.info "MGI accession does not exist: #{gene.mgi_accession_id}"
-        if gene.allele.count == 0 and gene.mi_plans.count == 0 and ! gene.mgi_accession_id =~ /CGI/
+        if gene.allele.count == 0 and gene.mi_plans.count == 0 and ! (gene.mgi_accession_id =~ /CGI/) and gene.notifications.blank?
           gene.delete
           logger.info "Deleted MGI accession: #{gene.mgi_accession_id}"
         else

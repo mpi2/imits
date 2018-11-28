@@ -111,11 +111,12 @@ class MiPlan < ApplicationModel
 
   validate do |plan|
     statuses = MiPlan::Status.all_non_assigned
+    conflict_statuses = MiPlan::Status.all_pre_assignment
 
     if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
 
       plan.phenotype_attempts.each do |phenotype_attempt|
-        if phenotype_attempt.status_name != 'Phenotype Attempt Aborted'
+        if phenotype_attempt.status_name != 'Phenotype Attempt Aborted' and !conflict_statuses.include?(plan.status)
           plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
           return
         end
@@ -126,7 +127,7 @@ class MiPlan < ApplicationModel
     if statuses.include?(plan.status) and plan.mi_attempts.length != 0
 
       plan.mi_attempts.each do |mi_attempt|
-        if mi_attempt.status.code != 'abt'
+        if mi_attempt.status.code != 'abt' and !conflict_statuses.include?(plan.status)
           plan.errors.add(:status, 'cannot be changed - micro-injection attempts exist')
           return
         end

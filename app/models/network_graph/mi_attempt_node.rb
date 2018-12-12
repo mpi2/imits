@@ -12,6 +12,9 @@ class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
   end
 
   def label_html
+    if @predicted_allele.nil?
+        @predicted_allele = ""
+    end
     html = "<<table>" +
              "<tr><td colspan=\"2\" border=\"0\">Micro Injection</td></tr>" +
              "<tr><td>Consortium:</td><td>#{CGI.escapeHTML(@consortium)}</td></tr>" +

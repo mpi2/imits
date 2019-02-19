@@ -283,7 +283,7 @@ class MiPlan < ApplicationModel
   def can_be_withdrawn?
 
     return true if ( self.new_record? )
-    return true if ( !self.assigned? && self.mi_attempts.count == 0 && self.phenotype_attempts.count == 0 )
+    return true if ( self.mi_attempts.count == 0 && self.phenotype_attempts.count == 0 ) # self.assigned? && 
 
     withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id) << MiPlan::Status.find_by_name('Withdrawn').id
 

@@ -731,9 +731,9 @@ class SolrData::ProductCoreData
 
     elsif ['KOMP-CSD', 'KOMP-Regeneron'].include?(pipeline)
       if ! marker_symbol.blank?
-        url = "https://www.komp.org/geneinfo.php?Symbol=#{marker_symbol}"
+        url = "https://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?SourceCollection=KOMP&search_query=#{marker_symbol}"
       else
-        url = "http://www.komp.org/"
+        url = "https://www.mmrrc.org/catalog/overview_Major_Collection.php#108"
       end
 
       return {:urls => [url], :names => ['KOMP']}

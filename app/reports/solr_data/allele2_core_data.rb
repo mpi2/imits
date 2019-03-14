@@ -475,6 +475,29 @@ class SolrData::Allele2CoreData
   private :phenotype_status_is_more_adavanced
 
   def generate_data
+    # Checking if all phenotyping complete for UCD have tissue available
+    begin 
+      PhenotypingProduction.where(:status_id => 4).each do |pp|
+        if pp.phenotyping_centre_name == 'UCD' && pp.tissue_distribution_centres.blank?
+          tissue_distribution_fixed = PhenotypingProduction::TissueDistributionCentre.new()
+          tissue_distribution_fixed.start_date = DateTime.now
+          tissue_distribution_fixed.phenotyping_production_id = pp.id
+          tissue_distribution_fixed.deposited_material = 'Fixed Tissue'
+          tissue_distribution_fixed.save!
+
+          tissue_distribution_paraffin = PhenotypingProduction::TissueDistributionCentre.new()
+          tissue_distribution_paraffin.start_date = DateTime.now
+          tissue_distribution_paraffin.phenotyping_production_id = pp.id
+          tissue_distribution_paraffin.deposited_material = 'Paraffin-embedded Sections'
+          tissue_distribution_paraffin.save!
+        end
+      end
+    rescue => e
+      puts "\nError adding tissue distribution to UCD."
+      puts e.inspect
+      # puts e.backtrace.join("\n")
+    end
+
     puts "#### step 1 - Process Default Genes details..."
 
     puts "#### select..."

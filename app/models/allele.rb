@@ -44,8 +44,8 @@ class Allele < ApplicationModel
   CRISPR_ALLELE_SUB_TYPE_OPTIONS = [
     'Indel',
     'Exon Deletion',
-    'Intra-exdel deletion',
-    'Inter-exdel deletion',
+    'Intra-exon deletion',
+    'Inter-exon deletion',
     'Whole-gene deletion',
     'Null reporter',
     'Conditional Ready',

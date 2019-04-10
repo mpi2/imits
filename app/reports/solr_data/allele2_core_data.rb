@@ -484,12 +484,6 @@ class SolrData::Allele2CoreData
           tissue_distribution_fixed.phenotyping_production_id = pp.id
           tissue_distribution_fixed.deposited_material = 'Fixed Tissue'
           tissue_distribution_fixed.save!
-
-          tissue_distribution_paraffin = PhenotypingProduction::TissueDistributionCentre.new()
-          tissue_distribution_paraffin.start_date = DateTime.now
-          tissue_distribution_paraffin.phenotyping_production_id = pp.id
-          tissue_distribution_paraffin.deposited_material = 'Paraffin-embedded Sections'
-          tissue_distribution_paraffin.save!
         end
       end
     rescue => e

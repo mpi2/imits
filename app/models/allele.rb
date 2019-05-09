@@ -149,15 +149,19 @@ class Allele < ApplicationModel
 
   before_validation do |allele|
     # auto_assign_allele_for_es_cells
-    if allele.belongs_to_es_cell?
-      design_allele = allele.es_cell.allele
-      allele.genbank_file_id = design_allele.allele_genbank_file_id
-      if allele.mgi_allele_symbol_superscript.blank?
-        allele.allele_type = design_allele.mutation_type.allele_code
-      else
-        extacted = allele.class.extract_symbol_superscript_template(allele.mgi_allele_symbol_superscript)
-        allele.allele_type = extacted[1]
-        allele.allele_symbol_superscript_template = extacted[0]
+   if allele.belongs_to_es_cell?
+      begin
+        design_allele = allele.es_cell.allele
+        allele.genbank_file_id = design_allele.allele_genbank_file_id
+        if allele.mgi_allele_symbol_superscript.blank?
+          allele.allele_type = design_allele.mutation_type.allele_code
+        else
+          extacted = allele.class.extract_symbol_superscript_template(allele.mgi_allele_symbol_superscript)
+          allele.allele_type = extacted[1]
+          allele.allele_symbol_superscript_template = extacted[0]
+        end
+      rescue => ex
+        puts ex.message
       end
     elsif allele.belongs_to_colony?
     # Check how allele was created

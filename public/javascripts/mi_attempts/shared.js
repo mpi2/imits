@@ -299,7 +299,9 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
     // Box 1
     var attrs = builder._getElementAttributes(20);
     // attrs.text = '1';
-    attrs['background-color'] = "yellow";
+    attrs.text = '';
+    // attrs['writing-mode'] = "vertical-rl";
+    attrs['background-color'] = "black";
     var box1 = builder._addBox(attrs);
 
     // Frt Site
@@ -396,7 +398,8 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
     // Box 2
     var attrs = builder._getElementAttributes(20);
     // attrs.text = '2';
-    attrs['background-color'] = "yellow";
+    // attrs['writing-mode'] = "vertical-rl";
+    attrs['background-color'] = "black";
     var box2 = builder._addBox(attrs);
 
     // Loxp Site
@@ -405,7 +408,8 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
     // Box 3
     var attrs = builder._getElementAttributes(20);
     // attrs.text = '3';
-    attrs['background-color'] = "yellow";
+    // attrs['writing-mode'] = "vertical-rl";
+    attrs['background-color'] = "black";
     var box3 = builder._addBox(attrs);
 
     // Vertical line
@@ -507,7 +511,7 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
     // Box 1
     var attrs = builder._getElementAttributes(20);
     // attrs.text = '1';
-    attrs['background-color'] = "yellow";
+    attrs['background-color'] = "black";
     var box1 = builder._addBox(attrs);
 
     // Start chain from a string
@@ -517,7 +521,7 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
     // Box 2
     var attrs = builder._getElementAttributes(20);
     // attrs.text = '2';
-    attrs['background-color'] = "yellow";
+    attrs['background-color'] = "black";
     var box2 = builder._addBox(attrs);
 
     // Start chain from a string
@@ -526,7 +530,7 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
     // Box 3
     var attrs = builder._getElementAttributes(20);
     // attrs.text = '3';
-    attrs['background-color'] = "yellow";
+    attrs['background-color'] = "black";
     var box3 = builder._addBox(attrs);
     
     // Vertical line

@@ -218,10 +218,16 @@ function DiagramBuilder(options, width, height) {
     attrs.text = attrs.text || '';
 
     var text = this._paper.text(attrs.x + (attrs.width/2), attrs.y + (attrs.height/2), attrs.text).attr({
-      "font-size": attrs['font-size'] || 16,
+      "writing-mode": attrs["writing-mode"] || "horizontal-tb",
+      "font-size": attrs["font-size"] || 16,
       "font-weight": attrs["font-weight"] || "bold",
       "fill": attrs["color"] || "#000000"
     });
+
+    if (attrs.text === 'exon') {
+      console.log("attrs['writing-mode'] => ", attrs['writing-mode']);
+      console.log("text => ", text.attrs, "\n");
+    }
 
     //add the new element to our chain
     this._chain.addNode(box, unconnected);

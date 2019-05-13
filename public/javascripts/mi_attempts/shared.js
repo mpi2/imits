@@ -298,7 +298,7 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
 
     // Box 1
     var attrs = builder._getElementAttributes(20);
-    attrs.text = '1';
+    // attrs.text = '1';
     attrs['background-color'] = "yellow";
     var box1 = builder._addBox(attrs);
 
@@ -395,7 +395,7 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
 
     // Box 2
     var attrs = builder._getElementAttributes(20);
-    attrs.text = '2';
+    // attrs.text = '2';
     attrs['background-color'] = "yellow";
     var box2 = builder._addBox(attrs);
 
@@ -404,7 +404,7 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
 
     // Box 3
     var attrs = builder._getElementAttributes(20);
-    attrs.text = '3';
+    // attrs.text = '3';
     attrs['background-color'] = "yellow";
     var box3 = builder._addBox(attrs);
 
@@ -506,7 +506,7 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
 
     // Box 1
     var attrs = builder._getElementAttributes(20);
-    attrs.text = '1';
+    // attrs.text = '1';
     attrs['background-color'] = "yellow";
     var box1 = builder._addBox(attrs);
 
@@ -516,7 +516,7 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
 
     // Box 2
     var attrs = builder._getElementAttributes(20);
-    attrs.text = '2';
+    // attrs.text = '2';
     attrs['background-color'] = "yellow";
     var box2 = builder._addBox(attrs);
 
@@ -525,7 +525,7 @@ function CreateQcDiagram(colonyIndex, alleleIndex) {
 
     // Box 3
     var attrs = builder._getElementAttributes(20);
-    attrs.text = '3';
+    // attrs.text = '3';
     attrs['background-color'] = "yellow";
     var box3 = builder._addBox(attrs);
     

@@ -19,6 +19,7 @@ class MiAttemptListReport
         'Delivery Method'                                             => {:data => 'delivery_method', :show => true},
         'Injection Date'                                              => {:data => 'mi_date', :show => true},
         'Injection Status'                                            => {:data => 'status_name', :show => true},
+        'Status Date'                                                 => {:data => 'status_date', :show => true},
 
         'Clone Name / MF External Ref'                                => {:data => 'es_cell_name', :show => true},
         'Clone Parental Cell Line'                                    => {:data => 'es_cell_parental_cell_line', :show => true},
@@ -150,6 +151,7 @@ class MiAttemptListReport
             mi_attempts.external_ref AS external_ref,
             mi_attempts.mi_date AS mi_date,
             mi_attempt_statuses.name AS status_name,
+            to_char(mi_attempt_status_stamps.created_at, 'YYYY-MM-DD') AS status_date,
             CASE WHEN es_cells.name IS NULL THEN mi_attempts.delivery_method ELSE 'Micro Injection' END AS delivery_method,
 
             CASE WHEN es_cells.name IS NOT NULL THEN mi_attempts.total_blasts_injected ELSE mi_attempts.crsp_total_embryos_injected END AS total_injected,
@@ -208,6 +210,7 @@ class MiAttemptListReport
 
       FROM mi_attempts
         JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
+        JOIN mi_attempt_status_stamps ON (mi_attempts.status_id = mi_attempt_status_stamps.status_id AND mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id)
         JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
         JOIN genes ON genes.id = mi_plans.gene_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id

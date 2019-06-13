@@ -80,7 +80,7 @@ Ext.define('Imits.widget.GeneGridCommon', {
             renderer: function (symbol, metaData, record) {
                 var mgi_accession_id = record.get('mgi_accession_id');
                 if (mgi_accession_id != '') {
-                  return Ext.String.format('<a href="https://www.mousephenotype.org/data/search/gene?kw=&quot;{0}&quot;">{1}</a>', mgi_accession_id, symbol);
+                  return Ext.String.format('<a href="https://www.mousephenotype.org/data/search?term={0}">{1}</a>', mgi_accession_id, symbol);
                 } else {
                   return Ext.String.format('{0}', symbol);
                 }

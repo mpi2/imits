@@ -456,11 +456,17 @@ class SolrData::ProductCoreData
     puts "#### step #{step_no}.1 Select #{Time.now}"
 
     rows = ActiveRecord::Base.connection.execute(product_sql)
+
     product_count = rows.count
 
     puts "count #{product_count}"
     puts "#### step #{step_no}.2 create json docs #{Time.now}"
     rows.each do |row|
+
+      if !row["distribution_available"].blank? && row["distribution_available"].include?("f")
+        next
+      end
+
       row['targ_rep_alleles_id'] = row['allele_id']
 
       if !row['mgi_allele_symbol_superscript'].blank? && !row['allele_type'].blank?
@@ -545,7 +551,6 @@ class SolrData::ProductCoreData
 
 
     if doc.production_completed == true
-
       distribution_centres = self.class.get_distribution_centres(row)
 
       distribution_centres.each do |dis_centre|

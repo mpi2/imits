@@ -31,7 +31,7 @@
   </div>
 
   <div class="homepage-links">
-    <a href="<%= "/phenotype_attempts" %>">
+    <a href="<%= "#{root_path}phenotype_attempts?q[production_centre_name]=#{current_user.filter_by_centre.try(:name)}" %>">
       <h3>Search For Phenotype Attempts</h3>
       <p>Search for data on existing phenotype attempt records</p>
     </a>

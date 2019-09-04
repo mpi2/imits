@@ -47,9 +47,10 @@ class NotificationsByGene < PlannedMicroinjectionList
            intermediate_report.overall_status AS status,
            'f' AS private
     FROM genes
-      JOIN gene_private_annotations gpa ON gpa.gene_id = genes.id AND gpa.idg = true
+      JOIN gene_private_annotations gpa ON gpa.gene_id = genes.id 
       LEFT JOIN (notifications JOIN contacts ON contacts.id = notifications.contact_id AND contacts.report_to_public is true) ON genes.id = notifications.gene_id
       LEFT JOIN intermediate_report ON intermediate_report.gene = genes.marker_symbol
+    WHERE gpa.idg = true OR genes.idg = true
     GROUP BY genes.marker_symbol, genes.mgi_accession_id, genes.idg, genes.cmg_tier1, genes.cmg_tier2, gpa.cmg_tier1, gpa.cmg_tier2, intermediate_report.overall_status
     ORDER BY genes.marker_symbol
     EOF

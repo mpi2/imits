@@ -1022,6 +1022,7 @@ end
 #  cmg_tier1                          :boolean          default(FALSE)
 #  cmg_tier2                          :boolean          default(FALSE)
 #  idg                                :boolean          default(FALSE)
+#  haplo_efficiency                   :boolean          default(FALSE)
 #
 # Indexes
 #

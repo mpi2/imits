@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20181005091344) do
+ActiveRecord::Schema.define(:version => 20190910141431) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",             :null => false
@@ -225,6 +225,7 @@ ActiveRecord::Schema.define(:version => 20181005091344) do
     t.boolean  "cmg_tier1",                                        :default => false
     t.boolean  "cmg_tier2",                                        :default => false
     t.boolean  "idg",                                              :default => false
+    t.boolean  "haplo_efficiency",                                 :default => false
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true

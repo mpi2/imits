@@ -49,7 +49,7 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
               'EMMA'        =>{:preferred=>'http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL', :default=>'www.EMMA-default.com'},
               'KOMP'        =>{:preferred=>'http://www.komp.org/geneinfo.php?project=PROJECT_ID', :default=>'http://www.komp.org/'},
               'MMRRC'       =>{:preferred=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL', :default=>'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php'},
-              'CMMR'        =>{:preferred=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', :default=>'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'}
+              'CMMR'        =>{:preferred=>'mailto:services@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL', :default=>'mailto:services@phenogenomics.ca?subject=Mutant mouse'}
             }
         end
 
@@ -62,7 +62,7 @@ class ApplicationModel::DistributionCentreTest < ActiveSupport::TestCase
 
                 should 'use the default distribution network config link when neither project id or marker symbol are supplied' do
                     params = { :distribution_network_name => 'CMMR', :distribution_centre_name => 'HMGU', :dc_start_date => '2014-01-01' }
-                    assert_equal ['CMMR', 'mailto:Lauryl.Nutter@phenogenomics.ca?subject=Mutant mouse'], ApplicationModel::DistributionCentre.calculate_order_link( params, @config )
+                    assert_equal ['CMMR', 'services@phenogenomics.ca?subject=Mutant mouse'], ApplicationModel::DistributionCentre.calculate_order_link( params, @config )
                 end
 
                 should 'use the preferred config link when it requires a project id and one is supplied' do

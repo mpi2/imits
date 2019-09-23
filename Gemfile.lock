@@ -96,7 +96,7 @@ GEM
     factory_girl_rails (4.9.0)
       factory_girl (~> 4.9.0)
       railties (>= 3.0.0)
-    ffi (1.9.23)
+    ffi (1.11.1)
     foreigner (1.0.3)
       activerecord (>= 3.0.0)
     hashery (2.1.2)

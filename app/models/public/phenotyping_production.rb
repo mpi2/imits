@@ -43,6 +43,7 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     production_consortium_name
     status_name
     late_adult_status_name
+    updated_at
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -61,9 +62,9 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
       'production_consortium_name'  => 'parent_colony_mouse_allele_mod_mi_plan_consortium_name_or_parent_colony_mi_attempt_mi_plan_consortium_name',
       'production_centre_name'      => 'parent_colony_mouse_allele_mod_mi_plan_production_centre_name_or_parent_colony_mi_attempt_mi_plan_production_centre_name',
       'phenotyping_consortium_name' => 'mi_plan_consortium_name',
-      'phenotyping_centre_name'     => 'mi_plan_production_centre_name'
-    }
+      'phenotyping_centre_name'     => 'mi_plan_production_centre_name'}
 
+    
   end
 
   def production_colony_name

@@ -53,6 +53,9 @@
                 <%= f.label :phenotyping_centre_name, 'Phenotype Center' %>
                 <%= f.select :phenotyping_centre_name, Centre.all.map(&:name), :include_blank => true %>
             </div>
+             <div> 
+                <%= generator.check_box :is_active, :label => 'Is Active' %>
+            </div>
           </div>
         </fieldset>
 
@@ -67,9 +70,6 @@
             <div> 
                 <%= f.label :phenotyping_experiments_started, 'Phenotyping Experiments Started' %>
                 <%= f.text_field(:phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
-            </div>
-            <div> 
-                <%= generator.check_box :is_active %>
             </div>
             <div> 
                 <%= generator.check_box :report_to_public, :label => 'Report Phenotype Data to Public' %>
@@ -97,7 +97,7 @@
                 <%= f.text_field(:late_adult_phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
             </div>
             <div> 
-                <%= generator.check_box :late_adult_is_active , :label => 'Is Active'%>
+                <%= generator.check_box :late_adult_is_active , :label => 'Late Adult Phenotyping Production Is Active'%>
             </div>
             <div> 
                 <%= generator.check_box :late_adult_report_to_public, :label => 'Report Phenotype Data to Public' %>

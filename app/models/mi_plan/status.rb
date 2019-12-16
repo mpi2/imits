@@ -25,7 +25,8 @@ class MiPlan::Status < ActiveRecord::Base
     return [
       MiPlan::Status['Assigned'],
       MiPlan::Status['Assigned - ES Cell QC In Progress'],
-      MiPlan::Status['Assigned - ES Cell QC Complete']
+      MiPlan::Status['Assigned - ES Cell QC Complete'],
+      MiPlan::Status['Assigned for phenotyping']
     ]
   end
 

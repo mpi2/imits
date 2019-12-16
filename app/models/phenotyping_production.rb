@@ -130,6 +130,13 @@ class PhenotypingProduction < ApplicationModel
     end
   end
 
+  # colony_background_strain cannot be changed once phenotype_started = true
+  validate do |pp|
+    if pp.changes.has_key?('colony_background_strain_id') && pp.phenotyping_started == true
+      pp.errors.add(:base, 'Colony background strain name cannot be changed once data has been submitted to PhenoDCC.')
+    end
+  end
+
   # colony_background_strain
   validate do |pp|
     if !colony_background_strain_name.blank? && Strain.find_by_name(colony_background_strain_name).blank?
@@ -137,8 +144,8 @@ class PhenotypingProduction < ApplicationModel
     end
   end
 
-  #genotype confirmed colony
-  validate do |pp|
+  # genotype confirmed colony
+  validate do |pp|  
     if parent_colony && !(parent_colony.genotype_confirmed == true || parent_colony.mouse_allele_mod.try(:parent_colony).try(:genotype_confirmed) == true)
       pp.errors.add(:production_colony_name, "Must be 'Genotype confirmed'")
     end

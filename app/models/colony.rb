@@ -92,9 +92,11 @@ class Colony < ApplicationModel
 
   # colony_background_strain cannot be changed once phenotyping_production.phenotype_started = true
   validate do |colony|
-    pp = PhenotypingProduction.where(:phenotype_attempt_id => mouse_allele_mod.phenotype_attempt_id, :colony_name => colony.name).first
-    if colony.changes.has_key?('background_strain_id') && pp.phenotyping_started == true
-      colony.errors.add(:base, 'Colony background strain name cannot be changed once data has been submitted to PhenoDCC.')
+    if !mouse_allele_mod.blank?
+      pp = PhenotypingProduction.where(:phenotype_attempt_id => mouse_allele_mod.phenotype_attempt_id, :colony_name => colony.name).first
+      if colony.changes.has_key?('background_strain_id') && pp.phenotyping_started == true
+        colony.errors.add(:base, 'Colony background strain name cannot be changed once data has been submitted to PhenoDCC.')
+      end
     end
   end
 

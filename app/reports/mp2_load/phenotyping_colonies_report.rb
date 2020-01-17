@@ -34,6 +34,7 @@ class Mp2Load::PhenotypingColoniesReport
        {'title' => 'Colony Name', 'field' => 'phenotyping_colony_name'},
        {'title' => 'Es Cell Name', 'field' => 'es_cell_name'},
        {'title' => 'Colony Background Strain', 'field' => 'background_strain_name'},
+       {'title' => 'Mgi Strain Accession id', 'field' => 'mgi_strain_accession_id'},
        {'title' => 'Production Centre', 'field' => 'production_centre'},
        {'title' => 'Production Consortium', 'field' => 'production_consortia'},
        {'title' => 'Phenotyping Centre', 'field' => 'phenotyping_centre'},
@@ -64,6 +65,7 @@ class Mp2Load::PhenotypingColoniesReport
           colonies.mouse_allele_mod_id AS mouse_allele_mod_id,
           colonies.genotype_confirmed AS genotype_confirmed,
           cb_strain.name AS background_strain_name,
+          cb_strain.mgi_strain_accession_id AS mgi_strain_accession_id,
           CASE WHEN mam_plan.id IS NOT NULL THEN mam_plan.consortium_name ELSE m_plan.consortium_name END AS consortium_name,
           CASE WHEN mam_plan.id IS NOT NULL THEN mam_plan.centre_name ELSE m_plan.centre_name END AS centre_name,
           targ_rep_es_cells.name AS es_cell_name
@@ -86,6 +88,7 @@ class Mp2Load::PhenotypingColoniesReport
         pp_plans.centre_name AS phenotyping_centre,
         pp_plans.consortium_name AS phenotyping_consortia,
         CASE WHEN pp_cb_strains.name IS NOT NULL THEN pp_cb_strains.name ELSE colony.background_strain_name END AS background_strain_name,
+        CASE WHEN pp_cb_strains.mgi_strain_accession_id IS NOT NULL THEN pp_cb_strains.mgi_strain_accession_id ELSE colony.mgi_strain_accession_id END AS mgi_strain_accession_id,
         CASE WHEN cohort_centres.name IS NOT NULL THEN cohort_centres.name 
              ELSE colony.centre_name 
         END AS cohort_production_centre_name,

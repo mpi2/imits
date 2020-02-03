@@ -1,10 +1,10 @@
-class Mp2Load::PhenotypingColoniesReportCrawler
+class Mp2Load::PhenotypingProductionsReport
 
-  attr_accessor :phenotyping_colonies_crawler
+  attr_accessor :phenotyping_productions
 
 
-  def phenotyping_colonies_crawler
-    @phenotyping_colonies_crawler ||= process_data(ActiveRecord::Base.connection.execute(self.class.phenotyping_colonies_crawler_sql.dup))
+  def phenotyping_productions
+    @phenotyping_productions ||= process_data(ActiveRecord::Base.connection.execute(self.class.phenotyping_productions_sql.dup))
 
 
   end
@@ -33,7 +33,7 @@ class Mp2Load::PhenotypingColoniesReportCrawler
 
   class << self
 
-    def phenotyping_colonies_crawler_sql
+    def phenotyping_productions_sql
       <<-EOF
         SELECT pp.id, pp.colony_name, strain.name AS colony_background_strain_name, parent_strain.name AS parent_colony_background_strain_name, phenotyping_centre.name AS phenotyping_centre_name, cohort_centre.name AS cohort_production_centre_name, a.mgi_allele_symbol_superscript AS mouse_allele_symbol, g.mgi_accession_id, g.marker_symbol, pp.phenotype_attempt_id, p.id AS mi_plan_id, pp.phenotyping_started, pp.is_active
 

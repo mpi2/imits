@@ -2,7 +2,7 @@ class V2::ReportsController < ApplicationController
 
   helper :reports
 
-  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report, :mgi_es_cell_allele_report, :mgi_mixed_allele_report, :mgi_crispr_allele_report, :mp2_load_phenotyping_colonies_report, :mp2_load_gene_interest_report, :mp2_load_gene_contact_report, :mp2_load_gene_contact_sent_report, :emma_distribution_report]
+  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report, :mgi_es_cell_allele_report, :mgi_mixed_allele_report, :mgi_crispr_allele_report, :mp2_load_phenotyping_colonies_report, :mp2_load_phenotyping_colonies_report_crawler, :mp2_load_gene_interest_report, :mp2_load_gene_contact_report, :mp2_load_gene_contact_sent_report, :emma_distribution_report]
 
   before_filter do
     if params[:format] == 'csv'
@@ -25,6 +25,14 @@ class V2::ReportsController < ApplicationController
       response.headers["Cache-Control"] = "no-cache"
       response.headers["Content-Type"] = "text/tsv"
       response.headers["Content-Disposition"] = "attachment;filename=#{action_name}-#{Date.today.to_s(:db)}.tsv"
+    end
+  end
+
+  before_filter do
+    if params[:format] == 'json'
+      response.headers["Cache-Control"] = "no-cache"
+      response.headers["Content-Type"] = "text/tsv"
+      response.headers["Content-Disposition"] = "attachment;filename=#{action_name}-#{Date.today.to_s(:db)}.json"
     end
   end
 
@@ -78,6 +86,14 @@ class V2::ReportsController < ApplicationController
     @phenotyping_colonies = @report.phenotyping_colonies
     respond_to do |format|
       format.tsv {render :mp2_load_phenotyping_colonies_report}
+    end
+  end
+
+  def mp2_load_phenotyping_colonies_report_crawler
+    @report = Mp2Load::PhenotypingColoniesReportCrawler.new
+    @phenotyping_colonies_crawler = @report.phenotyping_colonies_crawler
+    respond_to do |format|
+      format.json {render :mp2_load_phenotyping_colonies_report_crawler}
     end
   end
 
@@ -144,8 +160,6 @@ class V2::ReportsController < ApplicationController
       format.tsv {render :mgi_allele_report}
     end
   end
-
-
 
   def mi_attempt_repository_reconciled_summary
     report = MiAttemptRepositoryReconciledSummaryReport.new
@@ -342,18 +356,6 @@ class V2::ReportsController < ApplicationController
     @mmrrc_reconciled_list = report.mmrrc_reconciled_list
   end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 end

@@ -31,7 +31,7 @@ class V2::ReportsController < ApplicationController
   before_filter do
     if params[:format] == 'json'
       response.headers["Cache-Control"] = "no-cache"
-      response.headers["Content-Type"] = "text/tsv"
+      response.headers["Content-Type"] = "application/json"
       response.headers["Content-Disposition"] = "attachment;filename=#{action_name}-#{Date.today.to_s(:db)}.json"
     end
   end

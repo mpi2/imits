@@ -88,7 +88,7 @@ class Mp2Load::PhenotypingColoniesReport
         pp_plans.centre_name AS phenotyping_centre,
         pp_plans.consortium_name AS phenotyping_consortia,
         CASE WHEN pp_cb_strains.name IS NOT NULL THEN pp_cb_strains.name ELSE colony.background_strain_name END AS background_strain_name,
-        CASE WHEN pp_cb_strains.mgi_strain_accession_id IS NOT NULL THEN pp_cb_strains.mgi_strain_accession_id ELSE colony.mgi_strain_accession_id END AS mgi_strain_accession_id,
+        CASE WHEN pp_cb_strains.mgi_strain_accession_id IS NOT NULL THEN pp_cb_strains.mgi_strain_accession_id ELSE '' END AS mgi_strain_accession_id,
         CASE WHEN cohort_centres.name IS NOT NULL THEN cohort_centres.name 
              ELSE colony.centre_name 
         END AS cohort_production_centre_name,

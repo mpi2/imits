@@ -496,6 +496,7 @@ end
 #  number_of_pulses                                :integer
 #  crsp_embryo_transfer_day                        :string(255)      default("Same Day")
 #  crsp_embryo_2_cell                              :integer
+#  haplo_essential                                 :boolean          default(FALSE)
 #
 # Indexes
 #

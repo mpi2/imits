@@ -65,6 +65,10 @@
       </div>
     <% end %>
 
+    <div  id="object-crispr" class="object-crispr"> 
+      <%= generator.check_box :haplo_essential, :label => 'Haplo Essential' %>
+    </div>
+
     <div>
       <%= form.label :comments %>
       <%= form.text_area :comments %>

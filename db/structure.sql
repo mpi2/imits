@@ -1220,8 +1220,7 @@ CREATE TABLE public.genes (
     human_homolo_gene_id character varying(255),
     cmg_tier1 boolean DEFAULT false,
     cmg_tier2 boolean DEFAULT false,
-    idg boolean DEFAULT false,
-    haplo_efficiency boolean DEFAULT false
+    idg boolean DEFAULT false
 );
 
 
@@ -1800,7 +1799,8 @@ CREATE TABLE public.mi_attempts (
     voltage double precision,
     number_of_pulses integer,
     crsp_embryo_transfer_day character varying(255) DEFAULT 'Same Day'::character varying,
-    crsp_embryo_2_cell integer
+    crsp_embryo_2_cell integer,
+    haplo_essential boolean DEFAULT false
 );
 
 
@@ -6070,3 +6070,7 @@ INSERT INTO schema_migrations (version) VALUES ('20181005091344');
 INSERT INTO schema_migrations (version) VALUES ('20190314180147');
 
 INSERT INTO schema_migrations (version) VALUES ('20190910141431');
+
+INSERT INTO schema_migrations (version) VALUES ('20200206111408');
+
+INSERT INTO schema_migrations (version) VALUES ('20200206111631');

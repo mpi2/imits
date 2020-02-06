@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20190910141431) do
+ActiveRecord::Schema.define(:version => 20200206111631) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",             :null => false
@@ -225,7 +225,6 @@ ActiveRecord::Schema.define(:version => 20190910141431) do
     t.boolean  "cmg_tier1",                                        :default => false
     t.boolean  "cmg_tier2",                                        :default => false
     t.boolean  "idg",                                              :default => false
-    t.boolean  "haplo_efficiency",                                 :default => false
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
@@ -631,6 +630,7 @@ ActiveRecord::Schema.define(:version => 20190910141431) do
     t.integer  "number_of_pulses"
     t.string   "crsp_embryo_transfer_day",                                       :default => "Same Day"
     t.integer  "crsp_embryo_2_cell"
+    t.boolean  "haplo_essential",                                                :default => false
   end
 
   add_index "mi_attempts", ["external_ref"], :name => "index_mi_attempts_on_colony_name", :unique => true

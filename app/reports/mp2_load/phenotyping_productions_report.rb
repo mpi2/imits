@@ -47,7 +47,8 @@ class Mp2Load::PhenotypingProductionsReport
           JOIN genes g ON g.id = p.gene_id
           LEFT JOIN alleles a ON c.id = a.colony_id
 
-        WHERE (ps.name != 'Rederivation Started' AND c.genotype_confirmed = true);
+        WHERE ps.name != 'Rederivation Started' AND c.genotype_confirmed = true
+        GROUP BY pp.id, pp.colony_name, strain.name, parent_strain.name, phenotyping_centre.name, cohort_centre.name, a.mgi_allele_symbol_superscript, g.mgi_accession_id, g.marker_symbol, pp.phenotype_attempt_id, p.id, pp.phenotyping_started, pp.is_active;
       EOF
     end
   end

@@ -227,6 +227,10 @@ class MiAttempt < ApplicationModel
     where(:is_active => true)
   end
 
+  def self.haplo_essential
+    where(:haplo_essential => true)
+  end
+
   def self.genotype_confirmed
     where(:status_id => MiAttempt::Status.genotype_confirmed.id)
   end

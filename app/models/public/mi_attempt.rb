@@ -65,6 +65,7 @@ class Public::MiAttempt < ::MiAttempt
     mutagenesis_factor_attributes
     g0_screens_attributes
     status_stamps_attributes
+    haplo_essential
   }
 
   READABLE_ATTRIBUTES = %w{

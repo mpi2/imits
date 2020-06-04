@@ -74,6 +74,7 @@ class MiAttemptListReport
         'Experimental?'                                               => {:data => 'experimental', :show => true},
         'Report Micro Injection Progress To Public'                   => {:data => 'report_to_public', :show => true},
         'Active?'                                                     => {:data => 'is_active', :show => true},
+        'Haplo_essential'                                             => {:data => 'haplo_essential', :show => true},
         'Comments'                                                    => {:data => 'comments', :show => true}
     }
   end

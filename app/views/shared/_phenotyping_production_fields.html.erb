@@ -92,15 +92,17 @@
                 <%= f.label :selected_for_late_adult_phenotyping, 'Selected for Late Adult Phenotyping' %>
                 <%= f.check_box :selected_for_late_adult_phenotyping %>
             </div>
-            <div> 
-                <%= f.label :late_adult_phenotyping_experiments_started, 'Phenotyping Experiments Started' %>
-                <%= f.text_field(:late_adult_phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
-            </div>
-            <div> 
-                <%= generator.check_box :late_adult_is_active , :label => 'Late Adult Phenotyping Production Is Active'%>
-            </div>
-            <div> 
-                <%= generator.check_box :late_adult_report_to_public, :label => 'Report Phenotype Data to Public' %>
+            <div id="late_adult_phenotyping_information" style="display:none;">
+              <div> 
+                  <%= f.label :late_adult_phenotyping_experiments_started, 'Phenotyping Experiments Started' %>
+                  <%= f.text_field(:late_adult_phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
+              </div>
+              <div> 
+                  <%= generator.check_box :late_adult_is_active , :label => 'Late Adult Phenotyping Production Is Active'%>
+              </div>
+              <div> 
+                  <%= generator.check_box :late_adult_report_to_public, :label => 'Report Phenotype Data to Public' %>
+              </div>
             </div>
           </div>
         </fieldset>
@@ -133,3 +135,18 @@
       </div>
     </td>
 </tr>
+
+
+
+<script type="text/javascript">
+  var checkbox = document.getElementById('phenotype_attempt_phenotyping_productions_attributes_0_selected_for_late_adult_phenotyping');
+  var details_div = document.getElementById('late_adult_phenotyping_information');
+  checkbox.onchange = function() {
+     if(this.checked) {
+       details_div.style['display'] = 'block';
+     } else {
+       details_div.style['display'] = 'none';
+     }
+  };
+</script>
+

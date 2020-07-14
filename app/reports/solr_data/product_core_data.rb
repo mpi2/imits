@@ -735,13 +735,14 @@ class SolrData::ProductCoreData
       return {:urls => ["http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells"], :names => ['EUMMCR']}
 
     elsif ['KOMP-CSD', 'KOMP-Regeneron'].include?(pipeline)
-      if ! marker_symbol.blank?
-        url = "https://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?SourceCollection=KOMP&search_query=#{marker_symbol}"
-      else
-        url = "https://www.mmrrc.org/catalog/overview_Major_Collection.php#108"
-      end
+      # if ! marker_symbol.blank?
+      #   url = "https://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?SourceCollection=KOMP&search_query=#{marker_symbol}"
+      # else
+      #   url = "https://www.mmrrc.org/catalog/overview_Major_Collection.php#108"
+      # end
 
-      return {:urls => [url], :names => ['KOMP']}
+      # return {:urls => [url], :names => ['KOMP']}
+      return {:urls => ["mailto:service@mmrrc.org?Subject=Targeting Vectors and Mutant ES Cell line for #{marker_symbol}"], :names => ['KOMP']}
 
     elsif ['mirKO'].include?(pipeline)
       return {:urls => ["http://www.eummcr.org/order?add=#{mgi_accession_id}&material=es_cells",

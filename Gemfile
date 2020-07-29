@@ -6,7 +6,7 @@ gem 'rails', '3.2.22.5'
 ##gem 'rack', '~> 1.5.4'
 # gem 'hoptoad_notifier', '2.4.11'
 gem 'jammit', '0.6.5'
-gem 'json', '1.8.3'
+gem 'json', '2.3.1'
 gem 'axlsx', :git => 'https://github.com/randym/axlsx.git', :branch => 'release-3.0.0'
 gem 'axlsx_rails'
 

@@ -2,7 +2,9 @@
 use warnings FATAL => 'all';
 use strict;
 
+use lib '/script';
 use SiteSpecificRecombination qw( apply_cre apply_flp apply_flp_cre );
+
 use Bio::SeqIO;
 use IO::Handle;
 use Getopt::Long;

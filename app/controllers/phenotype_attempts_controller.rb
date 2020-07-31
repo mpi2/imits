@@ -265,9 +265,10 @@ class PhenotypeAttemptsController < ApplicationController
     @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
+    if user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt) && user_is_allowed_to_update_all_data_sent?(@phenotype_attempt, params[:phenotype_attempt]["phenotyping_productions_attributes"])
 
-    if user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt)
       @phenotype_attempt.update_attributes(params[:phenotype_attempt])
+
       if @phenotype_attempt.errors.blank?
         @phenotype_attempt = Public::PhenotypeAttempt.find(@phenotype_attempt.id)
         flash.now[:notice] = 'Phenotype attempt updated successfully'
@@ -342,11 +343,17 @@ class PhenotypeAttemptsController < ApplicationController
     render :json => create_attribute_documentation_for(Public::PhenotypeAttempt)
   end
 
+  def user_is_allowed_to_update_all_data_sent?(phenotype_attempt, phenotyping_production_params)
+    if phenotype_attempt.all_data_sent != phenotyping_production_params["0"]["all_data_sent"] && phenotyping_production_params["0"]["all_data_sent"] == "0" && !current_user.admin?
+      flash.now[:alert] = 'Phenotype attempt could not be updated - Only the DCC can uncheck All data sent. '
+      return false
+    end
+    return true
+  end
+  private :user_is_allowed_to_update_all_data_sent?
 
   def user_is_allowed_to_update_phenotyping_dataflow_fields?(phenotype_attempt)
-
     phenotype_attempt.phenotyping_productions.each do |phenotyping_production|
-
       if phenotyping_production.changes.has_key?(:phenotyping_started) && current_user.allowed_to_update_phenotyping_data_flow_fields
         flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Phenotyping Started'
         return false
@@ -356,13 +363,13 @@ class PhenotypeAttemptsController < ApplicationController
         return false
       end
       if phenotyping_production.changes.has_key?(:late_adult_phenotyping_started) && current_user.allowed_to_update_phenotyping_data_flow_fields
-      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Late Adult Phenotyping Started'
-      return false
-    end
-    if phenotyping_production.changes.has_key?(:late_adult_phenotyping_complete) && current_user.allowed_to_update_phenotyping_data_flow_fields
-      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Late Adult Phenotyping Complete'
-      return false
-    end
+        flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Late Adult Phenotyping Started'
+        return false
+      end
+      if phenotyping_production.changes.has_key?(:late_adult_phenotyping_complete) && current_user.allowed_to_update_phenotyping_data_flow_fields
+        flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Late Adult Phenotyping Complete'
+        return false
+      end
       if phenotyping_production.changes.has_key?(:ready_for_website) && current_user.allowed_to_update_phenotyping_data_flow_fields
         flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Ready For Website date'
         return false

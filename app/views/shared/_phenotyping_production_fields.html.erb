@@ -77,6 +77,9 @@
             <div> 
                 <%= generator.check_box :do_not_count_towards_completeness, :label => 'Do Not Count Towards Completeness' %>
             </div>
+            <div> 
+                <%= generator.check_box :all_data_sent, :label => 'All data sent' %>
+            </div>
           </div>
         </fieldset>
 
@@ -94,7 +97,7 @@
             </div>
             <div id="late_adult_phenotyping_information" style="display:none;">
               <div> 
-                  <%= f.label :late_adult_phenotyping_experiments_started, 'Phenotyping Experiments Started' %>
+                  <%= f.label :late_adult_phenotyping_experiments_started, 'Late Adult Phenotyping Experiments Started' %>
                   <%= f.text_field(:late_adult_phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>
               </div>
               <div> 

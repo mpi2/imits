@@ -2516,7 +2516,10 @@ CREATE TABLE public.phenotyping_productions (
     late_adult_report_to_public boolean DEFAULT true,
     late_adult_phenotyping_experiments_started date,
     late_adult_status_id integer,
-    do_not_count_towards_completeness boolean DEFAULT false
+    do_not_count_towards_completeness boolean DEFAULT false,
+    all_data_sent boolean DEFAULT false,
+    all_data_processed boolean DEFAULT false,
+    qc_complete boolean DEFAULT false
 );
 
 
@@ -6074,3 +6077,5 @@ INSERT INTO schema_migrations (version) VALUES ('20190910141431');
 INSERT INTO schema_migrations (version) VALUES ('20200206111408');
 
 INSERT INTO schema_migrations (version) VALUES ('20200206111631');
+
+INSERT INTO schema_migrations (version) VALUES ('20200729082856');

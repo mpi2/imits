@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20200206111631) do
+ActiveRecord::Schema.define(:version => 20200729082856) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",             :null => false
@@ -859,6 +859,9 @@ ActiveRecord::Schema.define(:version => 20200206111631) do
     t.date     "late_adult_phenotyping_experiments_started"
     t.integer  "late_adult_status_id"
     t.boolean  "do_not_count_towards_completeness",          :default => false
+    t.boolean  "all_data_sent",                              :default => false
+    t.boolean  "all_data_processed",                         :default => false
+    t.boolean  "qc_complete",                                :default => false
   end
 
   create_table "pipelines", :force => true do |t|

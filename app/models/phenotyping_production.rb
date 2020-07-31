@@ -421,4 +421,7 @@ end
 #  late_adult_phenotyping_experiments_started :date
 #  late_adult_status_id                       :integer
 #  do_not_count_towards_completeness          :boolean          default(FALSE)
+#  all_data_sent                              :boolean          default(FALSE)
+#  all_data_processed                         :boolean          default(FALSE)
+#  qc_complete                                :boolean          default(FALSE)
 #

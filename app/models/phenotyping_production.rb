@@ -423,5 +423,5 @@ end
 #  do_not_count_towards_completeness          :boolean          default(FALSE)
 #  all_data_sent                              :boolean          default(FALSE)
 #  all_data_processed                         :boolean          default(FALSE)
-#  qc_complete                                :boolean          default(FALSE)
+#  phenotyping_finished                       :boolean          default(FALSE)
 #

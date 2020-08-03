@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20200729082856) do
+ActiveRecord::Schema.define(:version => 20200803105229) do
 
   create_table "allele_annotations", :force => true do |t|
     t.integer  "allele_id",             :null => false
@@ -861,7 +861,7 @@ ActiveRecord::Schema.define(:version => 20200729082856) do
     t.boolean  "do_not_count_towards_completeness",          :default => false
     t.boolean  "all_data_sent",                              :default => false
     t.boolean  "all_data_processed",                         :default => false
-    t.boolean  "qc_complete",                                :default => false
+    t.boolean  "phenotyping_finished",                       :default => false
   end
 
   create_table "pipelines", :force => true do |t|

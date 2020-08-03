@@ -2519,7 +2519,7 @@ CREATE TABLE public.phenotyping_productions (
     do_not_count_towards_completeness boolean DEFAULT false,
     all_data_sent boolean DEFAULT false,
     all_data_processed boolean DEFAULT false,
-    qc_complete boolean DEFAULT false
+    phenotyping_finished boolean DEFAULT false
 );
 
 
@@ -6079,3 +6079,5 @@ INSERT INTO schema_migrations (version) VALUES ('20200206111408');
 INSERT INTO schema_migrations (version) VALUES ('20200206111631');
 
 INSERT INTO schema_migrations (version) VALUES ('20200729082856');
+
+INSERT INTO schema_migrations (version) VALUES ('20200803105229');

@@ -344,7 +344,7 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def user_is_allowed_to_update_all_data_sent?(phenotype_attempt, phenotyping_production_params)
-    if phenotype_attempt.all_data_sent != phenotyping_production_params["0"]["all_data_sent"] && phenotyping_production_params["0"]["all_data_sent"] == "0" && !current_user.admin?
+    if phenotype_attempt.all_data_sent != phenotyping_production_params["0"]["all_data_sent"] && phenotype_attempt.all_data_sent == true && phenotyping_production_params["0"]["all_data_sent"] == "0" && !current_user.admin?
       flash.now[:alert] = 'Phenotype attempt could not be updated - Only the DCC can uncheck All data sent. '
       return false
     end

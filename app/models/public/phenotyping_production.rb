@@ -30,6 +30,10 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     late_adult_report_to_public
     late_adult_phenotyping_experiments_started
     tissue_distribution_centres_attributes
+    do_not_count_towards_completeness
+    all_data_sent
+    all_data_processed
+    phenotyping_finished
     _destroy
 }
 

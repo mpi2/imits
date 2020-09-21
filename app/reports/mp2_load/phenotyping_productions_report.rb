@@ -43,7 +43,14 @@ class Mp2Load::PhenotypingProductionsReport
           LEFT JOIN strains strain ON pp.colony_background_strain_id = strain.id
           JOIN mi_plans p ON p.id = pp.mi_plan_id
           LEFT JOIN centres phenotyping_centre ON phenotyping_centre.id = p.production_centre_id
-          LEFT JOIN centres cohort_centre ON cohort_centre.id = pp.cohort_production_centre_id
+
+          LEFT JOIN mouse_allele_mods mam ON c.mouse_allele_mod_id = mam.id AND c.mouse_allele_mod_id IS NOT NULL
+          LEFT JOIN mi_attempts mi ON c.mi_attempt_id = mi.id AND c.mi_attempt_id IS NOT NULL
+
+          JOIN mi_plans cohort_plan ON mam.mi_plan_id = cohort_plan.id OR mi.mi_plan_id = cohort_plan.id
+          
+          LEFT JOIN centres cohort_centre ON cohort_centre.id = cohort_plan.production_centre_id
+          
           JOIN genes g ON g.id = p.gene_id
           LEFT JOIN alleles a ON c.id = a.colony_id
 

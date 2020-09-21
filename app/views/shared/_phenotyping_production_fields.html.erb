@@ -20,11 +20,11 @@
           <legend>Phenotype Cohort Breeding Details</legend>
 
             <div> 
-                <%= f.label :phenotyping_centre_name, 'Cohort Production Centre Name' %>
+                <%= f.label :cohort_production_centre_name, 'Cohort Production Centre Name' %>
                 <%= f.select :cohort_production_centre_name, Centre.all.map(&:name), :include_blank => true %>
             </div>
             <div> 
-                <%= f.label :phenotyping_centre_name, 'Colony Background Strain' %>
+                <%= f.label :colony_background_strain, 'Colony Background Strain' %>
                 <%= generator.strains_field_no_label :colony_background_strain %>
             </div>
             <div> 

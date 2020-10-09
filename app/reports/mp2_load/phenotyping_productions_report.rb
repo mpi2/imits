@@ -35,7 +35,7 @@ class Mp2Load::PhenotypingProductionsReport
 
     def phenotyping_productions_sql
       <<-EOF
-        SELECT pp.id, pp.colony_name, strain.name AS colony_background_strain_name, parent_strain.name AS parent_colony_background_strain_name, phenotyping_centre.name AS phenotyping_centre_name, cohort_centre.name AS cohort_production_centre_name, a.mgi_allele_symbol_superscript AS mouse_allele_symbol, g.mgi_accession_id, g.marker_symbol, pp.phenotype_attempt_id, p.id AS mi_plan_id, CASE WHEN pp.phenotyping_started = true THEN 'true' ELSE 'false' END AS phenotyping_started, CASE WHEN pp.is_active = true THEN 'true' ELSE 'false' END AS is_active, CASE WHEN pp.all_data_sent = true THEN 'true' ELSE 'false' END AS all_data_sent, CASE WHEN pp.all_data_processed = true THEN 'true' ELSE 'false' END AS all_data_processed, CASE WHEN pp.phenotyping_finished = true THEN 'true' ELSE 'false' END AS phenotyping_finished
+        SELECT pp.id, pp.colony_name, strain.name AS colony_background_strain_name, parent_strain.name AS parent_colony_background_strain_name, phenotyping_centre.name AS phenotyping_centre_name, cohort_centre.name AS cohort_production_centre_name, a.mgi_allele_symbol_superscript AS mouse_allele_symbol, g.mgi_accession_id, g.marker_symbol, pp.phenotype_attempt_id, p.id AS mi_plan_id, ps.name AS phenotyping_production_status_name, CASE WHEN pp.phenotyping_started = true THEN 'true' ELSE 'false' END AS phenotyping_started, CASE WHEN pp.is_active = true THEN 'true' ELSE 'false' END AS is_active, CASE WHEN pp.all_data_sent = true THEN 'true' ELSE 'false' END AS all_data_sent, CASE WHEN pp.all_data_processed = true THEN 'true' ELSE 'false' END AS all_data_processed, CASE WHEN pp.phenotyping_finished = true THEN 'true' ELSE 'false' END AS phenotyping_finished
 
         FROM phenotyping_productions pp INNER JOIN colonies c ON c.id = pp.parent_colony_id 
           LEFT JOIN phenotyping_production_statuses ps ON ps.id = pp.status_id
@@ -48,7 +48,7 @@ class Mp2Load::PhenotypingProductionsReport
           LEFT JOIN alleles a ON c.id = a.colony_id
 
         WHERE ps.name != 'Rederivation Started' AND c.genotype_confirmed = true
-        GROUP BY pp.id, pp.colony_name, strain.name, parent_strain.name, phenotyping_centre.name, cohort_centre.name, a.mgi_allele_symbol_superscript, g.mgi_accession_id, g.marker_symbol, pp.phenotype_attempt_id, p.id, pp.phenotyping_started, pp.is_active;
+        GROUP BY pp.id, pp.colony_name, strain.name, parent_strain.name, phenotyping_centre.name, cohort_centre.name, a.mgi_allele_symbol_superscript, g.mgi_accession_id, g.marker_symbol, pp.phenotype_attempt_id, p.id, ps.name, pp.phenotyping_started, pp.is_active;
       EOF
     end
   end

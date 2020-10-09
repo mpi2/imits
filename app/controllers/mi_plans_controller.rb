@@ -100,6 +100,8 @@ class MiPlansController < ApplicationController
       render(:json => {'error' => message}, :status => 422)
     else
       @mi_plan = Public::MiPlan.new(params[:mi_plan])
+      return if crispr_plan?(@mi_plan)
+
       if @mi_plan.valid?
         @mi_plan.save!
         respond_with @mi_plan
@@ -113,6 +115,7 @@ class MiPlansController < ApplicationController
     return if empty_payload?(params[:mi_plan])
 
     @mi_plan = Public::MiPlan.find(params[:id])
+    return if crispr_plan?(@mi_plan)
 
     respond_to do |format|
       if @mi_plan.update_attributes params[:mi_plan]
@@ -131,6 +134,10 @@ class MiPlansController < ApplicationController
 
     if !params[:id].blank?
       @mi_plan = Public::MiPlan.where("id = '#{params[:id]}'")
+      puts
+      puts "plan => ", @mi_plan.inspect
+      puts
+      return if crispr_plan?(@mi_plan[0])
     else
       [:consortium, :marker_symbol, :sub_project, :is_bespoke_allele, :is_conditional_allele, :is_deletion_allele, :is_cre_knock_in_allele, :is_cre_bac_allele, :phenotype_only, :conditional_tm1c, :point_mutation, :conditional_point_mutation
 ].each do |param|

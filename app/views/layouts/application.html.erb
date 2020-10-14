@@ -75,6 +75,25 @@
     </div>
     <div class="clear"></div>
 
+    <div id="messages" class="container_12">
+      <% if current_user && Rails.env.production? %>
+        <%= render_message :warning do %>
+          PLEASE NOTE: iMits is now frozen for CRISPR data. This means that:
+          <ul>
+            <li>From the 9<sub>th</sub> October of 2020, CRISPR data entry is closed and it will remain as read only.</li>
+            <li>For entering and completing CRISPR lines or looking at the most recent data visit the new tracking system website <a>https://www.gentar.org/</a>.</li>
+            <li>iMits remains active as usual for ESCell lines.</li>
+          </ul>
+          <strong>PLEASE DO NOT ENTER/MODIFY NEW CRISPR DATA INTO THIS SITE</strong>
+        <% end %>
+      <% end %>
+      <%= flash_message :notice %>
+      <%= flash_message :error %>
+      <%= flash_message :alert %>
+      <%= yield :messages %>
+    </div>
+    <div class="clear"></div>
+
     <div id="content" class="container_12">
       <%= yield %>
     </div>

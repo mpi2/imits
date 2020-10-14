@@ -68,25 +68,19 @@
           <strong>PLEASE DO NOT ENTER ANY PRODUCTION DATA INTO THIS SITE - IT WILL BE LOST...</strong>
         <% end %>
       <% end %>
-      <%= flash_message :notice %>
-      <%= flash_message :error %>
-      <%= flash_message :alert %>
-      <%= yield :messages %>
-    </div>
-    <div class="clear"></div>
 
-    <div id="messages" class="container_12">
       <% if current_user && Rails.env.production? %>
         <%= render_message :warning do %>
-          PLEASE NOTE: iMits is now frozen for CRISPR data. This means that:
+          <strong>PLEASE NOTE:</strong> iMits is not longer accepting CRISPR production data since 9<sub>th</sub> October 2020. This means that:
           <ul>
-            <li>From the 9<sub>th</sub> October of 2020, CRISPR data entry is closed and it will remain as read only.</li>
-            <li>For entering and completing CRISPR lines or looking at the most recent data visit the new tracking system website <a href="https://www.gentar.org/" target="_blank">GenTaR</a>.</li>
-            <li>iMits remains active as usual for ESCell lines.</li>
+            <li>From 9<sub>th</sub> October 2020 onwards, CRISPR data entry has been stopped and it will remain as read only.</li>
+            <li>CRISPR data entry needs to be made via the new tracking system, GenTaR; please visit <a href="https://www.gentar.org/" target="_blank">https://www.gentar.org/</a>.</li>
+            <li>All CRISPR data in iMits has been moved to GenTaR; please visit GenTaR for the most up to date CRISPR production infomation.</li>
+            <li>iMits will remain active as usual to enter ES cell lines production data until further notice.</li>
           </ul>
-          <strong>PLEASE DO NOT ENTER/MODIFY NEW CRISPR DATA INTO THIS SITE</strong>
         <% end %>
       <% end %>
+
       <%= flash_message :notice %>
       <%= flash_message :error %>
       <%= flash_message :alert %>

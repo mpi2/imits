@@ -266,6 +266,7 @@ class PhenotypeAttemptsController < ApplicationController
 
   def update
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
+
     @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
 
     # Checking if it's a cripr phenotype_attempt
@@ -274,6 +275,7 @@ class PhenotypeAttemptsController < ApplicationController
 
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
+
     if user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt) && user_is_allowed_to_update_all_data_sent?(@phenotype_attempt, params[:phenotype_attempt]["phenotyping_productions_attributes"])
 
       @phenotype_attempt.update_attributes(params[:phenotype_attempt])
@@ -353,6 +355,9 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def user_is_allowed_to_update_all_data_sent?(phenotype_attempt, phenotyping_production_params)
+    if phenotyping_production_params.nil?
+      return true
+    end
     if phenotype_attempt.all_data_sent != phenotyping_production_params["0"]["all_data_sent"] && phenotype_attempt.all_data_sent == true && phenotyping_production_params["0"]["all_data_sent"] == "0" && !current_user.admin?
       flash.now[:alert] = 'Phenotype attempt could not be updated - Only the DCC can uncheck All data sent. '
       return false

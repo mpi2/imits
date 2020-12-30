@@ -35,7 +35,7 @@ gem 'bio', '1.4.3'
 ## gem "sequel"
 ## gem "mysql2"
 
-gem 'nokogiri', "~> 1.8"
+gem 'nokogiri', "~> 1.10"
 gem "paperclip", "~> 4.1"
 gem "paperclip_database", "~> 2.0"
 

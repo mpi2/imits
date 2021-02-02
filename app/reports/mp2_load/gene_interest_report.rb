@@ -63,17 +63,17 @@ class Mp2Load::GeneInterestReport
 
     def gene_interest_sql
       <<-EOF
-        WITH ordered_plans AS (
+                WITH ordered_plans AS (
           SELECT mi_plans.gene_id, mi_plans.id AS mi_plan_id, mi_plan_statuses.name AS status_name, mi_plans.production_centre_id AS centre_id, mpss.created_at AS state_change_date
           FROM mi_plans
             JOIN mi_plan_statuses ON mi_plans.status_id = mi_plan_statuses.id
             JOIN mi_plan_status_stamps mpss ON mi_plans.id = mpss.mi_plan_id AND mi_plans.status_id = mpss.status_id
-          WHERE phenotype_only = false AND es_cell_qc_only = false AND mi_plans.report_to_public = true AND mi_plans.consortium_id != 17 -- exclude EUCOMMToolsCre   
+          WHERE phenotype_only = false AND es_cell_qc_only = false AND mi_plans.report_to_public = true AND mi_plans.mutagenesis_via_crispr_cas9 = false AND mi_plans.consortium_id != 17 -- exclude EUCOMMToolsCre  
           ORDER BY
             mi_plans.gene_id,
             mi_plan_statuses.order_by DESC
           ),
-        
+
           top_assigned_status AS (
             SELECT DISTINCT ordered_plans.gene_id, first_value(ordered_plans.mi_plan_id) OVER (PARTITION BY ordered_plans.gene_id) AS mi_plan_id, 
                 first_value(ordered_plans.status_name) OVER (PARTITION BY ordered_plans.gene_id) AS status_name,
@@ -81,38 +81,28 @@ class Mp2Load::GeneInterestReport
                 first_value(ordered_plans.state_change_date) OVER (PARTITION BY ordered_plans.gene_id) AS state_change_date
             FROM ordered_plans
           ),
-        
+
           genes_assigned_status AS (
             SELECT top_assigned_status.gene_id AS gene_id, centres.name AS centre_name, top_assigned_status.status_name, top_assigned_status.state_change_date
             FROM top_assigned_status
               JOIN centres ON centres.id = top_assigned_status.centre_id
           ),
-        
-          mutagenesis_oligo_count AS (
-          SELECT mf.id AS id, count(mfd.id) AS oligo_count
-          FROM mutagenesis_factors mf
-            JOIN mi_attempts ON mi_attempts.mutagenesis_factor_id = mf.id
-            LEFT JOIN mutagenesis_factor_donors mfd ON mfd.mutagenesis_factor_id = mf.id
-          GROUP BY mf.id
-          HAVING count(mfd.id) >= 2 
-          ),
-        
+
           ordered_conditional_mi_attempts AS (
           SELECT  ordered_plans.gene_id AS gene_id, ordered_plans.mi_plan_id AS mi_plan_id, mi_status.name AS status_name, mi_attempts.id AS mi_attempt_id, 
           ordered_plans.centre_id AS centre_id, miss.created_at AS state_change_date, production_started_stamp.created_at AS production_started_date
           FROM mi_attempts
-            LEFT JOIN mutagenesis_oligo_count ON mutagenesis_oligo_count.id = mi_attempts.mutagenesis_factor_id
             LEFT JOIN (targ_rep_es_cells es JOIN targ_rep_alleles a ON a.id = es.allele_id AND a.mutation_type_id = 1) ON es.id = mi_attempts.es_cell_id
             JOIN mi_attempt_statuses mi_status ON mi_status.id = mi_attempts.status_id
             JOIN mi_attempt_status_stamps miss ON mi_attempts.id = miss.mi_attempt_id AND mi_attempts.status_id = miss.status_id
             JOIN ordered_plans ON ordered_plans.mi_plan_id = mi_attempts.mi_plan_id
             LEFT JOIN mi_attempt_status_stamps production_started_stamp ON production_started_stamp.mi_attempt_id = mi_attempts.id AND production_started_stamp.status_id = 1
-          WHERE mutagenesis_oligo_count.id IS NOT NULL OR es.id IS NOT NULL AND mi_attempts.report_to_public = true AND mi_attempts.experimental = false
+          WHERE es.id IS NOT NULL AND mi_attempts.report_to_public = true AND mi_attempts.experimental = false
           ORDER BY
             ordered_plans.gene_id,
             mi_status.order_by DESC
           ),
-        
+
           top_conditional_production_status AS (
             SELECT DISTINCT ordered_conditional_mi_attempts.gene_id, first_value(ordered_conditional_mi_attempts.mi_attempt_id) OVER (PARTITION BY ordered_conditional_mi_attempts.gene_id) AS mi_attempt_id,
             first_value(ordered_conditional_mi_attempts.status_name) OVER (PARTITION BY ordered_conditional_mi_attempts.gene_id) AS status_name,
@@ -122,15 +112,15 @@ class Mp2Load::GeneInterestReport
             min(ordered_conditional_mi_attempts.production_started_date) OVER (PARTITION BY ordered_conditional_mi_attempts.gene_id) AS production_started_date
             FROM ordered_conditional_mi_attempts
           ),
-        
+
           conditional_production_status AS (
             SELECT top_conditional_production_status.gene_id AS gene_id, centres.name AS centre_name, top_conditional_production_status.status_name AS status_name, 
             top_conditional_production_status.state_change_date AS state_change_date, top_conditional_production_status.production_started_date AS production_started_date
             FROM top_conditional_production_status
               JOIN centres ON centres.id = top_conditional_production_status.centre_id
           ),
-        
-        
+
+
           null_mi_attempts AS (
             SELECT  ordered_plans.gene_id AS gene_id, ordered_plans.mi_plan_id AS mi_plan_id, mi_status.name AS status_name, 
                 CASE WHEN mi_status.name = 'Genotype confirmed' THEN mi_status.order_by + 220 ELSE mi_status.order_by END AS order_by, -- Ensure Genotype Confirmed status trumps mouse_allele_mod statuses.
@@ -146,8 +136,8 @@ class Mp2Load::GeneInterestReport
               ordered_plans.gene_id,
               mi_status.order_by DESC
           ),
-        
-        
+
+
           all_null_production AS (
             (SELECT ordered_conditional_mi_attempts.gene_id AS gene_id, mouse_allele_mods.mi_plan_id AS mi_plan_id, mam_status.name AS status_name, 
               mam_status.order_by AS order_by, 
@@ -165,18 +155,18 @@ class Mp2Load::GeneInterestReport
             (
             SELECT * FROM null_mi_attempts
             )
-        
+
             ),
-        
+
           ordered_null_mi_attempts AS (
             SELECT all_null_production.*
             FROM all_null_production
             ORDER BY 
               all_null_production.gene_id,
               all_null_production.order_by DESC
-        
+
           ),
-        
+
           top_null_production_status AS (
             SELECT DISTINCT ordered_null_mi_attempts.gene_id,
                 first_value(ordered_null_mi_attempts.status_name) OVER (PARTITION BY ordered_null_mi_attempts.gene_id) AS status_name,
@@ -186,16 +176,17 @@ class Mp2Load::GeneInterestReport
                 min(ordered_null_mi_attempts.production_started_date) OVER (PARTITION BY ordered_null_mi_attempts.gene_id) AS production_started_date
             FROM ordered_null_mi_attempts
           ),
-        
+
           null_production_status AS (
             SELECT top_null_production_status.gene_id AS gene_id, centres.name AS centre_name, top_null_production_status.status_name AS status_name,
                    top_null_production_status.state_change_date AS state_change_date, top_null_production_status.production_started_date AS production_started_date
             FROM top_null_production_status
               JOIN mi_plans ON mi_plans.id = top_null_production_status.mi_plan_id
               JOIN centres ON centres.id = mi_plans.production_centre_id
+            WHERE mi_plans.mutagenesis_via_crispr_cas9 = false
           ),
-        
-        
+
+
           order_phenotyping_productions AS (
             SELECT mi_plans.gene_id, phenotyping_productions.id AS phenotyping_production_id, mi_plans.id AS mi_plan_id, pps.name AS status_name, mi_plans.production_centre_id AS centre_id,
                    ppss.created_at AS state_change_date
@@ -203,12 +194,12 @@ class Mp2Load::GeneInterestReport
               JOIN phenotyping_production_statuses pps ON pps.id = phenotyping_productions.status_id
               JOIN phenotyping_production_status_stamps ppss ON phenotyping_productions.id = ppss.phenotyping_production_id AND phenotyping_productions.status_id = ppss.status_id 
               JOIN mi_plans ON mi_plans.id = phenotyping_productions.mi_plan_id AND mi_plans.report_to_public = true
-            WHERE phenotyping_productions.report_to_public = true AND mi_plans.consortium_id != 17 -- exclude EUCOMMToolsCre
+            WHERE phenotyping_productions.report_to_public = true AND mi_plans.mutagenesis_via_crispr_cas9 = false AND mi_plans.consortium_id != 17 -- exclude EUCOMMToolsCre
             ORDER BY 
               mi_plans.gene_id,
               pps.order_by DESC
           ),
-        
+
           top_phenotyping_status AS (
             SELECT DISTINCT order_phenotyping_productions.gene_id, first_value(order_phenotyping_productions.phenotyping_production_id) OVER (PARTITION BY order_phenotyping_productions.gene_id) AS phenotyping_production_id,
                 first_value(order_phenotyping_productions.status_name) OVER (PARTITION BY order_phenotyping_productions.gene_id) AS status_name,
@@ -217,14 +208,13 @@ class Mp2Load::GeneInterestReport
                 first_value(order_phenotyping_productions.state_change_date) OVER (PARTITION BY order_phenotyping_productions.gene_id) AS state_change_date
             FROM order_phenotyping_productions
           ),
-        
+
           genes_phenotyping_status AS (
             SELECT top_phenotyping_status.gene_id AS gene_id, centres.name AS centre_name, top_phenotyping_status.status_name AS status_name, top_phenotyping_status.state_change_date AS state_change_date
             FROM top_phenotyping_status
               JOIN centres ON centres.id = top_phenotyping_status.centre_id
           )
-        
-        
+
         SELECT
         genes.mgi_accession_id AS gene_mgi_accession_id,
         genes.marker_symbol AS gene_marker_symbol,
@@ -248,7 +238,6 @@ class Mp2Load::GeneInterestReport
           LEFT JOIN null_production_status ON genes.id = null_production_status.gene_id
           LEFT JOIN conditional_production_status ON genes.id = conditional_production_status.gene_id
           LEFT JOIN genes_phenotyping_status ON genes.id = genes_phenotyping_status.gene_id
-        
         
       EOF
     end

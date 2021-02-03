@@ -1,0 +1,4 @@
+<%= @report.class.show_columns.map{|column| column['title']}.join("\t") %>
+<% @gene_statues.each do |record| %>
+<%= @report.class.show_columns.map{|column| record[column['field']]}.join("\t").html_safe %>
+<% end %>

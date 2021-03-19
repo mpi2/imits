@@ -233,4 +233,43 @@ class ApplicationController < ActionController::Base
   end
   protected :empty_payload?
 
+  def crispr_plan?(object)
+    if object.mutagenesis_via_crispr_cas9 == true
+      render :json => {
+        'error' => 'Crispr plans cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
+      }, :status => 401
+      return true
+    end
+    
+    return false
+  end
+  protected :crispr_plan?
+
+  def crispr_attempt?(object)
+    if object.mi_plan.mutagenesis_via_crispr_cas9 == true
+      render :json => {
+        'error' => 'Crispr mi_attempts cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
+      }, :status => 401
+      return true
+    end
+    
+    return false
+  end
+  protected :crispr_attempt?
+
+  def crispr_phenotype_attempt?(object)
+    puts
+    puts "object => ", object.inspect
+    puts 
+    if object.mutagenesis_via_crispr_cas9 == true
+      render :json => {
+        'error' => 'Crispr phenotype_attempts cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
+      }, :status => 401
+      return true
+    end
+    
+    return false
+  end
+  protected :crispr_phenotype_attempt?
+
 end

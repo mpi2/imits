@@ -2,7 +2,7 @@ class V2::ReportsController < ApplicationController
 
   helper :reports
 
-  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report, :mgi_es_cell_allele_report, :mgi_mixed_allele_report, :mgi_crispr_allele_report, :mp2_load_phenotyping_colonies_report, :mp2_load_phenotyping_productions_report_crawler, :mp2_load_gene_interest_report, :mp2_load_gene_contact_report, :mp2_load_gene_contact_sent_report, :emma_distribution_report]
+  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report, :mgi_es_cell_allele_report, :mgi_mixed_allele_report, :mgi_crispr_allele_report, :mp2_load_phenotyping_colonies_report, :mp2_load_phenotyping_productions_report_crawler, :mp2_load_gene_interest_report, :mp2_load_gene_interest_report_es_cell, :mp2_load_gene_contact_report, :mp2_load_gene_contact_sent_report, :emma_distribution_report]
 
   before_filter do
     if params[:format] == 'csv'
@@ -102,6 +102,14 @@ class V2::ReportsController < ApplicationController
     @gene_statues = @report.gene_statues
     respond_to do |format|
       format.tsv {render :mp2_load_gene_interest_report}
+    end
+  end
+
+  def mp2_load_gene_interest_report_es_cell
+    @report = Mp2Load::GeneInterestReportEsCell.new
+    @gene_statues = @report.gene_statues
+    respond_to do |format|
+      format.tsv {render :mp2_load_gene_interest_report_es_cell}
     end
   end
 

@@ -35,6 +35,7 @@ class MiAttemptsController < ApplicationController
 
   def create
     use_crispr_group_id
+
     return if empty_payload?(params[:mi_attempt])
 
     g0_screen = params[:mi_attempt].delete(:g0_screens_attributes)
@@ -46,6 +47,11 @@ class MiAttemptsController < ApplicationController
     end
 
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
+
+    # Checking if it's a cripr micro-injection
+    return if crispr_attempt?(@mi_attempt)
+    
+    
     update_g0_screen_results(@mi_attempt, g0_screen)
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
@@ -96,6 +102,10 @@ class MiAttemptsController < ApplicationController
     Paperclip.options[:content_type_mappings] = { scf: 'application/octet-stream', abi: 'application/octet-stream', ab1: 'application/octet-stream' }
 
     @mi_attempt = Public::MiAttempt.find(params[:id])
+
+    # Checking if it's a cripr micro-injection
+    return if crispr_attempt?(@mi_attempt)
+
     return unless authorize_user_production_centre(@mi_attempt)
     return if empty_payload?(params[:mi_attempt])
 

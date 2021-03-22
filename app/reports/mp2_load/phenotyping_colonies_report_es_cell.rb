@@ -78,6 +78,7 @@ class Mp2Load::PhenotypingColoniesReportEsCell
           LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
           LEFT JOIN plans m_plan ON m_plan.id = mi_attempts.mi_plan_id
           LEFT JOIN plans mam_plan ON mam_plan.id = mouse_allele_mods.mi_plan_id
+        WHERE alleles.mgi_allele_symbol_superscript NOT LIKE 'em%'
       )
 
       SELECT

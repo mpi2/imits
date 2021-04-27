@@ -16,9 +16,7 @@ Ext.onReady(function() {
     EsCellPanel = Ext.create('Imits.MiAttempts.New.EsCellSelectorForm', {
         renderTo: 'es-cell-selector'
     });
-    mutagensisFactorPanel = Ext.create('Imits.MiAttempts.New.MutagenesisFactorSelectorForm', {
-        renderTo: 'mutagenesis-factor-selector'
-    });
+    
     var ignoreWarningsButton = Ext.get('ignore-warnings');
     if(ignoreWarningsButton) {
         ignoreWarningsButton.addListener('click', function() {
@@ -176,7 +174,6 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
     onEsCellNameSelected: function(esCellName, esCellMarkerSymbol) {
         this.esCellNameTextField.setValue(esCellName);
         this.esCellMarkerSymbolDiv.update(esCellMarkerSymbol);
-        mutagensisFactorPanel.MutagenesisFactorCreateSelect.disable();
         this.window.hide();
 
         listView.set_mi_plan_selection(esCellMarkerSymbol);

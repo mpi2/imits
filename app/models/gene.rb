@@ -657,17 +657,17 @@ class Gene < ActiveRecord::Base
       exit
     end
 
-    logger.info "Downloading Vega report"
-    url = "http://www.informatics.jax.org/downloads/reports/MRK_VEGA.rpt"
-    open(url) do |file|
-      headers = file.readline.strip.split("\t")
-      mgi_accession_id_index = 0
-      vega_ids_index = 5
-      file.each_line do |line|
-        row = line.strip.gsub(/\"/, '').split("\t")
-        genes_data[row[mgi_accession_id_index]]['vega_ids'] << row[vega_ids_index] if genes_data.has_key?(row[mgi_accession_id_index])
-      end
-    end
+    # logger.info "Downloading Vega report"
+    # url = "http://www.informatics.jax.org/downloads/reports/MRK_VEGA.rpt"
+    # open(url) do |file|
+    #   headers = file.readline.strip.split("\t")
+    #   mgi_accession_id_index = 0
+    #   vega_ids_index = 5
+    #   file.each_line do |line|
+    #     row = line.strip.gsub(/\"/, '').split("\t")
+    #     genes_data[row[mgi_accession_id_index]]['vega_ids'] << row[vega_ids_index] if genes_data.has_key?(row[mgi_accession_id_index])
+    #   end
+    # end
 
     logger.info "Downloading Ensemble report"
     url = "http://www.informatics.jax.org/downloads/reports/MRK_ENSEMBL.rpt"

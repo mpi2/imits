@@ -192,7 +192,6 @@
               </tbody>
             </table>
           </div>
-          <%= link_to_add_fields "Add Vector/Oligo", builder, :donors %>
         </fieldset>
       <% end %>
 
@@ -212,7 +211,6 @@
             </tbody>
           </table>
         </div>
-        <%= link_to_add_fields "Add Reagent", form, :reagents %>
       </fieldset>
 
     </div>
@@ -245,7 +243,6 @@
       <% if @mi_attempt.mutagenesis_factor.blank? %>
         <% @mi_attempt.mutagenesis_factor = MutagenesisFactor.new %>
       <% end %>
-      <%= link_to_add_fields "Add Genotype Primer", builder, :genotype_primers %>
     </div>
   </fieldset>
 <% end %>
@@ -406,9 +403,6 @@
           <% end %>
         </tbody>
         </table>
-        <% if mi_attempt.es_cell_name.blank?%>
-          <%= link_to_add_fields "Add Colony", form, :colonies %>
-        <% end %>
       <% else %>
         F1 Colonies can be entered after the Micro-Injection has been created.
       <% end %>

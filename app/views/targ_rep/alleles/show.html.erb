@@ -212,9 +212,7 @@
 
 <div class="grid_12">
 <% if current_user and !@allele.class.nhej_allele? %>
-  <a href="<%= url_for([:edit, @allele]) %>" class="button">
-    <%= image_tag "icons/pencil.png", :alt => "" %> Edit
-  </a>
+  
 <% end %>
         <% if @allele.class.targeted_allele? %><a href="<%= targ_rep_alleles_path %>" class="button negative"><% end %>
         <% if @allele.class.gene_trap? %><a href="<%= targ_rep_gene_traps_path %>" class="button negative"><% end %>

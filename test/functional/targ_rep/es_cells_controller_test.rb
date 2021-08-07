@@ -159,14 +159,6 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
     assert_equal es_cell.allele_id, new_parent.id, "Ooops, we haven't switched parents..."
   end
 
-  should "allow us to interact with the /bulk_edit view" do
-    get :bulk_edit
-    assert_response :success, "Unable to open /es_cells/bulk_edit"
-
-    post :bulk_edit, :es_cell_names => TargRep::EsCell.first.name
-    assert_response :success, "Unable to open /es_cells/bulk_edit with an es_cell_names parameter"
-  end
-
   should "show an es_cell (with new distribution_qc)" do
 
     es_cell = Factory.create :es_cell

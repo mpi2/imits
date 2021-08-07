@@ -48,31 +48,7 @@
       </table>
     </fieldset>
 
-    <fieldset>
-      <legend><%= 'Change Password' %></legend>
-
-      <table>
-        <tr>
-          <td>
-            <%= form.label :password, 'New Password' %>
-            <%= form.password_field :password %>
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <%= form.label :password_confirmation, 'Confirm New Password' %>
-            <%= form.password_field :password_confirmation %>
-          </td>
-        </tr>
-      </table>
-    </fieldset>
-
     <%= hidden_field_tag :redirect, params[:redirect] %>
-
-    <div class="submit">
-      <%= form.submit 'Save Changes', :id => 'user_submit' %>
-    </div>
 
   <% end %>
 </div>

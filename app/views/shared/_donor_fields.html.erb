@@ -7,13 +7,4 @@
     </td>
     <td><%= f.text_field :concentration, :onchange => 'validateFloatKeyPress(this)' %> ng/uL</td>
     <td><%= f.select :preparation , MutagenesisFactor::Donor::PREPARATION%></td>
-    <td>
-        <% if @new_object != nil %>
-            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-            <%= link_to "remove", '#', class: "remove-row" %>
-        <% else %>
-            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-            <%= link_to "remove", '#', class: "hide-row" %>
-        <% end %>
-    </td>
 </tr>

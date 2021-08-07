@@ -200,112 +200,26 @@ class PhenotypeAttemptsController < ApplicationController
   end
   protected :data_for_serialized
 
-
   def new
-    set_centres_consortia_and_strains
-    @user = current_user
-    @parent_colony = Colony.find(params[:colony_id])
-    @mi_attempt = @parent_colony.mi_attempt
-    if @mi_attempt.status.name == "Genotype confirmed"
-      @phenotype_attempt = Public::PhenotypeAttempt.new(
-        :mi_plan => @mi_attempt.mi_plan
-        )
-      @phenotype_attempt.cre_excision_required = false unless @mi_attempt.mutagenesis_factor.blank?
-    else
-      flash.now[:alert] = "#{@mi_attempt.status.name} status"
-    end
+    render :json => {
+      'error' => 'Phenotype_attempts cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
+    }, :status => 401
+    return true
   end
 
-
   def create
-    set_centres_consortia_and_strains
-    @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
-    @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
-    @mi_attempt = MiAttempt.joins(:colonies).where("colonies.name = '#{params[:phenotype_attempt][:mi_attempt_colony_name]}'").first
-
-    @phenotype_attempt.mi_plan_id = @mi_attempt.mi_plan_id if @phenotype_attempt.mi_plan_id.blank? && !@mi_attempt.blank?
-
-    # Checking if it's a cripr phenotype_attempt
-    @mi_plan = Public::MiPlan.find(@phenotype_attempt.mi_plan_id)
-    return if crispr_phenotype_attempt?(@mi_plan)
-
-    return unless authorize_user_production_centre(@phenotype_attempt)
-    return if empty_payload?(params[:phenotype_attempt])
-
-    respond_with @phenotype_attempt do |format|
-      format.html do
-        if ! (@phenotype_attempt.valid? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt))
-          flash.now[:alert] = "Phenotype attempt could not be created - please check the values you entered"
-          render :template => 'phenotype_attempts/new'
-        else
-          if @phenotype_attempt.save
-            flash[:notice] = 'Phenotype attempt created'
-            redirect_to "#{root_url}/phenotype_attempts/#{@phenotype_attempt.id}"
-#        render :template => 'phenotype_attempts/show'
-          else
-            flash.now[:alert] = "Phenotype attempt could not be created - please check the values you entered"
-            render :template => 'phenotype_attempts/new'
-          end
-        end
-      end
-      format.json do
-        if ! (@phenotype_attempt.valid? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt))
-          render :json => @phenotype_attempt.errors, :status => :unprocessable_entity
-        else
-          if @phenotype_attempt.save
-            render :json => @phenotype_attempt.attributes.to_json
-          else
-            render :json => "Phenotype attempt could not be created - please check the values you entered"
-          end
-        end
-      end
-
-    end
+    render :json => {
+      'error' => 'Phenotype_attempts cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
+    }, :status => 401
+    return true
   end
 
 
   def update
-    @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
-
-    @parent_colony = Colony.find_by_name(@phenotype_attempt.parent_colony_name)
-
-    # Checking if it's a cripr phenotype_attempt
-    @mi_plan = Public::MiPlan.find(@phenotype_attempt.phenotyping_productions[0].mi_plan_id)
-    return if crispr_phenotype_attempt?(@mi_plan)
-
-    return unless authorize_user_production_centre(@phenotype_attempt)
-    return if empty_payload?(params[:phenotype_attempt])
-
-    if user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt) && user_is_allowed_to_update_all_data_sent?(@phenotype_attempt, params[:phenotype_attempt]["phenotyping_productions_attributes"])
-
-      @phenotype_attempt.update_attributes(params[:phenotype_attempt])
-
-      if @phenotype_attempt.errors.blank?
-        @phenotype_attempt = Public::PhenotypeAttempt.find(@phenotype_attempt.id)
-        flash.now[:notice] = 'Phenotype attempt updated successfully'
-      else
-        flash.now[:alert] = 'Phenotype attempt could not be updated - please check the values you entered'
-      end
-    else
-      @phenotype_attempt = Public::PhenotypeAttempt.find(@phenotype_attempt.id)
-    end
-
-    set_centres_consortia_and_strains
-    @mi_attempt = @phenotype_attempt.mi_attempt
-
-    respond_with @phenotype_attempt do |format|
-      format.html do
-        render :action => :show
-      end
-
-      format.json do
-        if @phenotype_attempt.errors.messages.blank? && user_is_allowed_to_update_phenotyping_dataflow_fields?(@phenotype_attempt)
-          render :json => @phenotype_attempt.attributes.to_json
-        else
-          render :json => @phenotype_attempt.errors, :status => :unprocessable_entity
-        end
-      end
-    end
+    render :json => {
+      'error' => 'Phenotype_attempts cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
+    }, :status => 401
+    return true
   end
 
 

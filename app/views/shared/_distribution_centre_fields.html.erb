@@ -12,13 +12,4 @@
         Start: <%= f.text_field :start_date, :label => 'Start Date', :class => 'date-field' %>
         End:   <%= f.text_field :end_date, :label => 'End Date', :class => 'date-field' %>
     </td>
-    <td>
-        <% if @new_object != nil %>
-            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-            <%= link_to "remove", '#', class: "remove-row" %>
-        <% else %>
-            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-            <%= link_to "remove", '#', class: "hide-row" %>
-        <% end %>
-    </td>
 </tr>

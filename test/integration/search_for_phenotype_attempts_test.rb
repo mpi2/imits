@@ -36,7 +36,7 @@ class SearchForPhenotypeAttemptsTest < TarMits::JsIntegrationTest
 
     should 'have an editable option' do
       visit '/phenotype_attempts'
-      assert page.has_content?('Edit In Form')
+      assert page.has_content?('View In Form')
     end
 
     context 'searching for phenotyping attempts by marker symbol' do

@@ -52,7 +52,7 @@ Ext.define('Imits.widget.MiGrid', {
                     if (genotype_confirmed_colony_names.length > 0 && genotype_confirmed_colony_names[0].length > 0) {
                         for (var i = 0, len = genotype_confirmed_colony_names.length; i < len; i++)
                             {
-                              textToDisplayArray.push( Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={2}">({1})</a> / <a href="{0}/colony/{2}/phenotype_attempts/new">Create</a>', window.basePath, phenotype_attempts_count[i], genotype_confirmed_colony_names[i]) );
+                              textToDisplayArray.push( Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={2}">({1})</a>', window.basePath, phenotype_attempts_count[i], genotype_confirmed_colony_names[i]) );
                             }
                     }
                     else {
@@ -65,11 +65,11 @@ Ext.define('Imits.widget.MiGrid', {
                 }
              },
              {'position' : 0, 'data' : {
-                header: 'Edit In Form',
+                header: 'View In Form',
                 dataIndex: 'edit_link',
                 renderer: function(value, metaData, record) {
                     var miId = record.getId();
-                    return Ext.String.format('<a href="{0}/mi_attempts/{1}">Edit in Form</a>', window.basePath, miId);
+                    return Ext.String.format('<a href="{0}/mi_attempts/{1}">View in Form</a>', window.basePath, miId);
                 },
                 sortable: false
                 }

@@ -10,7 +10,7 @@ class MiAttempt::SearchInGridIntegrationTest < TarMits::JsIntegrationTest
       should 'not have an editable option' do
         visit '/'
         click_link 'Mouse Production'
-        assert page.has_content?('Show In Form')
+        assert page.has_content?('View In Form')
       end
     end
 
@@ -28,7 +28,7 @@ class MiAttempt::SearchInGridIntegrationTest < TarMits::JsIntegrationTest
 
       should 'have an editable option' do
         click_link 'Mouse Production'
-        assert page.has_content?('Edit In Form')
+        assert page.has_content?('View In Form')
       end
 
       context 'by es_cell name' do

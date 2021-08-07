@@ -98,7 +98,7 @@ class ApplicationController < ActionController::Base
 
   def log_json_response_parameters
     if request.format == :json
-      logger.info("  Response: #{response.body}")
+      # logger.info("  Response: #{response.body}")
     end
   end
   protected :log_json_response_parameters
@@ -258,9 +258,6 @@ class ApplicationController < ActionController::Base
   protected :crispr_attempt?
 
   def crispr_phenotype_attempt?(object)
-    puts
-    puts "object => ", object.inspect
-    puts 
     if object.mutagenesis_via_crispr_cas9 == true
       render :json => {
         'error' => 'Crispr phenotype_attempts cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'

@@ -12,23 +12,24 @@
   <div class="homepage-links">
     <a href="<%= gene_selection_mi_plans_path %>">
       <h3>Gene Selection / Micro-Injection Planning</h3>
-      <p>Register interest (on behalf of your consortium) in micro-injecting some genes</p>
+      <!-- <p>Register interest (on behalf of your consortium) in micro-injecting some genes</p> -->
+      <p>Search for data on genes</p>
     </a>
   </div>
 
   <div class="homepage-links">
     <a href="<%= mi_attempts_path('q[production_centre_name]' => current_user.production_centre.name) %>">
-      <h3>Search For &amp; Edit Micro-Injection Attempts</h3>
-      <p>Search for and edit data on existing micro-injection attempt records</p>
+      <h3>Search For Micro-Injection Attempts</h3>
+      <p>Search for data on existing micro-injection attempt records</p>
     </a>
   </div>
 
-  <div class="homepage-links">
+ <!--  <div class="homepage-links">
     <a href="<%= new_mi_attempt_path %>">
       <h3>Create Micro-Injection Attempts</h3>
       <p>Enter data on new micro-injection attempts</p>
     </a>
-  </div>
+  </div> -->
 
   <div class="homepage-links">
     <a href="<%= "#{root_path}phenotype_attempts?q[production_centre_name]=#{current_user.filter_by_centre.try(:name)}" %>">
@@ -63,32 +64,33 @@
     </a>
   </div>
 
-  <div class="homepage-links">
+<!--   <div class="homepage-links">
     <a href="<%= centres_path %>">
       <h4>Manage Production Centres</h4>
       <p>Add/Remove iMits production centres</p>
     </a>
   </div>
+  -->
 
-  <% if current_user.can_see_sub_project? %>
+<!--   <% if current_user.can_see_sub_project? %>
     <div class="homepage-links">
     <a href="<%= sub_projects_path %>">
       <h4>Manage Sub projects</h4>
       <p>Add/Remove iMits sub projects</p>
     </a>
-  </div>
-  <% end %>
+  </div> 
+  <% end %> -->
 
 
-  <div class="homepage-links">
+<!--   <div class="homepage-links">
   <a href="<%= strains_path %>">
     <h4>Manage Strains</h4>
     <p>Add/Remove iMits strains</p>
   </a>
-  </div>
+  </div> -->
 
 
-  <div class="homepage-links">
+  <!-- <div class="homepage-links">
     <a href="<%= production_goals_path %>">
       <h4>Manage Production Goals</h4>
       <p>Add/Remove iMits production goals</p>
@@ -100,5 +102,6 @@
       <h4>Manage IMPC Centre Goals</h4>
       <p>Add/Remove iMits IMPC centre goals</p>
     </a>
-  </div>
+  </div> -->
+
 </div>

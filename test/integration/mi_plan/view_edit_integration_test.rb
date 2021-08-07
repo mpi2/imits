@@ -6,7 +6,7 @@ class MiPlan::ViewEditIntegrationTest < TarMits::JsIntegrationTest
   context 'When user not logged in grid' do
     should 'not have edit link' do
       visit '/open/mi_plans'
-      assert page.has_no_content?('Edit In Form')
+      assert page.has_no_content?('View In Form')
     end
 
     should 'not load mi_plan editor' do
@@ -25,7 +25,7 @@ class MiPlan::ViewEditIntegrationTest < TarMits::JsIntegrationTest
       assert page.has_no_content?('Change Gene Interest')
     end
   end
-  context 'View & Edit MiPlans tests:' do
+  context 'View MiPlans tests:' do
 
     should 'display MiPlan data' do
       plan = Factory.create :mi_plan,

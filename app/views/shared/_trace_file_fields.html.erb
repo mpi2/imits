@@ -14,13 +14,4 @@
       <div>Heterozygous Trace? <%= f.check_box :is_het %></div>
     </div>
   </td>
-  <td>
-    <% if f.object.new_record? %>
-      <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-      <%= link_to "remove", '#', class: "remove-row" %>
-    <% else %>
-      <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-      <%= link_to "remove", '#', class: "hide-row" %>
-    <% end %>
-  </td>
 </tr>

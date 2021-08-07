@@ -2,11 +2,11 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     extend: 'Imits.widget.PhenotypeAttemptsGridCommon',
 
     additionalColumns: [{'position' : 1,
-                         'data' : {header: 'Edit In Form',
+                         'data' : {header: 'View In Form',
                                    dataIndex: 'edit_link',
                                    renderer: function(value, metaData, record) {
                                        var miId = record.getId();
-                                       return Ext.String.format('<a href="{0}/phenotype_attempts/{1}">Edit in Form</a>', window.basePath, miId);
+                                       return Ext.String.format('<a href="{0}/phenotype_attempts/{1}">View in Form</a>', window.basePath, miId);
                                    },
                                    sortable: false
                                    }

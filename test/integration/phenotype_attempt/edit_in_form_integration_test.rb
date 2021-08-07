@@ -34,7 +34,7 @@ class PhenotypeAttempt::EditInFormTest < TarMits::JsIntegrationTest
       end
       login
       click_link 'Phenotyping'
-      within('.x-grid') { click_link 'Edit in Form' }
+      within('.x-grid') { click_link 'View in Form' }
     end
 
     should 'show but not allow editing es_cell or gene' do

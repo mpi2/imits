@@ -3,14 +3,6 @@
     <td style="vertical-align: top;">
       <div style="padding:40px 10px 0px 10px">
         <%= f.text_field(:colony_name,:class => 'x-form-text', :size => 20) %>
-
-        <% if f.object.new_record? %>
-            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-            <%= link_to "remove", '#', class: "remove-row" %>
-        <% else %>
-            <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-            <%= link_to "remove", '#', class: "hide-row" %>
-        <% end %>
       </div>
     </td>
 
@@ -131,7 +123,6 @@
                   <% end %>
                 </tbody>
               </table>
-              <%= link_to_add_fields "Add Tissue for Distribution", f, :tissue_distribution_centres %>
             </div>
           </fieldset>
         </div>

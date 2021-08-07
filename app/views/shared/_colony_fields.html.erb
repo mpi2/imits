@@ -11,15 +11,7 @@
         <%= f.text_field :name, :size=>'15' %>
       </div>
 
-      <% if mi_attempt.es_cell_name.blank?%>
-        <% if f.object.new_record? %>
-          <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-          <%= link_to "remove", '#', class: "remove-row" %>
-        <% else %>
-          <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-          <%= link_to "remove", '#', class: "hide-row" %>
-        <% end %>
-      <% end %>
+      
     </td>
     <td style="text-align: left;vertical-align: top">
       <div style="padding:0px 10px 0px 10px">
@@ -189,7 +181,6 @@
                   <th>Distribution network?</th>
                   <th>Deposited material</th>
                   <th>Distribution dates</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody class="distribution_centres">
@@ -203,7 +194,6 @@
                 <% end %>
               </tbody>
             </table>
-            <%= link_to_add_fields "Add Distribution Centre", f, :distribution_centres %>
           <% else %>
             No Distribution Centres can be set until Status is Genotype confirmed.
           <% end %>

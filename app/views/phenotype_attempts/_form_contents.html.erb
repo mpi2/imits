@@ -115,7 +115,6 @@
               <th>Distribution network?</th>
               <th>Deposited material</th>
               <th>Distribution dates</th>
-              <th>Action</th>
             </tr>
           </thead>
           <tbody class="distribution_centres">
@@ -127,7 +126,6 @@
             <% end %>
           </tbody>
         </table>
-        <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
       <% else %>
         No Distribution Centres can be set until Status is Cre Excision Complete.
       <% end %>
@@ -185,7 +183,6 @@
           <% end %>
         </tbody>
       </table>
-    <%= link_to_add_fields "Add Phenotyping Centre", form, :phenotyping_productions %>
     </div>
   </fieldset>
 <% end %>

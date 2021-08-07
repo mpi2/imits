@@ -96,24 +96,6 @@ class MiPlansController < ApplicationController
       'error' => 'Plans cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
     }, :status => 401
     return true
-
-    # return if empty_payload?(params[:mi_plan])
-
-    # upgradeable = Public::MiPlan.check_for_upgradeable(params[:mi_plan])
-    # if upgradeable
-    #   message = "#{upgradeable.marker_symbol} has already been selected by #{upgradeable.consortium_name} without a production centre, please add your production centre to that selection"
-    #   render(:json => {'error' => message}, :status => 422)
-    # else
-    #   @mi_plan = Public::MiPlan.new(params[:mi_plan])
-    #   return if crispr_plan?(@mi_plan)
-
-    #   if @mi_plan.valid?
-    #     @mi_plan.save!
-    #     respond_with @mi_plan
-    #   else
-    #     render :json => @mi_plan.errors, :status => 422
-    #   end
-    # end
   end
 
   def update
@@ -121,21 +103,6 @@ class MiPlansController < ApplicationController
       'error' => 'Plans cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
     }, :status => 401
     return true
-
-    # return if empty_payload?(params[:mi_plan])
-
-    # @mi_plan = Public::MiPlan.find(params[:id])
-    # return if crispr_plan?(@mi_plan)
-
-    # respond_to do |format|
-    #   if @mi_plan.update_attributes params[:mi_plan]
-    #     format.html { redirect_to mi_plan_path(@mi_plan) }
-    #     format.json { render :json => @mi_plan }
-    #   else
-    #     format.html { render :action => 'show' }
-    #     format.json { render :json => @mi_plan.errors, :status => 422 }
-    #   end
-    # end
   end
 
   def destroy
@@ -143,86 +110,6 @@ class MiPlansController < ApplicationController
       'error' => 'Plans cannot be deleted in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
     }, :status => 401
     return true
-    
-#     @mi_plan = nil
-#     error_str = ''
-
-#     if !params[:id].blank?
-#       @mi_plan = Public::MiPlan.where("id = '#{params[:id]}'")
-#       return if crispr_plan?(@mi_plan[0])
-#     else
-#       [:consortium, :marker_symbol, :sub_project, :is_bespoke_allele, :is_conditional_allele, :is_deletion_allele, :is_cre_knock_in_allele, :is_cre_bac_allele, :phenotype_only, :conditional_tm1c, :point_mutation, :conditional_point_mutation
-# ].each do |param|
-#         if !params.has_key?(param)
-#           error_str = "missing parameter; #{param} is required."
-#           break
-#         end
-#       end
-
-#       consortium = Consortium.find_by_name(params[:consortium])
-#       gene = Gene.find_by_marker_symbol(params[:marker_symbol])
-#       [consortium, gene].each do |param|
-#         if param.blank?
-#           error_str = "Unable to delete mi_plans; consortium or marker symbol has an invalid value."
-#         end
-#       end
-#       if error_str.blank?
-#         search_params = "gene_id = '#{gene.id}' AND "         \
-#                         "consortium_id = '#{consortium.id}' AND "         \
-#                         "sub_project_id = #{MiPlan::SubProject.find_by_name(params[:sub_project]).try(:id)} AND " \
-#                         "is_bespoke_allele =  #{params[:is_bespoke_allele]} AND "                                 \
-#                         "is_conditional_allele = #{params[:is_conditional_allele]} AND "                          \
-#                         "is_deletion_allele = #{params[:is_deletion_allele]} AND "                                \
-#                         "is_cre_knock_in_allele = #{params[:is_cre_knock_in_allele]} AND "                        \
-#                         "is_cre_bac_allele = #{params[:is_cre_bac_allele]} AND "                                  \
-#                         "phenotype_only = #{params[:phenotype_only]} AND "                                        \
-#                         "conditional_tm1c = #{params[:conditional_tm1c]} AND "                                    \
-#                         "point_mutation = #{params[:point_mutation]} AND "                                        \
-#                         "conditional_point_mutation = #{params[:conditional_point_mutation]} "                    \
-
-#         production_centre = Centre.find_by_name(params[:production_centre])
-#         if production_centre.blank?
-#           search_params += "AND production_centre_id IS NULL "
-#         else
-#           search_params += "AND production_centre_id = '#{production_centre.id}'"
-#         end
-#         @mi_plan = Public::MiPlan.where(search_params)
-#         if @mi_plan.count > 1
-#           error_str = 'Unable to delete mi_plans. Found multiple mi_plans for the paramaters you supplied.'
-#         elsif @mi_plan.count == 0
-#           error_str = 'Unable to find an mi_plan for the paramaters you have supplied.'
-#         end
-#       end
-#     end
-#     if (!@mi_plan.blank?) and @mi_plan.count == 1
-#       if @mi_plan.first.mi_attempts.count == 0 and @mi_plan.first.phenotype_attempts.count == 0
-#         @mi_plan.first.destroy
-#       else
-#         error_str = 'Unable to delete mi_plan with mi_attempts or phenotype_attempts'
-#       end
-
-#       respond_to do |format|
-#         format.html do
-#           if error_str.blank?
-#             flash[:alert] = 'Mi Plan successfully deleted'
-#             redirect_to :action => 'index'
-#           else
-#             flash[:alert] = error_str
-#             redirect_to :action => 'show'
-#           end
-#         end
-#         format.json { head :ok }
-#       end
-#     else
-#       respond_to do |format|
-#         format.json {
-#           render(
-#             :json => { :mi_plan => error_str },
-#             :status => 422
-#           )
-#         }
-#       end
-#     end
   end
 
   def index

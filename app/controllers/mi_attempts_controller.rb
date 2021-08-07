@@ -27,71 +27,11 @@ class MiAttemptsController < ApplicationController
   end
   protected :data_for_serialized
 
-  # def new
-  #   @mi_attempt = Public::MiAttempt.new
-  #   @mi_attempt.mutagenesis_factor = MutagenesisFactor.new
-  #   @vector_options = get_vector_options(nil)
-  # end
-
   def create
     render :json => {
       'error' => 'Mi_attempts cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
     }, :status => 401
     return true
-
-    # use_crispr_group_id
-
-    # return if empty_payload?(params[:mi_attempt])
-
-    # g0_screen = params[:mi_attempt].delete(:g0_screens_attributes)
-
-    # # Can only have either es_cell_name or Mutagenesis Factor. Mutagenesis Factor is always returned from form where it's attributes have been set to their default values.
-    # # Use es_cell_name presents or absense to determine if the Mutagenesis Factor should be set to a null hash.
-    # if !params[:mi_attempt][:es_cell_name].blank?
-    #   params[:mi_attempt].delete(:mutagenesis_factor_attributes)
-    # end
-
-    # @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
-
-    # # Checking if it's a cripr micro-injection
-    # return if crispr_attempt?(@mi_attempt)
-    
-    
-    # update_g0_screen_results(@mi_attempt, g0_screen)
-    # @mi_attempt.updated_by = current_user
-    # return unless authorize_user_production_centre(@mi_attempt)
-
-    # if params.has_key?(:crispr_group_load_error) && ! params[:crispr_group_load_error].blank?
-    #   flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
-    #   flash.now[:alert] += "<br/> #{params[:crispr_group_load_error]}"
-    #   @mi_attempt.errors.add(:group, params[:crispr_group_load_error])
-    # elsif ! @mi_attempt.valid?
-    #   flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
-
-    #   if ! @mi_attempt.errors[:base].blank?
-    #     flash.now[:alert] += '<br/>' + @mi_attempt.errors[:base].join('<br/>')
-    #   end
-    # elsif request.format == :html and
-    #           params[:ignore_warnings] != 'true' and
-    #           @mi_attempt.generate_warnings
-    #           get_marker_symbol
-    #           @vector_options = get_vector_options(@marker_symbol)
-    #           @mi_attempt.mutagenesis_factor = MutagenesisFactor.new if @mi_attempt.mutagenesis_factor.blank?
-    #   render :action => :new
-    #   return
-    # else
-    #   if @mi_attempt.production_centre.blank?
-    #     @mi_attempt.mi_plan.update_attributes!(:production_centre => current_user.production_centre)
-    #   end
-    #   @mi_attempt.save!
-    #   flash[:notice] = 'Micro-injection attempt created'
-    # end
-
-    # get_marker_symbol
-    # @vector_options = get_vector_options(@marker_symbol)
-    # @mi_attempt.mutagenesis_factor = MutagenesisFactor.new if @mi_attempt.mutagenesis_factor.blank?
-
-    # respond_with @mi_attempt
   end
 
   def show
@@ -107,57 +47,6 @@ class MiAttemptsController < ApplicationController
       'error' => 'Mi_attempts cannot be created or modified in iMits anymore. Please visit the new tracking system webpage www.gentar.org/tracker/'
     }, :status => 401
     return true
-    
-    # # TODO: put this somewhere more sensible
-    # Paperclip.options[:content_type_mappings] = { scf: 'application/octet-stream', abi: 'application/octet-stream', ab1: 'application/octet-stream' }
-
-    # @mi_attempt = Public::MiAttempt.find(params[:id])
-
-    # # Checking if it's a cripr micro-injection
-    # return if crispr_attempt?(@mi_attempt)
-
-    # return unless authorize_user_production_centre(@mi_attempt)
-    # return if empty_payload?(params[:mi_attempt])
-
-    # g0_screen = params[:mi_attempt].delete(:g0_screens_attributes)
-    # update_g0_screen_results(@mi_attempt, g0_screen)
-
-    # @mi_attempt.updated_by = current_user
-
-    # if @mi_attempt.update_attributes(params[:mi_attempt])
-    #   @mi_attempt.reload
-    #   flash.now[:notice] = 'MI attempt updated successfully'
-    # end
-
-    # get_marker_symbol
-    # @vector_options = get_vector_options(@marker_symbol)
-
-    # respond_with @mi_attempt do |format|
-    #   format.html do
-    #     if ! @mi_attempt.valid?
-    #       @mi_attempt.errors.add :base, 'trace file was not uploaded due to validation error. Fix the above validation error(s) and then reupload trace file.' if @mi_attempt.colonies.any?{|c| c.trace_files.any?{|a| a.new_record?}}
-    #       @mi_attempt.colonies.each{|c| c.trace_files.delete_if{|a| a.new_record?}}
-    #       flash.now[:alert] = 'Micro-injection could not be updated - please check the values you entered'
-    #     end
-    #     # temp fix for when update fails silently (mi_plan status change problem eg. mi_attempt 12165)
-    #     if ! @mi_attempt.mi_plan.valid?
-    #       flash.now[:notice] = nil
-    #       flash.now[:alert] = @mi_attempt.mi_plan.errors.full_messages.first
-    #     end
-    #     set_centres_and_consortia
-    #     render :action => :show
-    #   end
-
-    #   if @mi_attempt.valid?
-    #     format.json do
-    #       if params[:extended_response].to_s == 'true'
-    #         render :json => json_format_extended_response(@mi_attempt, 1)
-    #       else
-    #         render :json => @mi_attempt
-    #       end
-    #     end
-    #   end
-    # end
   end
 
   def history
@@ -247,25 +136,6 @@ class MiAttemptsController < ApplicationController
   end
   private :grab_crispr_group_data
 
-
-  # def update_g0_screen_results(mi, g0_screens)
-  #   return if g0_screens.blank?
-  #   return if mi.mutagenesis_factor.blank?
-  #   g0_screens.each do |key, g0s|
-  #     # will have to find mutagenesis factor (mf) associated with marker symbol, but currently there is only one mf.
-  #     mf = mi.mutagenesis_factor
-  #     mf.no_g0_where_mutation_detected = g0s["no_g0_where_mutation_detected"]
-  #     mf.no_nhej_g0_mutants = g0s["no_nhej_g0_mutants"]
-  #     mf.no_deletion_g0_mutants = g0s["no_deletion_g0_mutants"]
-  #     mf.no_hr_g0_mutants = g0s["no_hr_g0_mutants"]
-  #     mf.no_hdr_g0_mutants = g0s["no_hdr_g0_mutants"]
-  #     mf.no_hdr_g0_mutants_all_donors_inserted = g0s["no_hdr_g0_mutants_all_donors_inserted"]
-  #     mf.no_hdr_g0_mutants_subset_donors_inserted = g0s["no_hdr_g0_mutants_subset_donors_inserted"]
-  #   end
-  # end
-  # private :update_g0_screen_results
-
-
   def process_params
     mi = Public::MiAttempt.find(params[:id]) if params.has_key?(:id)
     return if mi.es_cell_name.blank? && (!params.has_key(:es_cell_name) || params[:es_cell_name].blank?)
@@ -276,7 +146,7 @@ class MiAttemptsController < ApplicationController
     # MUTAGENESIS FACTOR ATTRIBUTES
     if params.has_key?(:es_cell_name)
 #      params[:mutagenesis_factor_attributes] = {} unless params.has_key?(:mutagenesis_factor_attributes)
-#      params[:mutagenesis_factor_attributes][:id] = mutagenesis_factor_id unless params[:mutagenesis_factor_attributes].has_key(:id) || mutagenesis_factor_id.blank?
+#      params[:mutagenesis_factor_attributes][:id] = mutagenesis_factor_id unless   params[:mutagenesis_factor_attributes].has_key(:id) || mutagenesis_factor_id.blank?
 #      params[:mutagenesis_factor_attributes][:es_cell_name] = params[:es_cell_name]
     end
 
